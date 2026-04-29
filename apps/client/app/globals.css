@@ -1,0 +1,393 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  
+  /* RetrouveCI Brand Colors */
+  --primary-green: #1E7F43;
+  --primary-green-light: #2a9d54;
+  --primary-green-dark: #166335;
+  --accent-orange: #F57C00;
+  --accent-orange-light: #ff9800;
+  --accent-orange-dark: #e65100;
+  
+  /* Design System Colors */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.22 0.01 256);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.01 256);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.01 256);
+  --primary: oklch(0.52 0.15 145);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0.005 90);
+  --secondary-foreground: oklch(0.22 0.01 256);
+  --muted: oklch(0.97 0.005 90);
+  --muted-foreground: oklch(0.5 0.01 256);
+  --accent: oklch(0.68 0.18 55);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.92 0.005 90);
+  --input: oklch(0.92 0.005 90);
+  --ring: oklch(0.52 0.15 145);
+  --chart-1: oklch(0.52 0.15 145);
+  --chart-2: oklch(0.68 0.18 55);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.22 0.01 256);
+  --sidebar-primary: oklch(0.52 0.15 145);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.97 0.005 90);
+  --sidebar-accent-foreground: oklch(0.22 0.01 256);
+  --sidebar-border: oklch(0.92 0.005 90);
+  --sidebar-ring: oklch(0.52 0.15 145);
+}
+
+.dark {
+  --background: oklch(0.145 0.01 256);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.18 0.01 256);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.18 0.01 256);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.58 0.15 145);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.269 0.01 256);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0.01 256);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.72 0.18 55);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.5 0.2 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.3 0.01 256);
+  --input: oklch(0.3 0.01 256);
+  --ring: oklch(0.58 0.15 145);
+  --chart-1: oklch(0.58 0.15 145);
+  --chart-2: oklch(0.72 0.18 55);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.18 0.01 256);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.58 0.15 145);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.269 0.01 256);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.3 0.01 256);
+  --sidebar-ring: oklch(0.58 0.15 145);
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* RetrouveCI Custom Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Utility Classes */
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 4s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.animate-gradient {
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.animate-reveal {
+  animation: reveal 0.6s ease-out forwards;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,.2) 50%, transparent 75%);
+  background-size: 1000px 100%;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+/* Enhanced Glassmorphism Effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-effect-strong {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.dark .glass-effect {
+  background: rgba(30, 30, 35, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dark .glass-effect-strong {
+  background: rgba(30, 30, 35, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+/* Mesh Gradient Background */
+.mesh-gradient-bg {
+  background: 
+    radial-gradient(at 40% 20%, rgba(30, 127, 67, 0.12) 0px, transparent 50%),
+    radial-gradient(at 80% 80%, rgba(245, 124, 0, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(30, 127, 67, 0.08) 0px, transparent 50%),
+    var(--background);
+}
+
+.mesh-gradient-orange {
+  background: 
+    radial-gradient(at 20% 30%, rgba(245, 124, 0, 0.15) 0px, transparent 50%),
+    radial-gradient(at 70% 70%, rgba(30, 127, 67, 0.1) 0px, transparent 50%),
+    var(--background);
+}
+
+/* Elevated Card Hover Effect */
+.elevated-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.elevated-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -12px rgba(30, 127, 67, 0.15);
+}
+
+.elevated-card-strong:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px -12px rgba(30, 127, 67, 0.2);
+}
+
+/* Glow Effect */
+.glow-effect {
+  box-shadow: 0 0 20px rgba(30, 127, 67, 0.2);
+}
+
+.glow-effect-orange {
+  box-shadow: 0 0 20px rgba(245, 124, 0, 0.2);
+}
+
+.glow-effect-focus {
+  box-shadow: 0 0 0 3px rgba(30, 127, 67, 0.1), 0 0 20px rgba(30, 127, 67, 0.2);
+}
+
+/* Dot Pattern Background */
+.dot-pattern {
+  background-image: radial-gradient(circle, rgba(30, 127, 67, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Hide scrollbar for filter chips */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Scroll animation helpers */
+.scroll-trigger {
+  opacity: 0;
+  animation: reveal 0.6s ease-out forwards;
+}
+
+/* Ripple effect for buttons */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.ripple:active::after {
+  animation: ripple-animation 0.6s ease-out;
+}
+
+@keyframes ripple-animation {
+  to {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+  }
+}
+
+/* Link hover effects */
+.link-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary-green);
+  transition: width 0.3s ease;
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
