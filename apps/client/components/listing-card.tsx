@@ -12,18 +12,9 @@ import {
 	Laptop,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/lib/utils'
+import type { Listing } from '@/domain/entities/listing'
 
-export interface Listing {
-	id: string
-	title: string
-	description: string
-	location: string
-	date: string
-	dateISO?: string
-	type: 'lost' | 'found'
-	category: string
-	image?: string
-}
+export type { Listing }
 
 interface ListingCardProps {
 	listing: Listing

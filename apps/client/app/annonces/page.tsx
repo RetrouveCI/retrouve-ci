@@ -46,160 +46,16 @@ import {
 } from '@retrouve-ci/ui/components/ui/select'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { ListingCard, type Listing } from '@/components/listing-card'
+import { ListingCard } from '@/components/listing-card'
 import { FloatingActionButton } from '@/components/floating-action-button'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/lib/ci-locations'
 import { cn } from '@retrouve-ci/ui/lib/utils'
+import { useListings } from '@/application/listings/use-listings'
+import type { ListingType, ListingCategory } from '@/domain/entities/listing'
 
 const ITEMS_PER_PAGE = 6
 
-const today = new Date()
-const daysAgo = (n: number) => {
-	const d = new Date(today)
-	d.setDate(d.getDate() - n)
-	return d.toISOString().split('T')[0]
-}
-
-const mockListings: Listing[] = [
-	{
-		id: '1',
-		title: 'iPhone 14 Pro noir',
-		description:
-			'Téléphone perdu dans un taxi à Cocody. Écran fissuré au coin. Récompense offerte.',
-		location: 'Cocody, Abidjan',
-		date: 'Il y a 2 jours',
-		dateISO: daysAgo(2),
-		type: 'lost',
-		category: 'phones',
-		image: '/placeholder.svg?height=300&width=400',
-	},
-	{
-		id: '2',
-		title: 'Trousseau de clés avec porte-clés rouge',
-		description:
-			'Clés trouvées près de la pharmacie du marché de Treichville. 4 clés avec un porte-clés rouge.',
-		location: 'Treichville, Abidjan',
-		date: 'Il y a 1 jour',
-		dateISO: daysAgo(1),
-		type: 'found',
-		category: 'keys',
-	},
-	{
-		id: '3',
-		title: 'Portefeuille en cuir marron',
-		description:
-			"Portefeuille perdu contenant des documents importants. Pas de récompense pour l'argent, juste les papiers.",
-		location: 'Plateau, Abidjan',
-		date: 'Il y a 3 jours',
-		dateISO: daysAgo(3),
-		type: 'lost',
-		category: 'wallets',
-	},
-	{
-		id: '4',
-		title: 'Sac à dos noir Eastpak',
-		description:
-			'Sac trouvé au terminal de bus de Yopougon. Contient des livres et une trousse.',
-		location: 'Yopougon, Abidjan',
-		date: "Aujourd'hui",
-		dateISO: daysAgo(0),
-		type: 'found',
-		category: 'bags',
-	},
-	{
-		id: '5',
-		title: 'MacBook Air M1 gris',
-		description:
-			'Ordinateur portable oublié dans un café. Autocollants sur le couvercle.',
-		location: 'Marcory, Abidjan',
-		date: 'Hier',
-		dateISO: daysAgo(1),
-		type: 'lost',
-		category: 'electronics',
-		image: '/placeholder.svg?height=300&width=400',
-	},
-	{
-		id: '6',
-		title: "Carte d'identité nationale",
-		description:
-			'Document trouvé près de la mairie. Nom partiellement visible.',
-		location: 'Adjamé, Abidjan',
-		date: 'Il y a 4 jours',
-		dateISO: daysAgo(4),
-		type: 'found',
-		category: 'other',
-	},
-	{
-		id: '7',
-		title: 'Samsung Galaxy S23 bleu',
-		description:
-			"Téléphone retrouvé dans le bus SOTRA ligne 14. Fond d'écran avec une photo de famille.",
-		location: 'Abobo, Abidjan',
-		date: "Aujourd'hui",
-		dateISO: daysAgo(0),
-		type: 'found',
-		category: 'phones',
-		image: '/placeholder.svg?height=300&width=400',
-	},
-	{
-		id: '8',
-		title: 'Sac à main rouge en cuir',
-		description:
-			'Sac perdu au centre commercial Cap Sud. Contient des documents et des effets personnels.',
-		location: 'Koumassi, Abidjan',
-		date: 'Il y a 2 jours',
-		dateISO: daysAgo(2),
-		type: 'lost',
-		category: 'bags',
-	},
-	{
-		id: '9',
-		title: 'Clés de voiture Toyota',
-		description:
-			'Trousseau retrouvé sur le parking du supermarché Carrefour. Logo Toyota sur la télécommande.',
-		location: 'Riviera, Abidjan',
-		date: "Aujourd'hui",
-		dateISO: daysAgo(0),
-		type: 'found',
-		category: 'keys',
-	},
-	{
-		id: '10',
-		title: 'Casque audio Sony blanc',
-		description:
-			"Casque oublié dans une salle d'attente. Modèle WH-1000XM4 avec pochette noire.",
-		location: 'Plateau, Abidjan',
-		date: 'Hier',
-		dateISO: daysAgo(1),
-		type: 'lost',
-		category: 'electronics',
-		image: '/placeholder.svg?height=300&width=400',
-	},
-	{
-		id: '11',
-		title: 'Carnet de santé enfant',
-		description:
-			'Carnet de santé trouvé devant le CHU de Treichville. Prénom : Kouamé.',
-		location: 'Treichville, Abidjan',
-		date: 'Il y a 5 jours',
-		dateISO: daysAgo(5),
-		type: 'found',
-		category: 'other',
-	},
-	{
-		id: '12',
-		title: 'Portefeuille noir avec badge étudiant',
-		description:
-			"Perdu à l'université FHB. Badge étudiant visible à l'intérieur.",
-		location: 'Cocody, Abidjan',
-		date: 'Il y a 1 jour',
-		dateISO: daysAgo(1),
-		type: 'lost',
-		category: 'wallets',
-	},
-]
-
-const categories = [
+const categories: { id: ListingCategory | 'all'; label: string; icon: React.ElementType }[] = [
 	{ id: 'all', label: 'Tous', icon: Package },
 	{ id: 'phones', label: 'Téléphones', icon: Smartphone },
 	{ id: 'keys', label: 'Clés', icon: Key },
@@ -216,9 +72,11 @@ const stats = [
 ]
 
 export default function AnnoncesPage() {
+	const { listings } = useListings()
+
 	const [searchQuery, setSearchQuery] = useState('')
-	const [activeTab, setActiveTab] = useState('all')
-	const [activeCategory, setActiveCategory] = useState('all')
+	const [activeTab, setActiveTab] = useState<ListingType | 'all'>('all')
+	const [activeCategory, setActiveCategory] = useState<ListingCategory | 'all'>('all')
 	const [currentPage, setCurrentPage] = useState(1)
 	const [filterVille, setFilterVille] = useState('all')
 	const [filterCommune, setFilterCommune] = useState('all')
@@ -233,15 +91,13 @@ export default function AnnoncesPage() {
 	].filter(Boolean).length
 
 	const filteredListings = useMemo(() => {
-		return mockListings.filter(listing => {
+		return listings.filter(listing => {
 			const matchesSearch =
 				listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
 				listing.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
 				listing.location.toLowerCase().includes(searchQuery.toLowerCase())
 			const matchesTab =
-				activeTab === 'all' ||
-				(activeTab === 'lost' && listing.type === 'lost') ||
-				(activeTab === 'found' && listing.type === 'found')
+				activeTab === 'all' || listing.type === activeTab
 			const matchesCategory =
 				activeCategory === 'all' || listing.category === activeCategory
 			const matchesVille =
@@ -273,6 +129,7 @@ export default function AnnoncesPage() {
 			)
 		})
 	}, [
+		listings,
 		searchQuery,
 		activeTab,
 		activeCategory,
@@ -294,7 +151,6 @@ export default function AnnoncesPage() {
 		setCurrentPage(1)
 	}
 
-	// Active filter chips
 	const activeChips: { label: string; onRemove: () => void }[] = []
 	if (filterVille !== 'all')
 		activeChips.push({
@@ -339,7 +195,7 @@ export default function AnnoncesPage() {
 						<div className="mx-auto max-w-2xl text-center">
 							<div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--primary-green)]/20 bg-[var(--primary-green)]/10 px-3 py-1 text-xs font-semibold text-[var(--primary-green)]">
 								<TrendingUp className="h-3.5 w-3.5" />
-								{mockListings.length} annonces disponibles
+								{listings.length} annonces disponibles
 							</div>
 							<h1 className="mb-3 text-4xl font-bold tracking-tight text-balance md:text-5xl">
 								Objets{' '}
@@ -409,7 +265,7 @@ export default function AnnoncesPage() {
 						<Tabs
 							value={activeTab}
 							onValueChange={v => {
-								setActiveTab(v)
+								setActiveTab(v as ListingType | 'all')
 								setCurrentPage(1)
 							}}
 						>

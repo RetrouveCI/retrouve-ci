@@ -1,3 +1,3 @@
-import { postcssConfig } from "@repo/ui/postcss";
+import { postcssConfig } from "@retrouve-ci/ui/postcss";
 
 export default postcssConfig;
