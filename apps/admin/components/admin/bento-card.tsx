@@ -1,7 +1,7 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { Card } from "@repo/ui/components/ui/card";
+import { cn } from "@repo/ui/lib/utils";
 import type { LucideIcon } from "lucide-react";
 
 interface BentoCardProps {

@@ -14,10 +14,10 @@ import {
   Package,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@repo/ui/components/ui/button";
+import { Input } from "@repo/ui/components/ui/input";
+import { Label } from "@repo/ui/components/ui/label";
+import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -26,11 +26,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@repo/ui/components/ui/dialog";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { useAuth, type Sticker } from "@/contexts/auth-context";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 import { redirect } from "next/navigation";
 
 // Sticker Card Component

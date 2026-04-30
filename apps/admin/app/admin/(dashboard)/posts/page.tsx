@@ -9,9 +9,9 @@ import {
   type PostsFilterState,
 } from "@/components/admin/posts-filter";
 import { BentoCard } from "@/components/admin/bento-card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@repo/ui/components/ui/button";
+import { Badge } from "@repo/ui/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +21,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@repo/ui/components/ui/alert-dialog";
 import { mockPosts } from "@/lib/mock-data";
 import type { Post } from "@/lib/types";
 import {

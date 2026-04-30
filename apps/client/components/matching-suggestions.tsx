@@ -16,7 +16,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 
 // Mirror of the mock data from annonces page — in a real app this would be an API call
 const today = new Date();

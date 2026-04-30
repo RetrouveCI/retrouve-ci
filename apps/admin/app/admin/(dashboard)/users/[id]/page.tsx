@@ -4,11 +4,11 @@ import { use } from "react";
 import Link from "next/link";
 import { TopBar } from "@/components/admin/topbar";
 import { BentoCard } from "@/components/admin/bento-card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@repo/ui/components/ui/button";
+import { Badge } from "@repo/ui/components/ui/badge";
+import { CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+import { Avatar, AvatarFallback } from "@repo/ui/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@repo/ui/components/ui/table";
 import {
   mockUsers,
   mockQRTokens,

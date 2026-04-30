@@ -19,7 +19,9 @@
 			}
 		],
 		"paths": {
-			"@/*": ["./*"]
+			"@/*": ["./*"],
+			"@repo/ui/lib/utils": ["../../packages/ui/src/lib/utils.ts"],
+			"@repo/ui/components/ui/*": ["../../packages/ui/src/components/ui/*"]
 		}
 	},
 	"include": [

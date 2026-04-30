@@ -4,7 +4,7 @@ import { useState } from "react";
 import { TopBar } from "@/components/admin/topbar";
 import { BentoCard } from "@/components/admin/bento-card";
 import { DateRangePicker } from "@/components/admin/date-range-picker";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
 import {
   mockDashboardStats,
   mockChartData,
@@ -35,9 +35,9 @@ import {
   Area,
   AreaChart,
 } from "recharts";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/components/ui/button";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 
 function ActivityIcon({ type }: { type: string }) {
   switch (type) {

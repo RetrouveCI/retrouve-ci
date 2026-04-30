@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { TopBar } from "@/components/admin/topbar";
 import { BentoCard } from "@/components/admin/bento-card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@repo/ui/components/ui/button";
+import { Input } from "@repo/ui/components/ui/input";
+import { Label } from "@repo/ui/components/ui/label";
+import { Avatar, AvatarFallback } from "@repo/ui/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/ui/tabs";
+import { Badge } from "@repo/ui/components/ui/badge";
+import { Separator } from "@repo/ui/components/ui/separator";
 import {
   User,
   Mail,

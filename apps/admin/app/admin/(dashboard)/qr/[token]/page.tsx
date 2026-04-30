@@ -3,9 +3,9 @@
 import { use, useState } from "react";
 import Link from "next/link";
 import { TopBar } from "@/components/admin/topbar";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@repo/ui/components/ui/button";
+import { Badge } from "@repo/ui/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +15,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@repo/ui/components/ui/alert-dialog";
 import { mockQRTokens, mockEvents } from "@/lib/mock-data";
 import {
   ArrowLeft,

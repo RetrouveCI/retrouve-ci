@@ -23,28 +23,28 @@ import {
   LayoutGrid,
   List,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@repo/ui/components/ui/input";
+import { Button } from "@repo/ui/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/ui/tabs";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+} from "@repo/ui/components/ui/popover";
+import { Calendar as CalendarComponent } from "@repo/ui/components/ui/calendar";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@repo/ui/components/ui/select";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ListingCard, type Listing } from "@/components/listing-card";
 import { FloatingActionButton } from "@/components/floating-action-button";
 import { CI_VILLES, ABIDJAN_COMMUNES } from "@/lib/ci-locations";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 
 const ITEMS_PER_PAGE = 6;
 

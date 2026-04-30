@@ -13,22 +13,22 @@ import {
   ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Button } from "@repo/ui/components/ui/button";
+import { Input } from "@repo/ui/components/ui/input";
+import { Textarea } from "@repo/ui/components/ui/textarea";
+import { Label } from "@repo/ui/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@repo/ui/components/ui/select";
 import { ABIDJAN_COMMUNES, CI_VILLES } from "@/lib/ci-locations";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { MatchingSuggestions } from "@/components/matching-suggestions";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 
 const objectTypes = [
   { value: "phone", label: "Téléphone" },

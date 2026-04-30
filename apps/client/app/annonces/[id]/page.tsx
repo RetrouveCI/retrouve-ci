@@ -13,18 +13,18 @@ import {
   ArrowLeft,
   Package,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@repo/ui/components/ui/button";
+import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@repo/ui/components/ui/card";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 
 // Mock data - in production this would come from a database
 const mockListings = [

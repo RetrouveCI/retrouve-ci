@@ -17,11 +17,11 @@ import {
   Plus,
   Package,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/components/ui/button";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { useAuth } from "@/contexts/auth-context";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 
 // Not logged in view
 function NotLoggedInView() {

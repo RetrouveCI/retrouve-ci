@@ -4,11 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, User, LogOut, LogIn } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/components/ui/button";
 import { MobileNav } from "@/components/mobile-nav";
 import { useAuth } from "@/contexts/auth-context";
 import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Accueil" },

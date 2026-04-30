@@ -6,29 +6,29 @@ import { TopBar } from "@/components/admin/topbar";
 import { DataTable } from "@/components/admin/data-table";
 import { DateRangePicker } from "@/components/admin/date-range-picker";
 import { BentoCard } from "@/components/admin/bento-card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@repo/ui/components/ui/button";
+import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@repo/ui/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from "@repo/ui/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@repo/ui/components/ui/dropdown-menu";
 import { mockStickerOrders } from "@/lib/mock-data";
 import type { StickerOrder } from "@/lib/types";
 import type { DateRange } from "react-day-picker";

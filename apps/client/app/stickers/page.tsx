@@ -19,7 +19,7 @@ import {
   ArrowRight,
   Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@repo/ui/components/ui/button";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import {
@@ -27,7 +27,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@repo/ui/components/ui/accordion";
 
 export const metadata: Metadata = {
   title: "Stickers QR",
