@@ -1,13 +1,13 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@repo/ui"],
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-};
+	transpilePackages: ['@repo/ui'],
+	typescript: {
+		ignoreBuildErrors: true,
+	},
+	images: {
+		unoptimized: true,
+	},
+}
 
-export default nextConfig;
+export default nextConfig

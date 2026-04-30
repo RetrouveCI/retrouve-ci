@@ -1,6 +1,8 @@
 # RetrouveCI — Admin App
 
-The internal dashboard for **RetrouveCI**, a lost-and-found platform for Côte d'Ivoire. Administrators can manage listings, users, orders, QR tokens, events, and notifications.
+The internal dashboard for **RetrouveCI**, a lost-and-found platform for Côte
+d'Ivoire. Administrators can manage listings, users, orders, QR tokens, events,
+and notifications.
 
 Part of the [RetrouveCI monorepo](../../README.md).
 
@@ -32,7 +34,8 @@ pnpm --filter admin dev
 
 The app will be available at [http://localhost:3001](http://localhost:3001).
 
-> **Note:** `@repo/ui` must be built before this app can start. Turborepo handles this automatically; if running in isolation, build the package first:
+> **Note:** `@repo/ui` must be built before this app can start. Turborepo
+> handles this automatically; if running in isolation, build the package first:
 
 ```bash
 pnpm --filter @repo/ui build
@@ -40,14 +43,17 @@ pnpm --filter @repo/ui build
 
 ## Authentication
 
-Auth is email/password based and currently **mock-only**, stored in `localStorage` under the key `retrouveci_admin`.
+Auth is email/password based and currently **mock-only**, stored in
+`localStorage` under the key `retrouveci_admin`.
 
 | Field    | Value                  |
 | -------- | ---------------------- |
 | Email    | `admin@retrouveci.com` |
 | Password | `admin123`             |
 
-The `AuthGuard` component redirects unauthenticated users to `/admin/login`. All dashboard data is mocked in `lib/mock-data.ts` — no API backend is connected yet.
+The `AuthGuard` component redirects unauthenticated users to `/admin/login`. All
+dashboard data is mocked in `lib/mock-data.ts` — no API backend is connected
+yet.
 
 ## Routes
 
@@ -64,7 +70,9 @@ The `AuthGuard` component redirects unauthenticated users to `/admin/login`. All
 | `/admin/notifications`  | Manage notifications   |
 | `/admin/profile`        | Admin profile settings |
 
-All dashboard routes are wrapped in `AuthGuard` via the `(dashboard)` route group layout. The sidebar is rendered at `lg:pl-64` alongside the main content area.
+All dashboard routes are wrapped in `AuthGuard` via the `(dashboard)` route
+group layout. The sidebar is rendered at `lg:pl-64` alongside the main content
+area.
 
 ## Project Structure
 

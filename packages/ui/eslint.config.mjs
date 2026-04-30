@@ -1,4 +1,12 @@
 import { config } from "@repo/eslint-config/react-internal";
 
-/** @type {import("eslint").Linter.Config} */
-export default config;
+/** @type {import("eslint").Linter.Config[]} */
+export default [
+  ...config,
+  {
+    rules: {
+      // TypeScript already enforces prop types — PropTypes are redundant in this package
+      "react/prop-types": "off",
+    },
+  },
+];

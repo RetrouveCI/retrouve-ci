@@ -1,8 +1,11 @@
 # RetrouveCI
 
-**RetrouveCI** is a lost-and-found platform for Côte d'Ivoire. Users can post listings for lost or found items and order QR-code stickers that, when scanned, redirect finders to a contact page. The UI is entirely in French.
+**RetrouveCI** is a lost-and-found platform for Côte d'Ivoire. Users can post
+listings for lost or found items and order QR-code stickers that, when scanned,
+redirect finders to a contact page. The UI is entirely in French.
 
-This repository is a [Turborepo](https://turbo.build/repo) monorepo containing two Next.js applications and a set of shared packages.
+This repository is a [Turborepo](https://turbo.build/repo) monorepo containing
+two Next.js applications and a set of shared packages.
 
 ## Apps
 
@@ -67,7 +70,11 @@ All apps share the same core stack:
 
 ## Architecture Notes
 
-- `@repo/ui` **must be built** before the apps can start. Turborepo handles this automatically via `"dependsOn": ["^build"]` in `turbo.json`. If running an app in isolation, build `@repo/ui` first.
-- Each app maintains its own local shadcn/ui component library under `components/ui/`. These are not shared between apps.
-- The `@repo/ui` package uses a `ui-` class prefix to prevent Tailwind class conflicts with app-level styles.
+- `@repo/ui` **must be built** before the apps can start. Turborepo handles this
+  automatically via `"dependsOn": ["^build"]` in `turbo.json`. If running an app
+  in isolation, build `@repo/ui` first.
+- Each app maintains its own local shadcn/ui component library under
+  `components/ui/`. These are not shared between apps.
+- The `@repo/ui` package uses a `ui-` class prefix to prevent Tailwind class
+  conflicts with app-level styles.
 - No API backend is connected yet. Both apps run on mock data.

@@ -10,7 +10,9 @@
       "Bash(sed -i 's|from \"@/hooks/use-toast\"|from \"./use-toast\"|g' /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/components/ui/toaster.tsx)",
       "Bash(pnpm --filter client check-types)",
       "Bash(pnpm --filter @repo/ui check-types)",
-      "Bash(pnpm info *)"
+      "Bash(pnpm info *)",
+      "Bash(pnpm --filter @repo/ui lint)",
+      "Bash(pnpm format *)"
     ]
   }
 }
