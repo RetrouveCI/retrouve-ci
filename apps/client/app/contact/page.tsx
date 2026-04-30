@@ -44,8 +44,8 @@ const channels = [
 		title: 'Email',
 		value: 'contact@retrouveci.ci',
 		detail: 'Réponse sous 24h ouvrées',
-		color: 'text-[var(--primary-green)]',
-		bg: 'bg-[var(--primary-green)]/10',
+		color: 'text-(primary-green)',
+		bg: 'bg-(primary-green)/10',
 		href: 'mailto:contact@retrouveci.ci',
 	},
 	{
@@ -53,8 +53,8 @@ const channels = [
 		title: 'WhatsApp',
 		value: '+225 07 00 00 00 00',
 		detail: 'Lun–Ven, 8h–18h',
-		color: 'text-[var(--accent-orange)]',
-		bg: 'bg-[var(--accent-orange)]/10',
+		color: 'text-(accent-orange)',
+		bg: 'bg-(accent-orange)/10',
 		href: 'https://wa.me/2250700000000',
 	},
 	{
@@ -90,9 +90,9 @@ export default function ContactPage() {
 				{/* Hero */}
 				<section className="relative overflow-hidden border-b">
 					<div className="dot-pattern pointer-events-none absolute inset-0 opacity-40" />
-					<div className="absolute -top-24 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-[var(--accent-orange)]/6 blur-3xl" />
+					<div className="absolute -top-24 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-(accent-orange)/6 blur-3xl" />
 					<div className="relative container mx-auto max-w-2xl px-4 py-14 text-center md:py-20">
-						<div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent-orange)]/20 bg-[var(--accent-orange)]/10 px-3 py-1 text-xs font-semibold text-[var(--accent-orange)]">
+						<div className="mb-5 inline-flex items-center gap-2 rounded-full border border-(accent-orange)/20 bg-(accent-orange)/10 px-3 py-1 text-xs font-semibold text-(accent-orange)">
 							<MessageSquare className="h-3.5 w-3.5" />
 							Nous sommes à votre écoute
 						</div>
@@ -116,8 +116,8 @@ export default function ContactPage() {
 
 								{submitted ? (
 									<div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-										<div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--primary-green)]/10">
-											<CheckCircle2 className="h-8 w-8 text-[var(--primary-green)]" />
+										<div className="flex h-16 w-16 items-center justify-center rounded-full bg-(primary-green)/10">
+											<CheckCircle2 className="h-8 w-8 text-(primary-green)" />
 										</div>
 										<div>
 											<p className="mb-1 text-lg font-semibold">
@@ -137,7 +137,7 @@ export default function ContactPage() {
 													message: '',
 												})
 											}}
-											className="text-sm text-[var(--primary-green)] hover:underline"
+											className="text-sm text-(primary-green) hover:underline"
 										>
 											Envoyer un autre message
 										</button>
@@ -157,7 +157,7 @@ export default function ContactPage() {
 													onChange={e =>
 														setForm(p => ({ ...p, name: e.target.value }))
 													}
-													className="bg-muted/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:border-[var(--primary-green)]/50 focus:ring-2 focus:ring-[var(--primary-green)]/30"
+													className="bg-muted/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:border-(primary-green)/50 focus:ring-2 focus:ring-(primary-green)/30"
 												/>
 											</div>
 											<div className="space-y-1.5">
@@ -170,7 +170,7 @@ export default function ContactPage() {
 													onChange={e =>
 														setForm(p => ({ ...p, email: e.target.value }))
 													}
-													className="bg-muted/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:border-[var(--primary-green)]/50 focus:ring-2 focus:ring-[var(--primary-green)]/30"
+													className="bg-muted/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:border-(primary-green)/50 focus:ring-2 focus:ring-(primary-green)/30"
 												/>
 											</div>
 										</div>
@@ -184,7 +184,7 @@ export default function ContactPage() {
 												onChange={e =>
 													setForm(p => ({ ...p, subject: e.target.value }))
 												}
-												className="bg-muted/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:border-[var(--primary-green)]/50 focus:ring-2 focus:ring-[var(--primary-green)]/30"
+												className="bg-muted/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:border-(primary-green)/50 focus:ring-2 focus:ring-(primary-green)/30"
 											/>
 										</div>
 										<div className="space-y-1.5">
@@ -197,12 +197,12 @@ export default function ContactPage() {
 												onChange={e =>
 													setForm(p => ({ ...p, message: e.target.value }))
 												}
-												className="bg-muted/30 w-full resize-none rounded-xl border px-4 py-3 text-sm transition-all outline-none focus:border-[var(--primary-green)]/50 focus:ring-2 focus:ring-[var(--primary-green)]/30"
+												className="bg-muted/30 w-full resize-none rounded-xl border px-4 py-3 text-sm transition-all outline-none focus:border-(primary-green)/50 focus:ring-2 focus:ring-(primary-green)/30"
 											/>
 										</div>
 										<button
 											type="submit"
-											className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary-green)] text-sm font-medium text-white transition-colors hover:bg-[var(--primary-green-dark)]"
+											className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-(primary-green) text-sm font-medium text-white transition-colors hover:bg-(primary-green-dark)"
 										>
 											<Send className="h-4 w-4" />
 											Envoyer le message
@@ -214,7 +214,7 @@ export default function ContactPage() {
 							{/* Right column */}
 							<div className="flex flex-col gap-4 md:col-span-5">
 								{/* Availability card */}
-								<div className="rounded-2xl border bg-[var(--primary-green)] p-6 text-white">
+								<div className="rounded-2xl border bg-(primary-green) p-6 text-white">
 									<div className="mb-3 flex items-center gap-3">
 										<div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20">
 											<Clock className="h-4 w-4" />

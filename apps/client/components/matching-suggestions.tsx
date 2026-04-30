@@ -49,7 +49,6 @@ export function MatchingSuggestions({
 
 	return (
 		<div className="bg-background overflow-hidden rounded-2xl border">
-			{/* Header */}
 			<div
 				className="flex items-center gap-2.5 border-b px-4 py-3.5"
 				style={{
@@ -76,7 +75,6 @@ export function MatchingSuggestions({
 				/>
 			</div>
 
-			{/* Results */}
 			{matches.length === 0 ? (
 				<div className="px-4 py-6 text-center">
 					<div className="bg-muted mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl">
@@ -110,22 +108,20 @@ export function MatchingSuggestions({
 											className={cn(
 												'h-4 w-4',
 												item.type === 'found'
-													? 'text-[var(--primary-green)]'
+													? 'text-(--primary-green)'
 													: 'text-red-500',
 											)}
 										/>
 									</div>
 
 									<div className="min-w-0 flex-1">
-										<p className="line-clamp-1 text-sm leading-tight font-medium transition-colors group-hover:text-[var(--primary-green)]">
+										<p className="line-clamp-1 text-sm leading-tight font-medium transition-colors group-hover:text-(--primary-green)">
 											{item.title}
 										</p>
 										<div className="mt-0.5 flex items-center gap-2">
 											<span className="text-muted-foreground flex items-center gap-0.5 text-[11px]">
 												<MapPin className="h-3 w-3 shrink-0" />
-												<span className="max-w-[90px] truncate">
-													{item.location}
-												</span>
+												<span className="max-w-22.5 truncate">{item.location}</span>
 											</span>
 											<span className="text-muted-foreground flex items-center gap-0.5 text-[11px]">
 												<Clock className="h-3 w-3 shrink-0" />
@@ -142,7 +138,6 @@ export function MatchingSuggestions({
 				</ul>
 			)}
 
-			{/* Footer CTA */}
 			<div className="bg-muted/20 border-t px-4 py-3">
 				<Link
 					href="/annonces"

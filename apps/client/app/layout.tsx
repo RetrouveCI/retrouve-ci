@@ -64,6 +64,8 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode
 }>) {
+	const isProduction = process.env.NODE_ENV === 'production'
+
 	return (
 		<html lang="fr" className={`${geist.variable} ${geistMono.variable}`}>
 			<body className="flex min-h-screen flex-col font-sans antialiased">
@@ -80,7 +82,8 @@ export default function RootLayout({
 						}}
 					/>
 				</AuthProvider>
-				{process.env.NODE_ENV === 'production' && <Analytics />}
+
+				{isProduction && <Analytics />}
 			</body>
 		</html>
 	)

@@ -25,8 +25,8 @@ export default function PublierPage() {
 				{/* Hero */}
 				<section className="relative overflow-hidden border-b">
 					<div className="pointer-events-none absolute inset-0">
-						<div className="absolute -top-20 right-0 h-96 w-96 rounded-full bg-[var(--primary-green)]/5 blur-3xl" />
-						<div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-[var(--accent-orange)]/5 blur-3xl" />
+						<div className="absolute -top-20 right-0 h-96 w-96 rounded-full bg-(primary-green)/5 blur-3xl" />
+						<div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-(accent-orange)/5 blur-3xl" />
 					</div>
 					<div className="relative container mx-auto px-4 pt-12 pb-10 text-center">
 						<div className="bg-muted text-muted-foreground mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium">
@@ -49,13 +49,13 @@ export default function PublierPage() {
 						<div className="mx-auto grid max-w-3xl gap-5 md:grid-cols-2">
 							{/* Lost */}
 							<Link href="/publier/perdu" className="group block">
-								<div className="bg-background relative h-full overflow-hidden rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:border-[var(--accent-orange)]/40 group-hover:shadow-lg">
+								<div className="bg-background relative h-full overflow-hidden rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:border-(accent-orange)/40 group-hover:shadow-lg">
 									{/* Top accent bar */}
-									<div className="h-1.5 w-full bg-[var(--accent-orange)]" />
+									<div className="h-1.5 w-full bg-(accent-orange)" />
 									<div className="p-8">
 										{/* Icon */}
-										<div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--accent-orange)]/10 transition-transform duration-300 group-hover:scale-110">
-											<AlertCircle className="h-7 w-7 text-[var(--accent-orange)]" />
+										<div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-(accent-orange)/10 transition-transform duration-300 group-hover:scale-110">
+											<AlertCircle className="h-7 w-7 text-(accent-orange)" />
 										</div>
 										<h2 className="mb-2 text-2xl font-bold">
 											J&apos;ai perdu un objet
@@ -66,19 +66,19 @@ export default function PublierPage() {
 										</p>
 										<ul className="text-muted-foreground mb-8 space-y-2 text-sm">
 											<li className="flex items-center gap-2">
-												<span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-orange)]" />
+												<span className="h-1.5 w-1.5 rounded-full bg-(accent-orange)" />
 												Visible instantanément
 											</li>
 											<li className="flex items-center gap-2">
-												<span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-orange)]" />
+												<span className="h-1.5 w-1.5 rounded-full bg-(accent-orange)" />
 												Notifications si quelqu&apos;un retrouve votre objet
 											</li>
 											<li className="flex items-center gap-2">
-												<span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-orange)]" />
+												<span className="h-1.5 w-1.5 rounded-full bg-(accent-orange)" />
 												Contact sécurisé via WhatsApp
 											</li>
 										</ul>
-										<div className="flex items-center gap-2 font-semibold text-[var(--accent-orange)]">
+										<div className="flex items-center gap-2 font-semibold text-(accent-orange)">
 											Publier un objet perdu
 											<ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
 										</div>
@@ -88,13 +88,13 @@ export default function PublierPage() {
 
 							{/* Found */}
 							<Link href="/publier/retrouve" className="group block">
-								<div className="bg-background relative h-full overflow-hidden rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:border-[var(--primary-green)]/40 group-hover:shadow-lg">
+								<div className="bg-background relative h-full overflow-hidden rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:border-(primary-green)/40 group-hover:shadow-lg">
 									{/* Top accent bar */}
-									<div className="h-1.5 w-full bg-[var(--primary-green)]" />
+									<div className="h-1.5 w-full bg-(primary-green)" />
 									<div className="p-8">
 										{/* Icon */}
-										<div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--primary-green)]/10 transition-transform duration-300 group-hover:scale-110">
-											<CheckCircle className="h-7 w-7 text-[var(--primary-green)]" />
+										<div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-(primary-green)/10 transition-transform duration-300 group-hover:scale-110">
+											<CheckCircle className="h-7 w-7 text-(primary-green)" />
 										</div>
 										<h2 className="mb-2 text-2xl font-bold">
 											J&apos;ai retrouvé un objet
@@ -105,19 +105,19 @@ export default function PublierPage() {
 										</p>
 										<ul className="text-muted-foreground mb-8 space-y-2 text-sm">
 											<li className="flex items-center gap-2">
-												<span className="h-1.5 w-1.5 rounded-full bg-[var(--primary-green)]" />
+												<span className="h-1.5 w-1.5 rounded-full bg-(primary-green)" />
 												Simple et rapide à remplir
 											</li>
 											<li className="flex items-center gap-2">
-												<span className="h-1.5 w-1.5 rounded-full bg-[var(--primary-green)]" />
+												<span className="h-1.5 w-1.5 rounded-full bg-(primary-green)" />
 												Le propriétaire vous contactera directement
 											</li>
 											<li className="flex items-center gap-2">
-												<span className="h-1.5 w-1.5 rounded-full bg-[var(--primary-green)]" />
+												<span className="h-1.5 w-1.5 rounded-full bg-(primary-green)" />
 												Votre numéro reste privé
 											</li>
 										</ul>
-										<div className="flex items-center gap-2 font-semibold text-[var(--primary-green)]">
+										<div className="flex items-center gap-2 font-semibold text-(primary-green)">
 											Publier un objet retrouvé
 											<ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
 										</div>
@@ -129,15 +129,15 @@ export default function PublierPage() {
 						{/* Trust badges */}
 						<div className="text-muted-foreground mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-6 text-sm">
 							<span className="flex items-center gap-1.5">
-								<Shield className="h-4 w-4 text-[var(--primary-green)]" />
+								<Shield className="h-4 w-4 text-(primary-green)" />
 								Données protégées
 							</span>
 							<span className="flex items-center gap-1.5">
-								<Clock className="h-4 w-4 text-[var(--primary-green)]" />
+								<Clock className="h-4 w-4 text-(primary-green)" />
 								Publication instantanée
 							</span>
 							<span className="flex items-center gap-1.5">
-								<MapPin className="h-4 w-4 text-[var(--primary-green)]" />
+								<MapPin className="h-4 w-4 text-(primary-green)" />
 								Toute la Côte d&apos;Ivoire
 							</span>
 						</div>

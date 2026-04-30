@@ -57,7 +57,7 @@ export default function ParametresPage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--primary-green)] border-t-transparent" />
+					<div className="h-10 w-10 animate-spin rounded-full border-4 border-(primary-green) border-t-transparent" />
 				</main>
 				<Footer />
 			</>
@@ -102,7 +102,7 @@ export default function ParametresPage() {
 						<div className="bg-background overflow-hidden rounded-2xl border">
 							<div className="bg-muted/30 border-b p-5">
 								<h2 className="flex items-center gap-2 font-semibold">
-									<User className="h-4 w-4 text-[var(--primary-green)]" />
+									<User className="h-4 w-4 text-(primary-green)" />
 									Informations personnelles
 								</h2>
 							</div>
@@ -132,7 +132,7 @@ export default function ParametresPage() {
 											</p>
 										</div>
 									</div>
-									<span className="flex items-center gap-1 rounded-full bg-[var(--primary-green)]/10 px-2 py-1 text-xs font-medium text-[var(--primary-green)]">
+									<span className="flex items-center gap-1 rounded-full bg-(primary-green)/10 px-2 py-1 text-xs font-medium text-(primary-green)">
 										<Check className="h-3 w-3" />
 										Vérifié
 									</span>
@@ -179,7 +179,7 @@ export default function ParametresPage() {
 						<div className="bg-background overflow-hidden rounded-2xl border">
 							<div className="bg-muted/30 border-b p-5">
 								<h2 className="flex items-center gap-2 font-semibold">
-									<Bell className="h-4 w-4 text-[var(--primary-green)]" />
+									<Bell className="h-4 w-4 text-(primary-green)" />
 									Notifications
 								</h2>
 							</div>
@@ -245,7 +245,7 @@ export default function ParametresPage() {
 						<div className="bg-background overflow-hidden rounded-2xl border">
 							<div className="bg-muted/30 border-b p-5">
 								<h2 className="flex items-center gap-2 font-semibold">
-									<Shield className="h-4 w-4 text-[var(--primary-green)]" />
+									<Shield className="h-4 w-4 text-(primary-green)" />
 									Sécurité
 								</h2>
 							</div>

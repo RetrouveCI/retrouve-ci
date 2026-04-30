@@ -1,21 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import {
-	ArrowLeft,
-	X,
-	Loader2,
-	CheckCircle,
-	CheckCircle2,
-	ImageIcon,
-} from 'lucide-react'
-import { toast } from 'sonner'
+import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react'
 import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import { Textarea } from '@retrouve-ci/ui/components/ui/textarea'
 import { Label } from '@retrouve-ci/ui/components/ui/label'
+import { Textarea } from '@retrouve-ci/ui/components/ui/textarea'
 import {
 	Select,
 	SelectContent,
@@ -23,11 +13,18 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@retrouve-ci/ui/components/ui/select'
-import { ABIDJAN_COMMUNES, CI_VILLES } from '@/lib/ci-locations'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { MatchingSuggestions } from '@/components/matching-suggestions'
+import { ImageUpload } from '@/components/publish-form/image-upload'
+import { LocationDateSection } from '@/components/publish-form/location-date-section'
+import { ContactSection } from '@/components/publish-form/contact-section'
+import { FormProgress } from '@/components/publish-form/form-progress'
+import { TipsPanel } from '@/components/publish-form/tips-panel'
+import { usePublishForm } from '@/hooks/use-publish-form'
 import { cn } from '@retrouve-ci/ui/lib/utils'
+
+const ACCENT = 'var(--primary-green)'
 
 const objectTypes = [
 	{ value: 'phone', label: 'Téléphone' },
@@ -41,68 +38,39 @@ const objectTypes = [
 	{ value: 'other', label: 'Autre' },
 ]
 
+const tips = [
+	"Ajoutez une photo pour aider le propriétaire",
+	"Décrivez l'état et les détails visibles",
+	"Précisez où vous conservez l'objet",
+	'Répondez rapidement aux messages',
+]
+
+const progressItems = (formData: ReturnType<typeof usePublishForm>['formData']) => [
+	{ label: "Type d'objet", done: !!formData.objectType },
+	{ label: 'Description (20 car. min)', done: formData.description.length >= 20 },
+	{ label: 'Lieu de la trouvaille', done: !!formData.ville },
+	{ label: 'Votre nom', done: !!formData.name },
+	{ label: 'WhatsApp', done: !!formData.whatsapp },
+]
+
 export default function PublierRetrouvePage() {
 	const router = useRouter()
-	const [isSubmitting, setIsSubmitting] = useState(false)
-	const [imagePreview, setImagePreview] = useState<string | null>(null)
-
-	const [formData, setFormData] = useState({
-		objectType: '',
-		description: '',
-		ville: '',
-		commune: '',
-		date: '',
-		name: '',
-		whatsapp: '',
-	})
-
-	const update = (key: keyof typeof formData) => (value: string) =>
-		setFormData(prev => ({ ...prev, [key]: value }))
-
-	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0]
-		if (file) {
-			const reader = new FileReader()
-			reader.onloadend = () => setImagePreview(reader.result as string)
-			reader.readAsDataURL(file)
-		}
-	}
-
-	const completedFields = [
-		formData.objectType,
-		formData.description.length >= 20,
-		formData.ville,
-		formData.name,
-		formData.whatsapp,
-	].filter(Boolean).length
-
-	const progress = Math.round((completedFields / 5) * 100)
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-		if (!formData.objectType || !formData.description || !formData.ville) {
-			toast.error('Veuillez remplir tous les champs obligatoires')
-			return
-		}
-		if (formData.description.length < 20) {
-			toast.error('La description doit contenir au moins 20 caractères')
-			return
-		}
-		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1500))
-		toast.success('Annonce publiée !', {
-			description:
-				'Merci de votre bonne action. Le propriétaire pourra vous contacter.',
-		})
-		router.push('/annonces')
-	}
+	const {
+		formData,
+		update,
+		imagePreview,
+		setImagePreview,
+		handleImageChange,
+		progress,
+		isSubmitting,
+		handleSubmit,
+	} = usePublishForm('Merci de votre bonne action. Le propriétaire pourra vous contacter.')
 
 	return (
 		<>
 			<Header />
 			<main className="bg-muted/20 flex-1">
 				<div className="container mx-auto px-4 py-8 md:py-12">
-					{/* Back */}
 					<Link
 						href="/publier"
 						className="text-muted-foreground hover:text-foreground mb-8 inline-flex items-center gap-2 text-sm transition-colors"
@@ -112,12 +80,10 @@ export default function PublierRetrouvePage() {
 					</Link>
 
 					<div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_320px]">
-						{/* ── Form ── */}
 						<div className="space-y-6">
-							{/* Header */}
 							<div className="flex items-center gap-3 pb-2">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-green)]/10">
-									<CheckCircle className="h-5 w-5 text-[var(--primary-green)]" />
+								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-green)/10">
+									<CheckCircle className="h-5 w-5 text-(--primary-green)" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold">Objet retrouvé</h1>
@@ -128,7 +94,6 @@ export default function PublierRetrouvePage() {
 							</div>
 
 							<form onSubmit={handleSubmit} className="space-y-5">
-								{/* Section: Objet */}
 								<div className="bg-background space-y-5 rounded-2xl border p-6">
 									<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
 										Informations sur l&apos;objet
@@ -136,13 +101,9 @@ export default function PublierRetrouvePage() {
 
 									<div className="space-y-2">
 										<Label htmlFor="objectType">
-											Type d&apos;objet{' '}
-											<span className="text-destructive">*</span>
+											Type d&apos;objet <span className="text-destructive">*</span>
 										</Label>
-										<Select
-											value={formData.objectType}
-											onValueChange={update('objectType')}
-										>
+										<Select value={formData.objectType} onValueChange={update('objectType')}>
 											<SelectTrigger id="objectType" className="h-11">
 												<SelectValue placeholder="Sélectionnez un type" />
 											</SelectTrigger>
@@ -165,13 +126,13 @@ export default function PublierRetrouvePage() {
 											placeholder="Couleur, marque, signes distinctifs, état de l'objet..."
 											value={formData.description}
 											onChange={e => update('description')(e.target.value)}
-											className="min-h-[110px] resize-none"
+											className="min-h-27.5 resize-none"
 										/>
 										<p
 											className={cn(
 												'text-xs',
 												formData.description.length >= 20
-													? 'text-[var(--primary-green)]'
+													? 'text-(--primary-green)'
 													: 'text-muted-foreground',
 											)}
 										>
@@ -181,181 +142,49 @@ export default function PublierRetrouvePage() {
 										</p>
 									</div>
 
-									{/* Photo — recommended */}
 									<div className="space-y-2">
 										<div className="flex items-center gap-2">
 											<Label>Photo</Label>
-											<span className="rounded-full border border-[var(--primary-green)]/20 bg-[var(--primary-green)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--primary-green)]">
+											<span className="rounded-full border border-(--primary-green)/20 bg-(--primary-green)/10 px-2 py-0.5 text-[10px] font-semibold text-(--primary-green)">
 												Recommandé
 											</span>
 										</div>
-										{imagePreview ? (
-											<div className="bg-muted relative aspect-video w-full overflow-hidden rounded-xl border">
-												<img
-													src={imagePreview}
-													alt="Preview"
-													className="h-full w-full object-cover"
-												/>
-												<button
-													type="button"
-													onClick={() => setImagePreview(null)}
-													className="absolute top-2 right-2 rounded-full bg-black/50 p-1.5 text-white transition-colors hover:bg-black/70"
-												>
-													<X className="h-4 w-4" />
-												</button>
-											</div>
-										) : (
-											<label className="group flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--primary-green)]/30 transition-colors hover:bg-[var(--primary-green)]/5">
-												<ImageIcon className="mb-1.5 h-7 w-7 text-[var(--primary-green)]/50 transition-colors group-hover:text-[var(--primary-green)]" />
-												<span className="text-muted-foreground text-sm">
-													Cliquez pour ajouter une photo
-												</span>
-												<span className="text-muted-foreground/70 mt-0.5 text-xs">
-													Une photo aide beaucoup le propriétaire
-												</span>
-												<input
-													type="file"
-													accept="image/*"
-													onChange={handleImageChange}
-													className="hidden"
-												/>
-											</label>
-										)}
-									</div>
-								</div>
-
-								{/* Section: Lieu & Date */}
-								<div className="bg-background space-y-5 rounded-2xl border p-6">
-									<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-										Lieu & date de la trouvaille
-									</h2>
-
-									<div className="grid grid-cols-2 gap-3">
-										<div className="space-y-1.5">
-											<Label htmlFor="ville" className="text-sm">
-												Ville <span className="text-destructive">*</span>
-											</Label>
-											<Select
-												value={formData.ville}
-												onValueChange={v =>
-													setFormData(p => ({ ...p, ville: v, commune: '' }))
-												}
-											>
-												<SelectTrigger id="ville" className="h-11">
-													<SelectValue placeholder="Sélectionnez" />
-												</SelectTrigger>
-												<SelectContent>
-													{CI_VILLES.map(v => (
-														<SelectItem key={v} value={v}>
-															{v}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</div>
-										<div className="space-y-1.5">
-											<Label htmlFor="commune" className="text-sm">
-												Commune{' '}
-												{formData.ville !== 'Abidjan' && (
-													<span className="text-muted-foreground text-xs font-normal">
-														(optionnel)
-													</span>
-												)}
-											</Label>
-											<Select
-												value={formData.commune}
-												onValueChange={update('commune')}
-												disabled={formData.ville !== 'Abidjan'}
-											>
-												<SelectTrigger id="commune" className="h-11">
-													<SelectValue
-														placeholder={
-															formData.ville === 'Abidjan'
-																? 'Sélectionnez'
-																: '—'
-														}
-													/>
-												</SelectTrigger>
-												<SelectContent>
-													{ABIDJAN_COMMUNES.map(c => (
-														<SelectItem key={c} value={c}>
-															{c}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</div>
-									</div>
-
-									<div className="space-y-1.5">
-										<Label htmlFor="date" className="text-sm">
-											Date de la trouvaille{' '}
-											<span className="text-muted-foreground text-xs font-normal">
-												(optionnel)
-											</span>
-										</Label>
-										<Input
-											id="date"
-											type="date"
-											value={formData.date}
-											onChange={e => update('date')(e.target.value)}
-											className="h-11"
+										<ImageUpload
+											preview={imagePreview}
+											onRemove={() => setImagePreview(null)}
+											onChange={handleImageChange}
+											variant="recommended"
+											accentColor={ACCENT}
 										/>
 									</div>
 								</div>
 
-								{/* Section: Contact */}
-								<div className="bg-background space-y-5 rounded-2xl border p-6">
-									<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-										Vos coordonnées
-									</h2>
+								<LocationDateSection
+									ville={formData.ville}
+									commune={formData.commune}
+									date={formData.date}
+									dateLabel="Date de la trouvaille"
+									sectionTitle="Lieu & date de la trouvaille"
+									onVilleChange={update('ville')}
+									onCommuneChange={update('commune')}
+									onDateChange={update('date')}
+								/>
 
-									<div className="space-y-2">
-										<Label htmlFor="name">Nom / Prénom</Label>
-										<Input
-											id="name"
-											placeholder="Votre nom"
-											value={formData.name}
-											onChange={e => update('name')(e.target.value)}
-											className="h-11"
-										/>
-									</div>
+								<ContactSection
+									name={formData.name}
+									whatsapp={formData.whatsapp}
+									onNameChange={update('name')}
+									onWhatsappChange={update('whatsapp')}
+									showPrivacyNote
+								/>
 
-									<div className="space-y-2">
-										<Label htmlFor="whatsapp">Numéro WhatsApp</Label>
-										<div className="flex gap-2">
-											<div className="bg-muted text-muted-foreground flex h-11 shrink-0 items-center rounded-md border px-3 text-sm">
-												+225
-											</div>
-											<Input
-												id="whatsapp"
-												type="tel"
-												placeholder="07 XX XX XX XX"
-												value={formData.whatsapp}
-												onChange={e => update('whatsapp')(e.target.value)}
-												className="h-11 flex-1"
-											/>
-										</div>
-									</div>
-
-									<p className="text-muted-foreground pt-1 text-xs">
-										Votre numéro ne sera jamais affiché publiquement. Le contact
-										se fait via notre messagerie sécurisée.
-									</p>
-								</div>
-
-								{/* Actions */}
 								<div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
-									<Button
-										type="button"
-										variant="outline"
-										onClick={() => router.back()}
-									>
+									<Button type="button" variant="outline" onClick={() => router.back()}>
 										Annuler
 									</Button>
 									<Button
 										type="submit"
-										className="h-12 bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)] sm:flex-1"
+										className="h-12 bg-(--primary-green) text-white hover:bg-(--primary-green-dark) sm:flex-1"
 										disabled={isSubmitting}
 									>
 										{isSubmitting ? (
@@ -371,55 +200,13 @@ export default function PublierRetrouvePage() {
 							</form>
 						</div>
 
-						{/* ── Sidebar ── */}
 						<div className="space-y-4 self-start lg:sticky lg:top-24">
-							{/* Progress */}
-							<div className="bg-background rounded-2xl border p-5">
-								<div className="mb-3 flex items-center justify-between">
-									<p className="text-sm font-semibold">Complétion</p>
-									<span className="text-sm font-bold text-[var(--primary-green)]">
-										{progress}%
-									</span>
-								</div>
-								<div className="bg-muted h-2 overflow-hidden rounded-full">
-									<div
-										className="h-full rounded-full bg-[var(--primary-green)] transition-all duration-500"
-										style={{ width: `${progress}%` }}
-									/>
-								</div>
-								<ul className="mt-4 space-y-2">
-									{[
-										{ label: "Type d'objet", done: !!formData.objectType },
-										{
-											label: 'Description (20 car. min)',
-											done: formData.description.length >= 20,
-										},
-										{ label: 'Lieu de la trouvaille', done: !!formData.ville },
-										{ label: 'Votre nom', done: !!formData.name },
-										{ label: 'WhatsApp', done: !!formData.whatsapp },
-									].map(({ label, done }) => (
-										<li key={label} className="flex items-center gap-2 text-sm">
-											<CheckCircle2
-												className={cn(
-													'h-4 w-4 shrink-0',
-													done
-														? 'text-[var(--primary-green)]'
-														: 'text-muted-foreground/30',
-												)}
-											/>
-											<span
-												className={
-													done ? 'text-foreground' : 'text-muted-foreground'
-												}
-											>
-												{label}
-											</span>
-										</li>
-									))}
-								</ul>
-							</div>
+							<FormProgress
+								progress={progress}
+								items={progressItems(formData)}
+								accentColor={ACCENT}
+							/>
 
-							{/* Matching suggestions or Tips */}
 							{formData.objectType && formData.ville ? (
 								<MatchingSuggestions
 									objectType={formData.objectType}
@@ -428,21 +215,11 @@ export default function PublierRetrouvePage() {
 									formType="retrouve"
 								/>
 							) : (
-								<div className="rounded-2xl border border-[var(--primary-green)]/15 bg-[var(--primary-green)]/5 p-5">
-									<p className="mb-2 text-sm font-semibold text-[var(--primary-green)]">
-										Conseils
-									</p>
-									<ul className="text-muted-foreground space-y-1.5 text-xs">
-										<li>Ajoutez une photo pour aider le propriétaire</li>
-										<li>Décrivez l&apos;état et les détails visibles</li>
-										<li>Précisez où vous conservez l&apos;objet</li>
-										<li>Répondez rapidement aux messages</li>
-									</ul>
-									<p className="text-muted-foreground/60 mt-3 border-t border-[var(--primary-green)]/10 pt-3 text-xs">
-										Remplissez le type d&apos;objet et la ville pour voir les
-										correspondances.
-									</p>
-								</div>
+								<TipsPanel
+									tips={tips}
+									accentColor={ACCENT}
+									hint="Remplissez le type d'objet et la ville pour voir les correspondances."
+								/>
 							)}
 						</div>
 					</div>

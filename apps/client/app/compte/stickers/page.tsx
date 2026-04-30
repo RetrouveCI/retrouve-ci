@@ -58,7 +58,7 @@ function StickerCard({
 			className={cn(
 				'group bg-background relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg',
 				sticker.isActive
-					? 'border-[var(--primary-green)]/20 hover:border-[var(--primary-green)]/40'
+					? 'border-(primary-green)/20 hover:border-(primary-green)/40'
 					: 'border-border opacity-70 hover:opacity-100',
 			)}
 		>
@@ -66,7 +66,7 @@ function StickerCard({
 			<div
 				className={cn(
 					'h-1.5',
-					sticker.isActive ? 'bg-[var(--primary-green)]' : 'bg-muted',
+					sticker.isActive ? 'bg-(primary-green)' : 'bg-muted',
 				)}
 			/>
 
@@ -78,7 +78,7 @@ function StickerCard({
 								className={cn(
 									'flex h-10 w-10 items-center justify-center rounded-xl',
 									sticker.isActive
-										? 'bg-[var(--primary-green)]/10'
+										? 'bg-(primary-green)/10'
 										: 'bg-muted',
 								)}
 							>
@@ -86,7 +86,7 @@ function StickerCard({
 									className={cn(
 										'h-5 w-5',
 										sticker.isActive
-											? 'text-[var(--primary-green)]'
+											? 'text-(primary-green)'
 											: 'text-muted-foreground',
 									)}
 								/>
@@ -101,7 +101,7 @@ function StickerCard({
 								className={cn(
 									'ml-auto text-[10px]',
 									sticker.isActive
-										? 'border-[var(--primary-green)]/30 bg-[var(--primary-green)]/5 text-[var(--primary-green)]'
+										? 'border-(primary-green)/30 bg-(primary-green)/5 text-(primary-green)'
 										: 'border-muted text-muted-foreground',
 								)}
 							>
@@ -176,7 +176,7 @@ function StickerCard({
 								</Button>
 								<Button
 									onClick={handleSave}
-									className="rounded-xl bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]"
+									className="rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
 								>
 									Enregistrer
 								</Button>
@@ -190,7 +190,7 @@ function StickerCard({
 							'h-9 flex-1 gap-1.5 rounded-xl',
 							sticker.isActive
 								? 'text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive'
-								: 'border-[var(--primary-green)]/20 text-[var(--primary-green)] hover:bg-[var(--primary-green)]/10',
+								: 'border-(primary-green)/20 text-(primary-green) hover:bg-(primary-green)/10',
 						)}
 						onClick={onToggle}
 					>
@@ -239,7 +239,7 @@ function ActivateStickerDialog({
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button className="gap-2 rounded-xl bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]">
+				<Button className="gap-2 rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)">
 					<Plus className="h-4 w-4" />
 					Activer un sticker
 				</Button>
@@ -295,7 +295,7 @@ function ActivateStickerDialog({
 					</Button>
 					<Button
 						onClick={handleSubmit}
-						className="rounded-xl bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]"
+						className="rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
 					>
 						Activer
 					</Button>
@@ -339,7 +339,7 @@ export default function StickersPage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--primary-green)] border-t-transparent" />
+					<div className="h-10 w-10 animate-spin rounded-full border-4 border-(primary-green) border-t-transparent" />
 				</main>
 				<Footer />
 			</>
@@ -353,7 +353,7 @@ export default function StickersPage() {
 				{/* Header */}
 				<section className="relative overflow-hidden border-b">
 					<div className="pointer-events-none absolute inset-0">
-						<div className="absolute -top-20 right-0 h-96 w-96 rounded-full bg-[var(--primary-green)]/5 blur-3xl" />
+						<div className="absolute -top-20 right-0 h-96 w-96 rounded-full bg-(primary-green)/5 blur-3xl" />
 					</div>
 					<div className="relative container mx-auto px-4 py-8">
 						<Link
@@ -365,8 +365,8 @@ export default function StickersPage() {
 						</Link>
 						<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 							<div className="flex items-center gap-4">
-								<div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--primary-green)]/10">
-									<QrCode className="h-7 w-7 text-[var(--primary-green)]" />
+								<div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-(primary-green)/10">
+									<QrCode className="h-7 w-7 text-(primary-green)" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold">Mes Stickers QR</h1>
@@ -386,7 +386,7 @@ export default function StickersPage() {
 					<div className="container mx-auto px-4">
 						<div className="flex items-center gap-6 text-sm">
 							<div className="flex items-center gap-2">
-								<div className="h-2 w-2 rounded-full bg-[var(--primary-green)]" />
+								<div className="h-2 w-2 rounded-full bg-(primary-green)" />
 								<span className="text-muted-foreground">
 									Actifs:{' '}
 									<span className="text-foreground font-semibold">
@@ -438,10 +438,10 @@ export default function StickersPage() {
 						{/* Order more */}
 						<Link
 							href="/stickers/commander"
-							className="group mt-8 flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-[var(--primary-green)]/30 bg-[var(--primary-green)]/5 p-6 transition-all hover:border-[var(--primary-green)]/50 hover:bg-[var(--primary-green)]/10"
+							className="group mt-8 flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-(primary-green)/30 bg-(primary-green)/5 p-6 transition-all hover:border-(primary-green)/50 hover:bg-(primary-green)/10"
 						>
 							<div className="flex items-center gap-4">
-								<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--primary-green)] transition-transform group-hover:scale-110">
+								<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-(primary-green) transition-transform group-hover:scale-110">
 									<Shield className="h-6 w-6 text-white" />
 								</div>
 								<div>
@@ -453,7 +453,7 @@ export default function StickersPage() {
 							</div>
 							<Button
 								variant="outline"
-								className="shrink-0 rounded-xl border-[var(--primary-green)]/30 text-[var(--primary-green)] hover:bg-[var(--primary-green)]/10"
+								className="shrink-0 rounded-xl border-(primary-green)/30 text-(primary-green) hover:bg-(primary-green)/10"
 							>
 								Commander
 							</Button>

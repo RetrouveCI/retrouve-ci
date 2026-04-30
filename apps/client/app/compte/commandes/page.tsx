@@ -114,8 +114,8 @@ const STATUS_CONFIG: Record<
 	delivered: {
 		label: 'Livrée',
 		icon: CheckCircle2,
-		color: 'text-[var(--primary-green)]',
-		bgColor: 'bg-[var(--primary-green)]/10',
+		color: 'text-(primary-green)',
+		bgColor: 'bg-(primary-green)/10',
 	},
 	cancelled: {
 		label: 'Annulée',
@@ -215,9 +215,9 @@ function OrderDetail({
 											className={cn(
 												'flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all',
 												isCompleted
-													? 'bg-[var(--primary-green)] text-white'
+													? 'bg-(primary-green) text-white'
 													: 'bg-muted text-muted-foreground',
-												isCurrent && 'ring-4 ring-[var(--primary-green)]/20',
+												isCurrent && 'ring-4 ring-(primary-green)/20',
 											)}
 										>
 											{isCompleted ? (
@@ -231,7 +231,7 @@ function OrderDetail({
 												className={cn(
 													'mx-1 h-1 flex-1 rounded-full',
 													idx < currentIdx
-														? 'bg-[var(--primary-green)]'
+														? 'bg-(primary-green)'
 														: 'bg-muted',
 												)}
 											/>
@@ -245,8 +245,8 @@ function OrderDetail({
 					{/* Pack info */}
 					<div className="rounded-2xl border p-4">
 						<div className="flex items-center gap-4">
-							<div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[var(--primary-green)]/10">
-								<QrCode className="h-7 w-7 text-[var(--primary-green)]" />
+							<div className="flex h-14 w-14 items-center justify-center rounded-xl bg-(primary-green)/10">
+								<QrCode className="h-7 w-7 text-(primary-green)" />
 							</div>
 							<div className="flex-1">
 								<p className="font-semibold">Pack {order.pack.name}</p>
@@ -303,7 +303,7 @@ function OrderDetail({
 						<div className="flex justify-between text-sm">
 							<span className="text-muted-foreground">Livraison</span>
 							{order.deliveryFee === 0 ? (
-								<span className="text-[var(--primary-green)]">Gratuite</span>
+								<span className="text-(primary-green)">Gratuite</span>
 							) : (
 								<span>{formatPrice(order.deliveryFee)} FCFA</span>
 							)}
@@ -319,7 +319,7 @@ function OrderDetail({
 						{order.status === 'delivered' && (
 							<Button
 								asChild
-								className="h-12 flex-1 rounded-xl bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]"
+								className="h-12 flex-1 rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
 							>
 								<Link href="/compte/stickers">Voir mes stickers</Link>
 							</Button>
@@ -359,7 +359,7 @@ function EmptyState() {
 			</p>
 			<Button
 				asChild
-				className="h-11 rounded-xl bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]"
+				className="h-11 rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
 			>
 				<Link href="/stickers/commander" className="gap-2">
 					<Plus className="h-4 w-4" />
@@ -385,7 +385,7 @@ export default function CommandesPage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--primary-green)] border-t-transparent" />
+					<div className="h-10 w-10 animate-spin rounded-full border-4 border-(primary-green) border-t-transparent" />
 				</main>
 				<Footer />
 			</>
@@ -403,7 +403,7 @@ export default function CommandesPage() {
 						</p>
 						<Button
 							asChild
-							className="bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]"
+							className="bg-(primary-green) text-white hover:bg-(primary-green-dark)"
 						>
 							<Link href="/auth">Se connecter</Link>
 						</Button>
@@ -471,12 +471,12 @@ export default function CommandesPage() {
 										<button
 											key={order.id}
 											onClick={() => setSelectedOrder(order)}
-											className="group bg-background w-full rounded-2xl border p-4 text-left transition-all hover:border-[var(--primary-green)]/30 hover:shadow-md"
+											className="group bg-background w-full rounded-2xl border p-4 text-left transition-all hover:border-(primary-green)/30 hover:shadow-md"
 										>
 											<div className="flex items-start gap-4">
 												{/* Icon */}
-												<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--primary-green)]/10 transition-transform group-hover:scale-110">
-													<QrCode className="h-6 w-6 text-[var(--primary-green)]" />
+												<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-(primary-green)/10 transition-transform group-hover:scale-110">
+													<QrCode className="h-6 w-6 text-(primary-green)" />
 												</div>
 
 												{/* Content */}
@@ -523,10 +523,10 @@ export default function CommandesPage() {
 						<div className="mt-8">
 							<Link
 								href="/stickers/commander"
-								className="group flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-[var(--primary-green)]/30 bg-[var(--primary-green)]/5 p-5 transition-all hover:border-[var(--primary-green)]/50 hover:bg-[var(--primary-green)]/10"
+								className="group flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-(primary-green)/30 bg-(primary-green)/5 p-5 transition-all hover:border-(primary-green)/50 hover:bg-(primary-green)/10"
 							>
 								<div className="flex items-center gap-4">
-									<div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--primary-green)] transition-transform group-hover:scale-110">
+									<div className="flex h-11 w-11 items-center justify-center rounded-xl bg-(primary-green) transition-transform group-hover:scale-110">
 										<Plus className="h-5 w-5 text-white" />
 									</div>
 									<div>

@@ -68,14 +68,14 @@ export default function LoginPage() {
 	// Show loading while checking auth
 	if (authLoading) {
 		return (
-			<div className="from-primary/5 via-background to-accent/5 flex min-h-screen items-center justify-center bg-gradient-to-br">
+			<div className="from-primary/5 via-background to-accent/5 flex min-h-screen items-center justify-center bg-linear-to-br">
 				<div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
 			</div>
 		)
 	}
 
 	return (
-		<div className="from-primary/5 via-background to-accent/5 flex min-h-screen items-center justify-center bg-gradient-to-br p-4">
+		<div className="from-primary/5 via-background to-accent/5 flex min-h-screen items-center justify-center bg-linear-to-br p-4">
 			{/* Background decoration */}
 			<div className="fixed inset-0 -z-10 overflow-hidden">
 				<div className="bg-primary/10 absolute -top-40 -right-40 h-80 w-80 rounded-full blur-3xl" />

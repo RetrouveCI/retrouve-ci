@@ -67,7 +67,7 @@ export function MobileNav({
 							className="rounded-xl"
 						/>
 						<span className="text-lg font-bold tracking-tight">
-							Retrouve<span className="text-[var(--accent-orange)]">CI</span>
+							Retrouve<span className="text-(accent-orange)">CI</span>
 						</span>
 					</SheetTitle>
 					<SheetDescription className="sr-only">
@@ -88,7 +88,7 @@ export function MobileNav({
 								className={cn(
 									'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
 									isActive
-										? 'bg-[var(--primary-green)] text-white shadow-sm'
+										? 'bg-(primary-green) text-white shadow-sm'
 										: 'text-foreground hover:bg-muted',
 								)}
 							>
@@ -109,8 +109,8 @@ export function MobileNav({
 								onClick={() => onOpenChange(false)}
 								className="bg-muted/60 hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 transition-colors"
 							>
-								<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--primary-green)]/10">
-									<User className="h-4 w-4 text-[var(--primary-green)]" />
+								<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(primary-green)/10">
+									<User className="h-4 w-4 text-(primary-green)" />
 								</div>
 								<div className="min-w-0 flex-1">
 									<p className="truncate text-sm font-semibold">{user?.name}</p>
@@ -131,7 +131,7 @@ export function MobileNav({
 						</>
 					) : (
 						<Button
-							className="h-12 w-full gap-2 rounded-xl bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]"
+							className="h-12 w-full gap-2 rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
 							asChild
 						>
 							<Link href="/auth" onClick={() => onOpenChange(false)}>

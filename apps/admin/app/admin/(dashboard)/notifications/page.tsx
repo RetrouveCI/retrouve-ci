@@ -108,7 +108,7 @@ export default function NotificationsPage() {
 							value={unread}
 							icon={Bell}
 							iconColor="text-primary"
-							iconBg="bg-primary/10"
+							iconBgColor="bg-primary/10"
 						/>
 						<BentoCard
 							variant="stat"

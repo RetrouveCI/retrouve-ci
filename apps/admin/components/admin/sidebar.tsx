@@ -29,7 +29,7 @@ const menuItems = [
 	{ href: '/admin/qr', icon: QrCode, label: 'Stickers / QR' },
 	{ href: '/admin/orders', icon: Package, label: 'Commandes' },
 	{ href: '/admin/posts', icon: FileText, label: 'Posts' },
-	{ href: '/admin/events', icon: Activity, label: 'Evenements' },
+	{ href: '/admin/events', icon: Activity, label: 'Événements' },
 	{ href: '/admin/administrators', icon: Shield, label: 'Administrateurs' },
 	{ href: '/admin/notifications', icon: Bell, label: 'Notifications' },
 ]
@@ -45,24 +45,15 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 	}
 
 	const isActive = (href: string) => {
-		if (href === '/admin') {
-			return pathname === '/admin' || pathname === '/admin/dashboard'
-		}
+		if (href === '/admin') return pathname === '/admin' || pathname === '/admin/dashboard'
 		return pathname.startsWith(href)
 	}
 
 	return (
-		<div className="from-card to-card/95 flex h-full flex-col bg-gradient-to-b">
-			{/* Logo Section */}
+		<div className="from-card to-card/95 flex h-full flex-col bg-linear-to-b">
 			<div className="p-6">
 				<Link href="/admin" className="group flex items-center gap-3">
-					<Image
-						src="/logo.png"
-						alt="RetrouveCI"
-						width={40}
-						height={40}
-						className="h-10 w-10"
-					/>
+					<Image src="/logo.png" alt="RetrouveCI" width={40} height={40} className="h-10 w-10" />
 					<div>
 						<h1 className="text-foreground text-lg font-bold">RetrouveCI</h1>
 						<p className="text-muted-foreground text-xs">Administration</p>
@@ -70,7 +61,6 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 				</Link>
 			</div>
 
-			{/* Navigation */}
 			<nav className="flex-1 px-3">
 				<p className="text-muted-foreground mb-2 px-3 text-xs font-semibold tracking-wider uppercase">
 					Menu
@@ -109,7 +99,6 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 				</ul>
 			</nav>
 
-			{/* User Section */}
 			<div className="border-t p-4">
 				<div className="bg-muted/50 rounded-xl p-3">
 					<div className="flex items-center gap-3">
@@ -119,9 +108,7 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 							</AvatarFallback>
 						</Avatar>
 						<div className="min-w-0 flex-1">
-							<p className="truncate text-sm font-semibold">
-								{user?.name || 'Admin'}
-							</p>
+							<p className="truncate text-sm font-semibold">{user?.name || 'Admin'}</p>
 							<p className="text-muted-foreground truncate text-xs">
 								{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
 							</p>
@@ -134,7 +121,7 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 						onClick={handleLogout}
 					>
 						<LogOut size={16} />
-						Deconnexion
+						Déconnexion
 					</Button>
 				</div>
 			</div>

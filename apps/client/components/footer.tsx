@@ -16,6 +16,28 @@ const footerLinks = {
 	],
 }
 
+function FooterLinkGroup({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+	return (
+		<div>
+			<h3 className="text-foreground mb-4 text-sm font-semibold tracking-wider uppercase">
+				{title}
+			</h3>
+			<ul className="space-y-3">
+				{links.map(link => (
+					<li key={link.href}>
+						<Link
+							href={link.href}
+							className="text-muted-foreground text-sm transition-colors hover:text-(--primary-green)"
+						>
+							{link.label}
+						</Link>
+					</li>
+				))}
+			</ul>
+		</div>
+	)
+}
+
 export function Footer() {
 	const currentYear = new Date().getFullYear()
 
@@ -23,7 +45,6 @@ export function Footer() {
 		<footer className="bg-muted/30 border-t">
 			<div className="container mx-auto px-4 py-12">
 				<div className="grid gap-8 md:grid-cols-3">
-					{/* Brand Column */}
 					<div className="space-y-4">
 						<Link href="/" className="flex items-center gap-2">
 							<Image
@@ -34,7 +55,7 @@ export function Footer() {
 								className="rounded-lg"
 							/>
 							<span className="text-xl font-bold tracking-tight">
-								Retrouve<span className="text-[var(--accent-orange)]">CI</span>
+								Retrouve<span className="text-(--accent-orange)">CI</span>
 							</span>
 						</Link>
 						<p className="text-muted-foreground max-w-xs text-sm leading-relaxed">
@@ -43,46 +64,10 @@ export function Footer() {
 						</p>
 					</div>
 
-					{/* Navigation Links */}
-					<div>
-						<h3 className="text-foreground mb-4 text-sm font-semibold tracking-wider uppercase">
-							Navigation
-						</h3>
-						<ul className="space-y-3">
-							{footerLinks.navigation.map(link => (
-								<li key={link.href}>
-									<Link
-										href={link.href}
-										className="text-muted-foreground text-sm transition-colors hover:text-[var(--primary-green)]"
-									>
-										{link.label}
-									</Link>
-								</li>
-							))}
-						</ul>
-					</div>
-
-					{/* Legal Links */}
-					<div>
-						<h3 className="text-foreground mb-4 text-sm font-semibold tracking-wider uppercase">
-							Informations légales
-						</h3>
-						<ul className="space-y-3">
-							{footerLinks.legal.map(link => (
-								<li key={link.href}>
-									<Link
-										href={link.href}
-										className="text-muted-foreground text-sm transition-colors hover:text-[var(--primary-green)]"
-									>
-										{link.label}
-									</Link>
-								</li>
-							))}
-						</ul>
-					</div>
+					<FooterLinkGroup title="Navigation" links={footerLinks.navigation} />
+					<FooterLinkGroup title="Informations légales" links={footerLinks.legal} />
 				</div>
 
-				{/* Bottom Bar */}
 				<div className="mt-12 border-t pt-8">
 					<p className="text-muted-foreground text-center text-sm">
 						&copy; {currentYear} RetrouveCI. Tous droits réservés.

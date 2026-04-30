@@ -207,7 +207,7 @@ export default function CommanderPage() {
 											className={cn(
 												'flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors',
 												i + 1 < stepNumber
-													? 'bg-[var(--primary-green)] text-white'
+													? 'bg-(primary-green) text-white'
 													: i + 1 === stepNumber
 														? 'bg-foreground text-background'
 														: 'bg-muted text-muted-foreground',
@@ -261,27 +261,27 @@ export default function CommanderPage() {
 											className={cn(
 												'relative rounded-2xl border-2 p-6 text-left transition-all duration-200 hover:shadow-lg',
 												selectedPack === pack.id
-													? 'border-[var(--primary-green)] bg-[var(--primary-green)]/5 shadow-md'
-													: 'border-border bg-background hover:border-[var(--primary-green)]/30',
+													? 'border-(primary-green) bg-(primary-green)/5 shadow-md'
+													: 'border-border bg-background hover:border-(primary-green)/30',
 											)}
 										>
 											{pack.popular && (
 												<div className="absolute -top-3 left-1/2 -translate-x-1/2">
-													<span className="rounded-full bg-[var(--accent-orange)] px-3 py-1 text-xs font-semibold text-white">
+													<span className="rounded-full bg-(accent-orange) px-3 py-1 text-xs font-semibold text-white">
 														Populaire
 													</span>
 												</div>
 											)}
 
 											{selectedPack === pack.id && (
-												<div className="absolute top-4 right-4 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary-green)]">
+												<div className="absolute top-4 right-4 flex h-6 w-6 items-center justify-center rounded-full bg-(primary-green)">
 													<Check className="h-4 w-4 text-white" />
 												</div>
 											)}
 
 											<div className="mb-4">
-												<div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--primary-green)]/10">
-													<Package className="h-6 w-6 text-[var(--primary-green)]" />
+												<div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-(primary-green)/10">
+													<Package className="h-6 w-6 text-(primary-green)" />
 												</div>
 												<h3 className="text-lg font-bold">{pack.name}</h3>
 												<p className="text-muted-foreground text-sm">
@@ -305,7 +305,7 @@ export default function CommanderPage() {
 														key={i}
 														className="flex items-center gap-2 text-sm"
 													>
-														<CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--primary-green)]" />
+														<CheckCircle2 className="h-4 w-4 shrink-0 text-(primary-green)" />
 														<span>{feature}</span>
 													</li>
 												))}
@@ -319,7 +319,7 @@ export default function CommanderPage() {
 										size="lg"
 										onClick={handleNext}
 										disabled={!selectedPack}
-										className="h-12 rounded-xl bg-[var(--primary-green)] px-8 text-white hover:bg-[var(--primary-green-dark)]"
+										className="h-12 rounded-xl bg-(primary-green) px-8 text-white hover:bg-(primary-green-dark)"
 									>
 										Continuer
 										<ArrowRight className="ml-2 h-4 w-4" />
@@ -439,8 +439,8 @@ export default function CommanderPage() {
 												</span>
 											</Label>
 											{appliedCoupon ? (
-												<div className="flex h-12 items-center justify-between rounded-xl border-2 border-[var(--primary-green)] bg-[var(--primary-green)]/5 px-4">
-													<span className="flex items-center gap-2 text-sm font-medium text-[var(--primary-green)]">
+												<div className="flex h-12 items-center justify-between rounded-xl border-2 border-(primary-green) bg-(primary-green)/5 px-4">
+													<span className="flex items-center gap-2 text-sm font-medium text-(primary-green)">
 														<Check className="h-4 w-4" />
 														{appliedCoupon} — Livraison offerte
 													</span>
@@ -495,7 +495,7 @@ export default function CommanderPage() {
 									<Button
 										size="lg"
 										onClick={handleNext}
-										className="h-12 w-full rounded-xl bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]"
+										className="h-12 w-full rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
 									>
 										Continuer vers le paiement
 										<ArrowRight className="ml-2 h-4 w-4" />
@@ -509,8 +509,8 @@ export default function CommanderPage() {
 										{selectedPackData && (
 											<div className="space-y-4">
 												<div className="flex items-center gap-3 border-b pb-4">
-													<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--primary-green)]/10">
-														<QrCode className="h-6 w-6 text-[var(--primary-green)]" />
+													<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-(primary-green)/10">
+														<QrCode className="h-6 w-6 text-(primary-green)" />
 													</div>
 													<div>
 														<p className="font-medium">
@@ -535,7 +535,7 @@ export default function CommanderPage() {
 															Livraison
 														</span>
 														{deliveryFee === 0 ? (
-															<span className="flex items-center gap-1 text-[var(--primary-green)]">
+															<span className="flex items-center gap-1 text-(primary-green)">
 																<Tag className="h-3 w-3" /> Gratuite
 															</span>
 														) : (
@@ -588,8 +588,8 @@ export default function CommanderPage() {
 														className={cn(
 															'relative flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition-all',
 															paymentMethod === method.id
-																? 'border-[var(--primary-green)] bg-[var(--primary-green)]/5'
-																: 'border-border hover:border-[var(--primary-green)]/30',
+																? 'border-(primary-green) bg-(primary-green)/5'
+																: 'border-border hover:border-(primary-green)/30',
 														)}
 													>
 														<RadioGroupItem
@@ -606,7 +606,7 @@ export default function CommanderPage() {
 															{method.name}
 														</span>
 														{paymentMethod === method.id && (
-															<Check className="absolute top-2 right-2 h-4 w-4 text-[var(--primary-green)]" />
+															<Check className="absolute top-2 right-2 h-4 w-4 text-(primary-green)" />
 														)}
 													</label>
 												))}
@@ -640,8 +640,8 @@ export default function CommanderPage() {
 										)}
 									</div>
 
-									<div className="rounded-xl border border-[var(--accent-orange)]/20 bg-[var(--accent-orange)]/10 p-4">
-										<p className="flex items-center gap-2 text-sm font-medium text-[var(--accent-orange)]">
+									<div className="rounded-xl border border-(accent-orange)/20 bg-(accent-orange)/10 p-4">
+										<p className="flex items-center gap-2 text-sm font-medium text-(accent-orange)">
 											<Shield className="h-4 w-4" />
 											Paiement sécurisé et crypté
 										</p>
@@ -653,7 +653,7 @@ export default function CommanderPage() {
 										disabled={
 											!paymentMethod || !formData.paymentPhone || isProcessing
 										}
-										className="h-12 w-full rounded-xl bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]"
+										className="h-12 w-full rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
 									>
 										{isProcessing ? (
 											<>
@@ -676,8 +676,8 @@ export default function CommanderPage() {
 										{selectedPackData && (
 											<div className="space-y-4">
 												<div className="flex items-center gap-3 border-b pb-4">
-													<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--primary-green)]/10">
-														<QrCode className="h-6 w-6 text-[var(--primary-green)]" />
+													<div className="flex h-12 w-12 items-center justify-center rounded-xl bg-(primary-green)/10">
+														<QrCode className="h-6 w-6 text-(primary-green)" />
 													</div>
 													<div>
 														<p className="font-medium">
@@ -716,7 +716,7 @@ export default function CommanderPage() {
 															Livraison
 														</span>
 														{deliveryFee === 0 ? (
-															<span className="flex items-center gap-1 text-[var(--primary-green)]">
+															<span className="flex items-center gap-1 text-(primary-green)">
 																<Tag className="h-3 w-3" /> Gratuite
 															</span>
 														) : (
@@ -738,8 +738,8 @@ export default function CommanderPage() {
 						{/* Step 4: Confirmation */}
 						{step === 'confirmation' && orderComplete && (
 							<div className="mx-auto max-w-lg py-12 text-center">
-								<div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-[var(--primary-green)]/10">
-									<CheckCircle2 className="h-10 w-10 text-[var(--primary-green)]" />
+								<div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-(primary-green)/10">
+									<CheckCircle2 className="h-10 w-10 text-(primary-green)" />
 								</div>
 								<h1 className="mb-3 text-3xl font-bold">Commande confirmée!</h1>
 								<p className="text-muted-foreground mb-8">
@@ -777,7 +777,7 @@ export default function CommanderPage() {
 										<div className="flex justify-between">
 											<span className="text-muted-foreground">Livraison</span>
 											{deliveryFee === 0 ? (
-												<span className="text-[var(--primary-green)]">
+												<span className="text-(primary-green)">
 													Gratuite (coupon)
 												</span>
 											) : (
@@ -807,7 +807,7 @@ export default function CommanderPage() {
 									</Button>
 									<Button
 										asChild
-										className="rounded-xl bg-[var(--primary-green)] text-white hover:bg-[var(--primary-green-dark)]"
+										className="rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
 									>
 										<Link href="/">Retour à l&apos;accueil</Link>
 									</Button>

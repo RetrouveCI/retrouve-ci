@@ -41,7 +41,6 @@ export function Header() {
 			)}
 		>
 			<div className="container mx-auto flex h-16 items-center justify-between px-4">
-				{/* Logo */}
 				<Link href="/" className="group flex shrink-0 items-center gap-2.5">
 					<Image
 						src="/logo.png"
@@ -52,11 +51,10 @@ export function Header() {
 						priority
 					/>
 					<span className="text-xl font-bold tracking-tight">
-						Retrouve<span className="text-[var(--accent-orange)]">CI</span>
+						Retrouve<span className="text-(--accent-orange)">CI</span>
 					</span>
 				</Link>
 
-				{/* Desktop Navigation - Pill style */}
 				<nav className="hidden items-center md:flex">
 					<div className="bg-muted/50 flex items-center gap-1 rounded-full p-1">
 						{navLinks.map(link => (
@@ -76,14 +74,13 @@ export function Header() {
 					</div>
 				</nav>
 
-				{/* Desktop Auth */}
 				<div className="hidden items-center gap-2 md:flex">
 					{isAuthenticated ? (
 						<>
 							<Button asChild variant="ghost" size="sm" className="h-9 gap-2">
 								<Link href="/compte">
-									<div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--primary-green)]/10">
-										<User className="h-4 w-4 text-[var(--primary-green)]" />
+									<div className="flex h-7 w-7 items-center justify-center rounded-full bg-(--primary-green)/10">
+										<User className="h-4 w-4 text-(--primary-green)" />
 									</div>
 									<span className="max-w-[100px] truncate font-medium">
 										{user?.name}
@@ -104,7 +101,7 @@ export function Header() {
 						<Button
 							asChild
 							size="sm"
-							className="h-9 rounded-full bg-[var(--primary-green)] px-4 text-white hover:bg-[var(--primary-green-dark)]"
+							className="h-9 rounded-full bg-(--primary-green) px-4 text-white hover:bg-(--primary-green-dark)"
 						>
 							<Link href="/auth" className="gap-2">
 								<LogIn className="h-4 w-4" />
@@ -114,7 +111,6 @@ export function Header() {
 					)}
 				</div>
 
-				{/* Mobile Menu Button */}
 				<Button
 					variant="ghost"
 					size="icon"
@@ -126,7 +122,6 @@ export function Header() {
 				</Button>
 			</div>
 
-			{/* Mobile Navigation */}
 			{mounted && (
 				<MobileNav
 					open={mobileNavOpen}

@@ -4,57 +4,20 @@ import { useState } from 'react'
 import { TopBar } from '@/components/admin/topbar'
 import { BentoCard } from '@/components/admin/bento-card'
 import { DateRangePicker } from '@/components/admin/date-range-picker'
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components/ui/card'
+import { ActivityChart } from '@/components/admin/activity-chart'
+import { CategoryChart } from '@/components/admin/category-chart'
+import { RecentActivity } from '@/components/admin/recent-activity'
 import { useDashboard } from '@/application/dashboard/use-dashboard'
 import { useRecentActivities } from '@/application/events/use-events'
 import type { DateRange } from 'react-day-picker'
 import {
 	QrCode,
-	CheckCircle,
+	CheckCircle2,
 	Scan,
 	Phone,
 	AlertTriangle,
-	CheckCircle2,
 	Users,
-	ArrowRight,
-	TrendingUp,
 } from 'lucide-react'
-import {
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	CartesianGrid,
-	Tooltip,
-	ResponsiveContainer,
-	BarChart,
-	Bar,
-	Area,
-	AreaChart,
-} from 'recharts'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import Link from 'next/link'
-import { cn } from '@retrouve-ci/ui/lib/utils'
-
-function ActivityIcon({ type }: { type: string }) {
-	switch (type) {
-		case 'scan':
-			return <Scan className="h-4 w-4 text-green-600" />
-		case 'user':
-			return <Users className="h-4 w-4 text-blue-600" />
-		case 'post':
-			return <AlertTriangle className="h-4 w-4 text-orange-600" />
-		case 'contact':
-			return <Phone className="h-4 w-4 text-purple-600" />
-		default:
-			return <CheckCircle className="h-4 w-4 text-gray-600" />
-	}
-}
 
 export default function DashboardPage() {
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
@@ -66,14 +29,13 @@ export default function DashboardPage() {
 			<TopBar title="Dashboard" />
 			<div className="pt-16">
 				<div className="p-4 lg:p-6">
-					{/* Header with greeting and date picker */}
 					<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 						<div>
 							<h1 className="text-foreground text-2xl font-bold lg:text-3xl">
 								Bienvenue sur RetrouveCI
 							</h1>
 							<p className="text-muted-foreground mt-1">
-								Voici un apercu de votre plateforme
+								Voici un aperçu de votre plateforme
 							</p>
 						</div>
 						<DateRangePicker
@@ -82,9 +44,7 @@ export default function DashboardPage() {
 						/>
 					</div>
 
-					{/* Bento Grid Layout */}
 					<div className="grid auto-rows-[minmax(180px,auto)] gap-4 md:grid-cols-2 lg:grid-cols-4">
-						{/* Highlighted QR Stats - Takes 2 columns */}
 						<BentoCard
 							title="QR Codes Actifs"
 							value={stats?.qrActivated.value}
@@ -94,7 +54,6 @@ export default function DashboardPage() {
 							className="md:col-span-2"
 						/>
 
-						{/* Regular Stats */}
 						<BentoCard
 							title="Scans Totaux"
 							value={stats?.scans.value}
@@ -113,109 +72,8 @@ export default function DashboardPage() {
 							iconBgColor="bg-orange-100"
 						/>
 
-						{/* Activity Chart - Takes 2 columns and 2 rows */}
-						<Card className="overflow-hidden md:col-span-2 md:row-span-2">
-							<CardHeader className="pb-2">
-								<div className="flex items-center justify-between">
-									<CardTitle className="text-lg font-semibold">
-										Activite des 30 derniers jours
-									</CardTitle>
-									<div className="flex items-center gap-1 text-sm text-green-600">
-										<TrendingUp className="h-4 w-4" />
-										<span>+12%</span>
-									</div>
-								</div>
-							</CardHeader>
-							<CardContent className="pb-4">
-								<ResponsiveContainer width="100%" height={280}>
-									<AreaChart data={chartData?.activity}>
-										<defs>
-											<linearGradient
-												id="colorScans"
-												x1="0"
-												y1="0"
-												x2="0"
-												y2="1"
-											>
-												<stop
-													offset="5%"
-													stopColor="#1E7F43"
-													stopOpacity={0.3}
-												/>
-												<stop
-													offset="95%"
-													stopColor="#1E7F43"
-													stopOpacity={0}
-												/>
-											</linearGradient>
-											<linearGradient
-												id="colorActivations"
-												x1="0"
-												y1="0"
-												x2="0"
-												y2="1"
-											>
-												<stop
-													offset="5%"
-													stopColor="#F57C00"
-													stopOpacity={0.3}
-												/>
-												<stop
-													offset="95%"
-													stopColor="#F57C00"
-													stopOpacity={0}
-												/>
-											</linearGradient>
-										</defs>
-										<CartesianGrid
-											strokeDasharray="3 3"
-											stroke="#E5E7EB"
-											vertical={false}
-										/>
-										<XAxis
-											dataKey="date"
-											tick={{ fontSize: 11 }}
-											stroke="#9CA3AF"
-											axisLine={false}
-											tickLine={false}
-										/>
-										<YAxis
-											tick={{ fontSize: 11 }}
-											stroke="#9CA3AF"
-											axisLine={false}
-											tickLine={false}
-										/>
-										<Tooltip
-											contentStyle={{
-												backgroundColor: '#fff',
-												border: 'none',
-												borderRadius: '12px',
-												boxShadow:
-													'0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-											}}
-										/>
-										<Area
-											type="monotone"
-											dataKey="scans"
-											name="Scans"
-											stroke="#1E7F43"
-											strokeWidth={2}
-											fill="url(#colorScans)"
-										/>
-										<Area
-											type="monotone"
-											dataKey="activations"
-											name="Activations"
-											stroke="#F57C00"
-											strokeWidth={2}
-											fill="url(#colorActivations)"
-										/>
-									</AreaChart>
-								</ResponsiveContainer>
-							</CardContent>
-						</Card>
+						<ActivityChart data={chartData?.activity} />
 
-						{/* Posts Stats */}
 						<BentoCard
 							title="Posts Perdus"
 							value={stats?.postsLost.value}
@@ -226,7 +84,7 @@ export default function DashboardPage() {
 						/>
 
 						<BentoCard
-							title="Posts Retrouves"
+							title="Posts Retrouvés"
 							value={stats?.postsFound.value}
 							change={stats?.postsFound.change}
 							icon={CheckCircle2}
@@ -234,60 +92,8 @@ export default function DashboardPage() {
 							iconBgColor="bg-emerald-100"
 						/>
 
-						{/* Bar Chart - Takes 2 columns */}
-						<Card className="overflow-hidden md:col-span-2">
-							<CardHeader className="pb-2">
-								<CardTitle className="text-lg font-semibold">
-									Posts par categorie
-								</CardTitle>
-							</CardHeader>
-							<CardContent className="pb-4">
-								<ResponsiveContainer width="100%" height={180}>
-									<BarChart data={chartData?.postsByCategory} barGap={8}>
-										<CartesianGrid
-											strokeDasharray="3 3"
-											stroke="#E5E7EB"
-											vertical={false}
-										/>
-										<XAxis
-											dataKey="category"
-											tick={{ fontSize: 11 }}
-											stroke="#9CA3AF"
-											axisLine={false}
-											tickLine={false}
-										/>
-										<YAxis
-											tick={{ fontSize: 11 }}
-											stroke="#9CA3AF"
-											axisLine={false}
-											tickLine={false}
-										/>
-										<Tooltip
-											contentStyle={{
-												backgroundColor: '#fff',
-												border: 'none',
-												borderRadius: '12px',
-												boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-											}}
-										/>
-										<Bar
-											dataKey="lost"
-											name="Perdus"
-											fill="#EF4444"
-											radius={[6, 6, 0, 0]}
-										/>
-										<Bar
-											dataKey="found"
-											name="Retrouves"
-											fill="#1E7F43"
-											radius={[6, 6, 0, 0]}
-										/>
-									</BarChart>
-								</ResponsiveContainer>
-							</CardContent>
-						</Card>
+						<CategoryChart data={chartData?.postsByCategory} />
 
-						{/* New Users & QR Generated */}
 						<BentoCard
 							title="Nouveaux Utilisateurs"
 							value={stats?.newUsers.value}
@@ -298,7 +104,7 @@ export default function DashboardPage() {
 						/>
 
 						<BentoCard
-							title="QR Generes"
+							title="QR Générés"
 							value={stats?.qrGenerated.value}
 							change={stats?.qrGenerated.change}
 							icon={QrCode}
@@ -306,50 +112,7 @@ export default function DashboardPage() {
 							iconBgColor="bg-indigo-100"
 						/>
 
-						{/* Recent Activity - Takes 2 columns */}
-						<Card className="overflow-hidden md:col-span-2 lg:col-span-2">
-							<CardHeader className="flex flex-row items-center justify-between pb-2">
-								<CardTitle className="text-lg font-semibold">
-									Activite Recente
-								</CardTitle>
-								<Button variant="ghost" size="sm" asChild>
-									<Link
-										href="/admin/events"
-										className="text-primary hover:text-primary/80 gap-1"
-									>
-										Voir tout <ArrowRight className="h-4 w-4" />
-									</Link>
-								</Button>
-							</CardHeader>
-							<CardContent>
-								<div className="space-y-3">
-									{activities.map(activity => (
-										<div
-											key={activity.id}
-											className="hover:bg-muted/50 flex items-start gap-3 rounded-xl p-3 transition-colors"
-										>
-											<div
-												className={cn(
-													'rounded-full p-2.5',
-													activity.type === 'scan' && 'bg-green-100',
-													activity.type === 'user' && 'bg-blue-100',
-													activity.type === 'post' && 'bg-orange-100',
-													activity.type === 'contact' && 'bg-purple-100',
-												)}
-											>
-												<ActivityIcon type={activity.type} />
-											</div>
-											<div className="min-w-0 flex-1">
-												<p className="text-sm font-medium">{activity.text}</p>
-												<p className="text-muted-foreground text-xs">
-													{activity.timestamp}
-												</p>
-											</div>
-										</div>
-									))}
-								</div>
-							</CardContent>
-						</Card>
+						<RecentActivity activities={activities} />
 					</div>
 				</div>
 			</div>
