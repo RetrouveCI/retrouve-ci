@@ -16,16 +16,16 @@ import {
 	MapPin,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@repo/ui/components/ui/button'
-import { Input } from '@repo/ui/components/ui/input'
-import { Label } from '@repo/ui/components/ui/label'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Input } from '@retrouve-ci/ui/components/ui/input'
+import { Label } from '@retrouve-ci/ui/components/ui/label'
 import {
 	InputOTP,
 	InputOTPGroup,
 	InputOTPSlot,
-} from '@repo/ui/components/ui/input-otp'
+} from '@retrouve-ci/ui/components/ui/input-otp'
 import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 

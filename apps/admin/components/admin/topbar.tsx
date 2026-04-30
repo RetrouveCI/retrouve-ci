@@ -1,8 +1,8 @@
 'use client'
 
 import { useAuth } from '@/lib/auth-context'
-import { Avatar, AvatarFallback } from '@repo/ui/components/ui/avatar'
-import { Button } from '@repo/ui/components/ui/button'
+import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -10,13 +10,13 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from '@repo/ui/components/ui/dropdown-menu'
+} from '@retrouve-ci/ui/components/ui/dropdown-menu'
 import { Bell, LogOut, User, ChevronDown } from 'lucide-react'
 import { mockNotifications } from '@/lib/mock-data'
 import { MobileSidebar } from './sidebar'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Badge } from '@repo/ui/components/ui/badge'
+import { Badge } from '@retrouve-ci/ui/components/ui/badge'
 
 interface TopBarProps {
 	title: string

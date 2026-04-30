@@ -18,9 +18,9 @@ import {
 	Search,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@repo/ui/components/ui/button'
-import { Input } from '@repo/ui/components/ui/input'
-import { Badge } from '@repo/ui/components/ui/badge'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Input } from '@retrouve-ci/ui/components/ui/input'
+import { Badge } from '@retrouve-ci/ui/components/ui/badge'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -31,11 +31,11 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '@repo/ui/components/ui/alert-dialog'
+} from '@retrouve-ci/ui/components/ui/alert-dialog'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { useAuth, type UserListing } from '@/contexts/auth-context'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 import { redirect } from 'next/navigation'
 import { useState, useMemo } from 'react'
 

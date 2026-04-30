@@ -11,7 +11,7 @@ import {
 	Briefcase,
 	Laptop,
 } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 
 export interface Listing {
 	id: string

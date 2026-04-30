@@ -1,4 +1,4 @@
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 
 type WaveVariant = 'smooth' | 'layered' | 'asymmetric' | 'inverse'
 type WaveColor = 'green' | 'orange' | 'mixed'

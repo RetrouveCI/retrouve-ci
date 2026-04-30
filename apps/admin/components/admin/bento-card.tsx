@@ -1,7 +1,7 @@
 'use client'
 
-import { Card } from '@repo/ui/components/ui/card'
-import { cn } from '@repo/ui/lib/utils'
+import { Card } from '@retrouve-ci/ui/components/ui/card'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 import type { LucideIcon } from 'lucide-react'
 
 interface BentoCardProps {

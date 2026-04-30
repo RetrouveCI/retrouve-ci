@@ -5,15 +5,15 @@ import { TopBar } from '@/components/admin/topbar'
 import { DataTable } from '@/components/admin/data-table'
 import { DateRangePicker } from '@/components/admin/date-range-picker'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@repo/ui/components/ui/button'
-import { Badge } from '@repo/ui/components/ui/badge'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Badge } from '@retrouve-ci/ui/components/ui/badge'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@repo/ui/components/ui/select'
+} from '@retrouve-ci/ui/components/ui/select'
 import { mockEvents } from '@/lib/mock-data'
 import type { Event } from '@/lib/types'
 import type { DateRange } from 'react-day-picker'

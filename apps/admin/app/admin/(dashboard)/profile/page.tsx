@@ -4,18 +4,18 @@ import { useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { TopBar } from '@/components/admin/topbar'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@repo/ui/components/ui/button'
-import { Input } from '@repo/ui/components/ui/input'
-import { Label } from '@repo/ui/components/ui/label'
-import { Avatar, AvatarFallback } from '@repo/ui/components/ui/avatar'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Input } from '@retrouve-ci/ui/components/ui/input'
+import { Label } from '@retrouve-ci/ui/components/ui/label'
+import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
 import {
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
-} from '@repo/ui/components/ui/tabs'
-import { Badge } from '@repo/ui/components/ui/badge'
-import { Separator } from '@repo/ui/components/ui/separator'
+} from '@retrouve-ci/ui/components/ui/tabs'
+import { Badge } from '@retrouve-ci/ui/components/ui/badge'
+import { Separator } from '@retrouve-ci/ui/components/ui/separator'
 import {
 	User,
 	Mail,

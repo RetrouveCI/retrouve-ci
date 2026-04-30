@@ -13,9 +13,9 @@ import {
 	Calendar,
 	Check,
 } from 'lucide-react'
-import { Button } from '@repo/ui/components/ui/button'
-import { Label } from '@repo/ui/components/ui/label'
-import { Switch } from '@repo/ui/components/ui/switch'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Label } from '@retrouve-ci/ui/components/ui/label'
+import { Switch } from '@retrouve-ci/ui/components/ui/switch'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -26,7 +26,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '@repo/ui/components/ui/alert-dialog'
+} from '@retrouve-ci/ui/components/ui/alert-dialog'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { useAuth } from '@/contexts/auth-context'

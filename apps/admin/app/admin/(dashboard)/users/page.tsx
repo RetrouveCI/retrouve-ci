@@ -6,23 +6,23 @@ import { TopBar } from '@/components/admin/topbar'
 import { DataTable } from '@/components/admin/data-table'
 import { DateRangePicker } from '@/components/admin/date-range-picker'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@repo/ui/components/ui/button'
-import { Badge } from '@repo/ui/components/ui/badge'
-import { Avatar, AvatarFallback } from '@repo/ui/components/ui/avatar'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Badge } from '@retrouve-ci/ui/components/ui/badge'
+import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from '@repo/ui/components/ui/dropdown-menu'
+} from '@retrouve-ci/ui/components/ui/dropdown-menu'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@repo/ui/components/ui/select'
+} from '@retrouve-ci/ui/components/ui/select'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -32,7 +32,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from '@repo/ui/components/ui/alert-dialog'
+} from '@retrouve-ci/ui/components/ui/alert-dialog'
 import { mockUsers } from '@/lib/mock-data'
 import type { User } from '@/lib/types'
 import type { DateRange } from 'react-day-picker'

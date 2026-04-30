@@ -12,8 +12,8 @@
 	},
 	"aliases": {
 		"components": "@/components",
-		"utils": "@repo/ui/lib/utils",
-		"ui": "@repo/ui/components/ui",
+		"utils": "@retrouve-ci/ui/lib/utils",
+		"ui": "@retrouve-ci/ui/components/ui",
 		"lib": "@/lib",
 		"hooks": "@/hooks"
 	},

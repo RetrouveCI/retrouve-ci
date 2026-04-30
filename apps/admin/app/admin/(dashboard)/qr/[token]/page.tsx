@@ -3,14 +3,14 @@
 import { use, useState } from 'react'
 import Link from 'next/link'
 import { TopBar } from '@/components/admin/topbar'
-import { Button } from '@repo/ui/components/ui/button'
-import { Badge } from '@repo/ui/components/ui/badge'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Badge } from '@retrouve-ci/ui/components/ui/badge'
 import {
 	Card,
 	CardContent,
 	CardHeader,
 	CardTitle,
-} from '@repo/ui/components/ui/card'
+} from '@retrouve-ci/ui/components/ui/card'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -20,7 +20,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from '@repo/ui/components/ui/alert-dialog'
+} from '@retrouve-ci/ui/components/ui/alert-dialog'
 import { mockQRTokens, mockEvents } from '@/lib/mock-data'
 import {
 	ArrowLeft,

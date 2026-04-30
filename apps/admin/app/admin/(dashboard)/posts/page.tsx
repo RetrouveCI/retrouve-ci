@@ -9,14 +9,14 @@ import {
 	type PostsFilterState,
 } from '@/components/admin/posts-filter'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@repo/ui/components/ui/button'
-import { Badge } from '@repo/ui/components/ui/badge'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Badge } from '@retrouve-ci/ui/components/ui/badge'
 import {
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
-} from '@repo/ui/components/ui/tabs'
+} from '@retrouve-ci/ui/components/ui/tabs'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -26,7 +26,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from '@repo/ui/components/ui/alert-dialog'
+} from '@retrouve-ci/ui/components/ui/alert-dialog'
 import { mockPosts } from '@/lib/mock-data'
 import type { Post } from '@/lib/types'
 import {

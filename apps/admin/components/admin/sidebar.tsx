@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 import { useAuth } from '@/lib/auth-context'
-import { Avatar, AvatarFallback } from '@repo/ui/components/ui/avatar'
-import { Button } from '@repo/ui/components/ui/button'
-import { Sheet, SheetContent, SheetTrigger } from '@repo/ui/components/ui/sheet'
+import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Sheet, SheetContent, SheetTrigger } from '@retrouve-ci/ui/components/ui/sheet'
 import {
 	LayoutDashboard,
 	Users,

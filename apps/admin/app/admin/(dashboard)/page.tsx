@@ -9,7 +9,7 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
-} from '@repo/ui/components/ui/card'
+} from '@retrouve-ci/ui/components/ui/card'
 import {
 	mockDashboardStats,
 	mockChartData,
@@ -40,9 +40,9 @@ import {
 	Area,
 	AreaChart,
 } from 'recharts'
-import { Button } from '@repo/ui/components/ui/button'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
 import Link from 'next/link'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 
 function ActivityIcon({ type }: { type: string }) {
 	switch (type) {

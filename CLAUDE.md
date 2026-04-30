@@ -27,7 +27,7 @@ To run a single app or package in isolation:
 ```bash
 pnpm --filter client dev
 pnpm --filter admin dev
-pnpm --filter @repo/ui build  # Must be built before apps can consume it
+pnpm --filter @retrouve-ci/ui build  # Must be built before apps can consume it
 ```
 
 There are no tests configured yet.
@@ -36,7 +36,7 @@ There are no tests configured yet.
 
 ### Monorepo layout
 
-```
+```text
 apps/
   client/   # Public-facing app (Next.js, port 3000)
   admin/    # Admin dashboard (Next.js, port 3001)
@@ -49,7 +49,7 @@ packages/
 
 ### Shared UI package (`packages/ui`)
 
-`@repo/ui` compiles TypeScript to `dist/` and exports CSS as
+`@retrouve-ci/ui` compiles TypeScript to `dist/` and exports CSS as
 `@repo/ui/styles.css`. It currently contains only a few stub components (Card,
 Gradient, TurborepoLogo). **This package must be built before the apps**, which
 Turborepo handles automatically via `"dependsOn": ["^build"]` in `turbo.json`.
@@ -111,5 +111,5 @@ redirect to `/admin/login` when unauthenticated.
 Tailwind CSS v4 is used throughout. Shared base styles live in
 `packages/tailwind-config/shared-styles.css` using `@theme` directives. Each app
 has its own `app/globals.css` with CSS variables for design tokens (light/dark
-mode). The `@repo/ui` package uses a `ui-` class prefix to avoid conflicts with
+mode). The `@retrouve-ci/ui` package uses a `ui-` class prefix to avoid conflicts with
 app-level Tailwind classes.

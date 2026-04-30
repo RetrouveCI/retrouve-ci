@@ -22,14 +22,14 @@ import {
 	X,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@repo/ui/components/ui/button'
-import { Input } from '@repo/ui/components/ui/input'
-import { Label } from '@repo/ui/components/ui/label'
-import { Textarea } from '@repo/ui/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@repo/ui/components/ui/radio-group'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Input } from '@retrouve-ci/ui/components/ui/input'
+import { Label } from '@retrouve-ci/ui/components/ui/label'
+import { Textarea } from '@retrouve-ci/ui/components/ui/textarea'
+import { RadioGroup, RadioGroupItem } from '@retrouve-ci/ui/components/ui/radio-group'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 
 const DELIVERY_FEE = 1000
 const VALID_COUPONS = ['RETROUVECI', 'LIVRAISON0', 'WELCOME2025']

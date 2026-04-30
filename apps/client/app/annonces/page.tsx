@@ -23,33 +23,33 @@ import {
 	LayoutGrid,
 	List,
 } from 'lucide-react'
-import { Input } from '@repo/ui/components/ui/input'
-import { Button } from '@repo/ui/components/ui/button'
+import { Input } from '@retrouve-ci/ui/components/ui/input'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
 import {
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
-} from '@repo/ui/components/ui/tabs'
+} from '@retrouve-ci/ui/components/ui/tabs'
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from '@repo/ui/components/ui/popover'
-import { Calendar as CalendarComponent } from '@repo/ui/components/ui/calendar'
+} from '@retrouve-ci/ui/components/ui/popover'
+import { Calendar as CalendarComponent } from '@retrouve-ci/ui/components/ui/calendar'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@repo/ui/components/ui/select'
+} from '@retrouve-ci/ui/components/ui/select'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { ListingCard, type Listing } from '@/components/listing-card'
 import { FloatingActionButton } from '@/components/floating-action-button'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/lib/ci-locations'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 
 const ITEMS_PER_PAGE = 6
 

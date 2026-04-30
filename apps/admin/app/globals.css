@@ -1,4 +1,4 @@
-@import "@repo/ui/globals.css";
+@import "@retrouve-ci/ui/globals.css";
 @source "../../../packages/ui/src";
 
 /* Override font for admin dashboard */

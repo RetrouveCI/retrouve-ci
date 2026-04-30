@@ -1,5 +1,5 @@
 import { LucideIcon } from 'lucide-react'
-import { cn } from '@repo/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 
 interface FeatureCardProps {
 	icon: LucideIcon

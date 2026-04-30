@@ -4,16 +4,16 @@ import { use } from 'react'
 import Link from 'next/link'
 import { TopBar } from '@/components/admin/topbar'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@repo/ui/components/ui/button'
-import { Badge } from '@repo/ui/components/ui/badge'
-import { CardContent, CardHeader, CardTitle } from '@repo/ui/components/ui/card'
-import { Avatar, AvatarFallback } from '@repo/ui/components/ui/avatar'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
+import { Badge } from '@retrouve-ci/ui/components/ui/badge'
+import { CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components/ui/card'
+import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
 import {
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
-} from '@repo/ui/components/ui/tabs'
+} from '@retrouve-ci/ui/components/ui/tabs'
 import {
 	Table,
 	TableBody,
@@ -21,7 +21,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@repo/ui/components/ui/table'
+} from '@retrouve-ci/ui/components/ui/table'
 import {
 	mockUsers,
 	mockQRTokens,

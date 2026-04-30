@@ -12,15 +12,15 @@ import {
 	User,
 	ChevronRight,
 } from 'lucide-react'
-import { Button } from '@repo/ui/components/ui/button'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
 import {
 	Sheet,
 	SheetContent,
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
-} from '@repo/ui/components/ui/sheet'
-import { cn } from '@repo/ui/lib/utils'
+} from '@retrouve-ci/ui/components/ui/sheet'
+import { cn } from '@retrouve-ci/ui/lib/utils'
 import { useAuth } from '@/contexts/auth-context'
 
 interface MobileNavProps {

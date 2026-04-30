@@ -2,16 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@repo/ui/components/ui/button'
+import { Button } from '@retrouve-ci/ui/components/ui/button'
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from '@repo/ui/components/ui/card'
-import { Input } from '@repo/ui/components/ui/input'
-import { FieldGroup, Field, FieldLabel } from '@repo/ui/components/ui/field'
+} from '@retrouve-ci/ui/components/ui/card'
+import { Input } from '@retrouve-ci/ui/components/ui/input'
+import { FieldGroup, Field, FieldLabel } from '@retrouve-ci/ui/components/ui/field'
 import { Loader2, QrCode, Lock, Mail } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { toast } from 'sonner'

@@ -20,8 +20,8 @@
 		],
 		"paths": {
 			"@/*": ["./*"],
-			"@repo/ui/lib/utils": ["../../packages/ui/src/lib/utils.ts"],
-			"@repo/ui/components/ui/*": ["../../packages/ui/src/components/ui/*"]
+			"@retrouve-ci/ui/lib/utils": ["../../packages/ui/src/lib/utils.ts"],
+			"@retrouve-ci/ui/components/ui/*": ["../../packages/ui/src/components/ui/*"]
 		}
 	},
 	"include": [
