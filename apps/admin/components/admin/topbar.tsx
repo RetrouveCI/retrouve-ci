@@ -16,8 +16,6 @@ import { mockNotifications } from '@/lib/mock-data'
 import { MobileSidebar } from './sidebar'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-
 interface TopBarProps {
 	title: string
 }

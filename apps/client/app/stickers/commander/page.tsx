@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
 	Package,
 	Check,
@@ -13,7 +12,6 @@ import {
 	User,
 	QrCode,
 	Shield,
-	Truck,
 	CreditCard,
 	Smartphone,
 	CheckCircle2,

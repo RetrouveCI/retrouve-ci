@@ -23,7 +23,7 @@ class MockQRTokenRepository implements IQRTokenRepository {
 
 	async generate(batch: string, quantity: number): Promise<QRToken[]> {
 		const now = new Date().toISOString()
-		const generated: QRToken[] = Array.from({ length: quantity }, (_, i) => ({
+		const generated: QRToken[] = Array.from({ length: quantity }, () => ({
 			token: `RCI-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
 			status: 'generated' as const,
 			batch,

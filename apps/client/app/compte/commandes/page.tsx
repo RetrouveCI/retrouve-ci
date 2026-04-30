@@ -14,7 +14,6 @@ import {
 	MapPin,
 	CreditCard,
 	Calendar,
-	Eye,
 	Plus,
 } from 'lucide-react'
 import { Button } from '@retrouve-ci/ui/components/ui/button'

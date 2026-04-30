@@ -14,7 +14,8 @@
       "Bash(pnpm --filter @retrouve-ci/ui lint)",
       "Bash(pnpm format *)",
       "Bash(tree -L 5 /home/joeldigbeu/workspace/retrouve-ci/apps/admin --ignore node_modules -I '.next')",
-      "Bash(pnpm --filter admin build)"
+      "Bash(pnpm --filter admin build)",
+      "Bash(pnpm lint *)"
     ]
   }
 }

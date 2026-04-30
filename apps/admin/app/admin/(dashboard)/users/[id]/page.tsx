@@ -43,7 +43,6 @@ import {
 	MapPin,
 	Truck,
 	Clock,
-	User,
 	ShoppingBag,
 } from 'lucide-react'
 import { format } from 'date-fns'
@@ -121,10 +120,6 @@ export default function UserDetailPage({
 		(sum, o) => sum + o.quantity,
 		0,
 	)
-	const deliveredOrders = userOrders.filter(
-		o => o.status === 'delivered',
-	).length
-
 	return (
 		<>
 			<TopBar title={user.name} />

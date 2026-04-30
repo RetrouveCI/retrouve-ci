@@ -221,10 +221,6 @@ export default function NotificationsPage() {
 								{filtered.map(notif => {
 									const cfg = typeConfig[notif.type]
 									const Icon = cfg.icon
-									const Wrapper = notif.link ? Link : 'div'
-									const wrapperProps = notif.link
-										? { href: notif.link, onClick: () => markAsRead(notif.id) }
-										: {}
 
 									return (
 										<li

@@ -4,7 +4,6 @@ import { useState } from 'react'
 import {
 	Mail,
 	MessageSquare,
-	Phone,
 	MapPin,
 	Send,
 	Clock,
