@@ -22,8 +22,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@retrouve-ci/ui/components/ui/select'
-import { mockQRTokens } from '@/lib/mock-data'
-import type { QRToken } from '@/lib/types'
+import { useQRTokens } from '@/application/qr/use-qr-tokens'
+import type { QRToken } from '@/domain/entities/qr-token'
 import type { DateRange } from 'react-day-picker'
 import {
 	MoreHorizontal,
@@ -46,15 +46,14 @@ export default function QRCodesPage() {
 	const [statusFilter, setStatusFilter] = useState<string>('all')
 	const [batchFilter, setBatchFilter] = useState<string>('all')
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+	const { tokens, revoke } = useQRTokens()
 
-	const batches = [...new Set(mockQRTokens.map(t => t.batch))]
-	const totalGenerated = mockQRTokens.length
-	const totalActivated = mockQRTokens.filter(
-		t => t.status === 'activated',
-	).length
-	const totalRevoked = mockQRTokens.filter(t => t.status === 'revoked').length
+	const batches = [...new Set(tokens.map(t => t.batch))]
+	const totalGenerated = tokens.length
+	const totalActivated = tokens.filter(t => t.status === 'activated').length
+	const totalRevoked = tokens.filter(t => t.status === 'revoked').length
 
-	let filteredTokens = mockQRTokens
+	let filteredTokens = tokens
 	if (statusFilter !== 'all')
 		filteredTokens = filteredTokens.filter(t => t.status === statusFilter)
 	if (batchFilter !== 'all')
@@ -204,7 +203,10 @@ export default function QRCodesPage() {
 						{row.original.status === 'activated' && (
 							<>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem className="text-destructive focus:text-destructive">
+								<DropdownMenuItem
+									className="text-destructive focus:text-destructive"
+									onClick={() => revoke(row.original.token)}
+								>
 									<Ban className="mr-2 h-4 w-4" /> Révoquer
 								</DropdownMenuItem>
 							</>

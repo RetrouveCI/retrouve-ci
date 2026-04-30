@@ -10,11 +10,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@retrouve-ci/ui/components/ui/card'
-import {
-	mockDashboardStats,
-	mockChartData,
-	mockActivities,
-} from '@/lib/mock-data'
+import { useDashboard } from '@/application/dashboard/use-dashboard'
+import { useRecentActivities } from '@/application/events/use-events'
 import type { DateRange } from 'react-day-picker'
 import {
 	QrCode,
@@ -61,6 +58,8 @@ function ActivityIcon({ type }: { type: string }) {
 
 export default function DashboardPage() {
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+	const { stats, chartData } = useDashboard()
+	const { activities } = useRecentActivities(6)
 
 	return (
 		<>
@@ -88,8 +87,8 @@ export default function DashboardPage() {
 						{/* Highlighted QR Stats - Takes 2 columns */}
 						<BentoCard
 							title="QR Codes Actifs"
-							value={mockDashboardStats.qrActivated.value}
-							change={mockDashboardStats.qrActivated.change}
+							value={stats?.qrActivated.value}
+							change={stats?.qrActivated.change}
 							icon={QrCode}
 							variant="highlight"
 							className="md:col-span-2"
@@ -98,8 +97,8 @@ export default function DashboardPage() {
 						{/* Regular Stats */}
 						<BentoCard
 							title="Scans Totaux"
-							value={mockDashboardStats.scans.value}
-							change={mockDashboardStats.scans.change}
+							value={stats?.scans.value}
+							change={stats?.scans.change}
 							icon={Scan}
 							iconColor="text-purple-600"
 							iconBgColor="bg-purple-100"
@@ -107,8 +106,8 @@ export default function DashboardPage() {
 
 						<BentoCard
 							title="Contacts"
-							value={mockDashboardStats.contacts.value}
-							change={mockDashboardStats.contacts.change}
+							value={stats?.contacts.value}
+							change={stats?.contacts.change}
 							icon={Phone}
 							iconColor="text-orange-600"
 							iconBgColor="bg-orange-100"
@@ -129,7 +128,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent className="pb-4">
 								<ResponsiveContainer width="100%" height={280}>
-									<AreaChart data={mockChartData.activity}>
+									<AreaChart data={chartData?.activity}>
 										<defs>
 											<linearGradient
 												id="colorScans"
@@ -219,8 +218,8 @@ export default function DashboardPage() {
 						{/* Posts Stats */}
 						<BentoCard
 							title="Posts Perdus"
-							value={mockDashboardStats.postsLost.value}
-							change={mockDashboardStats.postsLost.change}
+							value={stats?.postsLost.value}
+							change={stats?.postsLost.change}
 							icon={AlertTriangle}
 							iconColor="text-red-600"
 							iconBgColor="bg-red-100"
@@ -228,8 +227,8 @@ export default function DashboardPage() {
 
 						<BentoCard
 							title="Posts Retrouves"
-							value={mockDashboardStats.postsFound.value}
-							change={mockDashboardStats.postsFound.change}
+							value={stats?.postsFound.value}
+							change={stats?.postsFound.change}
 							icon={CheckCircle2}
 							iconColor="text-emerald-600"
 							iconBgColor="bg-emerald-100"
@@ -244,7 +243,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent className="pb-4">
 								<ResponsiveContainer width="100%" height={180}>
-									<BarChart data={mockChartData.postsByCategory} barGap={8}>
+									<BarChart data={chartData?.postsByCategory} barGap={8}>
 										<CartesianGrid
 											strokeDasharray="3 3"
 											stroke="#E5E7EB"
@@ -291,8 +290,8 @@ export default function DashboardPage() {
 						{/* New Users & QR Generated */}
 						<BentoCard
 							title="Nouveaux Utilisateurs"
-							value={mockDashboardStats.newUsers.value}
-							change={mockDashboardStats.newUsers.change}
+							value={stats?.newUsers.value}
+							change={stats?.newUsers.change}
 							icon={Users}
 							iconColor="text-blue-600"
 							iconBgColor="bg-blue-100"
@@ -300,8 +299,8 @@ export default function DashboardPage() {
 
 						<BentoCard
 							title="QR Generes"
-							value={mockDashboardStats.qrGenerated.value}
-							change={mockDashboardStats.qrGenerated.change}
+							value={stats?.qrGenerated.value}
+							change={stats?.qrGenerated.change}
 							icon={QrCode}
 							iconColor="text-indigo-600"
 							iconBgColor="bg-indigo-100"
@@ -324,7 +323,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="space-y-3">
-									{mockActivities.slice(0, 6).map(activity => (
+									{activities.map(activity => (
 										<div
 											key={activity.id}
 											className="hover:bg-muted/50 flex items-start gap-3 rounded-xl p-3 transition-colors"

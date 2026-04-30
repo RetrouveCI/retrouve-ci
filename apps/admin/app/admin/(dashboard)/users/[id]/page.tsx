@@ -22,13 +22,11 @@ import {
 	TableHeader,
 	TableRow,
 } from '@retrouve-ci/ui/components/ui/table'
-import {
-	mockUsers,
-	mockQRTokens,
-	mockPosts,
-	mockEvents,
-	mockStickerOrders,
-} from '@/lib/mock-data'
+import { useUser } from '@/application/users/use-users'
+import { useQRTokens } from '@/application/qr/use-qr-tokens'
+import { usePosts } from '@/application/posts/use-posts'
+import { useOrders } from '@/application/orders/use-orders'
+import { useEvents } from '@/application/events/use-events'
 import {
 	ArrowLeft,
 	Edit,
@@ -69,16 +67,23 @@ export default function UserDetailPage({
 	params: Promise<{ id: string }>
 }) {
 	const { id } = use(params)
+	const numericId = parseInt(id)
+	const { user, isLoading } = useUser(numericId)
+	const { tokens } = useQRTokens()
+	const { posts } = usePosts()
+	const { orders } = useOrders()
+	const { events } = useEvents()
 
-	const user = mockUsers.find(u => u.id === parseInt(id))
-	const userQRTokens = mockQRTokens.filter(t => t.userId === parseInt(id))
-	const userPosts = mockPosts.filter(p => p.authorId === parseInt(id))
-	const userOrders = mockStickerOrders.filter(o => o.userId === parseInt(id))
-	const userEvents = mockEvents.filter(
+	const userQRTokens = tokens.filter(t => t.userId === numericId)
+	const userPosts = posts.filter(p => p.authorId === numericId)
+	const userOrders = orders.filter(o => o.userId === numericId)
+	const userEvents = events.filter(
 		e =>
 			e.user === user?.name ||
 			(user && e.user.includes(user.name.split(' ')[0])),
 	)
+
+	if (isLoading) return null
 
 	if (!user) {
 		return (

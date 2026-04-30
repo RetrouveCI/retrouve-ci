@@ -14,8 +14,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@retrouve-ci/ui/components/ui/select'
-import { mockEvents } from '@/lib/mock-data'
-import type { Event } from '@/lib/types'
+import { useEvents } from '@/application/events/use-events'
+import type { Event } from '@/domain/entities/event'
 import type { DateRange } from 'react-day-picker'
 import { Download, RefreshCw, Activity, Scan, Phone, Zap } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -61,15 +61,13 @@ export default function EventsPage() {
 	const [typeFilter, setTypeFilter] = useState<string>('all')
 	const [sourceFilter, setSourceFilter] = useState<string>('all')
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-	const [isRefreshing, setIsRefreshing] = useState(false)
+	const { events, isLoading, refresh } = useEvents()
 
-	const totalScans = mockEvents.filter(e => e.type === 'scan').length
-	const totalContacts = mockEvents.filter(e => e.type === 'contact').length
-	const totalActivations = mockEvents.filter(
-		e => e.type === 'activation',
-	).length
+	const totalScans = events.filter(e => e.type === 'scan').length
+	const totalContacts = events.filter(e => e.type === 'contact').length
+	const totalActivations = events.filter(e => e.type === 'activation').length
 
-	let filteredEvents = mockEvents
+	let filteredEvents = events
 	if (typeFilter !== 'all')
 		filteredEvents = filteredEvents.filter(e => e.type === typeFilter)
 	if (sourceFilter !== 'all')
@@ -103,9 +101,7 @@ export default function EventsPage() {
 	}
 
 	const handleRefresh = async () => {
-		setIsRefreshing(true)
-		await new Promise(resolve => setTimeout(resolve, 1000))
-		setIsRefreshing(false)
+		await refresh()
 		toast.success('Événements actualisés')
 	}
 
@@ -167,7 +163,7 @@ export default function EventsPage() {
 						<BentoCard
 							variant="highlight"
 							title="Total événements"
-							value={mockEvents.length}
+							value={events.length}
 							icon={Activity}
 						/>
 						<BentoCard
@@ -235,10 +231,10 @@ export default function EventsPage() {
 									variant="outline"
 									size="sm"
 									onClick={handleRefresh}
-									disabled={isRefreshing}
+									disabled={isLoading}
 								>
 									<RefreshCw
-										className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+										className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
 									/>
 									Actualiser
 								</Button>

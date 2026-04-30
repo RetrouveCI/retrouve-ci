@@ -21,7 +21,8 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@retrouve-ci/ui/components/ui/alert-dialog'
-import { mockQRTokens, mockEvents } from '@/lib/mock-data'
+import { useQRToken } from '@/application/qr/use-qr-tokens'
+import { useEvents } from '@/application/events/use-events'
 import {
 	ArrowLeft,
 	Copy,
@@ -47,9 +48,11 @@ export default function QRTokenDetailPage({
 }) {
 	const { token: tokenId } = use(params)
 	const [showRevokeDialog, setShowRevokeDialog] = useState(false)
+	const { qrToken: token, isLoading, revoke: _revoke } = useQRToken(tokenId)
+	const { events } = useEvents()
+	const tokenEvents = events.filter(e => e.token === tokenId)
 
-	const token = mockQRTokens.find(t => t.token === tokenId)
-	const tokenEvents = mockEvents.filter(e => e.token === tokenId)
+	if (isLoading) return null
 
 	if (!token) {
 		return (
@@ -80,7 +83,8 @@ export default function QRTokenDetailPage({
 		toast.success(`${label} copié`)
 	}
 
-	const handleRevoke = () => {
+	const handleRevoke = async () => {
+		await _revoke()
 		toast.success(`Token ${token.token} révoqué`)
 		setShowRevokeDialog(false)
 	}

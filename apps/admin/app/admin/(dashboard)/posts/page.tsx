@@ -27,8 +27,8 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@retrouve-ci/ui/components/ui/alert-dialog'
-import { mockPosts } from '@/lib/mock-data'
-import type { Post } from '@/lib/types'
+import { usePosts } from '@/application/posts/use-posts'
+import type { Post } from '@/domain/entities/post'
 import {
 	Eye,
 	EyeOff,
@@ -51,14 +51,15 @@ export default function PostsPage() {
 		dateRange: undefined,
 	})
 	const [deletePost, setDeletePost] = useState<Post | null>(null)
+	const { posts, updateStatus, remove: removePost } = usePosts()
 
 	const locations = useMemo(
-		() => [...new Set(mockPosts.map(p => p.location))],
-		[],
+		() => [...new Set(posts.map(p => p.location))],
+		[posts],
 	)
 
 	const filteredPosts = useMemo(() => {
-		let result = mockPosts
+		let result = posts
 		if (filters.status !== 'all')
 			result = result.filter(p => p.status === filters.status)
 		if (filters.type !== 'all')
@@ -77,19 +78,21 @@ export default function PostsPage() {
 		return result
 	}, [filters])
 
-	const totalPublished = mockPosts.filter(p => p.status === 'published').length
-	const totalPending = mockPosts.filter(p => p.status === 'pending').length
-	const totalLost = mockPosts.filter(p => p.type === 'lost').length
+	const totalPublished = posts.filter(p => p.status === 'published').length
+	const totalPending = posts.filter(p => p.status === 'pending').length
+	const totalLost = posts.filter(p => p.type === 'lost').length
 
-	const handleDelete = () => {
+	const handleDelete = async () => {
 		if (deletePost) {
+			await removePost(deletePost.id)
 			toast.success(`Post "${deletePost.title}" supprimé`)
 			setDeletePost(null)
 		}
 	}
 
-	const handleToggleVisibility = (post: Post) => {
+	const handleToggleVisibility = async (post: Post) => {
 		const newStatus = post.status === 'hidden' ? 'published' : 'hidden'
+		await updateStatus(post.id, newStatus)
 		toast.success(newStatus === 'hidden' ? `Post masqué` : `Post affiché`)
 	}
 
@@ -204,7 +207,7 @@ export default function PostsPage() {
 						<BentoCard
 							variant="highlight"
 							title="Total posts"
-							value={mockPosts.length}
+							value={posts.length}
 							icon={FileText}
 						/>
 						<BentoCard

@@ -33,8 +33,8 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@retrouve-ci/ui/components/ui/alert-dialog'
-import { mockUsers } from '@/lib/mock-data'
-import type { User } from '@/lib/types'
+import { useUsers } from '@/application/users/use-users'
+import type { User } from '@/domain/entities/user'
 import type { DateRange } from 'react-day-picker'
 import {
 	MoreHorizontal,
@@ -56,8 +56,9 @@ export default function UsersPage() {
 	const [statusFilter, setStatusFilter] = useState<string>('all')
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 	const [deleteUser, setDeleteUser] = useState<User | null>(null)
+	const { users } = useUsers()
 
-	let filteredUsers = mockUsers
+	let filteredUsers = users
 	if (statusFilter !== 'all') {
 		filteredUsers = filteredUsers.filter(u => u.status === statusFilter)
 	}
@@ -71,9 +72,9 @@ export default function UsersPage() {
 		})
 	}
 
-	const totalUsers = mockUsers.length
-	const activeUsers = mockUsers.filter(u => u.status === 'active').length
-	const inactiveUsers = mockUsers.filter(u => u.status === 'inactive').length
+	const totalUsers = users.length
+	const activeUsers = users.filter(u => u.status === 'active').length
+	const inactiveUsers = users.filter(u => u.status === 'inactive').length
 
 	const handleExportCSV = () => {
 		const headers = [

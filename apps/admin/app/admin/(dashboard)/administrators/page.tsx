@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { mockAdmins } from '@/lib/mock-data'
-import type { Admin } from '@/lib/types'
+import { useAdministrators } from '@/application/administrators/use-administrators'
+import type { Admin } from '@/domain/entities/admin'
 import { TopBar } from '@/components/admin/topbar'
 import { DataTable } from '@/components/admin/data-table'
 import { BentoCard } from '@/components/admin/bento-card'
@@ -88,20 +88,27 @@ export default function AdministratorsPage() {
 		phone: '',
 		role: 'moderator' as 'super_admin' | 'admin' | 'moderator',
 	})
+	const [editAdminForm, setEditAdminForm] = useState({
+		name: '',
+		email: '',
+		phone: '',
+		role: 'moderator' as 'super_admin' | 'admin' | 'moderator',
+	})
+	const { admins, create, update, updateStatus, remove } = useAdministrators()
 
 	const filteredAdmins =
 		statusFilter === 'all'
-			? mockAdmins
-			: mockAdmins.filter(a => a.status === statusFilter)
+			? admins
+			: admins.filter(a => a.status === statusFilter)
 
-	const totalAdmins = mockAdmins.length
-	const activeAdmins = mockAdmins.filter(a => a.status === 'active').length
-	const superAdmins = mockAdmins.filter(a => a.role === 'super_admin').length
+	const totalAdmins = admins.length
+	const activeAdmins = admins.filter(a => a.status === 'active').length
+	const superAdmins = admins.filter(a => a.role === 'super_admin').length
 
 	const handleAddAdmin = async (e: React.FormEvent) => {
 		e.preventDefault()
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1000))
+		await create(newAdminForm)
 		setIsSubmitting(false)
 		setShowAddDialog(false)
 		setNewAdminForm({ name: '', email: '', phone: '', role: 'moderator' })
@@ -110,8 +117,9 @@ export default function AdministratorsPage() {
 
 	const handleEditAdmin = async (e: React.FormEvent) => {
 		e.preventDefault()
+		if (!selectedAdmin) return
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1000))
+		await update(selectedAdmin.id, editAdminForm)
 		setIsSubmitting(false)
 		setShowEditDialog(false)
 		setSelectedAdmin(null)
@@ -119,8 +127,9 @@ export default function AdministratorsPage() {
 	}
 
 	const handleDeleteAdmin = async () => {
+		if (!selectedAdmin) return
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1000))
+		await remove(selectedAdmin.id)
 		setIsSubmitting(false)
 		setShowDeleteDialog(false)
 		setSelectedAdmin(null)
@@ -228,6 +237,12 @@ export default function AdministratorsPage() {
 							<DropdownMenuItem
 								onClick={() => {
 									setSelectedAdmin(admin)
+									setEditAdminForm({
+										name: admin.name,
+										email: admin.email,
+										phone: admin.phone,
+										role: admin.role,
+									})
 									setShowEditDialog(true)
 								}}
 							>
@@ -243,11 +258,15 @@ export default function AdministratorsPage() {
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
-								onClick={() =>
-									toast.success(
-										`Compte ${admin.status === 'active' ? 'désactivé' : 'activé'}`,
+								onClick={() => {
+									const newStatus =
+										admin.status === 'active' ? 'inactive' : 'active'
+									updateStatus(admin.id, newStatus).then(() =>
+										toast.success(
+											`Compte ${admin.status === 'active' ? 'désactivé' : 'activé'}`,
+										),
 									)
-								}
+								}}
 								disabled={isSuperAdmin}
 							>
 								<Ban className="mr-2 h-4 w-4" />
@@ -423,7 +442,10 @@ export default function AdministratorsPage() {
 							<Label htmlFor="edit-name">Nom complet</Label>
 							<Input
 								id="edit-name"
-								defaultValue={selectedAdmin?.name}
+								value={editAdminForm.name}
+								onChange={e =>
+									setEditAdminForm(p => ({ ...p, name: e.target.value }))
+								}
 								required
 							/>
 						</div>
@@ -432,7 +454,10 @@ export default function AdministratorsPage() {
 							<Input
 								id="edit-email"
 								type="email"
-								defaultValue={selectedAdmin?.email}
+								value={editAdminForm.email}
+								onChange={e =>
+									setEditAdminForm(p => ({ ...p, email: e.target.value }))
+								}
 								required
 							/>
 						</div>
@@ -440,13 +465,21 @@ export default function AdministratorsPage() {
 							<Label htmlFor="edit-phone">Téléphone</Label>
 							<Input
 								id="edit-phone"
-								defaultValue={selectedAdmin?.phone}
+								value={editAdminForm.phone}
+								onChange={e =>
+									setEditAdminForm(p => ({ ...p, phone: e.target.value }))
+								}
 								required
 							/>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="edit-role">Rôle</Label>
-							<Select defaultValue={selectedAdmin?.role}>
+							<Select
+								value={editAdminForm.role}
+								onValueChange={(v: 'admin' | 'moderator') =>
+									setEditAdminForm(p => ({ ...p, role: v }))
+								}
+							>
 								<SelectTrigger>
 									<SelectValue />
 								</SelectTrigger>

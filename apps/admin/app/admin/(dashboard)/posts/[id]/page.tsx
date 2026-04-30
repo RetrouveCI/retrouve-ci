@@ -30,7 +30,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@retrouve-ci/ui/components/ui/dialog'
-import { mockPosts } from '@/lib/mock-data'
+import { usePost } from '@/application/posts/use-posts'
 import {
 	ArrowLeft,
 	MapPin,
@@ -59,8 +59,9 @@ export default function PostDetailPage({
 	const [showHideDialog, setShowHideDialog] = useState(false)
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 	const [hideReason, setHideReason] = useState('')
+	const { post, isLoading, updateStatus, remove } = usePost(parseInt(id))
 
-	const post = mockPosts.find(p => p.id === parseInt(id))
+	if (isLoading) return null
 
 	if (!post) {
 		return (
@@ -84,17 +85,20 @@ export default function PostDetailPage({
 		)
 	}
 
-	const handleApprove = () => {
+	const handleApprove = async () => {
+		await updateStatus('published')
 		toast.success(`Post "${post.title}" approuvé et publié`)
 	}
 
-	const handleHide = () => {
+	const handleHide = async () => {
+		await updateStatus('hidden')
 		toast.success(`Post "${post.title}" masqué`)
 		setShowHideDialog(false)
 		setHideReason('')
 	}
 
-	const handleDelete = () => {
+	const handleDelete = async () => {
+		await remove()
 		toast.success(`Post "${post.title}" supprimé`)
 		setShowDeleteDialog(false)
 		router.push('/admin/posts')

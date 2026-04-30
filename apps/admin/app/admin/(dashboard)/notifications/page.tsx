@@ -7,8 +7,8 @@ import { BentoCard } from '@/components/admin/bento-card'
 import { Button } from '@retrouve-ci/ui/components/ui/button'
 import { Badge } from '@retrouve-ci/ui/components/ui/badge'
 import { cn } from '@retrouve-ci/ui/lib/utils'
-import { mockNotifications } from '@/lib/mock-data'
-import type { Notification } from '@/lib/types'
+import { useNotifications } from '@/application/notifications/use-notifications'
+import type { Notification } from '@/domain/entities/notification'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import {
@@ -73,12 +73,17 @@ const typeConfig: Record<
 }
 
 export default function NotificationsPage() {
-	const [notifications, setNotifications] =
-		useState<Notification[]>(mockNotifications)
+	const {
+		notifications,
+		unreadCount,
+		markAsRead,
+		markAllAsRead,
+		remove,
+	} = useNotifications()
 	const [typeFilter, setTypeFilter] = useState<string>('all')
 	const [readFilter, setReadFilter] = useState<string>('all')
 
-	const unread = notifications.filter(n => !n.read).length
+	const unread = unreadCount
 	const totalByType = (type: Notification['type']) =>
 		notifications.filter(n => n.type === type).length
 
@@ -89,17 +94,6 @@ export default function NotificationsPage() {
 		filtered = filtered.filter(n => n.type === typeFilter)
 	if (readFilter === 'unread') filtered = filtered.filter(n => !n.read)
 	if (readFilter === 'read') filtered = filtered.filter(n => n.read)
-
-	const markAllRead = () =>
-		setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-
-	const markRead = (id: number) =>
-		setNotifications(prev =>
-			prev.map(n => (n.id === id ? { ...n, read: true } : n)),
-		)
-
-	const remove = (id: number) =>
-		setNotifications(prev => prev.filter(n => n.id !== id))
 
 	return (
 		<>
@@ -202,7 +196,7 @@ export default function NotificationsPage() {
 								<Button
 									variant="outline"
 									size="sm"
-									onClick={markAllRead}
+									onClick={markAllAsRead}
 									className="gap-1.5 rounded-lg text-xs"
 								>
 									<CheckCheck size={14} />
@@ -229,7 +223,7 @@ export default function NotificationsPage() {
 									const Icon = cfg.icon
 									const Wrapper = notif.link ? Link : 'div'
 									const wrapperProps = notif.link
-										? { href: notif.link, onClick: () => markRead(notif.id) }
+										? { href: notif.link, onClick: () => markAsRead(notif.id) }
 										: {}
 
 									return (
@@ -298,7 +292,7 @@ export default function NotificationsPage() {
 														size="icon"
 														className="h-8 w-8 rounded-lg"
 														title="Marquer comme lu"
-														onClick={() => markRead(notif.id)}
+														onClick={() => markAsRead(notif.id)}
 													>
 														<Check size={14} />
 													</Button>
@@ -322,7 +316,7 @@ export default function NotificationsPage() {
 													>
 														<Link
 															href={notif.link}
-															onClick={() => markRead(notif.id)}
+															onClick={() => markAsRead(notif.id)}
 														>
 															<ArrowRight size={14} />
 														</Link>

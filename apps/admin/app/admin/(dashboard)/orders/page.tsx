@@ -29,8 +29,8 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components/ui/dropdown-menu'
-import { mockStickerOrders } from '@/lib/mock-data'
-import type { StickerOrder } from '@/lib/types'
+import { useOrders } from '@/application/orders/use-orders'
+import type { StickerOrder } from '@/domain/entities/order'
 import type { DateRange } from 'react-day-picker'
 import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
@@ -205,26 +205,10 @@ export default function OrdersPage() {
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 	const [selectedOrder, setSelectedOrder] = useState<StickerOrder | null>(null)
 	const [detailOpen, setDetailOpen] = useState(false)
-	const [orders, setOrders] = useState<StickerOrder[]>(mockStickerOrders)
+	const { orders, updateStatus: _updateStatus } = useOrders()
 
-	const updateStatus = (id: string, status: StickerOrder['status']) => {
-		setOrders(prev =>
-			prev.map(o =>
-				o.id === id
-					? {
-							...o,
-							status,
-							updatedAt: new Date().toISOString(),
-							shippedAt:
-								status === 'shipped' ? new Date().toISOString() : o.shippedAt,
-							deliveredAt:
-								status === 'delivered'
-									? new Date().toISOString()
-									: o.deliveredAt,
-						}
-					: o,
-			),
-		)
+	const updateStatus = async (id: string, status: StickerOrder['status']) => {
+		await _updateStatus(id, status)
 		toast.success(`Commande ${id} — ${statusConfig[status].label}`)
 	}
 
