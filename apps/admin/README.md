@@ -1,28 +1,103 @@
+# RetrouveCI — Admin App
+
+The internal dashboard for **RetrouveCI**, a lost-and-found platform for Côte d'Ivoire. Administrators can manage listings, users, orders, QR tokens, events, and notifications.
+
+Part of the [RetrouveCI monorepo](../../README.md).
+
+## Tech Stack
+
+| Layer             | Library / Tool                                     |
+| ----------------- | -------------------------------------------------- |
+| Framework         | Next.js 16.2 (App Router)                          |
+| Language          | TypeScript 5.9                                     |
+| UI                | React 19, shadcn/ui (new-york style), Lucide icons |
+| Styling           | Tailwind CSS v4 (CSS `@theme` directives)          |
+| Forms             | react-hook-form + zod                              |
+| Charts            | Recharts                                           |
+| Shared components | `@repo/ui`                                         |
+
 ## Getting Started
 
-First, run the development server:
+From the **repo root**, run all apps in parallel:
 
 ```bash
-yarn dev
+pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Or start this app in isolation:
 
-You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm --filter admin dev
+```
 
-To create [API routes](https://nextjs.org/docs/app/building-your-application/routing/router-handlers) add an `api/` directory to the `app/` directory with a `route.ts` file. For individual endpoints, create a subfolder in the `api` directory, like `api/hello/route.ts` would map to [http://localhost:3000/api/hello](http://localhost:3000/api/hello).
+The app will be available at [http://localhost:3001](http://localhost:3001).
 
-## Learn More
+> **Note:** `@repo/ui` must be built before this app can start. Turborepo handles this automatically; if running in isolation, build the package first:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm --filter @repo/ui build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn/foundations/about-nextjs) - an interactive Next.js tutorial.
+## Authentication
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Auth is email/password based and currently **mock-only**, stored in `localStorage` under the key `retrouveci_admin`.
 
-## Deploy on Vercel
+| Field    | Value                  |
+| -------- | ---------------------- |
+| Email    | `admin@retrouveci.com` |
+| Password | `admin123`             |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_source=github.com&utm_medium=referral&utm_campaign=turborepo-readme) from the creators of Next.js.
+The `AuthGuard` component redirects unauthenticated users to `/admin/login`. All dashboard data is mocked in `lib/mock-data.ts` — no API backend is connected yet.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Routes
+
+| Route                   | Description            |
+| ----------------------- | ---------------------- |
+| `/admin/login`          | Login page (public)    |
+| `/admin`                | Dashboard overview     |
+| `/admin/posts`          | Manage listings        |
+| `/admin/users`          | Manage users           |
+| `/admin/orders`         | Manage orders          |
+| `/admin/qr`             | Manage QR tokens       |
+| `/admin/administrators` | Manage admin accounts  |
+| `/admin/events`         | Manage events          |
+| `/admin/notifications`  | Manage notifications   |
+| `/admin/profile`        | Admin profile settings |
+
+All dashboard routes are wrapped in `AuthGuard` via the `(dashboard)` route group layout. The sidebar is rendered at `lg:pl-64` alongside the main content area.
+
+## Project Structure
+
+```text
+app/
+  admin/
+    login/              # Public login page
+    (dashboard)/        # Auth-guarded dashboard routes
+      layout.tsx        # Sidebar + AuthGuard wrapper
+      page.tsx          # Overview
+      posts/
+      users/
+      orders/
+      qr/
+      administrators/
+      events/
+      notifications/
+      profile/
+components/             # App-level components
+  ui/                   # Local shadcn/ui component library
+hooks/                  # Custom React hooks
+lib/
+  mock-data.ts          # All mock data for the dashboard
+public/                 # Static assets
+styles/                 # Global CSS
+```
+
+## Available Scripts
+
+```bash
+pnpm dev          # Start dev server on port 3001
+pnpm build        # Production build
+pnpm start        # Start production server
+pnpm lint         # Lint with ESLint
+pnpm check-types  # Type-check with TypeScript
+```

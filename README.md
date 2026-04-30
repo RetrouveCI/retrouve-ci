@@ -1,58 +1,73 @@
-# Turborepo Tailwind CSS starter
+# RetrouveCI
 
-This Turborepo starter is maintained by the Turborepo core team.
+**RetrouveCI** is a lost-and-found platform for Côte d'Ivoire. Users can post listings for lost or found items and order QR-code stickers that, when scanned, redirect finders to a contact page. The UI is entirely in French.
 
-## Using this example
+This repository is a [Turborepo](https://turbo.build/repo) monorepo containing two Next.js applications and a set of shared packages.
 
-Run the following command:
+## Apps
 
-```sh
-npx create-turbo@latest -e with-tailwind
+| App                             | Port | Description              |
+| ------------------------------- | ---- | ------------------------ |
+| [client](apps/client/README.md) | 3000 | Public-facing web app    |
+| [admin](apps/admin/README.md)   | 3001 | Internal admin dashboard |
+
+## Packages
+
+| Package                   | Description                                           |
+| ------------------------- | ----------------------------------------------------- |
+| `@repo/ui`                | Shared React component library — compiled to `dist/`  |
+| `@repo/tailwind-config`   | Shared Tailwind CSS base styles (`@theme` directives) |
+| `@repo/eslint-config`     | Shared ESLint configs (base, next, react-internal)    |
+| `@repo/typescript-config` | Shared `tsconfig` presets                             |
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) 18+
+- [pnpm](https://pnpm.io/) 9+
+
+## Getting Started
+
+```bash
+# Install all dependencies
+pnpm install
+
+# Start all apps in development mode (client :3000, admin :3001)
+pnpm dev
 ```
 
-## What's inside?
+## Commands
 
-This Turborepo includes the following packages/apps:
+All commands are run from the repo root.
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `web`: another [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `ui`: a stub React component library with [Tailwind CSS](https://tailwindcss.com/) shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Building packages/ui
-
-This example is set up to produce compiled styles for `ui` components into the `dist` directory. The component `.tsx` files are consumed by the Next.js apps directly using `transpilePackages` in `next.config.ts`. This was chosen for several reasons:
-
-- Make sharing one `tailwind.config.ts` to apps and packages as easy as possible.
-- Make package compilation simple by only depending on the Next.js Compiler and `tailwindcss`.
-- Ensure Tailwind classes do not overwrite each other. The `ui` package uses a `ui-` prefix for it's classes.
-- Maintain clear package export boundaries.
-
-Another option is to consume `packages/ui` directly from source without building. If using this option, you will need to update the `tailwind.config.ts` in your apps to be aware of your package locations, so it can find all usages of the `tailwindcss` class names for CSS compilation.
-
-For example, in [tailwind.config.ts](packages/tailwind-config/tailwind.config.ts):
-
-```js
-  content: [
-    // app content
-    `src/**/*.{js,ts,jsx,tsx}`,
-    // include packages if not transpiling
-    "../../packages/ui/*.{js,ts,jsx,tsx}",
-  ],
+```bash
+pnpm dev          # Start all apps in parallel
+pnpm build        # Build all packages and apps (packages build first)
+pnpm lint         # Lint all workspaces
+pnpm check-types  # Type-check all workspaces
+pnpm format       # Format with Prettier (ts, tsx, md)
 ```
 
-If you choose this strategy, you can remove the `tailwindcss` and `autoprefixer` dependencies from the `ui` package.
+To run a single app or package in isolation:
 
-### Utilities
+```bash
+pnpm --filter client dev
+pnpm --filter admin dev
+pnpm --filter @repo/ui build
+```
 
-This Turborepo has some additional tools already setup for you:
+## Tech Stack
 
-- [Tailwind CSS](https://tailwindcss.com/) for styles
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+All apps share the same core stack:
+
+- **Next.js 16.2** with App Router and React 19
+- **TypeScript 5.9**
+- **Tailwind CSS v4** — configured via CSS `@theme` directives
+- **shadcn/ui** — new-york style, Lucide icons
+- **react-hook-form + zod** for forms
+
+## Architecture Notes
+
+- `@repo/ui` **must be built** before the apps can start. Turborepo handles this automatically via `"dependsOn": ["^build"]` in `turbo.json`. If running an app in isolation, build `@repo/ui` first.
+- Each app maintains its own local shadcn/ui component library under `components/ui/`. These are not shared between apps.
+- The `@repo/ui` package uses a `ui-` class prefix to prevent Tailwind class conflicts with app-level styles.
+- No API backend is connected yet. Both apps run on mock data.
