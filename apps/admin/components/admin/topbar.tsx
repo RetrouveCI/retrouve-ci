@@ -18,7 +18,7 @@ export function TopBar({ title }: TopBarProps) {
 
 	const handleLogout = () => {
 		logout()
-		router.push('/admin/login')
+		router.push('/auth/login')
 	}
 
 	return (
@@ -39,7 +39,7 @@ export function TopBar({ title }: TopBarProps) {
 						className="relative rounded-full"
 						asChild
 					>
-						<Link href="/admin/notifications">
+						<Link href="/notifications">
 							<Bell size={18} />
 							{unreadCount > 0 && (
 								<>
@@ -95,7 +95,7 @@ export function TopBar({ title }: TopBarProps) {
 							<DropdownMenuSeparator />
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg">
 								<Link
-									href="/admin/profile"
+									href="/profile"
 									className="flex w-full items-center gap-2"
 								>
 									<User size={16} />

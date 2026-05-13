@@ -2,6 +2,7 @@ import { Toaster } from '@retrouve-ci/ui/components'
 import type { Metadata } from 'next'
 import { Montserrat } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { AuthProvider } from '@/contexts/auth-context'
 import './globals.css'
 
 const montserrat = Montserrat({
@@ -32,9 +33,11 @@ export default function RootLayout({
 	return (
 		<html lang="fr">
 			<body className={`${montserrat.variable} font-sans antialiased`}>
-				{children}
-				<Toaster position="top-right" />
-				{process.env.NODE_ENV === 'production' && <Analytics />}
+				<AuthProvider>
+					{children}
+					<Toaster position="top-right" />
+					{process.env.NODE_ENV === 'production' && <Analytics />}
+				</AuthProvider>
 			</body>
 		</html>
 	)

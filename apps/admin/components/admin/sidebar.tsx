@@ -22,14 +22,14 @@ import {
 import { useState } from 'react'
 
 const menuItems = [
-	{ href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
-	{ href: '/admin/users', icon: Users, label: 'Utilisateurs' },
-	{ href: '/admin/qr', icon: QrCode, label: 'Stickers / QR' },
-	{ href: '/admin/orders', icon: Package, label: 'Commandes' },
-	{ href: '/admin/posts', icon: FileText, label: 'Posts' },
-	{ href: '/admin/events', icon: Activity, label: 'Événements' },
-	{ href: '/admin/administrators', icon: Shield, label: 'Administrateurs' },
-	{ href: '/admin/notifications', icon: Bell, label: 'Notifications' },
+	{ href: '/', icon: LayoutDashboard, label: 'Dashboard' },
+	{ href: '/users', icon: Users, label: 'Utilisateurs' },
+	{ href: '/qr', icon: QrCode, label: 'Stickers / QR' },
+	{ href: '/orders', icon: Package, label: 'Commandes' },
+	{ href: '/posts', icon: FileText, label: 'Posts' },
+	{ href: '/events', icon: Activity, label: 'Événements' },
+	{ href: '/administrators', icon: Shield, label: 'Administrateurs' },
+	{ href: '/notifications', icon: Bell, label: 'Notifications' },
 ]
 
 function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
@@ -39,19 +39,18 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 
 	const handleLogout = () => {
 		logout()
-		router.push('/admin/login')
+		router.push('/auth/login')
 	}
 
 	const isActive = (href: string) => {
-		if (href === '/admin')
-			return pathname === '/admin' || pathname === '/admin/dashboard'
+		if (href === '/') return pathname === '/'
 		return pathname.startsWith(href)
 	}
 
 	return (
 		<div className="from-card to-card/95 flex h-full flex-col bg-linear-to-b">
 			<div className="p-6">
-				<Link href="/admin" className="group flex items-center gap-3">
+				<Link href="/" className="group flex items-center gap-3">
 					<Image
 						src="/logo.png"
 						alt="RetrouveCI"
