@@ -41,8 +41,8 @@ export function HowItWorksSection() {
 						<span className="text-(--primary-green)">3 étapes</span>
 					</h2>
 					<p className="text-muted-foreground mx-auto max-w-xl">
-						Un processus simple et efficace pour maximiser vos chances de retrouver
-						ce qui vous appartient.
+						Un processus simple et efficace pour maximiser vos chances de
+						retrouver ce qui vous appartient.
 					</p>
 				</div>
 

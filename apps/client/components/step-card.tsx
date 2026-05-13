@@ -7,7 +7,12 @@ interface StepCardProps {
 	description: string
 }
 
-export function StepCard({ number, icon: Icon, title, description }: StepCardProps) {
+export function StepCard({
+	number,
+	icon: Icon,
+	title,
+	description,
+}: StepCardProps) {
 	return (
 		<div className="relative flex flex-col items-center text-center">
 			<div className="relative mb-6">

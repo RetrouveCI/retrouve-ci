@@ -216,7 +216,7 @@ function OrderDetail({
 												isCompleted
 													? 'bg-(primary-green) text-white'
 													: 'bg-muted text-muted-foreground',
-												isCurrent && 'ring-4 ring-(primary-green)/20',
+												isCurrent && 'ring-(primary-green)/20 ring-4',
 											)}
 										>
 											{isCompleted ? (
@@ -229,9 +229,7 @@ function OrderDetail({
 											<div
 												className={cn(
 													'mx-1 h-1 flex-1 rounded-full',
-													idx < currentIdx
-														? 'bg-(primary-green)'
-														: 'bg-muted',
+													idx < currentIdx ? 'bg-(primary-green)' : 'bg-muted',
 												)}
 											/>
 										)}
@@ -244,8 +242,8 @@ function OrderDetail({
 					{/* Pack info */}
 					<div className="rounded-2xl border p-4">
 						<div className="flex items-center gap-4">
-							<div className="flex h-14 w-14 items-center justify-center rounded-xl bg-(primary-green)/10">
-								<QrCode className="h-7 w-7 text-(primary-green)" />
+							<div className="bg-(primary-green)/10 flex h-14 w-14 items-center justify-center rounded-xl">
+								<QrCode className="text-(primary-green) h-7 w-7" />
 							</div>
 							<div className="flex-1">
 								<p className="font-semibold">Pack {order.pack.name}</p>
@@ -318,7 +316,7 @@ function OrderDetail({
 						{order.status === 'delivered' && (
 							<Button
 								asChild
-								className="h-12 flex-1 rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
+								className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 flex-1 rounded-xl text-white"
 							>
 								<Link href="/compte/stickers">Voir mes stickers</Link>
 							</Button>
@@ -358,7 +356,7 @@ function EmptyState() {
 			</p>
 			<Button
 				asChild
-				className="h-11 rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
+				className="bg-(primary-green) hover:bg-(primary-green-dark) h-11 rounded-xl text-white"
 			>
 				<Link href="/stickers/commander" className="gap-2">
 					<Plus className="h-4 w-4" />
@@ -384,7 +382,7 @@ export default function CommandesPage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="h-10 w-10 animate-spin rounded-full border-4 border-(primary-green) border-t-transparent" />
+					<div className="border-(primary-green) h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
 				</main>
 				<Footer />
 			</>
@@ -402,7 +400,7 @@ export default function CommandesPage() {
 						</p>
 						<Button
 							asChild
-							className="bg-(primary-green) text-white hover:bg-(primary-green-dark)"
+							className="bg-(primary-green) hover:bg-(primary-green-dark) text-white"
 						>
 							<Link href="/auth">Se connecter</Link>
 						</Button>
@@ -470,12 +468,12 @@ export default function CommandesPage() {
 										<button
 											key={order.id}
 											onClick={() => setSelectedOrder(order)}
-											className="group bg-background w-full rounded-2xl border p-4 text-left transition-all hover:border-(primary-green)/30 hover:shadow-md"
+											className="group bg-background hover:border-(primary-green)/30 w-full rounded-2xl border p-4 text-left transition-all hover:shadow-md"
 										>
 											<div className="flex items-start gap-4">
 												{/* Icon */}
-												<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-(primary-green)/10 transition-transform group-hover:scale-110">
-													<QrCode className="h-6 w-6 text-(primary-green)" />
+												<div className="bg-(primary-green)/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
+													<QrCode className="text-(primary-green) h-6 w-6" />
 												</div>
 
 												{/* Content */}
@@ -522,10 +520,10 @@ export default function CommandesPage() {
 						<div className="mt-8">
 							<Link
 								href="/stickers/commander"
-								className="group flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-(primary-green)/30 bg-(primary-green)/5 p-5 transition-all hover:border-(primary-green)/50 hover:bg-(primary-green)/10"
+								className="group border-(primary-green)/30 bg-(primary-green)/5 hover:border-(primary-green)/50 hover:bg-(primary-green)/10 flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed p-5 transition-all"
 							>
 								<div className="flex items-center gap-4">
-									<div className="flex h-11 w-11 items-center justify-center rounded-xl bg-(primary-green) transition-transform group-hover:scale-110">
+									<div className="bg-(primary-green) flex h-11 w-11 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
 										<Plus className="h-5 w-5 text-white" />
 									</div>
 									<div>

@@ -1,6 +1,9 @@
 import type { IDashboardRepository } from '@/domain/repositories/dashboard-repository'
 import type { DashboardStats, ChartData } from '@/domain/entities/dashboard'
-import { MOCK_DASHBOARD_STATS, MOCK_CHART_DATA } from '@/infrastructure/mock/data'
+import {
+	MOCK_DASHBOARD_STATS,
+	MOCK_CHART_DATA,
+} from '@/infrastructure/mock/data'
 
 class MockDashboardRepository implements IDashboardRepository {
 	async getStats(): Promise<DashboardStats> {

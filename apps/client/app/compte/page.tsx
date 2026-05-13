@@ -22,7 +22,9 @@ function NotLoggedInView() {
 					<div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-(--primary-green)/10">
 						<User className="h-10 w-10 text-(--primary-green)" />
 					</div>
-					<h1 className="mb-3 text-2xl font-bold md:text-3xl">Connectez-vous</h1>
+					<h1 className="mb-3 text-2xl font-bold md:text-3xl">
+						Connectez-vous
+					</h1>
 					<p className="text-muted-foreground mb-8">
 						Accédez à votre compte pour gérer vos annonces et vos stickers QR.
 					</p>

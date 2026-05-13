@@ -75,7 +75,9 @@ export function BentoGridSection() {
 										<TrendingUp className="h-6 w-6 text-(--accent-orange)" />
 									</div>
 									<h3 className="mb-1 text-lg font-bold">27 villes</h3>
-									<p className="text-muted-foreground text-sm">Couverture nationale</p>
+									<p className="text-muted-foreground text-sm">
+										Couverture nationale
+									</p>
 								</div>
 								<div className="mt-6 space-y-3">
 									{[
@@ -90,7 +92,9 @@ export function BentoGridSection() {
 													style={{ width }}
 												/>
 											</div>
-											<span className="text-muted-foreground w-16 text-xs">{label}</span>
+											<span className="text-muted-foreground w-16 text-xs">
+												{label}
+											</span>
 										</div>
 									))}
 								</div>
@@ -104,15 +108,32 @@ export function BentoGridSection() {
 								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-(--accent-orange)/10 transition-transform group-hover:scale-110">
 									<Bell className="h-6 w-6 text-(--accent-orange)" />
 								</div>
-								<h3 className="mb-1 text-lg font-bold">Alertes en temps réel</h3>
+								<h3 className="mb-1 text-lg font-bold">
+									Alertes en temps réel
+								</h3>
 								<p className="text-muted-foreground mb-6 text-sm">
 									Soyez notifié dès qu&apos;un objet correspondant est signalé.
 								</p>
 								<div className="flex flex-1 flex-col justify-end space-y-2">
 									{[
-										{ title: 'iPhone 15 retrouvé', loc: 'Cocody', time: '2 min', isNew: true },
-										{ title: 'Clés de voiture', loc: 'Plateau', time: '15 min', isNew: true },
-										{ title: 'Portefeuille', loc: 'Marcory', time: '1h', isNew: false },
+										{
+											title: 'iPhone 15 retrouvé',
+											loc: 'Cocody',
+											time: '2 min',
+											isNew: true,
+										},
+										{
+											title: 'Clés de voiture',
+											loc: 'Plateau',
+											time: '15 min',
+											isNew: true,
+										},
+										{
+											title: 'Portefeuille',
+											loc: 'Marcory',
+											time: '1h',
+											isNew: false,
+										},
 									].map((n, i) => (
 										<div
 											key={i}
@@ -127,7 +148,9 @@ export function BentoGridSection() {
 													<span className="mt-1.5 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-(--primary-green)" />
 												)}
 												<div className="min-w-0 flex-1">
-													<p className="truncate text-sm font-medium">{n.title}</p>
+													<p className="truncate text-sm font-medium">
+														{n.title}
+													</p>
 													<p className="text-muted-foreground text-xs">
 														{n.loc} · {n.time}
 													</p>
@@ -147,7 +170,9 @@ export function BentoGridSection() {
 									<Clock className="h-5 w-5 text-blue-600" />
 								</div>
 								<h3 className="mb-1 text-base font-bold">2 minutes</h3>
-								<p className="text-muted-foreground text-xs">Pour publier une annonce</p>
+								<p className="text-muted-foreground text-xs">
+									Pour publier une annonce
+								</p>
 							</div>
 						</div>
 					</div>
@@ -172,10 +197,12 @@ export function BentoGridSection() {
 									<QrCode className="h-8 w-8 text-(--accent-orange)" />
 								</div>
 								<div className="flex-1">
-									<h3 className="mb-2 text-xl font-bold">Stickers QR sécurisés</h3>
+									<h3 className="mb-2 text-xl font-bold">
+										Stickers QR sécurisés
+									</h3>
 									<p className="text-muted-foreground mb-4 max-w-md text-sm">
-										Protégez vos objets avec nos QR codes. Toute personne qui les
-										trouve peut vous contacter sans voir vos informations.
+										Protégez vos objets avec nos QR codes. Toute personne qui
+										les trouve peut vous contacter sans voir vos informations.
 									</p>
 									<Link
 										href="/stickers"
@@ -200,7 +227,9 @@ export function BentoGridSection() {
 											Bientôt
 										</span>
 									</div>
-									<h3 className="mb-1 text-lg font-bold text-white">App mobile</h3>
+									<h3 className="mb-1 text-lg font-bold text-white">
+										App mobile
+									</h3>
 									<p className="flex-1 text-sm text-white/60">
 										Scanner et signaler en un geste.
 									</p>

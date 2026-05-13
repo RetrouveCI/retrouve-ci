@@ -11,7 +11,11 @@ import {
 	CardTitle,
 } from '@retrouve-ci/ui/components/ui/card'
 import { Input } from '@retrouve-ci/ui/components/ui/input'
-import { FieldGroup, Field, FieldLabel } from '@retrouve-ci/ui/components/ui/field'
+import {
+	FieldGroup,
+	Field,
+	FieldLabel,
+} from '@retrouve-ci/ui/components/ui/field'
 import { Loader2, QrCode, Lock, Mail } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { toast } from 'sonner'

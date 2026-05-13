@@ -14,7 +14,9 @@ export function useAnnoncesFilters() {
 
 	const [searchQuery, setSearchQuery] = useState('')
 	const [activeTab, setActiveTab] = useState<ListingType | 'all'>('all')
-	const [activeCategory, setActiveCategory] = useState<ListingCategory | 'all'>('all')
+	const [activeCategory, setActiveCategory] = useState<ListingCategory | 'all'>(
+		'all',
+	)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [filterVille, setFilterVille] = useState('all')
 	const [filterCommune, setFilterCommune] = useState('all')
@@ -67,7 +69,15 @@ export function useAnnoncesFilters() {
 				matchesDate
 			)
 		})
-	}, [listings, searchQuery, activeTab, activeCategory, filterVille, filterCommune, dateRange])
+	}, [
+		listings,
+		searchQuery,
+		activeTab,
+		activeCategory,
+		filterVille,
+		filterCommune,
+		dateRange,
+	])
 
 	const totalPages = Math.ceil(filteredListings.length / ITEMS_PER_PAGE)
 	const paginatedListings = filteredListings.slice(
@@ -114,19 +124,38 @@ export function useAnnoncesFilters() {
 	return {
 		listings,
 		searchQuery,
-		setSearchQuery: (q: string) => { setSearchQuery(q); setCurrentPage(1) },
+		setSearchQuery: (q: string) => {
+			setSearchQuery(q)
+			setCurrentPage(1)
+		},
 		activeTab,
-		setActiveTab: (t: ListingType | 'all') => { setActiveTab(t); setCurrentPage(1) },
+		setActiveTab: (t: ListingType | 'all') => {
+			setActiveTab(t)
+			setCurrentPage(1)
+		},
 		activeCategory,
-		setActiveCategory: (c: ListingCategory | 'all') => { setActiveCategory(c); setCurrentPage(1) },
+		setActiveCategory: (c: ListingCategory | 'all') => {
+			setActiveCategory(c)
+			setCurrentPage(1)
+		},
 		currentPage,
 		setCurrentPage,
 		filterVille,
-		setFilterVille: (v: string) => { setFilterVille(v); setFilterCommune('all'); setCurrentPage(1) },
+		setFilterVille: (v: string) => {
+			setFilterVille(v)
+			setFilterCommune('all')
+			setCurrentPage(1)
+		},
 		filterCommune,
-		setFilterCommune: (c: string) => { setFilterCommune(c); setCurrentPage(1) },
+		setFilterCommune: (c: string) => {
+			setFilterCommune(c)
+			setCurrentPage(1)
+		},
 		dateRange,
-		setDateRange: (r: DateRange | undefined) => { setDateRange(r); setCurrentPage(1) },
+		setDateRange: (r: DateRange | undefined) => {
+			setDateRange(r)
+			setCurrentPage(1)
+		},
 		showFilters,
 		toggleFilters: () => setShowFilters(v => !v),
 		viewMode,

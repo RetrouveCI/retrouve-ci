@@ -31,13 +31,10 @@ export function useAdministrators() {
 		[],
 	)
 
-	const updateStatus = useCallback(
-		async (id: number, status: AdminStatus) => {
-			await adminRepository.updateStatus(id, status)
-			setAdmins(prev => prev.map(a => (a.id === id ? { ...a, status } : a)))
-		},
-		[],
-	)
+	const updateStatus = useCallback(async (id: number, status: AdminStatus) => {
+		await adminRepository.updateStatus(id, status)
+		setAdmins(prev => prev.map(a => (a.id === id ? { ...a, status } : a)))
+	}, [])
 
 	const remove = useCallback(async (id: number) => {
 		await adminRepository.delete(id)

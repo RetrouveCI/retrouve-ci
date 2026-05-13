@@ -1,4 +1,7 @@
-import type { IListingRepository, ListingFilters } from '@/domain/repositories/listing-repository'
+import type {
+	IListingRepository,
+	ListingFilters,
+} from '@/domain/repositories/listing-repository'
 import type { Listing } from '@/domain/entities/listing'
 import { MOCK_LISTINGS } from '@/infrastructure/mock/data'
 

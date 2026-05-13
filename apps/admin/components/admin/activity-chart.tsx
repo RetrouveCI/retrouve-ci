@@ -46,7 +46,11 @@ export function ActivityChart({ data }: ActivityChartProps) {
 								<stop offset="95%" stopColor="#F57C00" stopOpacity={0} />
 							</linearGradient>
 						</defs>
-						<CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+						<CartesianGrid
+							strokeDasharray="3 3"
+							stroke="#E5E7EB"
+							vertical={false}
+						/>
 						<XAxis
 							dataKey="date"
 							tick={{ fontSize: 11 }}
@@ -65,7 +69,8 @@ export function ActivityChart({ data }: ActivityChartProps) {
 								backgroundColor: '#fff',
 								border: 'none',
 								borderRadius: '12px',
-								boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+								boxShadow:
+									'0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
 							}}
 						/>
 						<Area

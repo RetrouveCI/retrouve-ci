@@ -13,7 +13,11 @@ interface AnnoncesHeroProps {
 	listingsCount: number
 }
 
-export function AnnoncesHero({ searchQuery, onSearchChange, listingsCount }: AnnoncesHeroProps) {
+export function AnnoncesHero({
+	searchQuery,
+	onSearchChange,
+	listingsCount,
+}: AnnoncesHeroProps) {
 	return (
 		<section className="relative overflow-hidden border-b">
 			<div className="pointer-events-none absolute inset-0">
@@ -28,9 +32,7 @@ export function AnnoncesHero({ searchQuery, onSearchChange, listingsCount }: Ann
 						{listingsCount} annonces disponibles
 					</div>
 					<h1 className="mb-3 text-4xl font-bold tracking-tight text-balance md:text-5xl">
-						Objets{' '}
-						<span className="text-(--primary-green)">Perdus</span>{' '}
-						&amp;{' '}
+						Objets <span className="text-(--primary-green)">Perdus</span> &amp;{' '}
 						<span className="text-(--accent-orange)">Retrouvés</span>
 					</h1>
 					<p className="text-muted-foreground mb-8 text-base md:text-lg">
@@ -65,7 +67,10 @@ export function AnnoncesHero({ searchQuery, onSearchChange, listingsCount }: Ann
 				<div className="container mx-auto px-4">
 					<div className="flex items-center justify-center divide-x">
 						{STATS.map(s => (
-							<div key={s.label} className="flex flex-col items-center px-8 py-3">
+							<div
+								key={s.label}
+								className="flex flex-col items-center px-8 py-3"
+							>
 								<span className="text-lg font-bold">{s.value}</span>
 								<span className="text-muted-foreground text-xs">{s.label}</span>
 							</div>

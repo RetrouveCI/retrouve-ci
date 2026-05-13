@@ -62,7 +62,7 @@ function OtpSlots({ error }: { error: boolean }) {
 						'h-12 w-11 rounded-xl border-2 text-lg font-semibold transition-all',
 						error
 							? 'border-destructive bg-destructive/5'
-							: 'border-border bg-background data-[active=true]:border-(primary-green) data-[active=true]:ring-2 data-[active=true]:ring-(primary-green)/20',
+							: 'border-border bg-background data-[active=true]:border-(primary-green) data-[active=true]:ring-(primary-green)/20 data-[active=true]:ring-2',
 					)}
 				/>
 			))}
@@ -104,7 +104,7 @@ function PasswordInput({
 					placeholder={placeholder ?? '••••••••'}
 					value={value}
 					onChange={e => onChange(e.target.value)}
-					className="border-border bg-background h-12 rounded-xl border-2 pr-11 transition-all focus:border-(primary-green) focus:ring-2 focus:ring-(primary-green)/20"
+					className="border-border bg-background focus:border-(primary-green) focus:ring-(primary-green)/20 h-12 rounded-xl border-2 pr-11 transition-all focus:ring-2"
 					autoComplete={id === 'password' ? 'current-password' : 'new-password'}
 					disabled={disabled}
 					autoFocus={autoFocus}
@@ -340,7 +340,7 @@ export default function AuthPage() {
 	return (
 		<div className="flex min-h-screen">
 			{/* Left Panel - Branding (hidden on mobile) */}
-			<div className="relative hidden overflow-hidden bg-linear-to-br from-(primary-green) to-(primary-green-dark) lg:flex lg:w-1/2 xl:w-[55%]">
+			<div className="from-(primary-green) to-(primary-green-dark) relative hidden overflow-hidden bg-linear-to-br lg:flex lg:w-1/2 xl:w-[55%]">
 				{/* Background patterns */}
 				<div className="absolute inset-0 opacity-10">
 					<div className="absolute top-20 left-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
@@ -513,7 +513,7 @@ export default function AuthPage() {
 											placeholder="07 XX XX XX XX"
 											value={phoneNumber}
 											onChange={e => setPhoneNumber(e.target.value)}
-											className="border-border bg-background h-12 flex-1 rounded-xl border-2 transition-all focus:border-(primary-green) focus:ring-2 focus:ring-(primary-green)/20"
+											className="border-border bg-background focus:border-(primary-green) focus:ring-(primary-green)/20 h-12 flex-1 rounded-xl border-2 transition-all focus:ring-2"
 											autoComplete="tel"
 											autoFocus
 										/>
@@ -558,7 +558,7 @@ export default function AuthPage() {
 
 								<Button
 									type="submit"
-									className="h-12 w-full rounded-xl bg-(primary-green) text-base font-semibold text-white transition-all hover:scale-[1.02] hover:bg-(primary-green-dark)"
+									className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
 									disabled={isSubmitting}
 								>
 									{isSubmitting ? (
@@ -581,7 +581,7 @@ export default function AuthPage() {
 											<button
 												type="button"
 												onClick={() => switchMode('register')}
-												className="font-semibold text-(primary-green) hover:underline"
+												className="text-(primary-green) font-semibold hover:underline"
 											>
 												Créer un compte
 											</button>
@@ -593,7 +593,7 @@ export default function AuthPage() {
 											<button
 												type="button"
 												onClick={() => switchMode('login')}
-												className="font-semibold text-(primary-green) hover:underline"
+												className="text-(primary-green) font-semibold hover:underline"
 											>
 												Se connecter
 											</button>
@@ -605,7 +605,7 @@ export default function AuthPage() {
 											<button
 												type="button"
 												onClick={() => switchMode('login')}
-												className="font-semibold text-(primary-green) hover:underline"
+												className="text-(primary-green) font-semibold hover:underline"
 											>
 												la connexion
 											</button>
@@ -665,7 +665,7 @@ export default function AuthPage() {
 											type="button"
 											onClick={handleResend}
 											disabled={isSubmitting}
-											className="inline-flex items-center gap-2 text-sm font-semibold text-(primary-green) transition-colors hover:text-(primary-green-dark) disabled:opacity-50"
+											className="text-(primary-green) hover:text-(primary-green-dark) inline-flex items-center gap-2 text-sm font-semibold transition-colors disabled:opacity-50"
 										>
 											<RefreshCw
 												className={cn(
@@ -680,7 +680,7 @@ export default function AuthPage() {
 
 								<Button
 									type="submit"
-									className="h-12 w-full rounded-xl bg-(primary-green) text-base font-semibold text-white transition-all hover:scale-[1.02] hover:bg-(primary-green-dark)"
+									className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
 									disabled={isSubmitting || otp.length < 6 || timeLeft === 0}
 								>
 									{isSubmitting ? (
@@ -729,7 +729,7 @@ export default function AuthPage() {
 
 								<Button
 									type="submit"
-									className="h-12 w-full rounded-xl bg-(primary-green) text-base font-semibold text-white transition-all hover:scale-[1.02] hover:bg-(primary-green-dark)"
+									className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
 									disabled={isSubmitting || newPassword.length < 6}
 								>
 									{isSubmitting ? (
@@ -776,7 +776,7 @@ export default function AuthPage() {
 
 								<Button
 									type="submit"
-									className="h-12 w-full rounded-xl bg-(primary-green) text-base font-semibold text-white transition-all hover:scale-[1.02] hover:bg-(primary-green-dark)"
+									className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
 									disabled={isSubmitting || newPassword.length < 6}
 								>
 									{isSubmitting ? (

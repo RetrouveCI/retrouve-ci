@@ -1,5 +1,13 @@
 import Link from 'next/link'
-import { QrCode, FileText, Package, Settings, ChevronRight, ArrowRight, Plus } from 'lucide-react'
+import {
+	QrCode,
+	FileText,
+	Package,
+	Settings,
+	ChevronRight,
+	ArrowRight,
+	Plus,
+} from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/lib/utils'
 import type { Sticker } from '@/domain/entities/sticker'
 import type { UserListing } from '@/domain/entities/listing'
@@ -69,13 +77,17 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 										<div
 											className={cn(
 												'mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110',
-												isGreen ? 'bg-(--primary-green)/10' : 'bg-(--accent-orange)/10',
+												isGreen
+													? 'bg-(--primary-green)/10'
+													: 'bg-(--accent-orange)/10',
 											)}
 										>
 											<Icon
 												className={cn(
 													'h-6 w-6',
-													isGreen ? 'text-(--primary-green)' : 'text-(--accent-orange)',
+													isGreen
+														? 'text-(--primary-green)'
+														: 'text-(--accent-orange)',
 												)}
 											/>
 										</div>
@@ -130,7 +142,9 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 						</div>
 						<div>
 							<p className="text-sm font-semibold">Nouvelle annonce</p>
-							<p className="text-muted-foreground text-xs">Objet perdu ou retrouvé</p>
+							<p className="text-muted-foreground text-xs">
+								Objet perdu ou retrouvé
+							</p>
 						</div>
 					</Link>
 					<Link
@@ -142,7 +156,9 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 						</div>
 						<div>
 							<p className="text-sm font-semibold">Commander des stickers</p>
-							<p className="text-muted-foreground text-xs">Protégez vos objets</p>
+							<p className="text-muted-foreground text-xs">
+								Protégez vos objets
+							</p>
 						</div>
 					</Link>
 				</div>

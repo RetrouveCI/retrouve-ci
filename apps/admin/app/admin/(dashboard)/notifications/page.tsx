@@ -73,13 +73,8 @@ const typeConfig: Record<
 }
 
 export default function NotificationsPage() {
-	const {
-		notifications,
-		unreadCount,
-		markAsRead,
-		markAllAsRead,
-		remove,
-	} = useNotifications()
+	const { notifications, unreadCount, markAsRead, markAllAsRead, remove } =
+		useNotifications()
 	const [typeFilter, setTypeFilter] = useState<string>('all')
 	const [readFilter, setReadFilter] = useState<string>('all')
 

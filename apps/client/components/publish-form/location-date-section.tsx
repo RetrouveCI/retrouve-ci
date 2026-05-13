@@ -76,7 +76,9 @@ export function LocationDateSection({
 						disabled={ville !== 'Abidjan'}
 					>
 						<SelectTrigger id="commune" className="h-11">
-							<SelectValue placeholder={ville === 'Abidjan' ? 'Sélectionnez' : '—'} />
+							<SelectValue
+								placeholder={ville === 'Abidjan' ? 'Sélectionnez' : '—'}
+							/>
 						</SelectTrigger>
 						<SelectContent>
 							{ABIDJAN_COMMUNES.map(c => (

@@ -20,7 +20,11 @@ export function useQRTokens() {
 		setTokens(prev =>
 			prev.map(t =>
 				t.token === token
-					? { ...t, status: 'revoked' as const, revokedAt: new Date().toISOString() }
+					? {
+							...t,
+							status: 'revoked' as const,
+							revokedAt: new Date().toISOString(),
+						}
 					: t,
 			),
 		)
@@ -51,7 +55,11 @@ export function useQRToken(token: string) {
 		await qrTokenRepository.revoke(qrToken.token)
 		setQRToken(prev =>
 			prev
-				? { ...prev, status: 'revoked' as const, revokedAt: new Date().toISOString() }
+				? {
+						...prev,
+						status: 'revoked' as const,
+						revokedAt: new Date().toISOString(),
+					}
 				: null,
 		)
 	}, [qrToken])

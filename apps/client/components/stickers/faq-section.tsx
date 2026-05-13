@@ -1,10 +1,4 @@
-import {
-	Lock,
-	MessageCircle,
-	Power,
-	Smartphone,
-	RefreshCw,
-} from 'lucide-react'
+import { Lock, MessageCircle, Power, Smartphone, RefreshCw } from 'lucide-react'
 import {
 	Accordion,
 	AccordionContent,

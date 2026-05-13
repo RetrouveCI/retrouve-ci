@@ -1,4 +1,7 @@
-import type { IUserRepository, LoginResult } from '@/domain/repositories/user-repository'
+import type {
+	IUserRepository,
+	LoginResult,
+} from '@/domain/repositories/user-repository'
 import type { User } from '@/domain/entities/user'
 import type { UserListing, ListingStatus } from '@/domain/entities/listing'
 import { MOCK_USER, MOCK_USER_LISTINGS } from '@/infrastructure/mock/data'

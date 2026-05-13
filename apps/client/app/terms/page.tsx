@@ -207,8 +207,8 @@ export default function TermsPage() {
 								{/* Contact CTA */}
 								<div className="bg-muted/30 flex flex-col items-start justify-between gap-4 rounded-2xl border p-7 sm:flex-row sm:items-center">
 									<div className="flex items-center gap-3">
-										<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(primary-green)/10">
-											<Mail className="h-5 w-5 text-(primary-green)" />
+										<div className="bg-(primary-green)/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+											<Mail className="text-(primary-green) h-5 w-5" />
 										</div>
 										<div>
 											<p className="text-sm font-semibold">
@@ -221,7 +221,7 @@ export default function TermsPage() {
 									</div>
 									<Link
 										href="/contact"
-										className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-(primary-green) px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-(primary-green-dark)"
+										className="bg-(primary-green) hover:bg-(primary-green-dark) inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors"
 									>
 										Nous contacter
 										<ArrowRight className="h-4 w-4" />

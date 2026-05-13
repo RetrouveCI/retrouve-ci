@@ -109,8 +109,8 @@ export function MobileNav({
 								onClick={() => onOpenChange(false)}
 								className="bg-muted/60 hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 transition-colors"
 							>
-								<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(primary-green)/10">
-									<User className="h-4 w-4 text-(primary-green)" />
+								<div className="bg-(primary-green)/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+									<User className="text-(primary-green) h-4 w-4" />
 								</div>
 								<div className="min-w-0 flex-1">
 									<p className="truncate text-sm font-semibold">{user?.name}</p>
@@ -131,7 +131,7 @@ export function MobileNav({
 						</>
 					) : (
 						<Button
-							className="h-12 w-full gap-2 rounded-xl bg-(primary-green) text-white hover:bg-(primary-green-dark)"
+							className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full gap-2 rounded-xl text-white"
 							asChild
 						>
 							<Link href="/auth" onClick={() => onOpenChange(false)}>

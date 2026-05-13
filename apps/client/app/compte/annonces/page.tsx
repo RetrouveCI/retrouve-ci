@@ -264,7 +264,7 @@ export default function AnnoncesPage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="h-10 w-10 animate-spin rounded-full border-4 border-(primary-green) border-t-transparent" />
+					<div className="border-(primary-green) h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
 				</main>
 				<Footer />
 			</>
@@ -278,7 +278,7 @@ export default function AnnoncesPage() {
 				{/* Header */}
 				<section className="relative overflow-hidden border-b">
 					<div className="pointer-events-none absolute inset-0">
-						<div className="absolute -top-20 right-0 h-96 w-96 rounded-full bg-(accent-orange)/5 blur-3xl" />
+						<div className="bg-(accent-orange)/5 absolute -top-20 right-0 h-96 w-96 rounded-full blur-3xl" />
 					</div>
 					<div className="relative container mx-auto px-4 py-8">
 						<Link
@@ -290,8 +290,8 @@ export default function AnnoncesPage() {
 						</Link>
 						<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 							<div className="flex items-center gap-4">
-								<div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-(accent-orange)/10">
-									<FileText className="h-7 w-7 text-(accent-orange)" />
+								<div className="bg-(accent-orange)/10 flex h-14 w-14 items-center justify-center rounded-2xl">
+									<FileText className="text-(accent-orange) h-7 w-7" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold">Mes Annonces</h1>
@@ -303,7 +303,7 @@ export default function AnnoncesPage() {
 							</div>
 							<Button
 								asChild
-								className="gap-2 rounded-xl bg-(accent-orange) text-white hover:bg-(accent-orange-dark)"
+								className="bg-(accent-orange) hover:bg-(accent-orange-dark) gap-2 rounded-xl text-white"
 							>
 								<Link href="/publier">
 									<Plus className="h-4 w-4" />
@@ -402,7 +402,7 @@ export default function AnnoncesPage() {
 								</p>
 								<Button
 									asChild
-									className="gap-2 rounded-xl bg-(accent-orange) text-white hover:bg-(accent-orange-dark)"
+									className="bg-(accent-orange) hover:bg-(accent-orange-dark) gap-2 rounded-xl text-white"
 								>
 									<Link href="/publier">
 										<Plus className="h-4 w-4" />

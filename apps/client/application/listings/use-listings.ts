@@ -11,7 +11,9 @@ interface UseListingsResult {
 	refetch: (filters?: ListingFilters) => void
 }
 
-export function useListings(initialFilters?: ListingFilters): UseListingsResult {
+export function useListings(
+	initialFilters?: ListingFilters,
+): UseListingsResult {
 	const [listings, setListings] = useState<Listing[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 

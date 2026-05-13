@@ -39,15 +39,20 @@ const objectTypes = [
 ]
 
 const tips = [
-	"Ajoutez une photo pour aider le propriétaire",
+	'Ajoutez une photo pour aider le propriétaire',
 	"Décrivez l'état et les détails visibles",
 	"Précisez où vous conservez l'objet",
 	'Répondez rapidement aux messages',
 ]
 
-const progressItems = (formData: ReturnType<typeof usePublishForm>['formData']) => [
+const progressItems = (
+	formData: ReturnType<typeof usePublishForm>['formData'],
+) => [
 	{ label: "Type d'objet", done: !!formData.objectType },
-	{ label: 'Description (20 car. min)', done: formData.description.length >= 20 },
+	{
+		label: 'Description (20 car. min)',
+		done: formData.description.length >= 20,
+	},
 	{ label: 'Lieu de la trouvaille', done: !!formData.ville },
 	{ label: 'Votre nom', done: !!formData.name },
 	{ label: 'WhatsApp', done: !!formData.whatsapp },
@@ -64,7 +69,9 @@ export default function PublierRetrouvePage() {
 		progress,
 		isSubmitting,
 		handleSubmit,
-	} = usePublishForm('Merci de votre bonne action. Le propriétaire pourra vous contacter.')
+	} = usePublishForm(
+		'Merci de votre bonne action. Le propriétaire pourra vous contacter.',
+	)
 
 	return (
 		<>
@@ -101,9 +108,13 @@ export default function PublierRetrouvePage() {
 
 									<div className="space-y-2">
 										<Label htmlFor="objectType">
-											Type d&apos;objet <span className="text-destructive">*</span>
+											Type d&apos;objet{' '}
+											<span className="text-destructive">*</span>
 										</Label>
-										<Select value={formData.objectType} onValueChange={update('objectType')}>
+										<Select
+											value={formData.objectType}
+											onValueChange={update('objectType')}
+										>
 											<SelectTrigger id="objectType" className="h-11">
 												<SelectValue placeholder="Sélectionnez un type" />
 											</SelectTrigger>
@@ -179,7 +190,11 @@ export default function PublierRetrouvePage() {
 								/>
 
 								<div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
-									<Button type="button" variant="outline" onClick={() => router.back()}>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() => router.back()}
+									>
 										Annuler
 									</Button>
 									<Button

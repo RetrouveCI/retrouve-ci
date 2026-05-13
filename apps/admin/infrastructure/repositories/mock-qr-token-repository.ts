@@ -39,5 +39,4 @@ class MockQRTokenRepository implements IQRTokenRepository {
 	}
 }
 
-export const qrTokenRepository: IQRTokenRepository =
-	new MockQRTokenRepository()
+export const qrTokenRepository: IQRTokenRepository = new MockQRTokenRepository()

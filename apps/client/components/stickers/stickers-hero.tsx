@@ -23,8 +23,9 @@ export function StickersHero() {
 								<span className="text-(--primary-green)">QR code</span>
 							</h1>
 							<p className="text-muted-foreground mb-8 max-w-lg text-lg">
-								Collez, scannez, récupérez. Nos stickers QR permettent à quiconque
-								trouve votre objet de vous contacter en toute sécurité.
+								Collez, scannez, récupérez. Nos stickers QR permettent à
+								quiconque trouve votre objet de vous contacter en toute
+								sécurité.
 							</p>
 							<div className="flex flex-wrap justify-center gap-3 md:justify-start">
 								<Button
@@ -37,13 +38,20 @@ export function StickersHero() {
 										<ArrowRight className="ml-2 h-4 w-4" />
 									</Link>
 								</Button>
-								<Button asChild size="lg" variant="outline" className="h-12 px-6">
+								<Button
+									asChild
+									size="lg"
+									variant="outline"
+									className="h-12 px-6"
+								>
 									<Link href="/auth">Créer un compte</Link>
 								</Button>
 							</div>
 							<p className="text-muted-foreground mt-4 text-sm">
 								À partir de{' '}
-								<span className="text-foreground font-semibold">1 500 FCFA</span>{' '}
+								<span className="text-foreground font-semibold">
+									1 500 FCFA
+								</span>{' '}
 								· Livraison gratuite
 							</p>
 						</div>

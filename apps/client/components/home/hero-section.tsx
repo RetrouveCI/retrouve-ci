@@ -48,7 +48,13 @@ function CyclingWord() {
 	)
 }
 
-function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
+function AnimatedCounter({
+	target,
+	suffix = '',
+}: {
+	target: number
+	suffix?: string
+}) {
 	const [count, setCount] = useState(0)
 
 	useEffect(() => {
@@ -142,7 +148,9 @@ export function HeroSection() {
 								<div className="text-2xl font-bold md:text-3xl">
 									<AnimatedCounter target={stat.value} suffix={stat.suffix} />
 								</div>
-								<div className="text-muted-foreground text-sm">{stat.label}</div>
+								<div className="text-muted-foreground text-sm">
+									{stat.label}
+								</div>
 							</div>
 						))}
 					</div>

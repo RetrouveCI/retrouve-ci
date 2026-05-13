@@ -16,7 +16,13 @@ const footerLinks = {
 	],
 }
 
-function FooterLinkGroup({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+function FooterLinkGroup({
+	title,
+	links,
+}: {
+	title: string
+	links: { href: string; label: string }[]
+}) {
 	return (
 		<div>
 			<h3 className="text-foreground mb-4 text-sm font-semibold tracking-wider uppercase">
@@ -65,7 +71,10 @@ export function Footer() {
 					</div>
 
 					<FooterLinkGroup title="Navigation" links={footerLinks.navigation} />
-					<FooterLinkGroup title="Informations légales" links={footerLinks.legal} />
+					<FooterLinkGroup
+						title="Informations légales"
+						links={footerLinks.legal}
+					/>
 				</div>
 
 				<div className="mt-12 border-t pt-8">

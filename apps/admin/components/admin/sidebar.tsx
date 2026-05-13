@@ -7,7 +7,11 @@ import { cn } from '@retrouve-ci/ui/lib/utils'
 import { useAuth } from '@/lib/auth-context'
 import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
 import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Sheet, SheetContent, SheetTrigger } from '@retrouve-ci/ui/components/ui/sheet'
+import {
+	Sheet,
+	SheetContent,
+	SheetTrigger,
+} from '@retrouve-ci/ui/components/ui/sheet'
 import {
 	LayoutDashboard,
 	Users,
@@ -45,7 +49,8 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 	}
 
 	const isActive = (href: string) => {
-		if (href === '/admin') return pathname === '/admin' || pathname === '/admin/dashboard'
+		if (href === '/admin')
+			return pathname === '/admin' || pathname === '/admin/dashboard'
 		return pathname.startsWith(href)
 	}
 
@@ -53,7 +58,13 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 		<div className="from-card to-card/95 flex h-full flex-col bg-linear-to-b">
 			<div className="p-6">
 				<Link href="/admin" className="group flex items-center gap-3">
-					<Image src="/logo.png" alt="RetrouveCI" width={40} height={40} className="h-10 w-10" />
+					<Image
+						src="/logo.png"
+						alt="RetrouveCI"
+						width={40}
+						height={40}
+						className="h-10 w-10"
+					/>
 					<div>
 						<h1 className="text-foreground text-lg font-bold">RetrouveCI</h1>
 						<p className="text-muted-foreground text-xs">Administration</p>
@@ -108,7 +119,9 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 							</AvatarFallback>
 						</Avatar>
 						<div className="min-w-0 flex-1">
-							<p className="truncate text-sm font-semibold">{user?.name || 'Admin'}</p>
+							<p className="truncate text-sm font-semibold">
+								{user?.name || 'Admin'}
+							</p>
 							<p className="text-muted-foreground truncate text-xs">
 								{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
 							</p>

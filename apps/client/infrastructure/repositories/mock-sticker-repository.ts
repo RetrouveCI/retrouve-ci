@@ -58,5 +58,4 @@ class MockStickerRepository implements IStickerRepository {
 	}
 }
 
-export const stickerRepository: IStickerRepository =
-	new MockStickerRepository()
+export const stickerRepository: IStickerRepository = new MockStickerRepository()

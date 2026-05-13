@@ -39,7 +39,13 @@ const CATEGORY_LABELS: Record<string, string> = {
 	other: 'Autre',
 }
 
-function ListingThumbnail({ listing, CategoryIcon }: { listing: Listing; CategoryIcon: React.ElementType }) {
+function ListingThumbnail({
+	listing,
+	CategoryIcon,
+}: {
+	listing: Listing
+	CategoryIcon: React.ElementType
+}) {
 	return (
 		<div className="bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
 			{listing.image ? (
@@ -58,7 +64,15 @@ function ListingThumbnail({ listing, CategoryIcon }: { listing: Listing; Categor
 	)
 }
 
-function ListingImage({ listing, CategoryIcon, isLost }: { listing: Listing; CategoryIcon: React.ElementType; isLost: boolean }) {
+function ListingImage({
+	listing,
+	CategoryIcon,
+	isLost,
+}: {
+	listing: Listing
+	CategoryIcon: React.ElementType
+	isLost: boolean
+}) {
 	return (
 		<div className="bg-muted relative aspect-[16/9] shrink-0 overflow-hidden">
 			{listing.image ? (
@@ -131,7 +145,9 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 						<div className="text-muted-foreground mt-2 flex items-center gap-3 text-xs">
 							<span className="flex items-center gap-1">
 								<MapPin className="h-3 w-3 shrink-0" />
-								<span className="max-w-[140px] truncate">{listing.location}</span>
+								<span className="max-w-[140px] truncate">
+									{listing.location}
+								</span>
 							</span>
 							<span className="flex items-center gap-1">
 								<Clock className="h-3 w-3 shrink-0" />
@@ -150,7 +166,11 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 	return (
 		<Link href={`/annonces/${listing.id}`} className="group block h-full">
 			<article className="bg-background relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:border-(--primary-green)/30 hover:shadow-lg">
-				<ListingImage listing={listing} CategoryIcon={CategoryIcon} isLost={isLost} />
+				<ListingImage
+					listing={listing}
+					CategoryIcon={CategoryIcon}
+					isLost={isLost}
+				/>
 
 				<div className="flex flex-1 flex-col p-3">
 					<h3 className="mb-1 line-clamp-1 text-sm leading-snug font-semibold transition-colors group-hover:text-(--primary-green)">
@@ -164,7 +184,9 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 						<div className="flex flex-col gap-0.5">
 							<span className="text-muted-foreground flex items-center gap-1 text-[11px]">
 								<MapPin className="h-3 w-3 shrink-0" />
-								<span className="max-w-[110px] truncate">{listing.location}</span>
+								<span className="max-w-[110px] truncate">
+									{listing.location}
+								</span>
 							</span>
 							<span className="text-muted-foreground flex items-center gap-1 text-[11px]">
 								<Clock className="h-3 w-3 shrink-0" />

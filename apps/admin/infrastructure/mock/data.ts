@@ -382,16 +382,76 @@ export const MOCK_EVENTS: Event[] = [
 ]
 
 export const MOCK_ACTIVITIES: Activity[] = [
-	{ id: 1, icon: 'scan', text: 'QR Code #8392 scanné à Cocody', timestamp: 'Il y a 2 min', type: 'scan' },
-	{ id: 2, icon: 'user', text: 'Nouvel utilisateur inscrit: Aminata D.', timestamp: 'Il y a 15 min', type: 'user' },
-	{ id: 3, icon: 'post', text: 'Nouveau post "Clés perdues" signalé', timestamp: 'Il y a 32 min', type: 'post' },
-	{ id: 4, icon: 'contact', text: 'Contact établi pour le post #123', timestamp: 'Il y a 1h', type: 'contact' },
-	{ id: 5, icon: 'scan', text: 'QR Code #7732 scanné au Plateau', timestamp: 'Il y a 1h 30min', type: 'scan' },
-	{ id: 6, icon: 'user', text: 'Utilisateur Ibrahim K. désactivé', timestamp: 'Il y a 2h', type: 'user' },
-	{ id: 7, icon: 'post', text: 'Post "Sac à dos retrouvé" approuvé', timestamp: 'Il y a 2h 15min', type: 'post' },
-	{ id: 8, icon: 'contact', text: 'Contact établi pour le post #89', timestamp: 'Il y a 3h', type: 'contact' },
-	{ id: 9, icon: 'scan', text: 'QR Code #3344 scanné à Yopougon', timestamp: 'Il y a 3h 45min', type: 'scan' },
-	{ id: 10, icon: 'user', text: 'Nouvel utilisateur inscrit: Marie K.', timestamp: 'Il y a 4h', type: 'user' },
+	{
+		id: 1,
+		icon: 'scan',
+		text: 'QR Code #8392 scanné à Cocody',
+		timestamp: 'Il y a 2 min',
+		type: 'scan',
+	},
+	{
+		id: 2,
+		icon: 'user',
+		text: 'Nouvel utilisateur inscrit: Aminata D.',
+		timestamp: 'Il y a 15 min',
+		type: 'user',
+	},
+	{
+		id: 3,
+		icon: 'post',
+		text: 'Nouveau post "Clés perdues" signalé',
+		timestamp: 'Il y a 32 min',
+		type: 'post',
+	},
+	{
+		id: 4,
+		icon: 'contact',
+		text: 'Contact établi pour le post #123',
+		timestamp: 'Il y a 1h',
+		type: 'contact',
+	},
+	{
+		id: 5,
+		icon: 'scan',
+		text: 'QR Code #7732 scanné au Plateau',
+		timestamp: 'Il y a 1h 30min',
+		type: 'scan',
+	},
+	{
+		id: 6,
+		icon: 'user',
+		text: 'Utilisateur Ibrahim K. désactivé',
+		timestamp: 'Il y a 2h',
+		type: 'user',
+	},
+	{
+		id: 7,
+		icon: 'post',
+		text: 'Post "Sac à dos retrouvé" approuvé',
+		timestamp: 'Il y a 2h 15min',
+		type: 'post',
+	},
+	{
+		id: 8,
+		icon: 'contact',
+		text: 'Contact établi pour le post #89',
+		timestamp: 'Il y a 3h',
+		type: 'contact',
+	},
+	{
+		id: 9,
+		icon: 'scan',
+		text: 'QR Code #3344 scanné à Yopougon',
+		timestamp: 'Il y a 3h 45min',
+		type: 'scan',
+	},
+	{
+		id: 10,
+		icon: 'user',
+		text: 'Nouvel utilisateur inscrit: Marie K.',
+		timestamp: 'Il y a 4h',
+		type: 'user',
+	},
 ]
 
 export const MOCK_DASHBOARD_STATS: DashboardStats = {
@@ -631,7 +691,8 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
 		id: 3,
 		type: 'post',
 		title: 'Nouveau post en attente',
-		message: 'Un post "Objet perdu : Téléphone Samsung" est en attente de modération.',
+		message:
+			'Un post "Objet perdu : Téléphone Samsung" est en attente de modération.',
 		read: false,
 		createdAt: '2024-03-08T09:15:00Z',
 		link: '/admin/posts',
@@ -661,7 +722,8 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
 		id: 6,
 		type: 'order',
 		title: 'Commande expédiée',
-		message: "La commande CMD-2024-002 d'Aminata Diallo a été marquée comme expédiée.",
+		message:
+			"La commande CMD-2024-002 d'Aminata Diallo a été marquée comme expédiée.",
 		read: true,
 		createdAt: '2024-02-05T11:30:00Z',
 		link: '/admin/orders',
@@ -671,7 +733,8 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
 		id: 7,
 		type: 'system',
 		title: 'Mise à jour système',
-		message: 'La plateforme RetrouveCI a été mise à jour vers la version 2.1.0.',
+		message:
+			'La plateforme RetrouveCI a été mise à jour vers la version 2.1.0.',
 		read: true,
 		createdAt: '2024-01-30T08:00:00Z',
 		link: null,

@@ -5,13 +5,15 @@ const PROCESS_STEPS = [
 		number: 1,
 		icon: Package,
 		title: 'Commandez',
-		description: 'Recevez vos stickers QR avec un code unique pour chaque objet.',
+		description:
+			'Recevez vos stickers QR avec un code unique pour chaque objet.',
 	},
 	{
 		number: 2,
 		icon: QrCode,
 		title: 'Activez',
-		description: 'Liez le QR code à votre compte en entrant simplement le code.',
+		description:
+			'Liez le QR code à votre compte en entrant simplement le code.',
 	},
 	{
 		number: 3,

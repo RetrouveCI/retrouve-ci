@@ -37,16 +37,24 @@ export function StickerInfoSection() {
 
 						<div className="grid grid-cols-2 gap-4 md:col-span-2">
 							<div className="bg-background flex flex-col justify-center rounded-2xl border p-5">
-								<div className="text-3xl font-bold text-(--primary-green)">100%</div>
-								<p className="text-muted-foreground text-sm">Anonymat garanti</p>
+								<div className="text-3xl font-bold text-(--primary-green)">
+									100%
+								</div>
+								<p className="text-muted-foreground text-sm">
+									Anonymat garanti
+								</p>
 							</div>
 							<div className="bg-background flex flex-col justify-center rounded-2xl border p-5">
-								<div className="text-3xl font-bold text-(--accent-orange)">2 min</div>
+								<div className="text-3xl font-bold text-(--accent-orange)">
+									2 min
+								</div>
 								<p className="text-muted-foreground text-sm">Pour activer</p>
 							</div>
 							<div className="col-span-2 rounded-2xl bg-(--primary-green) p-5 text-white">
 								<CheckCircle className="mb-2 h-6 w-6" />
-								<p className="font-medium">Stickers réutilisables et transférables</p>
+								<p className="font-medium">
+									Stickers réutilisables et transférables
+								</p>
 							</div>
 						</div>
 					</div>

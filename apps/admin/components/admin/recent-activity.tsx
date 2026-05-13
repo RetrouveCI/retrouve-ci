@@ -1,5 +1,12 @@
 import Link from 'next/link'
-import { Scan, Users, AlertTriangle, Phone, CheckCircle, ArrowRight } from 'lucide-react'
+import {
+	Scan,
+	Users,
+	AlertTriangle,
+	Phone,
+	CheckCircle,
+	ArrowRight,
+} from 'lucide-react'
 import {
 	Card,
 	CardContent,
@@ -53,9 +60,14 @@ export function RecentActivity({ activities }: RecentActivityProps) {
 	return (
 		<Card className="overflow-hidden md:col-span-2 lg:col-span-2">
 			<CardHeader className="flex flex-row items-center justify-between pb-2">
-				<CardTitle className="text-lg font-semibold">Activité Récente</CardTitle>
+				<CardTitle className="text-lg font-semibold">
+					Activité Récente
+				</CardTitle>
 				<Button variant="ghost" size="sm" asChild>
-					<Link href="/admin/events" className="text-primary hover:text-primary/80 gap-1">
+					<Link
+						href="/admin/events"
+						className="text-primary hover:text-primary/80 gap-1"
+					>
 						Voir tout <ArrowRight className="h-4 w-4" />
 					</Link>
 				</Button>
@@ -77,7 +89,9 @@ export function RecentActivity({ activities }: RecentActivityProps) {
 							</div>
 							<div className="min-w-0 flex-1">
 								<p className="text-sm font-medium">{activity.text}</p>
-								<p className="text-muted-foreground text-xs">{activity.timestamp}</p>
+								<p className="text-muted-foreground text-xs">
+									{activity.timestamp}
+								</p>
 							</div>
 						</div>
 					))}

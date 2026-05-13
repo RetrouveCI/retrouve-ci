@@ -6,7 +6,11 @@ import { TopBar } from '@/components/admin/topbar'
 import { BentoCard } from '@/components/admin/bento-card'
 import { Button } from '@retrouve-ci/ui/components/ui/button'
 import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import { CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components/ui/card'
+import {
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@retrouve-ci/ui/components/ui/card'
 import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
 import {
 	Tabs,

@@ -29,7 +29,11 @@ export function CategoryChart({ data }: CategoryChartProps) {
 			<CardContent className="pb-4">
 				<ResponsiveContainer width="100%" height={180}>
 					<BarChart data={data} barGap={8}>
-						<CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+						<CartesianGrid
+							strokeDasharray="3 3"
+							stroke="#E5E7EB"
+							vertical={false}
+						/>
 						<XAxis
 							dataKey="category"
 							tick={{ fontSize: 11 }}
@@ -51,8 +55,18 @@ export function CategoryChart({ data }: CategoryChartProps) {
 								boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
 							}}
 						/>
-						<Bar dataKey="lost" name="Perdus" fill="#EF4444" radius={[6, 6, 0, 0]} />
-						<Bar dataKey="found" name="Retrouvés" fill="#1E7F43" radius={[6, 6, 0, 0]} />
+						<Bar
+							dataKey="lost"
+							name="Perdus"
+							fill="#EF4444"
+							radius={[6, 6, 0, 0]}
+						/>
+						<Bar
+							dataKey="found"
+							name="Retrouvés"
+							fill="#1E7F43"
+							radius={[6, 6, 0, 0]}
+						/>
 					</BarChart>
 				</ResponsiveContainer>
 			</CardContent>

@@ -76,10 +76,10 @@ export default function AboutPage() {
 				{/* Hero */}
 				<section className="relative overflow-hidden border-b">
 					<div className="dot-pattern pointer-events-none absolute inset-0 opacity-40" />
-					<div className="absolute -top-24 right-0 h-80 w-80 rounded-full bg-(primary-green)/8 blur-3xl" />
+					<div className="bg-(primary-green)/8 absolute -top-24 right-0 h-80 w-80 rounded-full blur-3xl" />
 					<div className="relative container mx-auto px-4 py-14 md:py-20">
 						<div className="max-w-2xl">
-							<div className="mb-5 inline-flex items-center gap-2 rounded-full border border-(primary-green)/20 bg-(primary-green)/10 px-3 py-1 text-xs font-semibold text-(primary-green)">
+							<div className="border-(primary-green)/20 bg-(primary-green)/10 text-(primary-green) mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
 								<Heart className="h-3.5 w-3.5" />
 								Notre histoire
 							</div>
@@ -103,7 +103,7 @@ export default function AboutPage() {
 						<div className="grid grid-cols-2 gap-6 md:grid-cols-4">
 							{stats.map(s => (
 								<div key={s.label} className="text-center">
-									<p className="text-2xl font-bold text-(primary-green) md:text-3xl">
+									<p className="text-(primary-green) text-2xl font-bold md:text-3xl">
 										{s.value}
 									</p>
 									<p className="text-muted-foreground mt-0.5 text-xs">
@@ -121,8 +121,8 @@ export default function AboutPage() {
 						<div className="grid gap-4 md:grid-cols-12">
 							{/* Mission card — large */}
 							<div className="bg-background flex min-h-64 flex-col justify-between rounded-2xl border p-8 md:col-span-7">
-								<div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-(primary-green)/10">
-									<Heart className="h-6 w-6 text-(primary-green)" />
+								<div className="bg-(primary-green)/10 mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl">
+									<Heart className="text-(primary-green) h-6 w-6" />
 								</div>
 								<div>
 									<h2 className="mb-3 text-2xl font-bold">Notre mission</h2>
@@ -136,7 +136,7 @@ export default function AboutPage() {
 							</div>
 
 							{/* Founded card */}
-							<div className="flex min-h-48 flex-col justify-between rounded-2xl border bg-(primary-green) p-8 text-white md:col-span-5">
+							<div className="bg-(primary-green) flex min-h-48 flex-col justify-between rounded-2xl border p-8 text-white md:col-span-5">
 								<p className="text-sm font-medium tracking-wider text-white/70 uppercase">
 									Fondée en
 								</p>
@@ -150,8 +150,8 @@ export default function AboutPage() {
 
 							{/* QR Technology card */}
 							<div className="bg-background flex flex-col gap-4 rounded-2xl border p-8 md:col-span-4">
-								<div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-(accent-orange)/10">
-									<QrCode className="h-6 w-6 text-(accent-orange)" />
+								<div className="bg-(accent-orange)/10 inline-flex h-12 w-12 items-center justify-center rounded-xl">
+									<QrCode className="text-(accent-orange) h-6 w-6" />
 								</div>
 								<div>
 									<h3 className="mb-1.5 text-lg font-bold">Stickers QR</h3>
@@ -248,8 +248,8 @@ export default function AboutPage() {
 									key={member.name}
 									className="bg-background group flex flex-col items-center rounded-2xl border p-6 text-center transition-transform duration-300 hover:-translate-y-1"
 								>
-									<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-(primary-green)/10 transition-colors group-hover:bg-(primary-green)/20">
-										<span className="text-xl font-bold text-(primary-green)">
+									<div className="bg-(primary-green)/10 group-hover:bg-(primary-green)/20 mb-4 flex h-16 w-16 items-center justify-center rounded-full transition-colors">
+										<span className="text-(primary-green) text-xl font-bold">
 											{member.initials}
 										</span>
 									</div>
@@ -266,7 +266,7 @@ export default function AboutPage() {
 				{/* CTA */}
 				<section className="border-t py-12">
 					<div className="container mx-auto px-4">
-						<div className="flex flex-col items-center justify-between gap-6 rounded-2xl bg-(primary-green) p-8 text-white md:flex-row md:p-12">
+						<div className="bg-(primary-green) flex flex-col items-center justify-between gap-6 rounded-2xl p-8 text-white md:flex-row md:p-12">
 							<div>
 								<h2 className="mb-2 text-2xl font-bold md:text-3xl">
 									Rejoignez la communauté
@@ -278,7 +278,7 @@ export default function AboutPage() {
 							</div>
 							<Link
 								href="/publier"
-								className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-(primary-green) transition-colors hover:bg-white/90"
+								className="text-(primary-green) inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold transition-colors hover:bg-white/90"
 							>
 								Publier une annonce
 								<ArrowRight className="h-4 w-4" />

@@ -1,4 +1,7 @@
-import type { IAdminRepository, CreateAdminDto } from '@/domain/repositories/admin-repository'
+import type {
+	IAdminRepository,
+	CreateAdminDto,
+} from '@/domain/repositories/admin-repository'
 import type { Admin, AdminStatus } from '@/domain/entities/admin'
 import { MOCK_ADMINS } from '@/infrastructure/mock/data'
 

@@ -111,5 +111,5 @@ redirect to `/admin/login` when unauthenticated.
 Tailwind CSS v4 is used throughout. Shared base styles live in
 `packages/tailwind-config/shared-styles.css` using `@theme` directives. Each app
 has its own `app/globals.css` with CSS variables for design tokens (light/dark
-mode). The `@retrouve-ci/ui` package uses a `ui-` class prefix to avoid conflicts with
-app-level Tailwind classes.
+mode). The `@retrouve-ci/ui` package uses a `ui-` class prefix to avoid
+conflicts with app-level Tailwind classes.
