@@ -1,52 +1,42 @@
 'use client'
 
-import { Button, Badge, Avatar, AvatarFallback, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Label } from '@retrouve-ci/ui/components'
+import { Button, Badge, Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import { useAdministrators } from '@/application/administrators/use-administrators'
 import type { Admin } from '@/domain/entities/admin'
 import { TopBar } from '@/components/admin/topbar'
 import { DataTable } from '@/components/admin/data-table'
 import { BentoCard } from '@/components/admin/bento-card'
-import {
-	MoreHorizontal,
-	Plus,
-	Edit,
-	Ban,
-	Trash2,
-	Shield,
-	ShieldCheck,
-	ShieldAlert,
-	Key,
-	Users,
-} from 'lucide-react'
+import { MoreHorizontal, Plus, Edit, Ban, Trash2, Shield, ShieldCheck, ShieldAlert, Key } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
 import type { ColumnDef } from '@tanstack/react-table'
+import { AdminStatsGrid } from './components/AdminStatsGrid'
+import { AddAdminDialog } from './components/AddAdminDialog'
+import { EditAdminDialog } from './components/EditAdminDialog'
+import { DeleteAdminDialog } from './components/DeleteAdminDialog'
+import { ResetPasswordDialog } from './components/ResetPasswordDialog'
 
 const getRoleLabel = (role: string) => {
 	switch (role) {
-		case 'super_admin':
-			return 'Super Admin'
-		case 'admin':
-			return 'Admin'
-		case 'moderator':
-			return 'Modérateur'
-		default:
-			return role
+		case 'super_admin': return 'Super Admin'
+		case 'admin': return 'Admin'
+		case 'moderator': return 'Modérateur'
+		default: return role
 	}
 }
 
 const getRoleIcon = (role: string) => {
 	switch (role) {
-		case 'super_admin':
-			return <ShieldCheck className="h-3.5 w-3.5" />
-		case 'admin':
-			return <Shield className="h-3.5 w-3.5" />
-		default:
-			return <ShieldAlert className="h-3.5 w-3.5" />
+		case 'super_admin': return <ShieldCheck className="h-3.5 w-3.5" />
+		case 'admin': return <Shield className="h-3.5 w-3.5" />
+		default: return <ShieldAlert className="h-3.5 w-3.5" />
 	}
 }
+
+type AdminForm = { name: string; email: string; phone: string; role: 'super_admin' | 'admin' | 'moderator' }
+const emptyForm: AdminForm = { name: '', email: '', phone: '', role: 'moderator' }
 
 export default function AdministratorsPage() {
 	const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -56,40 +46,24 @@ export default function AdministratorsPage() {
 	const [showResetPasswordDialog, setShowResetPasswordDialog] = useState(false)
 	const [selectedAdmin, setSelectedAdmin] = useState<Admin | null>(null)
 	const [isSubmitting, setIsSubmitting] = useState(false)
-	const [newAdminForm, setNewAdminForm] = useState({
-		name: '',
-		email: '',
-		phone: '',
-		role: 'moderator' as 'super_admin' | 'admin' | 'moderator',
-	})
-	const [editAdminForm, setEditAdminForm] = useState({
-		name: '',
-		email: '',
-		phone: '',
-		role: 'moderator' as 'super_admin' | 'admin' | 'moderator',
-	})
+	const [newAdminForm, setNewAdminForm] = useState<AdminForm>(emptyForm)
+	const [editAdminForm, setEditAdminForm] = useState<AdminForm>(emptyForm)
 	const { admins, create, update, updateStatus, remove } = useAdministrators()
 
 	const filteredAdmins =
-		statusFilter === 'all'
-			? admins
-			: admins.filter(a => a.status === statusFilter)
+		statusFilter === 'all' ? admins : admins.filter(a => a.status === statusFilter)
 
-	const totalAdmins = admins.length
-	const activeAdmins = admins.filter(a => a.status === 'active').length
-	const superAdmins = admins.filter(a => a.role === 'super_admin').length
-
-	const handleAddAdmin = async (e: React.FormEvent) => {
+	const handleAddAdmin = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		setIsSubmitting(true)
 		await create(newAdminForm)
 		setIsSubmitting(false)
 		setShowAddDialog(false)
-		setNewAdminForm({ name: '', email: '', phone: '', role: 'moderator' })
+		setNewAdminForm(emptyForm)
 		toast.success('Administrateur ajouté avec succès')
 	}
 
-	const handleEditAdmin = async (e: React.FormEvent) => {
+	const handleEditAdmin = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		if (!selectedAdmin) return
 		setIsSubmitting(true)
@@ -132,9 +106,7 @@ export default function AdministratorsPage() {
 					</Avatar>
 					<div>
 						<p className="text-sm font-medium">{row.original.name}</p>
-						<p className="text-muted-foreground text-xs">
-							{row.original.email}
-						</p>
+						<p className="text-muted-foreground text-xs">{row.original.email}</p>
 					</div>
 				</div>
 			),
@@ -143,9 +115,7 @@ export default function AdministratorsPage() {
 			accessorKey: 'phone',
 			header: 'Téléphone',
 			cell: ({ row }) => (
-				<span className="text-muted-foreground text-sm">
-					{row.original.phone}
-				</span>
+				<span className="text-muted-foreground text-sm">{row.original.phone}</span>
 			),
 		},
 		{
@@ -188,9 +158,7 @@ export default function AdministratorsPage() {
 			cell: ({ row }) => (
 				<span className="text-muted-foreground text-sm">
 					{row.original.lastLogin
-						? format(new Date(row.original.lastLogin), 'dd/MM/yyyy HH:mm', {
-								locale: fr,
-							})
+						? format(new Date(row.original.lastLogin), 'dd/MM/yyyy HH:mm', { locale: fr })
 						: 'Jamais'}
 				</span>
 			),
@@ -233,8 +201,7 @@ export default function AdministratorsPage() {
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
 								onClick={() => {
-									const newStatus =
-										admin.status === 'active' ? 'inactive' : 'active'
+									const newStatus = admin.status === 'active' ? 'inactive' : 'active'
 									updateStatus(admin.id, newStatus).then(() =>
 										toast.success(
 											`Compte ${admin.status === 'active' ? 'désactivé' : 'activé'}`,
@@ -268,34 +235,12 @@ export default function AdministratorsPage() {
 			<TopBar title="Administrateurs" />
 			<div className="pt-16">
 				<div className="space-y-4 p-4 lg:p-6">
-					{/* Bento stat grid */}
-					<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-						<BentoCard
-							variant="highlight"
-							title="Total admins"
-							value={totalAdmins}
-							icon={Users}
-						/>
-						<BentoCard
-							variant="stat"
-							title="Actifs"
-							value={activeAdmins}
-							icon={ShieldCheck}
-							iconColor="text-green-600"
-							iconBgColor="bg-green-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="Super admins"
-							value={superAdmins}
-							icon={Shield}
-							iconColor="text-primary"
-							iconBgColor="bg-primary/10"
-							className="col-span-2 lg:col-span-1"
-						/>
-					</div>
+					<AdminStatsGrid
+						total={admins.length}
+						active={admins.filter(a => a.status === 'active').length}
+						superAdmins={admins.filter(a => a.role === 'super_admin').length}
+					/>
 
-					{/* Table bento card */}
 					<BentoCard variant="table">
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -324,215 +269,37 @@ export default function AdministratorsPage() {
 				</div>
 			</div>
 
-			{/* Add Admin Dialog */}
-			<Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Ajouter un administrateur</DialogTitle>
-						<DialogDescription>
-							Créez un nouveau compte. Un email avec les identifiants sera
-							envoyé.
-						</DialogDescription>
-					</DialogHeader>
-					<form onSubmit={handleAddAdmin} className="space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="name">Nom complet</Label>
-							<Input
-								id="name"
-								value={newAdminForm.name}
-								onChange={e =>
-									setNewAdminForm(p => ({ ...p, name: e.target.value }))
-								}
-								required
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="email">Email</Label>
-							<Input
-								id="email"
-								type="email"
-								value={newAdminForm.email}
-								onChange={e =>
-									setNewAdminForm(p => ({ ...p, email: e.target.value }))
-								}
-								required
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="phone">Téléphone</Label>
-							<Input
-								id="phone"
-								value={newAdminForm.phone}
-								onChange={e =>
-									setNewAdminForm(p => ({ ...p, phone: e.target.value }))
-								}
-								required
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="role">Rôle</Label>
-							<Select
-								value={newAdminForm.role}
-								onValueChange={(v: 'admin' | 'moderator') =>
-									setNewAdminForm(p => ({ ...p, role: v }))
-								}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="admin">Administrateur</SelectItem>
-									<SelectItem value="moderator">Modérateur</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-						<DialogFooter>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setShowAddDialog(false)}
-							>
-								Annuler
-							</Button>
-							<Button type="submit" disabled={isSubmitting}>
-								{isSubmitting ? 'Création...' : 'Créer le compte'}
-							</Button>
-						</DialogFooter>
-					</form>
-				</DialogContent>
-			</Dialog>
-
-			{/* Edit Admin Dialog */}
-			<Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Modifier l&apos;administrateur</DialogTitle>
-						<DialogDescription>
-							Modifiez les informations de {selectedAdmin?.name}
-						</DialogDescription>
-					</DialogHeader>
-					<form onSubmit={handleEditAdmin} className="space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="edit-name">Nom complet</Label>
-							<Input
-								id="edit-name"
-								value={editAdminForm.name}
-								onChange={e =>
-									setEditAdminForm(p => ({ ...p, name: e.target.value }))
-								}
-								required
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="edit-email">Email</Label>
-							<Input
-								id="edit-email"
-								type="email"
-								value={editAdminForm.email}
-								onChange={e =>
-									setEditAdminForm(p => ({ ...p, email: e.target.value }))
-								}
-								required
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="edit-phone">Téléphone</Label>
-							<Input
-								id="edit-phone"
-								value={editAdminForm.phone}
-								onChange={e =>
-									setEditAdminForm(p => ({ ...p, phone: e.target.value }))
-								}
-								required
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="edit-role">Rôle</Label>
-							<Select
-								value={editAdminForm.role}
-								onValueChange={(v: 'admin' | 'moderator') =>
-									setEditAdminForm(p => ({ ...p, role: v }))
-								}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="admin">Administrateur</SelectItem>
-									<SelectItem value="moderator">Modérateur</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-						<DialogFooter>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setShowEditDialog(false)}
-							>
-								Annuler
-							</Button>
-							<Button type="submit" disabled={isSubmitting}>
-								{isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
-							</Button>
-						</DialogFooter>
-					</form>
-				</DialogContent>
-			</Dialog>
-
-			{/* Delete Admin Dialog */}
-			<Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Supprimer l&apos;administrateur</DialogTitle>
-						<DialogDescription>
-							Êtes-vous sûr de vouloir supprimer le compte de{' '}
-							{selectedAdmin?.name} ? Cette action est irréversible.
-						</DialogDescription>
-					</DialogHeader>
-					<DialogFooter>
-						<Button
-							variant="outline"
-							onClick={() => setShowDeleteDialog(false)}
-						>
-							Annuler
-						</Button>
-						<Button
-							variant="destructive"
-							onClick={handleDeleteAdmin}
-							disabled={isSubmitting}
-						>
-							{isSubmitting ? 'Suppression...' : 'Supprimer'}
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
-
-			{/* Reset Password Dialog */}
-			<Dialog
+			<AddAdminDialog
+				open={showAddDialog}
+				onOpenChange={setShowAddDialog}
+				form={newAdminForm}
+				onFormChange={setNewAdminForm}
+				onSubmit={handleAddAdmin}
+				isSubmitting={isSubmitting}
+			/>
+			<EditAdminDialog
+				open={showEditDialog}
+				onOpenChange={setShowEditDialog}
+				adminName={selectedAdmin?.name}
+				form={editAdminForm}
+				onFormChange={setEditAdminForm}
+				onSubmit={handleEditAdmin}
+				isSubmitting={isSubmitting}
+			/>
+			<DeleteAdminDialog
+				open={showDeleteDialog}
+				onOpenChange={setShowDeleteDialog}
+				adminName={selectedAdmin?.name}
+				onConfirm={handleDeleteAdmin}
+				isSubmitting={isSubmitting}
+			/>
+			<ResetPasswordDialog
 				open={showResetPasswordDialog}
 				onOpenChange={setShowResetPasswordDialog}
-			>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Réinitialiser le mot de passe</DialogTitle>
-						<DialogDescription>
-							Un email sera envoyé à {selectedAdmin?.email} pour définir un
-							nouveau mot de passe.
-						</DialogDescription>
-					</DialogHeader>
-					<DialogFooter>
-						<Button
-							variant="outline"
-							onClick={() => setShowResetPasswordDialog(false)}
-						>
-							Annuler
-						</Button>
-						<Button onClick={handleResetPassword} disabled={isSubmitting}>
-							{isSubmitting ? 'Envoi...' : "Envoyer l'email"}
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
+				adminEmail={selectedAdmin?.email}
+				onConfirm={handleResetPassword}
+				isSubmitting={isSubmitting}
+			/>
 		</>
 	)
 }

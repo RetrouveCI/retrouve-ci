@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Input, Label, InputOTP, InputOTPGroup, InputOTPSlot } from '@retrouve-ci/ui/components'
+import { Button, Input, Label, InputOTP, InputOTPGroup } from '@retrouve-ci/ui/components'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -10,15 +10,13 @@ import {
 	Loader2,
 	CheckCircle2,
 	RefreshCw,
-	Eye,
-	EyeOff,
-	Shield,
-	Smartphone,
-	MapPin,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/contexts/auth-context'
 import { cn } from '@retrouve-ci/ui/utils'
+import { BrandingPanel } from './components/BrandingPanel'
+import { OtpSlots } from './components/OtpSlots'
+import { PasswordInput } from './components/PasswordInput'
 
 type Mode = 'login' | 'register' | 'forgot'
 type Step = 'phone' | 'otp' | 'password' | 'create-password' | 'new-password'
@@ -38,79 +36,6 @@ const MODE_CONFIG: Record<Mode, { title: string; description: string }> = {
 		title: 'Mot de passe oublié',
 		description: 'Réinitialisez votre mot de passe.',
 	},
-}
-
-function OtpSlots({ error }: { error: boolean }) {
-	return (
-		<>
-			{[0, 1, 2, 3, 4, 5].map(i => (
-				<InputOTPSlot
-					key={i}
-					index={i}
-					className={cn(
-						'h-12 w-11 rounded-xl border-2 text-lg font-semibold transition-all',
-						error
-							? 'border-destructive bg-destructive/5'
-							: 'border-border bg-background data-[active=true]:border-primary-green data-[active=true]:ring-primary-green/20 data-[active=true]:ring-2',
-					)}
-				/>
-			))}
-		</>
-	)
-}
-
-function PasswordInput({
-	id,
-	label,
-	value,
-	onChange,
-	placeholder,
-	hint,
-	disabled,
-	autoFocus,
-}: {
-	id: string
-	label: string
-	value: string
-	onChange: (v: string) => void
-	placeholder?: string
-	hint?: string
-	disabled?: boolean
-	autoFocus?: boolean
-}) {
-	const [show, setShow] = useState(false)
-	return (
-		<div className="space-y-2">
-			<Label htmlFor={id} className="text-sm font-medium">
-				{label}
-			</Label>
-			<div className="relative">
-				<Input
-					id={id}
-					type={show ? 'text' : 'password'}
-					placeholder={placeholder ?? '••••••••'}
-					value={value}
-					onChange={e => onChange(e.target.value)}
-					className="border-border bg-background focus:border-primary-green focus:ring-primary-green/20 h-12 rounded-xl border-2 pr-11 transition-all focus:ring-2"
-					autoComplete={id === 'password' ? 'current-password' : 'new-password'}
-					disabled={disabled}
-					autoFocus={autoFocus}
-				/>
-				<button
-					type="button"
-					onClick={() => setShow(v => !v)}
-					className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3.5 -translate-y-1/2 p-1 transition-colors"
-					aria-label={
-						show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
-					}
-					tabIndex={-1}
-				>
-					{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-				</button>
-			</div>
-			{hint && <p className="text-muted-foreground text-xs">{hint}</p>}
-		</div>
-	)
 }
 
 export default function AuthPage() {
@@ -133,7 +58,6 @@ export default function AuthPage() {
 	const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS)
 	const [canResend, setCanResend] = useState(false)
 
-	// Redirect if already authenticated
 	useEffect(() => {
 		if (isAuthenticated) router.push('/account')
 	}, [isAuthenticated, router])
@@ -160,7 +84,7 @@ export default function AuthPage() {
 			.toString()
 			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
-	const handlePhoneSubmit = async (e: React.FormEvent) => {
+	const handlePhoneSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		const cleaned = phoneNumber.replace(/\s/g, '')
 		if (!cleaned || cleaned.length < 8) {
@@ -179,7 +103,7 @@ export default function AuthPage() {
 		setStep('otp')
 	}
 
-	const handleOTPSubmit = async (e: React.FormEvent) => {
+	const handleOTPSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		if (otp.length < 6) {
 			toast.error('Entrez le code complet à 6 chiffres')
@@ -202,7 +126,7 @@ export default function AuthPage() {
 		else setStep('new-password')
 	}
 
-	const handleLoginSubmit = async (e: React.FormEvent) => {
+	const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		if (password.length < 4) {
 			setPasswordError('Mot de passe trop court.')
@@ -219,7 +143,7 @@ export default function AuthPage() {
 		router.push('/account')
 	}
 
-	const handleCreatePasswordSubmit = async (e: React.FormEvent) => {
+	const handleCreatePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		if (newPassword.length < 6) {
 			setConfirmError('Le mot de passe doit contenir au moins 6 caractères.')
@@ -238,7 +162,7 @@ export default function AuthPage() {
 		router.push('/account')
 	}
 
-	const handleNewPasswordSubmit = async (e: React.FormEvent) => {
+	const handleNewPasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		if (newPassword.length < 6) {
 			setConfirmError('Le mot de passe doit contenir au moins 6 caractères.')
@@ -313,103 +237,9 @@ export default function AuthPage() {
 
 	return (
 		<div className="flex min-h-screen">
-			{/* Left Panel - Branding (hidden on mobile) */}
-			<div className="from-primary-green to-primary-green-dark relative hidden overflow-hidden bg-linear-to-br lg:flex lg:w-1/2 xl:w-[55%]">
-				{/* Background patterns */}
-				<div className="absolute inset-0 opacity-10">
-					<div className="absolute top-20 left-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
-					<div className="absolute right-20 bottom-20 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
-					<div className="absolute top-1/2 left-1/3 h-48 w-48 rounded-full bg-white/15 blur-2xl" />
-				</div>
+			<BrandingPanel />
 
-				{/* Content */}
-				<div className="relative z-10 flex w-full flex-col justify-between p-12 text-white xl:p-16">
-					{/* Logo */}
-					<Link href="/" className="group flex w-fit items-center gap-3">
-						<Image
-							src="/logo.png"
-							alt="RetrouveCI"
-							width={48}
-							height={48}
-							className="rounded-xl transition-transform group-hover:scale-105"
-							priority
-						/>
-						<span className="text-2xl font-bold">
-							Retrouve<span className="text-white/80">CI</span>
-						</span>
-					</Link>
-
-					{/* Main message */}
-					<div className="space-y-8">
-						<div>
-							<h1 className="mb-4 text-4xl leading-tight font-bold text-balance xl:text-5xl">
-								Retrouvez ce qui compte pour vous
-							</h1>
-							<p className="max-w-md text-lg leading-relaxed text-white/80 xl:text-xl">
-								La plateforme de confiance pour retrouver vos objets perdus en
-								Cote d&apos;Ivoire.
-							</p>
-						</div>
-
-						{/* Features */}
-						<div className="space-y-4">
-							<div className="flex items-center gap-4">
-								<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-									<Smartphone className="h-6 w-6" />
-								</div>
-								<div>
-									<p className="font-semibold">Alertes instantanees</p>
-									<p className="text-sm text-white/70">
-										Soyez notifie des qu&apos;un objet correspond
-									</p>
-								</div>
-							</div>
-							<div className="flex items-center gap-4">
-								<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-									<MapPin className="h-6 w-6" />
-								</div>
-								<div>
-									<p className="font-semibold">Couverture nationale</p>
-									<p className="text-sm text-white/70">
-										Toutes les villes de Cote d&apos;Ivoire
-									</p>
-								</div>
-							</div>
-							<div className="flex items-center gap-4">
-								<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-									<Shield className="h-6 w-6" />
-								</div>
-								<div>
-									<p className="font-semibold">100% securise</p>
-									<p className="text-sm text-white/70">
-										Vos donnees restent privees
-									</p>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					{/* Stats */}
-					<div className="flex gap-8">
-						<div>
-							<p className="text-3xl font-bold xl:text-4xl">2,500+</p>
-							<p className="text-sm text-white/70">Objets retrouves</p>
-						</div>
-						<div>
-							<p className="text-3xl font-bold xl:text-4xl">15,000+</p>
-							<p className="text-sm text-white/70">Utilisateurs actifs</p>
-						</div>
-						<div>
-							<p className="text-3xl font-bold xl:text-4xl">50+</p>
-							<p className="text-sm text-white/70">Villes couvertes</p>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			{/* Right Panel - Form */}
 			<div className="bg-background flex min-h-screen flex-1 flex-col">
-				{/* Mobile header */}
 				<header className="flex items-center justify-between border-b p-4 lg:hidden">
 					<Link href="/" className="flex items-center gap-2">
 						<Image
@@ -425,10 +255,8 @@ export default function AuthPage() {
 					</Link>
 				</header>
 
-				{/* Form area */}
 				<div className="flex flex-1 items-center justify-center p-6 lg:p-12">
 					<div className="w-full max-w-md">
-						{/* Back button */}
 						<div className="mb-6">
 							{step === 'phone' ? (
 								<Link
@@ -449,7 +277,6 @@ export default function AuthPage() {
 							)}
 						</div>
 
-						{/* Title */}
 						<div className="mb-8">
 							<h2 className="mb-2 text-2xl font-bold lg:text-3xl">
 								{stepTitle()}
@@ -457,7 +284,6 @@ export default function AuthPage() {
 							<p className="text-muted-foreground">{stepDescription()}</p>
 						</div>
 
-						{/* ── Step: Phone (+ password for login) ── */}
 						{step === 'phone' && (
 							<form
 								onSubmit={
@@ -465,7 +291,6 @@ export default function AuthPage() {
 								}
 								className="space-y-5"
 							>
-								{/* Phone field */}
 								<div className="space-y-2">
 									<Label htmlFor="phone" className="text-sm font-medium">
 										Numéro de téléphone
@@ -499,7 +324,6 @@ export default function AuthPage() {
 									</p>
 								</div>
 
-								{/* Password field — login only */}
 								{mode === 'login' && (
 									<>
 										<PasswordInput
@@ -547,7 +371,6 @@ export default function AuthPage() {
 									)}
 								</Button>
 
-								{/* Mode switchers */}
 								<div className="space-y-3 pt-2 text-center text-sm">
 									{mode === 'login' && (
 										<p className="text-muted-foreground">
@@ -589,7 +412,6 @@ export default function AuthPage() {
 							</form>
 						)}
 
-						{/* ── Step: OTP ── */}
 						{step === 'otp' && (
 							<form onSubmit={handleOTPSubmit} className="space-y-6">
 								<div className="space-y-4">
@@ -616,7 +438,6 @@ export default function AuthPage() {
 									)}
 								</div>
 
-								{/* Countdown / resend */}
 								<div className="flex justify-center">
 									{timeLeft > 0 ? (
 										<div
@@ -671,7 +492,6 @@ export default function AuthPage() {
 							</form>
 						)}
 
-						{/* ── Step: Create password (register) ── */}
 						{step === 'create-password' && (
 							<form onSubmit={handleCreatePasswordSubmit} className="space-y-6">
 								<PasswordInput
@@ -718,7 +538,6 @@ export default function AuthPage() {
 							</form>
 						)}
 
-						{/* ── Step: New password (forgot) ── */}
 						{step === 'new-password' && (
 							<form onSubmit={handleNewPasswordSubmit} className="space-y-6">
 								<PasswordInput
@@ -765,7 +584,6 @@ export default function AuthPage() {
 							</form>
 						)}
 
-						{/* Terms */}
 						<div className="mt-8 border-t pt-6">
 							<p className="text-muted-foreground text-center text-xs">
 								En continuant, vous acceptez nos{' '}

@@ -25,6 +25,8 @@ import {
 	Clock,
 	PackageCheck,
 } from 'lucide-react'
+import { OrderDetailDialog } from './components/OrderDetailDialog'
+import { OrderStatsGrid } from './components/OrderStatsGrid'
 
 const statusConfig: Record<
 	StickerOrder['status'],
@@ -55,127 +57,6 @@ const statusConfig: Record<
 		className: 'bg-red-100 text-red-700 hover:bg-red-100',
 		icon: XCircle,
 	},
-}
-
-function OrderDetailDialog({
-	order,
-	open,
-	onOpenChange,
-}: {
-	order: StickerOrder | null
-	open: boolean
-	onOpenChange: (v: boolean) => void
-}) {
-	if (!order) return null
-	const cfg = statusConfig[order.status]
-	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-lg">
-				<DialogHeader>
-					<DialogTitle className="flex items-center gap-2">
-						<Package className="text-primary h-5 w-5" />
-						Commande {order.id}
-					</DialogTitle>
-				</DialogHeader>
-				<div className="space-y-5 py-2">
-					<div className="bg-muted/50 flex items-center justify-between rounded-xl px-4 py-3">
-						<span className="text-muted-foreground text-sm font-medium">
-							Statut
-						</span>
-						<Badge className={cfg.className}>{cfg.label}</Badge>
-					</div>
-					<div>
-						<p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
-							Client
-						</p>
-						<div className="bg-card space-y-1.5 rounded-xl border p-4">
-							<p className="font-semibold">{order.userName}</p>
-							<p className="text-muted-foreground text-sm">{order.userEmail}</p>
-							<p className="text-muted-foreground text-sm">{order.userPhone}</p>
-						</div>
-					</div>
-					<div>
-						<p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
-							Livraison
-						</p>
-						<div className="bg-card space-y-1.5 rounded-xl border p-4">
-							<p className="text-sm">{order.deliveryAddress}</p>
-							<p className="text-muted-foreground text-sm">
-								{order.deliveryCity}
-							</p>
-							{order.deliveryNotes && (
-								<p className="bg-muted text-muted-foreground mt-2 rounded-lg px-3 py-2 text-xs italic">
-									{order.deliveryNotes}
-								</p>
-							)}
-						</div>
-					</div>
-					<div className="grid grid-cols-2 gap-3">
-						<div className="bg-card rounded-xl border p-3 text-center">
-							<p className="text-primary text-2xl font-bold">
-								{order.quantity}
-							</p>
-							<p className="text-muted-foreground text-xs">
-								sticker{order.quantity > 1 ? 's' : ''}
-							</p>
-						</div>
-						<div className="bg-card rounded-xl border p-3 text-center">
-							<p className="text-sm font-semibold">
-								{order.trackingNumber ?? (
-									<span className="text-muted-foreground">—</span>
-								)}
-							</p>
-							<p className="text-muted-foreground text-xs">N° de suivi</p>
-						</div>
-					</div>
-					<div>
-						<p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
-							Historique
-						</p>
-						<div className="bg-card space-y-2 rounded-xl border p-4 text-sm">
-							<div className="flex justify-between">
-								<span className="text-muted-foreground">Commandé le</span>
-								<span>
-									{format(new Date(order.createdAt), "dd MMM yyyy 'à' HH:mm", {
-										locale: fr,
-									})}
-								</span>
-							</div>
-							{order.shippedAt && (
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">Expédié le</span>
-									<span>
-										{format(
-											new Date(order.shippedAt),
-											"dd MMM yyyy 'à' HH:mm",
-											{ locale: fr },
-										)}
-									</span>
-								</div>
-							)}
-							{order.deliveredAt && (
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">Livré le</span>
-									<span>
-										{format(
-											new Date(order.deliveredAt),
-											"dd MMM yyyy 'à' HH:mm",
-											{ locale: fr },
-										)}
-									</span>
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
-				<DialogFooter>
-					<Button variant="outline" onClick={() => onOpenChange(false)}>
-						Fermer
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
-	)
 }
 
 export default function OrdersPage() {
@@ -386,47 +267,13 @@ export default function OrdersPage() {
 			<TopBar title="Commandes de stickers" />
 			<div className="pt-16">
 				<div className="space-y-4 p-4 lg:p-6">
-					{/* Bento stat grid */}
-					<div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-						<BentoCard
-							variant="highlight"
-							title="Total commandes"
-							value={counts.total}
-							icon={Package}
-						/>
-						<BentoCard
-							variant="stat"
-							title="En attente"
-							value={counts.pending}
-							icon={Clock}
-							iconColor="text-yellow-600"
-							iconBgColor="bg-yellow-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="En traitement"
-							value={counts.processing}
-							icon={Package}
-							iconColor="text-blue-600"
-							iconBgColor="bg-blue-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="Expédiées"
-							value={counts.shipped}
-							icon={Truck}
-							iconColor="text-purple-600"
-							iconBgColor="bg-purple-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="Livrées"
-							value={counts.delivered}
-							icon={PackageCheck}
-							iconColor="text-green-600"
-							iconBgColor="bg-green-100"
-						/>
-					</div>
+					<OrderStatsGrid
+						total={counts.total}
+						pending={counts.pending}
+						processing={counts.processing}
+						shipped={counts.shipped}
+						delivered={counts.delivered}
+					/>
 
 					{/* Table bento card */}
 					<BentoCard variant="table">
