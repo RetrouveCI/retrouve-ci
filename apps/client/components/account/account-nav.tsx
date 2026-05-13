@@ -23,7 +23,7 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 
 	const featuredItems = [
 		{
-			href: '/compte/stickers',
+			href: '/account/stickers',
 			icon: QrCode,
 			label: 'Mes Stickers QR',
 			description: 'Gérez vos stickers et protégez vos objets',
@@ -31,7 +31,7 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 			color: 'primary-green',
 		},
 		{
-			href: '/compte/annonces',
+			href: '/account/posts',
 			icon: FileText,
 			label: 'Mes Annonces',
 			description: 'Objets perdus et retrouvés',
@@ -39,7 +39,7 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 			color: 'accent-orange',
 		},
 		{
-			href: '/compte/commandes',
+			href: '/account/orders',
 			icon: Package,
 			label: 'Mes Commandes',
 			description: 'Historique et suivi de vos commandes',
@@ -115,7 +115,7 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 				</div>
 
 				<Link
-					href="/compte/parametres"
+					href="/account/settings"
 					className="group bg-background border-border/50 hover:border-border mt-4 flex items-center justify-between gap-4 rounded-2xl border p-5 transition-all hover:shadow-md"
 				>
 					<div className="flex items-center gap-4">
@@ -134,7 +134,7 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 
 				<div className="mt-8 grid gap-3 sm:grid-cols-2">
 					<Link
-						href="/publier"
+						href="/publish"
 						className="group flex items-center gap-3 rounded-xl border-2 border-dashed border-accent-orange/30 bg-accent-orange/5 p-4 transition-all hover:border-accent-orange/50 hover:bg-accent-orange/10"
 					>
 						<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-orange transition-transform group-hover:scale-110">

@@ -48,7 +48,7 @@ export default function PublierPage() {
 					<div className="container mx-auto px-4">
 						<div className="mx-auto grid max-w-3xl gap-5 md:grid-cols-2">
 							{/* Lost */}
-							<Link href="/publier/perdu" className="group block">
+							<Link href="/publish/lost" className="group block">
 								<div className="bg-background group-hover:border-accent-orange/40 relative h-full overflow-hidden rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
 									{/* Top accent bar */}
 									<div className="bg-accent-orange h-1.5 w-full" />
@@ -87,7 +87,7 @@ export default function PublierPage() {
 							</Link>
 
 							{/* Found */}
-							<Link href="/publier/retrouve" className="group block">
+							<Link href="/publish/found" className="group block">
 								<div className="bg-background group-hover:border-primary-green/40 relative h-full overflow-hidden rounded-2xl border-2 border-transparent transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
 									{/* Top accent bar */}
 									<div className="bg-primary-green h-1.5 w-full" />

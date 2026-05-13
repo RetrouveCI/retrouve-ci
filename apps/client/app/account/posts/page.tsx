@@ -174,7 +174,7 @@ function ListingCard({
 						size="sm"
 						className="h-8 rounded-lg text-xs"
 					>
-						<Link href={`/annonces/${listing.id}`}>
+						<Link href={`/posts/${listing.id}`}>
 							Voir <ChevronRight className="ml-0.5 h-3.5 w-3.5" />
 						</Link>
 					</Button>
@@ -269,7 +269,7 @@ export default function AnnoncesPage() {
 					</div>
 					<div className="relative container mx-auto px-4 py-8">
 						<Link
-							href="/compte"
+							href="/account"
 							className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition-colors"
 						>
 							<ArrowLeft className="h-4 w-4" />
@@ -292,7 +292,7 @@ export default function AnnoncesPage() {
 								asChild
 								className="bg-accent-orange hover:bg-accent-orange-dark gap-2 rounded-xl text-white"
 							>
-								<Link href="/publier">
+								<Link href="/publish">
 									<Plus className="h-4 w-4" />
 									Nouvelle annonce
 								</Link>
@@ -391,7 +391,7 @@ export default function AnnoncesPage() {
 									asChild
 									className="bg-accent-orange hover:bg-accent-orange-dark gap-2 rounded-xl text-white"
 								>
-									<Link href="/publier">
+									<Link href="/publish">
 										<Plus className="h-4 w-4" />
 										Publier une annonce
 									</Link>

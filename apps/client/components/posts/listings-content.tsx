@@ -39,7 +39,7 @@ export function ListingsContent({
 					asChild
 					className="rounded-xl bg-primary-green text-white hover:bg-primary-green-dark"
 				>
-					<a href="/publier">Publier une annonce</a>
+					<a href="/publish">Publier une annonce</a>
 				</Button>
 			</div>
 		)

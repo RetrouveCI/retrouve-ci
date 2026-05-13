@@ -12,8 +12,8 @@ import { cn } from '@retrouve-ci/ui/utils'
 
 const navLinks = [
 	{ href: '/', label: 'Accueil' },
-	{ href: '/annonces', label: 'Annonces' },
-	{ href: '/publier', label: 'Publier' },
+	{ href: '/posts', label: 'Annonces' },
+	{ href: '/publish', label: 'Publier' },
 	{ href: '/stickers', label: 'Stickers QR' },
 ]
 
@@ -78,7 +78,7 @@ export function Header() {
 					{isAuthenticated ? (
 						<>
 							<Button asChild variant="ghost" size="sm" className="h-9 gap-2">
-								<Link href="/compte">
+								<Link href="/account">
 									<div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-green/10">
 										<User className="h-4 w-4 text-primary-green" />
 									</div>

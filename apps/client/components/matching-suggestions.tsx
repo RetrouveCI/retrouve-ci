@@ -99,7 +99,7 @@ export function MatchingSuggestions({
 						return (
 							<li key={item.id}>
 								<Link
-									href={`/annonces/${item.id}`}
+									href={`/posts/${item.id}`}
 									target="_blank"
 									className="hover:bg-muted/40 group flex items-center gap-3 px-4 py-3 transition-colors"
 								>
@@ -147,7 +147,7 @@ export function MatchingSuggestions({
 
 			<div className="bg-muted/20 border-t px-4 py-3">
 				<Link
-					href="/annonces"
+					href="/posts"
 					className="text-muted-foreground hover:text-foreground flex items-center justify-center gap-1.5 text-xs font-medium transition-colors"
 				>
 					Voir toutes les annonces

@@ -62,7 +62,7 @@ export default function ParametresPage() {
 					</div>
 					<div className="relative container mx-auto px-4 py-8">
 						<Link
-							href="/compte"
+							href="/account"
 							className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition-colors"
 						>
 							<ArrowLeft className="h-4 w-4" />

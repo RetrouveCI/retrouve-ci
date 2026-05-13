@@ -318,7 +318,7 @@ function OrderDetail({
 								asChild
 								className="bg-primary-green hover:bg-primary-green-dark h-12 flex-1 rounded-xl text-white"
 							>
-								<Link href="/compte/stickers">Voir mes stickers</Link>
+								<Link href="/account/stickers">Voir mes stickers</Link>
 							</Button>
 						)}
 						{(order.status === 'pending' || order.status === 'confirmed') && (
@@ -358,7 +358,7 @@ function EmptyState() {
 				asChild
 				className="bg-primary-green hover:bg-primary-green-dark h-11 rounded-xl text-white"
 			>
-				<Link href="/stickers/commander" className="gap-2">
+				<Link href="/stickers/order" className="gap-2">
 					<Plus className="h-4 w-4" />
 					Commander des stickers
 				</Link>
@@ -420,7 +420,7 @@ export default function CommandesPage() {
 					<div className="container mx-auto px-4 py-6">
 						<div className="mb-4 flex items-center gap-4">
 							<Link
-								href="/compte"
+								href="/account"
 								className="hover:bg-muted flex h-10 w-10 items-center justify-center rounded-xl border transition-colors"
 							>
 								<ArrowLeft className="h-5 w-5" />
@@ -519,7 +519,7 @@ export default function CommandesPage() {
 						{/* CTA */}
 						<div className="mt-8">
 							<Link
-								href="/stickers/commander"
+								href="/stickers/order"
 								className="group border-primary-green/30 bg-primary-green/5 hover:border-primary-green/50 hover:bg-primary-green/10 flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed p-5 transition-all"
 							>
 								<div className="flex items-center gap-4">

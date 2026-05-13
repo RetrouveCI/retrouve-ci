@@ -63,7 +63,7 @@ export function usePublishForm(successMessage: string) {
 		setIsSubmitting(true)
 		await new Promise(r => setTimeout(r, 1500))
 		toast.success('Annonce publiée !', { description: successMessage })
-		router.push('/annonces')
+		router.push('/posts')
 	}
 
 	return {

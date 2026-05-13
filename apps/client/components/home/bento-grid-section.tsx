@@ -57,7 +57,7 @@ export function BentoGridSection() {
 									rapidement parmi des milliers d&apos;annonces.
 								</p>
 								<Link
-									href="/annonces"
+									href="/posts"
 									className="group/link mt-4 inline-flex items-center gap-2 font-medium text-white"
 								>
 									Explorer

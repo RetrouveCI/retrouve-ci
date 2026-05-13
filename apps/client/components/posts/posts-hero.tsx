@@ -6,17 +6,17 @@ const STATS = [
 	{ label: 'Villes couvertes', value: '30+' },
 ]
 
-interface AnnoncesHeroProps {
+interface PostsHeroProps {
 	searchQuery: string
 	onSearchChange: (value: string) => void
 	listingsCount: number
 }
 
-export function AnnoncesHero({
+export function PostsHero({
 	searchQuery,
 	onSearchChange,
 	listingsCount,
-}: AnnoncesHeroProps) {
+}: PostsHeroProps) {
 	return (
 		<section className="relative overflow-hidden border-b">
 			<div className="pointer-events-none absolute inset-0">

@@ -360,7 +360,7 @@ export default function DownloadPage() {
 									size="lg"
 									className="bg-primary-green hover:bg-primary-green-dark h-11 rounded-xl px-6 text-white"
 								>
-									<Link href="/annonces" className="gap-2">
+									<Link href="/posts" className="gap-2">
 										Voir les annonces
 										<ArrowRight className="h-4 w-4" />
 									</Link>

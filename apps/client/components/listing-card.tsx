@@ -117,7 +117,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 
 	if (variant === 'list') {
 		return (
-			<Link href={`/annonces/${listing.id}`} className="group block">
+			<Link href={`/posts/${listing.id}`} className="group block">
 				<article className="bg-background flex gap-3 rounded-2xl border p-3 transition-all duration-200 hover:border-primary-green/30 hover:shadow-md">
 					<ListingThumbnail listing={listing} CategoryIcon={CategoryIcon} />
 
@@ -164,7 +164,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 	}
 
 	return (
-		<Link href={`/annonces/${listing.id}`} className="group block h-full">
+		<Link href={`/posts/${listing.id}`} className="group block h-full">
 			<article className="bg-background relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:border-primary-green/30 hover:shadow-lg">
 				<ListingImage
 					listing={listing}

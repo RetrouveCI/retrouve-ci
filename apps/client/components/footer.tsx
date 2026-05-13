@@ -4,7 +4,7 @@ import Image from 'next/image'
 const footerLinks = {
 	navigation: [
 		{ href: '/', label: 'Accueil' },
-		{ href: '/annonces', label: 'Annonces' },
+		{ href: '/posts', label: 'Annonces' },
 		{ href: '/stickers', label: 'Stickers QR' },
 		{ href: '/download', label: 'Télécharger' },
 	],

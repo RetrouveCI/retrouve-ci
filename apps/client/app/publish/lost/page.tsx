@@ -3,7 +3,7 @@
 import { Button, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { MatchingSuggestions } from '@/components/matching-suggestions'
@@ -15,7 +15,7 @@ import { TipsPanel } from '@/components/publish-form/tips-panel'
 import { usePublishForm } from '@/hooks/use-publish-form'
 import { cn } from '@retrouve-ci/ui/utils'
 
-const ACCENT = 'varprimary-green'
+const ACCENT = 'varaccent-orange'
 
 const objectTypes = [
 	{ value: 'phone', label: 'Téléphone' },
@@ -30,10 +30,10 @@ const objectTypes = [
 ]
 
 const tips = [
-	'Ajoutez une photo pour aider le propriétaire',
-	"Décrivez l'état et les détails visibles",
-	"Précisez où vous conservez l'objet",
-	'Répondez rapidement aux messages',
+	'Soyez précis sur la couleur et la marque',
+	'Ajoutez une photo pour de meilleurs résultats',
+	'Mentionnez le lieu exact de la perte',
+	'Vos coordonnées restent privées',
 ]
 
 const progressItems = (
@@ -44,13 +44,14 @@ const progressItems = (
 		label: 'Description (20 car. min)',
 		done: formData.description.length >= 20,
 	},
-	{ label: 'Lieu de la trouvaille', done: !!formData.ville },
+	{ label: 'Lieu de perte', done: !!formData.ville },
 	{ label: 'Votre nom', done: !!formData.name },
 	{ label: 'WhatsApp', done: !!formData.whatsapp },
 ]
 
-export default function PublierRetrouvePage() {
+export default function PublierPerduPage() {
 	const router = useRouter()
+
 	const {
 		formData,
 		update,
@@ -60,9 +61,7 @@ export default function PublierRetrouvePage() {
 		progress,
 		isSubmitting,
 		handleSubmit,
-	} = usePublishForm(
-		'Merci de votre bonne action. Le propriétaire pourra vous contacter.',
-	)
+	} = usePublishForm('Votre annonce est maintenant visible par tous.')
 
 	return (
 		<>
@@ -70,7 +69,7 @@ export default function PublierRetrouvePage() {
 			<main className="bg-muted/20 flex-1">
 				<div className="container mx-auto px-4 py-8 md:py-12">
 					<Link
-						href="/publier"
+						href="/publish"
 						className="text-muted-foreground hover:text-foreground mb-8 inline-flex items-center gap-2 text-sm transition-colors"
 					>
 						<ArrowLeft className="h-4 w-4" />
@@ -80,13 +79,14 @@ export default function PublierRetrouvePage() {
 					<div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_320px]">
 						<div className="space-y-6">
 							<div className="flex items-center gap-3 pb-2">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-green/10">
-									<CheckCircle className="h-5 w-5 text-primary-green" />
+								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-orange/10">
+									<AlertCircle className="h-5 w-5 text-accent-orange" />
 								</div>
 								<div>
-									<h1 className="text-2xl font-bold">Objet retrouvé</h1>
+									<h1 className="text-2xl font-bold">Objet perdu</h1>
 									<p className="text-muted-foreground text-sm">
-										Aidez le propriétaire à récupérer son bien.
+										Décrivez votre objet pour que quelqu&apos;un puisse vous
+										aider.
 									</p>
 								</div>
 							</div>
@@ -125,7 +125,7 @@ export default function PublierRetrouvePage() {
 										</Label>
 										<Textarea
 											id="description"
-											placeholder="Couleur, marque, signes distinctifs, état de l'objet..."
+											placeholder="Couleur, marque, signes distinctifs, contenu..."
 											value={formData.description}
 											onChange={e => update('description')(e.target.value)}
 											className="min-h-27.5 resize-none"
@@ -134,7 +134,7 @@ export default function PublierRetrouvePage() {
 											className={cn(
 												'text-xs',
 												formData.description.length >= 20
-													? 'text-primary-green'
+													? 'text-accent-orange'
 													: 'text-muted-foreground',
 											)}
 										>
@@ -145,17 +145,17 @@ export default function PublierRetrouvePage() {
 									</div>
 
 									<div className="space-y-2">
-										<div className="flex items-center gap-2">
-											<Label>Photo</Label>
-											<span className="rounded-full border border-primary-green/20 bg-primary-green/10 px-2 py-0.5 text-[10px] font-semibold text-primary-green">
-												Recommandé
+										<Label>
+											Photo{' '}
+											<span className="text-muted-foreground text-xs font-normal">
+												(optionnel)
 											</span>
-										</div>
+										</Label>
 										<ImageUpload
 											preview={imagePreview}
 											onRemove={() => setImagePreview(null)}
 											onChange={handleImageChange}
-											variant="recommended"
+											variant="optional"
 											accentColor={ACCENT}
 										/>
 									</div>
@@ -165,8 +165,8 @@ export default function PublierRetrouvePage() {
 									ville={formData.ville}
 									commune={formData.commune}
 									date={formData.date}
-									dateLabel="Date de la trouvaille"
-									sectionTitle="Lieu & date de la trouvaille"
+									dateLabel="Date de perte"
+									sectionTitle="Lieu & date de perte"
 									onVilleChange={update('ville')}
 									onCommuneChange={update('commune')}
 									onDateChange={update('date')}
@@ -177,7 +177,6 @@ export default function PublierRetrouvePage() {
 									whatsapp={formData.whatsapp}
 									onNameChange={update('name')}
 									onWhatsappChange={update('whatsapp')}
-									showPrivacyNote
 								/>
 
 								<div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
@@ -190,7 +189,7 @@ export default function PublierRetrouvePage() {
 									</Button>
 									<Button
 										type="submit"
-										className="h-12 bg-primary-green text-white hover:bg-primary-green-dark sm:flex-1"
+										className="h-12 bg-accent-orange text-white hover:bg-accent-orange-dark sm:flex-1"
 										disabled={isSubmitting}
 									>
 										{isSubmitting ? (
@@ -218,7 +217,7 @@ export default function PublierRetrouvePage() {
 									objectType={formData.objectType}
 									ville={formData.ville}
 									commune={formData.commune}
-									formType="retrouve"
+									formType="perdu"
 								/>
 							) : (
 								<TipsPanel

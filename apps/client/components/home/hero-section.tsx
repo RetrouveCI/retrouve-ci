@@ -127,7 +127,7 @@ export function HeroSection() {
 							size="lg"
 							className="bg-foreground text-background hover:bg-foreground/90 h-14 rounded-full px-8 text-base transition-all duration-300 hover:scale-105 hover:shadow-xl"
 						>
-							<Link href="/publier" className="flex items-center gap-2">
+							<Link href="/publish" className="flex items-center gap-2">
 								Signaler un objet
 								<ArrowRight className="h-4 w-4" />
 							</Link>
@@ -138,7 +138,7 @@ export function HeroSection() {
 							size="lg"
 							className="h-14 rounded-full border-2 px-8 text-base transition-all duration-300 hover:scale-105"
 						>
-							<Link href="/annonces">Parcourir les annonces</Link>
+							<Link href="/posts">Parcourir les annonces</Link>
 						</Button>
 					</div>
 

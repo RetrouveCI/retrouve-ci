@@ -25,8 +25,8 @@ interface MobileNavProps {
 
 const NAV_ICONS: Record<string, React.ElementType> = {
 	'/': Home,
-	'/annonces': Newspaper,
-	'/publier': PlusCircle,
+	'/posts': Newspaper,
+	'/publish': PlusCircle,
 	'/stickers': QrCode,
 }
 
@@ -98,7 +98,7 @@ export function MobileNav({
 					{isAuthenticated ? (
 						<>
 							<Link
-								href="/compte"
+								href="/account"
 								onClick={() => onOpenChange(false)}
 								className="bg-muted/60 hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 transition-colors"
 							>

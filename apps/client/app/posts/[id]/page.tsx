@@ -129,7 +129,7 @@ export default async function ListingDetailPage({ params }: PageProps) {
 			<main className="flex-1 py-8 md:py-12">
 				<div className="container mx-auto px-4">
 					<Link
-						href="/annonces"
+						href="/posts"
 						className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-2 transition-colors"
 					>
 						<ArrowLeft className="h-4 w-4" />

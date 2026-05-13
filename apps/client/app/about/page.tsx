@@ -277,7 +277,7 @@ export default function AboutPage() {
 								</p>
 							</div>
 							<Link
-								href="/publier"
+								href="/publish"
 								className="text-primary-green inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold transition-colors hover:bg-white/90"
 							>
 								Publier une annonce

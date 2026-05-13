@@ -16,10 +16,10 @@ import {
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { FloatingActionButton } from '@/components/floating-action-button'
-import { AnnoncesHero } from '@/components/annonces/annonces-hero'
-import { FilterPanel } from '@/components/annonces/filter-panel'
-import { ListingsContent } from '@/components/annonces/listings-content'
-import { useAnnoncesFilters } from '@/hooks/use-annonces-filters'
+import { PostsHero } from '@/components/posts/posts-hero'
+import { FilterPanel } from '@/components/posts/filter-panel'
+import { ListingsContent } from '@/components/posts/listings-content'
+import { usePostsFilters } from '@/hooks/use-posts-filters'
 import { cn } from '@retrouve-ci/ui/utils'
 import type { ListingType, ListingCategory } from '@/domain/entities/listing'
 
@@ -64,13 +64,13 @@ export default function AnnoncesPage() {
 		totalPages,
 		resetFilters,
 		activeChips,
-	} = useAnnoncesFilters()
+	} = usePostsFilters()
 
 	return (
 		<>
 			<Header />
 			<main className="flex-1">
-				<AnnoncesHero
+				<PostsHero
 					searchQuery={searchQuery}
 					onSearchChange={setSearchQuery}
 					listingsCount={listings.length}
@@ -233,7 +233,7 @@ export default function AnnoncesPage() {
 				</section>
 			</main>
 
-			<FloatingActionButton href="/publier" />
+			<FloatingActionButton href="/publish" />
 			<Footer />
 		</>
 	)

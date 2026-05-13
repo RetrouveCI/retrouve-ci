@@ -32,7 +32,7 @@ export function StickersHero() {
 									size="lg"
 									className="h-12 bg-primary-green px-6 text-white hover:bg-primary-green-dark"
 								>
-									<Link href="/stickers/commander">
+									<Link href="/stickers/order">
 										Commander mes stickers
 										<ArrowRight className="ml-2 h-4 w-4" />
 									</Link>

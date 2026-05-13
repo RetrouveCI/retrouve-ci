@@ -145,7 +145,7 @@ export default function AuthPage() {
 
 	// Redirect if already authenticated
 	useEffect(() => {
-		if (isAuthenticated) router.push('/compte')
+		if (isAuthenticated) router.push('/account')
 	}, [isAuthenticated, router])
 
 	// OTP countdown
@@ -229,7 +229,7 @@ export default function AuthPage() {
 			setIsSubmitting(false)
 			return
 		}
-		router.push('/compte')
+		router.push('/account')
 	}
 
 	const handleCreatePasswordSubmit = async (e: React.FormEvent) => {
@@ -248,7 +248,7 @@ export default function AuthPage() {
 		toast.success('Compte créé !', {
 			description: 'Bienvenue sur RetrouveCI.',
 		})
-		router.push('/compte')
+		router.push('/account')
 	}
 
 	const handleNewPasswordSubmit = async (e: React.FormEvent) => {

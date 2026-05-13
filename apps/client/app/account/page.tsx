@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { User, LogIn } from 'lucide-react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { ProfileHeader } from '@/components/compte/profile-header'
-import { AccountStats } from '@/components/compte/account-stats'
-import { AccountNav } from '@/components/compte/account-nav'
+import { ProfileHeader } from '@/components/account/profile-header'
+import { AccountStats } from '@/components/account/account-stats'
+import { AccountNav } from '@/components/account/account-nav'
 import { useAuth } from '@/contexts/auth-context'
 
 function NotLoggedInView() {

@@ -797,7 +797,7 @@ export default function CommanderPage() {
 
 								<div className="flex flex-col justify-center gap-3 sm:flex-row">
 									<Button asChild variant="outline" className="rounded-xl">
-										<Link href="/compte/stickers">Mes stickers</Link>
+										<Link href="/account/stickers">Mes stickers</Link>
 									</Button>
 									<Button
 										asChild

@@ -9,7 +9,7 @@ import type { ListingType, ListingCategory } from '@/domain/entities/listing'
 
 const ITEMS_PER_PAGE = 6
 
-export function useAnnoncesFilters() {
+export function usePostsFilters() {
 	const { listings } = useListings()
 
 	const [searchQuery, setSearchQuery] = useState('')

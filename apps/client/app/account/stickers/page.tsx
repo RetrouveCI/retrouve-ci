@@ -343,7 +343,7 @@ export default function StickersPage() {
 					</div>
 					<div className="relative container mx-auto px-4 py-8">
 						<Link
-							href="/compte"
+							href="/account"
 							className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition-colors"
 						>
 							<ArrowLeft className="h-4 w-4" />
@@ -423,7 +423,7 @@ export default function StickersPage() {
 
 						{/* Order more */}
 						<Link
-							href="/stickers/commander"
+							href="/stickers/order"
 							className="group border-primary-green/30 bg-primary-green/5 hover:border-primary-green/50 hover:bg-primary-green/10 mt-8 flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed p-6 transition-all"
 						>
 							<div className="flex items-center gap-4">
