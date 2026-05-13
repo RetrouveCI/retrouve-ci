@@ -1,34 +1,12 @@
 'use client'
 
+import { Button, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import Link from 'next/link'
 import { TopBar } from '@/components/admin/topbar'
 import { DataTable } from '@/components/admin/data-table'
 import { DateRangePicker } from '@/components/admin/date-range-picker'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@retrouve-ci/ui/components/ui/select'
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogFooter,
-} from '@retrouve-ci/ui/components/ui/dialog'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@retrouve-ci/ui/components/ui/dropdown-menu'
 import { useOrders } from '@/application/orders/use-orders'
 import type { StickerOrder } from '@/domain/entities/order'
 import type { DateRange } from 'react-day-picker'

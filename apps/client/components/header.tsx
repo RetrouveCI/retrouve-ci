@@ -1,14 +1,14 @@
 'use client'
 
+import { Button } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, User, LogOut, LogIn } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
 import { MobileNav } from '@/components/mobile-nav'
 import { useAuth } from '@/contexts/auth-context'
 import { useState, useEffect } from 'react'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 const navLinks = [
 	{ href: '/', label: 'Accueil' },
@@ -51,7 +51,7 @@ export function Header() {
 						priority
 					/>
 					<span className="text-xl font-bold tracking-tight">
-						Retrouve<span className="text-(--accent-orange)">CI</span>
+						Retrouve<span className="text-accent-orange">CI</span>
 					</span>
 				</Link>
 
@@ -79,8 +79,8 @@ export function Header() {
 						<>
 							<Button asChild variant="ghost" size="sm" className="h-9 gap-2">
 								<Link href="/compte">
-									<div className="flex h-7 w-7 items-center justify-center rounded-full bg-(--primary-green)/10">
-										<User className="h-4 w-4 text-(--primary-green)" />
+									<div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-green/10">
+										<User className="h-4 w-4 text-primary-green" />
 									</div>
 									<span className="max-w-[100px] truncate font-medium">
 										{user?.name}
@@ -101,7 +101,7 @@ export function Header() {
 						<Button
 							asChild
 							size="sm"
-							className="h-9 rounded-full bg-(--primary-green) px-4 text-white hover:bg-(--primary-green-dark)"
+							className="h-9 rounded-full bg-primary-green px-4 text-white hover:bg-primary-green-dark"
 						>
 							<Link href="/auth" className="gap-2">
 								<LogIn className="h-4 w-4" />

@@ -1,5 +1,6 @@
 'use client'
 
+import { Button, Badge, Tabs, TabsContent, TabsList, TabsTrigger, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@retrouve-ci/ui/components'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { TopBar } from '@/components/admin/topbar'
@@ -9,24 +10,6 @@ import {
 	type PostsFilterState,
 } from '@/components/admin/posts-filter'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@retrouve-ci/ui/components/ui/tabs'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@retrouve-ci/ui/components/ui/alert-dialog'
 import { usePosts } from '@/application/posts/use-posts'
 import type { Post } from '@/domain/entities/post'
 import {

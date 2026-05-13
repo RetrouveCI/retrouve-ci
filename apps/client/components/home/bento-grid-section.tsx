@@ -26,7 +26,7 @@ export function BentoGridSection() {
 							>
 								<path
 									d="M0 7 Q50 0 100 7"
-									stroke="var(--primary-green)"
+									stroke="varprimary-green"
 									strokeWidth="2"
 									fill="none"
 									strokeLinecap="round"
@@ -42,7 +42,7 @@ export function BentoGridSection() {
 
 				<div className="mx-auto grid max-w-6xl grid-cols-12 gap-4">
 					<div className="group col-span-12 md:col-span-8">
-						<div className="relative h-full min-h-[280px] overflow-hidden rounded-3xl bg-(--primary-green) p-8 transition-all duration-500 hover:shadow-2xl">
+						<div className="relative h-full min-h-[280px] overflow-hidden rounded-3xl bg-primary-green p-8 transition-all duration-500 hover:shadow-2xl">
 							<div className="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-black/10" />
 							<div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
 							<div className="relative z-10 flex h-full flex-col">
@@ -71,8 +71,8 @@ export function BentoGridSection() {
 						<div className="bg-background border-border/50 hover:border-border relative h-full min-h-[280px] overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-lg">
 							<div className="flex h-full flex-col justify-between">
 								<div>
-									<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-(--accent-orange)/10 transition-transform group-hover:scale-110">
-										<TrendingUp className="h-6 w-6 text-(--accent-orange)" />
+									<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-accent-orange/10 transition-transform group-hover:scale-110">
+										<TrendingUp className="h-6 w-6 text-accent-orange" />
 									</div>
 									<h3 className="mb-1 text-lg font-bold">27 villes</h3>
 									<p className="text-muted-foreground text-sm">
@@ -88,7 +88,7 @@ export function BentoGridSection() {
 										<div key={label} className="flex items-center gap-3">
 											<div className="bg-muted h-2 flex-1 overflow-hidden rounded-full">
 												<div
-													className="h-full rounded-full bg-(--primary-green)"
+													className="h-full rounded-full bg-primary-green"
 													style={{ width }}
 												/>
 											</div>
@@ -105,8 +105,8 @@ export function BentoGridSection() {
 					<div className="group col-span-12 md:col-span-4 md:row-span-2">
 						<div className="bg-background border-border/50 hover:border-border relative h-full min-h-[400px] overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-lg">
 							<div className="flex h-full flex-col">
-								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-(--accent-orange)/10 transition-transform group-hover:scale-110">
-									<Bell className="h-6 w-6 text-(--accent-orange)" />
+								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-accent-orange/10 transition-transform group-hover:scale-110">
+									<Bell className="h-6 w-6 text-accent-orange" />
 								</div>
 								<h3 className="mb-1 text-lg font-bold">
 									Alertes en temps réel
@@ -139,13 +139,13 @@ export function BentoGridSection() {
 											key={i}
 											className={`bg-background rounded-xl border p-3 transition-all duration-300 ${
 												i === 0
-													? 'border-(--primary-green)/30 shadow-sm'
+													? 'border-primary-green/30 shadow-sm'
 													: 'scale-[0.98] opacity-60'
 											}`}
 										>
 											<div className="flex items-start gap-2">
 												{n.isNew && (
-													<span className="mt-1.5 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-(--primary-green)" />
+													<span className="mt-1.5 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-primary-green" />
 												)}
 												<div className="min-w-0 flex-1">
 													<p className="truncate text-sm font-medium">
@@ -190,11 +190,11 @@ export function BentoGridSection() {
 					</div>
 
 					<div className="group col-span-12 md:col-span-8">
-						<div className="border-border/50 relative h-full min-h-[220px] overflow-hidden rounded-3xl border bg-linear-to-r from-(--accent-orange)/10 via-(--accent-orange)/5 to-transparent p-8 transition-all duration-300 hover:border-(--accent-orange)/30 hover:shadow-lg">
-							<div className="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-(--accent-orange)/10 blur-2xl" />
+						<div className="border-border/50 relative h-full min-h-[220px] overflow-hidden rounded-3xl border bg-linear-to-r from-accent-orange/10 via-accent-orange/5 to-transparent p-8 transition-all duration-300 hover:border-accent-orange/30 hover:shadow-lg">
+							<div className="absolute -right-10 -bottom-10 h-40 w-40 rounded-full bg-accent-orange/10 blur-2xl" />
 							<div className="relative z-10 flex h-full flex-col items-start gap-6 md:flex-row md:items-center">
-								<div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-(--accent-orange)/10 transition-transform group-hover:scale-110">
-									<QrCode className="h-8 w-8 text-(--accent-orange)" />
+								<div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-accent-orange/10 transition-transform group-hover:scale-110">
+									<QrCode className="h-8 w-8 text-accent-orange" />
 								</div>
 								<div className="flex-1">
 									<h3 className="mb-2 text-xl font-bold">
@@ -206,7 +206,7 @@ export function BentoGridSection() {
 									</p>
 									<Link
 										href="/stickers"
-										className="group/link inline-flex items-center gap-2 text-sm font-medium text-(--accent-orange)"
+										className="group/link inline-flex items-center gap-2 text-sm font-medium text-accent-orange"
 									>
 										Découvrir
 										<ArrowRight className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />
@@ -219,11 +219,11 @@ export function BentoGridSection() {
 					<div className="group col-span-12 md:col-span-4">
 						<Link href="/download" className="block h-full">
 							<div className="bg-foreground relative h-full min-h-[220px] overflow-hidden rounded-3xl p-6 transition-all duration-300 hover:shadow-xl">
-								<div className="absolute top-0 right-0 h-32 w-32 translate-x-1/2 -translate-y-1/2 rounded-full bg-(--primary-green)/20 blur-2xl" />
+								<div className="absolute top-0 right-0 h-32 w-32 translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-green/20 blur-2xl" />
 								<div className="relative z-10 flex h-full flex-col">
 									<div className="mb-4 flex items-center gap-2">
 										<Smartphone className="h-5 w-5 text-white/70" />
-										<span className="rounded-full bg-(--primary-green)/20 px-2 py-0.5 text-xs font-medium text-(--primary-green)">
+										<span className="rounded-full bg-primary-green/20 px-2 py-0.5 text-xs font-medium text-primary-green">
 											Bientôt
 										</span>
 									</div>

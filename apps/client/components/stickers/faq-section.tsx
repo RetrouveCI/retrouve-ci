@@ -1,11 +1,5 @@
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@retrouve-ci/ui/components'
 import { Lock, MessageCircle, Power, Smartphone, RefreshCw } from 'lucide-react'
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from '@retrouve-ci/ui/components/ui/accordion'
-
 const FAQ_ITEMS = [
 	{
 		question: 'Mes coordonnées sont-elles publiques ?',
@@ -63,8 +57,8 @@ export function FaqSection() {
 							>
 								<AccordionTrigger className="py-4 hover:no-underline">
 									<div className="flex items-center gap-3 text-left">
-										<div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-(--primary-green)/10">
-											<item.icon className="h-4 w-4 text-(--primary-green)" />
+										<div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary-green/10">
+											<item.icon className="h-4 w-4 text-primary-green" />
 										</div>
 										<span className="text-sm font-medium md:text-base">
 											{item.question}

@@ -1,31 +1,10 @@
 'use client'
 
+import { Button, Badge, CardContent, CardHeader, CardTitle, Avatar, AvatarFallback, Tabs, TabsContent, TabsList, TabsTrigger, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@retrouve-ci/ui/components'
 import { use } from 'react'
 import Link from 'next/link'
 import { TopBar } from '@/components/admin/topbar'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import {
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components/ui/card'
-import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@retrouve-ci/ui/components/ui/tabs'
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@retrouve-ci/ui/components/ui/table'
 import { useUser } from '@/application/users/use-users'
 import { useQRTokens } from '@/application/qr/use-qr-tokens'
 import { usePosts } from '@/application/posts/use-posts'

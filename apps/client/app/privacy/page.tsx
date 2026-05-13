@@ -25,8 +25,8 @@ const sections = [
 		id: 'collecte',
 		icon: Database,
 		title: 'Données collectées',
-		color: 'text-(primary-green)',
-		bg: 'bg-(primary-green)/10',
+		color: 'text-primary-green',
+		bg: 'bg-primary-green/10',
 		content: [
 			"Lors de votre inscription, nous collectons votre numéro de téléphone et votre nom d'affichage. Ces informations sont indispensables au fonctionnement du service.",
 			"Lors de la publication d'annonces, nous enregistrons le titre, la description, la localisation approximative, la catégorie et la date de publication de l'objet.",
@@ -49,8 +49,8 @@ const sections = [
 		id: 'partage',
 		icon: Share2,
 		title: 'Partage des données',
-		color: 'text-(accent-orange)',
-		bg: 'bg-(accent-orange)/10',
+		color: 'text-accent-orange',
+		bg: 'bg-accent-orange/10',
 		content: [
 			"Votre numéro de téléphone n'est jamais affiché publiquement. Il est partagé uniquement si vous choisissez explicitement de le communiquer via WhatsApp depuis une annonce.",
 			'Nous ne vendons, ne louons et ne partageons pas vos données personnelles avec des tiers à des fins commerciales.',
@@ -115,10 +115,10 @@ export default function PrivacyPage() {
 				{/* Hero */}
 				<section className="relative overflow-hidden border-b">
 					<div className="dot-pattern pointer-events-none absolute inset-0 opacity-40" />
-					<div className="bg-(primary-green)/6 absolute -top-24 right-0 h-80 w-80 rounded-full blur-3xl" />
+					<div className="bg-primary-green/6 absolute -top-24 right-0 h-80 w-80 rounded-full blur-3xl" />
 					<div className="relative container mx-auto px-4 py-14 md:py-20">
 						<div className="max-w-2xl">
-							<div className="border-(primary-green)/20 bg-(primary-green)/10 text-(primary-green) mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
+							<div className="border-primary-green/20 bg-primary-green/10 text-primary-green mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
 								<ShieldCheck className="h-3.5 w-3.5" />
 								Dernière mise à jour : avril 2025
 							</div>
@@ -138,7 +138,7 @@ export default function PrivacyPage() {
 				<section className="border-b py-8">
 					<div className="container mx-auto px-4">
 						<div className="grid gap-4 sm:grid-cols-3">
-							<div className="bg-(primary-green) flex items-center gap-4 rounded-2xl border p-6 text-white">
+							<div className="bg-primary-green flex items-center gap-4 rounded-2xl border p-6 text-white">
 								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
 									<Lock className="h-5 w-5" />
 								</div>
@@ -256,8 +256,8 @@ export default function PrivacyPage() {
 								{/* Contact CTA */}
 								<div className="bg-muted/30 flex flex-col items-start justify-between gap-4 rounded-2xl border p-7 sm:flex-row sm:items-center">
 									<div className="flex items-center gap-3">
-										<div className="bg-(primary-green)/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-											<Mail className="text-(primary-green) h-5 w-5" />
+										<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+											<Mail className="text-primary-green h-5 w-5" />
 										</div>
 										<div>
 											<p className="text-sm font-semibold">
@@ -271,7 +271,7 @@ export default function PrivacyPage() {
 									</div>
 									<Link
 										href="/contact"
-										className="bg-(primary-green) hover:bg-(primary-green-dark) inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors"
+										className="bg-primary-green hover:bg-primary-green-dark inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors"
 									>
 										Nous contacter
 										<ArrowRight className="h-4 w-4" />

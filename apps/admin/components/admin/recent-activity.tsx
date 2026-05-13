@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader, CardTitle, Button } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import {
 	Scan,
@@ -7,14 +8,7 @@ import {
 	CheckCircle,
 	ArrowRight,
 } from 'lucide-react'
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components/ui/card'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 type ActivityType = 'scan' | 'user' | 'post' | 'contact'
 

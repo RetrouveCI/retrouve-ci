@@ -7,7 +7,6 @@
 	--font-sans: 'Geist', 'Geist Fallback';
 	--font-mono: 'Geist Mono', 'Geist Mono Fallback';
 
-	/* RetrouveCI Brand Colors */
 	--primary-green: #1e7f43;
 	--primary-green-light: #2a9d54;
 	--primary-green-dark: #166335;
@@ -15,7 +14,6 @@
 	--accent-orange-light: #ff9800;
 	--accent-orange-dark: #e65100;
 
-	/* Design System Colors */
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.22 0.01 256);
 	--card: oklch(1 0 0);
@@ -89,6 +87,14 @@
 @theme inline {
 	--font-sans: 'Geist', 'Geist Fallback';
 	--font-mono: 'Geist Mono', 'Geist Mono Fallback';
+
+	--color-primary-green: var(--primary-green);
+	--color-primary-green-light: var(--primary-green-light);
+	--color-primary-green-dark: var(--primary-green-dark);
+	--color-accent-orange: var(--accent-orange);
+	--color-accent-orange-light: var(--accent-orange-light);
+	--color-accent-orange-dark: var(--accent-orange-dark);
+
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);

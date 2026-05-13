@@ -49,15 +49,33 @@ packages/
 
 ### Shared UI package (`packages/ui`)
 
-`@retrouve-ci/ui` compiles TypeScript to `dist/` and exports CSS as
-`@repo/ui/styles.css`. It currently contains only a few stub components (Card,
-Gradient, TurborepoLogo). **This package must be built before the apps**, which
-Turborepo handles automatically via `"dependsOn": ["^build"]` in `turbo.json`.
+`@retrouve-ci/ui` is the **single shared shadcn/ui component library** for the
+entire monorepo. All shadcn components live in `packages/ui/src/components/ui/`
+and are imported by both apps via the `@retrouve-ci/ui/components/ui/*` alias.
 
-In contrast, **each app maintains its own full shadcn/ui component library**
-under `components/ui/`. These are not shared and are installed directly into
-each app via the shadcn CLI. Both apps use the "new-york" style with neutral
-base color and Lucide icons.
+**All new components must be added to `packages/ui/src/components/ui/`**, never
+inside an app's local directory. To add a component, run the shadcn CLI from the
+package:
+
+```bash
+cd packages/ui && npx shadcn add <component>
+```
+
+Or from an app (both `components.json` files point `ui` → `@retrouve-ci/ui/components/ui`):
+
+```bash
+cd apps/client && npx shadcn add <component>
+```
+
+The package exports:
+
+- `@retrouve-ci/ui/globals.css` — design tokens + Tailwind base (imported by apps)
+- `@retrouve-ci/ui/lib/utils` — the `cn()` helper
+- `@retrouve-ci/ui/components/ui/<name>` — individual components
+
+**This package does not need to be built** for apps to consume it — TypeScript
+paths in each app's `tsconfig.json` resolve imports directly to `src/`. Turborepo's
+`"dependsOn": ["^build"]` applies only when the package has a build step.
 
 ### Next.js apps
 
@@ -66,8 +84,8 @@ Both apps share the same stack:
 - **Next.js 16.2** with App Router, React 19, TypeScript
 - **Tailwind CSS v4** — configured via CSS `@theme` directives, not a JS config
   file
-- **shadcn/ui** — components live in `components/ui/`, aliases configured in
-  `components.json`
+- **shadcn/ui** — components live in `packages/ui/src/components/ui/`, imported
+  via `@retrouve-ci/ui/components/ui/*`
 - **react-hook-form + zod** for forms
 - **`next.config.ts`** sets `typescript.ignoreBuildErrors: true` in both apps
 
@@ -108,8 +126,17 @@ redirect to `/admin/login` when unauthenticated.
 
 ### Styling
 
-Tailwind CSS v4 is used throughout. Shared base styles live in
-`packages/tailwind-config/shared-styles.css` using `@theme` directives. Each app
-has its own `app/globals.css` with CSS variables for design tokens (light/dark
-mode). The `@retrouve-ci/ui` package uses a `ui-` class prefix to avoid
-conflicts with app-level Tailwind classes.
+Tailwind CSS v4 is used throughout with no JS config file — everything is
+configured via CSS `@theme` directives. The design token source of truth is
+`packages/ui/globals.css` (RetrouveCI brand colors, shadcn CSS variables,
+animations, utilities). Each app's `app/globals.css` imports it:
+
+```css
+@import '@retrouve-ci/ui/globals.css';
+@source '../../../packages/ui/src';
+```
+
+The `@source` directive tells Tailwind to scan the shared package's source files
+so component class names are included in the generated CSS. No `ui-` prefix is
+used — all Tailwind classes are standard. Apps can add app-specific overrides
+after the import in their own `app/globals.css`.

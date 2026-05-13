@@ -1,16 +1,7 @@
 'use client'
 
+import { Avatar, AvatarFallback, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@retrouve-ci/ui/components'
 import { useAuth } from '@/lib/auth-context'
-import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@retrouve-ci/ui/components/ui/dropdown-menu'
 import { Bell, LogOut, User, ChevronDown } from 'lucide-react'
 import { mockNotifications } from '@/lib/mock-data'
 import { MobileSidebar } from './sidebar'

@@ -1,5 +1,5 @@
 import { CheckCircle2 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 interface ProgressItem {
 	label: string

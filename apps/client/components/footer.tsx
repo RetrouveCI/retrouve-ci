@@ -33,7 +33,7 @@ function FooterLinkGroup({
 					<li key={link.href}>
 						<Link
 							href={link.href}
-							className="text-muted-foreground text-sm transition-colors hover:text-(--primary-green)"
+							className="text-muted-foreground text-sm transition-colors hover:text-primary-green"
 						>
 							{link.label}
 						</Link>
@@ -61,7 +61,7 @@ export function Footer() {
 								className="rounded-lg"
 							/>
 							<span className="text-xl font-bold tracking-tight">
-								Retrouve<span className="text-(--accent-orange)">CI</span>
+								Retrouve<span className="text-accent-orange">CI</span>
 							</span>
 						</Link>
 						<p className="text-muted-foreground max-w-xs text-sm leading-relaxed">

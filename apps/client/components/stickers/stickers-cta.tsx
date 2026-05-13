@@ -1,14 +1,13 @@
+import { Button } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { ArrowRight, Shield } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-
 export function StickersCta() {
 	return (
 		<section className="py-16 md:py-20">
 			<div className="container mx-auto px-4">
 				<div className="mx-auto max-w-3xl text-center">
-					<div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-(--primary-green)/10">
-						<Shield className="h-7 w-7 text-(--primary-green)" />
+					<div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-green/10">
+						<Shield className="h-7 w-7 text-primary-green" />
 					</div>
 					<h2 className="mb-4 text-3xl font-bold md:text-4xl">
 						Prêt à protéger vos objets ?
@@ -21,7 +20,7 @@ export function StickersCta() {
 						<Button
 							asChild
 							size="lg"
-							className="h-12 bg-(--primary-green) px-8 text-white hover:bg-(--primary-green-dark)"
+							className="h-12 bg-primary-green px-8 text-white hover:bg-primary-green-dark"
 						>
 							<Link href="/stickers/commander">
 								Commander maintenant

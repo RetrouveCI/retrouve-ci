@@ -1,10 +1,10 @@
 'use client'
 
+import { Button } from '@retrouve-ci/ui/components'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 const CYCLING_WORDS = [
 	'un objet',
@@ -88,14 +88,14 @@ export function HeroSection() {
 	return (
 		<section className="relative flex min-h-[85vh] items-center overflow-hidden">
 			<div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-			<div className="absolute top-1/4 -left-20 h-[500px] w-[500px] rounded-full bg-(--primary-green)/15 bg-linear-to-br to-transparent blur-3xl" />
-			<div className="absolute -right-20 bottom-1/4 h-[400px] w-[400px] rounded-full bg-(--accent-orange)/10 bg-linear-to-tl to-transparent blur-3xl" />
+			<div className="absolute top-1/4 -left-20 h-[500px] w-[500px] rounded-full bg-primary-green/15 bg-linear-to-br to-transparent blur-3xl" />
+			<div className="absolute -right-20 bottom-1/4 h-[400px] w-[400px] rounded-full bg-accent-orange/10 bg-linear-to-tl to-transparent blur-3xl" />
 
 			<div className="relative z-10 container mx-auto px-4 py-20">
 				<div className="mx-auto max-w-5xl">
 					<div className="mb-8 flex justify-center">
 						<div className="bg-foreground/5 border-border/50 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm">
-							<span className="flex h-2 w-2 animate-pulse rounded-full bg-(--primary-green)" />
+							<span className="flex h-2 w-2 animate-pulse rounded-full bg-primary-green" />
 							<span className="text-muted-foreground">
 								La plateforme #1 en Côte d&apos;Ivoire
 							</span>
@@ -107,12 +107,12 @@ export function HeroSection() {
 							Perdre{' '}
 							<span className="relative inline-block min-w-[180px] text-left sm:min-w-[240px] md:min-w-[300px]">
 								<CyclingWord />
-								<span className="absolute right-0 -bottom-1 left-0 h-3 -skew-x-6 rounded bg-(--accent-orange)/20" />
+								<span className="absolute right-0 -bottom-1 left-0 h-3 -skew-x-6 rounded bg-accent-orange/20" />
 							</span>
 						</span>
 						<span className="mt-2 block">
 							n&apos;est plus{' '}
-							<span className="text-(--primary-green)">une fatalité</span>
+							<span className="text-primary-green">une fatalité</span>
 						</span>
 					</h1>
 

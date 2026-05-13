@@ -1,5 +1,6 @@
 'use client'
 
+import { Button, Input, Badge, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -18,24 +19,10 @@ import {
 	Search,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@retrouve-ci/ui/components/ui/alert-dialog'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { useAuth, type UserListing } from '@/contexts/auth-context'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 import { redirect } from 'next/navigation'
 import { useState, useMemo } from 'react'
 
@@ -52,8 +39,8 @@ function ListingCard({
 	const statusConfig = {
 		active: {
 			label: 'Active',
-			color: 'bg-(primary-green) text-white',
-			border: 'border-(primary-green)/20',
+			color: 'bg-primary-green text-white',
+			border: 'border-primary-green/20',
 		},
 		resolved: {
 			label: 'Résolue',
@@ -79,7 +66,7 @@ function ListingCard({
 				className={cn(
 					'h-1',
 					listing.status === 'active'
-						? 'bg-(primary-green)'
+						? 'bg-primary-green'
 						: listing.status === 'resolved'
 							? 'bg-blue-500'
 							: 'bg-muted',
@@ -107,7 +94,7 @@ function ListingCard({
 							'absolute top-1.5 left-1.5 rounded px-1.5 py-0.5 text-[10px] font-medium',
 							listing.type === 'lost'
 								? 'bg-red-500 text-white'
-								: 'bg-(primary-green) text-white',
+								: 'bg-primary-green text-white',
 						)}
 					>
 						{listing.type === 'lost' ? 'Perdu' : 'Trouvé'}
@@ -264,7 +251,7 @@ export default function AnnoncesPage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="border-(primary-green) h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+					<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
 				</main>
 				<Footer />
 			</>
@@ -278,7 +265,7 @@ export default function AnnoncesPage() {
 				{/* Header */}
 				<section className="relative overflow-hidden border-b">
 					<div className="pointer-events-none absolute inset-0">
-						<div className="bg-(accent-orange)/5 absolute -top-20 right-0 h-96 w-96 rounded-full blur-3xl" />
+						<div className="bg-accent-orange/5 absolute -top-20 right-0 h-96 w-96 rounded-full blur-3xl" />
 					</div>
 					<div className="relative container mx-auto px-4 py-8">
 						<Link
@@ -290,8 +277,8 @@ export default function AnnoncesPage() {
 						</Link>
 						<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 							<div className="flex items-center gap-4">
-								<div className="bg-(accent-orange)/10 flex h-14 w-14 items-center justify-center rounded-2xl">
-									<FileText className="text-(accent-orange) h-7 w-7" />
+								<div className="bg-accent-orange/10 flex h-14 w-14 items-center justify-center rounded-2xl">
+									<FileText className="text-accent-orange h-7 w-7" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold">Mes Annonces</h1>
@@ -303,7 +290,7 @@ export default function AnnoncesPage() {
 							</div>
 							<Button
 								asChild
-								className="bg-(accent-orange) hover:bg-(accent-orange-dark) gap-2 rounded-xl text-white"
+								className="bg-accent-orange hover:bg-accent-orange-dark gap-2 rounded-xl text-white"
 							>
 								<Link href="/publier">
 									<Plus className="h-4 w-4" />
@@ -344,7 +331,7 @@ export default function AnnoncesPage() {
 									className={cn(
 										'rounded-full px-3 py-1.5 text-xs font-medium transition-all',
 										filter === 'active'
-											? 'bg-(primary-green) text-white'
+											? 'bg-primary-green text-white'
 											: 'bg-muted text-muted-foreground hover:bg-muted/80',
 									)}
 								>
@@ -402,7 +389,7 @@ export default function AnnoncesPage() {
 								</p>
 								<Button
 									asChild
-									className="bg-(accent-orange) hover:bg-(accent-orange-dark) gap-2 rounded-xl text-white"
+									className="bg-accent-orange hover:bg-accent-orange-dark gap-2 rounded-xl text-white"
 								>
 									<Link href="/publier">
 										<Plus className="h-4 w-4" />

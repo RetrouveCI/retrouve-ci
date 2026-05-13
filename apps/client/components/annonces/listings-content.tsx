@@ -1,7 +1,7 @@
+import { Button } from '@retrouve-ci/ui/components'
 import { Inbox, ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
 import { ListingCard } from '@/components/listing-card'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 import type { Listing } from '@/domain/entities/listing'
 
 interface ListingsContentProps {
@@ -37,7 +37,7 @@ export function ListingsContent({
 				</p>
 				<Button
 					asChild
-					className="rounded-xl bg-(--primary-green) text-white hover:bg-(--primary-green-dark)"
+					className="rounded-xl bg-primary-green text-white hover:bg-primary-green-dark"
 				>
 					<a href="/publier">Publier une annonce</a>
 				</Button>
@@ -92,7 +92,7 @@ export function ListingsContent({
 								className={cn(
 									'h-10 w-10 rounded-xl text-sm font-medium transition-all',
 									page === currentPage
-										? 'bg-(--primary-green) text-white shadow-sm'
+										? 'bg-primary-green text-white shadow-sm'
 										: 'hover:bg-muted text-muted-foreground',
 								)}
 								aria-current={page === currentPage ? 'page' : undefined}

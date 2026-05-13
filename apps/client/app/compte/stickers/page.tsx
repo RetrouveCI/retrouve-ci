@@ -1,5 +1,6 @@
 'use client'
 
+import { Button, Input, Label, Badge, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import Link from 'next/link'
 import {
@@ -14,23 +15,10 @@ import {
 	Package,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import { Label } from '@retrouve-ci/ui/components/ui/label'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@retrouve-ci/ui/components/ui/dialog'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { useAuth, type Sticker } from '@/contexts/auth-context'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 import { redirect } from 'next/navigation'
 
 // Sticker Card Component
@@ -58,7 +46,7 @@ function StickerCard({
 			className={cn(
 				'group bg-background relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg',
 				sticker.isActive
-					? 'border-(primary-green)/20 hover:border-(primary-green)/40'
+					? 'border-primary-green/20 hover:border-primary-green/40'
 					: 'border-border opacity-70 hover:opacity-100',
 			)}
 		>
@@ -66,7 +54,7 @@ function StickerCard({
 			<div
 				className={cn(
 					'h-1.5',
-					sticker.isActive ? 'bg-(primary-green)' : 'bg-muted',
+					sticker.isActive ? 'bg-primary-green' : 'bg-muted',
 				)}
 			/>
 
@@ -77,14 +65,14 @@ function StickerCard({
 							<div
 								className={cn(
 									'flex h-10 w-10 items-center justify-center rounded-xl',
-									sticker.isActive ? 'bg-(primary-green)/10' : 'bg-muted',
+									sticker.isActive ? 'bg-primary-green/10' : 'bg-muted',
 								)}
 							>
 								<QrCode
 									className={cn(
 										'h-5 w-5',
 										sticker.isActive
-											? 'text-(primary-green)'
+											? 'text-primary-green'
 											: 'text-muted-foreground',
 									)}
 								/>
@@ -99,7 +87,7 @@ function StickerCard({
 								className={cn(
 									'ml-auto text-[10px]',
 									sticker.isActive
-										? 'border-(primary-green)/30 bg-(primary-green)/5 text-(primary-green)'
+										? 'border-primary-green/30 bg-primary-green/5 text-primary-green'
 										: 'border-muted text-muted-foreground',
 								)}
 							>
@@ -174,7 +162,7 @@ function StickerCard({
 								</Button>
 								<Button
 									onClick={handleSave}
-									className="bg-(primary-green) hover:bg-(primary-green-dark) rounded-xl text-white"
+									className="bg-primary-green hover:bg-primary-green-dark rounded-xl text-white"
 								>
 									Enregistrer
 								</Button>
@@ -188,7 +176,7 @@ function StickerCard({
 							'h-9 flex-1 gap-1.5 rounded-xl',
 							sticker.isActive
 								? 'text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive'
-								: 'border-(primary-green)/20 text-(primary-green) hover:bg-(primary-green)/10',
+								: 'border-primary-green/20 text-primary-green hover:bg-primary-green/10',
 						)}
 						onClick={onToggle}
 					>
@@ -237,7 +225,7 @@ function ActivateStickerDialog({
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button className="bg-(primary-green) hover:bg-(primary-green-dark) gap-2 rounded-xl text-white">
+				<Button className="bg-primary-green hover:bg-primary-green-dark gap-2 rounded-xl text-white">
 					<Plus className="h-4 w-4" />
 					Activer un sticker
 				</Button>
@@ -293,7 +281,7 @@ function ActivateStickerDialog({
 					</Button>
 					<Button
 						onClick={handleSubmit}
-						className="bg-(primary-green) hover:bg-(primary-green-dark) rounded-xl text-white"
+						className="bg-primary-green hover:bg-primary-green-dark rounded-xl text-white"
 					>
 						Activer
 					</Button>
@@ -337,7 +325,7 @@ export default function StickersPage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="border-(primary-green) h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+					<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
 				</main>
 				<Footer />
 			</>
@@ -351,7 +339,7 @@ export default function StickersPage() {
 				{/* Header */}
 				<section className="relative overflow-hidden border-b">
 					<div className="pointer-events-none absolute inset-0">
-						<div className="bg-(primary-green)/5 absolute -top-20 right-0 h-96 w-96 rounded-full blur-3xl" />
+						<div className="bg-primary-green/5 absolute -top-20 right-0 h-96 w-96 rounded-full blur-3xl" />
 					</div>
 					<div className="relative container mx-auto px-4 py-8">
 						<Link
@@ -363,8 +351,8 @@ export default function StickersPage() {
 						</Link>
 						<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 							<div className="flex items-center gap-4">
-								<div className="bg-(primary-green)/10 flex h-14 w-14 items-center justify-center rounded-2xl">
-									<QrCode className="text-(primary-green) h-7 w-7" />
+								<div className="bg-primary-green/10 flex h-14 w-14 items-center justify-center rounded-2xl">
+									<QrCode className="text-primary-green h-7 w-7" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold">Mes Stickers QR</h1>
@@ -384,7 +372,7 @@ export default function StickersPage() {
 					<div className="container mx-auto px-4">
 						<div className="flex items-center gap-6 text-sm">
 							<div className="flex items-center gap-2">
-								<div className="bg-(primary-green) h-2 w-2 rounded-full" />
+								<div className="bg-primary-green h-2 w-2 rounded-full" />
 								<span className="text-muted-foreground">
 									Actifs:{' '}
 									<span className="text-foreground font-semibold">
@@ -436,10 +424,10 @@ export default function StickersPage() {
 						{/* Order more */}
 						<Link
 							href="/stickers/commander"
-							className="group border-(primary-green)/30 bg-(primary-green)/5 hover:border-(primary-green)/50 hover:bg-(primary-green)/10 mt-8 flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed p-6 transition-all"
+							className="group border-primary-green/30 bg-primary-green/5 hover:border-primary-green/50 hover:bg-primary-green/10 mt-8 flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed p-6 transition-all"
 						>
 							<div className="flex items-center gap-4">
-								<div className="bg-(primary-green) flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
+								<div className="bg-primary-green flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
 									<Shield className="h-6 w-6 text-white" />
 								</div>
 								<div>
@@ -451,7 +439,7 @@ export default function StickersPage() {
 							</div>
 							<Button
 								variant="outline"
-								className="border-(primary-green)/30 text-(primary-green) hover:bg-(primary-green)/10 shrink-0 rounded-xl"
+								className="border-primary-green/30 text-primary-green hover:bg-primary-green/10 shrink-0 rounded-xl"
 							>
 								Commander
 							</Button>

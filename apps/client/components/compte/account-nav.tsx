@@ -8,7 +8,7 @@ import {
 	ArrowRight,
 	Plus,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 import type { Sticker } from '@/domain/entities/sticker'
 import type { UserListing } from '@/domain/entities/listing'
 
@@ -62,14 +62,14 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 								className={cn(
 									'group bg-background border-border/50 relative rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg',
 									isGreen
-										? 'hover:border-(--primary-green)/40'
-										: 'hover:border-(--accent-orange)/40',
+										? 'hover:border-primary-green/40'
+										: 'hover:border-accent-orange/40',
 								)}
 							>
 								<div
 									className={cn(
 										'absolute top-0 right-6 left-6 h-1 rounded-b-full transition-all duration-300 group-hover:right-4 group-hover:left-4',
-										isGreen ? 'bg-(--primary-green)' : 'bg-(--accent-orange)',
+										isGreen ? 'bg-primary-green' : 'bg-accent-orange',
 									)}
 								/>
 								<div className="mt-2 flex items-start justify-between gap-4">
@@ -78,16 +78,16 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 											className={cn(
 												'mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110',
 												isGreen
-													? 'bg-(--primary-green)/10'
-													: 'bg-(--accent-orange)/10',
+													? 'bg-primary-green/10'
+													: 'bg-accent-orange/10',
 											)}
 										>
 											<Icon
 												className={cn(
 													'h-6 w-6',
 													isGreen
-														? 'text-(--primary-green)'
-														: 'text-(--accent-orange)',
+														? 'text-primary-green'
+														: 'text-accent-orange',
 												)}
 											/>
 										</div>
@@ -99,8 +99,8 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 											className={cn(
 												'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
 												isGreen
-													? 'bg-(--primary-green)/10 text-(--primary-green)'
-													: 'bg-(--accent-orange)/10 text-(--accent-orange)',
+													? 'bg-primary-green/10 text-primary-green'
+													: 'bg-accent-orange/10 text-accent-orange',
 											)}
 										>
 											<span className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -135,9 +135,9 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 				<div className="mt-8 grid gap-3 sm:grid-cols-2">
 					<Link
 						href="/publier"
-						className="group flex items-center gap-3 rounded-xl border-2 border-dashed border-(--accent-orange)/30 bg-(--accent-orange)/5 p-4 transition-all hover:border-(--accent-orange)/50 hover:bg-(--accent-orange)/10"
+						className="group flex items-center gap-3 rounded-xl border-2 border-dashed border-accent-orange/30 bg-accent-orange/5 p-4 transition-all hover:border-accent-orange/50 hover:bg-accent-orange/10"
 					>
-						<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--accent-orange) transition-transform group-hover:scale-110">
+						<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-orange transition-transform group-hover:scale-110">
 							<Plus className="h-5 w-5 text-white" />
 						</div>
 						<div>
@@ -149,9 +149,9 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 					</Link>
 					<Link
 						href="/stickers"
-						className="group flex items-center gap-3 rounded-xl border-2 border-dashed border-(--primary-green)/30 bg-(--primary-green)/5 p-4 transition-all hover:border-(--primary-green)/50 hover:bg-(--primary-green)/10"
+						className="group flex items-center gap-3 rounded-xl border-2 border-dashed border-primary-green/30 bg-primary-green/5 p-4 transition-all hover:border-primary-green/50 hover:bg-primary-green/10"
 					>
-						<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--primary-green) transition-transform group-hover:scale-110">
+						<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-green transition-transform group-hover:scale-110">
 							<QrCode className="h-5 w-5 text-white" />
 						</div>
 						<div>

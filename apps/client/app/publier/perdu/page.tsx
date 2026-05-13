@@ -1,18 +1,9 @@
 'use client'
 
+import { Button, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Label } from '@retrouve-ci/ui/components/ui/label'
-import { Textarea } from '@retrouve-ci/ui/components/ui/textarea'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@retrouve-ci/ui/components/ui/select'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { MatchingSuggestions } from '@/components/matching-suggestions'
@@ -22,9 +13,9 @@ import { ContactSection } from '@/components/publish-form/contact-section'
 import { FormProgress } from '@/components/publish-form/form-progress'
 import { TipsPanel } from '@/components/publish-form/tips-panel'
 import { usePublishForm } from '@/hooks/use-publish-form'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
-const ACCENT = 'var(--accent-orange)'
+const ACCENT = 'varaccent-orange'
 
 const objectTypes = [
 	{ value: 'phone', label: 'Téléphone' },
@@ -88,8 +79,8 @@ export default function PublierPerduPage() {
 					<div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_320px]">
 						<div className="space-y-6">
 							<div className="flex items-center gap-3 pb-2">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--accent-orange)/10">
-									<AlertCircle className="h-5 w-5 text-(--accent-orange)" />
+								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-orange/10">
+									<AlertCircle className="h-5 w-5 text-accent-orange" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold">Objet perdu</h1>
@@ -143,7 +134,7 @@ export default function PublierPerduPage() {
 											className={cn(
 												'text-xs',
 												formData.description.length >= 20
-													? 'text-(--accent-orange)'
+													? 'text-accent-orange'
 													: 'text-muted-foreground',
 											)}
 										>
@@ -198,7 +189,7 @@ export default function PublierPerduPage() {
 									</Button>
 									<Button
 										type="submit"
-										className="h-12 bg-(--accent-orange) text-white hover:bg-(--accent-orange-dark) sm:flex-1"
+										className="h-12 bg-accent-orange text-white hover:bg-accent-orange-dark sm:flex-1"
 										disabled={isSubmitting}
 									>
 										{isSubmitting ? (

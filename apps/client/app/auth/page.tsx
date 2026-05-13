@@ -1,5 +1,6 @@
 'use client'
 
+import { Button, Input, Label, InputOTP, InputOTPGroup, InputOTPSlot } from '@retrouve-ci/ui/components'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -16,16 +17,8 @@ import {
 	MapPin,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import { Label } from '@retrouve-ci/ui/components/ui/label'
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from '@retrouve-ci/ui/components/ui/input-otp'
 import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -62,7 +55,7 @@ function OtpSlots({ error }: { error: boolean }) {
 						'h-12 w-11 rounded-xl border-2 text-lg font-semibold transition-all',
 						error
 							? 'border-destructive bg-destructive/5'
-							: 'border-border bg-background data-[active=true]:border-(primary-green) data-[active=true]:ring-(primary-green)/20 data-[active=true]:ring-2',
+							: 'border-border bg-background data-[active=true]:border-primary-green data-[active=true]:ring-primary-green/20 data-[active=true]:ring-2',
 					)}
 				/>
 			))}
@@ -104,7 +97,7 @@ function PasswordInput({
 					placeholder={placeholder ?? '••••••••'}
 					value={value}
 					onChange={e => onChange(e.target.value)}
-					className="border-border bg-background focus:border-(primary-green) focus:ring-(primary-green)/20 h-12 rounded-xl border-2 pr-11 transition-all focus:ring-2"
+					className="border-border bg-background focus:border-primary-green focus:ring-primary-green/20 h-12 rounded-xl border-2 pr-11 transition-all focus:ring-2"
 					autoComplete={id === 'password' ? 'current-password' : 'new-password'}
 					disabled={disabled}
 					autoFocus={autoFocus}
@@ -340,7 +333,7 @@ export default function AuthPage() {
 	return (
 		<div className="flex min-h-screen">
 			{/* Left Panel - Branding (hidden on mobile) */}
-			<div className="from-(primary-green) to-(primary-green-dark) relative hidden overflow-hidden bg-linear-to-br lg:flex lg:w-1/2 xl:w-[55%]">
+			<div className="from-primary-green to-primary-green-dark relative hidden overflow-hidden bg-linear-to-br lg:flex lg:w-1/2 xl:w-[55%]">
 				{/* Background patterns */}
 				<div className="absolute inset-0 opacity-10">
 					<div className="absolute top-20 left-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
@@ -446,7 +439,7 @@ export default function AuthPage() {
 							className="rounded-lg"
 						/>
 						<span className="text-lg font-bold">
-							Retrouve<span className="text-(accent-orange)">CI</span>
+							Retrouve<span className="text-accent-orange">CI</span>
 						</span>
 					</Link>
 				</header>
@@ -513,7 +506,7 @@ export default function AuthPage() {
 											placeholder="07 XX XX XX XX"
 											value={phoneNumber}
 											onChange={e => setPhoneNumber(e.target.value)}
-											className="border-border bg-background focus:border-(primary-green) focus:ring-(primary-green)/20 h-12 flex-1 rounded-xl border-2 transition-all focus:ring-2"
+											className="border-border bg-background focus:border-primary-green focus:ring-primary-green/20 h-12 flex-1 rounded-xl border-2 transition-all focus:ring-2"
 											autoComplete="tel"
 											autoFocus
 										/>
@@ -558,7 +551,7 @@ export default function AuthPage() {
 
 								<Button
 									type="submit"
-									className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
+									className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
 									disabled={isSubmitting}
 								>
 									{isSubmitting ? (
@@ -581,7 +574,7 @@ export default function AuthPage() {
 											<button
 												type="button"
 												onClick={() => switchMode('register')}
-												className="text-(primary-green) font-semibold hover:underline"
+												className="text-primary-green font-semibold hover:underline"
 											>
 												Créer un compte
 											</button>
@@ -593,7 +586,7 @@ export default function AuthPage() {
 											<button
 												type="button"
 												onClick={() => switchMode('login')}
-												className="text-(primary-green) font-semibold hover:underline"
+												className="text-primary-green font-semibold hover:underline"
 											>
 												Se connecter
 											</button>
@@ -605,7 +598,7 @@ export default function AuthPage() {
 											<button
 												type="button"
 												onClick={() => switchMode('login')}
-												className="text-(primary-green) font-semibold hover:underline"
+												className="text-primary-green font-semibold hover:underline"
 											>
 												la connexion
 											</button>
@@ -650,7 +643,7 @@ export default function AuthPage() {
 												'flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium',
 												timeLeft <= 30
 													? 'text-destructive bg-destructive/10'
-													: 'bg-(primary-green)/10 text-(primary-green)',
+													: 'bg-primary-green/10 text-primary-green',
 											)}
 										>
 											<span className="text-base tabular-nums">
@@ -665,7 +658,7 @@ export default function AuthPage() {
 											type="button"
 											onClick={handleResend}
 											disabled={isSubmitting}
-											className="text-(primary-green) hover:text-(primary-green-dark) inline-flex items-center gap-2 text-sm font-semibold transition-colors disabled:opacity-50"
+											className="text-primary-green hover:text-primary-green-dark inline-flex items-center gap-2 text-sm font-semibold transition-colors disabled:opacity-50"
 										>
 											<RefreshCw
 												className={cn(
@@ -680,7 +673,7 @@ export default function AuthPage() {
 
 								<Button
 									type="submit"
-									className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
+									className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
 									disabled={isSubmitting || otp.length < 6 || timeLeft === 0}
 								>
 									{isSubmitting ? (
@@ -729,7 +722,7 @@ export default function AuthPage() {
 
 								<Button
 									type="submit"
-									className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
+									className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
 									disabled={isSubmitting || newPassword.length < 6}
 								>
 									{isSubmitting ? (
@@ -776,7 +769,7 @@ export default function AuthPage() {
 
 								<Button
 									type="submit"
-									className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
+									className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
 									disabled={isSubmitting || newPassword.length < 6}
 								>
 									{isSubmitting ? (
@@ -797,14 +790,14 @@ export default function AuthPage() {
 								En continuant, vous acceptez nos{' '}
 								<Link
 									href="/terms"
-									className="text-(primary-green) hover:underline"
+									className="text-primary-green hover:underline"
 								>
 									conditions d&apos;utilisation
 								</Link>{' '}
 								et notre{' '}
 								<Link
 									href="/privacy"
-									className="text-(primary-green) hover:underline"
+									className="text-primary-green hover:underline"
 								>
 									politique de confidentialite
 								</Link>

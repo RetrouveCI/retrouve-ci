@@ -1,19 +1,11 @@
 'use client'
 
+import { Button, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import { TopBar } from '@/components/admin/topbar'
 import { DataTable } from '@/components/admin/data-table'
 import { DateRangePicker } from '@/components/admin/date-range-picker'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@retrouve-ci/ui/components/ui/select'
 import { useEvents } from '@/application/events/use-events'
 import type { Event } from '@/domain/entities/event'
 import type { DateRange } from 'react-day-picker'

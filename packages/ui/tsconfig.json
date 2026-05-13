@@ -12,7 +12,10 @@
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"jsx": "react-jsx",
-		"strictNullChecks": true
+		"strictNullChecks": true,
+		"paths": {
+			"@retrouveci/ui/*": ["./src/*"]
+		}
 	},
 	"include": ["src"],
 	"exclude": ["dist", "build", "node_modules"]

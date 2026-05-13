@@ -1,5 +1,6 @@
 'use client'
 
+import { Button, Input, Label, Textarea, RadioGroup, RadioGroupItem } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import Link from 'next/link'
 import {
@@ -20,17 +21,9 @@ import {
 	X,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import { Label } from '@retrouve-ci/ui/components/ui/label'
-import { Textarea } from '@retrouve-ci/ui/components/ui/textarea'
-import {
-	RadioGroup,
-	RadioGroupItem,
-} from '@retrouve-ci/ui/components/ui/radio-group'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 const DELIVERY_FEE = 1000
 const VALID_COUPONS = ['RETROUVECI', 'LIVRAISON0', 'WELCOME2025']
@@ -208,7 +201,7 @@ export default function CommanderPage() {
 											className={cn(
 												'flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors',
 												i + 1 < stepNumber
-													? 'bg-(primary-green) text-white'
+													? 'bg-primary-green text-white'
 													: i + 1 === stepNumber
 														? 'bg-foreground text-background'
 														: 'bg-muted text-muted-foreground',
@@ -262,27 +255,27 @@ export default function CommanderPage() {
 											className={cn(
 												'relative rounded-2xl border-2 p-6 text-left transition-all duration-200 hover:shadow-lg',
 												selectedPack === pack.id
-													? 'border-(primary-green) bg-(primary-green)/5 shadow-md'
-													: 'border-border bg-background hover:border-(primary-green)/30',
+													? 'border-primary-green bg-primary-green/5 shadow-md'
+													: 'border-border bg-background hover:border-primary-green/30',
 											)}
 										>
 											{pack.popular && (
 												<div className="absolute -top-3 left-1/2 -translate-x-1/2">
-													<span className="bg-(accent-orange) rounded-full px-3 py-1 text-xs font-semibold text-white">
+													<span className="bg-accent-orange rounded-full px-3 py-1 text-xs font-semibold text-white">
 														Populaire
 													</span>
 												</div>
 											)}
 
 											{selectedPack === pack.id && (
-												<div className="bg-(primary-green) absolute top-4 right-4 flex h-6 w-6 items-center justify-center rounded-full">
+												<div className="bg-primary-green absolute top-4 right-4 flex h-6 w-6 items-center justify-center rounded-full">
 													<Check className="h-4 w-4 text-white" />
 												</div>
 											)}
 
 											<div className="mb-4">
-												<div className="bg-(primary-green)/10 mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl">
-													<Package className="text-(primary-green) h-6 w-6" />
+												<div className="bg-primary-green/10 mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl">
+													<Package className="text-primary-green h-6 w-6" />
 												</div>
 												<h3 className="text-lg font-bold">{pack.name}</h3>
 												<p className="text-muted-foreground text-sm">
@@ -306,7 +299,7 @@ export default function CommanderPage() {
 														key={i}
 														className="flex items-center gap-2 text-sm"
 													>
-														<CheckCircle2 className="text-(primary-green) h-4 w-4 shrink-0" />
+														<CheckCircle2 className="text-primary-green h-4 w-4 shrink-0" />
 														<span>{feature}</span>
 													</li>
 												))}
@@ -320,7 +313,7 @@ export default function CommanderPage() {
 										size="lg"
 										onClick={handleNext}
 										disabled={!selectedPack}
-										className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 rounded-xl px-8 text-white"
+										className="bg-primary-green hover:bg-primary-green-dark h-12 rounded-xl px-8 text-white"
 									>
 										Continuer
 										<ArrowRight className="ml-2 h-4 w-4" />
@@ -440,8 +433,8 @@ export default function CommanderPage() {
 												</span>
 											</Label>
 											{appliedCoupon ? (
-												<div className="border-(primary-green) bg-(primary-green)/5 flex h-12 items-center justify-between rounded-xl border-2 px-4">
-													<span className="text-(primary-green) flex items-center gap-2 text-sm font-medium">
+												<div className="border-primary-green bg-primary-green/5 flex h-12 items-center justify-between rounded-xl border-2 px-4">
+													<span className="text-primary-green flex items-center gap-2 text-sm font-medium">
 														<Check className="h-4 w-4" />
 														{appliedCoupon} — Livraison offerte
 													</span>
@@ -496,7 +489,7 @@ export default function CommanderPage() {
 									<Button
 										size="lg"
 										onClick={handleNext}
-										className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-white"
+										className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-white"
 									>
 										Continuer vers le paiement
 										<ArrowRight className="ml-2 h-4 w-4" />
@@ -510,8 +503,8 @@ export default function CommanderPage() {
 										{selectedPackData && (
 											<div className="space-y-4">
 												<div className="flex items-center gap-3 border-b pb-4">
-													<div className="bg-(primary-green)/10 flex h-12 w-12 items-center justify-center rounded-xl">
-														<QrCode className="text-(primary-green) h-6 w-6" />
+													<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-xl">
+														<QrCode className="text-primary-green h-6 w-6" />
 													</div>
 													<div>
 														<p className="font-medium">
@@ -536,7 +529,7 @@ export default function CommanderPage() {
 															Livraison
 														</span>
 														{deliveryFee === 0 ? (
-															<span className="text-(primary-green) flex items-center gap-1">
+															<span className="text-primary-green flex items-center gap-1">
 																<Tag className="h-3 w-3" /> Gratuite
 															</span>
 														) : (
@@ -589,8 +582,8 @@ export default function CommanderPage() {
 														className={cn(
 															'relative flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition-all',
 															paymentMethod === method.id
-																? 'border-(primary-green) bg-(primary-green)/5'
-																: 'border-border hover:border-(primary-green)/30',
+																? 'border-primary-green bg-primary-green/5'
+																: 'border-border hover:border-primary-green/30',
 														)}
 													>
 														<RadioGroupItem
@@ -607,7 +600,7 @@ export default function CommanderPage() {
 															{method.name}
 														</span>
 														{paymentMethod === method.id && (
-															<Check className="text-(primary-green) absolute top-2 right-2 h-4 w-4" />
+															<Check className="text-primary-green absolute top-2 right-2 h-4 w-4" />
 														)}
 													</label>
 												))}
@@ -641,8 +634,8 @@ export default function CommanderPage() {
 										)}
 									</div>
 
-									<div className="border-(accent-orange)/20 bg-(accent-orange)/10 rounded-xl border p-4">
-										<p className="text-(accent-orange) flex items-center gap-2 text-sm font-medium">
+									<div className="border-accent-orange/20 bg-accent-orange/10 rounded-xl border p-4">
+										<p className="text-accent-orange flex items-center gap-2 text-sm font-medium">
 											<Shield className="h-4 w-4" />
 											Paiement sécurisé et crypté
 										</p>
@@ -654,7 +647,7 @@ export default function CommanderPage() {
 										disabled={
 											!paymentMethod || !formData.paymentPhone || isProcessing
 										}
-										className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full rounded-xl text-white"
+										className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-white"
 									>
 										{isProcessing ? (
 											<>
@@ -677,8 +670,8 @@ export default function CommanderPage() {
 										{selectedPackData && (
 											<div className="space-y-4">
 												<div className="flex items-center gap-3 border-b pb-4">
-													<div className="bg-(primary-green)/10 flex h-12 w-12 items-center justify-center rounded-xl">
-														<QrCode className="text-(primary-green) h-6 w-6" />
+													<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-xl">
+														<QrCode className="text-primary-green h-6 w-6" />
 													</div>
 													<div>
 														<p className="font-medium">
@@ -717,7 +710,7 @@ export default function CommanderPage() {
 															Livraison
 														</span>
 														{deliveryFee === 0 ? (
-															<span className="text-(primary-green) flex items-center gap-1">
+															<span className="text-primary-green flex items-center gap-1">
 																<Tag className="h-3 w-3" /> Gratuite
 															</span>
 														) : (
@@ -739,8 +732,8 @@ export default function CommanderPage() {
 						{/* Step 4: Confirmation */}
 						{step === 'confirmation' && orderComplete && (
 							<div className="mx-auto max-w-lg py-12 text-center">
-								<div className="bg-(primary-green)/10 mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full">
-									<CheckCircle2 className="text-(primary-green) h-10 w-10" />
+								<div className="bg-primary-green/10 mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full">
+									<CheckCircle2 className="text-primary-green h-10 w-10" />
 								</div>
 								<h1 className="mb-3 text-3xl font-bold">Commande confirmée!</h1>
 								<p className="text-muted-foreground mb-8">
@@ -778,7 +771,7 @@ export default function CommanderPage() {
 										<div className="flex justify-between">
 											<span className="text-muted-foreground">Livraison</span>
 											{deliveryFee === 0 ? (
-												<span className="text-(primary-green)">
+												<span className="text-primary-green">
 													Gratuite (coupon)
 												</span>
 											) : (
@@ -808,7 +801,7 @@ export default function CommanderPage() {
 									</Button>
 									<Button
 										asChild
-										className="bg-(primary-green) hover:bg-(primary-green-dark) rounded-xl text-white"
+										className="bg-primary-green hover:bg-primary-green-dark rounded-xl text-white"
 									>
 										<Link href="/">Retour à l&apos;accueil</Link>
 									</Button>

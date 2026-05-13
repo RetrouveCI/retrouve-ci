@@ -24,8 +24,8 @@ const sections = [
 		id: 'acceptation',
 		icon: FileText,
 		title: 'Acceptation des conditions',
-		color: 'text-(primary-green)',
-		bg: 'bg-(primary-green)/10',
+		color: 'text-primary-green',
+		bg: 'bg-primary-green/10',
 		content: [
 			"En accédant à RetrouveCI et en utilisant nos services, vous acceptez pleinement et sans réserve les présentes conditions générales d'utilisation.",
 			"Si vous n'acceptez pas ces conditions, vous devez cesser immédiatement d'utiliser la plateforme. RetrouveCI se réserve le droit de modifier ces conditions à tout moment.",
@@ -48,8 +48,8 @@ const sections = [
 		id: 'contenu',
 		icon: AlertTriangle,
 		title: 'Contenu des annonces',
-		color: 'text-(accent-orange)',
-		bg: 'bg-(accent-orange)/10',
+		color: 'text-accent-orange',
+		bg: 'bg-accent-orange/10',
 		content: [
 			'Les annonces publiées doivent correspondre à de véritables objets perdus ou retrouvés sur le territoire ivoirien.',
 			"Toute annonce frauduleuse, trompeuse ou visant à escroquer d'autres utilisateurs est strictement interdite et entraînera la suspension immédiate du compte.",
@@ -207,8 +207,8 @@ export default function TermsPage() {
 								{/* Contact CTA */}
 								<div className="bg-muted/30 flex flex-col items-start justify-between gap-4 rounded-2xl border p-7 sm:flex-row sm:items-center">
 									<div className="flex items-center gap-3">
-										<div className="bg-(primary-green)/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-											<Mail className="text-(primary-green) h-5 w-5" />
+										<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+											<Mail className="text-primary-green h-5 w-5" />
 										</div>
 										<div>
 											<p className="text-sm font-semibold">
@@ -221,7 +221,7 @@ export default function TermsPage() {
 									</div>
 									<Link
 										href="/contact"
-										className="bg-(primary-green) hover:bg-(primary-green-dark) inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors"
+										className="bg-primary-green hover:bg-primary-green-dark inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors"
 									>
 										Nous contacter
 										<ArrowRight className="h-4 w-4" />

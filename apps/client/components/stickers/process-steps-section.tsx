@@ -46,11 +46,11 @@ export function ProcessStepsSection() {
 					{PROCESS_STEPS.map(step => (
 						<div
 							key={step.number}
-							className="group bg-background relative rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:border-(--primary-green)/30 hover:shadow-lg"
+							className="group bg-background relative rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary-green/30 hover:shadow-lg"
 						>
 							<div className="mb-4 flex items-center gap-3">
-								<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--primary-green)/10 transition-colors group-hover:bg-(--primary-green)">
-									<step.icon className="h-5 w-5 text-(--primary-green) transition-colors group-hover:text-white" />
+								<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-green/10 transition-colors group-hover:bg-primary-green">
+									<step.icon className="h-5 w-5 text-primary-green transition-colors group-hover:text-white" />
 								</div>
 								<span className="text-muted-foreground/30 text-3xl font-bold">
 									{step.number}

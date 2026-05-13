@@ -1,5 +1,6 @@
 'use client'
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@retrouve-ci/ui/components'
 import {
 	Smartphone,
 	Key,
@@ -12,12 +13,6 @@ import {
 	List,
 	X,
 } from 'lucide-react'
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@retrouve-ci/ui/components/ui/tabs'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { FloatingActionButton } from '@/components/floating-action-button'
@@ -25,7 +20,7 @@ import { AnnoncesHero } from '@/components/annonces/annonces-hero'
 import { FilterPanel } from '@/components/annonces/filter-panel'
 import { ListingsContent } from '@/components/annonces/listings-content'
 import { useAnnoncesFilters } from '@/hooks/use-annonces-filters'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 import type { ListingType, ListingCategory } from '@/domain/entities/listing'
 
 const CATEGORIES: {
@@ -107,7 +102,7 @@ export default function AnnoncesPage() {
 											value="found"
 											className="data-[state=active]:bg-background rounded-lg px-4 text-sm data-[state=active]:shadow-sm"
 										>
-											<span className="mr-1.5 h-2 w-2 rounded-full bg-(--primary-green)" />
+											<span className="mr-1.5 h-2 w-2 rounded-full bg-primary-green" />
 											Retrouvés
 										</TabsTrigger>
 									</TabsList>
@@ -118,14 +113,14 @@ export default function AnnoncesPage() {
 											className={cn(
 												'flex h-10 items-center gap-1.5 rounded-xl border px-3.5 text-sm font-medium transition-all',
 												showFilters || activeFiltersCount > 0
-													? 'border-(--primary-green)/40 bg-(--primary-green)/10 text-(--primary-green)'
-													: 'bg-background border-border text-muted-foreground hover:border-(--primary-green)/30',
+													? 'border-primary-green/40 bg-primary-green/10 text-primary-green'
+													: 'bg-background border-border text-muted-foreground hover:border-primary-green/30',
 											)}
 										>
 											<SlidersHorizontal className="h-4 w-4" />
 											<span className="hidden sm:inline">Filtres</span>
 											{activeFiltersCount > 0 && (
-												<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-(--primary-green) text-[10px] font-bold text-white">
+												<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary-green text-[10px] font-bold text-white">
 													{activeFiltersCount}
 												</span>
 											)}
@@ -138,7 +133,7 @@ export default function AnnoncesPage() {
 												className={cn(
 													'flex h-9 w-9 items-center justify-center rounded-lg transition-all',
 													viewMode === 'grid'
-														? 'bg-(--primary-green) text-white shadow-sm'
+														? 'bg-primary-green text-white shadow-sm'
 														: 'text-muted-foreground hover:text-foreground',
 												)}
 											>
@@ -150,7 +145,7 @@ export default function AnnoncesPage() {
 												className={cn(
 													'flex h-9 w-9 items-center justify-center rounded-lg transition-all',
 													viewMode === 'list'
-														? 'bg-(--primary-green) text-white shadow-sm'
+														? 'bg-primary-green text-white shadow-sm'
 														: 'text-muted-foreground hover:text-foreground',
 												)}
 											>
@@ -189,7 +184,7 @@ export default function AnnoncesPage() {
 									{activeChips.map(chip => (
 										<span
 											key={chip.label}
-											className="inline-flex items-center gap-1.5 rounded-full border border-(--primary-green)/20 bg-(--primary-green)/10 px-3 py-1 text-xs font-medium text-(--primary-green)"
+											className="inline-flex items-center gap-1.5 rounded-full border border-primary-green/20 bg-primary-green/10 px-3 py-1 text-xs font-medium text-primary-green"
 										>
 											{chip.label}
 											<button

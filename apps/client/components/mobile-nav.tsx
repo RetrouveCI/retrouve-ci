@@ -1,5 +1,6 @@
 'use client'
 
+import { Button, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -12,15 +13,7 @@ import {
 	User,
 	ChevronRight,
 } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-} from '@retrouve-ci/ui/components/ui/sheet'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 import { useAuth } from '@/contexts/auth-context'
 
 interface MobileNavProps {
@@ -67,7 +60,7 @@ export function MobileNav({
 							className="rounded-xl"
 						/>
 						<span className="text-lg font-bold tracking-tight">
-							Retrouve<span className="text-(accent-orange)">CI</span>
+							Retrouve<span className="text-accent-orange">CI</span>
 						</span>
 					</SheetTitle>
 					<SheetDescription className="sr-only">
@@ -88,7 +81,7 @@ export function MobileNav({
 								className={cn(
 									'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
 									isActive
-										? 'bg-(primary-green) text-white shadow-sm'
+										? 'bg-primary-green text-white shadow-sm'
 										: 'text-foreground hover:bg-muted',
 								)}
 							>
@@ -109,8 +102,8 @@ export function MobileNav({
 								onClick={() => onOpenChange(false)}
 								className="bg-muted/60 hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 transition-colors"
 							>
-								<div className="bg-(primary-green)/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-									<User className="text-(primary-green) h-4 w-4" />
+								<div className="bg-primary-green/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+									<User className="text-primary-green h-4 w-4" />
 								</div>
 								<div className="min-w-0 flex-1">
 									<p className="truncate text-sm font-semibold">{user?.name}</p>
@@ -131,7 +124,7 @@ export function MobileNav({
 						</>
 					) : (
 						<Button
-							className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 w-full gap-2 rounded-xl text-white"
+							className="bg-primary-green hover:bg-primary-green-dark h-12 w-full gap-2 rounded-xl text-white"
 							asChild
 						>
 							<Link href="/auth" onClick={() => onOpenChange(false)}>

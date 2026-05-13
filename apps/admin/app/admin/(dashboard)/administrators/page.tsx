@@ -1,38 +1,12 @@
 'use client'
 
+import { Button, Badge, Avatar, AvatarFallback, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Label } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import { useAdministrators } from '@/application/administrators/use-administrators'
 import type { Admin } from '@/domain/entities/admin'
 import { TopBar } from '@/components/admin/topbar'
 import { DataTable } from '@/components/admin/data-table'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@retrouve-ci/ui/components/ui/dialog'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@retrouve-ci/ui/components/ui/dropdown-menu'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@retrouve-ci/ui/components/ui/select'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import { Label } from '@retrouve-ci/ui/components/ui/label'
 import {
 	MoreHorizontal,
 	Plus,

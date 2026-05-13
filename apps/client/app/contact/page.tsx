@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 const faqs = [
 	{
@@ -43,8 +43,8 @@ const channels = [
 		title: 'Email',
 		value: 'contact@retrouveci.ci',
 		detail: 'Réponse sous 24h ouvrées',
-		color: 'text-(primary-green)',
-		bg: 'bg-(primary-green)/10',
+		color: 'text-primary-green',
+		bg: 'bg-primary-green/10',
 		href: 'mailto:contact@retrouveci.ci',
 	},
 	{
@@ -52,8 +52,8 @@ const channels = [
 		title: 'WhatsApp',
 		value: '+225 07 00 00 00 00',
 		detail: 'Lun–Ven, 8h–18h',
-		color: 'text-(accent-orange)',
-		bg: 'bg-(accent-orange)/10',
+		color: 'text-accent-orange',
+		bg: 'bg-accent-orange/10',
 		href: 'https://wa.me/2250700000000',
 	},
 	{
@@ -89,9 +89,9 @@ export default function ContactPage() {
 				{/* Hero */}
 				<section className="relative overflow-hidden border-b">
 					<div className="dot-pattern pointer-events-none absolute inset-0 opacity-40" />
-					<div className="bg-(accent-orange)/6 absolute -top-24 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl" />
+					<div className="bg-accent-orange/6 absolute -top-24 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl" />
 					<div className="relative container mx-auto max-w-2xl px-4 py-14 text-center md:py-20">
-						<div className="border-(accent-orange)/20 bg-(accent-orange)/10 text-(accent-orange) mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
+						<div className="border-accent-orange/20 bg-accent-orange/10 text-accent-orange mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
 							<MessageSquare className="h-3.5 w-3.5" />
 							Nous sommes à votre écoute
 						</div>
@@ -115,8 +115,8 @@ export default function ContactPage() {
 
 								{submitted ? (
 									<div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-										<div className="bg-(primary-green)/10 flex h-16 w-16 items-center justify-center rounded-full">
-											<CheckCircle2 className="text-(primary-green) h-8 w-8" />
+										<div className="bg-primary-green/10 flex h-16 w-16 items-center justify-center rounded-full">
+											<CheckCircle2 className="text-primary-green h-8 w-8" />
 										</div>
 										<div>
 											<p className="mb-1 text-lg font-semibold">
@@ -136,7 +136,7 @@ export default function ContactPage() {
 													message: '',
 												})
 											}}
-											className="text-(primary-green) text-sm hover:underline"
+											className="text-primary-green text-sm hover:underline"
 										>
 											Envoyer un autre message
 										</button>
@@ -156,7 +156,7 @@ export default function ContactPage() {
 													onChange={e =>
 														setForm(p => ({ ...p, name: e.target.value }))
 													}
-													className="bg-muted/30 focus:border-(primary-green)/50 focus:ring-(primary-green)/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2"
+													className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2"
 												/>
 											</div>
 											<div className="space-y-1.5">
@@ -169,7 +169,7 @@ export default function ContactPage() {
 													onChange={e =>
 														setForm(p => ({ ...p, email: e.target.value }))
 													}
-													className="bg-muted/30 focus:border-(primary-green)/50 focus:ring-(primary-green)/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2"
+													className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2"
 												/>
 											</div>
 										</div>
@@ -183,7 +183,7 @@ export default function ContactPage() {
 												onChange={e =>
 													setForm(p => ({ ...p, subject: e.target.value }))
 												}
-												className="bg-muted/30 focus:border-(primary-green)/50 focus:ring-(primary-green)/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2"
+												className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2"
 											/>
 										</div>
 										<div className="space-y-1.5">
@@ -196,12 +196,12 @@ export default function ContactPage() {
 												onChange={e =>
 													setForm(p => ({ ...p, message: e.target.value }))
 												}
-												className="bg-muted/30 focus:border-(primary-green)/50 focus:ring-(primary-green)/30 w-full resize-none rounded-xl border px-4 py-3 text-sm transition-all outline-none focus:ring-2"
+												className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 w-full resize-none rounded-xl border px-4 py-3 text-sm transition-all outline-none focus:ring-2"
 											/>
 										</div>
 										<button
 											type="submit"
-											className="bg-(primary-green) hover:bg-(primary-green-dark) flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium text-white transition-colors"
+											className="bg-primary-green hover:bg-primary-green-dark flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium text-white transition-colors"
 										>
 											<Send className="h-4 w-4" />
 											Envoyer le message
@@ -213,7 +213,7 @@ export default function ContactPage() {
 							{/* Right column */}
 							<div className="flex flex-col gap-4 md:col-span-5">
 								{/* Availability card */}
-								<div className="bg-(primary-green) rounded-2xl border p-6 text-white">
+								<div className="bg-primary-green rounded-2xl border p-6 text-white">
 									<div className="mb-3 flex items-center gap-3">
 										<div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20">
 											<Clock className="h-4 w-4" />

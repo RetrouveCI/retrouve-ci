@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { useState } from 'react'
 import {
@@ -16,11 +17,10 @@ import {
 	Calendar,
 	Plus,
 } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 type OrderStatus =
 	| 'pending'
@@ -113,8 +113,8 @@ const STATUS_CONFIG: Record<
 	delivered: {
 		label: 'Livrée',
 		icon: CheckCircle2,
-		color: 'text-(primary-green)',
-		bgColor: 'bg-(primary-green)/10',
+		color: 'text-primary-green',
+		bgColor: 'bg-primary-green/10',
 	},
 	cancelled: {
 		label: 'Annulée',
@@ -214,9 +214,9 @@ function OrderDetail({
 											className={cn(
 												'flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition-all',
 												isCompleted
-													? 'bg-(primary-green) text-white'
+													? 'bg-primary-green text-white'
 													: 'bg-muted text-muted-foreground',
-												isCurrent && 'ring-(primary-green)/20 ring-4',
+												isCurrent && 'ring-primary-green/20 ring-4',
 											)}
 										>
 											{isCompleted ? (
@@ -229,7 +229,7 @@ function OrderDetail({
 											<div
 												className={cn(
 													'mx-1 h-1 flex-1 rounded-full',
-													idx < currentIdx ? 'bg-(primary-green)' : 'bg-muted',
+													idx < currentIdx ? 'bg-primary-green' : 'bg-muted',
 												)}
 											/>
 										)}
@@ -242,8 +242,8 @@ function OrderDetail({
 					{/* Pack info */}
 					<div className="rounded-2xl border p-4">
 						<div className="flex items-center gap-4">
-							<div className="bg-(primary-green)/10 flex h-14 w-14 items-center justify-center rounded-xl">
-								<QrCode className="text-(primary-green) h-7 w-7" />
+							<div className="bg-primary-green/10 flex h-14 w-14 items-center justify-center rounded-xl">
+								<QrCode className="text-primary-green h-7 w-7" />
 							</div>
 							<div className="flex-1">
 								<p className="font-semibold">Pack {order.pack.name}</p>
@@ -300,7 +300,7 @@ function OrderDetail({
 						<div className="flex justify-between text-sm">
 							<span className="text-muted-foreground">Livraison</span>
 							{order.deliveryFee === 0 ? (
-								<span className="text-(primary-green)">Gratuite</span>
+								<span className="text-primary-green">Gratuite</span>
 							) : (
 								<span>{formatPrice(order.deliveryFee)} FCFA</span>
 							)}
@@ -316,7 +316,7 @@ function OrderDetail({
 						{order.status === 'delivered' && (
 							<Button
 								asChild
-								className="bg-(primary-green) hover:bg-(primary-green-dark) h-12 flex-1 rounded-xl text-white"
+								className="bg-primary-green hover:bg-primary-green-dark h-12 flex-1 rounded-xl text-white"
 							>
 								<Link href="/compte/stickers">Voir mes stickers</Link>
 							</Button>
@@ -356,7 +356,7 @@ function EmptyState() {
 			</p>
 			<Button
 				asChild
-				className="bg-(primary-green) hover:bg-(primary-green-dark) h-11 rounded-xl text-white"
+				className="bg-primary-green hover:bg-primary-green-dark h-11 rounded-xl text-white"
 			>
 				<Link href="/stickers/commander" className="gap-2">
 					<Plus className="h-4 w-4" />
@@ -382,7 +382,7 @@ export default function CommandesPage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="border-(primary-green) h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+					<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
 				</main>
 				<Footer />
 			</>
@@ -400,7 +400,7 @@ export default function CommandesPage() {
 						</p>
 						<Button
 							asChild
-							className="bg-(primary-green) hover:bg-(primary-green-dark) text-white"
+							className="bg-primary-green hover:bg-primary-green-dark text-white"
 						>
 							<Link href="/auth">Se connecter</Link>
 						</Button>
@@ -468,12 +468,12 @@ export default function CommandesPage() {
 										<button
 											key={order.id}
 											onClick={() => setSelectedOrder(order)}
-											className="group bg-background hover:border-(primary-green)/30 w-full rounded-2xl border p-4 text-left transition-all hover:shadow-md"
+											className="group bg-background hover:border-primary-green/30 w-full rounded-2xl border p-4 text-left transition-all hover:shadow-md"
 										>
 											<div className="flex items-start gap-4">
 												{/* Icon */}
-												<div className="bg-(primary-green)/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-													<QrCode className="text-(primary-green) h-6 w-6" />
+												<div className="bg-primary-green/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
+													<QrCode className="text-primary-green h-6 w-6" />
 												</div>
 
 												{/* Content */}
@@ -520,10 +520,10 @@ export default function CommandesPage() {
 						<div className="mt-8">
 							<Link
 								href="/stickers/commander"
-								className="group border-(primary-green)/30 bg-(primary-green)/5 hover:border-(primary-green)/50 hover:bg-(primary-green)/10 flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed p-5 transition-all"
+								className="group border-primary-green/30 bg-primary-green/5 hover:border-primary-green/50 hover:bg-primary-green/10 flex items-center justify-between gap-4 rounded-2xl border-2 border-dashed p-5 transition-all"
 							>
 								<div className="flex items-center gap-4">
-									<div className="bg-(primary-green) flex h-11 w-11 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
+									<div className="bg-primary-green flex h-11 w-11 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
 										<Plus className="h-5 w-5 text-white" />
 									</div>
 									<div>

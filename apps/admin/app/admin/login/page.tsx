@@ -1,21 +1,8 @@
 'use client'
 
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, FieldGroup, Field, FieldLabel } from '@retrouve-ci/ui/components'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components/ui/card'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import {
-	FieldGroup,
-	Field,
-	FieldLabel,
-} from '@retrouve-ci/ui/components/ui/field'
 import { Loader2, QrCode, Lock, Mail } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
 import { toast } from 'sonner'

@@ -1,3 +1,4 @@
+import { Button } from '@retrouve-ci/ui/components'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -14,7 +15,6 @@ import {
 	CheckCircle2,
 	Star,
 } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 
@@ -32,8 +32,8 @@ export default function DownloadPage() {
 				{/* ── Hero ── */}
 				<section className="relative overflow-hidden border-b">
 					<div className="pointer-events-none absolute inset-0">
-						<div className="bg-(primary-green)/6 absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full blur-3xl" />
-						<div className="bg-(accent-orange)/5 absolute bottom-0 left-0 h-[300px] w-[300px] rounded-full blur-3xl" />
+						<div className="bg-primary-green/6 absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full blur-3xl" />
+						<div className="bg-accent-orange/5 absolute bottom-0 left-0 h-[300px] w-[300px] rounded-full blur-3xl" />
 					</div>
 
 					<div className="relative container mx-auto px-4 pt-14 pb-12">
@@ -46,7 +46,7 @@ export default function DownloadPage() {
 								</div>
 								<h1 className="mb-5 text-4xl font-bold tracking-tight text-balance md:text-5xl">
 									Retrouvez vos objets{' '}
-									<span className="text-(primary-green)">plus vite</span>
+									<span className="text-primary-green">plus vite</span>
 								</h1>
 								<p className="text-muted-foreground mx-auto mb-8 max-w-md text-base leading-relaxed md:mx-0 md:text-lg">
 									Scannez les stickers QR, recevez des alertes instantanées et
@@ -69,7 +69,7 @@ export default function DownloadPage() {
 									</button>
 									<button
 										disabled
-										className="bg-(primary-green) flex cursor-not-allowed items-center gap-3 rounded-xl px-5 py-3 text-white opacity-60"
+										className="bg-primary-green flex cursor-not-allowed items-center gap-3 rounded-xl px-5 py-3 text-white opacity-60"
 									>
 										<Smartphone className="h-6 w-6 shrink-0" />
 										<div className="text-left">
@@ -123,20 +123,20 @@ export default function DownloadPage() {
 													<div className="bg-muted h-6 w-6 rounded-full" />
 												</div>
 												{/* Scanner */}
-												<div className="bg-muted/40 border-(primary-green)/30 flex flex-1 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed">
-													<div className="bg-(primary-green)/10 flex h-12 w-12 items-center justify-center rounded-xl">
-														<QrCode className="text-(primary-green) h-6 w-6" />
+												<div className="bg-muted/40 border-primary-green/30 flex flex-1 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed">
+													<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-xl">
+														<QrCode className="text-primary-green h-6 w-6" />
 													</div>
 													<p className="text-muted-foreground text-[10px]">
 														Scanner un QR code
 													</p>
 													{/* Scan corners */}
-													<div className="border-(primary-green) pointer-events-none absolute top-16 left-16 h-16 w-16 rounded-tl-lg border-t-2 border-l-2" />
-													<div className="border-(primary-green) pointer-events-none absolute top-16 right-16 h-16 w-16 rounded-tr-lg border-t-2 border-r-2" />
+													<div className="border-primary-green pointer-events-none absolute top-16 left-16 h-16 w-16 rounded-tl-lg border-t-2 border-l-2" />
+													<div className="border-primary-green pointer-events-none absolute top-16 right-16 h-16 w-16 rounded-tr-lg border-t-2 border-r-2" />
 												</div>
 												{/* Notification pill */}
-												<div className="border-(primary-green)/20 bg-(primary-green)/10 flex items-center gap-2 rounded-xl border px-3 py-2">
-													<CheckCircle2 className="text-(primary-green) h-4 w-4 shrink-0" />
+												<div className="border-primary-green/20 bg-primary-green/10 flex items-center gap-2 rounded-xl border px-3 py-2">
+													<CheckCircle2 className="text-primary-green h-4 w-4 shrink-0" />
 													<p className="text-[10px] font-medium">
 														Objet retrouvé à Cocody !
 													</p>
@@ -146,7 +146,7 @@ export default function DownloadPage() {
 													{[QrCode, MapPin, Bell].map((Icon, i) => (
 														<div
 															key={i}
-															className={`flex h-9 w-9 items-center justify-center rounded-xl ${i === 0 ? 'bg-(primary-green)' : ''}`}
+															className={`flex h-9 w-9 items-center justify-center rounded-xl ${i === 0 ? 'bg-primary-green' : ''}`}
 														>
 															<Icon
 																className={`h-4 w-4 ${i === 0 ? 'text-white' : 'text-muted-foreground'}`}
@@ -160,8 +160,8 @@ export default function DownloadPage() {
 									{/* Floating badge */}
 									<div className="bg-background animate-float absolute top-24 -left-14 rounded-xl border p-2.5 shadow-lg">
 										<div className="flex items-center gap-2">
-											<div className="bg-(primary-green)/10 flex h-7 w-7 items-center justify-center rounded-lg">
-												<CheckCircle2 className="text-(primary-green) h-3.5 w-3.5" />
+											<div className="bg-primary-green/10 flex h-7 w-7 items-center justify-center rounded-lg">
+												<CheckCircle2 className="text-primary-green h-3.5 w-3.5" />
 											</div>
 											<div>
 												<p className="text-[10px] font-semibold">Retrouvé !</p>
@@ -173,8 +173,8 @@ export default function DownloadPage() {
 									</div>
 									<div className="bg-background animate-float-delayed absolute -right-12 bottom-28 rounded-xl border p-2.5 shadow-lg">
 										<div className="flex items-center gap-2">
-											<div className="bg-(accent-orange)/10 flex h-7 w-7 items-center justify-center rounded-lg">
-												<Bell className="text-(accent-orange) h-3.5 w-3.5" />
+											<div className="bg-accent-orange/10 flex h-7 w-7 items-center justify-center rounded-lg">
+												<Bell className="text-accent-orange h-3.5 w-3.5" />
 											</div>
 											<div>
 												<p className="text-[10px] font-semibold">Alerte</p>
@@ -206,10 +206,10 @@ export default function DownloadPage() {
 						{/* Bento grid */}
 						<div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							{/* Large — Scan QR */}
-							<div className="group bg-background hover:border-(primary-green)/40 rounded-2xl border p-8 transition-all duration-300 hover:shadow-lg sm:col-span-2">
+							<div className="group bg-background hover:border-primary-green/40 rounded-2xl border p-8 transition-all duration-300 hover:shadow-lg sm:col-span-2">
 								<div className="mb-6 flex items-start justify-between">
-									<div className="bg-(primary-green)/10 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
-										<QrCode className="text-(primary-green) h-6 w-6" />
+									<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
+										<QrCode className="text-primary-green h-6 w-6" />
 									</div>
 									<span className="text-muted-foreground rounded-full border px-2 py-1 text-xs">
 										Phare
@@ -224,9 +224,9 @@ export default function DownloadPage() {
 							</div>
 
 							{/* Notifications */}
-							<div className="group bg-background hover:border-(accent-orange)/40 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
-								<div className="bg-(accent-orange)/10 mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
-									<Bell className="text-(accent-orange) h-6 w-6" />
+							<div className="group bg-background hover:border-accent-orange/40 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
+								<div className="bg-accent-orange/10 mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
+									<Bell className="text-accent-orange h-6 w-6" />
 								</div>
 								<h3 className="mb-2 font-bold">Alertes push</h3>
 								<p className="text-muted-foreground text-sm leading-relaxed">
@@ -235,9 +235,9 @@ export default function DownloadPage() {
 							</div>
 
 							{/* Shield */}
-							<div className="group bg-background hover:border-(primary-green)/40 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
-								<div className="bg-(primary-green)/10 mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
-									<Shield className="text-(primary-green) h-6 w-6" />
+							<div className="group bg-background hover:border-primary-green/40 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
+								<div className="bg-primary-green/10 mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
+									<Shield className="text-primary-green h-6 w-6" />
 								</div>
 								<h3 className="mb-2 font-bold">Contact sécurisé</h3>
 								<p className="text-muted-foreground text-sm leading-relaxed">
@@ -246,9 +246,9 @@ export default function DownloadPage() {
 							</div>
 
 							{/* Offline */}
-							<div className="group bg-background hover:border-(primary-green)/40 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
-								<div className="bg-(primary-green)/10 mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
-									<Zap className="text-(primary-green) h-6 w-6" />
+							<div className="group bg-background hover:border-primary-green/40 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
+								<div className="bg-primary-green/10 mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
+									<Zap className="text-primary-green h-6 w-6" />
 								</div>
 								<h3 className="mb-2 font-bold">Mode hors-ligne</h3>
 								<p className="text-muted-foreground text-sm leading-relaxed">
@@ -257,7 +257,7 @@ export default function DownloadPage() {
 							</div>
 
 							{/* Coverage — spans 1 col */}
-							<div className="group bg-(primary-green) rounded-2xl border p-6 text-white transition-all duration-300 hover:shadow-lg">
+							<div className="group bg-primary-green rounded-2xl border p-6 text-white transition-all duration-300 hover:shadow-lg">
 								<div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
 									<MapPin className="h-6 w-6 text-white" />
 								</div>
@@ -268,12 +268,12 @@ export default function DownloadPage() {
 							</div>
 
 							{/* Rating */}
-							<div className="group bg-background hover:border-(accent-orange)/40 flex flex-col justify-between rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
+							<div className="group bg-background hover:border-accent-orange/40 flex flex-col justify-between rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
 								<div className="mb-4 flex items-center gap-1">
 									{[...Array(5)].map((_, i) => (
 										<Star
 											key={i}
-											className="fill-(accent-orange) text-(accent-orange) h-5 w-5"
+											className="fill-accent-orange text-accent-orange h-5 w-5"
 										/>
 									))}
 								</div>
@@ -324,8 +324,8 @@ export default function DownloadPage() {
 									<div className="text-muted-foreground/10 mb-3 text-5xl font-bold">
 										{item.step}
 									</div>
-									<div className="bg-(primary-green)/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
-										<item.icon className="text-(primary-green) h-6 w-6" />
+									<div className="bg-primary-green/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
+										<item.icon className="text-primary-green h-6 w-6" />
 									</div>
 									<h3 className="mb-2 font-semibold">{item.title}</h3>
 									<p className="text-muted-foreground text-sm">{item.desc}</p>
@@ -342,8 +342,8 @@ export default function DownloadPage() {
 				<section className="py-16 md:py-24">
 					<div className="container mx-auto px-4">
 						<div className="bg-background relative mx-auto max-w-2xl overflow-hidden rounded-2xl border p-10 text-center">
-							<div className="bg-(primary-green)/5 pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full blur-2xl" />
-							<div className="border-(accent-orange)/20 bg-(accent-orange)/10 text-(accent-orange) mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium">
+							<div className="bg-primary-green/5 pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full blur-2xl" />
+							<div className="border-accent-orange/20 bg-accent-orange/10 text-accent-orange mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium">
 								<Clock className="h-3.5 w-3.5" />
 								En attendant l&apos;application mobile
 							</div>
@@ -358,7 +358,7 @@ export default function DownloadPage() {
 								<Button
 									asChild
 									size="lg"
-									className="bg-(primary-green) hover:bg-(primary-green-dark) h-11 rounded-xl px-6 text-white"
+									className="bg-primary-green hover:bg-primary-green-dark h-11 rounded-xl px-6 text-white"
 								>
 									<Link href="/annonces" className="gap-2">
 										Voir les annonces

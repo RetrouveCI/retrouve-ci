@@ -1,9 +1,4 @@
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
 import { TrendingUp } from 'lucide-react'
 import {
 	AreaChart,

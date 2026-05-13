@@ -1,18 +1,9 @@
 'use client'
 
+import { Button, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Label } from '@retrouve-ci/ui/components/ui/label'
-import { Textarea } from '@retrouve-ci/ui/components/ui/textarea'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@retrouve-ci/ui/components/ui/select'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { MatchingSuggestions } from '@/components/matching-suggestions'
@@ -22,9 +13,9 @@ import { ContactSection } from '@/components/publish-form/contact-section'
 import { FormProgress } from '@/components/publish-form/form-progress'
 import { TipsPanel } from '@/components/publish-form/tips-panel'
 import { usePublishForm } from '@/hooks/use-publish-form'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
-const ACCENT = 'var(--primary-green)'
+const ACCENT = 'varprimary-green'
 
 const objectTypes = [
 	{ value: 'phone', label: 'Téléphone' },
@@ -89,8 +80,8 @@ export default function PublierRetrouvePage() {
 					<div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_320px]">
 						<div className="space-y-6">
 							<div className="flex items-center gap-3 pb-2">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--primary-green)/10">
-									<CheckCircle className="h-5 w-5 text-(--primary-green)" />
+								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-green/10">
+									<CheckCircle className="h-5 w-5 text-primary-green" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold">Objet retrouvé</h1>
@@ -143,7 +134,7 @@ export default function PublierRetrouvePage() {
 											className={cn(
 												'text-xs',
 												formData.description.length >= 20
-													? 'text-(--primary-green)'
+													? 'text-primary-green'
 													: 'text-muted-foreground',
 											)}
 										>
@@ -156,7 +147,7 @@ export default function PublierRetrouvePage() {
 									<div className="space-y-2">
 										<div className="flex items-center gap-2">
 											<Label>Photo</Label>
-											<span className="rounded-full border border-(--primary-green)/20 bg-(--primary-green)/10 px-2 py-0.5 text-[10px] font-semibold text-(--primary-green)">
+											<span className="rounded-full border border-primary-green/20 bg-primary-green/10 px-2 py-0.5 text-[10px] font-semibold text-primary-green">
 												Recommandé
 											</span>
 										</div>
@@ -199,7 +190,7 @@ export default function PublierRetrouvePage() {
 									</Button>
 									<Button
 										type="submit"
-										className="h-12 bg-(--primary-green) text-white hover:bg-(--primary-green-dark) sm:flex-1"
+										className="h-12 bg-primary-green text-white hover:bg-primary-green-dark sm:flex-1"
 										disabled={isSubmitting}
 									>
 										{isSubmitting ? (

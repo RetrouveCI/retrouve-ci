@@ -1,4 +1,4 @@
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 type WaveVariant = 'smooth' | 'layered' | 'asymmetric' | 'inverse'
 type WaveColor = 'green' | 'orange' | 'mixed'
@@ -12,19 +12,19 @@ interface WaveDividerProps {
 
 const colorClasses = {
 	green: {
-		primary: 'fill-(primary-green)/10',
-		secondary: 'fill-(primary-green)/5',
-		tertiary: 'fill-(primary-green)/3',
+		primary: 'fill-primary-green/10',
+		secondary: 'fill-primary-green/5',
+		tertiary: 'fill-primary-green/3',
 	},
 	orange: {
-		primary: 'fill-(accent-orange)/10',
-		secondary: 'fill-(accent-orange)/5',
-		tertiary: 'fill-(accent-orange)/3',
+		primary: 'fill-accent-orange/10',
+		secondary: 'fill-accent-orange/5',
+		tertiary: 'fill-accent-orange/3',
 	},
 	mixed: {
-		primary: 'fill-(primary-green)/10',
-		secondary: 'fill-(accent-orange)/8',
-		tertiary: 'fill-(primary-green)/5',
+		primary: 'fill-primary-green/10',
+		secondary: 'fill-accent-orange/8',
+		tertiary: 'fill-primary-green/5',
 	},
 }
 

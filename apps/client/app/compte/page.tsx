@@ -1,8 +1,8 @@
 'use client'
 
+import { Button } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { User, LogIn } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { ProfileHeader } from '@/components/compte/profile-header'
@@ -14,13 +14,13 @@ function NotLoggedInView() {
 	return (
 		<main className="flex flex-1 items-center justify-center py-16 md:py-24">
 			<div className="pointer-events-none absolute inset-0 overflow-hidden">
-				<div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-(--primary-green)/5 blur-3xl" />
-				<div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-(--accent-orange)/5 blur-3xl" />
+				<div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary-green/5 blur-3xl" />
+				<div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-accent-orange/5 blur-3xl" />
 			</div>
 			<div className="relative container mx-auto px-4">
 				<div className="mx-auto max-w-md text-center">
-					<div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-(--primary-green)/10">
-						<User className="h-10 w-10 text-(--primary-green)" />
+					<div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-primary-green/10">
+						<User className="h-10 w-10 text-primary-green" />
 					</div>
 					<h1 className="mb-3 text-2xl font-bold md:text-3xl">
 						Connectez-vous
@@ -31,7 +31,7 @@ function NotLoggedInView() {
 					<Button
 						asChild
 						size="lg"
-						className="h-12 w-full rounded-xl bg-(--primary-green) text-white hover:bg-(--primary-green-dark)"
+						className="h-12 w-full rounded-xl bg-primary-green text-white hover:bg-primary-green-dark"
 					>
 						<Link href="/auth" className="gap-2">
 							<LogIn className="h-5 w-5" />
@@ -42,7 +42,7 @@ function NotLoggedInView() {
 						Pas encore de compte ?{' '}
 						<Link
 							href="/auth"
-							className="font-medium text-(--primary-green) hover:underline"
+							className="font-medium text-primary-green hover:underline"
 						>
 							Créer un compte
 						</Link>
@@ -75,7 +75,7 @@ export default function ComptePage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="h-10 w-10 animate-spin rounded-full border-4 border-(--primary-green) border-t-transparent" />
+					<div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-green border-t-transparent" />
 				</main>
 				<Footer />
 			</>

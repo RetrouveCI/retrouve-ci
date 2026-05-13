@@ -1,27 +1,13 @@
 'use client'
 
+import { Button, Calendar, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
 import * as React from 'react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import type { DateRange } from 'react-day-picker'
 
-import { cn } from '@retrouve-ci/ui/lib/utils'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Calendar } from '@retrouve-ci/ui/components/ui/calendar'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@retrouve-ci/ui/components/ui/popover'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@retrouve-ci/ui/components/ui/select'
-
+import { cn } from '@retrouve-ci/ui/utils'
 interface DateRangePickerProps {
 	dateRange: DateRange | undefined
 	onDateRangeChange: (range: DateRange | undefined) => void

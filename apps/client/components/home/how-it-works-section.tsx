@@ -32,13 +32,13 @@ export function HowItWorksSection() {
 		<section className="py-20 md:py-28">
 			<div className="container mx-auto px-4">
 				<div className="mb-16 space-y-4 text-center">
-					<div className="inline-flex items-center gap-2 rounded-full bg-(--primary-green)/10 px-3 py-1.5 text-sm font-medium text-(--primary-green)">
+					<div className="inline-flex items-center gap-2 rounded-full bg-primary-green/10 px-3 py-1.5 text-sm font-medium text-primary-green">
 						<Sparkles className="h-4 w-4" />
 						Comment ça marche
 					</div>
 					<h2 className="text-3xl font-bold tracking-tight md:text-4xl">
 						Retrouvez vos objets en{' '}
-						<span className="text-(--primary-green)">3 étapes</span>
+						<span className="text-primary-green">3 étapes</span>
 					</h2>
 					<p className="text-muted-foreground mx-auto max-w-xl">
 						Un processus simple et efficace pour maximiser vos chances de

@@ -1,26 +1,9 @@
 'use client'
 
+import { Button, Badge, Card, CardContent, CardHeader, CardTitle, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@retrouve-ci/ui/components'
 import { use, useState } from 'react'
 import Link from 'next/link'
 import { TopBar } from '@/components/admin/topbar'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components/ui/card'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from '@retrouve-ci/ui/components/ui/alert-dialog'
 import { useQRToken } from '@/application/qr/use-qr-tokens'
 import { useEvents } from '@/application/events/use-events'
 import {

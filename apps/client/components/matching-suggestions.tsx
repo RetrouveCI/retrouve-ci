@@ -15,7 +15,7 @@ import {
 	AlertCircle,
 	CheckCircle,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 import { useMatchingSuggestions } from '@/application/listings/use-matching-suggestions'
 import type { ListingCategory } from '@/domain/entities/listing'
 
@@ -49,7 +49,7 @@ export function MatchingSuggestions({
 	})
 
 	const accentColor =
-		formType === 'perdu' ? 'var(--accent-orange)' : 'var(--primary-green)'
+		formType === 'perdu' ? 'varaccent-orange' : 'varprimary-green'
 	const TypeIcon = formType === 'perdu' ? CheckCircle : AlertCircle
 
 	return (
@@ -113,14 +113,14 @@ export function MatchingSuggestions({
 											className={cn(
 												'h-4 w-4',
 												item.type === 'found'
-													? 'text-(--primary-green)'
+													? 'text-primary-green'
 													: 'text-red-500',
 											)}
 										/>
 									</div>
 
 									<div className="min-w-0 flex-1">
-										<p className="line-clamp-1 text-sm leading-tight font-medium transition-colors group-hover:text-(--primary-green)">
+										<p className="line-clamp-1 text-sm leading-tight font-medium transition-colors group-hover:text-primary-green">
 											{item.title}
 										</p>
 										<div className="mt-0.5 flex items-center gap-2">

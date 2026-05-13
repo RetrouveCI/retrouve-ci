@@ -1,5 +1,6 @@
 'use client'
 
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
 import {
 	type ColumnDef,
 	flexRender,
@@ -13,23 +14,6 @@ import {
 } from '@tanstack/react-table'
 import { useState } from 'react'
 
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from '@retrouve-ci/ui/components/ui/table'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@retrouve-ci/ui/components/ui/select'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
 interface DataTableProps<TData, TValue> {

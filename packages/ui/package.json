@@ -7,17 +7,19 @@
 		"**/*.css"
 	],
 	"exports": {
-		"./globals.css": "./globals.css",
-		"./styles.css": "./src/styles.css",
-		"./postcss": "./postcss.config.js",
-		"./lib/utils": "./src/lib/utils.ts",
-		"./components/ui/*": "./src/components/ui/*"
+		".": "./src/index.ts",
+		"./components": "./src/components/index.ts",
+		"./utils": "./src/utils/cn.ts",
+		"./styles": "./src/styles/globals.css",
+		"./hooks": "./src/hooks/index.ts",
+		"./postcss": "./postcss.config.js"
 	},
 	"typesVersions": {
 		"*": {
-			"postcss": ["./postcss.config.d.ts"],
-			"lib/utils": ["./src/lib/utils.ts"],
-			"components/ui/*": ["./src/components/ui/*"]
+			".": ["./src/index.ts"],
+			"components": ["./src/components/index.ts"],
+			"utils": ["./src/utils/cn.ts"],
+			"hooks": ["./src/hooks/index.ts"]
 		}
 	},
 	"license": "MIT",

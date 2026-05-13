@@ -1,31 +1,10 @@
 'use client'
 
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Checkbox, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, FieldGroup, Field, FieldLabel } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { TopBar } from '@/components/admin/topbar'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components/ui/card'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import { Checkbox } from '@retrouve-ci/ui/components/ui/checkbox'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@retrouve-ci/ui/components/ui/select'
-import {
-	FieldGroup,
-	Field,
-	FieldLabel,
-} from '@retrouve-ci/ui/components/ui/field'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { z } from 'zod'

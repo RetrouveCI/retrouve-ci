@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 interface FloatingActionButtonProps {
 	href: string

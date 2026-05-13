@@ -1,5 +1,5 @@
-import { Card } from '@retrouve-ci/ui/components/ui/card'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { Card } from '@retrouve-ci/ui/components'
+import { cn } from '@retrouve-ci/ui/utils'
 import type { LucideIcon } from 'lucide-react'
 
 interface StatsCardProps {

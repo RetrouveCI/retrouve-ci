@@ -1,3 +1,4 @@
+import { Button, Badge, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -13,18 +14,9 @@ import {
 	ArrowLeft,
 	Package,
 } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components/ui/card'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 
 const mockListings = [
 	{
@@ -84,13 +76,13 @@ function ContactCard({ listing }: { listing: (typeof mockListings)[number] }) {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					<Button className="h-12 w-full gap-2 bg-(--primary-green) text-white hover:bg-(--primary-green-dark)">
+					<Button className="h-12 w-full gap-2 bg-primary-green text-white hover:bg-primary-green-dark">
 						<MessageCircle className="h-5 w-5" />
 						Envoyer un message
 					</Button>
 
 					<div className="bg-muted/50 flex items-start gap-3 rounded-xl p-4">
-						<Lock className="mt-0.5 h-5 w-5 shrink-0 text-(--primary-green)" />
+						<Lock className="mt-0.5 h-5 w-5 shrink-0 text-primary-green" />
 						<p className="text-muted-foreground text-sm">
 							Vos coordonnées restent privées. Tout contact se fait via notre
 							messagerie sécurisée.
@@ -165,8 +157,8 @@ export default async function ListingDetailPage({ params }: PageProps) {
 									className={cn(
 										'absolute top-4 left-4 px-3 py-1 text-sm',
 										isLost
-											? 'border-0 bg-(--accent-orange) text-white'
-											: 'border-0 bg-(--primary-green) text-white',
+											? 'border-0 bg-accent-orange text-white'
+											: 'border-0 bg-primary-green text-white',
 									)}
 								>
 									{isLost ? 'Objet perdu' : 'Objet retrouvé'}
@@ -180,15 +172,15 @@ export default async function ListingDetailPage({ params }: PageProps) {
 
 								<div className="mb-6 flex flex-wrap gap-4">
 									<div className="text-muted-foreground flex items-center gap-2">
-										<MapPin className="h-4 w-4 text-(--primary-green)" />
+										<MapPin className="h-4 w-4 text-primary-green" />
 										<span>{listing.location}</span>
 									</div>
 									<div className="text-muted-foreground flex items-center gap-2">
-										<Calendar className="h-4 w-4 text-(--primary-green)" />
+										<Calendar className="h-4 w-4 text-primary-green" />
 										<span>{listing.date}</span>
 									</div>
 									<div className="text-muted-foreground flex items-center gap-2">
-										<Tag className="h-4 w-4 text-(--primary-green)" />
+										<Tag className="h-4 w-4 text-primary-green" />
 										<span>{listing.category}</span>
 									</div>
 								</div>

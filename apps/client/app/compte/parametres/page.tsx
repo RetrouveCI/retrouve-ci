@@ -1,5 +1,6 @@
 'use client'
 
+import { Button, Label, Switch, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import {
 	Settings,
@@ -13,20 +14,6 @@ import {
 	Calendar,
 	Check,
 } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Label } from '@retrouve-ci/ui/components/ui/label'
-import { Switch } from '@retrouve-ci/ui/components/ui/switch'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from '@retrouve-ci/ui/components/ui/alert-dialog'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { useAuth } from '@/contexts/auth-context'
@@ -57,7 +44,7 @@ export default function ParametresPage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="border-(primary-green) h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+					<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
 				</main>
 				<Footer />
 			</>
@@ -102,7 +89,7 @@ export default function ParametresPage() {
 						<div className="bg-background overflow-hidden rounded-2xl border">
 							<div className="bg-muted/30 border-b p-5">
 								<h2 className="flex items-center gap-2 font-semibold">
-									<User className="text-(primary-green) h-4 w-4" />
+									<User className="text-primary-green h-4 w-4" />
 									Informations personnelles
 								</h2>
 							</div>
@@ -132,7 +119,7 @@ export default function ParametresPage() {
 											</p>
 										</div>
 									</div>
-									<span className="bg-(primary-green)/10 text-(primary-green) flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium">
+									<span className="bg-primary-green/10 text-primary-green flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium">
 										<Check className="h-3 w-3" />
 										Vérifié
 									</span>
@@ -179,7 +166,7 @@ export default function ParametresPage() {
 						<div className="bg-background overflow-hidden rounded-2xl border">
 							<div className="bg-muted/30 border-b p-5">
 								<h2 className="flex items-center gap-2 font-semibold">
-									<Bell className="text-(primary-green) h-4 w-4" />
+									<Bell className="text-primary-green h-4 w-4" />
 									Notifications
 								</h2>
 							</div>
@@ -245,7 +232,7 @@ export default function ParametresPage() {
 						<div className="bg-background overflow-hidden rounded-2xl border">
 							<div className="bg-muted/30 border-b p-5">
 								<h2 className="flex items-center gap-2 font-semibold">
-									<Shield className="text-(primary-green) h-4 w-4" />
+									<Shield className="text-primary-green h-4 w-4" />
 									Sécurité
 								</h2>
 							</div>

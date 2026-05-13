@@ -1,21 +1,10 @@
 'use client'
 
+import { Button, Input, Label, Avatar, AvatarFallback, Tabs, TabsContent, TabsList, TabsTrigger, Badge, Separator } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { TopBar } from '@/components/admin/topbar'
 import { BentoCard } from '@/components/admin/bento-card'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import { Input } from '@retrouve-ci/ui/components/ui/input'
-import { Label } from '@retrouve-ci/ui/components/ui/label'
-import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@retrouve-ci/ui/components/ui/tabs'
-import { Badge } from '@retrouve-ci/ui/components/ui/badge'
-import { Separator } from '@retrouve-ci/ui/components/ui/separator'
 import {
 	User,
 	Mail,

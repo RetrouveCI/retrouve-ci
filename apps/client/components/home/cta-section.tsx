@@ -1,14 +1,13 @@
+import { Button } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-
 export function CtaSection() {
 	return (
 		<section className="py-20">
 			<div className="container mx-auto px-4">
 				<div className="bg-foreground relative mx-auto max-w-3xl overflow-hidden rounded-3xl p-10 md:p-14">
-					<div className="absolute inset-0 bg-linear-to-br from-(--primary-green)/20 via-transparent to-(--accent-orange)/10" />
-					<div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-(--primary-green)/20 blur-3xl" />
+					<div className="absolute inset-0 bg-linear-to-br from-primary-green/20 via-transparent to-accent-orange/10" />
+					<div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-primary-green/20 blur-3xl" />
 
 					<div className="relative z-10 space-y-6 text-center">
 						<h2 className="text-2xl font-bold text-white md:text-3xl">

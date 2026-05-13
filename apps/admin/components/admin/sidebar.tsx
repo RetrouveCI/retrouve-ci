@@ -1,17 +1,11 @@
 'use client'
 
+import { Avatar, AvatarFallback, Button, Sheet, SheetContent, SheetTrigger } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { cn } from '@retrouve-ci/ui/lib/utils'
+import { cn } from '@retrouve-ci/ui/utils'
 import { useAuth } from '@/lib/auth-context'
-import { Avatar, AvatarFallback } from '@retrouve-ci/ui/components/ui/avatar'
-import { Button } from '@retrouve-ci/ui/components/ui/button'
-import {
-	Sheet,
-	SheetContent,
-	SheetTrigger,
-} from '@retrouve-ci/ui/components/ui/sheet'
 import {
 	LayoutDashboard,
 	Users,
