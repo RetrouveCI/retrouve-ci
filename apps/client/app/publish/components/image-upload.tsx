@@ -18,11 +18,14 @@ export function ImageUpload({
 	if (preview) {
 		return (
 			<div className="bg-muted relative aspect-video w-full overflow-hidden rounded-xl border">
-				<img
-					src={preview}
-					alt="Aperçu"
-					className="h-full w-full object-cover"
-				/>
+				{
+					// eslint-disable-next-line @next/next/no-img-element
+					<img
+						src={preview}
+						alt="Aperçu"
+						className="h-full w-full object-cover"
+					/>
+				}
 				<button
 					type="button"
 					onClick={onRemove}
