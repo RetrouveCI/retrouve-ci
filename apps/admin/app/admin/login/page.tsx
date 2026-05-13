@@ -2,6 +2,7 @@
 
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, FieldGroup, Field, FieldLabel } from '@retrouve-ci/ui/components'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Loader2, QrCode, Lock, Mail } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
@@ -57,20 +58,12 @@ export default function LoginPage() {
 
 	if (authLoading) {
 		return (
-			<div className="from-primary/5 via-background to-accent/5 flex min-h-screen items-center justify-center bg-linear-to-br">
-				<div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
-			</div>
+			<div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
 		)
 	}
 
 	return (
-		<div className="from-primary/5 via-background to-accent/5 flex min-h-screen items-center justify-center bg-linear-to-br p-4">
-			<div className="fixed inset-0 -z-10 overflow-hidden">
-				<div className="bg-primary/10 absolute -top-40 -right-40 h-80 w-80 rounded-full blur-3xl" />
-				<div className="bg-accent/10 absolute -bottom-40 -left-40 h-80 w-80 rounded-full blur-3xl" />
-			</div>
-
-			<Card className="w-full max-w-md border-0 shadow-2xl">
+		<Card className="w-full max-w-md border-0 shadow-2xl">
 				<CardHeader className="pt-8 pb-8 text-center">
 					<div className="mb-6 flex justify-center">
 						<div className="bg-primary text-primary-foreground flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg">
@@ -127,6 +120,14 @@ export default function LoginPage() {
 										{errors.password.message}
 									</p>
 								)}
+								<div className="flex justify-end">
+									<Link
+										href="/admin/forgot-password"
+										className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+									>
+										Mot de passe oublié ?
+									</Link>
+								</div>
 							</Field>
 						</FieldGroup>
 
@@ -165,6 +166,5 @@ export default function LoginPage() {
 					</form>
 				</CardContent>
 			</Card>
-		</div>
 	)
 }
