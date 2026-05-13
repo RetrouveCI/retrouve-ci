@@ -28,7 +28,6 @@ import { cn } from '@retrouve-ci/ui/utils'
 const DELIVERY_FEE = 1000
 const VALID_COUPONS = ['RETROUVECI', 'LIVRAISON0', 'WELCOME2025']
 
-// Pack data
 const PACKS = [
 	{
 		id: 'pack-4',
@@ -67,7 +66,6 @@ const PACKS = [
 	},
 ]
 
-// Payment methods
 const PAYMENT_METHODS = [
 	{
 		id: 'orange-money',
@@ -111,7 +109,6 @@ export default function CommanderPage() {
 	const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
 	const [couponError, setCouponError] = useState('')
 
-	// Form data
 	const [formData, setFormData] = useState({
 		name: '',
 		phone: '',

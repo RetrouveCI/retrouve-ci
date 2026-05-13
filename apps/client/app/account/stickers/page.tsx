@@ -21,7 +21,6 @@ import { useAuth, type Sticker } from '@/contexts/auth-context'
 import { cn } from '@retrouve-ci/ui/utils'
 import { redirect } from 'next/navigation'
 
-// Sticker Card Component
 function StickerCard({
 	sticker,
 	onToggle,
@@ -198,7 +197,6 @@ function StickerCard({
 	)
 }
 
-// Activate Sticker Dialog
 function ActivateStickerDialog({
 	onActivate,
 }: {

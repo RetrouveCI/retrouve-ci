@@ -26,7 +26,6 @@ import { cn } from '@retrouve-ci/ui/utils'
 import { redirect } from 'next/navigation'
 import { useState, useMemo } from 'react'
 
-// Listing Card Component
 function ListingCard({
 	listing,
 	onDelete,

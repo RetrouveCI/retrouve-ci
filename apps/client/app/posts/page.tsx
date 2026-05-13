@@ -1,6 +1,11 @@
 'use client'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@retrouve-ci/ui/components'
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from '@retrouve-ci/ui/components'
 import {
 	Smartphone,
 	Key,
@@ -102,7 +107,7 @@ export default function AnnoncesPage() {
 											value="found"
 											className="data-[state=active]:bg-background rounded-lg px-4 text-sm data-[state=active]:shadow-sm"
 										>
-											<span className="mr-1.5 h-2 w-2 rounded-full bg-primary-green" />
+											<span className="bg-primary-green mr-1.5 h-2 w-2 rounded-full" />
 											Retrouvés
 										</TabsTrigger>
 									</TabsList>
@@ -120,7 +125,7 @@ export default function AnnoncesPage() {
 											<SlidersHorizontal className="h-4 w-4" />
 											<span className="hidden sm:inline">Filtres</span>
 											{activeFiltersCount > 0 && (
-												<span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary-green text-[10px] font-bold text-white">
+												<span className="bg-primary-green inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white">
 													{activeFiltersCount}
 												</span>
 											)}
@@ -184,7 +189,7 @@ export default function AnnoncesPage() {
 									{activeChips.map(chip => (
 										<span
 											key={chip.label}
-											className="inline-flex items-center gap-1.5 rounded-full border border-primary-green/20 bg-primary-green/10 px-3 py-1 text-xs font-medium text-primary-green"
+											className="border-primary-green/20 bg-primary-green/10 text-primary-green inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium"
 										>
 											{chip.label}
 											<button

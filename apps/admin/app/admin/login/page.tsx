@@ -56,7 +56,6 @@ export default function LoginPage() {
 		setIsSubmitting(false)
 	}
 
-	// Show loading while checking auth
 	if (authLoading) {
 		return (
 			<div className="from-primary/5 via-background to-accent/5 flex min-h-screen items-center justify-center bg-linear-to-br">

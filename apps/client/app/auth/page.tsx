@@ -20,8 +20,6 @@ import { toast } from 'sonner'
 import { useAuth } from '@/contexts/auth-context'
 import { cn } from '@retrouve-ci/ui/utils'
 
-// ── Types ──────────────────────────────────────────────────────────────────────
-
 type Mode = 'login' | 'register' | 'forgot'
 type Step = 'phone' | 'otp' | 'password' | 'create-password' | 'new-password'
 
@@ -42,8 +40,6 @@ const MODE_CONFIG: Record<Mode, { title: string; description: string }> = {
 	},
 }
 
-// ── OTP Slot helper ─────────────────────────────────────────────────────────
-
 function OtpSlots({ error }: { error: boolean }) {
 	return (
 		<>
@@ -62,8 +58,6 @@ function OtpSlots({ error }: { error: boolean }) {
 		</>
 	)
 }
-
-// ── Password input helper ────────────────────────────────────────────────────
 
 function PasswordInput({
 	id,
@@ -119,8 +113,6 @@ function PasswordInput({
 	)
 }
 
-// ── Main page ────────────────────────────────────────────────────────────────
-
 export default function AuthPage() {
 	const router = useRouter()
 	const { login, register, resetPassword, isAuthenticated } = useAuth()
@@ -129,7 +121,6 @@ export default function AuthPage() {
 	const [step, setStep] = useState<Step>('phone')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
-	// Fields
 	const [phoneNumber, setPhoneNumber] = useState('')
 	const [otp, setOtp] = useState('')
 	const [otpError, setOtpError] = useState(false)
@@ -139,7 +130,6 @@ export default function AuthPage() {
 	const [confirmPassword, setConfirmPassword] = useState('')
 	const [confirmError, setConfirmError] = useState('')
 
-	// Timer
 	const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS)
 	const [canResend, setCanResend] = useState(false)
 
@@ -148,7 +138,6 @@ export default function AuthPage() {
 		if (isAuthenticated) router.push('/account')
 	}, [isAuthenticated, router])
 
-	// OTP countdown
 	useEffect(() => {
 		if (step !== 'otp') return
 		setTimeLeft(OTP_EXPIRY_SECONDS)
@@ -170,8 +159,6 @@ export default function AuthPage() {
 		`${Math.floor(s / 60)
 			.toString()
 			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
-
-	// ── Handlers ────────────────────────────────────────────────────────────────
 
 	const handlePhoneSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -282,8 +269,6 @@ export default function AuthPage() {
 		setTimeout(() => setStep('otp'), 0)
 	}
 
-	// ── Mode/step helpers ────────────────────────────────────────────────────────
-
 	const switchMode = (m: Mode) => {
 		setMode(m)
 		setStep('phone')
@@ -302,8 +287,6 @@ export default function AuthPage() {
 		else if (step === 'create-password' || step === 'new-password')
 			setStep('otp')
 	}
-
-	// ── Step titles ──────────────────────────────────────────────────────────────
 
 	const stepTitle = () => {
 		if (step === 'phone') return MODE_CONFIG[mode].title
@@ -327,8 +310,6 @@ export default function AuthPage() {
 			return 'Choisissez un mot de passe sécurisé.'
 		return 'Choisissez un nouveau mot de passe.'
 	}
-
-	// ── Render ───────────────────────────────────────────────────────────────────
 
 	return (
 		<div className="flex min-h-screen">

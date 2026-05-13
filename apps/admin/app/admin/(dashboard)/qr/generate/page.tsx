@@ -48,7 +48,6 @@ export default function GenerateQRPage() {
 		// Simulate generation delay
 		await new Promise(resolve => setTimeout(resolve, 2000))
 
-		// Generate mock CSV data
 		if (data.exportCSV) {
 			const headers = ['Token', 'URL', 'Batch', 'Created']
 			const now = new Date().toISOString()

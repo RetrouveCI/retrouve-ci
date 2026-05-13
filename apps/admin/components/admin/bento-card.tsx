@@ -122,7 +122,6 @@ export function BentoCard({
 		return <Card className={cn('overflow-hidden', className)}>{children}</Card>
 	}
 
-	// content variant — generic card with padding
 	return (
 		<Card
 			className={cn(

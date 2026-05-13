@@ -6,7 +6,6 @@
   --font-sans: var(--font-montserrat), 'Montserrat', system-ui, sans-serif;
 }
 
-/* Admin-specific utilities */
 @layer utilities {
   .bento-card {
     @apply transition-all duration-300 ease-out;

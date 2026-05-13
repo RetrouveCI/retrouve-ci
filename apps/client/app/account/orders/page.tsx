@@ -47,7 +47,6 @@ interface Order {
 	trackingNumber?: string
 }
 
-// Mock orders data
 const mockOrders: Order[] = [
 	{
 		id: '1',
@@ -145,7 +144,6 @@ function formatDate(dateString: string) {
 	})
 }
 
-// Order detail modal/drawer
 function OrderDetail({
 	order,
 	onClose,
@@ -343,7 +341,6 @@ function OrderDetail({
 	)
 }
 
-// Empty state
 function EmptyState() {
 	return (
 		<div className="py-16 text-center">
@@ -372,7 +369,6 @@ export default function CommandesPage() {
 	const [filter, setFilter] = useState<OrderStatus | 'all'>('all')
 	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
-	// In real app, orders would come from useAuth() or API
 	const orders = mockOrders
 	const filteredOrders =
 		filter === 'all' ? orders : orders.filter(o => o.status === filter)
