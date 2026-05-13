@@ -52,7 +52,7 @@ export default function PostsPage() {
 			})
 		}
 		return result
-	}, [filters])
+	}, [filters, posts])
 
 	const totalPublished = posts.filter(p => p.status === 'published').length
 	const totalPending = posts.filter(p => p.status === 'pending').length
