@@ -15,7 +15,8 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Loader2, QrCode, Mail, ArrowLeft } from 'lucide-react'
+import Image from 'next/image'
+import { Loader2, Mail, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -55,9 +56,14 @@ export default function ForgotPasswordPage() {
 		<Card className="w-full max-w-md border-0 shadow-2xl">
 			<CardHeader className="pt-8 pb-8 text-center">
 				<div className="mb-6 flex justify-center">
-					<div className="bg-primary text-primary-foreground flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg">
-						<QrCode className="h-8 w-8" />
-					</div>
+					<Image
+						src="/logo.png"
+						alt="RetrouveCI"
+						width={64}
+						height={64}
+						className="rounded-2xl shadow-lg"
+						priority
+					/>
 				</div>
 				<CardTitle className="text-2xl font-bold">Mot de passe oublié</CardTitle>
 				<CardDescription className="text-base">

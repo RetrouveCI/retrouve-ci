@@ -56,7 +56,8 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 						alt="RetrouveCI"
 						width={40}
 						height={40}
-						className="h-10 w-10"
+						className="h-10 w-10 rounded-xl transition-transform group-hover:scale-105"
+						priority
 					/>
 					<div>
 						<h1 className="text-foreground text-lg font-bold">RetrouveCI</h1>
