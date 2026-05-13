@@ -103,7 +103,7 @@ export function Header() {
 							size="sm"
 							className="h-9 rounded-full bg-primary-green px-4 text-white hover:bg-primary-green-dark"
 						>
-							<Link href="/auth" className="gap-2">
+							<Link href="/auth/login" className="gap-2">
 								<LogIn className="h-4 w-4" />
 								Connexion
 							</Link>

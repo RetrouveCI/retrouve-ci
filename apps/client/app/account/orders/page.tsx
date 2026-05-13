@@ -112,7 +112,7 @@ export default function CommandesPage() {
 							asChild
 							className="bg-primary-green hover:bg-primary-green-dark text-white"
 						>
-							<Link href="/auth">Se connecter</Link>
+							<Link href="/auth/login">Se connecter</Link>
 						</Button>
 					</div>
 				</main>

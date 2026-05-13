@@ -43,7 +43,7 @@ export function StickersHero() {
 									variant="outline"
 									className="h-12 px-6"
 								>
-									<Link href="/auth">Créer un compte</Link>
+									<Link href="/auth/register">Créer un compte</Link>
 								</Button>
 							</div>
 							<p className="text-muted-foreground mt-4 text-sm">

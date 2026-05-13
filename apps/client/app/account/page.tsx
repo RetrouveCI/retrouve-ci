@@ -33,7 +33,7 @@ function NotLoggedInView() {
 						size="lg"
 						className="h-12 w-full rounded-xl bg-primary-green text-white hover:bg-primary-green-dark"
 					>
-						<Link href="/auth" className="gap-2">
+						<Link href="/auth/login" className="gap-2">
 							<LogIn className="h-5 w-5" />
 							Se connecter
 						</Link>
@@ -41,7 +41,7 @@ function NotLoggedInView() {
 					<p className="text-muted-foreground mt-4 text-sm">
 						Pas encore de compte ?{' '}
 						<Link
-							href="/auth"
+							href="/auth/register"
 							className="font-medium text-primary-green hover:underline"
 						>
 							Créer un compte

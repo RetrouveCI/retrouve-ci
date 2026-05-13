@@ -127,7 +127,7 @@ export function MobileNav({
 							className="bg-primary-green hover:bg-primary-green-dark h-12 w-full gap-2 rounded-xl text-white"
 							asChild
 						>
-							<Link href="/auth" onClick={() => onOpenChange(false)}>
+							<Link href="/auth/login" onClick={() => onOpenChange(false)}>
 								<LogIn className="h-4 w-4" />
 								Se connecter
 							</Link>
