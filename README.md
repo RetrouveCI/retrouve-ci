@@ -16,17 +16,16 @@ two Next.js applications and a set of shared packages.
 
 ## Packages
 
-| Package                   | Description                                           |
-| ------------------------- | ----------------------------------------------------- |
-| `@repo/ui`                | Shared React component library — compiled to `dist/`  |
-| `@repo/tailwind-config`   | Shared Tailwind CSS base styles (`@theme` directives) |
-| `@repo/eslint-config`     | Shared ESLint configs (base, next, react-internal)    |
-| `@repo/typescript-config` | Shared `tsconfig` presets                             |
+| Package                          | Description                                        |
+| -------------------------------- | -------------------------------------------------- |
+| `@retrouve-ci/ui`                | Shared shadcn/ui component library                 |
+| `@retrouve-ci/eslint-config`     | Shared ESLint configs (base, next, react-internal) |
+| `@retrouve-ci/typescript-config` | Shared `tsconfig` presets                          |
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) 18+
-- [pnpm](https://pnpm.io/) 9+
+- [pnpm](https://pnpm.io/) 10+
 
 ## Getting Started
 
@@ -55,7 +54,7 @@ To run a single app or package in isolation:
 ```bash
 pnpm --filter client dev
 pnpm --filter admin dev
-pnpm --filter @repo/ui build
+pnpm --filter @retrouve-ci/ui build
 ```
 
 ## Tech Stack
@@ -68,13 +67,25 @@ All apps share the same core stack:
 - **shadcn/ui** — new-york style, Lucide icons
 - **react-hook-form + zod** for forms
 
+## Dependency Updates
+
+This project uses [Renovate](https://docs.renovatebot.com/) to keep dependencies
+up to date automatically. Configuration is in [`renovate.json`](renovate.json).
+
+To activate it, install the
+[Renovate GitHub App](https://github.com/apps/renovate) on the repository.
+Once installed, Renovate will:
+
+- Open a **Dependency Dashboard** issue listing all pending updates
+- Create PRs grouped by ecosystem (React, Tailwind, Radix UI, etc.)
+- **Auto-merge** patch and minor updates for dev dependencies
+- Require manual review for production dependency updates and major versions
+
 ## Architecture Notes
 
-- `@repo/ui` **must be built** before the apps can start. Turborepo handles this
-  automatically via `"dependsOn": ["^build"]` in `turbo.json`. If running an app
-  in isolation, build `@repo/ui` first.
-- Each app maintains its own local shadcn/ui component library under
-  `components/ui/`. These are not shared between apps.
-- The `@repo/ui` package uses a `ui-` class prefix to prevent Tailwind class
-  conflicts with app-level styles.
+- `@retrouve-ci/ui` is consumed directly from source via TypeScript path aliases —
+  no build step is required before starting the apps. Turborepo's
+  `"dependsOn": ["^build"]` only applies to packages that have a `build` script.
+- All shadcn/ui components live in `packages/ui/src/components/ui/` and are
+  imported by apps via the `@retrouve-ci/ui/components` barrel export.
 - No API backend is connected yet. Both apps run on mock data.
