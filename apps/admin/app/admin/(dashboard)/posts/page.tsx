@@ -8,7 +8,7 @@ import { DataTable } from '@/components/admin/data-table'
 import {
 	PostsFilter,
 	type PostsFilterState,
-} from '@/components/admin/posts-filter'
+} from '@/app/admin/(dashboard)/posts/components/posts-filter'
 import { BentoCard } from '@/components/admin/bento-card'
 import { usePosts } from '@/application/posts/use-posts'
 import type { Post } from '@/domain/entities/post'

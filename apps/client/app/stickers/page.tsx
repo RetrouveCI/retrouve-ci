@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
-import { StickersHero } from '@/components/stickers/stickers-hero'
-import { ProcessStepsSection } from '@/components/stickers/process-steps-section'
-import { StickerInfoSection } from '@/components/stickers/sticker-info-section'
-import { FaqSection } from '@/components/stickers/faq-section'
-import { StickersCta } from '@/components/stickers/stickers-cta'
+import { StickersHero } from '@/app/stickers/components/stickers-hero'
+import { ProcessStepsSection } from '@/app/stickers/components/process-steps-section'
+import { StickerInfoSection } from '@/app/stickers/components/sticker-info-section'
+import { FaqSection } from '@/app/stickers/components/faq-section'
+import { StickersCta } from '@/app/stickers/components/stickers-cta'
 
 export const metadata: Metadata = {
 	title: 'Stickers QR',

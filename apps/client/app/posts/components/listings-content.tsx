@@ -1,6 +1,6 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Inbox, ChevronLeft, ChevronRight } from 'lucide-react'
-import { ListingCard } from '@/components/listing-card'
+import { ListingCard } from '@/app/posts/components/listing-card'
 import { cn } from '@retrouve-ci/ui/utils'
 import type { Listing } from '@/domain/entities/listing'
 
