@@ -1,4 +1,4 @@
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { QrCode, FileText, Package, ShoppingBag } from 'lucide-react'
 
 interface UserStatsRowProps {

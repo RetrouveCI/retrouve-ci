@@ -3,7 +3,7 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { use } from 'react'
 import Link from 'next/link'
-import { TopBar } from '@/components/admin/topbar'
+import { TopBar } from '@/components/topbar'
 import { useUser } from '@/application/users/use-users'
 import { useQRTokens } from '@/application/qr/use-qr-tokens'
 import { usePosts } from '@/application/posts/use-posts'

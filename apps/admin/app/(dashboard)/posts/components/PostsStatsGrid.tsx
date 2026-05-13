@@ -1,4 +1,4 @@
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { FileText, CheckCircle2, Clock, AlertTriangle } from 'lucide-react'
 
 interface PostsStatsGridProps {

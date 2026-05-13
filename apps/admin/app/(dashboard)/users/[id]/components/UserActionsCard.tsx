@@ -1,7 +1,7 @@
 import { Button, CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { Edit, Ban, ArrowLeft } from 'lucide-react'
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 
 interface UserActionsCardProps {
 	status: string

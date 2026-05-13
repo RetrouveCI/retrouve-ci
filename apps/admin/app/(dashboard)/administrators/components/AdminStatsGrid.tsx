@@ -1,4 +1,4 @@
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { Users, ShieldCheck, Shield } from 'lucide-react'
 
 interface AdminStatsGridProps {

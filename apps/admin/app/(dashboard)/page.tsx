@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { TopBar } from '@/components/admin/topbar'
-import { BentoCard } from '@/components/admin/bento-card'
-import { DateRangePicker } from '@/components/admin/date-range-picker'
+import { TopBar } from '@/components/topbar'
+import { BentoCard } from '@/components/bento-card'
+import { DateRangePicker } from '@/components/date-range-picker'
 import { ActivityChart } from '@/app/(dashboard)/components/activity-chart'
 import { CategoryChart } from '@/app/(dashboard)/components/category-chart'
 import { RecentActivity } from '@/app/(dashboard)/components/recent-activity'

@@ -1,6 +1,6 @@
 import { Badge } from '@retrouve-ci/ui/components'
 import { User } from 'lucide-react'
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 
 export function ActiveSessionsCard() {
 	return (

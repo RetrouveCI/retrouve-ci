@@ -1,5 +1,5 @@
 import { Check, AlertCircle, Shield } from 'lucide-react'
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 
 interface Permission {
 	label: string

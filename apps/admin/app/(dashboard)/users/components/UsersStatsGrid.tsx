@@ -1,4 +1,4 @@
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { Users, UserCheck, UserX } from 'lucide-react'
 
 interface UsersStatsGridProps {

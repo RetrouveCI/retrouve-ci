@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@retrouve-ci/ui/components'
 import { useAuth } from '@/lib/auth-context'
-import { TopBar } from '@/components/admin/topbar'
+import { TopBar } from '@/components/topbar'
 import { ProfileIdentityCard } from './components/ProfileIdentityCard'
 import { PermissionsCard } from './components/PermissionsCard'
 import { PasswordChangeForm } from './components/PasswordChangeForm'

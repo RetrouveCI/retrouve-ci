@@ -4,7 +4,7 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Inpu
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { TopBar } from '@/components/admin/topbar'
+import { TopBar } from '@/components/topbar'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { z } from 'zod'

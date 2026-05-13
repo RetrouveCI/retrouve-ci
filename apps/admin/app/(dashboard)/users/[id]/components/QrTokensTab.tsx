@@ -11,7 +11,7 @@ import {
 } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { QrCode } from 'lucide-react'
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { type QRToken } from '@/domain/entities/qr-token'

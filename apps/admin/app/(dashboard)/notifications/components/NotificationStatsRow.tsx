@@ -1,4 +1,4 @@
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { Bell, Package, FileText, Users, QrCode } from 'lucide-react'
 
 interface NotificationStatsRowProps {

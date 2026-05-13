@@ -3,13 +3,13 @@
 import { Button, Badge, Tabs, TabsContent, TabsList, TabsTrigger, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@retrouve-ci/ui/components'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { TopBar } from '@/components/admin/topbar'
-import { DataTable } from '@/components/admin/data-table'
+import { TopBar } from '@/components/topbar'
+import { DataTable } from '@/components/data-table'
 import {
 	PostsFilter,
 	type PostsFilterState,
 } from '@/app/(dashboard)/posts/components/posts-filter'
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { usePosts } from '@/application/posts/use-posts'
 import type { Post } from '@/domain/entities/post'
 import { Eye, EyeOff, Trash2 } from 'lucide-react'

@@ -2,8 +2,8 @@
 
 import { Button } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
-import { TopBar } from '@/components/admin/topbar'
-import { BentoCard } from '@/components/admin/bento-card'
+import { TopBar } from '@/components/topbar'
+import { BentoCard } from '@/components/bento-card'
 import { cn } from '@retrouve-ci/ui/utils'
 import { useNotifications } from '@/application/notifications/use-notifications'
 import type { Notification } from '@/domain/entities/notification'

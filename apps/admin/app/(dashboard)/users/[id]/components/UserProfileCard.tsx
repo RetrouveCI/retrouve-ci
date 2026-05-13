@@ -1,6 +1,6 @@
 import { Badge, CardContent, Avatar, AvatarFallback } from '@retrouve-ci/ui/components'
 import { Phone, Mail, Calendar } from 'lucide-react'
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 

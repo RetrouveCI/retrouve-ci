@@ -1,4 +1,4 @@
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { Activity, Scan, Phone, Zap } from 'lucide-react'
 
 interface EventsStatsGridProps {

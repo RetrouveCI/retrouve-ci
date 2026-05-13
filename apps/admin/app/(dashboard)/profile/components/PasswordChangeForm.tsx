@@ -1,7 +1,7 @@
 import { Button, Input, Label } from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import { Lock, Eye, EyeOff } from 'lucide-react'
-import { BentoCard } from '@/components/admin/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { toast } from 'sonner'
 
 const validatePassword = (password: string): string[] => {

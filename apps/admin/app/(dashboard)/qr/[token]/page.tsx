@@ -3,7 +3,7 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { use, useState } from 'react'
 import Link from 'next/link'
-import { TopBar } from '@/components/admin/topbar'
+import { TopBar } from '@/components/topbar'
 import { useQRToken } from '@/application/qr/use-qr-tokens'
 import { useEvents } from '@/application/events/use-events'
 import { AlertTriangle } from 'lucide-react'
