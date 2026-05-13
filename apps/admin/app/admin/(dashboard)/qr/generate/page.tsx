@@ -45,7 +45,6 @@ export default function GenerateQRPage() {
 	const onSubmit = async (data: GenerateFormData) => {
 		setIsGenerating(true)
 
-		// Simulate generation delay
 		await new Promise(resolve => setTimeout(resolve, 2000))
 
 		if (data.exportCSV) {

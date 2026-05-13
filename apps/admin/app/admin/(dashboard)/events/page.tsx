@@ -9,11 +9,12 @@ import { BentoCard } from '@/components/admin/bento-card'
 import { useEvents } from '@/application/events/use-events'
 import type { Event } from '@/domain/entities/event'
 import type { DateRange } from 'react-day-picker'
-import { Download, RefreshCw, Activity, Scan, Phone, Zap } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
+import { EventsStatsGrid } from './components/EventsStatsGrid'
 
 const getTypeBadgeClass = (type: string) => {
 	switch (type) {
@@ -150,41 +151,13 @@ export default function EventsPage() {
 			<TopBar title="Journal d'événements" />
 			<div className="pt-16">
 				<div className="space-y-4 p-4 lg:p-6">
-					{/* Bento stat grid */}
-					<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-						<BentoCard
-							variant="highlight"
-							title="Total événements"
-							value={events.length}
-							icon={Activity}
-						/>
-						<BentoCard
-							variant="stat"
-							title="Scans"
-							value={totalScans}
-							icon={Scan}
-							iconColor="text-green-600"
-							iconBgColor="bg-green-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="Contacts"
-							value={totalContacts}
-							icon={Phone}
-							iconColor="text-orange-600"
-							iconBgColor="bg-orange-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="Activations"
-							value={totalActivations}
-							icon={Zap}
-							iconColor="text-blue-600"
-							iconBgColor="bg-blue-100"
-						/>
-					</div>
+					<EventsStatsGrid
+						total={events.length}
+						scans={totalScans}
+						contacts={totalContacts}
+						activations={totalActivations}
+					/>
 
-					{/* Table bento card */}
 					<BentoCard variant="table">
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex flex-wrap items-center gap-3">

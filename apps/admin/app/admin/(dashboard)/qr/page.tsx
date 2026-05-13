@@ -10,22 +10,12 @@ import { BentoCard } from '@/components/admin/bento-card'
 import { useQRTokens } from '@/application/qr/use-qr-tokens'
 import type { QRToken } from '@/domain/entities/qr-token'
 import type { DateRange } from 'react-day-picker'
-import {
-	MoreHorizontal,
-	Eye,
-	Copy,
-	Link as LinkIcon,
-	Ban,
-	Download,
-	Plus,
-	QrCode,
-	CheckCircle,
-	Hash,
-} from 'lucide-react'
+import { MoreHorizontal, Eye, Copy, Link as LinkIcon, Ban, Download, Plus } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
+import { QrStatsGrid } from './components/QrStatsGrid'
 
 export default function QRCodesPage() {
 	const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -207,34 +197,12 @@ export default function QRCodesPage() {
 			<TopBar title="Stickers / QR Codes" />
 			<div className="pt-16">
 				<div className="space-y-4 p-4 lg:p-6">
-					{/* Bento stat grid */}
-					<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-						<BentoCard
-							variant="highlight"
-							title="Total générés"
-							value={totalGenerated}
-							icon={QrCode}
-						/>
-						<BentoCard
-							variant="stat"
-							title="Activés"
-							value={totalActivated}
-							icon={CheckCircle}
-							iconColor="text-green-600"
-							iconBgColor="bg-green-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="Révoqués"
-							value={totalRevoked}
-							icon={Hash}
-							iconColor="text-red-500"
-							iconBgColor="bg-red-100"
-							className="col-span-2 lg:col-span-1"
-						/>
-					</div>
+					<QrStatsGrid
+						total={totalGenerated}
+						activated={totalActivated}
+						revoked={totalRevoked}
+					/>
 
-					{/* Table bento card */}
 					<BentoCard variant="table">
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex flex-wrap items-center gap-3">

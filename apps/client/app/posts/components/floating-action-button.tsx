@@ -31,11 +31,9 @@ export function FloatingActionButton({
 				className,
 			)}
 		>
-			{/* Icon circle */}
 			<span className="flex h-12 w-12 shrink-0 items-center justify-center">
 				<Plus className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
 			</span>
-			{/* Animated label */}
 			<span className="max-w-0 overflow-hidden text-sm font-semibold whitespace-nowrap opacity-0 transition-all duration-300 group-hover:max-w-[80px] group-hover:opacity-100">
 				{label}
 			</span>

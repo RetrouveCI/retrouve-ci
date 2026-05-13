@@ -12,19 +12,12 @@ import {
 import { BentoCard } from '@/components/admin/bento-card'
 import { usePosts } from '@/application/posts/use-posts'
 import type { Post } from '@/domain/entities/post'
-import {
-	Eye,
-	EyeOff,
-	Trash2,
-	FileText,
-	AlertTriangle,
-	CheckCircle2,
-	Clock,
-} from 'lucide-react'
+import { Eye, EyeOff, Trash2 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
+import { PostsStatsGrid } from './components/PostsStatsGrid'
 
 export default function PostsPage() {
 	const [filters, setFilters] = useState<PostsFilterState>({
@@ -185,41 +178,13 @@ export default function PostsPage() {
 			<TopBar title="Posts" />
 			<div className="pt-16">
 				<div className="space-y-4 p-4 lg:p-6">
-					{/* Bento stat grid */}
-					<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-						<BentoCard
-							variant="highlight"
-							title="Total posts"
-							value={posts.length}
-							icon={FileText}
-						/>
-						<BentoCard
-							variant="stat"
-							title="Publiés"
-							value={totalPublished}
-							icon={CheckCircle2}
-							iconColor="text-green-600"
-							iconBgColor="bg-green-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="En attente"
-							value={totalPending}
-							icon={Clock}
-							iconColor="text-orange-600"
-							iconBgColor="bg-orange-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="Perdus signalés"
-							value={totalLost}
-							icon={AlertTriangle}
-							iconColor="text-red-500"
-							iconBgColor="bg-red-100"
-						/>
-					</div>
+					<PostsStatsGrid
+						total={posts.length}
+						published={totalPublished}
+						pending={totalPending}
+						lost={totalLost}
+					/>
 
-					{/* Table bento card */}
 					<BentoCard variant="table">
 						<div className="border-b p-4">
 							<PostsFilter

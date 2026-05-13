@@ -10,21 +10,12 @@ import { BentoCard } from '@/components/admin/bento-card'
 import { useUsers } from '@/application/users/use-users'
 import type { User } from '@/domain/entities/user'
 import type { DateRange } from 'react-day-picker'
-import {
-	MoreHorizontal,
-	Eye,
-	Edit,
-	Ban,
-	Trash2,
-	Download,
-	Users,
-	UserCheck,
-	UserX,
-} from 'lucide-react'
+import { MoreHorizontal, Eye, Edit, Ban, Trash2, Download } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
+import { UsersStatsGrid } from './components/UsersStatsGrid'
 
 export default function UsersPage() {
 	const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -186,34 +177,12 @@ export default function UsersPage() {
 			<TopBar title="Utilisateurs" />
 			<div className="pt-16">
 				<div className="space-y-4 p-4 lg:p-6">
-					{/* Bento stat grid */}
-					<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-						<BentoCard
-							variant="highlight"
-							title="Total utilisateurs"
-							value={totalUsers}
-							icon={Users}
-						/>
-						<BentoCard
-							variant="stat"
-							title="Utilisateurs actifs"
-							value={activeUsers}
-							icon={UserCheck}
-							iconColor="text-green-600"
-							iconBgColor="bg-green-100"
-						/>
-						<BentoCard
-							variant="stat"
-							title="Utilisateurs inactifs"
-							value={inactiveUsers}
-							icon={UserX}
-							iconColor="text-gray-500"
-							iconBgColor="bg-gray-100"
-							className="col-span-2 lg:col-span-1"
-						/>
-					</div>
+					<UsersStatsGrid
+						total={totalUsers}
+						active={activeUsers}
+						inactive={inactiveUsers}
+					/>
 
-					{/* Table bento card */}
 					<BentoCard variant="table">
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex flex-wrap items-center gap-3">

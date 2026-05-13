@@ -275,7 +275,6 @@ export default function OrdersPage() {
 						delivered={counts.delivered}
 					/>
 
-					{/* Table bento card */}
 					<BentoCard variant="table">
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex flex-wrap items-center gap-3">

@@ -1,22 +1,16 @@
 'use client'
 
-import { Button, Input, Label, InputOTP, InputOTPGroup } from '@retrouve-ci/ui/components'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import {
-	ArrowLeft,
-	Loader2,
-	CheckCircle2,
-	RefreshCw,
-} from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/contexts/auth-context'
-import { cn } from '@retrouve-ci/ui/utils'
 import { BrandingPanel } from './components/BrandingPanel'
-import { OtpSlots } from './components/OtpSlots'
-import { PasswordInput } from './components/PasswordInput'
+import { PhoneStep } from './components/PhoneStep'
+import { OtpStep } from './components/OtpStep'
+import { PasswordStep } from './components/PasswordStep'
 
 type Mode = 'login' | 'register' | 'forgot'
 type Step = 'phone' | 'otp' | 'password' | 'create-password' | 'new-password'
@@ -94,10 +88,7 @@ export default function AuthPage() {
 		setIsSubmitting(true)
 		await new Promise(r => setTimeout(r, 1000))
 		setIsSubmitting(false)
-
-		toast.success('Code envoyé !', {
-			description: 'Vérifiez vos SMS ou WhatsApp.',
-		})
+		toast.success('Code envoyé !', { description: 'Vérifiez vos SMS ou WhatsApp.' })
 		setOtp('')
 		setOtpError(false)
 		setStep('otp')
@@ -114,9 +105,7 @@ export default function AuthPage() {
 		await new Promise(r => setTimeout(r, 1000))
 		if (otp.startsWith('9')) {
 			setOtpError(true)
-			toast.error('Code incorrect', {
-				description: 'Vérifiez le code reçu et réessayez.',
-			})
+			toast.error('Code incorrect', { description: 'Vérifiez le code reçu et réessayez.' })
 			setOtp('')
 			setIsSubmitting(false)
 			return
@@ -156,9 +145,7 @@ export default function AuthPage() {
 		setConfirmError('')
 		setIsSubmitting(true)
 		await register(phoneNumber, newPassword)
-		toast.success('Compte créé !', {
-			description: 'Bienvenue sur RetrouveCI.',
-		})
+		toast.success('Compte créé !', { description: 'Bienvenue sur RetrouveCI.' })
 		router.push('/account')
 	}
 
@@ -208,8 +195,7 @@ export default function AuthPage() {
 
 	const goBack = () => {
 		if (step === 'otp') setStep('phone')
-		else if (step === 'create-password' || step === 'new-password')
-			setStep('otp')
+		else if (step === 'create-password' || step === 'new-password') setStep('otp')
 	}
 
 	const stepTitle = () => {
@@ -225,13 +211,10 @@ export default function AuthPage() {
 			return (
 				<>
 					Code envoyé au{' '}
-					<span className="text-foreground font-semibold">
-						+225 {phoneNumber}
-					</span>
+					<span className="text-foreground font-semibold">+225 {phoneNumber}</span>
 				</>
 			)
-		if (step === 'create-password')
-			return 'Choisissez un mot de passe sécurisé.'
+		if (step === 'create-password') return 'Choisissez un mot de passe sécurisé.'
 		return 'Choisissez un nouveau mot de passe.'
 	}
 
@@ -278,326 +261,65 @@ export default function AuthPage() {
 						</div>
 
 						<div className="mb-8">
-							<h2 className="mb-2 text-2xl font-bold lg:text-3xl">
-								{stepTitle()}
-							</h2>
+							<h2 className="mb-2 text-2xl font-bold lg:text-3xl">{stepTitle()}</h2>
 							<p className="text-muted-foreground">{stepDescription()}</p>
 						</div>
 
 						{step === 'phone' && (
-							<form
-								onSubmit={
-									mode === 'login' ? handleLoginSubmit : handlePhoneSubmit
-								}
-								className="space-y-5"
-							>
-								<div className="space-y-2">
-									<Label htmlFor="phone" className="text-sm font-medium">
-										Numéro de téléphone
-									</Label>
-									<div className="flex gap-2">
-										<div className="bg-muted/50 text-muted-foreground flex h-12 shrink-0 items-center rounded-xl border-2 px-4 text-sm font-medium">
-											<Image
-												src="/logo.png"
-												alt=""
-												width={18}
-												height={18}
-												className="mr-2 rounded-sm"
-											/>
-											+225
-										</div>
-										<Input
-											id="phone"
-											type="tel"
-											placeholder="07 XX XX XX XX"
-											value={phoneNumber}
-											onChange={e => setPhoneNumber(e.target.value)}
-											className="border-border bg-background focus:border-primary-green focus:ring-primary-green/20 h-12 flex-1 rounded-xl border-2 transition-all focus:ring-2"
-											autoComplete="tel"
-											autoFocus
-										/>
-									</div>
-									<p className="text-muted-foreground text-xs">
-										{mode === 'login'
-											? 'Entrez le numéro associé à votre compte.'
-											: 'Un code de vérification vous sera envoyé.'}
-									</p>
-								</div>
-
-								{mode === 'login' && (
-									<>
-										<PasswordInput
-											id="password"
-											label="Mot de passe"
-											value={password}
-											onChange={v => {
-												setPassword(v)
-												setPasswordError('')
-											}}
-											placeholder="••••••••"
-											disabled={isSubmitting}
-										/>
-										{passwordError && (
-											<p className="text-destructive -mt-3 text-xs">
-												{passwordError}
-											</p>
-										)}
-										<div className="-mt-2 flex justify-end">
-											<button
-												type="button"
-												onClick={() => switchMode('forgot')}
-												className="text-muted-foreground hover:text-foreground text-xs transition-colors"
-											>
-												Mot de passe oublié ?
-											</button>
-										</div>
-									</>
-								)}
-
-								<Button
-									type="submit"
-									className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
-									disabled={isSubmitting}
-								>
-									{isSubmitting ? (
-										<>
-											<Loader2 className="h-4 w-4 animate-spin" />{' '}
-											{mode === 'login' ? 'Connexion...' : 'Envoi en cours...'}
-										</>
-									) : mode === 'login' ? (
-										'Se connecter'
-									) : (
-										'Continuer'
-									)}
-								</Button>
-
-								<div className="space-y-3 pt-2 text-center text-sm">
-									{mode === 'login' && (
-										<p className="text-muted-foreground">
-											Pas encore de compte ?{' '}
-											<button
-												type="button"
-												onClick={() => switchMode('register')}
-												className="text-primary-green font-semibold hover:underline"
-											>
-												Créer un compte
-											</button>
-										</p>
-									)}
-									{mode === 'register' && (
-										<p className="text-muted-foreground">
-											Déjà un compte ?{' '}
-											<button
-												type="button"
-												onClick={() => switchMode('login')}
-												className="text-primary-green font-semibold hover:underline"
-											>
-												Se connecter
-											</button>
-										</p>
-									)}
-									{mode === 'forgot' && (
-										<p className="text-muted-foreground">
-											Retour à{' '}
-											<button
-												type="button"
-												onClick={() => switchMode('login')}
-												className="text-primary-green font-semibold hover:underline"
-											>
-												la connexion
-											</button>
-										</p>
-									)}
-								</div>
-							</form>
+							<PhoneStep
+								mode={mode}
+								phoneNumber={phoneNumber}
+								setPhoneNumber={setPhoneNumber}
+								password={password}
+								setPassword={setPassword}
+								passwordError={passwordError}
+								setPasswordError={setPasswordError}
+								isSubmitting={isSubmitting}
+								onSubmit={mode === 'login' ? handleLoginSubmit : handlePhoneSubmit}
+								onSwitchMode={switchMode}
+							/>
 						)}
 
 						{step === 'otp' && (
-							<form onSubmit={handleOTPSubmit} className="space-y-6">
-								<div className="space-y-4">
-									<div className="flex justify-center">
-										<InputOTP
-											maxLength={6}
-											value={otp}
-											onChange={val => {
-												setOtp(val)
-												setOtpError(false)
-											}}
-											disabled={isSubmitting}
-											containerClassName="gap-2"
-										>
-											<InputOTPGroup className="gap-2">
-												<OtpSlots error={otpError} />
-											</InputOTPGroup>
-										</InputOTP>
-									</div>
-									{otpError && (
-										<p className="text-destructive text-center text-sm">
-											Code incorrect. Verifiez et reessayez.
-										</p>
-									)}
-								</div>
-
-								<div className="flex justify-center">
-									{timeLeft > 0 ? (
-										<div
-											className={cn(
-												'flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium',
-												timeLeft <= 30
-													? 'text-destructive bg-destructive/10'
-													: 'bg-primary-green/10 text-primary-green',
-											)}
-										>
-											<span className="text-base tabular-nums">
-												{formatTime(timeLeft)}
-											</span>
-											<span className="text-muted-foreground text-xs font-normal">
-												avant expiration
-											</span>
-										</div>
-									) : (
-										<button
-											type="button"
-											onClick={handleResend}
-											disabled={isSubmitting}
-											className="text-primary-green hover:text-primary-green-dark inline-flex items-center gap-2 text-sm font-semibold transition-colors disabled:opacity-50"
-										>
-											<RefreshCw
-												className={cn(
-													'h-4 w-4',
-													isSubmitting && 'animate-spin',
-												)}
-											/>
-											Renvoyer le code
-										</button>
-									)}
-								</div>
-
-								<Button
-									type="submit"
-									className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
-									disabled={isSubmitting || otp.length < 6 || timeLeft === 0}
-								>
-									{isSubmitting ? (
-										<>
-											<Loader2 className="h-4 w-4 animate-spin" />{' '}
-											Verification...
-										</>
-									) : (
-										<>
-											<CheckCircle2 className="h-4 w-4" /> Confirmer
-										</>
-									)}
-								</Button>
-							</form>
+							<OtpStep
+								otp={otp}
+								setOtp={setOtp}
+								otpError={otpError}
+								setOtpError={setOtpError}
+								timeLeft={timeLeft}
+								isSubmitting={isSubmitting}
+								formatTime={formatTime}
+								onSubmit={handleOTPSubmit}
+								onResend={handleResend}
+							/>
 						)}
 
-						{step === 'create-password' && (
-							<form onSubmit={handleCreatePasswordSubmit} className="space-y-6">
-								<PasswordInput
-									id="new-password"
-									label="Choisir un mot de passe"
-									value={newPassword}
-									onChange={v => {
-										setNewPassword(v)
-										setConfirmError('')
-									}}
-									placeholder="Minimum 6 caracteres"
-									hint="Au moins 6 caracteres."
-									disabled={isSubmitting}
-									autoFocus
-								/>
-								<PasswordInput
-									id="confirm-password"
-									label="Confirmer le mot de passe"
-									value={confirmPassword}
-									onChange={v => {
-										setConfirmPassword(v)
-										setConfirmError('')
-									}}
-									disabled={isSubmitting}
-								/>
-								{confirmError && (
-									<p className="text-destructive text-sm">{confirmError}</p>
-								)}
-
-								<Button
-									type="submit"
-									className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
-									disabled={isSubmitting || newPassword.length < 6}
-								>
-									{isSubmitting ? (
-										<>
-											<Loader2 className="h-4 w-4 animate-spin" /> Creation du
-											compte...
-										</>
-									) : (
-										'Creer mon compte'
-									)}
-								</Button>
-							</form>
-						)}
-
-						{step === 'new-password' && (
-							<form onSubmit={handleNewPasswordSubmit} className="space-y-6">
-								<PasswordInput
-									id="new-password"
-									label="Nouveau mot de passe"
-									value={newPassword}
-									onChange={v => {
-										setNewPassword(v)
-										setConfirmError('')
-									}}
-									placeholder="Minimum 6 caracteres"
-									hint="Au moins 6 caracteres."
-									disabled={isSubmitting}
-									autoFocus
-								/>
-								<PasswordInput
-									id="confirm-password"
-									label="Confirmer le nouveau mot de passe"
-									value={confirmPassword}
-									onChange={v => {
-										setConfirmPassword(v)
-										setConfirmError('')
-									}}
-									disabled={isSubmitting}
-								/>
-								{confirmError && (
-									<p className="text-destructive text-sm">{confirmError}</p>
-								)}
-
-								<Button
-									type="submit"
-									className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
-									disabled={isSubmitting || newPassword.length < 6}
-								>
-									{isSubmitting ? (
-										<>
-											<Loader2 className="h-4 w-4 animate-spin" />{' '}
-											Reinitialisation...
-										</>
-									) : (
-										'Reinitialiser le mot de passe'
-									)}
-								</Button>
-							</form>
+						{(step === 'create-password' || step === 'new-password') && (
+							<PasswordStep
+								step={step}
+								newPassword={newPassword}
+								setNewPassword={setNewPassword}
+								confirmPassword={confirmPassword}
+								setConfirmPassword={setConfirmPassword}
+								confirmError={confirmError}
+								setConfirmError={setConfirmError}
+								isSubmitting={isSubmitting}
+								onSubmit={
+									step === 'create-password'
+										? handleCreatePasswordSubmit
+										: handleNewPasswordSubmit
+								}
+							/>
 						)}
 
 						<div className="mt-8 border-t pt-6">
 							<p className="text-muted-foreground text-center text-xs">
 								En continuant, vous acceptez nos{' '}
-								<Link
-									href="/terms"
-									className="text-primary-green hover:underline"
-								>
+								<Link href="/terms" className="text-primary-green hover:underline">
 									conditions d&apos;utilisation
 								</Link>{' '}
 								et notre{' '}
-								<Link
-									href="/privacy"
-									className="text-primary-green hover:underline"
-								>
+								<Link href="/privacy" className="text-primary-green hover:underline">
 									politique de confidentialite
 								</Link>
 								.

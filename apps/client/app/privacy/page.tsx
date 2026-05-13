@@ -112,7 +112,6 @@ export default function PrivacyPage() {
 		<>
 			<Header />
 			<main className="flex-1">
-				{/* Hero */}
 				<section className="relative overflow-hidden border-b">
 					<div className="dot-pattern pointer-events-none absolute inset-0 opacity-40" />
 					<div className="bg-primary-green/6 absolute -top-24 right-0 h-80 w-80 rounded-full blur-3xl" />
@@ -134,7 +133,6 @@ export default function PrivacyPage() {
 					</div>
 				</section>
 
-				{/* Trust bento row */}
 				<section className="border-b py-8">
 					<div className="container mx-auto px-4">
 						<div className="grid gap-4 sm:grid-cols-3">
@@ -175,7 +173,6 @@ export default function PrivacyPage() {
 					</div>
 				</section>
 
-				{/* Quick nav chips */}
 				<section className="border-b py-6">
 					<div className="container mx-auto px-4">
 						<div className="flex flex-wrap gap-2">
@@ -196,11 +193,9 @@ export default function PrivacyPage() {
 					</div>
 				</section>
 
-				{/* Content */}
 				<section className="py-12 md:py-16">
 					<div className="container mx-auto px-4">
 						<div className="grid gap-4 md:grid-cols-12">
-							{/* Sticky sidebar */}
 							<aside className="hidden md:col-span-3 md:block">
 								<div className="bg-background sticky top-24 space-y-1 rounded-2xl border p-5">
 									<p className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
@@ -221,7 +216,6 @@ export default function PrivacyPage() {
 								</div>
 							</aside>
 
-							{/* Sections */}
 							<div className="space-y-4 md:col-span-9">
 								{sections.map(s => {
 									const Icon = s.icon
@@ -253,7 +247,6 @@ export default function PrivacyPage() {
 									)
 								})}
 
-								{/* Contact CTA */}
 								<div className="bg-muted/30 flex flex-col items-start justify-between gap-4 rounded-2xl border p-7 sm:flex-row sm:items-center">
 									<div className="flex items-center gap-3">
 										<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">

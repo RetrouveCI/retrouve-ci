@@ -99,7 +99,6 @@ export default function TermsPage() {
 		<>
 			<Header />
 			<main className="flex-1">
-				{/* Hero */}
 				<section className="relative overflow-hidden border-b">
 					<div className="dot-pattern pointer-events-none absolute inset-0 opacity-40" />
 					<div className="relative container mx-auto px-4 py-14 md:py-20">
@@ -120,7 +119,6 @@ export default function TermsPage() {
 					</div>
 				</section>
 
-				{/* Summary bento */}
 				<section className="border-b py-10">
 					<div className="container mx-auto px-4">
 						<div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
@@ -147,11 +145,9 @@ export default function TermsPage() {
 					</div>
 				</section>
 
-				{/* Content */}
 				<section className="py-12 md:py-16">
 					<div className="container mx-auto px-4">
 						<div className="grid gap-4 md:grid-cols-12">
-							{/* Sticky sidebar on desktop */}
 							<aside className="hidden md:col-span-3 md:block">
 								<div className="bg-background sticky top-24 space-y-1 rounded-2xl border p-5">
 									<p className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
@@ -172,7 +168,6 @@ export default function TermsPage() {
 								</div>
 							</aside>
 
-							{/* Sections */}
 							<div className="space-y-4 md:col-span-9">
 								{sections.map(s => {
 									const Icon = s.icon
@@ -204,7 +199,6 @@ export default function TermsPage() {
 									)
 								})}
 
-								{/* Contact CTA */}
 								<div className="bg-muted/30 flex flex-col items-start justify-between gap-4 rounded-2xl border p-7 sm:flex-row sm:items-center">
 									<div className="flex items-center gap-3">
 										<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
