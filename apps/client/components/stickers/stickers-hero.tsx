@@ -5,8 +5,8 @@ export function StickersHero() {
 	return (
 		<section className="relative overflow-hidden border-b">
 			<div className="pointer-events-none absolute inset-0">
-				<div className="absolute -top-20 right-0 h-[500px] w-[500px] rounded-full bg-primary-green/5 blur-3xl" />
-				<div className="absolute bottom-0 left-0 h-[300px] w-[300px] rounded-full bg-accent-orange/5 blur-3xl" />
+				<div className="absolute -top-20 right-0 h-125 w-125 rounded-full bg-primary-green/5 blur-3xl" />
+				<div className="absolute bottom-0 left-0 h-75 w-75 rounded-full bg-accent-orange/5 blur-3xl" />
 			</div>
 
 			<div className="relative container mx-auto px-4 py-16 md:py-24">
@@ -55,7 +55,7 @@ export function StickersHero() {
 							</p>
 						</div>
 
-						<div className="relative flex-shrink-0">
+						<div className="relative shrink-0">
 							<div className="relative h-52 w-52 md:h-64 md:w-64">
 								<div className="absolute inset-0 rotate-6 rounded-3xl bg-linear-to-br from-primary-green/20 to-accent-orange/10" />
 								<div className="bg-background absolute inset-0 flex items-center justify-center rounded-2xl border shadow-xl">

@@ -75,7 +75,7 @@ function ListingCard({
 
 			<div className="flex gap-4 p-4">
 				{/* Image */}
-				<div className="bg-muted relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl sm:h-24 sm:w-24">
+				<div className="bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-24 sm:w-24">
 					{listing.image ? (
 						<Image
 							src={listing.image}
