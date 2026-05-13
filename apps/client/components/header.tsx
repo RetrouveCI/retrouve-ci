@@ -79,8 +79,8 @@ export function Header() {
 						<>
 							<Button asChild variant="ghost" size="sm" className="h-9 gap-2">
 								<Link href="/account">
-									<div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-green/10">
-										<User className="h-4 w-4 text-primary-green" />
+									<div className="bg-primary-green/10 flex h-7 w-7 items-center justify-center rounded-full">
+										<User className="text-primary-green h-4 w-4" />
 									</div>
 									<span className="max-w-[100px] truncate font-medium">
 										{user?.name}
@@ -101,7 +101,7 @@ export function Header() {
 						<Button
 							asChild
 							size="sm"
-							className="h-9 rounded-full bg-primary-green px-4 text-white hover:bg-primary-green-dark"
+							className="bg-primary-green hover:bg-primary-green-dark h-9 rounded-full px-4 text-white"
 						>
 							<Link href="/auth/login" className="gap-2">
 								<LogIn className="h-4 w-4" />

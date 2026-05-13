@@ -9,7 +9,12 @@ import { useQRTokens } from '@/application/qr/use-qr-tokens'
 import { usePosts } from '@/application/posts/use-posts'
 import { useOrders } from '@/application/orders/use-orders'
 import { useEvents } from '@/application/events/use-events'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@retrouve-ci/ui/components'
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from '@retrouve-ci/ui/components'
 import { AlertTriangle, QrCode, Package, FileText, Scan } from 'lucide-react'
 import { toast } from 'sonner'
 import { UserStatsRow } from './components/UserStatsRow'
@@ -37,7 +42,9 @@ export default function UserDetailPage({
 	const userPosts = posts.filter(p => p.authorId === numericId)
 	const userOrders = orders.filter(o => o.userId === numericId)
 	const userEvents = events.filter(
-		e => e.user === user?.name || (user && e.user.includes(user.name.split(' ')[0])),
+		e =>
+			e.user === user?.name ||
+			(user && e.user.includes(user.name.split(' ')[0])),
 	)
 
 	if (isLoading) return null
@@ -50,7 +57,9 @@ export default function UserDetailPage({
 					<div className="p-4 lg:p-6">
 						<div className="flex flex-col items-center justify-center py-12 text-center">
 							<AlertTriangle className="text-muted-foreground h-12 w-12" />
-							<h2 className="mt-4 text-xl font-semibold">Utilisateur non trouvé</h2>
+							<h2 className="mt-4 text-xl font-semibold">
+								Utilisateur non trouvé
+							</h2>
 							<p className="text-muted-foreground mt-2">
 								L&apos;utilisateur demandé n&apos;existe pas ou a été supprimé.
 							</p>
@@ -72,7 +81,10 @@ export default function UserDetailPage({
 		)
 	}
 
-	const totalStickersOrdered = userOrders.reduce((sum, o) => sum + o.quantity, 0)
+	const totalStickersOrdered = userOrders.reduce(
+		(sum, o) => sum + o.quantity,
+		0,
+	)
 
 	return (
 		<>
@@ -89,7 +101,10 @@ export default function UserDetailPage({
 					<div className="grid gap-6 lg:grid-cols-3">
 						<div className="space-y-6">
 							<UserProfileCard user={user} />
-							<UserActionsCard status={user.status} onDeactivate={handleDeactivate} />
+							<UserActionsCard
+								status={user.status}
+								onDeactivate={handleDeactivate}
+							/>
 						</div>
 
 						<div className="lg:col-span-2">

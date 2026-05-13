@@ -67,13 +67,19 @@ export function PackSelectionStep({
 								<Package className="text-primary-green h-6 w-6" />
 							</div>
 							<h3 className="text-lg font-bold">{pack.name}</h3>
-							<p className="text-muted-foreground text-sm">{pack.description}</p>
+							<p className="text-muted-foreground text-sm">
+								{pack.description}
+							</p>
 						</div>
 
 						<div className="mb-4">
-							<span className="text-3xl font-bold">{formatPrice(pack.price)}</span>
+							<span className="text-3xl font-bold">
+								{formatPrice(pack.price)}
+							</span>
 							<span className="text-muted-foreground ml-1">FCFA</span>
-							<p className="text-muted-foreground text-sm">{pack.quantity} stickers</p>
+							<p className="text-muted-foreground text-sm">
+								{pack.quantity} stickers
+							</p>
 						</div>
 
 						<ul className="space-y-2">

@@ -37,8 +37,8 @@ export function PostContent({ listing }: { listing: Listing }) {
 					className={cn(
 						'absolute top-4 left-4 px-3 py-1 text-sm',
 						isLost
-							? 'border-0 bg-accent-orange text-white'
-							: 'border-0 bg-primary-green text-white',
+							? 'bg-accent-orange border-0 text-white'
+							: 'bg-primary-green border-0 text-white',
 					)}
 				>
 					{isLost ? 'Objet perdu' : 'Objet retrouvé'}
@@ -50,15 +50,15 @@ export function PostContent({ listing }: { listing: Listing }) {
 
 				<div className="mb-6 flex flex-wrap gap-4">
 					<div className="text-muted-foreground flex items-center gap-2">
-						<MapPin className="h-4 w-4 text-primary-green" />
+						<MapPin className="text-primary-green h-4 w-4" />
 						<span>{listing.location}</span>
 					</div>
 					<div className="text-muted-foreground flex items-center gap-2">
-						<Calendar className="h-4 w-4 text-primary-green" />
+						<Calendar className="text-primary-green h-4 w-4" />
 						<span>{listing.date}</span>
 					</div>
 					<div className="text-muted-foreground flex items-center gap-2">
-						<Tag className="h-4 w-4 text-primary-green" />
+						<Tag className="text-primary-green h-4 w-4" />
 						<span>{listing.category}</span>
 					</div>
 				</div>

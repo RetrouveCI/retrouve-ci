@@ -1,4 +1,13 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@retrouve-ci/ui/components'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@retrouve-ci/ui/components'
 
 interface RevokeTokenDialogProps {
 	open: boolean
@@ -7,15 +16,20 @@ interface RevokeTokenDialogProps {
 	onConfirm: () => void
 }
 
-export function RevokeTokenDialog({ open, tokenId, onOpenChange, onConfirm }: RevokeTokenDialogProps) {
+export function RevokeTokenDialog({
+	open,
+	tokenId,
+	onOpenChange,
+	onConfirm,
+}: RevokeTokenDialogProps) {
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>Révoquer ce token ?</AlertDialogTitle>
 					<AlertDialogDescription>
-						Cette action est irréversible. Le token{' '}
-						<strong>{tokenId}</strong> ne pourra plus être utilisé.
+						Cette action est irréversible. Le token <strong>{tokenId}</strong>{' '}
+						ne pourra plus être utilisé.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

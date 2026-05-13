@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@retrouve-ci/ui/components'
 import { CheckCircle, Package } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -67,23 +72,24 @@ export function TokenTimeline({ token, events }: TokenTimelineProps) {
 								</div>
 							</div>
 						))}
-						{token.activatedAt && !events.some(e => e.type === 'activation') && (
-							<div className="border-primary/20 flex items-start gap-3 border-l-2 pb-4 pl-4">
-								<div className="rounded-full bg-green-100 p-1.5">
-									<CheckCircle className="h-3 w-3 text-green-600" />
+						{token.activatedAt &&
+							!events.some(e => e.type === 'activation') && (
+								<div className="border-primary/20 flex items-start gap-3 border-l-2 pb-4 pl-4">
+									<div className="rounded-full bg-green-100 p-1.5">
+										<CheckCircle className="h-3 w-3 text-green-600" />
+									</div>
+									<div>
+										<p className="text-sm font-medium">
+											Activé par l&apos;utilisateur
+										</p>
+										<p className="text-muted-foreground text-xs">
+											{format(new Date(token.activatedAt), 'dd MMM yyyy', {
+												locale: fr,
+											})}
+										</p>
+									</div>
 								</div>
-								<div>
-									<p className="text-sm font-medium">
-										Activé par l&apos;utilisateur
-									</p>
-									<p className="text-muted-foreground text-xs">
-										{format(new Date(token.activatedAt), 'dd MMM yyyy', {
-											locale: fr,
-										})}
-									</p>
-								</div>
-							</div>
-						)}
+							)}
 						<div className="border-primary/20 flex items-start gap-3 border-l-2 pl-4">
 							<div className="rounded-full bg-blue-100 p-1.5">
 								<Package className="h-3 w-3 text-blue-600" />

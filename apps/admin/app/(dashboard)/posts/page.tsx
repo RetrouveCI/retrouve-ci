@@ -1,6 +1,21 @@
 'use client'
 
-import { Button, Badge, Tabs, TabsContent, TabsList, TabsTrigger, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Badge,
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@retrouve-ci/ui/components'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { TopBar } from '@/components/topbar'

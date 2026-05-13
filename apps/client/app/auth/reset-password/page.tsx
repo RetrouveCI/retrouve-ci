@@ -45,7 +45,9 @@ function ResetPasswordContent() {
 	}, [step, resendKey])
 
 	const formatTime = (s: number) =>
-		`${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
+		`${Math.floor(s / 60)
+			.toString()
+			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
 	const handleOtpSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -58,7 +60,9 @@ function ResetPasswordContent() {
 		await new Promise(r => setTimeout(r, 1000))
 		if (otp.startsWith('9')) {
 			setOtpError(true)
-			toast.error('Code incorrect', { description: 'Vérifiez le code reçu et réessayez.' })
+			toast.error('Code incorrect', {
+				description: 'Vérifiez le code reçu et réessayez.',
+			})
 			setOtp('')
 			setIsSubmitting(false)
 			return
@@ -67,7 +71,9 @@ function ResetPasswordContent() {
 		setStep('new-password')
 	}
 
-	const handleNewPasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleNewPasswordSubmit = async (
+		e: React.FormEvent<HTMLFormElement>,
+	) => {
 		e.preventDefault()
 		if (newPassword.length < 6) {
 			setConfirmError('Le mot de passe doit contenir au moins 6 caractères.')
@@ -106,7 +112,9 @@ function ResetPasswordContent() {
 		step === 'otp' ? (
 			<>
 				Code envoyé au{' '}
-				<span className="text-foreground font-semibold">+225 {phoneNumber}</span>
+				<span className="text-foreground font-semibold">
+					+225 {phoneNumber}
+				</span>
 			</>
 		) : (
 			'Choisissez un nouveau mot de passe.'

@@ -1,4 +1,9 @@
-import { Button, CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { Edit, Ban, ArrowLeft } from 'lucide-react'
 import { BentoCard } from '@/components/bento-card'
@@ -8,11 +13,16 @@ interface UserActionsCardProps {
 	onDeactivate: () => void
 }
 
-export function UserActionsCard({ status, onDeactivate }: UserActionsCardProps) {
+export function UserActionsCard({
+	status,
+	onDeactivate,
+}: UserActionsCardProps) {
 	return (
 		<BentoCard variant="content">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-base font-semibold">Actions rapides</CardTitle>
+				<CardTitle className="text-base font-semibold">
+					Actions rapides
+				</CardTitle>
 			</CardHeader>
 			<CardContent className="space-y-2">
 				<Button variant="outline" className="w-full justify-start">

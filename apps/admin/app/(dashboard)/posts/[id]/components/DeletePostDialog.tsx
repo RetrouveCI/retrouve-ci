@@ -1,4 +1,13 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@retrouve-ci/ui/components'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@retrouve-ci/ui/components'
 
 interface DeletePostDialogProps {
 	open: boolean
@@ -20,7 +29,8 @@ export function DeletePostDialog({
 					<AlertDialogTitle>Supprimer ce post ?</AlertDialogTitle>
 					<AlertDialogDescription>
 						Cette action est irréversible. Le post{' '}
-						<strong>&quot;{postTitle}&quot;</strong> sera définitivement supprimé.
+						<strong>&quot;{postTitle}&quot;</strong> sera définitivement
+						supprimé.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

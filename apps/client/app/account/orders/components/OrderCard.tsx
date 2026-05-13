@@ -8,7 +8,12 @@ import {
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 
-type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
+type OrderStatus =
+	| 'pending'
+	| 'confirmed'
+	| 'shipped'
+	| 'delivered'
+	| 'cancelled'
 
 interface Order {
 	id: string
@@ -28,11 +33,36 @@ const STATUS_CONFIG: Record<
 	OrderStatus,
 	{ label: string; icon: React.ElementType; color: string; bgColor: string }
 > = {
-	pending: { label: 'En attente', icon: Clock, color: 'text-amber-600', bgColor: 'bg-amber-500/10' },
-	confirmed: { label: 'Confirmée', icon: CheckCircle2, color: 'text-blue-600', bgColor: 'bg-blue-500/10' },
-	shipped: { label: 'En livraison', icon: Truck, color: 'text-purple-600', bgColor: 'bg-purple-500/10' },
-	delivered: { label: 'Livrée', icon: CheckCircle2, color: 'text-primary-green', bgColor: 'bg-primary-green/10' },
-	cancelled: { label: 'Annulée', icon: XCircle, color: 'text-destructive', bgColor: 'bg-destructive/10' },
+	pending: {
+		label: 'En attente',
+		icon: Clock,
+		color: 'text-amber-600',
+		bgColor: 'bg-amber-500/10',
+	},
+	confirmed: {
+		label: 'Confirmée',
+		icon: CheckCircle2,
+		color: 'text-blue-600',
+		bgColor: 'bg-blue-500/10',
+	},
+	shipped: {
+		label: 'En livraison',
+		icon: Truck,
+		color: 'text-purple-600',
+		bgColor: 'bg-purple-500/10',
+	},
+	delivered: {
+		label: 'Livrée',
+		icon: CheckCircle2,
+		color: 'text-primary-green',
+		bgColor: 'bg-primary-green/10',
+	},
+	cancelled: {
+		label: 'Annulée',
+		icon: XCircle,
+		color: 'text-destructive',
+		bgColor: 'bg-destructive/10',
+	},
 }
 
 function formatPrice(price: number) {
@@ -84,7 +114,9 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
 						{order.pack.quantity} stickers &middot; {order.orderNumber}
 					</p>
 					<div className="flex items-center justify-between">
-						<p className="text-muted-foreground text-xs">{formatDate(order.date)}</p>
+						<p className="text-muted-foreground text-xs">
+							{formatDate(order.date)}
+						</p>
 						<p className="text-sm font-bold">{formatPrice(order.total)} FCFA</p>
 					</div>
 				</div>

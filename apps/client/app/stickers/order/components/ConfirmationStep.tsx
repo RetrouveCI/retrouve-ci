@@ -46,8 +46,8 @@ export function ConfirmationStep({
 			</div>
 			<h1 className="mb-3 text-3xl font-bold">Commande confirmée!</h1>
 			<p className="text-muted-foreground mb-8">
-				Merci pour votre commande. Vous recevrez vos{' '}
-				{selectedPackData.quantity} stickers QR dans les prochains jours.
+				Merci pour votre commande. Vous recevrez vos {selectedPackData.quantity}{' '}
+				stickers QR dans les prochains jours.
 			</p>
 
 			<div className="bg-background mb-8 rounded-2xl border p-6 text-left">

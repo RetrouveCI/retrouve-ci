@@ -11,9 +11,12 @@ export function PublishTypeCards() {
 						<div className="bg-accent-orange/10 mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110">
 							<AlertCircle className="text-accent-orange h-7 w-7" />
 						</div>
-						<h2 className="mb-2 text-2xl font-bold">J&apos;ai perdu un objet</h2>
+						<h2 className="mb-2 text-2xl font-bold">
+							J&apos;ai perdu un objet
+						</h2>
 						<p className="text-muted-foreground mb-6 leading-relaxed">
-							Signalez votre perte et laissez la communauté vous aider à le retrouver.
+							Signalez votre perte et laissez la communauté vous aider à le
+							retrouver.
 						</p>
 						<ul className="text-muted-foreground mb-8 space-y-2 text-sm">
 							<li className="flex items-center gap-2">
@@ -44,9 +47,12 @@ export function PublishTypeCards() {
 						<div className="bg-primary-green/10 mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110">
 							<CheckCircle className="text-primary-green h-7 w-7" />
 						</div>
-						<h2 className="mb-2 text-2xl font-bold">J&apos;ai retrouvé un objet</h2>
+						<h2 className="mb-2 text-2xl font-bold">
+							J&apos;ai retrouvé un objet
+						</h2>
 						<p className="text-muted-foreground mb-6 leading-relaxed">
-							Aidez le propriétaire à récupérer son bien en publiant votre trouvaille.
+							Aidez le propriétaire à récupérer son bien en publiant votre
+							trouvaille.
 						</p>
 						<ul className="text-muted-foreground mb-8 space-y-2 text-sm">
 							<li className="flex items-center gap-2">

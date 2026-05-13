@@ -60,7 +60,9 @@ export function NotificationsSection({
 					>
 						<div className="flex-1">
 							<p className="text-sm font-medium">{item.label}</p>
-							<p className="text-muted-foreground text-xs">{item.description}</p>
+							<p className="text-muted-foreground text-xs">
+								{item.description}
+							</p>
 						</div>
 						<Switch
 							checked={notifications[item.key]}

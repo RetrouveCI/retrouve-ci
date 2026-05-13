@@ -33,7 +33,7 @@ function FooterLinkGroup({
 					<li key={link.href}>
 						<Link
 							href={link.href}
-							className="text-muted-foreground text-sm transition-colors hover:text-primary-green"
+							className="text-muted-foreground hover:text-primary-green text-sm transition-colors"
 						>
 							{link.label}
 						</Link>

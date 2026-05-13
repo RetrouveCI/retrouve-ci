@@ -2,7 +2,11 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { BrandingPanel } from './components/BrandingPanel'
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({
+	children,
+}: {
+	children: React.ReactNode
+}) {
 	return (
 		<div className="flex min-h-screen">
 			<BrandingPanel />
@@ -30,11 +34,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 						<div className="mt-8 border-t pt-6">
 							<p className="text-muted-foreground text-center text-xs">
 								En continuant, vous acceptez nos{' '}
-								<Link href="/terms" className="text-primary-green hover:underline">
+								<Link
+									href="/terms"
+									className="text-primary-green hover:underline"
+								>
 									conditions d&apos;utilisation
 								</Link>{' '}
 								et notre{' '}
-								<Link href="/privacy" className="text-primary-green hover:underline">
+								<Link
+									href="/privacy"
+									className="text-primary-green hover:underline"
+								>
 									politique de confidentialité
 								</Link>
 								.

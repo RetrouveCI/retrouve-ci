@@ -9,7 +9,13 @@ interface NotificationStatsRowProps {
 	qr: number
 }
 
-export function NotificationStatsRow({ unread, orders, posts, users, qr }: NotificationStatsRowProps) {
+export function NotificationStatsRow({
+	unread,
+	orders,
+	posts,
+	users,
+	qr,
+}: NotificationStatsRowProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
 			<BentoCard

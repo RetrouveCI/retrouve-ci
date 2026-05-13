@@ -12,7 +12,8 @@ import { NotificationStatsRow } from './components/NotificationStatsRow'
 import { NotificationList } from './components/NotificationList'
 
 export default function NotificationsPage() {
-	const { notifications, unreadCount, markAsRead, markAllAsRead, remove } = useNotifications()
+	const { notifications, unreadCount, markAsRead, markAllAsRead, remove } =
+		useNotifications()
 	const [typeFilter, setTypeFilter] = useState<string>('all')
 	const [readFilter, setReadFilter] = useState<string>('all')
 
@@ -22,7 +23,8 @@ export default function NotificationsPage() {
 	let filtered = [...notifications].sort(
 		(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
 	)
-	if (typeFilter !== 'all') filtered = filtered.filter(n => n.type === typeFilter)
+	if (typeFilter !== 'all')
+		filtered = filtered.filter(n => n.type === typeFilter)
 	if (readFilter === 'unread') filtered = filtered.filter(n => !n.read)
 	if (readFilter === 'read') filtered = filtered.filter(n => n.read)
 
@@ -53,13 +55,19 @@ export default function NotificationsPage() {
 												: 'bg-muted text-muted-foreground hover:bg-muted/80',
 										)}
 									>
-										{val === 'all' ? 'Toutes' : val === 'unread' ? 'Non lues' : 'Lues'}
+										{val === 'all'
+											? 'Toutes'
+											: val === 'unread'
+												? 'Non lues'
+												: 'Lues'}
 									</button>
 								))}
 
 								<div className="bg-border mx-1 h-5 w-px" />
 
-								{(['all', 'order', 'post', 'user', 'qr', 'system'] as const).map(val => (
+								{(
+									['all', 'order', 'post', 'user', 'qr', 'system'] as const
+								).map(val => (
 									<button
 										key={val}
 										onClick={() => setTypeFilter(val)}

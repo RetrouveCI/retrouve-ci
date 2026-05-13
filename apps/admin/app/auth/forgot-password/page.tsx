@@ -65,7 +65,9 @@ export default function ForgotPasswordPage() {
 						priority
 					/>
 				</div>
-				<CardTitle className="text-2xl font-bold">Mot de passe oublié</CardTitle>
+				<CardTitle className="text-2xl font-bold">
+					Mot de passe oublié
+				</CardTitle>
 				<CardDescription className="text-base">
 					Entrez votre email pour recevoir les instructions de réinitialisation.
 				</CardDescription>
@@ -91,7 +93,9 @@ export default function ForgotPasswordPage() {
 								/>
 							</div>
 							{errors.email && (
-								<p className="text-destructive mt-1 text-sm">{errors.email.message}</p>
+								<p className="text-destructive mt-1 text-sm">
+									{errors.email.message}
+								</p>
 							)}
 						</Field>
 					</FieldGroup>

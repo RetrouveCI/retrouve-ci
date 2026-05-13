@@ -1,6 +1,16 @@
 import { Button, Badge } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
-import { BellOff, Check, Trash2, ArrowRight, Package, Users, FileText, QrCode, Settings } from 'lucide-react'
+import {
+	BellOff,
+	Check,
+	Trash2,
+	ArrowRight,
+	Package,
+	Users,
+	FileText,
+	QrCode,
+	Settings,
+} from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -8,13 +18,49 @@ import type { Notification } from '@/domain/entities/notification'
 
 const typeConfig: Record<
 	Notification['type'],
-	{ label: string; icon: React.ElementType; iconColor: string; iconBg: string; badgeClass: string }
+	{
+		label: string
+		icon: React.ElementType
+		iconColor: string
+		iconBg: string
+		badgeClass: string
+	}
 > = {
-	order: { label: 'Commande', icon: Package, iconColor: 'text-orange-600', iconBg: 'bg-orange-100', badgeClass: 'bg-orange-100 text-orange-700' },
-	user: { label: 'Utilisateur', icon: Users, iconColor: 'text-blue-600', iconBg: 'bg-blue-100', badgeClass: 'bg-blue-100 text-blue-700' },
-	post: { label: 'Post', icon: FileText, iconColor: 'text-purple-600', iconBg: 'bg-purple-100', badgeClass: 'bg-purple-100 text-purple-700' },
-	qr: { label: 'QR Code', icon: QrCode, iconColor: 'text-primary', iconBg: 'bg-primary/10', badgeClass: 'bg-primary/10 text-primary' },
-	system: { label: 'Système', icon: Settings, iconColor: 'text-gray-600', iconBg: 'bg-gray-100', badgeClass: 'bg-gray-100 text-gray-700' },
+	order: {
+		label: 'Commande',
+		icon: Package,
+		iconColor: 'text-orange-600',
+		iconBg: 'bg-orange-100',
+		badgeClass: 'bg-orange-100 text-orange-700',
+	},
+	user: {
+		label: 'Utilisateur',
+		icon: Users,
+		iconColor: 'text-blue-600',
+		iconBg: 'bg-blue-100',
+		badgeClass: 'bg-blue-100 text-blue-700',
+	},
+	post: {
+		label: 'Post',
+		icon: FileText,
+		iconColor: 'text-purple-600',
+		iconBg: 'bg-purple-100',
+		badgeClass: 'bg-purple-100 text-purple-700',
+	},
+	qr: {
+		label: 'QR Code',
+		icon: QrCode,
+		iconColor: 'text-primary',
+		iconBg: 'bg-primary/10',
+		badgeClass: 'bg-primary/10 text-primary',
+	},
+	system: {
+		label: 'Système',
+		icon: Settings,
+		iconColor: 'text-gray-600',
+		iconBg: 'bg-gray-100',
+		badgeClass: 'bg-gray-100 text-gray-700',
+	},
 }
 
 interface NotificationListProps {
@@ -23,7 +69,11 @@ interface NotificationListProps {
 	onRemove: (id: number) => void
 }
 
-export function NotificationList({ notifications, onMarkAsRead, onRemove }: NotificationListProps) {
+export function NotificationList({
+	notifications,
+	onMarkAsRead,
+	onRemove,
+}: NotificationListProps) {
 	if (notifications.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
@@ -56,14 +106,24 @@ export function NotificationList({ notifications, onMarkAsRead, onRemove }: Noti
 							<span className="bg-primary absolute top-1/2 left-2 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
 						)}
 
-						<div className={cn('mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', cfg.iconBg)}>
+						<div
+							className={cn(
+								'mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+								cfg.iconBg,
+							)}
+						>
 							<Icon className={cn('h-5 w-5', cfg.iconColor)} />
 						</div>
 
 						<div className="min-w-0 flex-1">
 							<div className="mb-0.5 flex flex-wrap items-center gap-2">
 								<span className="text-sm font-semibold">{notif.title}</span>
-								<span className={cn('rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase', cfg.badgeClass)}>
+								<span
+									className={cn(
+										'rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase',
+										cfg.badgeClass,
+									)}
+								>
 									{cfg.label}
 								</span>
 								{!notif.read && (
@@ -72,9 +132,13 @@ export function NotificationList({ notifications, onMarkAsRead, onRemove }: Noti
 									</Badge>
 								)}
 							</div>
-							<p className="text-muted-foreground text-sm leading-snug">{notif.message}</p>
+							<p className="text-muted-foreground text-sm leading-snug">
+								{notif.message}
+							</p>
 							<p className="text-muted-foreground/70 mt-1 text-xs">
-								{format(new Date(notif.createdAt), 'd MMMM yyyy à HH:mm', { locale: fr })}
+								{format(new Date(notif.createdAt), 'd MMMM yyyy à HH:mm', {
+									locale: fr,
+								})}
 							</p>
 						</div>
 
@@ -100,8 +164,17 @@ export function NotificationList({ notifications, onMarkAsRead, onRemove }: Noti
 								<Trash2 size={14} />
 							</Button>
 							{notif.link && (
-								<Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" title="Voir" asChild>
-									<Link href={notif.link} onClick={() => onMarkAsRead(notif.id)}>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-8 w-8 rounded-lg"
+									title="Voir"
+									asChild
+								>
+									<Link
+										href={notif.link}
+										onClick={() => onMarkAsRead(notif.id)}
+									>
 										<ArrowRight size={14} />
 									</Link>
 								</Button>

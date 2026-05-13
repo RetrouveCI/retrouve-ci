@@ -1,4 +1,11 @@
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@retrouve-ci/ui/components'
 import { MessageCircle, Lock } from 'lucide-react'
 
 interface Listing {
@@ -22,23 +29,25 @@ export function ContactCard({ listing }: { listing: Listing }) {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					<Button className="h-12 w-full gap-2 bg-primary-green text-white hover:bg-primary-green-dark">
+					<Button className="bg-primary-green hover:bg-primary-green-dark h-12 w-full gap-2 text-white">
 						<MessageCircle className="h-5 w-5" />
 						Envoyer un message
 					</Button>
 
 					<div className="bg-muted/50 flex items-start gap-3 rounded-xl p-4">
-						<Lock className="mt-0.5 h-5 w-5 shrink-0 text-primary-green" />
+						<Lock className="text-primary-green mt-0.5 h-5 w-5 shrink-0" />
 						<p className="text-muted-foreground text-sm">
-							Vos coordonnées restent privées. Tout contact se fait via notre messagerie
-							sécurisée.
+							Vos coordonnées restent privées. Tout contact se fait via notre
+							messagerie sécurisée.
 						</p>
 					</div>
 
 					<div className="border-t pt-4">
 						<p className="text-muted-foreground text-sm">
 							Publié par{' '}
-							<span className="text-foreground font-medium">{listing.contact.name}</span>
+							<span className="text-foreground font-medium">
+								{listing.contact.name}
+							</span>
 						</p>
 						<p className="text-muted-foreground text-sm">
 							Contact préféré : {listing.contact.method}

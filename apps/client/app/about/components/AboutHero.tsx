@@ -16,10 +16,10 @@ export function AboutHero() {
 						<span className="text-primary-green">ensemble</span>
 					</h1>
 					<p className="text-muted-foreground max-w-xl text-lg leading-relaxed">
-						RetrouveCI est née d&apos;une conviction simple : en Côte d&apos;Ivoire, la
-						solidarité peut transformer la perte en retrouvaille. Notre plateforme
-						connecte les personnes ayant perdu un objet avec celles qui l&apos;ont
-						trouvé.
+						RetrouveCI est née d&apos;une conviction simple : en Côte
+						d&apos;Ivoire, la solidarité peut transformer la perte en
+						retrouvaille. Notre plateforme connecte les personnes ayant perdu un
+						objet avec celles qui l&apos;ont trouvé.
 					</p>
 				</div>
 			</div>

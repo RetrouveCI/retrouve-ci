@@ -13,7 +13,12 @@ import { EmptyOrdersState } from './components/EmptyOrdersState'
 import { OrderCard } from './components/OrderCard'
 import { NewOrderCta } from './components/NewOrderCta'
 
-type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
+type OrderStatus =
+	| 'pending'
+	| 'confirmed'
+	| 'shipped'
+	| 'delivered'
+	| 'cancelled'
 
 interface Order {
 	id: string

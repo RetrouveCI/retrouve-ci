@@ -8,10 +8,20 @@ interface EventsStatsGridProps {
 	activations: number
 }
 
-export function EventsStatsGrid({ total, scans, contacts, activations }: EventsStatsGridProps) {
+export function EventsStatsGrid({
+	total,
+	scans,
+	contacts,
+	activations,
+}: EventsStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-			<BentoCard variant="highlight" title="Total événements" value={total} icon={Activity} />
+			<BentoCard
+				variant="highlight"
+				title="Total événements"
+				value={total}
+				icon={Activity}
+			/>
 			<BentoCard
 				variant="stat"
 				title="Scans"

@@ -12,9 +12,10 @@ export function MissionBento() {
 						<div>
 							<h2 className="mb-3 text-2xl font-bold">Notre mission</h2>
 							<p className="text-muted-foreground leading-relaxed">
-								Réduire la perte définitive d&apos;objets en Côte d&apos;Ivoire grâce à
-								une plateforme communautaire moderne, accessible et fiable. Chaque
-								annonce publiée est une chance de redonner un objet à son propriétaire.
+								Réduire la perte définitive d&apos;objets en Côte d&apos;Ivoire
+								grâce à une plateforme communautaire moderne, accessible et
+								fiable. Chaque annonce publiée est une chance de redonner un
+								objet à son propriétaire.
 							</p>
 						</div>
 					</div>
@@ -25,7 +26,9 @@ export function MissionBento() {
 						</p>
 						<div>
 							<p className="text-6xl font-bold">2024</p>
-							<p className="mt-1 text-sm text-white/80">Abidjan, Côte d&apos;Ivoire</p>
+							<p className="mt-1 text-sm text-white/80">
+								Abidjan, Côte d&apos;Ivoire
+							</p>
 						</div>
 					</div>
 
@@ -36,9 +39,9 @@ export function MissionBento() {
 						<div>
 							<h3 className="mb-1.5 text-lg font-bold">Stickers QR</h3>
 							<p className="text-muted-foreground text-sm leading-relaxed">
-								Notre technologie de stickers QR permet d&apos;identifier instantanément
-								l&apos;objet et de contacter son propriétaire sans jamais exposer ses
-								données.
+								Notre technologie de stickers QR permet d&apos;identifier
+								instantanément l&apos;objet et de contacter son propriétaire
+								sans jamais exposer ses données.
 							</p>
 						</div>
 					</div>
@@ -50,8 +53,9 @@ export function MissionBento() {
 						<div>
 							<h3 className="mb-1.5 text-lg font-bold">Couverture nationale</h3>
 							<p className="text-muted-foreground text-sm leading-relaxed">
-								Présent dans 26 villes ivoiriennes, de l&apos;Abidjan cosmopolite aux
-								villes de l&apos;intérieur comme Bouaké, Yamoussoukro et San-Pédro.
+								Présent dans 26 villes ivoiriennes, de l&apos;Abidjan
+								cosmopolite aux villes de l&apos;intérieur comme Bouaké,
+								Yamoussoukro et San-Pédro.
 							</p>
 						</div>
 					</div>
@@ -63,8 +67,8 @@ export function MissionBento() {
 						<div>
 							<h3 className="mb-1.5 text-lg font-bold">Communauté active</h3>
 							<p className="text-muted-foreground text-sm leading-relaxed">
-								Plus de 15 000 utilisateurs font confiance à RetrouveCI chaque mois pour
-								signaler, chercher et retrouver leurs objets.
+								Plus de 15 000 utilisateurs font confiance à RetrouveCI chaque
+								mois pour signaler, chercher et retrouver leurs objets.
 							</p>
 						</div>
 					</div>

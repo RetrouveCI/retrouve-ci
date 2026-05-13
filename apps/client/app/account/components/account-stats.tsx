@@ -53,8 +53,8 @@ export function AccountStats({ stickers, listings }: AccountStatsProps) {
 							className={`bg-background border-border/50 group rounded-2xl border p-4 transition-all hover:shadow-sm ${hoverBorder}`}
 						>
 							<div className="mb-2 flex items-center justify-between">
-								<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-green/10 transition-transform group-hover:scale-110">
-									<Icon className="h-5 w-5 text-primary-green" />
+								<div className="bg-primary-green/10 flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
+									<Icon className="text-primary-green h-5 w-5" />
 								</div>
 							</div>
 							<p className="text-2xl font-bold md:text-3xl">{value}</p>

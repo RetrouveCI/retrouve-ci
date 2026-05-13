@@ -20,11 +20,7 @@ export function OrderProgressBar({ stepNumber }: { stepNumber: number }) {
 											: 'bg-muted text-muted-foreground',
 								)}
 							>
-								{i + 1 < stepNumber ? (
-									<Check className="h-4 w-4" />
-								) : (
-									i + 1
-								)}
+								{i + 1 < stepNumber ? <Check className="h-4 w-4" /> : i + 1}
 							</div>
 							<span
 								className={cn(
@@ -36,9 +32,7 @@ export function OrderProgressBar({ stepNumber }: { stepNumber: number }) {
 							>
 								{label}
 							</span>
-							{i < 3 && (
-								<div className="bg-border mx-2 h-px w-8 md:w-16" />
-							)}
+							{i < 3 && <div className="bg-border mx-2 h-px w-8 md:w-16" />}
 						</div>
 					))}
 				</div>

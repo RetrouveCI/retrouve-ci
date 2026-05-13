@@ -14,13 +14,13 @@ function NotLoggedInView() {
 	return (
 		<main className="flex flex-1 items-center justify-center py-16 md:py-24">
 			<div className="pointer-events-none absolute inset-0 overflow-hidden">
-				<div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-primary-green/5 blur-3xl" />
-				<div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-accent-orange/5 blur-3xl" />
+				<div className="bg-primary-green/5 absolute -top-40 -right-40 h-80 w-80 rounded-full blur-3xl" />
+				<div className="bg-accent-orange/5 absolute -bottom-40 -left-40 h-80 w-80 rounded-full blur-3xl" />
 			</div>
 			<div className="relative container mx-auto px-4">
 				<div className="mx-auto max-w-md text-center">
-					<div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-primary-green/10">
-						<User className="h-10 w-10 text-primary-green" />
+					<div className="bg-primary-green/10 mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl">
+						<User className="text-primary-green h-10 w-10" />
 					</div>
 					<h1 className="mb-3 text-2xl font-bold md:text-3xl">
 						Connectez-vous
@@ -31,7 +31,7 @@ function NotLoggedInView() {
 					<Button
 						asChild
 						size="lg"
-						className="h-12 w-full rounded-xl bg-primary-green text-white hover:bg-primary-green-dark"
+						className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-white"
 					>
 						<Link href="/auth/login" className="gap-2">
 							<LogIn className="h-5 w-5" />
@@ -42,7 +42,7 @@ function NotLoggedInView() {
 						Pas encore de compte ?{' '}
 						<Link
 							href="/auth/register"
-							className="font-medium text-primary-green hover:underline"
+							className="text-primary-green font-medium hover:underline"
 						>
 							Créer un compte
 						</Link>
@@ -75,7 +75,7 @@ export default function ComptePage() {
 			<>
 				<Header />
 				<main className="flex flex-1 items-center justify-center">
-					<div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-green border-t-transparent" />
+					<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
 				</main>
 				<Footer />
 			</>

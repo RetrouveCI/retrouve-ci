@@ -10,7 +10,12 @@ interface QrStatsGridProps {
 export function QrStatsGrid({ total, activated, revoked }: QrStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-			<BentoCard variant="highlight" title="Total générés" value={total} icon={QrCode} />
+			<BentoCard
+				variant="highlight"
+				title="Total générés"
+				value={total}
+				icon={QrCode}
+			/>
 			<BentoCard
 				variant="stat"
 				title="Activés"

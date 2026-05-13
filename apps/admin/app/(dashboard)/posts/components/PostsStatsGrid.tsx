@@ -8,10 +8,20 @@ interface PostsStatsGridProps {
 	lost: number
 }
 
-export function PostsStatsGrid({ total, published, pending, lost }: PostsStatsGridProps) {
+export function PostsStatsGrid({
+	total,
+	published,
+	pending,
+	lost,
+}: PostsStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-			<BentoCard variant="highlight" title="Total posts" value={total} icon={FileText} />
+			<BentoCard
+				variant="highlight"
+				title="Total posts"
+				value={total}
+				icon={FileText}
+			/>
 			<BentoCard
 				variant="stat"
 				title="Publiés"

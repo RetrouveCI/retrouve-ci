@@ -22,7 +22,9 @@ export default function PasswordForgottenPage() {
 		setIsSubmitting(true)
 		await new Promise(r => setTimeout(r, 1000))
 		setIsSubmitting(false)
-		toast.success('Code envoyé !', { description: 'Vérifiez vos SMS ou WhatsApp.' })
+		toast.success('Code envoyé !', {
+			description: 'Vérifiez vos SMS ou WhatsApp.',
+		})
 		router.push(`/auth/reset-password?phone=${encodeURIComponent(phoneNumber)}`)
 	}
 
@@ -39,8 +41,12 @@ export default function PasswordForgottenPage() {
 			</div>
 
 			<div className="mb-8">
-				<h2 className="mb-2 text-2xl font-bold lg:text-3xl">Mot de passe oublié</h2>
-				<p className="text-muted-foreground">Réinitialisez votre mot de passe.</p>
+				<h2 className="mb-2 text-2xl font-bold lg:text-3xl">
+					Mot de passe oublié
+				</h2>
+				<p className="text-muted-foreground">
+					Réinitialisez votre mot de passe.
+				</p>
 			</div>
 
 			<PhoneStep

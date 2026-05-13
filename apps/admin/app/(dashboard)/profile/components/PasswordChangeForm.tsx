@@ -90,7 +90,9 @@ export function PasswordChangeForm() {
 									id={id}
 									type={show ? 'text' : 'password'}
 									value={form[field]}
-									onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))}
+									onChange={e =>
+										setForm(p => ({ ...p, [field]: e.target.value }))
+									}
 									required
 								/>
 								<Button

@@ -9,10 +9,21 @@ interface OrderStatsGridProps {
 	delivered: number
 }
 
-export function OrderStatsGrid({ total, pending, processing, shipped, delivered }: OrderStatsGridProps) {
+export function OrderStatsGrid({
+	total,
+	pending,
+	processing,
+	shipped,
+	delivered,
+}: OrderStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-			<BentoCard variant="highlight" title="Total commandes" value={total} icon={Package} />
+			<BentoCard
+				variant="highlight"
+				title="Total commandes"
+				value={total}
+				icon={Package}
+			/>
 			<BentoCard
 				variant="stat"
 				title="En attente"

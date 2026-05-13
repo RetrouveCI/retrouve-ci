@@ -20,13 +20,13 @@ export function PostsHero({
 	return (
 		<section className="relative overflow-hidden border-b">
 			<div className="pointer-events-none absolute inset-0">
-				<div className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-primary-green/5 blur-3xl" />
-				<div className="absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-accent-orange/5 blur-3xl" />
+				<div className="bg-primary-green/5 absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full blur-3xl" />
+				<div className="bg-accent-orange/5 absolute -bottom-20 -left-20 h-80 w-80 rounded-full blur-3xl" />
 			</div>
 
 			<div className="relative container mx-auto px-4 pt-12 pb-8">
 				<div className="mx-auto max-w-2xl text-center">
-					<div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary-green/20 bg-primary-green/10 px-3 py-1 text-xs font-semibold text-primary-green">
+					<div className="border-primary-green/20 bg-primary-green/10 text-primary-green mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
 						<TrendingUp className="h-3.5 w-3.5" />
 						{listingsCount} annonces disponibles
 					</div>
@@ -39,7 +39,7 @@ export function PostsHero({
 					</p>
 
 					<div className="relative mx-auto max-w-xl">
-						<div className="bg-background flex items-center gap-2 rounded-2xl border-2 px-4 shadow-sm transition-all focus-within:border-primary-green/50">
+						<div className="bg-background focus-within:border-primary-green/50 flex items-center gap-2 rounded-2xl border-2 px-4 shadow-sm transition-all">
 							<Search className="text-muted-foreground h-4 w-4 shrink-0" />
 							<Input
 								type="search"

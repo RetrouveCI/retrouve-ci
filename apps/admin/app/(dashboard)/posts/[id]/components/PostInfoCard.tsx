@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@retrouve-ci/ui/components'
 import { Eye, MessageSquare } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -10,7 +15,12 @@ interface PostInfoCardProps {
 	contacts: number
 }
 
-export function PostInfoCard({ createdAt, updatedAt, views, contacts }: PostInfoCardProps) {
+export function PostInfoCard({
+	createdAt,
+	updatedAt,
+	views,
+	contacts,
+}: PostInfoCardProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -19,11 +29,15 @@ export function PostInfoCard({ createdAt, updatedAt, views, contacts }: PostInfo
 			<CardContent className="space-y-3">
 				<div className="flex items-center justify-between text-sm">
 					<span className="text-muted-foreground">Créé le</span>
-					<span>{format(new Date(createdAt), 'dd MMM yyyy HH:mm', { locale: fr })}</span>
+					<span>
+						{format(new Date(createdAt), 'dd MMM yyyy HH:mm', { locale: fr })}
+					</span>
 				</div>
 				<div className="flex items-center justify-between text-sm">
 					<span className="text-muted-foreground">Dernière modification</span>
-					<span>{format(new Date(updatedAt), 'dd MMM yyyy HH:mm', { locale: fr })}</span>
+					<span>
+						{format(new Date(updatedAt), 'dd MMM yyyy HH:mm', { locale: fr })}
+					</span>
 				</div>
 				<div className="flex items-center justify-between text-sm">
 					<span className="text-muted-foreground flex items-center gap-1">

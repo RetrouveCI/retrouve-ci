@@ -1,6 +1,19 @@
 'use client'
 
-import { Button, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Badge,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import Link from 'next/link'
 import { TopBar } from '@/components/topbar'
@@ -10,7 +23,15 @@ import { BentoCard } from '@/components/bento-card'
 import { useQRTokens } from '@/application/qr/use-qr-tokens'
 import type { QRToken } from '@/domain/entities/qr-token'
 import type { DateRange } from 'react-day-picker'
-import { MoreHorizontal, Eye, Copy, Link as LinkIcon, Ban, Download, Plus } from 'lucide-react'
+import {
+	MoreHorizontal,
+	Eye,
+	Copy,
+	Link as LinkIcon,
+	Ban,
+	Download,
+	Plus,
+} from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'

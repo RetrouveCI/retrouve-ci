@@ -1,6 +1,15 @@
 'use client'
 
-import { Button, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Label,
+	Textarea,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
@@ -79,8 +88,8 @@ export default function PublierPerduPage() {
 					<div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_320px]">
 						<div className="space-y-6">
 							<div className="flex items-center gap-3 pb-2">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-orange/10">
-									<AlertCircle className="h-5 w-5 text-accent-orange" />
+								<div className="bg-accent-orange/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+									<AlertCircle className="text-accent-orange h-5 w-5" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold">Objet perdu</h1>
@@ -189,7 +198,7 @@ export default function PublierPerduPage() {
 									</Button>
 									<Button
 										type="submit"
-										className="h-12 bg-accent-orange text-white hover:bg-accent-orange-dark sm:flex-1"
+										className="bg-accent-orange hover:bg-accent-orange-dark h-12 text-white sm:flex-1"
 										disabled={isSubmitting}
 									>
 										{isSubmitting ? (

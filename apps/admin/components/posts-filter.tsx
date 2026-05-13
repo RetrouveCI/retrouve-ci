@@ -1,6 +1,20 @@
 'use client'
 
-import { Button, Calendar, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Badge, Separator, Label } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Calendar,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+	Badge,
+	Separator,
+	Label,
+} from '@retrouve-ci/ui/components'
 import * as React from 'react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'

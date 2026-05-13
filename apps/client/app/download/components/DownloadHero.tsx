@@ -1,5 +1,12 @@
 import Image from 'next/image'
-import { Apple, Smartphone, QrCode, Bell, MapPin, CheckCircle2 } from 'lucide-react'
+import {
+	Apple,
+	Smartphone,
+	QrCode,
+	Bell,
+	MapPin,
+	CheckCircle2,
+} from 'lucide-react'
 
 const stats = [
 	{ value: '50K+', label: 'Utilisateurs' },
@@ -27,8 +34,8 @@ export function DownloadHero() {
 							<span className="text-primary-green">plus vite</span>
 						</h1>
 						<p className="text-muted-foreground mx-auto mb-8 max-w-md text-base leading-relaxed md:mx-0 md:text-lg">
-							Scannez les stickers QR, recevez des alertes instantanées et gérez tous
-							vos objets depuis votre téléphone.
+							Scannez les stickers QR, recevez des alertes instantanées et gérez
+							tous vos objets depuis votre téléphone.
 						</p>
 
 						<div className="mb-10 flex flex-col justify-center gap-3 sm:flex-row md:justify-start">
@@ -128,7 +135,9 @@ export function DownloadHero() {
 									</div>
 									<div>
 										<p className="text-[10px] font-semibold">Retrouvé !</p>
-										<p className="text-muted-foreground text-[9px]">Il y a 2 min</p>
+										<p className="text-muted-foreground text-[9px]">
+											Il y a 2 min
+										</p>
 									</div>
 								</div>
 							</div>

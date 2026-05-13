@@ -1,4 +1,14 @@
-import { Button, Badge, CardContent, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Badge,
+	CardContent,
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { FileText } from 'lucide-react'
 import { BentoCard } from '@/components/bento-card'
@@ -61,7 +71,9 @@ export function PostsTab({ posts }: { posts: Post[] }) {
 										</Badge>
 									</TableCell>
 									<TableCell>
-										{format(new Date(post.createdAt), 'dd MMM yyyy', { locale: fr })}
+										{format(new Date(post.createdAt), 'dd MMM yyyy', {
+											locale: fr,
+										})}
 									</TableCell>
 									<TableCell className="text-right">
 										<Button variant="ghost" size="sm" asChild>

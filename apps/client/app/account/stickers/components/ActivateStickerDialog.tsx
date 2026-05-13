@@ -1,6 +1,17 @@
 'use client'
 
-import { Button, Input, Label, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Input,
+	Label,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
@@ -9,7 +20,9 @@ interface ActivateStickerDialogProps {
 	onActivate: (code: string, label: string, object?: string) => void
 }
 
-export function ActivateStickerDialog({ onActivate }: ActivateStickerDialogProps) {
+export function ActivateStickerDialog({
+	onActivate,
+}: ActivateStickerDialogProps) {
 	const [open, setOpen] = useState(false)
 	const [code, setCode] = useState('')
 	const [label, setLabel] = useState('')

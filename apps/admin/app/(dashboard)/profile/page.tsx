@@ -1,6 +1,11 @@
 'use client'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@retrouve-ci/ui/components'
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from '@retrouve-ci/ui/components'
 import { useAuth } from '@/lib/auth-context'
 import { TopBar } from '@/components/topbar'
 import { ProfileIdentityCard } from './components/ProfileIdentityCard'
@@ -20,8 +25,14 @@ const permissions = [
 	{ label: 'Gérer les QR codes', allowed: true },
 	{ label: 'Modérer les posts', allowed: true },
 	{ label: 'Consulter les événements', allowed: true },
-	{ label: 'Gérer les administrateurs', allowed: profileData.role === 'super_admin' },
-	{ label: 'Accès aux paramètres système', allowed: profileData.role === 'super_admin' },
+	{
+		label: 'Gérer les administrateurs',
+		allowed: profileData.role === 'super_admin',
+	},
+	{
+		label: 'Accès aux paramètres système',
+		allowed: profileData.role === 'super_admin',
+	},
 ]
 
 export default function ProfilePage() {

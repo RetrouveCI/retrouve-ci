@@ -120,7 +120,7 @@ export function MatchingSuggestions({
 									</div>
 
 									<div className="min-w-0 flex-1">
-										<p className="line-clamp-1 text-sm leading-tight font-medium transition-colors group-hover:text-primary-green">
+										<p className="group-hover:text-primary-green line-clamp-1 text-sm leading-tight font-medium transition-colors">
 											{item.title}
 										</p>
 										<div className="mt-0.5 flex items-center gap-2">

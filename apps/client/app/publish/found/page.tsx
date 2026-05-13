@@ -1,6 +1,15 @@
 'use client'
 
-import { Button, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Label,
+	Textarea,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react'
@@ -80,8 +89,8 @@ export default function PublierRetrouvePage() {
 					<div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_320px]">
 						<div className="space-y-6">
 							<div className="flex items-center gap-3 pb-2">
-								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-green/10">
-									<CheckCircle className="h-5 w-5 text-primary-green" />
+								<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+									<CheckCircle className="text-primary-green h-5 w-5" />
 								</div>
 								<div>
 									<h1 className="text-2xl font-bold">Objet retrouvé</h1>
@@ -147,7 +156,7 @@ export default function PublierRetrouvePage() {
 									<div className="space-y-2">
 										<div className="flex items-center gap-2">
 											<Label>Photo</Label>
-											<span className="rounded-full border border-primary-green/20 bg-primary-green/10 px-2 py-0.5 text-[10px] font-semibold text-primary-green">
+											<span className="border-primary-green/20 bg-primary-green/10 text-primary-green rounded-full border px-2 py-0.5 text-[10px] font-semibold">
 												Recommandé
 											</span>
 										</div>
@@ -190,7 +199,7 @@ export default function PublierRetrouvePage() {
 									</Button>
 									<Button
 										type="submit"
-										className="h-12 bg-primary-green text-white hover:bg-primary-green-dark sm:flex-1"
+										className="bg-primary-green hover:bg-primary-green-dark h-12 text-white sm:flex-1"
 										disabled={isSubmitting}
 									>
 										{isSubmitting ? (

@@ -1,4 +1,19 @@
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	Input,
+	Label,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@retrouve-ci/ui/components'
 
 interface EditAdminForm {
 	name: string
@@ -82,7 +97,11 @@ export function EditAdminDialog({
 						</Select>
 					</div>
 					<DialogFooter>
-						<Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => onOpenChange(false)}
+						>
 							Annuler
 						</Button>
 						<Button type="submit" disabled={isSubmitting}>

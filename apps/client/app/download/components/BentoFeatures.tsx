@@ -9,7 +9,8 @@ export function BentoFeatures() {
 						Tout ce dont vous avez besoin
 					</h2>
 					<p className="text-muted-foreground mx-auto max-w-md">
-						Une app pensée pour retrouver vos objets rapidement et en toute sécurité.
+						Une app pensée pour retrouver vos objets rapidement et en toute
+						sécurité.
 					</p>
 				</div>
 
@@ -25,9 +26,9 @@ export function BentoFeatures() {
 						</div>
 						<h3 className="mb-2 text-xl font-bold">Scan QR instantané</h3>
 						<p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
-							Pointez votre caméra vers n&apos;importe quel sticker RetrouveCI pour
-							identifier l&apos;objet et contacter son propriétaire en moins de 3
-							secondes.
+							Pointez votre caméra vers n&apos;importe quel sticker RetrouveCI
+							pour identifier l&apos;objet et contacter son propriétaire en
+							moins de 3 secondes.
 						</p>
 					</div>
 
@@ -74,12 +75,15 @@ export function BentoFeatures() {
 					<div className="group bg-background hover:border-accent-orange/40 flex flex-col justify-between rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
 						<div className="mb-4 flex items-center gap-1">
 							{[...Array(5)].map((_, i) => (
-								<Star key={i} className="fill-accent-orange text-accent-orange h-5 w-5" />
+								<Star
+									key={i}
+									className="fill-accent-orange text-accent-orange h-5 w-5"
+								/>
 							))}
 						</div>
 						<blockquote className="text-muted-foreground mb-4 text-sm leading-relaxed italic">
-							&ldquo;J&apos;ai retrouvé mon téléphone en 20 minutes grâce à RetrouveCI.
-							Incroyable !&rdquo;
+							&ldquo;J&apos;ai retrouvé mon téléphone en 20 minutes grâce à
+							RetrouveCI. Incroyable !&rdquo;
 						</blockquote>
 						<p className="text-xs font-medium">— Kouamé A., Abidjan</p>
 					</div>

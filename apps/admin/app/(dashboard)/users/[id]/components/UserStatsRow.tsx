@@ -8,7 +8,12 @@ interface UserStatsRowProps {
 	totalStickers: number
 }
 
-export function UserStatsRow({ qrCount, postsCount, ordersCount, totalStickers }: UserStatsRowProps) {
+export function UserStatsRow({
+	qrCount,
+	postsCount,
+	ordersCount,
+	totalStickers,
+}: UserStatsRowProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
 			<BentoCard

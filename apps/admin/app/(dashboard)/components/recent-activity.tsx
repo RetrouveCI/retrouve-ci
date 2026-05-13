@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle, Button } from '@retrouve-ci/ui/components'
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+	Button,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import {
 	Scan,

@@ -1,4 +1,9 @@
-import { Badge, Avatar, AvatarFallback, Separator } from '@retrouve-ci/ui/components'
+import {
+	Badge,
+	Avatar,
+	AvatarFallback,
+	Separator,
+} from '@retrouve-ci/ui/components'
 import { Phone, Mail, Calendar, User, ShieldCheck } from 'lucide-react'
 import { BentoCard } from '@/components/bento-card'
 import { format } from 'date-fns'
@@ -15,10 +20,14 @@ interface ProfileIdentityCardProps {
 
 const getRoleLabel = (role: string) => {
 	switch (role) {
-		case 'super_admin': return 'Super Administrateur'
-		case 'admin': return 'Administrateur'
-		case 'moderator': return 'Modérateur'
-		default: return role
+		case 'super_admin':
+			return 'Super Administrateur'
+		case 'admin':
+			return 'Administrateur'
+		case 'moderator':
+			return 'Modérateur'
+		default:
+			return role
 	}
 }
 
@@ -61,15 +70,16 @@ export function ProfileIdentityCard({
 					<div className="flex items-center gap-3">
 						<Calendar className="text-muted-foreground h-4 w-4 shrink-0" />
 						<span>
-							Depuis{' '}
-							{format(new Date(createdAt), 'MMMM yyyy', { locale: fr })}
+							Depuis {format(new Date(createdAt), 'MMMM yyyy', { locale: fr })}
 						</span>
 					</div>
 					<div className="flex items-center gap-3">
 						<User className="text-muted-foreground h-4 w-4 shrink-0" />
 						<span className="text-muted-foreground text-xs">
 							Dernière connexion :{' '}
-							{format(new Date(lastLogin), "d MMM yyyy 'à' HH:mm", { locale: fr })}
+							{format(new Date(lastLogin), "d MMM yyyy 'à' HH:mm", {
+								locale: fr,
+							})}
 						</span>
 					</div>
 				</div>

@@ -20,7 +20,9 @@ export function ActiveSessionsCard() {
 							<p className="text-muted-foreground text-xs">Navigateur web</p>
 						</div>
 					</div>
-					<p className="text-muted-foreground text-xs">Abidjan, Côte d&apos;Ivoire</p>
+					<p className="text-muted-foreground text-xs">
+						Abidjan, Côte d&apos;Ivoire
+					</p>
 					<Badge
 						variant="outline"
 						className="bg-primary/10 text-primary border-primary/20 mt-3 text-xs"

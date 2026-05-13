@@ -1,6 +1,18 @@
 'use client'
 
-import { Button, Input, Label, Badge, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Input,
+	Label,
+	Badge,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import { QrCode, Edit2, Power, PowerOff, Calendar, Package } from 'lucide-react'
 import { toast } from 'sonner'

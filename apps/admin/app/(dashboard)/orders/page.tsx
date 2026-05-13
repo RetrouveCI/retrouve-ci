@@ -1,6 +1,19 @@
 'use client'
 
-import { Button, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Badge,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import Link from 'next/link'
 import { TopBar } from '@/components/topbar'

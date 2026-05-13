@@ -6,8 +6,8 @@ export function StickersCta() {
 		<section className="py-16 md:py-20">
 			<div className="container mx-auto px-4">
 				<div className="mx-auto max-w-3xl text-center">
-					<div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-green/10">
-						<Shield className="h-7 w-7 text-primary-green" />
+					<div className="bg-primary-green/10 mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl">
+						<Shield className="text-primary-green h-7 w-7" />
 					</div>
 					<h2 className="mb-4 text-3xl font-bold md:text-4xl">
 						Prêt à protéger vos objets ?
@@ -20,7 +20,7 @@ export function StickersCta() {
 						<Button
 							asChild
 							size="lg"
-							className="h-12 bg-primary-green px-8 text-white hover:bg-primary-green-dark"
+							className="bg-primary-green hover:bg-primary-green-dark h-12 px-8 text-white"
 						>
 							<Link href="/stickers/order">
 								Commander maintenant

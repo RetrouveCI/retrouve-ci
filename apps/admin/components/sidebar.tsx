@@ -1,6 +1,13 @@
 'use client'
 
-import { Avatar, AvatarFallback, Button, Sheet, SheetContent, SheetTrigger } from '@retrouve-ci/ui/components'
+import {
+	Avatar,
+	AvatarFallback,
+	Button,
+	Sheet,
+	SheetContent,
+	SheetTrigger,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'

@@ -1,4 +1,14 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Popover, PopoverContent, PopoverTrigger, Calendar as CalendarComponent } from '@retrouve-ci/ui/components'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+	Calendar as CalendarComponent,
+} from '@retrouve-ci/ui/components'
 import { type DateRange } from 'react-day-picker'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -28,10 +38,10 @@ export function FilterPanel({
 	onReset,
 }: FilterPanelProps) {
 	return (
-		<div className="mb-5 rounded-2xl border-2 border-dashed border-primary-green/20 bg-primary-green/3 p-5">
+		<div className="border-primary-green/20 bg-primary-green/3 mb-5 rounded-2xl border-2 border-dashed p-5">
 			<div className="mb-4 flex items-center justify-between">
 				<p className="flex items-center gap-2 text-sm font-semibold">
-					<SlidersHorizontal className="h-4 w-4 text-primary-green" />
+					<SlidersHorizontal className="text-primary-green h-4 w-4" />
 					Filtres avancés
 				</p>
 				{activeFiltersCount > 0 && (

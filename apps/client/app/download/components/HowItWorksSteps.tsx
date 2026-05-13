@@ -33,7 +33,10 @@ export function HowItWorksSteps() {
 				</div>
 				<div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
 					{steps.map((item, i) => (
-						<div key={i} className="bg-background relative rounded-2xl border p-6 text-center">
+						<div
+							key={i}
+							className="bg-background relative rounded-2xl border p-6 text-center"
+						>
 							<div className="text-muted-foreground/10 mb-3 text-5xl font-bold">
 								{item.step}
 							</div>

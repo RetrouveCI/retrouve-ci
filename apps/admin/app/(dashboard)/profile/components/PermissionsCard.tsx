@@ -6,7 +6,11 @@ interface Permission {
 	allowed: boolean
 }
 
-export function PermissionsCard({ permissions }: { permissions: Permission[] }) {
+export function PermissionsCard({
+	permissions,
+}: {
+	permissions: Permission[]
+}) {
 	return (
 		<BentoCard variant="content" className="lg:col-span-2">
 			<div className="p-6">
@@ -22,7 +26,9 @@ export function PermissionsCard({ permissions }: { permissions: Permission[] }) 
 						<div
 							key={permission.label}
 							className={`flex items-center gap-3 rounded-xl border p-3.5 transition-colors ${
-								permission.allowed ? 'bg-primary/5 border-primary/20' : 'bg-muted/30'
+								permission.allowed
+									? 'bg-primary/5 border-primary/20'
+									: 'bg-muted/30'
 							}`}
 						>
 							{permission.allowed ? (

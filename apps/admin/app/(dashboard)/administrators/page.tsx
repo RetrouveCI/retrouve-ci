@@ -1,13 +1,38 @@
 'use client'
 
-import { Button, Badge, Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Badge,
+	Avatar,
+	AvatarFallback,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import { useAdministrators } from '@/application/administrators/use-administrators'
 import type { Admin } from '@/domain/entities/admin'
 import { TopBar } from '@/components/topbar'
 import { DataTable } from '@/components/data-table'
 import { BentoCard } from '@/components/bento-card'
-import { MoreHorizontal, Plus, Edit, Ban, Trash2, Shield, ShieldCheck, ShieldAlert, Key } from 'lucide-react'
+import {
+	MoreHorizontal,
+	Plus,
+	Edit,
+	Ban,
+	Trash2,
+	Shield,
+	ShieldCheck,
+	ShieldAlert,
+	Key,
+} from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
@@ -20,23 +45,40 @@ import { ResetPasswordDialog } from './components/ResetPasswordDialog'
 
 const getRoleLabel = (role: string) => {
 	switch (role) {
-		case 'super_admin': return 'Super Admin'
-		case 'admin': return 'Admin'
-		case 'moderator': return 'Modérateur'
-		default: return role
+		case 'super_admin':
+			return 'Super Admin'
+		case 'admin':
+			return 'Admin'
+		case 'moderator':
+			return 'Modérateur'
+		default:
+			return role
 	}
 }
 
 const getRoleIcon = (role: string) => {
 	switch (role) {
-		case 'super_admin': return <ShieldCheck className="h-3.5 w-3.5" />
-		case 'admin': return <Shield className="h-3.5 w-3.5" />
-		default: return <ShieldAlert className="h-3.5 w-3.5" />
+		case 'super_admin':
+			return <ShieldCheck className="h-3.5 w-3.5" />
+		case 'admin':
+			return <Shield className="h-3.5 w-3.5" />
+		default:
+			return <ShieldAlert className="h-3.5 w-3.5" />
 	}
 }
 
-type AdminForm = { name: string; email: string; phone: string; role: 'super_admin' | 'admin' | 'moderator' }
-const emptyForm: AdminForm = { name: '', email: '', phone: '', role: 'moderator' }
+type AdminForm = {
+	name: string
+	email: string
+	phone: string
+	role: 'super_admin' | 'admin' | 'moderator'
+}
+const emptyForm: AdminForm = {
+	name: '',
+	email: '',
+	phone: '',
+	role: 'moderator',
+}
 
 export default function AdministratorsPage() {
 	const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -51,7 +93,9 @@ export default function AdministratorsPage() {
 	const { admins, create, update, updateStatus, remove } = useAdministrators()
 
 	const filteredAdmins =
-		statusFilter === 'all' ? admins : admins.filter(a => a.status === statusFilter)
+		statusFilter === 'all'
+			? admins
+			: admins.filter(a => a.status === statusFilter)
 
 	const handleAddAdmin = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -106,7 +150,9 @@ export default function AdministratorsPage() {
 					</Avatar>
 					<div>
 						<p className="text-sm font-medium">{row.original.name}</p>
-						<p className="text-muted-foreground text-xs">{row.original.email}</p>
+						<p className="text-muted-foreground text-xs">
+							{row.original.email}
+						</p>
 					</div>
 				</div>
 			),
@@ -115,7 +161,9 @@ export default function AdministratorsPage() {
 			accessorKey: 'phone',
 			header: 'Téléphone',
 			cell: ({ row }) => (
-				<span className="text-muted-foreground text-sm">{row.original.phone}</span>
+				<span className="text-muted-foreground text-sm">
+					{row.original.phone}
+				</span>
 			),
 		},
 		{
@@ -158,7 +206,9 @@ export default function AdministratorsPage() {
 			cell: ({ row }) => (
 				<span className="text-muted-foreground text-sm">
 					{row.original.lastLogin
-						? format(new Date(row.original.lastLogin), 'dd/MM/yyyy HH:mm', { locale: fr })
+						? format(new Date(row.original.lastLogin), 'dd/MM/yyyy HH:mm', {
+								locale: fr,
+							})
 						: 'Jamais'}
 				</span>
 			),
@@ -201,7 +251,8 @@ export default function AdministratorsPage() {
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
 								onClick={() => {
-									const newStatus = admin.status === 'active' ? 'inactive' : 'active'
+									const newStatus =
+										admin.status === 'active' ? 'inactive' : 'active'
 									updateStatus(admin.id, newStatus).then(() =>
 										toast.success(
 											`Compte ${admin.status === 'active' ? 'désactivé' : 'activé'}`,

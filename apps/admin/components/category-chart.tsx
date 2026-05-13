@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@retrouve-ci/ui/components'
 import {
 	BarChart,
 	Bar,

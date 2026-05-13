@@ -1,4 +1,13 @@
-import { Button, Textarea, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Textarea,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@retrouve-ci/ui/components'
 
 interface HidePostDialogProps {
 	open: boolean
@@ -21,8 +30,8 @@ export function HidePostDialog({
 				<DialogHeader>
 					<DialogTitle>Masquer ce post ?</DialogTitle>
 					<DialogDescription>
-						Le post ne sera plus visible publiquement. Vous pouvez indiquer une raison
-						(optionnel).
+						Le post ne sera plus visible publiquement. Vous pouvez indiquer une
+						raison (optionnel).
 					</DialogDescription>
 				</DialogHeader>
 				<Textarea

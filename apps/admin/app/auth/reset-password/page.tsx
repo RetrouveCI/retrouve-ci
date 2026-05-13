@@ -61,7 +61,8 @@ function ResetPasswordContent() {
 		await new Promise(r => setTimeout(r, 1000))
 		setIsSubmitting(false)
 		toast.success('Mot de passe réinitialisé !', {
-			description: 'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
+			description:
+				'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
 		})
 		router.push('/admin/login')
 	}
@@ -78,7 +79,9 @@ function ResetPasswordContent() {
 						className="rounded-2xl shadow-lg"
 					/>
 				</div>
-				<CardTitle className="text-2xl font-bold">Nouveau mot de passe</CardTitle>
+				<CardTitle className="text-2xl font-bold">
+					Nouveau mot de passe
+				</CardTitle>
 				<CardDescription className="text-base">
 					{email ? (
 						<>
@@ -104,7 +107,7 @@ function ResetPasswordContent() {
 									id="newPassword"
 									type={showNew ? 'text' : 'password'}
 									placeholder="Minimum 8 caractères"
-									className="h-11 rounded-xl pl-10 pr-11"
+									className="h-11 rounded-xl pr-11 pl-10"
 									{...register('newPassword')}
 									disabled={isSubmitting}
 									autoFocus
@@ -115,7 +118,11 @@ function ResetPasswordContent() {
 									className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 p-1 transition-colors"
 									tabIndex={-1}
 								>
-									{showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+									{showNew ? (
+										<EyeOff className="h-4 w-4" />
+									) : (
+										<Eye className="h-4 w-4" />
+									)}
 								</button>
 							</div>
 							{errors.newPassword && (
@@ -129,7 +136,10 @@ function ResetPasswordContent() {
 						</Field>
 
 						<Field>
-							<FieldLabel htmlFor="confirmPassword" className="text-sm font-medium">
+							<FieldLabel
+								htmlFor="confirmPassword"
+								className="text-sm font-medium"
+							>
 								Confirmer le mot de passe
 							</FieldLabel>
 							<div className="relative">
@@ -138,7 +148,7 @@ function ResetPasswordContent() {
 									id="confirmPassword"
 									type={showConfirm ? 'text' : 'password'}
 									placeholder="••••••••"
-									className="h-11 rounded-xl pl-10 pr-11"
+									className="h-11 rounded-xl pr-11 pl-10"
 									{...register('confirmPassword')}
 									disabled={isSubmitting}
 								/>

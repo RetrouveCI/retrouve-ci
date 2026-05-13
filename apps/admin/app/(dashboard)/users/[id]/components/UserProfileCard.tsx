@@ -1,4 +1,9 @@
-import { Badge, CardContent, Avatar, AvatarFallback } from '@retrouve-ci/ui/components'
+import {
+	Badge,
+	CardContent,
+	Avatar,
+	AvatarFallback,
+} from '@retrouve-ci/ui/components'
 import { Phone, Mail, Calendar } from 'lucide-react'
 import { BentoCard } from '@/components/bento-card'
 import { format } from 'date-fns'
@@ -50,7 +55,9 @@ export function UserProfileCard({ user }: { user: User }) {
 						<span>
 							Inscrit le{' '}
 							<span className="font-medium">
-								{format(new Date(user.createdAt), 'dd MMMM yyyy', { locale: fr })}
+								{format(new Date(user.createdAt), 'dd MMMM yyyy', {
+									locale: fr,
+								})}
 							</span>
 						</span>
 					</div>

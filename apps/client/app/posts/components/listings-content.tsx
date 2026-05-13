@@ -37,7 +37,7 @@ export function ListingsContent({
 				</p>
 				<Button
 					asChild
-					className="rounded-xl bg-primary-green text-white hover:bg-primary-green-dark"
+					className="bg-primary-green hover:bg-primary-green-dark rounded-xl text-white"
 				>
 					<a href="/publish">Publier une annonce</a>
 				</Button>

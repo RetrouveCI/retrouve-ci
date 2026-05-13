@@ -1,7 +1,22 @@
-import { Button, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@retrouve-ci/ui/components'
 import { Trash2 } from 'lucide-react'
 
-export function DangerZoneSection({ onDeleteAccount }: { onDeleteAccount: () => void }) {
+export function DangerZoneSection({
+	onDeleteAccount,
+}: {
+	onDeleteAccount: () => void
+}) {
 	return (
 		<div className="border-destructive/20 bg-destructive/5 overflow-hidden rounded-2xl border">
 			<div className="border-destructive/20 bg-destructive/10 border-b p-5">
@@ -33,7 +48,9 @@ export function DangerZoneSection({ onDeleteAccount }: { onDeleteAccount: () => 
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
-								<AlertDialogCancel className="rounded-xl">Annuler</AlertDialogCancel>
+								<AlertDialogCancel className="rounded-xl">
+									Annuler
+								</AlertDialogCancel>
 								<AlertDialogAction
 									onClick={onDeleteAccount}
 									className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"

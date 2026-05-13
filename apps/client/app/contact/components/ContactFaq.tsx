@@ -34,13 +34,18 @@ export function ContactFaq() {
 		<section className="border-t py-12 md:py-16">
 			<div className="container mx-auto px-4">
 				<div className="mx-auto max-w-2xl">
-					<h2 className="mb-2 text-center text-3xl font-bold">Questions fréquentes</h2>
+					<h2 className="mb-2 text-center text-3xl font-bold">
+						Questions fréquentes
+					</h2>
 					<p className="text-muted-foreground mb-8 text-center">
 						Les réponses aux questions les plus posées.
 					</p>
 					<div className="space-y-3">
 						{faqs.map((faq, i) => (
-							<div key={i} className="bg-background overflow-hidden rounded-2xl border">
+							<div
+								key={i}
+								className="bg-background overflow-hidden rounded-2xl border"
+							>
 								<button
 									className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left"
 									onClick={() => setOpenFaq(openFaq === i ? null : i)}

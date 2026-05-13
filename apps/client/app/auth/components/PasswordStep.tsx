@@ -49,7 +49,9 @@ export function PasswordStep({
 			<PasswordInput
 				id="confirm-password"
 				label={
-					isCreate ? 'Confirmer le mot de passe' : 'Confirmer le nouveau mot de passe'
+					isCreate
+						? 'Confirmer le mot de passe'
+						: 'Confirmer le nouveau mot de passe'
 				}
 				value={confirmPassword}
 				onChange={v => {

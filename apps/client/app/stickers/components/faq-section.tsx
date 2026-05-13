@@ -1,4 +1,9 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@retrouve-ci/ui/components'
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@retrouve-ci/ui/components'
 import { Lock, MessageCircle, Power, Smartphone, RefreshCw } from 'lucide-react'
 const FAQ_ITEMS = [
 	{
@@ -57,8 +62,8 @@ export function FaqSection() {
 							>
 								<AccordionTrigger className="py-4 hover:no-underline">
 									<div className="flex items-center gap-3 text-left">
-										<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-green/10">
-											<item.icon className="h-4 w-4 text-primary-green" />
+										<div className="bg-primary-green/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+											<item.icon className="text-primary-green h-4 w-4" />
 										</div>
 										<span className="text-sm font-medium md:text-base">
 											{item.question}

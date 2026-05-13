@@ -1,6 +1,14 @@
 'use client'
 
-import { Button, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Badge,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@retrouve-ci/ui/components'
 import { useState } from 'react'
 import { TopBar } from '@/components/topbar'
 import { DataTable } from '@/components/data-table'

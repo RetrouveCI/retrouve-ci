@@ -64,7 +64,9 @@ export function OtpStep({
 								: 'bg-primary-green/10 text-primary-green',
 						)}
 					>
-						<span className="text-base tabular-nums">{formatTime(timeLeft)}</span>
+						<span className="text-base tabular-nums">
+							{formatTime(timeLeft)}
+						</span>
 						<span className="text-muted-foreground text-xs font-normal">
 							avant expiration
 						</span>
@@ -76,7 +78,9 @@ export function OtpStep({
 						disabled={isSubmitting}
 						className="text-primary-green hover:text-primary-green-dark inline-flex items-center gap-2 text-sm font-semibold transition-colors disabled:opacity-50"
 					>
-						<RefreshCw className={cn('h-4 w-4', isSubmitting && 'animate-spin')} />
+						<RefreshCw
+							className={cn('h-4 w-4', isSubmitting && 'animate-spin')}
+						/>
 						Renvoyer le code
 					</button>
 				)}

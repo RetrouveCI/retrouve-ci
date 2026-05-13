@@ -16,7 +16,7 @@ export function FeatureCard({
 }: FeatureCardProps) {
 	return (
 		<div className="group glass-effect elevated-card relative rounded-2xl border border-white/20 p-4 shadow-sm transition-all duration-300 hover:shadow-lg md:p-6">
-			<div className="absolute inset-0 rounded-2xl bg-linear-to-br from-primary-green/0 to-accent-orange/0 transition-all duration-300 group-hover:from-primary-green/5 group-hover:to-accent-orange/5" />
+			<div className="from-primary-green/0 to-accent-orange/0 group-hover:from-primary-green/5 group-hover:to-accent-orange/5 absolute inset-0 rounded-2xl bg-linear-to-br transition-all duration-300" />
 
 			<div className="relative">
 				<div

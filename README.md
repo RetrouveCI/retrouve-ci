@@ -73,8 +73,8 @@ This project uses [Renovate](https://docs.renovatebot.com/) to keep dependencies
 up to date automatically. Configuration is in [`renovate.json`](renovate.json).
 
 To activate it, install the
-[Renovate GitHub App](https://github.com/apps/renovate) on the repository.
-Once installed, Renovate will:
+[Renovate GitHub App](https://github.com/apps/renovate) on the repository. Once
+installed, Renovate will:
 
 - Open a **Dependency Dashboard** issue listing all pending updates
 - Create PRs grouped by ecosystem (React, Tailwind, Radix UI, etc.)
@@ -83,8 +83,8 @@ Once installed, Renovate will:
 
 ## Architecture Notes
 
-- `@retrouve-ci/ui` is consumed directly from source via TypeScript path aliases —
-  no build step is required before starting the apps. Turborepo's
+- `@retrouve-ci/ui` is consumed directly from source via TypeScript path aliases
+  — no build step is required before starting the apps. Turborepo's
   `"dependsOn": ["^build"]` only applies to packages that have a `build` script.
 - All shadcn/ui components live in `packages/ui/src/components/ui/` and are
   imported by apps via the `@retrouve-ci/ui/components` barrel export.

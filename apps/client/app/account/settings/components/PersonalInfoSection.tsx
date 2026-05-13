@@ -36,7 +36,9 @@ export function PersonalInfoSection({ user }: { user: UserInfo | null }) {
 						</div>
 						<div>
 							<Label className="text-sm font-medium">Téléphone</Label>
-							<p className="text-muted-foreground text-sm">+225 {user?.phone}</p>
+							<p className="text-muted-foreground text-sm">
+								+225 {user?.phone}
+							</p>
 						</div>
 					</div>
 					<span className="bg-primary-green/10 text-primary-green flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium">

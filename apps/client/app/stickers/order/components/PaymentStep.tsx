@@ -1,8 +1,22 @@
 'use client'
 
-import { Button, Input, Label, RadioGroup, RadioGroupItem } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Input,
+	Label,
+	RadioGroup,
+	RadioGroupItem,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
-import { ArrowLeft, Phone, Shield, Smartphone, Check, CreditCard, Loader2 } from 'lucide-react'
+import {
+	ArrowLeft,
+	Phone,
+	Shield,
+	Smartphone,
+	Check,
+	CreditCard,
+	Loader2,
+} from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 import { OrderSummaryCard } from './OrderSummaryCard'
 
@@ -97,10 +111,7 @@ export function PaymentStep({
 											: 'border-border hover:border-primary-green/30',
 									)}
 								>
-									<RadioGroupItem
-										value={method.id}
-										className="sr-only"
-									/>
+									<RadioGroupItem value={method.id} className="sr-only" />
 									<div
 										className="flex h-10 w-10 items-center justify-center rounded-lg text-xs font-bold text-white"
 										style={{ backgroundColor: method.color }}

@@ -1,4 +1,12 @@
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@retrouve-ci/ui/components'
 
 interface ResetPasswordDialogProps {
 	open: boolean
@@ -21,7 +29,8 @@ export function ResetPasswordDialog({
 				<DialogHeader>
 					<DialogTitle>Réinitialiser le mot de passe</DialogTitle>
 					<DialogDescription>
-						Un email sera envoyé à {adminEmail} pour définir un nouveau mot de passe.
+						Un email sera envoyé à {adminEmail} pour définir un nouveau mot de
+						passe.
 					</DialogDescription>
 				</DialogHeader>
 				<DialogFooter>

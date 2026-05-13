@@ -1,4 +1,16 @@
-import { Button, Badge, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Badge,
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -39,7 +51,11 @@ interface ListingCardProps {
 	onStatusChange: (status: UserListing['status']) => void
 }
 
-export function ListingCard({ listing, onDelete, onStatusChange }: ListingCardProps) {
+export function ListingCard({
+	listing,
+	onDelete,
+	onStatusChange,
+}: ListingCardProps) {
 	return (
 		<div
 			className={cn(
@@ -177,7 +193,9 @@ export function ListingCard({ listing, onDelete, onStatusChange }: ListingCardPr
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
-								<AlertDialogCancel className="rounded-xl">Annuler</AlertDialogCancel>
+								<AlertDialogCancel className="rounded-xl">
+									Annuler
+								</AlertDialogCancel>
 								<AlertDialogAction
 									onClick={onDelete}
 									className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"

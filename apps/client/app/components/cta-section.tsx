@@ -6,8 +6,8 @@ export function CtaSection() {
 		<section className="py-20">
 			<div className="container mx-auto px-4">
 				<div className="bg-foreground relative mx-auto max-w-3xl overflow-hidden rounded-3xl p-10 md:p-14">
-					<div className="absolute inset-0 bg-linear-to-br from-primary-green/20 via-transparent to-accent-orange/10" />
-					<div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-primary-green/20 blur-3xl" />
+					<div className="from-primary-green/20 to-accent-orange/10 absolute inset-0 bg-linear-to-br via-transparent" />
+					<div className="bg-primary-green/20 absolute -top-20 -right-20 h-60 w-60 rounded-full blur-3xl" />
 
 					<div className="relative z-10 space-y-6 text-center">
 						<h2 className="text-2xl font-bold text-white md:text-3xl">

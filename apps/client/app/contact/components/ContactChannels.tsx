@@ -37,7 +37,9 @@ export function ContactChannels() {
 				const Icon = ch.icon
 				const content = (
 					<div className="bg-background group flex items-center gap-4 rounded-2xl border p-5 transition-transform duration-200 hover:-translate-y-0.5">
-						<div className={`h-11 w-11 rounded-xl ${ch.bg} flex shrink-0 items-center justify-center`}>
+						<div
+							className={`h-11 w-11 rounded-xl ${ch.bg} flex shrink-0 items-center justify-center`}
+						>
 							<Icon className={`h-5 w-5 ${ch.color}`} />
 						</div>
 						<div className="min-w-0">
@@ -48,7 +50,12 @@ export function ContactChannels() {
 					</div>
 				)
 				return ch.href ? (
-					<a key={ch.title} href={ch.href} target="_blank" rel="noopener noreferrer">
+					<a
+						key={ch.title}
+						href={ch.href}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
 						{content}
 					</a>
 				) : (

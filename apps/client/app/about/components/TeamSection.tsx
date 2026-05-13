@@ -27,7 +27,9 @@ export function TeamSection() {
 								</span>
 							</div>
 							<p className="font-semibold">{member.name}</p>
-							<p className="text-muted-foreground mt-0.5 text-sm">{member.role}</p>
+							<p className="text-muted-foreground mt-0.5 text-sm">
+								{member.role}
+							</p>
 						</div>
 					))}
 				</div>

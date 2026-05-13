@@ -1,6 +1,22 @@
-import { Button, Badge, Card, CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Badge,
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
-import { Copy, ExternalLink, Ban, CheckCircle, Package, Calendar, User, Box } from 'lucide-react'
+import {
+	Copy,
+	ExternalLink,
+	Ban,
+	CheckCircle,
+	Package,
+	Calendar,
+	User,
+	Box,
+} from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { QRCodeSVG } from 'qrcode.react'
@@ -12,7 +28,11 @@ interface TokenDetailsCardProps {
 	onCopy: (text: string, label: string) => void
 }
 
-export function TokenDetailsCard({ token, qrUrl, onCopy }: TokenDetailsCardProps) {
+export function TokenDetailsCard({
+	token,
+	qrUrl,
+	onCopy,
+}: TokenDetailsCardProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -24,7 +44,9 @@ export function TokenDetailsCard({ token, qrUrl, onCopy }: TokenDetailsCardProps
 						<div className="rounded-lg bg-white p-4">
 							<QRCodeSVG value={qrUrl} size={180} />
 						</div>
-						<p className="mt-4 font-mono text-lg font-semibold">{token.token}</p>
+						<p className="mt-4 font-mono text-lg font-semibold">
+							{token.token}
+						</p>
 						<div className="mt-2 flex gap-2">
 							<Button
 								variant="outline"

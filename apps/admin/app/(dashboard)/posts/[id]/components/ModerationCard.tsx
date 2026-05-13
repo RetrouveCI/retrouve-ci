@@ -1,4 +1,11 @@
-import { Button, Badge, Card, CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Badge,
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@retrouve-ci/ui/components'
 import { Check, EyeOff, Eye, Trash2 } from 'lucide-react'
 
 interface ModerationCardProps {
@@ -8,7 +15,12 @@ interface ModerationCardProps {
 	onDelete: () => void
 }
 
-export function ModerationCard({ status, onApprove, onHide, onDelete }: ModerationCardProps) {
+export function ModerationCard({
+	status,
+	onApprove,
+	onHide,
+	onDelete,
+}: ModerationCardProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -26,7 +38,11 @@ export function ModerationCard({ status, onApprove, onHide, onDelete }: Moderati
 									: 'bg-gray-100 text-gray-700 hover:bg-gray-100'
 						}
 					>
-						{status === 'published' ? 'Publié' : status === 'pending' ? 'En attente' : 'Masqué'}
+						{status === 'published'
+							? 'Publié'
+							: status === 'pending'
+								? 'En attente'
+								: 'Masqué'}
 					</Badge>
 				</div>
 

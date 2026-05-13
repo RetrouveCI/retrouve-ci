@@ -1,6 +1,20 @@
 'use client'
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+	Button,
+	Input,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@retrouve-ci/ui/components'
 import {
 	type ColumnDef,
 	flexRender,

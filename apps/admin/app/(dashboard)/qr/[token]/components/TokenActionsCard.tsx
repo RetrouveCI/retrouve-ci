@@ -1,4 +1,10 @@
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '@retrouve-ci/ui/components'
 import Link from 'next/link'
 import { ArrowLeft, Ban, Pause } from 'lucide-react'
 
@@ -7,7 +13,10 @@ interface TokenActionsCardProps {
 	onRevokeClick: () => void
 }
 
-export function TokenActionsCard({ status, onRevokeClick }: TokenActionsCardProps) {
+export function TokenActionsCard({
+	status,
+	onRevokeClick,
+}: TokenActionsCardProps) {
 	return (
 		<>
 			<Card>

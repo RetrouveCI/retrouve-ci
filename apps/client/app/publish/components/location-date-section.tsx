@@ -1,4 +1,12 @@
-import { Label, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@retrouve-ci/ui/components'
+import {
+	Label,
+	Input,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@retrouve-ci/ui/components'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/lib/ci-locations'
 
 interface LocationDateSectionProps {

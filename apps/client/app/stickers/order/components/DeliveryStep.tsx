@@ -2,7 +2,16 @@
 
 import { Button, Input, Label, Textarea } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, MapPin, Phone, User, Tag, Check, X } from 'lucide-react'
+import {
+	ArrowLeft,
+	ArrowRight,
+	MapPin,
+	Phone,
+	User,
+	Tag,
+	Check,
+	X,
+} from 'lucide-react'
 import { OrderSummaryCard } from './OrderSummaryCard'
 
 interface FormData {

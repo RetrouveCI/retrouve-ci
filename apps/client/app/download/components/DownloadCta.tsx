@@ -16,8 +16,8 @@ export function DownloadCta() {
 						Utilisez la version web
 					</h2>
 					<p className="text-muted-foreground mx-auto mb-8 max-w-sm">
-						Consultez les annonces, publiez vos objets et commandez vos stickers QR dès
-						maintenant.
+						Consultez les annonces, publiez vos objets et commandez vos stickers
+						QR dès maintenant.
 					</p>
 					<div className="flex flex-col justify-center gap-3 sm:flex-row">
 						<Button
@@ -30,7 +30,12 @@ export function DownloadCta() {
 								<ArrowRight className="h-4 w-4" />
 							</Link>
 						</Button>
-						<Button asChild variant="outline" size="lg" className="h-11 rounded-xl px-6">
+						<Button
+							asChild
+							variant="outline"
+							size="lg"
+							className="h-11 rounded-xl px-6"
+						>
 							<Link href="/stickers">Commander des stickers</Link>
 						</Button>
 					</div>
