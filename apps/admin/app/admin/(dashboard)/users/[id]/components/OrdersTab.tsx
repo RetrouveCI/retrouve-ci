@@ -23,8 +23,8 @@ interface Order {
 	createdAt: string
 	deliveryCity: string
 	deliveryAddress: string
-	trackingNumber?: string
-	deliveryNotes?: string
+	trackingNumber: string | null
+	deliveryNotes: string | null
 }
 
 export function OrdersTab({ orders }: { orders: Order[] }) {

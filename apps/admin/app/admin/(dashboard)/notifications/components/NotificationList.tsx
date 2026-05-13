@@ -19,8 +19,8 @@ const typeConfig: Record<
 
 interface NotificationListProps {
 	notifications: Notification[]
-	onMarkAsRead: (id: string) => void
-	onRemove: (id: string) => void
+	onMarkAsRead: (id: number) => void
+	onRemove: (id: number) => void
 }
 
 export function NotificationList({ notifications, onMarkAsRead, onRemove }: NotificationListProps) {

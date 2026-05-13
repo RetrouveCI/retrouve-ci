@@ -12,7 +12,7 @@ interface Post {
 	date: string
 	authorId: number
 	authorName: string
-	image?: string
+	image: string | null
 }
 
 export function PostContentCard({ post }: { post: Post }) {

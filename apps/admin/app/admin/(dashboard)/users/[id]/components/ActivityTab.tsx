@@ -5,9 +5,9 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
 interface Event {
-	id: string
+	id: number
 	type: 'scan' | 'contact' | 'activation' | string
-	token?: string
+	token: string | null
 	timestamp: string
 	source: string
 }

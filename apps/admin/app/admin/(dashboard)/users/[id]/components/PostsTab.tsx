@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
 interface Post {
-	id: string
+	id: number
 	title: string
 	type: 'lost' | 'found'
 	status: 'published' | 'pending' | 'hidden'
