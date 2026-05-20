@@ -39,7 +39,7 @@ export function WaveDivider({
 	return (
 		<div
 			className={cn(
-				'w-full overflow-hidden leading-[0]',
+				'w-full overflow-hidden leading-0',
 				flip && 'rotate-180',
 				className,
 			)}
@@ -48,7 +48,7 @@ export function WaveDivider({
 			{variant === 'smooth' && (
 				<svg
 					viewBox="0 0 1440 120"
-					className="h-[60px] w-full md:h-[80px] lg:h-[100px]"
+					className="h-15 w-full md:h-20 lg:h-25"
 					preserveAspectRatio="none"
 				>
 					<path
@@ -61,7 +61,7 @@ export function WaveDivider({
 			{variant === 'layered' && (
 				<svg
 					viewBox="0 0 1440 150"
-					className="h-[80px] w-full md:h-[100px] lg:h-[120px]"
+					className="h-20 w-full md:h-25 lg:h-30"
 					preserveAspectRatio="none"
 				>
 					<path
@@ -82,7 +82,7 @@ export function WaveDivider({
 			{variant === 'asymmetric' && (
 				<svg
 					viewBox="0 0 1440 120"
-					className="h-[60px] w-full md:h-[80px] lg:h-[100px]"
+					className="h-15 w-full md:h-20 lg:h-25"
 					preserveAspectRatio="none"
 				>
 					<path
@@ -99,7 +99,7 @@ export function WaveDivider({
 			{variant === 'inverse' && (
 				<svg
 					viewBox="0 0 1440 120"
-					className="h-[60px] w-full md:h-[80px] lg:h-[100px]"
+					className="h-15 w-full md:h-20 lg:h-25"
 					preserveAspectRatio="none"
 				>
 					<path

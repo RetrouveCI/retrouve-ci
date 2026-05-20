@@ -2,13 +2,13 @@
 
 import { Button } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, User, LogOut, LogIn } from 'lucide-react'
 import { MobileNav } from '@/components/mobile-nav'
 import { useAuth } from '@/contexts/auth-context'
 import { useState, useEffect } from 'react'
 import { cn } from '@retrouve-ci/ui/utils'
+import { LogoRetrouveCI } from './logo-retrouveci'
 
 const navLinks = [
 	{ href: '/', label: 'Accueil' },
@@ -42,17 +42,7 @@ export function Header() {
 		>
 			<div className="container mx-auto flex h-16 items-center justify-between px-4">
 				<Link href="/" className="group flex shrink-0 items-center gap-2.5">
-					<Image
-						src="/logo.png"
-						alt="RetrouveCI logo"
-						width={36}
-						height={36}
-						className="rounded-xl transition-transform group-hover:scale-105"
-						priority
-					/>
-					<span className="text-xl font-bold tracking-tight">
-						Retrouve<span className="text-accent-orange">CI</span>
-					</span>
+					<LogoRetrouveCI />
 				</Link>
 
 				<nav className="hidden items-center md:flex">
@@ -82,7 +72,7 @@ export function Header() {
 									<div className="bg-primary-green/10 flex h-7 w-7 items-center justify-center rounded-full">
 										<User className="text-primary-green h-4 w-4" />
 									</div>
-									<span className="max-w-[100px] truncate font-medium">
+									<span className="max-w-25 truncate font-medium">
 										{user?.name}
 									</span>
 								</Link>

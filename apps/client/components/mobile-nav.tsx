@@ -52,18 +52,14 @@ export function MobileNav({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent
-				side="right"
-				className="flex w-[300px] flex-col p-0 sm:w-[360px]"
-			>
-				{/* Header */}
+			<SheetContent side="right" className="flex w-75 flex-col p-0 sm:w-90">
 				<SheetHeader className="border-b px-5 pt-6 pb-5">
 					<SheetTitle className="flex items-center gap-2.5">
 						<Image
 							src="/logo.png"
 							alt="RetrouveCI logo"
-							width={34}
-							height={34}
+							width={24}
+							height={24}
 							className="rounded-xl"
 						/>
 						<span className="text-lg font-bold tracking-tight">
@@ -75,7 +71,6 @@ export function MobileNav({
 					</SheetDescription>
 				</SheetHeader>
 
-				{/* Nav links */}
 				<nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
 					{links.map(link => {
 						const Icon = NAV_ICONS[link.href] ?? Home

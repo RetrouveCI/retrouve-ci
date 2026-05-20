@@ -16,7 +16,6 @@ export const metadata: Metadata = {
 		'Administration de la plateforme RetrouveCI - Gestion des QR codes, utilisateurs et posts',
 	icons: {
 		icon: '/logo.png',
-		apple: '/logo.png',
 	},
 	openGraph: {
 		title: 'RetrouveCI Admin',

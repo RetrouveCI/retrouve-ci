@@ -101,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const activateSticker = useCallback(
 		async (code: string, label: string, linkedObject?: string) => {
 			if (!user) return
+
 			const newSticker = await stickerRepository.activate(
 				user.id,
 				code,

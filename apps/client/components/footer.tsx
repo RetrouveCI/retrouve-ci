@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import { LogoRetrouveCI } from './logo-retrouveci'
 
 const footerLinks = {
 	navigation: [
@@ -51,22 +51,13 @@ export function Footer() {
 		<footer className="bg-muted/30 border-t">
 			<div className="container mx-auto px-4 py-12">
 				<div className="grid gap-8 md:grid-cols-3">
-					<div className="space-y-4">
-						<Link href="/" className="flex items-center gap-2">
-							<Image
-								src="/logo.png"
-								alt="RetrouveCI logo"
-								width={32}
-								height={32}
-								className="rounded-lg"
-							/>
-							<span className="text-xl font-bold tracking-tight">
-								Retrouve<span className="text-accent-orange">CI</span>
-							</span>
+					<div className="flex flex-col space-y-4">
+						<Link href="/">
+							<LogoRetrouveCI />
 						</Link>
 						<p className="text-muted-foreground max-w-xs text-sm leading-relaxed">
 							Plateforme de gestion des objets perdus et retrouvés en Côte
-							d&apos;Ivoire. Retrouver un objet devient simple.
+							d&apos;Ivoire. Perdre un objet n&apos;est plus une fatalité.
 						</p>
 					</div>
 

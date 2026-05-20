@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
 	title: {
-		default: 'RetrouveCI - Retrouver un objet devient simple',
+		default: "RetrouveCI - Perdre un objet n'est plus une fatalité",
 		template: '%s | RetrouveCI',
 	},
 	description:
@@ -33,20 +33,19 @@ export const metadata: Metadata = {
 	authors: [{ name: 'RetrouveCI' }],
 	icons: {
 		icon: '/logo.png',
-		apple: '/logo.png',
 	},
 	openGraph: {
 		type: 'website',
 		locale: 'fr_CI',
 		siteName: 'RetrouveCI',
-		title: 'RetrouveCI - Retrouver un objet devient simple',
+		title: "RetrouveCI - Perdre un objet n'est plus une fatalité",
 		description:
 			"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
 		images: [{ url: '/logo.png' }],
 	},
 	twitter: {
 		card: 'summary_large_image',
-		title: 'RetrouveCI - Retrouver un objet devient simple',
+		title: "RetrouveCI - Perdre un objet n'est plus une fatalité",
 		description:
 			"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
 		images: ['/logo.png'],
