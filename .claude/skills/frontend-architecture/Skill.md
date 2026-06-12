@@ -34,9 +34,9 @@ Composants UI **locaux** à la feature.
 ```
 features/lost-items/
 └── components/
-    ├── LostItemCard.tsx
-    ├── LostItemForm.tsx
-    └── LostItemFilters.tsx
+    ├── lost-item-card.tsx
+    ├── lost-item-form.tsx
+    └── lost-item-filters.tsx
 ```
 
 > ⚠️ Composant réutilisé dans plusieurs features → `shared/components/` ou
@@ -180,7 +180,7 @@ export async function reportLostItemAction({ request }: ActionFunctionArgs) {
 
 | Convention                   | Exemple                                        |
 | ---------------------------- | ---------------------------------------------- |
-| Composants                   | `PascalCase.tsx` → `LostItemCard.tsx`          |
+| Composants                   | `kebab-case.tsx` → `lost-item-card.tsx`        |
 | Hooks                        | `camelCase` préfixé `use` → `useQrScanner.ts`  |
 | Services / loaders / actions | `[feature].[type].ts` → `lost-items.loader.ts` |
 | Types                        | `[feature].types.ts` → `lost-items.types.ts`   |
