@@ -87,9 +87,9 @@ function AnimatedCounter({
 export function HeroSection() {
 	return (
 		<section className="relative flex min-h-[85vh] items-center overflow-hidden">
-			<div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem]" />
-			<div className="bg-primary-green/15 absolute top-1/4 -left-20 h-[500px] w-[500px] rounded-full bg-linear-to-br to-transparent blur-3xl" />
-			<div className="bg-accent-orange/10 absolute -right-20 bottom-1/4 h-[400px] w-[400px] rounded-full bg-linear-to-tl to-transparent blur-3xl" />
+			<div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-size-[4rem_4rem]" />
+			<div className="bg-primary-green/15 absolute top-1/4 -right-20 h-125 w-125 rounded-full bg-linear-to-br to-transparent blur-3xl" />
+			<div className="bg-accent-orange/10 absolute bottom-1/4 -left-20 h-100 w-100 rounded-full bg-linear-to-tl to-transparent blur-3xl" />
 
 			<div className="relative z-10 container mx-auto px-4 py-20">
 				<div className="mx-auto max-w-5xl">
@@ -105,7 +105,7 @@ export function HeroSection() {
 					<h1 className="mb-6 text-center text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
 						<span className="block">
 							Perdre{' '}
-							<span className="relative inline-block min-w-[180px] text-left sm:min-w-[240px] md:min-w-[300px]">
+							<span className="relative inline-block min-w-45 text-left sm:min-w-60 md:min-w-75">
 								<CyclingWord />
 								<span className="bg-accent-orange/20 absolute right-0 -bottom-1 left-0 h-3 -skew-x-6 rounded" />
 							</span>

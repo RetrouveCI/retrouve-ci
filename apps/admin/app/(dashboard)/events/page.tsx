@@ -170,7 +170,7 @@ export default function EventsPage() {
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex flex-wrap items-center gap-3">
 								<Select value={typeFilter} onValueChange={setTypeFilter}>
-									<SelectTrigger className="h-9 w-[140px]">
+									<SelectTrigger className="h-9 w-35">
 										<SelectValue placeholder="Type" />
 									</SelectTrigger>
 									<SelectContent>
@@ -183,7 +183,7 @@ export default function EventsPage() {
 									</SelectContent>
 								</Select>
 								<Select value={sourceFilter} onValueChange={setSourceFilter}>
-									<SelectTrigger className="h-9 w-[140px]">
+									<SelectTrigger className="h-9 w-35">
 										<SelectValue placeholder="Source" />
 									</SelectTrigger>
 									<SelectContent>

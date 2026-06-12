@@ -292,7 +292,7 @@ export default function OrdersPage() {
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex flex-wrap items-center gap-3">
 								<Select value={statusFilter} onValueChange={setStatusFilter}>
-									<SelectTrigger className="h-9 w-[170px]">
+									<SelectTrigger className="h-9 w-42.5">
 										<SelectValue placeholder="Statut" />
 									</SelectTrigger>
 									<SelectContent>

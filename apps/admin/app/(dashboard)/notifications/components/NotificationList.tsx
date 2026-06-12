@@ -98,7 +98,7 @@ export function NotificationList({
 						key={notif.id}
 						className={cn(
 							'group relative flex items-start gap-4 px-5 py-4 transition-colors',
-							!notif.read && 'bg-primary/[0.03]',
+							!notif.read && 'bg-primary/3',
 							notif.link && 'hover:bg-muted/50',
 						)}
 					>

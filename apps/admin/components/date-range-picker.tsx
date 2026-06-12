@@ -74,7 +74,7 @@ export function DateRangePicker({
 	return (
 		<div className={cn('flex items-center gap-2', className)}>
 			<Select value={preset} onValueChange={handlePresetChange}>
-				<SelectTrigger className="w-[140px]">
+				<SelectTrigger className="w-35">
 					<SelectValue placeholder="Période" />
 				</SelectTrigger>
 				<SelectContent>

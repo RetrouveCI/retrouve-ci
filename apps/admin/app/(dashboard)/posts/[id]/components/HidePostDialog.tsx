@@ -38,7 +38,7 @@ export function HidePostDialog({
 					placeholder="Raison du masquage (optionnel)..."
 					value={reason}
 					onChange={e => onReasonChange(e.target.value)}
-					className="min-h-[100px]"
+					className="min-h-25"
 				/>
 				<DialogFooter>
 					<Button variant="outline" onClick={() => onOpenChange(false)}>

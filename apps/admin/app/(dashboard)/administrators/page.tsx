@@ -295,7 +295,7 @@ export default function AdministratorsPage() {
 					<BentoCard variant="table">
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<Select value={statusFilter} onValueChange={setStatusFilter}>
-								<SelectTrigger className="h-9 w-[150px]">
+								<SelectTrigger className="h-9 w-37.5">
 									<SelectValue placeholder="Statut" />
 								</SelectTrigger>
 								<SelectContent>

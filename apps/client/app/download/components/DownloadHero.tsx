@@ -18,8 +18,8 @@ export function DownloadHero() {
 	return (
 		<section className="relative overflow-hidden border-b">
 			<div className="pointer-events-none absolute inset-0">
-				<div className="bg-primary-green/6 absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full blur-3xl" />
-				<div className="bg-accent-orange/5 absolute bottom-0 left-0 h-[300px] w-[300px] rounded-full blur-3xl" />
+				<div className="bg-primary-green/6 absolute -top-32 -right-32 h-125 w-125 rounded-full blur-3xl" />
+				<div className="bg-accent-orange/5 absolute bottom-0 left-0 h-75 w-75 rounded-full blur-3xl" />
 			</div>
 
 			<div className="relative container mx-auto px-4 pt-14 pb-12">
@@ -80,7 +80,7 @@ export function DownloadHero() {
 
 					<div className="relative flex justify-center">
 						<div className="relative">
-							<div className="bg-foreground relative h-[520px] w-[260px] rounded-[2.8rem] p-3 shadow-2xl">
+							<div className="bg-foreground relative h-130 w-65 rounded-[2.8rem] p-3 shadow-2xl">
 								<div className="bg-background relative h-full w-full overflow-hidden rounded-[2.3rem]">
 									<div className="bg-foreground absolute top-0 left-1/2 z-10 h-6 w-28 -translate-x-1/2 rounded-b-2xl" />
 									<div className="flex h-full flex-col gap-3 px-4 pt-9 pb-4">
