@@ -5,7 +5,7 @@
 Organisation **module-first** (`apps/api/src`) : chaque feature module NestJS
 porte sa propre arborescence `domains/` + `infra/` + `presentation/`. Les
 wrappers de libs externes et le code transversal non-métier vivent au niveau
-racine de `src/`, dans `libs/` et `shared/`.
+racine de `src/`, dans `libs/`, `infrastructure/` et `shared/`.
 
 ```
 apps/api/src/
@@ -14,12 +14,13 @@ apps/api/src/
 │   ├── infra/              # 🔌 Implémentations concrètes (Prisma, services externes...)
 │   └── presentation/       # 🚪 Points d'entrée du module (HTTP, queues, workers)
 ├── libs/                    # 📦 Wrappers de librairies externes (transversal)
+├── infrastructure/          # 🏗️ Services d'infrastructure globaux (DB, cache...)
 └── shared/                  # 🔧 Utilitaires et types transversaux non-métier
 ```
 
 > Chaque feature module = une arborescence DDD/Clean complète et autonome.
-> `libs/` et `shared/` sont les **deux seules zones transversales** — tout le
-> reste est scopé au module.
+> `libs/`, `infrastructure/` et `shared/` sont les **trois seules zones
+> transversales** — tout le reste est scopé au module.
 
 ---
 
@@ -143,6 +144,27 @@ libs/
 
 - ✅ Toute librairie externe critique doit être wrappée ici avant utilisation
   dans `infra/`
+
+---
+
+## `infrastructure/` — Services d'infrastructure globaux
+
+> Services transversaux liés à l'infrastructure technique (base de données,
+> cache...), partagés par tous les feature modules — distinct de `libs/` qui
+> wrappe des librairies externes génériques (ex: date-fns).
+
+```
+infrastructure/
+└── database/
+    ├── prisma.module.ts     # Module global exposant PrismaService
+    └── prisma.service.ts    # Client Prisma (connexion/déconnexion)
+```
+
+### Règle
+
+- ✅ Réservé aux services globaux d'infrastructure (DB, cache, message broker)
+  injectés dans plusieurs feature modules via `infra/`
+- ❌ Pas de logique métier ici
 
 ---
 

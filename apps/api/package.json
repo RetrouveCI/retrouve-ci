@@ -9,18 +9,14 @@
 		"start": "node dist/main.js",
 		"lint": "eslint",
 		"check-types": "tsc --noEmit",
-		"test": "vitest run",
-		"db:generate": "prisma generate",
-		"db:migrate": "prisma migrate dev",
-		"db:deploy": "prisma migrate deploy",
-		"db:studio": "prisma studio"
+		"test": "vitest run"
 	},
 	"dependencies": {
 		"@nestjs/common": "11.1.26",
 		"@nestjs/config": "4.0.4",
 		"@nestjs/core": "11.1.26",
 		"@nestjs/platform-express": "11.1.26",
-		"@prisma/client": "7.8.0",
+		"@retrouve-ci/database": "workspace:*",
 		"reflect-metadata": "0.2.2",
 		"rxjs": "7.8.2"
 	},
@@ -33,9 +29,7 @@
 		"@retrouve-ci/vitest-config": "workspace:*",
 		"@types/express": "5.0.6",
 		"@types/node": "catalog:",
-		"dotenv": "17.4.2",
 		"eslint": "catalog:",
-		"prisma": "7.8.0",
 		"source-map-support": "0.5.21",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
