@@ -1,8 +1,7 @@
 {
 	"extends": "@retrouve-ci/typescript-config/base.json",
 	"compilerOptions": {
-		"module": "commonjs",
-		"moduleResolution": "node",
+		"module": "nodenext",
 		"target": "ES2023",
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
