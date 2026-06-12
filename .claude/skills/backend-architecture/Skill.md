@@ -1,25 +1,29 @@
-# Backend RetrouveCI — NestJS / DDD / Clean Architecture
+# Backend RetrouveCI — NestJS v11 / DDD / Clean Architecture
 
 ## Vue d'ensemble
 
+Organisation **module-first** (`apps/api/src`) : chaque feature module NestJS
+porte sa propre arborescence `domains/` + `infra/` + `presentation/`. Les
+wrappers de libs externes et le code transversal non-métier vivent au niveau
+racine de `src/`, dans `libs/` et `shared/`.
+
 ```
-src/
-├── domains/        # ❤️ Logique métier pure — cœur de l'app
-├── infra/          # 🔌 Implémentations concrètes (DB, APIs externes...)
-├── presentation/   # 🚪 Points d'entrée (HTTP, queues, workers)
-├── libs/           # 📦 Wrappers de librairies externes
-└── shared/         # 🔧 Utilitaires et types transversaux
+apps/api/src/
+├── [feature]/              # ex: lost-items/, qr-codes/, users/, matching/, notifications/
+│   ├── domains/            # ❤️ Logique métier pure du module
+│   ├── infra/              # 🔌 Implémentations concrètes (Prisma, services externes...)
+│   └── presentation/       # 🚪 Points d'entrée du module (HTTP, queues, workers)
+├── libs/                    # 📦 Wrappers de librairies externes (transversal)
+└── shared/                  # 🔧 Utilitaires et types transversaux non-métier
 ```
 
-> Note RetrouveCI : si le projet est organisé en modules NestJS (`lost-items/`,
-> `qr-codes/`, `users/`, `matching/`, `notifications/`...), cette structure
-> 5-zones s'applique **à l'intérieur de chaque module**, ou en transversal si tu
-> préfères une approche "couches globales". À clarifier avec le Squad Lead si le
-> repo n'a pas encore tranché — voir règle de fin de fichier.
+> Chaque feature module = une arborescence DDD/Clean complète et autonome.
+> `libs/` et `shared/` sont les **deux seules zones transversales** — tout le
+> reste est scopé au module.
 
 ---
 
-## `domains/` — Logique métier
+## `[feature]/domains/` — Logique métier
 
 > Cœur de l'application. **Ne dépend d'aucune librairie externe** (pas d'import
 > Prisma/TypeORM, pas d'import NestJS sauf décorateurs purement structurels si
@@ -165,20 +169,3 @@ shared/
 | Calculer un score de matching        | ❌                | ✅                          |
 | Générer un UUID                      | ✅                | ❌                          |
 | Valider le format d'une référence QR | ❌                | ✅                          |
-
----
-
-## Question ouverte — organisation modulaire
-
-RetrouveCI étant en migration, deux options sont possibles pour la cohabitation
-NestJS-modules + DDD :
-
-1. **Couches globales** : `src/domains/`, `src/infra/`, etc. en transversal,
-   avec sous-dossiers par module métier à l'intérieur (ex:
-   `domains/lost-items/`, `domains/qr-codes/`)
-2. **Module-first** : chaque module NestJS (`lost-items/`, `qr-codes/`...)
-   contient sa propre arborescence `domains/infra/presentation/` complète
-
-Si ce choix n'a pas encore été tranché pour le repo, propose l'option 1 (plus
-proche de la convention Arolitec) mais demande confirmation avant de structurer
-un nouveau module.

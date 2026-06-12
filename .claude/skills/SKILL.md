@@ -14,56 +14,62 @@ description:
 
 # Architecture RetrouveCI
 
-Ce skill définit la structure de référence pour les applications RetrouveCI
-(plateforme de lost & found basée sur QR codes, Wiserve Group). Il s'applique au
-**backend NestJS** et aux **frontends React Router v7** (admin + client), en
-cours de migration depuis Next.js.
+Ce skill définit la structure de référence pour le **monorepo Turborepo
+RetrouveCI** (plateforme de lost & found basée sur QR codes). Il couvre à la
+fois le backend **`apps/api`** (NestJS v11, Domain-Driven + Clean Architecture)
+et les frontends **`apps/client`** / **`apps/admin`** (React Router v7,
+anciennement Next.js).
 
 ## Contexte projet
 
-- **Backend** : NestJS, PostgreSQL, microservices/modules (Domain-Driven + Clean
-  Architecture)
-- **Frontend** : React Router v7 (anciennement Next.js — admin + client),
-  feature-based
+- **Backend** (`apps/api`) : NestJS v11, PostgreSQL/Prisma v7, organisation
+  **module-first** (Domain-Driven + Clean Architecture **par feature module**)
+- **Frontend** (`apps/client`, `apps/admin`) : React Router v7, feature-based,
+  composants en **kebab-case**
+- **Code partagé** : `packages/` (ex: `packages/ui`, `packages/api-client`,
+  `packages/shared`)
 - **Domaine métier** : objets perdus/retrouvés, QR codes, utilisateurs,
   notifications, matching
 
-Avant toute action, identifie dans quel projet tu te trouves (backend NestJS ou
-frontend RRv7) et applique la structure correspondante ci-dessous.
+Avant toute action, identifie dans quel projet tu te trouves (`apps/api`,
+`apps/client`, `apps/admin`, ou `packages/`) et applique la structure
+correspondante ci-dessous.
 
 ---
 
-## Backend (NestJS) — `references/backend.md`
+## Backend (NestJS) — `backend-architecture/Skill.md`
 
-Structure DDD/Clean Architecture en 5 zones : `domains/`, `infra/`,
-`presentation/`, `libs/`, `shared/`.
+Structure DDD/Clean Architecture **par feature module** (`src/[feature]/`), en 3
+zones internes : `domains/`, `infra/`, `presentation/`, plus deux zones
+transversales au niveau de `src/` : `libs/` (wrappers de libs externes) et
+`shared/` (helpers/types non-métier).
 
-**Lis `references/backend.md`** dès que tu :
+**Lis `backend-architecture/Skill.md`** dès que tu :
 
 - crées un nouveau module métier (ex: `lost-items`, `qr-codes`, `users`,
-  `matching`)
+  `matching`, `notifications`)
 - ajoutes un use-case, un repository, un mapper, un validator
 - crées un controller, un worker, ou un consumer de queue
-- te demandes où placer un helper ou un type
+- te demandes où placer un helper, un type, ou un wrapper de lib externe
 
-## Frontend (React Router v7) — `references/frontend.md`
+## Frontend (React Router v7) — `frontend-architecture/Skill.md`
 
 Structure feature-based avec couche `servers/` pour loaders/actions/services.
+**Tous les fichiers composants sont en kebab-case** (ex: `lost-item-card.tsx`).
 
-**Lis `references/frontend.md`** dès que tu :
+**Lis `frontend-architecture/Skill.md`** dès que tu :
 
 - crées une nouvelle feature/page (admin ou client)
-- migres une page Next.js (`app/` ou `pages/`) vers RRv7
+- migres une page Next.js (`app/`) vers RRv7
 - ajoutes un composant, un hook, un loader, une action
 - te demandes où placer un type partagé ou un composant réutilisable
 
-## Migration Next.js → React Router v7 — `references/migration.md`
+## Migration Next.js → React Router v7
 
-**Lis `references/migration.md`** dès que tu :
-
-- migres une page ou un composant existant depuis Next.js
-- dois transformer un `getServerSideProps`/Route Handler en `loader`/`action`
-- restructures un dossier `app/` ou `pages/` Next.js en `features/`
+Pas encore de référence dédiée. En attendant, applique la structure
+`frontend-architecture/Skill.md` : extraire les types (`*.types.ts`),
+transformer `getServerSideProps`/route handlers en `*.loader.ts`/`*.actions.ts`,
+et restructurer `app/` en `features/[feature-name]/` avec composants kebab-case.
 
 ---
 
@@ -73,14 +79,16 @@ Structure feature-based avec couche `servers/` pour loaders/actions/services.
    `components/` (front)** — toujours déléguer à `domains/use-cases/` ou
    `servers/`.
 2. **Toute lib externe critique** (mailer, QR generation, storage, notifications
-   push) doit être wrappée dans `libs/` (back) avant utilisation dans `infra/`.
+   push, Better Auth, BullMQ) doit être wrappée dans `src/libs/` (back) avant
+   utilisation dans `infra/`.
 3. **Un helper spécifique à un domaine métier** (ex: calcul de matching score,
-   génération de référence QR) va dans `domains/[module]/helpers/`, jamais dans
+   génération de référence QR) va dans `[feature]/domains/helpers/`, jamais dans
    `shared/`.
 4. **Front** : aucun `fetch`/`axios` hors de `servers/` — les composants
    reçoivent toujours un ViewModel mappé, jamais un DTO brut.
 5. **Nommage** : `[entity].[type].ts` partout (ex: `lost-item.repository.ts`,
-   `lost-items.loader.ts`, `qr-code.mapper.ts`).
+   `lost-items.loader.ts`, `qr-code.mapper.ts`) ; composants front en
+   **kebab-case** (ex: `lost-item-card.tsx`).
 
 Quand une question d'organisation se pose et qu'aucune règle ci-dessus ne répond
 clairement, propose une option et demande confirmation avant de créer un nouveau
