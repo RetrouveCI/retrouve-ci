@@ -409,9 +409,9 @@ importers:
       '@nestjs/platform-express':
         specifier: 11.1.26
         version: 11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.26)
-      '@prisma/client':
-        specifier: 7.8.0
-        version: 7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
+      '@retrouve-ci/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       reflect-metadata:
         specifier: 0.2.2
         version: 0.2.2
@@ -443,15 +443,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 22.18.12
-      dotenv:
-        specifier: 17.4.2
-        version: 17.4.2
       eslint:
         specifier: 'catalog:'
         version: 9.39.1(jiti@2.6.1)
-      prisma:
-        specifier: 7.8.0
-        version: 7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2)
       source-map-support:
         specifier: 0.5.21
         version: 0.5.21
@@ -642,6 +636,28 @@ importers:
       tailwindcss:
         specifier: 'catalog:'
         version: 4.2.4
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
+
+  packages/database:
+    dependencies:
+      '@prisma/client':
+        specifier: 7.8.0
+        version: 7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
+    devDependencies:
+      '@retrouve-ci/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.18.12
+      dotenv:
+        specifier: 17.4.2
+        version: 17.4.2
+      prisma:
+        specifier: 7.8.0
+        version: 7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2)
       typescript:
         specifier: 'catalog:'
         version: 5.9.2
@@ -9053,7 +9069,7 @@ snapshots:
       chokidar: 5.0.0
       confbox: 0.2.4
       defu: 6.1.7
-      dotenv: 17.4.1
+      dotenv: 17.4.2
       exsolve: 1.0.8
       giget: 3.3.0
       jiti: 2.6.1
