@@ -1,0 +1,36 @@
+{
+	"name": "api",
+	"version": "1.0.0",
+	"private": true,
+	"type": "commonjs",
+	"scripts": {
+		"build": "nest build",
+		"dev": "nest start --watch",
+		"start": "node dist/main.js",
+		"lint": "eslint",
+		"check-types": "tsc --noEmit",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"@nestjs/common": "11.1.26",
+		"@nestjs/config": "4.0.4",
+		"@nestjs/core": "11.1.26",
+		"@nestjs/platform-express": "11.1.26",
+		"reflect-metadata": "0.2.2",
+		"rxjs": "7.8.2"
+	},
+	"devDependencies": {
+		"@nestjs/cli": "11.0.23",
+		"@nestjs/schematics": "11.1.0",
+		"@nestjs/testing": "11.1.26",
+		"@retrouve-ci/eslint-config": "workspace:*",
+		"@retrouve-ci/typescript-config": "workspace:*",
+		"@retrouve-ci/vitest-config": "workspace:*",
+		"@types/express": "5.0.6",
+		"@types/node": "catalog:",
+		"eslint": "catalog:",
+		"source-map-support": "0.5.21",
+		"typescript": "catalog:",
+		"vitest": "catalog:"
+	}
+}

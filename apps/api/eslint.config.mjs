@@ -1,0 +1,4 @@
+import { config } from '@retrouve-ci/eslint-config/base'
+
+/** @type {import("eslint").Linter.Config} */
+export default [...config]

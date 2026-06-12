@@ -1,7 +1,7 @@
 {
 	"$schema": "https://turborepo.dev/schema.json",
 	"ui": "tui",
-	"globalEnv": ["NODE_ENV"],
+	"globalEnv": ["NODE_ENV", "PORT"],
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
@@ -15,8 +15,7 @@
 			"dependsOn": ["^check-types"]
 		},
 		"test": {
-			"dependsOn": ["^build"],
-			"outputs": ["coverage/**"]
+			"dependsOn": ["^build"]
 		},
 		"dev": {
 			"cache": false,

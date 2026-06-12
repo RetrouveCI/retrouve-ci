@@ -1,0 +1,20 @@
+{
+	"extends": "@retrouve-ci/typescript-config/base.json",
+	"compilerOptions": {
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"target": "ES2023",
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"allowSyntheticDefaultImports": true,
+		"noFallthroughCasesInSwitch": true,
+		"declaration": true,
+		"removeComments": true,
+		"sourceMap": true,
+		"incremental": true,
+		"baseUrl": "./",
+		"outDir": "./dist"
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules", "dist"]
+}
