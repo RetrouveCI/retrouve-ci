@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { AuthModule } from '@/infrastructure/auth/auth.module'
 import { PrismaModule } from '@/infrastructure/database/prisma.module'
 import { QueueModule } from '@/infrastructure/queue/queue.module'
+import { EventsModule } from '@/presentation/events/events.module'
 import { HealthModule } from '@/presentation/health/health.module'
 import { LostItemsModule } from '@/presentation/lost-items/lost-items.module'
 import { MatchingModule } from '@/presentation/matching/matching.module'
@@ -19,6 +20,7 @@ import { StickerOrdersModule } from '@/presentation/sticker-orders/sticker-order
 		QueueModule,
 		HealthModule,
 		AuthModule,
+		EventsModule,
 		LostItemsModule,
 		MatchingModule,
 		NotificationsModule,
