@@ -38,6 +38,14 @@ export class LostItemsController {
 		return this.lostItemUseCases.list(query)
 	}
 
+	@Get('mine')
+	listMine(
+		@Session() session: UserSession<typeof auth>,
+		@Query() query: ListLostItemsQueryDto,
+	) {
+		return this.lostItemUseCases.listMine(session.user.id, query)
+	}
+
 	@Get(':id')
 	@AllowAnonymous()
 	getOne(@Param('id') id: string) {
