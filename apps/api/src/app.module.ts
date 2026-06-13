@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { AuthModule } from './infrastructure/auth/auth.module'
-import { PrismaModule } from './infrastructure/database/prisma.module'
-import { QueueModule } from './infrastructure/queue/queue.module'
-import { HealthController } from './shared/presentation/health/health.controller'
+import { AuthModule } from '@/infrastructure/auth/auth.module'
+import { PrismaModule } from '@/infrastructure/database/prisma.module'
+import { QueueModule } from '@/infrastructure/queue/queue.module'
+import { HealthModule } from '@/presentation/health/health.module'
+import { LostItemsModule } from '@/presentation/lost-items/lost-items.module'
 
 @Module({
 	imports: [
@@ -12,8 +13,9 @@ import { HealthController } from './shared/presentation/health/health.controller
 		}),
 		PrismaModule,
 		QueueModule,
+		HealthModule,
 		AuthModule,
+		LostItemsModule,
 	],
-	controllers: [HealthController],
 })
 export class AppModule {}
