@@ -13,5 +13,6 @@ import { LostItemsController } from './controllers/lost-items.controller'
 			useClass: LostItemRepositoryService,
 		},
 	],
+	exports: [LOST_ITEM_REPOSITORY],
 })
 export class LostItemsModule {}
