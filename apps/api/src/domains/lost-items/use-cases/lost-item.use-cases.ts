@@ -41,6 +41,14 @@ export class LostItemUseCases {
 		return lostItem
 	}
 
+	async view(id: string): Promise<LostItem> {
+		const lostItem = await this.getById(id)
+
+		await this.lostItemRepository.incrementViews(id)
+
+		return { ...lostItem, views: lostItem.views + 1 }
+	}
+
 	async list(filter: ListLostItemsFilter): Promise<LostItemListResponse> {
 		return this.lostItemRepository.list(filter)
 	}

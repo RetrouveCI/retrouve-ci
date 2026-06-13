@@ -39,6 +39,7 @@ function buildRepository(): LostItemRepository {
 		list: vi.fn(),
 		update: vi.fn(),
 		delete: vi.fn(),
+		incrementViews: vi.fn(),
 	}
 }
 
@@ -99,6 +100,27 @@ describe('LostItemUseCases', () => {
 			await expect(useCases.getById('missing')).rejects.toThrow(
 				LostItemNotFoundError,
 			)
+		})
+	})
+
+	describe('view', () => {
+		it('increments the view count and returns the updated lost item', async () => {
+			const lostItem = buildLostItem({ views: 5 })
+			vi.mocked(repository.findById).mockResolvedValue(lostItem)
+
+			const result = await useCases.view('lost-item-1')
+
+			expect(repository.incrementViews).toHaveBeenCalledWith('lost-item-1')
+			expect(result).toEqual({ ...lostItem, views: 6 })
+		})
+
+		it('throws LostItemNotFoundError when the item does not exist', async () => {
+			vi.mocked(repository.findById).mockResolvedValue(null)
+
+			await expect(useCases.view('missing')).rejects.toThrow(
+				LostItemNotFoundError,
+			)
+			expect(repository.incrementViews).not.toHaveBeenCalled()
 		})
 	})
 

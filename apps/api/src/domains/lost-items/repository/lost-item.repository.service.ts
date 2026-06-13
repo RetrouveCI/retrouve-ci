@@ -107,4 +107,11 @@ export class LostItemRepositoryService implements LostItemRepository {
 	async delete(id: string): Promise<void> {
 		await this.prisma.lostItem.delete({ where: { id } })
 	}
+
+	async incrementViews(id: string): Promise<void> {
+		await this.prisma.lostItem.update({
+			where: { id },
+			data: { views: { increment: 1 } },
+		})
+	}
 }
