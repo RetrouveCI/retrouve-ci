@@ -74,6 +74,7 @@ catalog:
   'vaul': '^1.1.2'
   'vitest': '^3.2.4'
   'zod': '^3.24.1'
+  'better-auth': '1.6.18'
 minimumReleaseAgeExclude:
   - '@better-auth/core@1.6.18'
   - '@better-auth/drizzle-adapter@1.6.18'
