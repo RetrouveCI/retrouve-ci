@@ -2,7 +2,7 @@
 .env
 
 # Generated Prisma client
-/generated/prisma
+/src/generated/prisma
 
 # TypeScript incremental build info
 *.tsbuildinfo
