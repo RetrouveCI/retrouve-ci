@@ -6,6 +6,7 @@ import { QueueModule } from '@/infrastructure/queue/queue.module'
 import { HealthModule } from '@/presentation/health/health.module'
 import { LostItemsModule } from '@/presentation/lost-items/lost-items.module'
 import { QrCodesModule } from '@/presentation/qr-codes/qr-codes.module'
+import { StickerOrdersModule } from '@/presentation/sticker-orders/sticker-orders.module'
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { QrCodesModule } from '@/presentation/qr-codes/qr-codes.module'
 		AuthModule,
 		LostItemsModule,
 		QrCodesModule,
+		StickerOrdersModule,
 	],
 })
 export class AppModule {}
