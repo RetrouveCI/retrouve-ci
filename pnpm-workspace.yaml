@@ -73,3 +73,12 @@ catalog:
   'vaul': '^1.1.2'
   'vitest': '^3.2.4'
   'zod': '^3.24.1'
+minimumReleaseAgeExclude:
+  - '@better-auth/core@1.6.18'
+  - '@better-auth/drizzle-adapter@1.6.18'
+  - '@better-auth/kysely-adapter@1.6.18'
+  - '@better-auth/memory-adapter@1.6.18'
+  - '@better-auth/mongo-adapter@1.6.18'
+  - '@better-auth/prisma-adapter@1.6.18'
+  - '@better-auth/telemetry@1.6.18'
+  - better-auth@1.6.18
