@@ -155,9 +155,14 @@ libs/
 
 ```
 infrastructure/
-└── database/
-    ├── prisma.module.ts     # Module global exposant PrismaService
-    └── prisma.service.ts    # Client Prisma (connexion/déconnexion)
+├── database/
+│   ├── prisma.module.ts     # Module global exposant PrismaService
+│   └── prisma.service.ts    # Client Prisma (connexion/déconnexion)
+├── queue/
+│   └── queue.module.ts      # Module global exposant BullModule (Redis)
+└── auth/
+    ├── auth.config.ts       # Instance Better Auth (adapter Prisma, plugins)
+    └── auth.module.ts        # Module global exposant l'AuthModule Better Auth
 ```
 
 ### Règle

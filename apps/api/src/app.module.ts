@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { AuthModule } from './infrastructure/auth/auth.module'
 import { PrismaModule } from './infrastructure/database/prisma.module'
 import { QueueModule } from './infrastructure/queue/queue.module'
 import { HealthController } from './shared/presentation/health/health.controller'
@@ -11,6 +12,7 @@ import { HealthController } from './shared/presentation/health/health.controller
 		}),
 		PrismaModule,
 		QueueModule,
+		AuthModule,
 	],
 	controllers: [HealthController],
 })
