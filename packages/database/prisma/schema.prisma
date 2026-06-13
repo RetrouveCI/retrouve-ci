@@ -22,6 +22,7 @@ model User {
   sessions            Session[]
   accounts            Account[]
   lostItems           LostItem[]
+  qrTokens            QrToken[]
 
   @@unique([email])
   @@unique([phoneNumber])
@@ -129,4 +130,28 @@ model LostItem {
   @@index([userId])
   @@index([type, moderationStatus, resolutionStatus])
   @@map("lost_item")
+}
+
+enum QrTokenStatus {
+  GENERATED
+  ACTIVATED
+  REVOKED
+}
+
+model QrToken {
+  id           String        @id @default(uuid())
+  code         String        @unique
+  status       QrTokenStatus @default(GENERATED)
+  batch        String?
+  label        String?
+  linkedObject String?
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt    DateTime      @default(now())
+  activatedAt  DateTime?
+  revokedAt    DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@map("qr_token")
 }
