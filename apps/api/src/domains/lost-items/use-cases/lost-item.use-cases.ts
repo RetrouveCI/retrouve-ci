@@ -45,6 +45,13 @@ export class LostItemUseCases {
 		return this.lostItemRepository.list(filter)
 	}
 
+	async listMine(
+		userId: string,
+		filter: ListLostItemsFilter,
+	): Promise<LostItemListResponse> {
+		return this.lostItemRepository.list({ ...filter, userId })
+	}
+
 	async update(
 		id: string,
 		userId: string,

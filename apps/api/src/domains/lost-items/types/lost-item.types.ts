@@ -47,6 +47,7 @@ export interface ListLostItemsFilter {
 	ville?: string
 	moderationStatus?: ModerationStatus
 	resolutionStatus?: ResolutionStatus
+	userId?: string
 	page: number
 	pageSize: number
 }

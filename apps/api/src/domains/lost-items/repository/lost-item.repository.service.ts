@@ -56,6 +56,7 @@ export class LostItemRepositoryService implements LostItemRepository {
 			...(filter.resolutionStatus && {
 				resolutionStatus: toPrismaResolutionStatus(filter.resolutionStatus),
 			}),
+			...(filter.userId && { userId: filter.userId }),
 		}
 
 		const [items, total] = await Promise.all([

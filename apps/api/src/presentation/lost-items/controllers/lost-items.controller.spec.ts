@@ -41,6 +41,7 @@ function buildUseCases(): LostItemUseCases {
 		create: vi.fn(),
 		getById: vi.fn(),
 		list: vi.fn(),
+		listMine: vi.fn(),
 		update: vi.fn(),
 		delete: vi.fn(),
 	} as unknown as LostItemUseCases
@@ -96,6 +97,24 @@ describe('LostItemsController', () => {
 			const result = await controller.list(query)
 
 			expect(useCases.list).toHaveBeenCalledWith(query)
+			expect(result).toEqual(response)
+		})
+	})
+
+	describe('listMine', () => {
+		it('delegates to the use cases with the session user id', async () => {
+			const query: ListLostItemsQueryDto = { page: 1, pageSize: 20 }
+			const response = {
+				items: [buildLostItem({ userId: 'user-1' })],
+				total: 1,
+				page: 1,
+				pageSize: 20,
+			}
+			vi.mocked(useCases.listMine).mockResolvedValue(response)
+
+			const result = await controller.listMine(session, query)
+
+			expect(useCases.listMine).toHaveBeenCalledWith('user-1', query)
 			expect(result).toEqual(response)
 		})
 	})

@@ -120,6 +120,27 @@ describe('LostItemUseCases', () => {
 		})
 	})
 
+	describe('listMine', () => {
+		it('delegates to the repository with the user id injected', async () => {
+			const response = {
+				items: [buildLostItem({ userId: 'user-1' })],
+				total: 1,
+				page: 1,
+				pageSize: 20,
+			}
+			vi.mocked(repository.list).mockResolvedValue(response)
+
+			const filter = { page: 1, pageSize: 20 }
+			const result = await useCases.listMine('user-1', filter)
+
+			expect(repository.list).toHaveBeenCalledWith({
+				...filter,
+				userId: 'user-1',
+			})
+			expect(result).toEqual(response)
+		})
+	})
+
 	describe('update', () => {
 		it('updates the lost item when the user is the owner', async () => {
 			const lostItem = buildLostItem({ userId: 'user-1' })
