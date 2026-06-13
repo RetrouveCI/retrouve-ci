@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/contexts/auth-context'
+import { authClient } from '@/infrastructure/auth/auth-client'
+import { apiFetch } from '@/infrastructure/http/api-client'
+import { toE164 } from '@/infrastructure/auth/phone'
 import { PhoneStep } from '../components/PhoneStep'
 import { OtpStep } from '../components/OtpStep'
 import { PasswordStep } from '../components/PasswordStep'
@@ -16,7 +19,7 @@ const OTP_EXPIRY_SECONDS = 120
 
 export default function RegisterPage() {
 	const router = useRouter()
-	const { register, isAuthenticated } = useAuth()
+	const { isAuthenticated } = useAuth()
 
 	const [step, setStep] = useState<Step>('phone')
 	const [phoneNumber, setPhoneNumber] = useState('')
@@ -61,8 +64,16 @@ export default function RegisterPage() {
 			return
 		}
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1000))
+		const result = await authClient.phoneNumber.sendOtp({
+			phoneNumber: toE164(phoneNumber),
+		})
 		setIsSubmitting(false)
+		if (result.error) {
+			toast.error('Impossible d’envoyer le code', {
+				description: 'Vérifiez le numéro et réessayez.',
+			})
+			return
+		}
 		toast.success('Code envoyé !', {
 			description: 'Vérifiez vos SMS ou WhatsApp.',
 		})
@@ -79,17 +90,19 @@ export default function RegisterPage() {
 			return
 		}
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1000))
-		if (otp.startsWith('9')) {
+		const result = await authClient.phoneNumber.verify({
+			phoneNumber: toE164(phoneNumber),
+			code: otp,
+		})
+		setIsSubmitting(false)
+		if (result.error) {
 			setOtpError(true)
 			toast.error('Code incorrect', {
 				description: 'Vérifiez le code reçu et réessayez.',
 			})
 			setOtp('')
-			setIsSubmitting(false)
 			return
 		}
-		setIsSubmitting(false)
 		setStep('create-password')
 	}
 
@@ -107,18 +120,28 @@ export default function RegisterPage() {
 		}
 		setConfirmError('')
 		setIsSubmitting(true)
-		await register(phoneNumber, newPassword)
+		await apiFetch('/account/set-initial-password', {
+			method: 'POST',
+			body: JSON.stringify({ newPassword }),
+		})
+		setIsSubmitting(false)
 		toast.success('Compte créé !', { description: 'Bienvenue sur RetrouveCI.' })
 		router.push('/account')
 	}
 
 	const handleResend = async () => {
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 800))
+		const result = await authClient.phoneNumber.sendOtp({
+			phoneNumber: toE164(phoneNumber),
+		})
+		setIsSubmitting(false)
+		if (result.error) {
+			toast.error('Impossible d’envoyer le code')
+			return
+		}
 		toast.success('Nouveau code envoyé !')
 		setOtp('')
 		setOtpError(false)
-		setIsSubmitting(false)
 		setResendKey(k => k + 1)
 	}
 
