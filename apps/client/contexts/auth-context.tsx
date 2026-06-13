@@ -5,6 +5,8 @@ import {
 	useContext,
 	useState,
 	useCallback,
+	useEffect,
+	useMemo,
 	type ReactNode,
 } from 'react'
 import { useRouter } from 'next/navigation'
@@ -13,8 +15,12 @@ import type { Sticker } from '@/domain/entities/sticker'
 import type { UserListing, ListingStatus } from '@/domain/entities/listing'
 import { userRepository } from '@/infrastructure/repositories/mock-user-repository'
 import { stickerRepository } from '@/infrastructure/repositories/mock-sticker-repository'
+import { authClient } from '@/infrastructure/auth/auth-client'
+import { toE164 } from '@/infrastructure/auth/phone'
 
 export type { User, Sticker, UserListing }
+
+const TEMP_EMAIL_SUFFIX = '@phone.retrouveci.local'
 
 interface AuthContextType {
 	user: User | null
@@ -24,8 +30,6 @@ interface AuthContextType {
 		phone: string,
 		password: string,
 	) => Promise<{ success: boolean; error?: string }>
-	register: (phone: string, password: string) => Promise<void>
-	resetPassword: (phone: string, newPassword: string) => Promise<void>
 	logout: () => void
 	stickers: Sticker[]
 	listings: UserListing[]
@@ -40,61 +44,66 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const router = useRouter()
-	const [user, setUser] = useState<User | null>(null)
-	const [isLoading, setIsLoading] = useState(false)
+	const session = authClient.useSession()
 	const [stickers, setStickers] = useState<Sticker[]>([])
 	const [listings, setListings] = useState<UserListing[]>([])
+
+	const sessionUser = session.data?.user
+	const user: User | null = useMemo(
+		() =>
+			sessionUser
+				? {
+						id: sessionUser.id,
+						phone: sessionUser.phoneNumber ?? '',
+						name: sessionUser.name,
+						email: sessionUser.email.endsWith(TEMP_EMAIL_SUFFIX)
+							? undefined
+							: sessionUser.email,
+						createdAt: sessionUser.createdAt.toString(),
+					}
+				: null,
+		[sessionUser],
+	)
+
+	useEffect(() => {
+		if (!user) {
+			setStickers([])
+			setListings([])
+			return
+		}
+		void Promise.all([
+			userRepository.getUserListings(user.id),
+			stickerRepository.getUserStickers(user.id),
+		]).then(([userListings, userStickers]) => {
+			setListings(userListings)
+			setStickers(userStickers)
+		})
+	}, [user])
 
 	const login = useCallback(
 		async (
 			phone: string,
 			password: string,
 		): Promise<{ success: boolean; error?: string }> => {
-			setIsLoading(true)
-			const result = await userRepository.login(phone, password)
-			if (!result.success || !result.user) {
-				setIsLoading(false)
-				return { success: false, error: result.error }
+			const result = await authClient.signIn.phoneNumber({
+				phoneNumber: toE164(phone),
+				password,
+			})
+
+			if (result.error) {
+				return {
+					success: false,
+					error: 'Numéro ou mot de passe incorrect',
+				}
 			}
-			const [userListings, userStickers] = await Promise.all([
-				userRepository.getUserListings(result.user.id),
-				stickerRepository.getUserStickers(result.user.id),
-			])
-			setUser(result.user)
-			setListings(userListings)
-			setStickers(userStickers)
-			setIsLoading(false)
+
 			return { success: true }
 		},
 		[],
 	)
 
-	const register = useCallback(async (phone: string, password: string) => {
-		setIsLoading(true)
-		const newUser = await userRepository.register(phone, password)
-		const [userListings, userStickers] = await Promise.all([
-			userRepository.getUserListings(newUser.id),
-			stickerRepository.getUserStickers(newUser.id),
-		])
-		setUser(newUser)
-		setListings(userListings)
-		setStickers(userStickers)
-		setIsLoading(false)
-	}, [])
-
-	const resetPassword = useCallback(
-		async (phone: string, newPassword: string) => {
-			setIsLoading(true)
-			await userRepository.resetPassword(phone, newPassword)
-			setIsLoading(false)
-		},
-		[],
-	)
-
 	const logout = useCallback(() => {
-		setUser(null)
-		setStickers([])
-		setListings([])
+		void authClient.signOut()
 		router.push('/auth')
 	}, [router])
 
@@ -156,10 +165,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			value={{
 				user,
 				isAuthenticated: !!user,
-				isLoading,
+				isLoading: session.isPending,
 				login,
-				register,
-				resetPassword,
 				logout,
 				stickers,
 				listings,

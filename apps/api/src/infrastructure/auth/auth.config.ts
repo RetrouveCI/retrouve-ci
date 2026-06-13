@@ -10,6 +10,7 @@ export const auth = betterAuth({
 	trustedOrigins: ['http://localhost:3000', 'http://localhost:3001'],
 	emailAndPassword: {
 		enabled: true,
+		minPasswordLength: 6,
 		sendResetPassword: async ({ user, url }) => {
 			console.log(`[auth] Password reset for ${user.email}: ${url}`)
 		},
@@ -18,6 +19,13 @@ export const auth = betterAuth({
 		phoneNumber({
 			sendOTP: ({ phoneNumber, code }) => {
 				console.log(`[auth] OTP for ${phoneNumber}: ${code}`)
+			},
+			sendPasswordResetOTP: ({ phoneNumber, code }) => {
+				console.log(`[auth] Password reset OTP for ${phoneNumber}: ${code}`)
+			},
+			signUpOnVerification: {
+				getTempEmail: phoneNumber => `${phoneNumber}@phone.retrouveci.local`,
+				getTempName: phoneNumber => phoneNumber,
 			},
 		}),
 		admin({

@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
-import { useAuth } from '@/contexts/auth-context'
+import { authClient } from '@/infrastructure/auth/auth-client'
+import { toE164 } from '@/infrastructure/auth/phone'
 import { OtpStep } from '../components/OtpStep'
 import { PasswordStep } from '../components/PasswordStep'
 
@@ -15,7 +16,6 @@ const OTP_EXPIRY_SECONDS = 120
 function ResetPasswordContent() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
-	const { resetPassword } = useAuth()
 
 	const phoneNumber = searchParams.get('phone') ?? ''
 
@@ -49,25 +49,13 @@ function ResetPasswordContent() {
 			.toString()
 			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
-	const handleOtpSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleOtpSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		if (otp.length < 6) {
 			toast.error('Entrez le code complet à 6 chiffres')
 			setOtpError(true)
 			return
 		}
-		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1000))
-		if (otp.startsWith('9')) {
-			setOtpError(true)
-			toast.error('Code incorrect', {
-				description: 'Vérifiez le code reçu et réessayez.',
-			})
-			setOtp('')
-			setIsSubmitting(false)
-			return
-		}
-		setIsSubmitting(false)
 		setStep('new-password')
 	}
 
@@ -85,7 +73,21 @@ function ResetPasswordContent() {
 		}
 		setConfirmError('')
 		setIsSubmitting(true)
-		await resetPassword(phoneNumber, newPassword)
+		const result = await authClient.phoneNumber.resetPassword({
+			otp,
+			phoneNumber: toE164(phoneNumber),
+			newPassword,
+		})
+		setIsSubmitting(false)
+		if (result.error) {
+			toast.error('Code incorrect ou expiré', {
+				description: 'Veuillez resaisir le code reçu par SMS.',
+			})
+			setOtp('')
+			setOtpError(true)
+			setStep('otp')
+			return
+		}
 		toast.success('Mot de passe réinitialisé !', {
 			description: 'Vous pouvez maintenant vous connecter.',
 		})
@@ -94,11 +96,13 @@ function ResetPasswordContent() {
 
 	const handleResend = async () => {
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 800))
+		await authClient.phoneNumber.requestPasswordReset({
+			phoneNumber: toE164(phoneNumber),
+		})
+		setIsSubmitting(false)
 		toast.success('Nouveau code envoyé !')
 		setOtp('')
 		setOtpError(false)
-		setIsSubmitting(false)
 		setResendKey(k => k + 1)
 	}
 

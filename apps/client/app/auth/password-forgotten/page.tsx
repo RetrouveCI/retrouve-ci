@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
+import { authClient } from '@/infrastructure/auth/auth-client'
+import { toE164 } from '@/infrastructure/auth/phone'
 import { PhoneStep } from '../components/PhoneStep'
 
 export default function PasswordForgottenPage() {
@@ -20,7 +22,9 @@ export default function PasswordForgottenPage() {
 			return
 		}
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1000))
+		await authClient.phoneNumber.requestPasswordReset({
+			phoneNumber: toE164(phoneNumber),
+		})
 		setIsSubmitting(false)
 		toast.success('Code envoyé !', {
 			description: 'Vérifiez vos SMS ou WhatsApp.',
