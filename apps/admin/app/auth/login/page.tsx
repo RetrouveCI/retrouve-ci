@@ -56,13 +56,13 @@ export default function LoginPage() {
 	const onSubmit = async (data: LoginFormData) => {
 		setIsSubmitting(true)
 
-		const success = await login(data.email, data.password)
+		const result = await login(data.email, data.password)
 
-		if (success) {
+		if (result.success) {
 			toast.success('Connexion reussie')
 			router.push('/admin')
 		} else {
-			toast.error('Email ou mot de passe incorrect')
+			toast.error(result.error ?? 'Email ou mot de passe incorrect')
 		}
 
 		setIsSubmitting(false)
@@ -162,24 +162,6 @@ export default function LoginPage() {
 							'Se connecter'
 						)}
 					</Button>
-
-					<div className="text-muted-foreground bg-muted/50 border-border/50 mt-6 rounded-xl border p-4 text-center text-sm">
-						<p className="text-foreground mb-2 font-semibold">
-							Identifiants de demonstration
-						</p>
-						<div className="space-y-1">
-							<p>
-								Email:{' '}
-								<span className="text-primary font-mono">
-									admin@retrouveci.com
-								</span>
-							</p>
-							<p>
-								Mot de passe:{' '}
-								<span className="text-primary font-mono">admin123</span>
-							</p>
-						</div>
-					</div>
 				</form>
 			</CardContent>
 		</Card>

@@ -13,7 +13,6 @@ import {
 	FieldLabel,
 } from '@retrouve-ci/ui/components'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Image from 'next/image'
 import { Loader2, Mail, ArrowLeft } from 'lucide-react'
@@ -21,6 +20,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { authClient } from '@/infrastructure/auth/auth-client'
 
 const schema = z.object({
 	email: z.string().email('Email invalide'),
@@ -29,7 +29,6 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export default function ForgotPasswordPage() {
-	const router = useRouter()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	const {
@@ -43,13 +42,15 @@ export default function ForgotPasswordPage() {
 
 	const onSubmit = async (data: FormData) => {
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1000))
+		await authClient.requestPasswordReset({
+			email: data.email,
+			redirectTo: '/auth/reset-password',
+		})
 		setIsSubmitting(false)
 		toast.success('Instructions envoyées', {
 			description:
 				'Si cet email est enregistré, vous recevrez les instructions de réinitialisation.',
 		})
-		router.push(`/admin/reset-password?email=${encodeURIComponent(data.email)}`)
 	}
 
 	return (
