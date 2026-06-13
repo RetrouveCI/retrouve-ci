@@ -1,7 +1,6 @@
 {
 	"extends": "@retrouve-ci/typescript-config/base.json",
 	"compilerOptions": {
-		"module": "nodenext",
 		"target": "ES2023",
 		"noEmit": true
 	},

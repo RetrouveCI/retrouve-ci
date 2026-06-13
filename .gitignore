@@ -32,5 +32,8 @@ yarn-error.log*
 # turbo
 .turbo
 
+# TypeScript incremental build info
+*.tsbuildinfo
+
 # ui
 dist/

@@ -17,6 +17,21 @@
 		"test": {
 			"dependsOn": ["^build"]
 		},
+		"db:generate": {
+			"cache": true,
+			"inputs": ["prisma/schema.prisma"],
+			"outputs": ["src/generated/**"]
+		},
+		"db:migrate": {
+			"cache": false
+		},
+		"db:deploy": {
+			"cache": false
+		},
+		"db:studio": {
+			"cache": false,
+			"persistent": true
+		},
 		"dev": {
 			"cache": false,
 			"persistent": true
