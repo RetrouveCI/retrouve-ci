@@ -21,6 +21,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { authClient } from '@/infrastructure/auth/auth-client'
 
 const schema = z
 	.object({
@@ -42,7 +43,7 @@ type FormData = z.infer<typeof schema>
 function ResetPasswordContent() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
-	const email = searchParams.get('email') ?? ''
+	const token = searchParams.get('token')
 
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [showNew, setShowNew] = useState(false)
@@ -56,15 +57,60 @@ function ResetPasswordContent() {
 		resolver: zodResolver(schema),
 	})
 
-	const onSubmit = async (_data: FormData) => {
+	const onSubmit = async (data: FormData) => {
+		if (!token) return
+
 		setIsSubmitting(true)
-		await new Promise(r => setTimeout(r, 1000))
+		const result = await authClient.resetPassword({
+			newPassword: data.newPassword,
+			token,
+		})
 		setIsSubmitting(false)
+
+		if (result.error) {
+			toast.error('Impossible de réinitialiser le mot de passe', {
+				description: 'Le lien est invalide ou a expiré.',
+			})
+			return
+		}
+
 		toast.success('Mot de passe réinitialisé !', {
 			description:
 				'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
 		})
-		router.push('/admin/login')
+		router.push('/auth/login')
+	}
+
+	if (!token) {
+		return (
+			<Card className="w-full max-w-md border-0 shadow-2xl">
+				<CardHeader className="pt-8 pb-8 text-center">
+					<div className="mb-6 flex justify-center">
+						<Image
+							src="/logo.png"
+							alt="RetrouveCI"
+							width={64}
+							height={64}
+							className="rounded-2xl shadow-lg"
+						/>
+					</div>
+					<CardTitle className="text-2xl font-bold">Lien invalide</CardTitle>
+					<CardDescription className="text-base">
+						Ce lien de réinitialisation est invalide ou a expiré. Refaites une
+						demande pour en recevoir un nouveau.
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="pb-8 text-center">
+					<Link
+						href="/auth/forgot-password"
+						className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
+					>
+						<ArrowLeft className="h-4 w-4" />
+						Demander un nouveau lien
+					</Link>
+				</CardContent>
+			</Card>
+		)
 	}
 
 	return (
@@ -83,14 +129,7 @@ function ResetPasswordContent() {
 					Nouveau mot de passe
 				</CardTitle>
 				<CardDescription className="text-base">
-					{email ? (
-						<>
-							Réinitialisation pour{' '}
-							<span className="text-foreground font-semibold">{email}</span>
-						</>
-					) : (
-						'Choisissez un mot de passe sécurisé pour votre compte.'
-					)}
+					Choisissez un mot de passe sécurisé pour votre compte.
 				</CardDescription>
 			</CardHeader>
 
