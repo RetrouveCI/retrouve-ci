@@ -10,17 +10,18 @@ datasource db {
 }
 
 model User {
-  id                  String    @id
+  id                  String     @id
   name                String
   email               String
-  emailVerified       Boolean   @default(false)
+  emailVerified       Boolean    @default(false)
   image               String?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
   phoneNumber         String?
   phoneNumberVerified Boolean?
   sessions            Session[]
   accounts            Account[]
+  lostItems           LostItem[]
 
   @@unique([email])
   @@unique([phoneNumber])
@@ -73,4 +74,59 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+enum LostItemType {
+  LOST
+  FOUND
+}
+
+enum LostItemCategory {
+  PHONE
+  KEYS
+  WALLET
+  BAG
+  ELECTRONICS
+  CLOTHING
+  JEWELRY
+  DOCUMENTS
+  OTHER
+}
+
+enum ModerationStatus {
+  PENDING
+  PUBLISHED
+  HIDDEN
+}
+
+enum ResolutionStatus {
+  ACTIVE
+  RESOLVED
+  EXPIRED
+}
+
+model LostItem {
+  id               String           @id @default(uuid())
+  type             LostItemType
+  category         LostItemCategory
+  title            String
+  description      String
+  ville            String
+  commune          String?
+  eventDate        DateTime
+  contactName      String
+  contactWhatsapp  String
+  photos           String[]         @default([])
+  moderationStatus ModerationStatus @default(PENDING)
+  resolutionStatus ResolutionStatus @default(ACTIVE)
+  views            Int              @default(0)
+  contactsCount    Int              @default(0)
+  userId           String
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([type, moderationStatus, resolutionStatus])
+  @@map("lost_item")
 }
