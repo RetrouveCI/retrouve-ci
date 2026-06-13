@@ -1,10 +1,20 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common'
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Param,
+	Patch,
+	Post,
+	Query,
+} from '@nestjs/common'
 import { AllowAnonymous, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { auth } from '@/infrastructure/auth/auth.config'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
 import { CreateLostItemDto } from '../dto/create-lost-item.dto'
 import { ListLostItemsQueryDto } from '../dto/list-lost-items.query.dto'
+import { UpdateLostItemDto } from '../dto/update-lost-item.dto'
 
 @Controller('lost-items')
 export class LostItemsController {
@@ -32,5 +42,27 @@ export class LostItemsController {
 	@AllowAnonymous()
 	getOne(@Param('id') id: string) {
 		return this.lostItemUseCases.getById(id)
+	}
+
+	@Patch(':id')
+	update(
+		@Session() session: UserSession<typeof auth>,
+		@Param('id') id: string,
+		@Body() dto: UpdateLostItemDto,
+	) {
+		const { eventDate, ...rest } = dto
+
+		return this.lostItemUseCases.update(id, session.user.id, {
+			...rest,
+			...(eventDate && { eventDate: new Date(eventDate) }),
+		})
+	}
+
+	@Delete(':id')
+	delete(
+		@Session() session: UserSession<typeof auth>,
+		@Param('id') id: string,
+	) {
+		return this.lostItemUseCases.delete(id, session.user.id)
 	}
 }

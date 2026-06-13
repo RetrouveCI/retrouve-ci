@@ -29,6 +29,18 @@ export interface CreateLostItemData {
 	userId: string
 }
 
+export interface UpdateLostItemData {
+	title?: string
+	description?: string
+	ville?: string
+	commune?: string
+	eventDate?: Date
+	contactName?: string
+	contactWhatsapp?: string
+	photos?: string[]
+	resolutionStatus?: ResolutionStatus
+}
+
 export interface ListLostItemsFilter {
 	type?: LostItemType
 	category?: LostItemCategory

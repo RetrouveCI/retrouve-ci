@@ -11,6 +11,7 @@ import type { LostItem, LostItemListResponse } from '../models/lost-item.model'
 import type {
 	CreateLostItemData,
 	ListLostItemsFilter,
+	UpdateLostItemData,
 } from '../types/lost-item.types'
 import type { LostItemRepository } from './lost-item.repository'
 
@@ -73,5 +74,36 @@ export class LostItemRepositoryService implements LostItemRepository {
 			page: filter.page,
 			pageSize: filter.pageSize,
 		}
+	}
+
+	async update(id: string, data: UpdateLostItemData): Promise<LostItem> {
+		const lostItem = await this.prisma.lostItem.update({
+			where: { id },
+			data: {
+				...(data.title !== undefined && { title: data.title }),
+				...(data.description !== undefined && {
+					description: data.description,
+				}),
+				...(data.ville !== undefined && { ville: data.ville }),
+				...(data.commune !== undefined && { commune: data.commune }),
+				...(data.eventDate !== undefined && { eventDate: data.eventDate }),
+				...(data.contactName !== undefined && {
+					contactName: data.contactName,
+				}),
+				...(data.contactWhatsapp !== undefined && {
+					contactWhatsapp: data.contactWhatsapp,
+				}),
+				...(data.photos !== undefined && { photos: data.photos }),
+				...(data.resolutionStatus !== undefined && {
+					resolutionStatus: toPrismaResolutionStatus(data.resolutionStatus),
+				}),
+			},
+		})
+
+		return toDomainLostItem(lostItem)
+	}
+
+	async delete(id: string): Promise<void> {
+		await this.prisma.lostItem.delete({ where: { id } })
 	}
 }

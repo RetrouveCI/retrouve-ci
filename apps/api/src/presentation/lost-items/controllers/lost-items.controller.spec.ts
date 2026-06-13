@@ -1,0 +1,156 @@
+import type { UserSession } from '@thallesp/nestjs-better-auth'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { auth } from '@/infrastructure/auth/auth.config'
+import type { LostItem } from '@/domains/lost-items/models/lost-item.model'
+import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
+import type { CreateLostItemDto } from '../dto/create-lost-item.dto'
+import type { ListLostItemsQueryDto } from '../dto/list-lost-items.query.dto'
+import type { UpdateLostItemDto } from '../dto/update-lost-item.dto'
+import { LostItemsController } from './lost-items.controller'
+
+function buildLostItem(overrides: Partial<LostItem> = {}): LostItem {
+	return {
+		id: 'lost-item-1',
+		type: 'lost',
+		category: 'phone',
+		title: 'iPhone 13 perdu',
+		description: 'Perdu près du marché de Cocody, coque noire avec autocollant',
+		ville: 'Abidjan',
+		commune: 'Cocody',
+		eventDate: new Date('2026-01-01'),
+		contactName: 'Jean Dupont',
+		contactWhatsapp: '+2250700000000',
+		photos: [],
+		moderationStatus: 'pending',
+		resolutionStatus: 'active',
+		views: 0,
+		contactsCount: 0,
+		userId: 'user-1',
+		createdAt: new Date('2026-01-01'),
+		updatedAt: new Date('2026-01-01'),
+		...overrides,
+	}
+}
+
+const session = {
+	user: { id: 'user-1' },
+} as UserSession<typeof auth>
+
+function buildUseCases(): LostItemUseCases {
+	return {
+		create: vi.fn(),
+		getById: vi.fn(),
+		list: vi.fn(),
+		update: vi.fn(),
+		delete: vi.fn(),
+	} as unknown as LostItemUseCases
+}
+
+describe('LostItemsController', () => {
+	let useCases: LostItemUseCases
+	let controller: LostItemsController
+
+	beforeEach(() => {
+		useCases = buildUseCases()
+		controller = new LostItemsController(useCases)
+	})
+
+	describe('create', () => {
+		it('converts the eventDate string and forwards the session user id', async () => {
+			const dto: CreateLostItemDto = {
+				type: 'lost',
+				category: 'phone',
+				title: 'iPhone 13 perdu',
+				description:
+					'Perdu près du marché de Cocody, coque noire avec autocollant',
+				ville: 'Abidjan',
+				eventDate: '2026-01-01',
+				contactName: 'Jean Dupont',
+				contactWhatsapp: '+2250700000000',
+			}
+			const created = buildLostItem()
+			vi.mocked(useCases.create).mockResolvedValue(created)
+
+			const result = await controller.create(session, dto)
+
+			expect(useCases.create).toHaveBeenCalledWith({
+				...dto,
+				eventDate: new Date('2026-01-01'),
+				userId: 'user-1',
+			})
+			expect(result).toEqual(created)
+		})
+	})
+
+	describe('list', () => {
+		it('delegates to the use cases', async () => {
+			const query: ListLostItemsQueryDto = { page: 1, pageSize: 20 }
+			const response = {
+				items: [buildLostItem()],
+				total: 1,
+				page: 1,
+				pageSize: 20,
+			}
+			vi.mocked(useCases.list).mockResolvedValue(response)
+
+			const result = await controller.list(query)
+
+			expect(useCases.list).toHaveBeenCalledWith(query)
+			expect(result).toEqual(response)
+		})
+	})
+
+	describe('getOne', () => {
+		it('delegates to the use cases', async () => {
+			const lostItem = buildLostItem()
+			vi.mocked(useCases.getById).mockResolvedValue(lostItem)
+
+			const result = await controller.getOne('lost-item-1')
+
+			expect(useCases.getById).toHaveBeenCalledWith('lost-item-1')
+			expect(result).toEqual(lostItem)
+		})
+	})
+
+	describe('update', () => {
+		it('converts the eventDate string when present', async () => {
+			const dto: UpdateLostItemDto = {
+				title: 'Nouveau titre',
+				eventDate: '2026-02-01',
+			}
+			const updated = buildLostItem({ title: 'Nouveau titre' })
+			vi.mocked(useCases.update).mockResolvedValue(updated)
+
+			const result = await controller.update(session, 'lost-item-1', dto)
+
+			expect(useCases.update).toHaveBeenCalledWith('lost-item-1', 'user-1', {
+				title: 'Nouveau titre',
+				eventDate: new Date('2026-02-01'),
+			})
+
+			expect(result).toEqual(updated)
+		})
+
+		it('omits eventDate when not provided', async () => {
+			const dto: UpdateLostItemDto = { title: 'Nouveau titre' }
+			const updated = buildLostItem({ title: 'Nouveau titre' })
+			vi.mocked(useCases.update).mockResolvedValue(updated)
+
+			await controller.update(session, 'lost-item-1', dto)
+
+			expect(useCases.update).toHaveBeenCalledWith('lost-item-1', 'user-1', {
+				title: 'Nouveau titre',
+			})
+		})
+	})
+
+	describe('delete', () => {
+		it('delegates to the use cases with the session user id', async () => {
+			vi.mocked(useCases.delete).mockResolvedValue(undefined)
+
+			await controller.delete(session, 'lost-item-1')
+
+			expect(useCases.delete).toHaveBeenCalledWith('lost-item-1', 'user-1')
+		})
+	})
+})

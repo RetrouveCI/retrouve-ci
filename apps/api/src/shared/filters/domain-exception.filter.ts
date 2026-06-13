@@ -7,6 +7,7 @@ import {
 import type { FastifyReply } from 'fastify'
 import {
 	DomainError,
+	ForbiddenError,
 	NotFoundError,
 	ValidationError,
 } from '../errors/domain.error'
@@ -21,7 +22,9 @@ export class DomainExceptionFilter implements ExceptionFilter {
 				? HttpStatus.NOT_FOUND
 				: exception instanceof ValidationError
 					? HttpStatus.BAD_REQUEST
-					: HttpStatus.INTERNAL_SERVER_ERROR
+					: exception instanceof ForbiddenError
+						? HttpStatus.FORBIDDEN
+						: HttpStatus.INTERNAL_SERVER_ERROR
 
 		response.status(status).send({
 			statusCode: status,
