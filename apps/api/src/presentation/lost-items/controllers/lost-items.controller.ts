@@ -1,3 +1,4 @@
+import { InjectQueue } from '@nestjs/bullmq'
 import {
 	Body,
 	Controller,
@@ -11,7 +12,9 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AllowAnonymous, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
+import type { Queue } from 'bullmq'
 import type { auth } from '@/infrastructure/auth/auth.config'
+import { FIND_MATCHES_JOB, MATCHING_QUEUE } from '@/domains/matching/constants'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
 import { CreateLostItemDto } from '../dto/create-lost-item.dto'
 import { ListLostItemsQueryDto } from '../dto/list-lost-items.query.dto'
@@ -21,18 +24,27 @@ import { UpdateLostItemDto } from '../dto/update-lost-item.dto'
 @ApiBearerAuth()
 @Controller('lost-items')
 export class LostItemsController {
-	constructor(private readonly lostItemUseCases: LostItemUseCases) {}
+	constructor(
+		private readonly lostItemUseCases: LostItemUseCases,
+		@InjectQueue(MATCHING_QUEUE) private readonly matchingQueue: Queue,
+	) {}
 
 	@Post()
-	create(
+	async create(
 		@Session() session: UserSession<typeof auth>,
 		@Body() dto: CreateLostItemDto,
 	) {
-		return this.lostItemUseCases.create({
+		const lostItem = await this.lostItemUseCases.create({
 			...dto,
 			eventDate: new Date(dto.eventDate),
 			userId: session.user.id,
 		})
+
+		await this.matchingQueue.add(FIND_MATCHES_JOB, {
+			lostItemId: lostItem.id,
+		})
+
+		return lostItem
 	}
 
 	@Get()

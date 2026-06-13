@@ -13,6 +13,6 @@ import { NotificationsController } from './controllers/notifications.controller'
 			useClass: NotificationRepositoryService,
 		},
 	],
-	exports: [NotificationUseCases],
+	exports: [NotificationUseCases, NOTIFICATION_REPOSITORY],
 })
 export class NotificationsModule {}

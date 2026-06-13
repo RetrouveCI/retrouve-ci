@@ -12,3 +12,6 @@ export const EVENT_DATE_CLOSE_DAYS = 7
 export const EVENT_DATE_NEAR_DAYS = 30
 
 export const MIN_OVERLAP_WORD_LENGTH = 5
+
+export const MATCHING_QUEUE = 'matching'
+export const FIND_MATCHES_JOB = 'find-matches'

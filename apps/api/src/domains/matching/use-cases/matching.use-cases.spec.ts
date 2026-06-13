@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { LostItemNotFoundError } from '@/domains/lost-items/errors/lost-item.errors'
 import type { LostItem } from '@/domains/lost-items/models/lost-item.model'
 import type { LostItemRepository } from '@/domains/lost-items/repository/lost-item.repository'
+import type { NotificationRepository } from '@/domains/notifications/repository/notification.repository'
 import { MATCH_SCORE_THRESHOLD } from '../constants'
 import { MatchingUseCases } from './matching.use-cases'
 
@@ -41,13 +42,26 @@ function buildRepository(): LostItemRepository {
 	}
 }
 
+function buildNotificationRepository(): NotificationRepository {
+	return {
+		create: vi.fn(),
+		findById: vi.fn(),
+		list: vi.fn(),
+		markAsRead: vi.fn(),
+		markAllAsRead: vi.fn(),
+		countUnread: vi.fn(),
+	}
+}
+
 describe('MatchingUseCases', () => {
 	let repository: LostItemRepository
+	let notificationRepository: NotificationRepository
 	let useCases: MatchingUseCases
 
 	beforeEach(() => {
 		repository = buildRepository()
-		useCases = new MatchingUseCases(repository)
+		notificationRepository = buildNotificationRepository()
+		useCases = new MatchingUseCases(repository, notificationRepository)
 	})
 
 	it('throws LostItemNotFoundError when the source item does not exist', async () => {
@@ -121,5 +135,70 @@ describe('MatchingUseCases', () => {
 		const result = await useCases.findMatches('lost-item-1')
 
 		expect(result).toEqual([])
+	})
+
+	describe('notifyMatches', () => {
+		it('creates a notification for the source owner for each relevant match', async () => {
+			const source = buildLostItem({ type: 'lost', userId: 'user-1' })
+			const strongMatch = buildLostItem({
+				id: 'lost-item-2',
+				type: 'found',
+				title: 'iPhone retrouvé',
+				description: 'Trouvé près du marché de Cocody',
+				eventDate: new Date('2026-01-02'),
+				userId: 'user-2',
+			})
+
+			vi.mocked(repository.findById).mockResolvedValue(source)
+			vi.mocked(repository.list).mockResolvedValue({
+				items: [strongMatch],
+				total: 1,
+				page: 1,
+				pageSize: 100,
+			})
+
+			await useCases.notifyMatches('lost-item-1')
+
+			expect(notificationRepository.create).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: 'match_found',
+					userId: 'user-1',
+					link: '/posts/lost-item-2',
+				}),
+			)
+		})
+
+		it('does not notify about matches owned by the same user', async () => {
+			const source = buildLostItem({ type: 'lost', userId: 'user-1' })
+			const ownMatch = buildLostItem({
+				id: 'lost-item-2',
+				type: 'found',
+				title: 'iPhone retrouvé',
+				description: 'Trouvé près du marché de Cocody',
+				eventDate: new Date('2026-01-02'),
+				userId: 'user-1',
+			})
+
+			vi.mocked(repository.findById).mockResolvedValue(source)
+			vi.mocked(repository.list).mockResolvedValue({
+				items: [ownMatch],
+				total: 1,
+				page: 1,
+				pageSize: 100,
+			})
+
+			await useCases.notifyMatches('lost-item-1')
+
+			expect(notificationRepository.create).not.toHaveBeenCalled()
+		})
+
+		it('throws LostItemNotFoundError when the source item does not exist', async () => {
+			vi.mocked(repository.findById).mockResolvedValue(null)
+
+			await expect(useCases.notifyMatches('missing')).rejects.toThrow(
+				LostItemNotFoundError,
+			)
+			expect(notificationRepository.create).not.toHaveBeenCalled()
+		})
 	})
 })
