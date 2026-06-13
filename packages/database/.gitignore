@@ -4,5 +4,8 @@
 # Generated Prisma client
 /src/generated/prisma
 
+# Compiled output
+/dist
+
 # TypeScript incremental build info
 *.tsbuildinfo
