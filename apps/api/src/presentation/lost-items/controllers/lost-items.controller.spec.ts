@@ -1,6 +1,7 @@
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { auth } from '@/infrastructure/auth/auth.config'
+import { FIND_MATCHES_JOB } from '@/domains/matching/constants'
 import type { LostItem } from '@/domains/lost-items/models/lost-item.model'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
 import type { CreateLostItemDto } from '../dto/create-lost-item.dto'
@@ -49,17 +50,23 @@ function buildUseCases(): LostItemUseCases {
 	} as unknown as LostItemUseCases
 }
 
+function buildMatchingQueue() {
+	return { add: vi.fn() }
+}
+
 describe('LostItemsController', () => {
 	let useCases: LostItemUseCases
+	let matchingQueue: ReturnType<typeof buildMatchingQueue>
 	let controller: LostItemsController
 
 	beforeEach(() => {
 		useCases = buildUseCases()
-		controller = new LostItemsController(useCases)
+		matchingQueue = buildMatchingQueue()
+		controller = new LostItemsController(useCases, matchingQueue as never)
 	})
 
 	describe('create', () => {
-		it('converts the eventDate string and forwards the session user id', async () => {
+		it('converts the eventDate string, forwards the session user id and enqueues a matching job', async () => {
 			const dto: CreateLostItemDto = {
 				type: 'lost',
 				category: 'phone',
@@ -80,6 +87,9 @@ describe('LostItemsController', () => {
 				...dto,
 				eventDate: new Date('2026-01-01'),
 				userId: 'user-1',
+			})
+			expect(matchingQueue.add).toHaveBeenCalledWith(FIND_MATCHES_JOB, {
+				lostItemId: created.id,
 			})
 			expect(result).toEqual(created)
 		})
