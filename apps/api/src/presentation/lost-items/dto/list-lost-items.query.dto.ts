@@ -1,3 +1,4 @@
+import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator'
 import {
@@ -12,24 +13,33 @@ import type {
 } from '@/domains/lost-items/types/lost-item.types'
 
 export class ListLostItemsQueryDto {
+	@ApiPropertyOptional({ enum: LOST_ITEM_TYPES })
 	@IsOptional()
 	@IsIn(LOST_ITEM_TYPES)
 	type?: LostItemType
 
+	@ApiPropertyOptional({ enum: LOST_ITEM_CATEGORIES })
 	@IsOptional()
 	@IsIn(LOST_ITEM_CATEGORIES)
 	category?: LostItemCategory
 
+	@ApiPropertyOptional()
 	@IsOptional()
 	@IsString()
 	ville?: string
 
+	@ApiPropertyOptional({ minimum: 1, default: 1 })
 	@IsOptional()
 	@Type(() => Number)
 	@IsInt()
 	@Min(1)
 	page: number = 1
 
+	@ApiPropertyOptional({
+		minimum: 1,
+		maximum: MAX_PAGE_SIZE,
+		default: DEFAULT_PAGE_SIZE,
+	})
 	@IsOptional()
 	@Type(() => Number)
 	@IsInt()

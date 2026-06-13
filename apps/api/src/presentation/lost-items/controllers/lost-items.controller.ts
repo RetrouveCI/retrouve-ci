@@ -8,6 +8,7 @@ import {
 	Post,
 	Query,
 } from '@nestjs/common'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AllowAnonymous, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { auth } from '@/infrastructure/auth/auth.config'
@@ -16,6 +17,8 @@ import { CreateLostItemDto } from '../dto/create-lost-item.dto'
 import { ListLostItemsQueryDto } from '../dto/list-lost-items.query.dto'
 import { UpdateLostItemDto } from '../dto/update-lost-item.dto'
 
+@ApiTags('lost-items')
+@ApiBearerAuth()
 @Controller('lost-items')
 export class LostItemsController {
 	constructor(private readonly lostItemUseCases: LostItemUseCases) {}
