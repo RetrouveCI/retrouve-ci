@@ -10,15 +10,17 @@ import {
 	Query,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { AllowAnonymous, Session } from '@thallesp/nestjs-better-auth'
+import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Queue } from 'bullmq'
 import type { auth } from '@/infrastructure/auth/auth.config'
 import { FIND_MATCHES_JOB, MATCHING_QUEUE } from '@/domains/matching/constants'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
+import { AdminListLostItemsQueryDto } from '../dto/admin-list-lost-items.query.dto'
 import { CreateLostItemDto } from '../dto/create-lost-item.dto'
 import { ListLostItemsQueryDto } from '../dto/list-lost-items.query.dto'
 import { UpdateLostItemDto } from '../dto/update-lost-item.dto'
+import { UpdateModerationStatusDto } from '../dto/update-moderation-status.dto'
 
 @ApiTags('lost-items')
 @ApiBearerAuth()
@@ -50,7 +52,10 @@ export class LostItemsController {
 	@Get()
 	@AllowAnonymous()
 	list(@Query() query: ListLostItemsQueryDto) {
-		return this.lostItemUseCases.list(query)
+		return this.lostItemUseCases.list({
+			...query,
+			moderationStatus: 'published',
+		})
 	}
 
 	@Get('mine')
@@ -59,6 +64,21 @@ export class LostItemsController {
 		@Query() query: ListLostItemsQueryDto,
 	) {
 		return this.lostItemUseCases.listMine(session.user.id, query)
+	}
+
+	@Get('admin')
+	@Roles(['admin'])
+	listForAdmin(@Query() query: AdminListLostItemsQueryDto) {
+		return this.lostItemUseCases.list(query)
+	}
+
+	@Patch(':id/moderation')
+	@Roles(['admin'])
+	updateModerationStatus(
+		@Param('id') id: string,
+		@Body() dto: UpdateModerationStatusDto,
+	) {
+		return this.lostItemUseCases.moderate(id, dto.moderationStatus)
 	}
 
 	@Get(':id')

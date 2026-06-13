@@ -9,6 +9,54 @@ datasource db {
   provider = "postgresql"
 }
 
+
+enum LostItemType {
+  LOST
+  FOUND
+}
+
+enum LostItemCategory {
+  PHONE
+  KEYS
+  WALLET
+  BAG
+  ELECTRONICS
+  CLOTHING
+  JEWELRY
+  DOCUMENTS
+  OTHER
+}
+
+enum ModerationStatus {
+  PENDING
+  PUBLISHED
+  HIDDEN
+}
+
+enum ResolutionStatus {
+  ACTIVE
+  RESOLVED
+  EXPIRED
+}
+
+enum QrTokenStatus {
+  GENERATED
+  ACTIVATED
+  REVOKED
+}
+
+enum StickerOrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum NotificationType {
+  MATCH_FOUND
+}
+
 model User {
   id                  String     @id
   name                String
@@ -19,6 +67,10 @@ model User {
   updatedAt           DateTime   @updatedAt
   phoneNumber         String?
   phoneNumberVerified Boolean?
+  role                String?
+  banned              Boolean?   @default(false)
+  banReason           String?
+  banExpires          DateTime?
   sessions            Session[]
   accounts            Account[]
   lostItems           LostItem[]
@@ -32,15 +84,16 @@ model User {
 }
 
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String   @id
+  expiresAt       DateTime
+  token           String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  ipAddress       String?
+  userAgent       String?
+  impersonatedBy  String?
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
   @@index([userId])
@@ -79,34 +132,7 @@ model Verification {
   @@map("verification")
 }
 
-enum LostItemType {
-  LOST
-  FOUND
-}
 
-enum LostItemCategory {
-  PHONE
-  KEYS
-  WALLET
-  BAG
-  ELECTRONICS
-  CLOTHING
-  JEWELRY
-  DOCUMENTS
-  OTHER
-}
-
-enum ModerationStatus {
-  PENDING
-  PUBLISHED
-  HIDDEN
-}
-
-enum ResolutionStatus {
-  ACTIVE
-  RESOLVED
-  EXPIRED
-}
 
 model LostItem {
   id               String           @id @default(uuid())
@@ -134,11 +160,7 @@ model LostItem {
   @@map("lost_item")
 }
 
-enum QrTokenStatus {
-  GENERATED
-  ACTIVATED
-  REVOKED
-}
+
 
 model QrToken {
   id           String        @id @default(uuid())
@@ -158,13 +180,7 @@ model QrToken {
   @@map("qr_token")
 }
 
-enum StickerOrderStatus {
-  PENDING
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-}
+
 
 model StickerOrder {
   id              String             @id @default(uuid())
@@ -193,9 +209,7 @@ model StickerOrder {
   @@map("sticker_order")
 }
 
-enum NotificationType {
-  MATCH_FOUND
-}
+
 
 model Notification {
   id        String           @id @default(uuid())

@@ -11,6 +11,7 @@ import {
 import type {
 	CreateLostItemData,
 	ListLostItemsFilter,
+	ModerationStatus,
 	UpdateLostItemData,
 } from '../types/lost-item.types'
 import {
@@ -82,6 +83,15 @@ export class LostItemUseCases {
 		}
 
 		return this.lostItemRepository.update(id, data)
+	}
+
+	async moderate(
+		id: string,
+		moderationStatus: ModerationStatus,
+	): Promise<LostItem> {
+		await this.getById(id)
+
+		return this.lostItemRepository.updateModerationStatus(id, moderationStatus)
 	}
 
 	async delete(id: string, userId: string): Promise<void> {

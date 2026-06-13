@@ -38,6 +38,7 @@ function buildRepository(): LostItemRepository {
 		findById: vi.fn(),
 		list: vi.fn(),
 		update: vi.fn(),
+		updateModerationStatus: vi.fn(),
 		delete: vi.fn(),
 		incrementViews: vi.fn(),
 		incrementContacts: vi.fn(),
@@ -244,6 +245,33 @@ describe('LostItemUseCases', () => {
 			await expect(
 				useCases.update('missing', 'user-1', { title: 'Nouveau titre' }),
 			).rejects.toThrow(LostItemNotFoundError)
+		})
+	})
+
+	describe('moderate', () => {
+		it('updates the moderation status of the lost item', async () => {
+			const lostItem = buildLostItem({ moderationStatus: 'pending' })
+			const moderated = buildLostItem({ moderationStatus: 'published' })
+
+			vi.mocked(repository.findById).mockResolvedValue(lostItem)
+			vi.mocked(repository.updateModerationStatus).mockResolvedValue(moderated)
+
+			const result = await useCases.moderate('lost-item-1', 'published')
+
+			expect(repository.updateModerationStatus).toHaveBeenCalledWith(
+				'lost-item-1',
+				'published',
+			)
+			expect(result).toEqual(moderated)
+		})
+
+		it('throws LostItemNotFoundError when the item does not exist', async () => {
+			vi.mocked(repository.findById).mockResolvedValue(null)
+
+			await expect(
+				useCases.moderate('missing', 'published'),
+			).rejects.toThrow(LostItemNotFoundError)
+			expect(repository.updateModerationStatus).not.toHaveBeenCalled()
 		})
 	})
 

@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { phoneNumber } from 'better-auth/plugins'
+import { admin, phoneNumber } from 'better-auth/plugins'
 import { prisma } from '@retrouve-ci/database'
 
 export const auth = betterAuth({
@@ -18,6 +18,10 @@ export const auth = betterAuth({
 			sendOTP: ({ phoneNumber, code }) => {
 				console.log(`[auth] OTP for ${phoneNumber}: ${code}`)
 			},
+		}),
+		admin({
+			defaultRole: 'user',
+			adminRoles: ['admin'],
 		}),
 	],
 })

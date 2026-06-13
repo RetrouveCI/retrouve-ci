@@ -1,6 +1,7 @@
 import type {
 	LostItemCategory,
 	LostItemType,
+	ModerationStatus,
 	ResolutionStatus,
 } from './types/lost-item.types'
 
@@ -22,6 +23,12 @@ export const RESOLUTION_STATUSES: ResolutionStatus[] = [
 	'active',
 	'resolved',
 	'expired',
+]
+
+export const MODERATION_STATUSES: ModerationStatus[] = [
+	'pending',
+	'published',
+	'hidden',
 ]
 
 export const MAX_PHOTOS = 5
