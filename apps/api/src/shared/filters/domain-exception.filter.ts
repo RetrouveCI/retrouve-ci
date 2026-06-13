@@ -4,7 +4,7 @@ import {
 	ExceptionFilter,
 	HttpStatus,
 } from '@nestjs/common'
-import type { Response } from 'express'
+import type { FastifyReply } from 'fastify'
 import {
 	DomainError,
 	NotFoundError,
@@ -14,7 +14,7 @@ import {
 @Catch(DomainError)
 export class DomainExceptionFilter implements ExceptionFilter {
 	catch(exception: DomainError, host: ArgumentsHost) {
-		const response = host.switchToHttp().getResponse<Response>()
+		const response = host.switchToHttp().getResponse<FastifyReply>()
 
 		const status =
 			exception instanceof NotFoundError
@@ -23,7 +23,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
 					? HttpStatus.BAD_REQUEST
 					: HttpStatus.INTERNAL_SERVER_ERROR
 
-		response.status(status).json({
+		response.status(status).send({
 			statusCode: status,
 			message: exception.message,
 			error: exception.name,

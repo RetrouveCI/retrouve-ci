@@ -1,11 +1,22 @@
 import 'reflect-metadata'
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
+import {
+	FastifyAdapter,
+	type NestFastifyApplication,
+} from '@nestjs/platform-fastify'
+import { DomainExceptionFilter } from '@/shared/filters/domain-exception.filter'
 import { AppModule } from './app.module'
-import { DomainExceptionFilter } from './shared/filters/domain-exception.filter'
 
-async function bootstrap() {
-	const app = await NestFactory.create(AppModule)
+const DEFAULT_PORT = 3002
+const DEFAULT_HOST = '0.0.0.0'
+
+async function bootstrap(): Promise<void> {
+	const app = await NestFactory.create<NestFastifyApplication>(
+		AppModule,
+		new FastifyAdapter(),
+	)
+
 	app.enableCors()
 	app.useGlobalPipes(
 		new ValidationPipe({
@@ -14,10 +25,11 @@ async function bootstrap() {
 			forbidNonWhitelisted: true,
 		}),
 	)
+
 	app.useGlobalFilters(new DomainExceptionFilter())
 
-	const port = process.env.PORT ?? 3002
-	await app.listen(port)
+	const port = process.env.PORT ?? DEFAULT_PORT
+	await app.listen(port, DEFAULT_HOST)
 }
 
 void bootstrap()
