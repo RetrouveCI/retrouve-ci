@@ -16,4 +16,5 @@ export interface LostItemRepository {
 	list(filter: ListLostItemsFilter): Promise<LostItemListResponse>
 	update(id: string, data: UpdateLostItemData): Promise<LostItem>
 	delete(id: string): Promise<void>
+	incrementViews(id: string): Promise<void>
 }

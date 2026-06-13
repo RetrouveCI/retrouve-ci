@@ -49,7 +49,7 @@ export class LostItemsController {
 	@Get(':id')
 	@AllowAnonymous()
 	getOne(@Param('id') id: string) {
-		return this.lostItemUseCases.getById(id)
+		return this.lostItemUseCases.view(id)
 	}
 
 	@Patch(':id')
