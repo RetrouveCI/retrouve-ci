@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
+    container_name: retrouveci-postgres
     environment:
       POSTGRES_USER: retrouveci
       POSTGRES_PASSWORD: retrouveci

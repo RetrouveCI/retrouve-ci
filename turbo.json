@@ -1,12 +1,12 @@
 {
 	"$schema": "https://turborepo.dev/schema.json",
 	"ui": "tui",
-	"globalEnv": ["NODE_ENV", "PORT", "DATABASE_URL"],
+	"globalEnv": ["NODE_ENV", "PORT", "DATABASE_URL", "PGBOUNCER_URL"],
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": ["dist/**", ".next/**", "!.next/cache/**", "generated/**"]
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**", "src/generated/**"]
 		},
 		"lint": {
 			"dependsOn": ["^lint"]

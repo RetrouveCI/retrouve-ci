@@ -1,11 +1,15 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
-import { PrismaClient } from '@retrouve-ci/database'
+import { createPrismaClientOptions, PrismaClient } from '@retrouve-ci/database'
 
 @Injectable()
 export class PrismaService
 	extends PrismaClient
 	implements OnModuleInit, OnModuleDestroy
 {
+	constructor() {
+		super(createPrismaClientOptions())
+	}
+
 	async onModuleInit() {
 		await this.$connect()
 	}
