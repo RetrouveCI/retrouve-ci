@@ -40,6 +40,7 @@ function buildRepository(): LostItemRepository {
 		update: vi.fn(),
 		delete: vi.fn(),
 		incrementViews: vi.fn(),
+		incrementContacts: vi.fn(),
 	}
 }
 
@@ -121,6 +122,27 @@ describe('LostItemUseCases', () => {
 				LostItemNotFoundError,
 			)
 			expect(repository.incrementViews).not.toHaveBeenCalled()
+		})
+	})
+
+	describe('recordContact', () => {
+		it('increments the contacts count and returns the updated lost item', async () => {
+			const lostItem = buildLostItem({ contactsCount: 2 })
+			vi.mocked(repository.findById).mockResolvedValue(lostItem)
+
+			const result = await useCases.recordContact('lost-item-1')
+
+			expect(repository.incrementContacts).toHaveBeenCalledWith('lost-item-1')
+			expect(result).toEqual({ ...lostItem, contactsCount: 3 })
+		})
+
+		it('throws LostItemNotFoundError when the item does not exist', async () => {
+			vi.mocked(repository.findById).mockResolvedValue(null)
+
+			await expect(useCases.recordContact('missing')).rejects.toThrow(
+				LostItemNotFoundError,
+			)
+			expect(repository.incrementContacts).not.toHaveBeenCalled()
 		})
 	})
 

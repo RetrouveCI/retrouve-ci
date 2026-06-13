@@ -1,7 +1,4 @@
-import type {
-	LostItem,
-	LostItemListResponse,
-} from '../models/lost-item.model'
+import type { LostItem, LostItemListResponse } from '../models/lost-item.model'
 import type {
 	CreateLostItemData,
 	ListLostItemsFilter,
@@ -17,4 +14,5 @@ export interface LostItemRepository {
 	update(id: string, data: UpdateLostItemData): Promise<LostItem>
 	delete(id: string): Promise<void>
 	incrementViews(id: string): Promise<void>
+	incrementContacts(id: string): Promise<void>
 }

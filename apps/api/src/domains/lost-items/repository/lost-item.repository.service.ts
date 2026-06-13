@@ -114,4 +114,15 @@ export class LostItemRepositoryService implements LostItemRepository {
 			data: { views: { increment: 1 } },
 		})
 	}
+
+	async incrementContacts(id: string): Promise<void> {
+		await this.prisma.lostItem.update({
+			where: { id },
+			data: {
+				contactsCount: {
+					increment: 1,
+				},
+			},
+		})
+	}
 }

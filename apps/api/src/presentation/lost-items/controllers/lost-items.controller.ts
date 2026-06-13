@@ -52,6 +52,12 @@ export class LostItemsController {
 		return this.lostItemUseCases.view(id)
 	}
 
+	@Post(':id/contact')
+	@AllowAnonymous()
+	recordContact(@Param('id') id: string) {
+		return this.lostItemUseCases.recordContact(id)
+	}
+
 	@Patch(':id')
 	update(
 		@Session() session: UserSession<typeof auth>,

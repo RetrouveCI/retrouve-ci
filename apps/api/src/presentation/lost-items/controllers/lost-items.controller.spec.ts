@@ -41,6 +41,7 @@ function buildUseCases(): LostItemUseCases {
 		create: vi.fn(),
 		getById: vi.fn(),
 		view: vi.fn(),
+		recordContact: vi.fn(),
 		list: vi.fn(),
 		listMine: vi.fn(),
 		update: vi.fn(),
@@ -128,6 +129,18 @@ describe('LostItemsController', () => {
 			const result = await controller.getOne('lost-item-1')
 
 			expect(useCases.view).toHaveBeenCalledWith('lost-item-1')
+			expect(result).toEqual(lostItem)
+		})
+	})
+
+	describe('recordContact', () => {
+		it('delegates to the use cases', async () => {
+			const lostItem = buildLostItem({ contactsCount: 1 })
+			vi.mocked(useCases.recordContact).mockResolvedValue(lostItem)
+
+			const result = await controller.recordContact('lost-item-1')
+
+			expect(useCases.recordContact).toHaveBeenCalledWith('lost-item-1')
 			expect(result).toEqual(lostItem)
 		})
 	})
