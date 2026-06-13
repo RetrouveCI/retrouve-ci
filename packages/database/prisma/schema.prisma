@@ -24,6 +24,7 @@ model User {
   lostItems           LostItem[]
   qrTokens            QrToken[]
   stickerOrders       StickerOrder[]
+  notifications       Notification[]
 
   @@unique([email])
   @@unique([phoneNumber])
@@ -190,4 +191,25 @@ model StickerOrder {
   @@index([userId])
   @@index([status])
   @@map("sticker_order")
+}
+
+enum NotificationType {
+  MATCH_FOUND
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  read      Boolean          @default(false)
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+  readAt    DateTime?
+
+  @@index([userId])
+  @@index([userId, read])
+  @@map("notification")
 }
