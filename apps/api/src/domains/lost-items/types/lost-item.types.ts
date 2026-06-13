@@ -48,6 +48,7 @@ export interface ListLostItemsFilter {
 	moderationStatus?: ModerationStatus
 	resolutionStatus?: ResolutionStatus
 	userId?: string
+	search?: string
 	page: number
 	pageSize: number
 }

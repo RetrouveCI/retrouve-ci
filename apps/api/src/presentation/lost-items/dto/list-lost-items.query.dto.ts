@@ -28,6 +28,13 @@ export class ListLostItemsQueryDto {
 	@IsString()
 	ville?: string
 
+	@ApiPropertyOptional({
+		description: 'Recherche textuelle dans le titre et la description',
+	})
+	@IsOptional()
+	@IsString()
+	search?: string
+
 	@ApiPropertyOptional({ minimum: 1, default: 1 })
 	@IsOptional()
 	@Type(() => Number)

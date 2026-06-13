@@ -162,6 +162,21 @@ describe('LostItemUseCases', () => {
 			expect(repository.list).toHaveBeenCalledWith(filter)
 			expect(result).toEqual(response)
 		})
+
+		it('forwards the search filter to the repository', async () => {
+			const response = {
+				items: [buildLostItem()],
+				total: 1,
+				page: 1,
+				pageSize: 20,
+			}
+			vi.mocked(repository.list).mockResolvedValue(response)
+
+			const filter = { page: 1, pageSize: 20, search: 'iPhone' }
+			await useCases.list(filter)
+
+			expect(repository.list).toHaveBeenCalledWith(filter)
+		})
 	})
 
 	describe('listMine', () => {
