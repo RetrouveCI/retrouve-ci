@@ -23,6 +23,7 @@ model User {
   accounts            Account[]
   lostItems           LostItem[]
   qrTokens            QrToken[]
+  stickerOrders       StickerOrder[]
 
   @@unique([email])
   @@unique([phoneNumber])
@@ -154,4 +155,39 @@ model QrToken {
   @@index([userId])
   @@index([status])
   @@map("qr_token")
+}
+
+enum StickerOrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model StickerOrder {
+  id              String             @id @default(uuid())
+  orderNumber     String             @unique
+  packId          String
+  packName        String
+  quantity        Int
+  unitPrice       Int
+  deliveryFee     Int
+  total           Int
+  status          StickerOrderStatus @default(PENDING)
+  paymentMethod   String
+  deliveryAddress String
+  deliveryCity    String
+  deliveryNotes   String?
+  trackingNumber  String?
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@map("sticker_order")
 }
