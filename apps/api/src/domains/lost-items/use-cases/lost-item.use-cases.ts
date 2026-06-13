@@ -1,5 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { LostItemNotFoundError } from '../errors/lost-item.errors'
+import {
+	LostItemForbiddenError,
+	LostItemNotFoundError,
+} from '../errors/lost-item.errors'
 import type { LostItem, LostItemListResponse } from '../models/lost-item.model'
 import {
 	LOST_ITEM_REPOSITORY,
@@ -8,8 +11,12 @@ import {
 import type {
 	CreateLostItemData,
 	ListLostItemsFilter,
+	UpdateLostItemData,
 } from '../types/lost-item.types'
-import { validateCreateLostItem } from '../validators/lost-item.validator'
+import {
+	validateCreateLostItem,
+	validateUpdateLostItem,
+} from '../validators/lost-item.validator'
 
 @Injectable()
 export class LostItemUseCases {
@@ -36,5 +43,31 @@ export class LostItemUseCases {
 
 	async list(filter: ListLostItemsFilter): Promise<LostItemListResponse> {
 		return this.lostItemRepository.list(filter)
+	}
+
+	async update(
+		id: string,
+		userId: string,
+		data: UpdateLostItemData,
+	): Promise<LostItem> {
+		validateUpdateLostItem(data)
+
+		const lostItem = await this.getById(id)
+
+		if (lostItem.userId !== userId) {
+			throw new LostItemForbiddenError(id)
+		}
+
+		return this.lostItemRepository.update(id, data)
+	}
+
+	async delete(id: string, userId: string): Promise<void> {
+		const lostItem = await this.getById(id)
+
+		if (lostItem.userId !== userId) {
+			throw new LostItemForbiddenError(id)
+		}
+
+		await this.lostItemRepository.delete(id)
 	}
 }

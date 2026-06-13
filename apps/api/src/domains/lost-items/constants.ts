@@ -1,4 +1,8 @@
-import type { LostItemCategory, LostItemType } from './types/lost-item.types'
+import type {
+	LostItemCategory,
+	LostItemType,
+	ResolutionStatus,
+} from './types/lost-item.types'
 
 export const LOST_ITEM_TYPES: LostItemType[] = ['lost', 'found']
 
@@ -12,6 +16,12 @@ export const LOST_ITEM_CATEGORIES: LostItemCategory[] = [
 	'jewelry',
 	'documents',
 	'other',
+]
+
+export const RESOLUTION_STATUSES: ResolutionStatus[] = [
+	'active',
+	'resolved',
+	'expired',
 ]
 
 export const MAX_PHOTOS = 5

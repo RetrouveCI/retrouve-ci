@@ -8,3 +8,5 @@ export abstract class DomainError extends Error {
 export abstract class NotFoundError extends DomainError {}
 
 export abstract class ValidationError extends DomainError {}
+
+export abstract class ForbiddenError extends DomainError {}
