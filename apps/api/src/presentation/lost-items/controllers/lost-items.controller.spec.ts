@@ -46,6 +46,7 @@ function buildUseCases(): LostItemUseCases {
 		list: vi.fn(),
 		listMine: vi.fn(),
 		update: vi.fn(),
+		moderate: vi.fn(),
 		delete: vi.fn(),
 	} as unknown as LostItemUseCases
 }
@@ -108,7 +109,10 @@ describe('LostItemsController', () => {
 
 			const result = await controller.list(query)
 
-			expect(useCases.list).toHaveBeenCalledWith(query)
+			expect(useCases.list).toHaveBeenCalledWith({
+				...query,
+				moderationStatus: 'published',
+			})
 			expect(result).toEqual(response)
 		})
 	})
@@ -184,6 +188,41 @@ describe('LostItemsController', () => {
 			expect(useCases.update).toHaveBeenCalledWith('lost-item-1', 'user-1', {
 				title: 'Nouveau titre',
 			})
+		})
+	})
+
+	describe('listForAdmin', () => {
+		it('delegates to the use cases without forcing a moderation status', async () => {
+			const query = { page: 1, pageSize: 20, moderationStatus: 'pending' as const }
+			const response = {
+				items: [buildLostItem({ moderationStatus: 'pending' })],
+				total: 1,
+				page: 1,
+				pageSize: 20,
+			}
+			vi.mocked(useCases.list).mockResolvedValue(response)
+
+			const result = await controller.listForAdmin(query)
+
+			expect(useCases.list).toHaveBeenCalledWith(query)
+			expect(result).toEqual(response)
+		})
+	})
+
+	describe('updateModerationStatus', () => {
+		it('delegates to the use cases', async () => {
+			const moderated = buildLostItem({ moderationStatus: 'published' })
+			vi.mocked(useCases.moderate).mockResolvedValue(moderated)
+
+			const result = await controller.updateModerationStatus('lost-item-1', {
+				moderationStatus: 'published',
+			})
+
+			expect(useCases.moderate).toHaveBeenCalledWith(
+				'lost-item-1',
+				'published',
+			)
+			expect(result).toEqual(moderated)
 		})
 	})
 

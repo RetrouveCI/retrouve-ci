@@ -2,6 +2,7 @@ import type { LostItem, LostItemListResponse } from '../models/lost-item.model'
 import type {
 	CreateLostItemData,
 	ListLostItemsFilter,
+	ModerationStatus,
 	UpdateLostItemData,
 } from '../types/lost-item.types'
 
@@ -12,6 +13,10 @@ export interface LostItemRepository {
 	findById(id: string): Promise<LostItem | null>
 	list(filter: ListLostItemsFilter): Promise<LostItemListResponse>
 	update(id: string, data: UpdateLostItemData): Promise<LostItem>
+	updateModerationStatus(
+		id: string,
+		moderationStatus: ModerationStatus,
+	): Promise<LostItem>
 	delete(id: string): Promise<void>
 	incrementViews(id: string): Promise<void>
 	incrementContacts(id: string): Promise<void>

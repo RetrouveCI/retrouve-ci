@@ -11,6 +11,7 @@ import type { LostItem, LostItemListResponse } from '../models/lost-item.model'
 import type {
 	CreateLostItemData,
 	ListLostItemsFilter,
+	ModerationStatus,
 	UpdateLostItemData,
 } from '../types/lost-item.types'
 import type { LostItemRepository } from './lost-item.repository'
@@ -110,6 +111,18 @@ export class LostItemRepositoryService implements LostItemRepository {
 					resolutionStatus: toPrismaResolutionStatus(data.resolutionStatus),
 				}),
 			},
+		})
+
+		return toDomainLostItem(lostItem)
+	}
+
+	async updateModerationStatus(
+		id: string,
+		moderationStatus: ModerationStatus,
+	): Promise<LostItem> {
+		const lostItem = await this.prisma.lostItem.update({
+			where: { id },
+			data: { moderationStatus: toPrismaModerationStatus(moderationStatus) },
 		})
 
 		return toDomainLostItem(lostItem)
