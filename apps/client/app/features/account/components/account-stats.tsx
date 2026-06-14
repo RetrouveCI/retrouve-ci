@@ -1,5 +1,6 @@
 import { QrCode, Shield, FileText, Eye } from 'lucide-react'
-import type { Sticker, UserLostItem } from '../account.types'
+import type { Sticker } from '@/shared/types/sticker'
+import type { UserLostItem } from '@/shared/types/lost-item'
 
 interface AccountStatsProps {
 	stickers: Sticker[]

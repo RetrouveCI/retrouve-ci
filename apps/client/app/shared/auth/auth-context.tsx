@@ -8,18 +8,13 @@ import {
 	type ReactNode,
 } from 'react'
 import { useNavigate } from 'react-router'
-import type {
-	User,
-	Sticker,
-	UserLostItem,
-	LostItemStatus,
-} from '@/features/account/account.types'
-import { accountService } from '@/features/account/servers/account.service'
-import { stickersService } from '@/features/account/servers/stickers.service'
+import type { User } from '@/shared/types/user'
+import type { Sticker } from '@/shared/types/sticker'
+import type { UserLostItem, LostItemStatus } from '@/shared/types/lost-item'
+import { accountService } from '@/features/account/posts/servers/account.service'
+import { stickersService } from '@/features/account/stickers/servers/stickers.service'
 import { authClient } from './auth-client'
 import { toE164 } from './phone'
-
-export type { User, Sticker, UserLostItem }
 
 const TEMP_EMAIL_SUFFIX = '@phone.retrouveci.local'
 

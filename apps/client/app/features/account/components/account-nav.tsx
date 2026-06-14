@@ -9,7 +9,8 @@ import {
 	Plus,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import type { Sticker, UserLostItem } from '../account.types'
+import type { Sticker } from '@/shared/types/sticker'
+import type { UserLostItem } from '@/shared/types/lost-item'
 
 interface AccountNavProps {
 	stickers: Sticker[]

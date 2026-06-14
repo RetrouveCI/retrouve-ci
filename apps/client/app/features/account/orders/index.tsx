@@ -7,7 +7,7 @@ import { OrderDetail } from './components/order-detail'
 import { EmptyOrdersState } from './components/empty-orders-state'
 import { OrderCard } from './components/order-card'
 import { NewOrderCta } from './components/new-order-cta'
-import type { Order, OrderStatus } from '../account.types'
+import type { Order, OrderStatus } from './orders.types'
 
 const mockOrders: Order[] = [
 	{

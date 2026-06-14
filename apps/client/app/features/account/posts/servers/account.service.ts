@@ -1,4 +1,4 @@
-import type { UserLostItem, LostItemStatus } from '../account.types'
+import type { UserLostItem, LostItemStatus } from '@/shared/types/lost-item'
 import { MOCK_USER, MOCK_USER_LISTINGS } from '@/shared/mock/data'
 
 class MockAccountService {

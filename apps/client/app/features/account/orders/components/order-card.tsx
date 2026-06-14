@@ -7,7 +7,7 @@ import {
 	ChevronRight,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import type { Order, OrderStatus } from '../../account.types'
+import type { Order, OrderStatus } from '../orders.types'
 
 const STATUS_CONFIG: Record<
 	OrderStatus,
