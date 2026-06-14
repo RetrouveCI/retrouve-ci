@@ -23,7 +23,7 @@ import {
 	Package,
 	ChevronRight,
 } from 'lucide-react'
-import type { UserLostItem } from '../../account.types'
+import type { UserLostItem } from '@/shared/types/lost-item'
 import { cn } from '@retrouve-ci/ui/utils'
 
 const STATUS_CONFIG = {

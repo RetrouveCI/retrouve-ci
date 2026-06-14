@@ -1,4 +1,4 @@
-import type { Sticker } from '../account.types'
+import type { Sticker } from '@/shared/types/sticker'
 import { MOCK_USER, MOCK_STICKERS } from '@/shared/mock/data'
 
 class MockStickersService {

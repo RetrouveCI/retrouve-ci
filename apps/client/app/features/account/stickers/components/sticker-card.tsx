@@ -14,7 +14,7 @@ import {
 import { useState } from 'react'
 import { QrCode, Edit2, Power, PowerOff, Calendar, Package } from 'lucide-react'
 import { toast } from 'sonner'
-import type { Sticker } from '../../account.types'
+import type { Sticker } from '@/shared/types/sticker'
 import { cn } from '@retrouve-ci/ui/utils'
 
 interface StickerCardProps {

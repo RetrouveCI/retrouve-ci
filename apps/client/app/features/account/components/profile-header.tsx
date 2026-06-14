@@ -1,6 +1,6 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { User, Smartphone, LogOut } from 'lucide-react'
-import type { User as UserType } from '../account.types'
+import type { User as UserType } from '@/shared/types/user'
 
 interface ProfileHeaderProps {
 	user: UserType

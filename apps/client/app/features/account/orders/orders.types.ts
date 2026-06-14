@@ -1,7 +1,3 @@
-export type { User } from '@/shared/types/user'
-export type { Sticker } from '@/shared/types/sticker'
-export type { UserLostItem, LostItemStatus } from '@/shared/types/lost-item'
-
 export type OrderStatus =
 	| 'pending'
 	| 'confirmed'
