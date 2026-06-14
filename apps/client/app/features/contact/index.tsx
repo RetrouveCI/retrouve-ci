@@ -1,8 +1,8 @@
-import { ContactHero } from '@/features/marketing/components/contact/contact-hero'
-import { ContactForm } from '@/features/marketing/components/contact/contact-form'
-import { AvailabilityCard } from '@/features/marketing/components/contact/availability-card'
-import { ContactChannels } from '@/features/marketing/components/contact/contact-channels'
-import { ContactFaq } from '@/features/marketing/components/contact/contact-faq'
+import { ContactHero } from '@/features/contact/components/contact-hero'
+import { ContactForm } from '@/features/contact/components/contact-form'
+import { AvailabilityCard } from '@/features/contact/components/availability-card'
+import { ContactChannels } from '@/features/contact/components/contact-channels'
+import { ContactFaq } from '@/features/contact/components/contact-faq'
 
 export function meta() {
 	return [

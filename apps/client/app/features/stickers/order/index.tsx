@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { OrderProgressBar } from '@/features/stickers-order/components/order-progress-bar'
-import { PackSelectionStep } from '@/features/stickers-order/components/pack-selection-step'
-import { DeliveryStep } from '@/features/stickers-order/components/delivery-step'
-import { PaymentStep } from '@/features/stickers-order/components/payment-step'
-import { ConfirmationStep } from '@/features/stickers-order/components/confirmation-step'
+import { OrderProgressBar } from '@/features/stickers/order/components/order-progress-bar'
+import { PackSelectionStep } from '@/features/stickers/order/components/pack-selection-step'
+import { DeliveryStep } from '@/features/stickers/order/components/delivery-step'
+import { PaymentStep } from '@/features/stickers/order/components/payment-step'
+import { ConfirmationStep } from '@/features/stickers/order/components/confirmation-step'
 import {
 	DELIVERY_FEE,
 	VALID_COUPONS,
 	PACKS,
 	PAYMENT_METHODS,
-} from '@/features/stickers-order/stickers-order.const'
+} from '@/features/stickers/order/stickers-order.const'
 
 export function meta() {
 	return [

@@ -1,7 +1,7 @@
-import { DownloadHero } from '@/features/marketing/components/download/download-hero'
-import { BentoFeatures } from '@/features/marketing/components/download/bento-features'
-import { HowItWorksSteps } from '@/features/marketing/components/download/how-it-works-steps'
-import { DownloadCta } from '@/features/marketing/components/download/download-cta'
+import { DownloadHero } from '@/features/download/components/download-hero'
+import { BentoFeatures } from '@/features/download/components/bento-features'
+import { HowItWorksSteps } from '@/features/download/components/how-it-works-steps'
+import { DownloadCta } from '@/features/download/components/download-cta'
 
 export function meta() {
 	return [

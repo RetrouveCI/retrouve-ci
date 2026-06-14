@@ -24,7 +24,7 @@ import { ListingsContent } from '@/features/listings/components/listings-content
 import { usePostsFilters } from '@/features/listings/hooks/use-posts-filters'
 import { postsLoader } from '@/features/listings/servers/listings.loader'
 import type { ListingType, ListingCategory } from '@/features/listings/listings.types'
-import type { Route } from './+types/posts'
+import type { Route } from './+types/index'
 
 export const loader = postsLoader
 
