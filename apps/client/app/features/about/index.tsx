@@ -1,9 +1,9 @@
-import { AboutHero } from '@/features/about/components/about-hero'
-import { StatsBar } from '@/features/about/components/stats-bar'
-import { MissionBento } from '@/features/about/components/mission-bento'
-import { ValuesSection } from '@/features/about/components/values-section'
-import { TeamSection } from '@/features/about/components/team-section'
-import { AboutCta } from '@/features/about/components/about-cta'
+import { AboutHero } from './components/about-hero'
+import { StatsBar } from './components/stats-bar'
+import { MissionBento } from './components/mission-bento'
+import { ValuesSection } from './components/values-section'
+import { TeamSection } from './components/team-section'
+import { AboutCta } from './components/about-cta'
 
 export function meta() {
 	return [

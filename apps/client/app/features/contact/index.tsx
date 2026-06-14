@@ -1,8 +1,8 @@
-import { ContactHero } from '@/features/contact/components/contact-hero'
-import { ContactForm } from '@/features/contact/components/contact-form'
-import { AvailabilityCard } from '@/features/contact/components/availability-card'
-import { ContactChannels } from '@/features/contact/components/contact-channels'
-import { ContactFaq } from '@/features/contact/components/contact-faq'
+import { ContactHero } from './components/contact-hero'
+import { ContactForm } from './components/contact-form'
+import { AvailabilityCard } from './components/availability-card'
+import { ContactChannels } from './components/contact-channels'
+import { ContactFaq } from './components/contact-faq'
 
 export function meta() {
 	return [

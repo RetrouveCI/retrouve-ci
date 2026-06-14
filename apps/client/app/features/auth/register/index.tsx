@@ -6,9 +6,9 @@ import { useAuth } from '@/shared/auth/auth-context'
 import { authClient } from '@/shared/auth/auth-client'
 import { apiFetch } from '@/shared/lib/api-client'
 import { toE164 } from '@/shared/auth/phone'
-import { PhoneStep } from '@/features/auth/components/phone-step'
-import { OtpStep } from '@/features/auth/components/otp-step'
-import { PasswordStep } from '@/features/auth/components/password-step'
+import { PhoneStep } from '../components/phone-step'
+import { OtpStep } from '../components/otp-step'
+import { PasswordStep } from '../components/password-step'
 
 type Step = 'phone' | 'otp' | 'create-password'
 

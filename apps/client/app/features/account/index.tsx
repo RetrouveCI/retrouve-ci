@@ -1,9 +1,9 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
 import { User, LogIn } from 'lucide-react'
-import { ProfileHeader } from '@/features/account/components/profile-header'
-import { AccountStats } from '@/features/account/components/account-stats'
-import { AccountNav } from '@/features/account/components/account-nav'
+import { ProfileHeader } from './components/profile-header'
+import { AccountStats } from './components/account-stats'
+import { AccountNav } from './components/account-nav'
 import { useAuth } from '@/shared/auth/auth-context'
 
 function NotLoggedInView() {

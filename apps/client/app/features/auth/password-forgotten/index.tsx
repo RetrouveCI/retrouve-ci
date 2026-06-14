@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { authClient } from '@/shared/auth/auth-client'
 import { toE164 } from '@/shared/auth/phone'
-import { PhoneStep } from '@/features/auth/components/phone-step'
+import { PhoneStep } from '../components/phone-step'
 
 export default function PasswordForgottenPage() {
 	const navigate = useNavigate()

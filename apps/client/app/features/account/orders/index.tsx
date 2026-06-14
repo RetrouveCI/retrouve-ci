@@ -3,11 +3,11 @@ import { Link, useNavigate } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/shared/auth/auth-context'
 import { cn } from '@retrouve-ci/ui/utils'
-import { OrderDetail } from '@/features/account/orders/components/order-detail'
-import { EmptyOrdersState } from '@/features/account/orders/components/empty-orders-state'
-import { OrderCard } from '@/features/account/orders/components/order-card'
-import { NewOrderCta } from '@/features/account/orders/components/new-order-cta'
-import type { Order, OrderStatus } from '@/features/account/account.types'
+import { OrderDetail } from './components/order-detail'
+import { EmptyOrdersState } from './components/empty-orders-state'
+import { OrderCard } from './components/order-card'
+import { NewOrderCta } from './components/new-order-cta'
+import type { Order, OrderStatus } from '../account.types'
 
 const mockOrders: Order[] = [
 	{

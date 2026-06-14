@@ -4,8 +4,8 @@ import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { authClient } from '@/shared/auth/auth-client'
 import { toE164 } from '@/shared/auth/phone'
-import { OtpStep } from '@/features/auth/components/otp-step'
-import { PasswordStep } from '@/features/auth/components/password-step'
+import { OtpStep } from '../components/otp-step'
+import { PasswordStep } from '../components/password-step'
 
 type Step = 'otp' | 'new-password'
 

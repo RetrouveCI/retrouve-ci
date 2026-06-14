@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { useAuth } from '@/shared/auth/auth-context'
 import { cn } from '@retrouve-ci/ui/utils'
 import { useState, useMemo, useEffect } from 'react'
-import { ListingCard } from '@/features/account/posts/components/listing-card'
+import { ListingCard } from './components/listing-card'
 
 export default function AnnoncesPage() {
 	const navigate = useNavigate()

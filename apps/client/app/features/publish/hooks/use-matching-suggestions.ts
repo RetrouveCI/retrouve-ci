@@ -1,6 +1,9 @@
 import { useMemo } from 'react'
 import { MOCK_LISTINGS } from '@/shared/mock/data'
-import type { Listing, ListingType } from '@/features/lost-items/lost-items.types'
+import type {
+	Listing,
+	ListingType,
+} from '@/features/lost-items/lost-items.types'
 import { TYPE_TO_CATEGORY } from '../publish.const'
 
 interface MatchingSuggestionsParams {

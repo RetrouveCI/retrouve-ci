@@ -1,5 +1,9 @@
 import { MOCK_LISTINGS } from '@/shared/mock/data'
-import type { Listing, ListingDetail, ListingFilters } from '../lost-items.types'
+import type {
+	Listing,
+	ListingDetail,
+	ListingFilters,
+} from '../../lost-items.types'
 
 const DETAIL_LISTINGS: ListingDetail[] = [
 	{
