@@ -1,8 +1,8 @@
-import { StickersHero } from '@/features/stickers/components/stickers-hero'
-import { ProcessStepsSection } from '@/features/stickers/components/process-steps-section'
-import { StickerInfoSection } from '@/features/stickers/components/sticker-info-section'
-import { FaqSection } from '@/features/stickers/components/faq-section'
-import { StickersCta } from '@/features/stickers/components/stickers-cta'
+import { StickersHero } from './components/stickers-hero'
+import { ProcessStepsSection } from './components/process-steps-section'
+import { StickerInfoSection } from './components/sticker-info-section'
+import { FaqSection } from './components/faq-section'
+import { StickersCta } from './components/stickers-cta'
 
 export function meta() {
 	return [

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuth } from '@/shared/auth/auth-context'
 import { Button, Input, Label } from '@retrouve-ci/ui/components'
-import { PasswordInput } from '@/features/auth/components/password-input'
+import { PasswordInput } from '../components/password-input'
 
 export default function LoginPage() {
 	const navigate = useNavigate()

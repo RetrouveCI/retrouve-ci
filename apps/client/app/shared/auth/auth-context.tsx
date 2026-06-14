@@ -8,7 +8,12 @@ import {
 	type ReactNode,
 } from 'react'
 import { useNavigate } from 'react-router'
-import type { User, Sticker, UserListing, ListingStatus } from '@/features/account/account.types'
+import type {
+	User,
+	Sticker,
+	UserListing,
+	ListingStatus,
+} from '@/features/account/account.types'
 import { accountService } from '@/features/account/servers/account.service'
 import { stickersService } from '@/features/account/servers/stickers.service'
 import { authClient } from './auth-client'

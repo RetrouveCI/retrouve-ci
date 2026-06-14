@@ -165,8 +165,8 @@ export async function reportLostItemAction({ request }: ActionFunctionArgs) {
 
 ### Page principale d'une feature
 
-Une feature qui correspond à **une seule page** expose son point d'entrée via
-un `index.tsx` à la racine de la feature (importé dans `routes.ts`).
+Une feature qui correspond à **une seule page** expose son point d'entrée via un
+`index.tsx` à la racine de la feature (importé dans `routes.ts`).
 
 ```
 features/about/
@@ -191,9 +191,8 @@ features/auth/
 ### Sous-features (pages additionnelles)
 
 Les pages additionnelles d'une feature deviennent des **sous-features** : un
-sous-dossier qui reprend la **même structure** qu'une feature
-(`components/`, `hooks/`, `servers/`, `*.types.ts`, etc.) avec son propre
-`index.tsx`.
+sous-dossier qui reprend la **même structure** qu'une feature (`components/`,
+`hooks/`, `servers/`, `*.types.ts`, etc.) avec son propre `index.tsx`.
 
 ```
 features/publish/
@@ -215,11 +214,11 @@ Une feature centrée sur une ressource présentée en **liste** et en **détail*
 - `list/` — vue liste (route index de la ressource)
 - `details/` — vue détail (route `:id`)
 
-Chacune a sa propre `components/`, `hooks/`, `servers/` et `index.tsx`. Un
-hook ou un loader/service n'appartenant qu'à `list/` ou qu'à `details/` vit
-dans le sous-dossier correspondant. Seuls les éléments réellement **partagés**
-par les deux (types, et le service de données lorsqu'il maintient un état
-unique) restent à la racine de la feature.
+Chacune a sa propre `components/`, `hooks/`, `servers/` et `index.tsx`. Un hook
+ou un loader/service n'appartenant qu'à `list/` ou qu'à `details/` vit dans le
+sous-dossier correspondant. Seuls les éléments réellement **partagés** par les
+deux (types, et le service de données lorsqu'il maintient un état unique)
+restent à la racine de la feature.
 
 ```
 features/lost-items/
@@ -278,3 +277,25 @@ features/lost-items/
   `mappers/`
 - ✅ Un composant reçoit toujours un **ViewModel**, jamais un DTO brut
 - ✅ Validation partagée entre formulaire client (Zod) et action server
+
+---
+
+## Imports : alias `@/*` vs relatif
+
+À l'intérieur d'une même feature (y compris entre une sous-feature et la
+racine de sa feature parente), les imports se font en **relatif**
+(`./components/x`, `../lost-items.types`), pas via l'alias `@/features/...`.
+L'alias `@/*` est réservé aux imports **inter-features** (ex: `publish`
+important un type de `lost-items`) et aux imports vers `shared/` ou les
+packages partagés.
+
+```ts
+// features/lost-items/list/index.tsx
+import { ListingCard } from './components/listing-card' // ✅ même feature
+import type { Listing } from '../lost-items.types' // ✅ racine de la feature parente
+
+import type { Listing } from '@/features/lost-items/lost-items.types' // ❌
+
+// features/publish/hooks/use-matching-suggestions.ts
+import type { Listing } from '@/features/lost-items/lost-items.types' // ✅ inter-features
+```

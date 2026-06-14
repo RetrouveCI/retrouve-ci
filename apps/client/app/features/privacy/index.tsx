@@ -125,9 +125,9 @@ export default function PrivacyPage() {
 							Politique de confidentialité
 						</h1>
 						<p className="text-muted-foreground max-w-xl text-lg leading-relaxed">
-							La protection de vos données personnelles est une priorité
-							absolue pour RetrouveCI. Cette politique explique comment nous
-							collectons, utilisons et protégeons vos informations.
+							La protection de vos données personnelles est une priorité absolue
+							pour RetrouveCI. Cette politique explique comment nous collectons,
+							utilisons et protégeons vos informations.
 						</p>
 					</div>
 				</div>

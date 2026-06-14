@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router'
 import { QrCode, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/shared/auth/auth-context'
-import type { Sticker } from '@/features/account/account.types'
-import { StickerCard } from '@/features/account/stickers/components/sticker-card'
-import { ActivateStickerDialog } from '@/features/account/stickers/components/activate-sticker-dialog'
-import { OrderMoreCta } from '@/features/account/stickers/components/order-more-cta'
+import type { Sticker } from '../account.types'
+import { StickerCard } from './components/sticker-card'
+import { ActivateStickerDialog } from './components/activate-sticker-dialog'
+import { OrderMoreCta } from './components/order-more-cta'
 
 export default function StickersPage() {
 	const navigate = useNavigate()

@@ -1,5 +1,5 @@
 import { Link, Outlet } from 'react-router'
-import { BrandingPanel } from '@/features/auth/components/branding-panel'
+import { BrandingPanel } from './components/branding-panel'
 
 export default function AuthLayout() {
 	return (

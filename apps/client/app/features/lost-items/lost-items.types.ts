@@ -5,7 +5,11 @@ export type {
 	ListingStatus,
 	UserListing,
 } from '@/shared/types/listing'
-import type { Listing, ListingType, ListingCategory } from '@/shared/types/listing'
+import type {
+	Listing,
+	ListingType,
+	ListingCategory,
+} from '@/shared/types/listing'
 
 export interface ListingFilters {
 	type?: ListingType | 'all'

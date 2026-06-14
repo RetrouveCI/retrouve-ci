@@ -1,8 +1,8 @@
 import { Link } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
-import { PostContent } from '@/features/lost-items/details/components/post-content'
-import { ContactCard } from '@/features/lost-items/details/components/contact-card'
-import { postDetailLoader } from '@/features/lost-items/details/servers/lost-items.loader'
+import { PostContent } from './components/post-content'
+import { ContactCard } from './components/contact-card'
+import { postDetailLoader } from './servers/lost-items.loader'
 import type { Route } from './+types/index'
 
 export const loader = postDetailLoader
@@ -18,7 +18,9 @@ export function meta({ data }: Route.MetaArgs) {
 	]
 }
 
-export default function ListingDetailPage({ loaderData }: Route.ComponentProps) {
+export default function ListingDetailPage({
+	loaderData,
+}: Route.ComponentProps) {
 	const { listing } = loaderData
 
 	return (

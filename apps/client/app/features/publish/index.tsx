@@ -1,6 +1,6 @@
-import { PublishHero } from '@/features/publish/components/publish-hero'
-import { PublishTypeCards } from '@/features/publish/components/publish-type-cards'
-import { TrustBadges } from '@/features/publish/components/trust-badges'
+import { PublishHero } from './components/publish-hero'
+import { PublishTypeCards } from './components/publish-type-cards'
+import { TrustBadges } from './components/trust-badges'
 
 export function meta() {
 	return [
