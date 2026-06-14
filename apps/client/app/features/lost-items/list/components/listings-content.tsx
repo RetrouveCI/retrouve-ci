@@ -1,7 +1,7 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Inbox, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import type { Listing } from '../listings.types'
+import type { Listing } from '../../lost-items.types'
 import { ListingCard } from './listing-card'
 
 interface ListingsContentProps {

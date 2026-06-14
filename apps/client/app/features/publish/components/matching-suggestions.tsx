@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 import { useMatchingSuggestions } from '../hooks/use-matching-suggestions'
-import type { ListingCategory } from '@/features/listings/listings.types'
+import type { ListingCategory } from '@/features/lost-items/lost-items.types'
 
 const CATEGORY_ICONS: Record<ListingCategory | string, React.ElementType> = {
 	phones: Smartphone,

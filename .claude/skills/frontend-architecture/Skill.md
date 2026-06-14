@@ -161,6 +161,89 @@ export async function reportLostItemAction({ request }: ActionFunctionArgs) {
 
 ---
 
+## Pages, layouts et sous-features (React Router v7)
+
+### Page principale d'une feature
+
+Une feature qui correspond à **une seule page** expose son point d'entrée via
+un `index.tsx` à la racine de la feature (importé dans `routes.ts`).
+
+```
+features/about/
+├── components/
+└── index.tsx          # route /about
+```
+
+### Layout
+
+Le layout d'une feature reste **toujours à la racine de la feature**, jamais
+dans un sous-dossier.
+
+```
+features/auth/
+├── components/        # partagés entre les sous-pages
+├── layout.tsx          # layout racine de /auth
+├── index.tsx           # route /auth
+├── login/index.tsx     # route /auth/login
+└── register/index.tsx  # route /auth/register
+```
+
+### Sous-features (pages additionnelles)
+
+Les pages additionnelles d'une feature deviennent des **sous-features** : un
+sous-dossier qui reprend la **même structure** qu'une feature
+(`components/`, `hooks/`, `servers/`, `*.types.ts`, etc.) avec son propre
+`index.tsx`.
+
+```
+features/publish/
+├── components/
+├── hooks/
+├── servers/
+├── publish.const.ts
+├── index.tsx           # route /publish
+├── lost/index.tsx       # route /publish/lost (sous-feature)
+└── found/index.tsx      # route /publish/found (sous-feature)
+```
+
+### Cas particulier : features "liste + détail" (ex: `lost-items`)
+
+Une feature centrée sur une ressource présentée en **liste** et en **détail**
+(par ex. `lost-items` : `/lost-items/list` et `/lost-items/details/:id`) n'a
+**pas** de `index.tsx` racine. Elle expose exactement **deux sous-features** :
+
+- `list/` — vue liste (route index de la ressource)
+- `details/` — vue détail (route `:id`)
+
+Chacune a sa propre `components/`, `hooks/`, `servers/` et `index.tsx`. Un
+hook ou un loader/service n'appartenant qu'à `list/` ou qu'à `details/` vit
+dans le sous-dossier correspondant. Seuls les éléments réellement **partagés**
+par les deux (types, et le service de données lorsqu'il maintient un état
+unique) restent à la racine de la feature.
+
+```
+features/lost-items/
+├── lost-items.types.ts          # partagé
+├── servers/
+│   └── lost-items.service.ts    # partagé (état/source de données unique)
+├── list/
+│   ├── components/
+│   ├── hooks/
+│   │   └── use-lost-items-filters.ts
+│   ├── servers/
+│   │   └── lost-items.loader.ts # loader de la liste uniquement
+│   └── index.tsx                 # route /lost-items/list
+└── details/
+    ├── components/
+    ├── servers/
+    │   └── lost-items.loader.ts # loader du détail uniquement
+    └── index.tsx                 # route /lost-items/details/:id
+```
+
+> ⚠️ Le sous-dossier de détail s'appelle `details` (pluriel), pas `detail`.
+
+---
+
 ## Exemples de features RetrouveCI
 
 | App    | Feature          | Description                                   |

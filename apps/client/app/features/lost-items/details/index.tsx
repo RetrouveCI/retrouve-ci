@@ -1,8 +1,8 @@
 import { Link } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
-import { PostContent } from '@/features/listings/components/post-content'
-import { ContactCard } from '@/features/listings/components/contact-card'
-import { postDetailLoader } from '@/features/listings/servers/listings.loader'
+import { PostContent } from '@/features/lost-items/details/components/post-content'
+import { ContactCard } from '@/features/lost-items/details/components/contact-card'
+import { postDetailLoader } from '@/features/lost-items/details/servers/lost-items.loader'
 import type { Route } from './+types/index'
 
 export const loader = postDetailLoader
