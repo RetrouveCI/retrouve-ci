@@ -11,7 +11,7 @@ import {
 	Laptop,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import type { Listing } from '../listings.types'
+import type { Listing } from '../../lost-items.types'
 
 interface ListingCardProps {
 	listing: Listing

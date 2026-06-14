@@ -17,13 +17,16 @@ import {
 	X,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import { FloatingActionButton } from '@/features/listings/components/floating-action-button'
-import { PostsHero } from '@/features/listings/components/posts-hero'
-import { FilterPanel } from '@/features/listings/components/filter-panel'
-import { ListingsContent } from '@/features/listings/components/listings-content'
-import { usePostsFilters } from '@/features/listings/hooks/use-posts-filters'
-import { postsLoader } from '@/features/listings/servers/listings.loader'
-import type { ListingType, ListingCategory } from '@/features/listings/listings.types'
+import { FloatingActionButton } from '@/features/lost-items/list/components/floating-action-button'
+import { PostsHero } from '@/features/lost-items/list/components/posts-hero'
+import { FilterPanel } from '@/features/lost-items/list/components/filter-panel'
+import { ListingsContent } from '@/features/lost-items/list/components/listings-content'
+import { usePostsFilters } from '@/features/lost-items/list/hooks/use-posts-filters'
+import { postsLoader } from '@/features/lost-items/list/servers/lost-items.loader'
+import type {
+	ListingType,
+	ListingCategory,
+} from '@/features/lost-items/lost-items.types'
 import type { Route } from './+types/index'
 
 export const loader = postsLoader

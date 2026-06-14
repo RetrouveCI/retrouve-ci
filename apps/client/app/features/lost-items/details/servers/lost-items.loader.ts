@@ -1,11 +1,6 @@
 import { data } from 'react-router'
-import type { Route } from '../detail/+types/index'
-import { listingsService } from './listings.service'
-
-export async function postsLoader() {
-	const listings = await listingsService.getAll()
-	return { listings }
-}
+import type { Route } from '../+types/index'
+import { listingsService } from '../../servers/lost-items.service'
 
 export async function postDetailLoader({ params }: Route.LoaderArgs) {
 	const listing = await listingsService.getById(params.id)
