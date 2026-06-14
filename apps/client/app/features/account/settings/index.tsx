@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router'
 import { Settings, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/shared/auth/auth-context'
-import { PersonalInfoSection } from '@/features/account/components/settings/personal-info-section'
-import { NotificationsSection } from '@/features/account/components/settings/notifications-section'
-import { SecuritySection } from '@/features/account/components/settings/security-section'
-import { DangerZoneSection } from '@/features/account/components/settings/danger-zone-section'
+import { PersonalInfoSection } from '@/features/account/settings/components/personal-info-section'
+import { NotificationsSection } from '@/features/account/settings/components/notifications-section'
+import { SecuritySection } from '@/features/account/settings/components/security-section'
+import { DangerZoneSection } from '@/features/account/settings/components/danger-zone-section'
 
 export default function ParametresPage() {
 	const navigate = useNavigate()

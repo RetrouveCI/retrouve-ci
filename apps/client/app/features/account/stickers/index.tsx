@@ -4,9 +4,9 @@ import { QrCode, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/shared/auth/auth-context'
 import type { Sticker } from '@/features/account/account.types'
-import { StickerCard } from '@/features/account/components/stickers/sticker-card'
-import { ActivateStickerDialog } from '@/features/account/components/stickers/activate-sticker-dialog'
-import { OrderMoreCta } from '@/features/account/components/stickers/order-more-cta'
+import { StickerCard } from '@/features/account/stickers/components/sticker-card'
+import { ActivateStickerDialog } from '@/features/account/stickers/components/activate-sticker-dialog'
+import { OrderMoreCta } from '@/features/account/stickers/components/order-more-cta'
 
 export default function StickersPage() {
 	const navigate = useNavigate()

@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { PostContent } from '@/features/listings/components/post-content'
 import { ContactCard } from '@/features/listings/components/contact-card'
 import { postDetailLoader } from '@/features/listings/servers/listings.loader'
-import type { Route } from './+types/posts-detail'
+import type { Route } from './+types/index'
 
 export const loader = postDetailLoader
 
