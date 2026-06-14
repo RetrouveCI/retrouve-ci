@@ -1,0 +1,12 @@
+@import '@retrouve-ci/ui/styles';
+@source '../../../packages/ui/src';
+
+@theme {
+	--font-sans: 'Geist Variable', 'Geist Fallback';
+	--font-mono: 'Geist Mono Variable', 'Geist Mono Fallback';
+}
+
+:root {
+	--font-sans: 'Geist Variable', 'Geist Fallback';
+	--font-mono: 'Geist Mono Variable', 'Geist Mono Fallback';
+}

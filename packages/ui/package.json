@@ -92,6 +92,8 @@
 		"@tailwindcss/postcss": "catalog:",
 		"@types/react": "catalog:",
 		"eslint": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:",
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:"
 	}

@@ -12,6 +12,9 @@ next.user-config.*
 
 # Common ignores
 node_modules
-.next/
 .DS_Store
 .vercel
+
+# React Router
+.react-router/
+build/

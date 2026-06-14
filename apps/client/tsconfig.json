@@ -1,8 +1,9 @@
 {
 	"compilerOptions": {
 		"lib": ["dom", "dom.iterable", "esnext"],
+		"types": ["vite/client"],
 		"allowJs": true,
-		"target": "ES6",
+		"target": "ES2022",
 		"skipLibCheck": true,
 		"strict": true,
 		"noEmit": true,
@@ -12,26 +13,15 @@
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"jsx": "react-jsx",
-		"incremental": true,
-		"plugins": [
-			{
-				"name": "next"
-			}
-		],
+		"rootDirs": [".", "./.react-router/types"],
 		"paths": {
-			"@/*": ["./*"],
+			"@/*": ["./app/*"],
 			"@retrouve-ci/ui": ["../../packages/ui/src/index.ts"],
 			"@retrouve-ci/ui/components": ["../../packages/ui/src/components/index.ts"],
 			"@retrouve-ci/ui/utils": ["../../packages/ui/src/utils/cn.ts"],
 			"@retrouve-ci/ui/hooks": ["../../packages/ui/src/hooks/index.ts"]
 		}
 	},
-	"include": [
-		"next-env.d.ts",
-		"**/*.ts",
-		"**/*.tsx",
-		".next/types/**/*.ts",
-		".next/dev/types/**/*.ts"
-	],
-	"exclude": ["node_modules"]
+	"include": [".react-router/types/**/*", "**/*.ts", "**/*.tsx", "vite.config.ts"],
+	"exclude": ["node_modules", "build"]
 }
