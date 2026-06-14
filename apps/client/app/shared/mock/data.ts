@@ -1,4 +1,7 @@
-import type { Listing, UserListing } from '@/shared/types/listing'
+import type {
+	Listing,
+	UserListing,
+} from '@/features/lost-items/lost-items.types'
 import type { User } from '@/shared/types/user'
 import type { Sticker } from '@/shared/types/sticker'
 
