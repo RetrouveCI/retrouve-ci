@@ -9,6 +9,9 @@ import {
 	Wallet,
 	Briefcase,
 	Laptop,
+	Shirt,
+	Gem,
+	FileText,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 import type { LostItem } from '@/shared/types/lost-item'
@@ -19,20 +22,26 @@ interface ListingCardProps {
 }
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
-	phones: Smartphone,
+	phone: Smartphone,
 	keys: Key,
-	wallets: Wallet,
-	bags: Briefcase,
+	wallet: Wallet,
+	bag: Briefcase,
 	electronics: Laptop,
+	clothing: Shirt,
+	jewelry: Gem,
+	documents: FileText,
 	other: Package,
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-	phones: 'Téléphone',
+	phone: 'Téléphone',
 	keys: 'Clés',
-	wallets: 'Portefeuille',
-	bags: 'Sac',
+	wallet: 'Portefeuille',
+	bag: 'Sac',
 	electronics: 'Électronique',
+	clothing: 'Vêtement',
+	jewelry: 'Bijoux',
+	documents: 'Documents',
 	other: 'Autre',
 }
 

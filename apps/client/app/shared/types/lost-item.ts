@@ -1,11 +1,14 @@
 export type LostItemType = 'lost' | 'found'
 export type LostItemStatus = 'active' | 'resolved' | 'expired'
 export type LostItemCategory =
-	| 'phones'
+	| 'phone'
 	| 'keys'
-	| 'wallets'
-	| 'bags'
+	| 'wallet'
+	| 'bag'
 	| 'electronics'
+	| 'clothing'
+	| 'jewelry'
+	| 'documents'
 	| 'other'
 
 export interface LostItem {

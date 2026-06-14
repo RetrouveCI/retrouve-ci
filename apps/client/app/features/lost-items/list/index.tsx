@@ -10,6 +10,9 @@ import {
 	Wallet,
 	Briefcase,
 	Laptop,
+	Shirt,
+	Gem,
+	FileText,
 	Package,
 	SlidersHorizontal,
 	LayoutGrid,
@@ -44,11 +47,14 @@ const CATEGORIES: {
 	icon: React.ElementType
 }[] = [
 	{ id: 'all', label: 'Tous', icon: Package },
-	{ id: 'phones', label: 'Téléphones', icon: Smartphone },
+	{ id: 'phone', label: 'Téléphones', icon: Smartphone },
 	{ id: 'keys', label: 'Clés', icon: Key },
-	{ id: 'wallets', label: 'Portefeuilles', icon: Wallet },
-	{ id: 'bags', label: 'Sacs', icon: Briefcase },
+	{ id: 'wallet', label: 'Portefeuilles', icon: Wallet },
+	{ id: 'bag', label: 'Sacs', icon: Briefcase },
 	{ id: 'electronics', label: 'Électronique', icon: Laptop },
+	{ id: 'clothing', label: 'Vêtements', icon: Shirt },
+	{ id: 'jewelry', label: 'Bijoux', icon: Gem },
+	{ id: 'documents', label: 'Documents', icon: FileText },
 	{ id: 'other', label: 'Autres', icon: Package },
 ]
 
