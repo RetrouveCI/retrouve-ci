@@ -17,3 +17,24 @@ export interface LostItemFilters {
 export interface LostItemDetail extends LostItem {
 	contact: { name: string; method: string }
 }
+
+export interface LostItemApiDto {
+	id: string
+	type: LostItemType
+	category: LostItemCategory
+	title: string
+	description: string
+	ville: string
+	commune: string | null
+	eventDate: string
+	contactName: string
+	contactWhatsapp: string
+	photos: string[]
+}
+
+export interface LostItemListApiResponse {
+	items: LostItemApiDto[]
+	total: number
+	page: number
+	pageSize: number
+}
