@@ -1,9 +1,6 @@
 export type { User } from '@/shared/types/user'
 export type { Sticker } from '@/shared/types/sticker'
-export type {
-	UserListing,
-	ListingStatus,
-} from '@/features/lost-items/lost-items.types'
+export type { UserLostItem, LostItemStatus } from '@/shared/types/lost-item'
 
 export type OrderStatus =
 	| 'pending'

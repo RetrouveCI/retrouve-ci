@@ -23,8 +23,8 @@ import { FilterPanel } from './components/filter-panel'
 import { ListingsContent } from './components/listings-content'
 import { usePostsFilters } from './hooks/use-posts-filters'
 import { postsLoader } from './servers/lost-items.loader'
-import type { ListingType, ListingCategory } from '../lost-items.types'
 import type { Route } from './+types/index'
+import type { LostItemCategory, LostItemType } from '@/shared/types/lost-item'
 
 export const loader = postsLoader
 
@@ -39,7 +39,7 @@ export function meta() {
 }
 
 const CATEGORIES: {
-	id: ListingCategory | 'all'
+	id: LostItemCategory | 'all'
 	label: string
 	icon: React.ElementType
 }[] = [
@@ -93,7 +93,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 				<div className="container mx-auto px-4">
 					<Tabs
 						value={activeTab}
-						onValueChange={v => setActiveTab(v as ListingType | 'all')}
+						onValueChange={v => setActiveTab(v as LostItemType | 'all')}
 					>
 						<div className="mb-5 flex flex-col gap-3">
 							<div className="flex flex-wrap items-center gap-3">

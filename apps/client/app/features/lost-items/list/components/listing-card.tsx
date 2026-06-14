@@ -11,10 +11,10 @@ import {
 	Laptop,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import type { Listing } from '../../lost-items.types'
+import type { LostItem } from '@/shared/types/lost-item'
 
 interface ListingCardProps {
-	listing: Listing
+	listing: LostItem
 	variant?: 'grid' | 'list'
 }
 
@@ -40,7 +40,7 @@ function ListingThumbnail({
 	listing,
 	CategoryIcon,
 }: {
-	listing: Listing
+	listing: LostItem
 	CategoryIcon: React.ElementType
 }) {
 	return (
@@ -65,7 +65,7 @@ function ListingImage({
 	CategoryIcon,
 	isLost,
 }: {
-	listing: Listing
+	listing: LostItem
 	CategoryIcon: React.ElementType
 	isLost: boolean
 }) {

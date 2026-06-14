@@ -9,11 +9,11 @@ import {
 	Plus,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import type { Sticker, UserListing } from '../account.types'
+import type { Sticker, UserLostItem } from '../account.types'
 
 interface AccountNavProps {
 	stickers: Sticker[]
-	listings: UserListing[]
+	listings: UserLostItem[]
 }
 
 export function AccountNav({ stickers, listings }: AccountNavProps) {

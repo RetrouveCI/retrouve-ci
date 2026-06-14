@@ -1,11 +1,11 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Inbox, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import type { Listing } from '../../lost-items.types'
+import type { LostItem } from '@/shared/types/lost-item'
 import { ListingCard } from './listing-card'
 
 interface ListingsContentProps {
-	paginatedListings: Listing[]
+	paginatedListings: LostItem[]
 	filteredCount: number
 	viewMode: 'grid' | 'list'
 	searchQuery: string

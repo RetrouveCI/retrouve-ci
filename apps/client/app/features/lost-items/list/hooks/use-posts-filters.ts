@@ -3,19 +3,19 @@ import { type DateRange } from 'react-day-picker'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type {
-	Listing,
-	ListingType,
-	ListingCategory,
-} from '../../lost-items.types'
+	LostItem,
+	LostItemType,
+	LostItemCategory,
+} from '@/shared/types/lost-item'
 
 const ITEMS_PER_PAGE = 6
 
-export function usePostsFilters(listings: Listing[]) {
+export function usePostsFilters(listings: LostItem[]) {
 	const [searchQuery, setSearchQuery] = useState('')
-	const [activeTab, setActiveTab] = useState<ListingType | 'all'>('all')
-	const [activeCategory, setActiveCategory] = useState<ListingCategory | 'all'>(
-		'all',
-	)
+	const [activeTab, setActiveTab] = useState<LostItemType | 'all'>('all')
+	const [activeCategory, setActiveCategory] = useState<
+		LostItemCategory | 'all'
+	>('all')
 	const [currentPage, setCurrentPage] = useState(1)
 	const [filterVille, setFilterVille] = useState('all')
 	const [filterCommune, setFilterCommune] = useState('all')
@@ -127,12 +127,12 @@ export function usePostsFilters(listings: Listing[]) {
 			setCurrentPage(1)
 		},
 		activeTab,
-		setActiveTab: (t: ListingType | 'all') => {
+		setActiveTab: (t: LostItemType | 'all') => {
 			setActiveTab(t)
 			setCurrentPage(1)
 		},
 		activeCategory,
-		setActiveCategory: (c: ListingCategory | 'all') => {
+		setActiveCategory: (c: LostItemCategory | 'all') => {
 			setActiveCategory(c)
 			setCurrentPage(1)
 		},

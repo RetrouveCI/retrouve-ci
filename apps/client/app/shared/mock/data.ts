@@ -1,7 +1,4 @@
-import type {
-	Listing,
-	UserListing,
-} from '@/features/lost-items/lost-items.types'
+import type { LostItem, UserLostItem } from '@/shared/types/lost-item'
 import type { User } from '@/shared/types/user'
 import type { Sticker } from '@/shared/types/sticker'
 
@@ -18,7 +15,7 @@ const relativeDate = (n: number): string => {
 	return `Il y a ${n} jours`
 }
 
-export const MOCK_LISTINGS: Listing[] = [
+export const MOCK_LISTINGS: LostItem[] = [
 	{
 		id: '1',
 		title: 'iPhone 14 Pro noir',
@@ -214,7 +211,7 @@ export const MOCK_STICKERS: Sticker[] = [
 	},
 ]
 
-export const MOCK_USER_LISTINGS: UserListing[] = [
+export const MOCK_USER_LISTINGS: UserLostItem[] = [
 	{
 		id: 'listing-001',
 		title: 'iPhone 14 Pro perdu',

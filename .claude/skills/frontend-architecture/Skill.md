@@ -282,20 +282,36 @@ features/lost-items/
 
 ## Imports : alias `@/*` vs relatif
 
-À l'intérieur d'une même feature (y compris entre une sous-feature et la
-racine de sa feature parente), les imports se font en **relatif**
-(`./components/x`, `../lost-items.types`), pas via l'alias `@/features/...`.
-L'alias `@/*` est réservé aux imports **inter-features** (ex: `publish`
-important un type de `lost-items`) et aux imports vers `shared/` ou les
-packages partagés.
+À l'intérieur d'une même feature (y compris entre une sous-feature et la racine
+de sa feature parente), les imports se font en **relatif** (`./components/x`,
+`../lost-items.types`), pas via l'alias `@/features/...`. L'alias `@/*` est
+réservé aux imports **inter-features** (ex: `publish` important un type de
+`lost-items`) et aux imports vers `shared/` ou les packages partagés.
 
 ```ts
 // features/lost-items/list/index.tsx
 import { ListingCard } from './components/listing-card' // ✅ même feature
-import type { Listing } from '../lost-items.types' // ✅ racine de la feature parente
+import type { LostItemFilters } from '../lost-items.types' // ✅ racine de la feature parente
 
-import type { Listing } from '@/features/lost-items/lost-items.types' // ❌
+import type { LostItemFilters } from '@/features/lost-items/lost-items.types' // ❌
+```
 
+## Types partagés entre features (`shared/types/`)
+
+Un type utilisé par **plusieurs features** (ex: `LostItem`/`UserLostItem`,
+utilisés par `lost-items`, `account` et `publish`) vit dans
+`shared/types/<domaine>.ts` (ex: `shared/types/lost-item.ts`), nommé selon le
+domaine métier — pas selon l'endroit où il a été vu la première fois (pas
+`listing.ts` si le concept est en réalité un "lost item").
+
+Chaque feature qui en a besoin l'importe **directement** via `@/shared/types/...`.
+Ne pas le ré-exporter depuis `<feature>.types.ts` — ce fichier ne contient que
+les types **propres à la feature** (ex: `LostItemFilters`, `LostItemDetail`),
+qui peuvent eux-mêmes composer les types partagés.
+
+```ts
 // features/publish/hooks/use-matching-suggestions.ts
-import type { Listing } from '@/features/lost-items/lost-items.types' // ✅ inter-features
+import type { LostItem, LostItemType } from '@/shared/types/lost-item' // ✅
+
+import type { LostItem } from '@/features/lost-items/lost-items.types' // ❌
 ```

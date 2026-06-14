@@ -1,11 +1,8 @@
 import { MOCK_LISTINGS } from '@/shared/mock/data'
-import type {
-	Listing,
-	ListingDetail,
-	ListingFilters,
-} from '../../lost-items.types'
+import type { LostItemDetail, LostItemFilters } from '../../lost-items.types'
+import type { LostItem } from '@/shared/types/lost-item'
 
-const DETAIL_LISTINGS: ListingDetail[] = [
+const DETAIL_LISTINGS: LostItemDetail[] = [
 	{
 		id: '1',
 		title: 'iPhone 14 Pro noir',
@@ -32,9 +29,9 @@ const DETAIL_LISTINGS: ListingDetail[] = [
 ]
 
 class ListingsService {
-	private listings: Listing[] = [...MOCK_LISTINGS]
+	private listings: LostItem[] = [...MOCK_LISTINGS]
 
-	async getAll(filters?: ListingFilters): Promise<Listing[]> {
+	async getAll(filters?: LostItemFilters): Promise<LostItem[]> {
 		let results = [...this.listings]
 
 		if (!filters) return results
@@ -82,12 +79,12 @@ class ListingsService {
 		return results
 	}
 
-	async getById(id: string): Promise<ListingDetail | null> {
+	async getById(id: string): Promise<LostItemDetail | null> {
 		return DETAIL_LISTINGS.find(l => l.id === id) ?? null
 	}
 
-	async create(data: Omit<Listing, 'id'>): Promise<Listing> {
-		const newListing: Listing = { ...data, id: `listing-${Date.now()}` }
+	async create(data: Omit<LostItem, 'id'>): Promise<LostItem> {
+		const newListing: LostItem = { ...data, id: `listing-${Date.now()}` }
 		this.listings.push(newListing)
 		return newListing
 	}

@@ -23,7 +23,7 @@ import {
 	Package,
 	ChevronRight,
 } from 'lucide-react'
-import type { UserListing } from '../../account.types'
+import type { UserLostItem } from '../../account.types'
 import { cn } from '@retrouve-ci/ui/utils'
 
 const STATUS_CONFIG = {
@@ -45,9 +45,9 @@ const STATUS_CONFIG = {
 }
 
 interface ListingCardProps {
-	listing: UserListing
+	listing: UserLostItem
 	onDelete: () => void
-	onStatusChange: (status: UserListing['status']) => void
+	onStatusChange: (status: UserLostItem['status']) => void
 }
 
 export function ListingCard({

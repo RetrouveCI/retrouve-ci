@@ -1,12 +1,12 @@
-import type { UserListing, ListingStatus } from '../account.types'
+import type { UserLostItem, LostItemStatus } from '../account.types'
 import { MOCK_USER, MOCK_USER_LISTINGS } from '@/shared/mock/data'
 
 class MockAccountService {
-	private userListings: Map<string, UserListing[]> = new Map([
+	private userListings: Map<string, UserLostItem[]> = new Map([
 		[MOCK_USER.id, [...MOCK_USER_LISTINGS]],
 	])
 
-	async getUserListings(userId: string): Promise<UserListing[]> {
+	async getUserListings(userId: string): Promise<UserLostItem[]> {
 		return [...(this.userListings.get(userId) ?? [])]
 	}
 
@@ -21,7 +21,7 @@ class MockAccountService {
 	async updateUserListingStatus(
 		userId: string,
 		listingId: string,
-		status: ListingStatus,
+		status: LostItemStatus,
 	): Promise<void> {
 		const current = this.userListings.get(userId) ?? []
 		this.userListings.set(
