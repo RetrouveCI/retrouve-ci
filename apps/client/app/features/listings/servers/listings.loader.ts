@@ -1,5 +1,5 @@
 import { data } from 'react-router'
-import type { Route } from '../../../routes/+types/posts-detail'
+import type { Route } from '../+types/posts-detail'
 import { listingsService } from './listings.service'
 
 export async function postsLoader() {
