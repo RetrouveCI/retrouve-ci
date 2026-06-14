@@ -2,7 +2,7 @@ import { Button, Badge } from '@retrouve-ci/ui/components'
 import { MapPin, Calendar, Tag, Share2, Flag, Package } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 
-interface Listing {
+interface LostItem {
 	title: string
 	description: string
 	location: string
@@ -12,7 +12,7 @@ interface Listing {
 	image?: string
 }
 
-export function PostContent({ listing }: { listing: Listing }) {
+export function PostContent({ listing }: { listing: LostItem }) {
 	const isLost = listing.type === 'lost'
 
 	return (

@@ -1,9 +1,9 @@
 import { QrCode, Shield, FileText, Eye } from 'lucide-react'
-import type { Sticker, UserListing } from '../account.types'
+import type { Sticker, UserLostItem } from '../account.types'
 
 interface AccountStatsProps {
 	stickers: Sticker[]
-	listings: UserListing[]
+	listings: UserLostItem[]
 }
 
 export function AccountStats({ stickers, listings }: AccountStatsProps) {

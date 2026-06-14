@@ -8,12 +8,12 @@ import {
 } from '@retrouve-ci/ui/components'
 import { MessageCircle, Lock } from 'lucide-react'
 
-interface Listing {
+interface LostItem {
 	type: 'lost' | 'found'
 	contact: { name: string; method: string }
 }
 
-export function ContactCard({ listing }: { listing: Listing }) {
+export function ContactCard({ listing }: { listing: LostItem }) {
 	const isLost = listing.type === 'lost'
 	return (
 		<div className="lg:sticky lg:top-24">

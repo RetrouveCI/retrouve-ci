@@ -1,9 +1,6 @@
 import { useMemo } from 'react'
 import { MOCK_LISTINGS } from '@/shared/mock/data'
-import type {
-	Listing,
-	ListingType,
-} from '@/features/lost-items/lost-items.types'
+import type { LostItem, LostItemType } from '@/shared/types/lost-item'
 import { TYPE_TO_CATEGORY } from '../publish.const'
 
 interface MatchingSuggestionsParams {
@@ -17,11 +14,11 @@ export function useMatchingSuggestions({
 	objectType,
 	ville,
 	formType,
-}: MatchingSuggestionsParams): Listing[] {
+}: MatchingSuggestionsParams): LostItem[] {
 	return useMemo(() => {
 		if (!objectType || !ville) return []
 
-		const targetType: ListingType = formType === 'perdu' ? 'found' : 'lost'
+		const targetType: LostItemType = formType === 'perdu' ? 'found' : 'lost'
 		const category = TYPE_TO_CATEGORY[objectType]
 
 		return MOCK_LISTINGS.filter(

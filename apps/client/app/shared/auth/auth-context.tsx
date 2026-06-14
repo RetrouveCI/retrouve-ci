@@ -11,15 +11,15 @@ import { useNavigate } from 'react-router'
 import type {
 	User,
 	Sticker,
-	UserListing,
-	ListingStatus,
+	UserLostItem,
+	LostItemStatus,
 } from '@/features/account/account.types'
 import { accountService } from '@/features/account/servers/account.service'
 import { stickersService } from '@/features/account/servers/stickers.service'
 import { authClient } from './auth-client'
 import { toE164 } from './phone'
 
-export type { User, Sticker, UserListing }
+export type { User, Sticker, UserLostItem }
 
 const TEMP_EMAIL_SUFFIX = '@phone.retrouveci.local'
 
@@ -33,12 +33,12 @@ interface AuthContextType {
 	) => Promise<{ success: boolean; error?: string }>
 	logout: () => void
 	stickers: Sticker[]
-	listings: UserListing[]
+	listings: UserLostItem[]
 	activateSticker: (code: string, label: string, linkedObject?: string) => void
 	deactivateSticker: (id: string) => void
 	updateSticker: (id: string, updates: Partial<Sticker>) => void
 	deleteListing: (id: string) => void
-	updateListingStatus: (id: string, status: ListingStatus) => void
+	updateListingStatus: (id: string, status: LostItemStatus) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const navigate = useNavigate()
 	const session = authClient.useSession()
 	const [stickers, setStickers] = useState<Sticker[]>([])
-	const [listings, setListings] = useState<UserListing[]>([])
+	const [listings, setListings] = useState<UserLostItem[]>([])
 
 	const sessionUser = session.data?.user
 	const user: User | null = useMemo(
@@ -153,7 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	)
 
 	const updateListingStatus = useCallback(
-		async (id: string, status: ListingStatus) => {
+		async (id: string, status: LostItemStatus) => {
 			if (!user) return
 			await accountService.updateUserListingStatus(user.id, id, status)
 			setListings(prev => prev.map(l => (l.id === id ? { ...l, status } : l)))
