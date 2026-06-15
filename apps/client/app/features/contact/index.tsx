@@ -3,6 +3,9 @@ import { ContactForm } from './components/contact-form'
 import { AvailabilityCard } from './components/availability-card'
 import { ContactChannels } from './components/contact-channels'
 import { ContactFaq } from './components/contact-faq'
+import { contactAction } from './servers/contact.action'
+
+export const action = contactAction
 
 export function meta() {
 	return [
