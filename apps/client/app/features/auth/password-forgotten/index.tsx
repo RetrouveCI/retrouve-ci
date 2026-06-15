@@ -2,32 +2,40 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
-import { authClient } from '@/shared/auth/auth-client'
-import { toE164 } from '@/shared/auth/phone'
+import { useForm, useInputControl, getFormProps } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { phoneNumberSchema } from '../auth.schema'
+import { requestPhonePasswordReset } from '../lib/phone-auth.client'
 import { PhoneStep } from '../components/phone-step'
 
 export default function PasswordForgottenPage() {
 	const navigate = useNavigate()
-	const [phoneNumber, setPhoneNumber] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		const cleaned = phoneNumber.replace(/\s/g, '')
-		if (!cleaned || cleaned.length < 8) {
-			toast.error('Veuillez entrer un numéro valide')
-			return
-		}
+	const handlePhoneSubmit = async (value: string) => {
 		setIsSubmitting(true)
-		await authClient.phoneNumber.requestPasswordReset({
-			phoneNumber: toE164(phoneNumber),
-		})
+		await requestPhonePasswordReset(value)
 		setIsSubmitting(false)
 		toast.success('Code envoyé !', {
 			description: 'Vérifiez vos SMS ou WhatsApp.',
 		})
-		navigate(`/auth/reset-password?phone=${encodeURIComponent(phoneNumber)}`)
+		navigate(`/auth/reset-password?phone=${encodeURIComponent(value)}`)
 	}
+
+	const [form, fields] = useForm({
+		id: 'password-forgotten-form',
+		constraint: getZodConstraint(phoneNumberSchema),
+		shouldValidate: 'onSubmit',
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: phoneNumberSchema })
+		},
+		onSubmit(event, { submission }) {
+			event.preventDefault()
+			if (submission?.status !== 'success') return
+			void handlePhoneSubmit(submission.value.phoneNumber)
+		},
+	})
+	const phoneControl = useInputControl(fields.phoneNumber)
 
 	return (
 		<>
@@ -50,14 +58,16 @@ export default function PasswordForgottenPage() {
 				</p>
 			</div>
 
-			<PhoneStep
-				phoneNumber={phoneNumber}
-				setPhoneNumber={setPhoneNumber}
-				isSubmitting={isSubmitting}
-				onSubmit={handleSubmit}
-				hint="Entrez votre numéro pour recevoir un code de vérification."
-				submitLabel="Envoyer le code"
-			/>
+			<form {...getFormProps(form)}>
+				<PhoneStep
+					phoneNumber={phoneControl.value ?? ''}
+					setPhoneNumber={phoneControl.change}
+					errors={fields.phoneNumber.errors}
+					isSubmitting={isSubmitting}
+					hint="Entrez votre numéro pour recevoir un code de vérification."
+					submitLabel="Envoyer le code"
+				/>
+			</form>
 
 			<p className="text-muted-foreground mt-6 text-center text-sm">
 				Retour à{' '}

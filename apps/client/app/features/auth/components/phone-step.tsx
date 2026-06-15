@@ -1,11 +1,12 @@
 import { Button, Input, Label } from '@retrouve-ci/ui/components'
+import { FieldError } from '@retrouve-ci/ui/components/form'
 import { Loader2 } from 'lucide-react'
 
 interface PhoneStepProps {
 	phoneNumber: string
 	setPhoneNumber: (v: string) => void
+	errors?: string[]
 	isSubmitting: boolean
-	onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
 	hint?: string
 	submitLabel?: string
 }
@@ -13,13 +14,13 @@ interface PhoneStepProps {
 export function PhoneStep({
 	phoneNumber,
 	setPhoneNumber,
+	errors,
 	isSubmitting,
-	onSubmit,
 	hint = 'Un code de vérification vous sera envoyé.',
 	submitLabel = 'Continuer',
 }: PhoneStepProps) {
 	return (
-		<form onSubmit={onSubmit} className="space-y-5">
+		<div className="space-y-5">
 			<div className="space-y-2">
 				<Label htmlFor="phone" className="text-sm font-medium">
 					Numéro de téléphone
@@ -37,6 +38,7 @@ export function PhoneStep({
 					</div>
 					<Input
 						id="phone"
+						name="phoneNumber"
 						type="tel"
 						placeholder="07 XX XX XX XX"
 						value={phoneNumber}
@@ -46,6 +48,7 @@ export function PhoneStep({
 						autoFocus
 					/>
 				</div>
+				<FieldError errors={errors} />
 				<p className="text-muted-foreground text-xs">{hint}</p>
 			</div>
 
@@ -62,6 +65,6 @@ export function PhoneStep({
 					submitLabel
 				)}
 			</Button>
-		</form>
+		</div>
 	)
 }

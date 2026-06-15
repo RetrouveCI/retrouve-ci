@@ -11,7 +11,6 @@ interface OtpStepProps {
 	timeLeft: number
 	isSubmitting: boolean
 	formatTime: (s: number) => string
-	onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
 	onResend: () => void
 }
 
@@ -23,14 +22,14 @@ export function OtpStep({
 	timeLeft,
 	isSubmitting,
 	formatTime,
-	onSubmit,
 	onResend,
 }: OtpStepProps) {
 	return (
-		<form onSubmit={onSubmit} className="space-y-6">
+		<div className="space-y-6">
 			<div className="space-y-4">
 				<div className="flex justify-center">
 					<InputOTP
+						name="otp"
 						maxLength={6}
 						value={otp}
 						onChange={val => {
@@ -99,6 +98,6 @@ export function OtpStep({
 					</>
 				)}
 			</Button>
-		</form>
+		</div>
 	)
 }

@@ -1,4 +1,5 @@
 import { Button } from '@retrouve-ci/ui/components'
+import { FieldError } from '@retrouve-ci/ui/components/form'
 import { Loader2 } from 'lucide-react'
 import { PasswordInput } from './password-input'
 
@@ -10,10 +11,9 @@ interface PasswordStepProps {
 	setNewPassword: (v: string) => void
 	confirmPassword: string
 	setConfirmPassword: (v: string) => void
-	confirmError: string
-	setConfirmError: (v: string) => void
+	newPasswordErrors?: string[]
+	confirmPasswordErrors?: string[]
 	isSubmitting: boolean
-	onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
 }
 
 export function PasswordStep({
@@ -22,45 +22,39 @@ export function PasswordStep({
 	setNewPassword,
 	confirmPassword,
 	setConfirmPassword,
-	confirmError,
-	setConfirmError,
+	newPasswordErrors,
+	confirmPasswordErrors,
 	isSubmitting,
-	onSubmit,
 }: PasswordStepProps) {
 	const isCreate = step === 'create-password'
 
 	return (
-		<form onSubmit={onSubmit} className="space-y-6">
+		<div className="space-y-6">
 			<PasswordInput
 				id="new-password"
+				name="newPassword"
 				label={isCreate ? 'Choisir un mot de passe' : 'Nouveau mot de passe'}
 				value={newPassword}
-				onChange={v => {
-					setNewPassword(v)
-					setConfirmError('')
-				}}
+				onChange={setNewPassword}
 				placeholder="Minimum 6 caracteres"
 				hint="Au moins 6 caracteres."
 				disabled={isSubmitting}
 				autoFocus
 			/>
+			<FieldError errors={newPasswordErrors} />
 			<PasswordInput
 				id="confirm-password"
+				name="confirmPassword"
 				label={
 					isCreate
 						? 'Confirmer le mot de passe'
 						: 'Confirmer le nouveau mot de passe'
 				}
 				value={confirmPassword}
-				onChange={v => {
-					setConfirmPassword(v)
-					setConfirmError('')
-				}}
+				onChange={setConfirmPassword}
 				disabled={isSubmitting}
 			/>
-			{confirmError && (
-				<p className="text-destructive text-sm">{confirmError}</p>
-			)}
+			<FieldError errors={confirmPasswordErrors} />
 
 			<Button
 				type="submit"
@@ -78,6 +72,6 @@ export function PasswordStep({
 					'Reinitialiser le mot de passe'
 				)}
 			</Button>
-		</form>
+		</div>
 	)
 }
