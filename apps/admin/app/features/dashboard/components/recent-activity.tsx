@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import {
 	Card,
 	CardContent,
@@ -5,7 +6,6 @@ import {
 	CardTitle,
 	Button,
 } from '@retrouve-ci/ui/components'
-import Link from 'next/link'
 import {
 	Scan,
 	Users,
@@ -20,7 +20,7 @@ type ActivityType = 'scan' | 'user' | 'post' | 'contact'
 
 interface Activity {
 	id: number
-	type: ActivityType | string
+	type: string
 	text: string
 	timestamp: string
 }
@@ -64,10 +64,7 @@ export function RecentActivity({ activities }: RecentActivityProps) {
 					Activité Récente
 				</CardTitle>
 				<Button variant="ghost" size="sm" asChild>
-					<Link
-						href="/events"
-						className="text-primary hover:text-primary/80 gap-1"
-					>
+					<Link to="/events" className="text-primary hover:text-primary/80 gap-1">
 						Voir tout <ArrowRight className="h-4 w-4" />
 					</Link>
 				</Button>

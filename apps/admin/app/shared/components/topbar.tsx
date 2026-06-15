@@ -1,5 +1,4 @@
-'use client'
-
+import { Link, useNavigate } from 'react-router'
 import {
 	Avatar,
 	AvatarFallback,
@@ -11,24 +10,23 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components'
-import { useAuth } from '@/lib/auth-context'
-import { Bell, LogOut, User, ChevronDown } from 'lucide-react'
-import { mockNotifications } from '@/lib/mock-data'
+import { useAuth } from '@/shared/auth/auth-context'
+import { MOCK_NOTIFICATIONS } from '@/shared/lib/mock-notifications'
 import { MobileSidebar } from './sidebar'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { Bell, LogOut, User, ChevronDown } from 'lucide-react'
+
 interface TopBarProps {
 	title: string
 }
 
 export function TopBar({ title }: TopBarProps) {
 	const { user, logout } = useAuth()
-	const router = useRouter()
-	const unreadCount = mockNotifications.filter(n => !n.read).length
+	const navigate = useNavigate()
+	const unreadCount = MOCK_NOTIFICATIONS.filter(n => !n.read).length
 
-	const handleLogout = () => {
-		logout()
-		router.push('/auth/login')
+	const handleLogout = async () => {
+		await logout()
+		void navigate('/auth/login')
 	}
 
 	return (
@@ -42,30 +40,26 @@ export function TopBar({ title }: TopBarProps) {
 				</div>
 
 				<div className="flex items-center gap-3">
-					{/* Notifications */}
 					<Button
 						variant="ghost"
 						size="icon"
 						className="relative rounded-full"
 						asChild
 					>
-						<Link href="/notifications">
+						<Link to="/notifications">
 							<Bell size={18} />
 							{unreadCount > 0 && (
-								<>
-									<span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center">
-										<span className="bg-destructive absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
-										<span className="bg-destructive relative inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white">
-											{unreadCount > 9 ? '9+' : unreadCount}
-										</span>
+								<span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center">
+									<span className="bg-destructive absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+									<span className="bg-destructive relative inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white">
+										{unreadCount > 9 ? '9+' : unreadCount}
 									</span>
-								</>
+								</span>
 							)}
 							<span className="sr-only">Notifications</span>
 						</Link>
 					</Button>
 
-					{/* User Dropdown */}
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
@@ -74,12 +68,12 @@ export function TopBar({ title }: TopBarProps) {
 							>
 								<Avatar className="ring-primary/20 h-8 w-8 ring-2">
 									<AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
-										{user?.name?.charAt(0) || 'A'}
+										{user?.name?.charAt(0) ?? 'A'}
 									</AvatarFallback>
 								</Avatar>
 								<div className="hidden text-left md:block">
 									<p className="text-sm leading-none font-medium">
-										{user?.name || 'Admin'}
+										{user?.name ?? 'Admin'}
 									</p>
 									<p className="text-muted-foreground text-xs">
 										{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
@@ -95,30 +89,27 @@ export function TopBar({ title }: TopBarProps) {
 							<DropdownMenuLabel className="font-normal">
 								<div className="flex flex-col space-y-1">
 									<p className="text-sm font-semibold">
-										{user?.name || 'Admin User'}
+										{user?.name ?? 'Admin User'}
 									</p>
 									<p className="text-muted-foreground text-xs">
-										{user?.email || 'admin@retrouveci.com'}
+										{user?.email ?? 'admin@retrouveci.com'}
 									</p>
 								</div>
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem asChild className="cursor-pointer rounded-lg">
-								<Link
-									href="/profile"
-									className="flex w-full items-center gap-2"
-								>
+								<Link to="/profile" className="flex w-full items-center gap-2">
 									<User size={16} />
 									Mon profil
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem
-								onClick={handleLogout}
+								onClick={() => void handleLogout()}
 								className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer rounded-lg"
 							>
 								<LogOut size={16} className="mr-2" />
-								Deconnexion
+								Déconnexion
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>

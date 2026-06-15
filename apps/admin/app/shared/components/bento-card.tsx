@@ -1,5 +1,3 @@
-'use client'
-
 import { Card } from '@retrouve-ci/ui/components'
 import { cn } from '@retrouve-ci/ui/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -91,7 +89,7 @@ export function BentoCard({
 					className,
 				)}
 			>
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_white_0%,_transparent_60%)] opacity-10" />
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,white_0%,transparent_60%)] opacity-10" />
 				<div className="relative flex items-start justify-between">
 					<div className="space-y-2">
 						<p className="text-primary-foreground/70 text-xs font-medium tracking-wider uppercase">
