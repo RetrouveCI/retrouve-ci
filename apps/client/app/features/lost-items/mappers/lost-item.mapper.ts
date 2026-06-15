@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import type { LostItem } from '@/shared/types/lost-item'
+import type { LostItem, UserLostItem } from '@/shared/types/lost-item'
 import type { LostItemApiDto, LostItemDetail } from '../lost-items.types'
 
 function formatRelativeDate(isoDate: string): string {
@@ -32,5 +32,15 @@ export function toLostItemDetail(dto: LostItemApiDto): LostItemDetail {
 	return {
 		...toLostItem(dto),
 		contact: { name: dto.contactName, method: dto.contactWhatsapp },
+	}
+}
+
+export function toUserLostItem(dto: LostItemApiDto): UserLostItem {
+	return {
+		...toLostItem(dto),
+		status: dto.resolutionStatus,
+		createdAt: dto.createdAt,
+		views: dto.views,
+		contacts: dto.contactsCount,
 	}
 }

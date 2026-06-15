@@ -1,4 +1,4 @@
-import type { LostItem, UserLostItem } from '@/shared/types/lost-item'
+import type { LostItem } from '@/shared/types/lost-item'
 import type { User } from '@/shared/types/user'
 import type { Sticker } from '@/shared/types/sticker'
 
@@ -208,43 +208,5 @@ export const MOCK_STICKERS: Sticker[] = [
 		code: 'RCI-G7H8I9',
 		label: 'Sac à dos',
 		isActive: false,
-	},
-]
-
-export const MOCK_USER_LISTINGS: UserLostItem[] = [
-	{
-		id: 'listing-001',
-		title: 'iPhone 14 Pro perdu',
-		description:
-			'iPhone 14 Pro couleur noir perdu dans un taxi à Cocody. Écran avec petite fissure en haut à gauche.',
-		location: 'Cocody, Abidjan',
-		ville: 'Abidjan',
-		commune: 'Cocody',
-		date: '15 mars 2024',
-		dateISO: '2024-03-15',
-		type: 'lost',
-		category: 'phones',
-		image: '/placeholder.svg?height=300&width=400',
-		status: 'active',
-		createdAt: '2024-03-15',
-		views: 234,
-		contacts: 5,
-	},
-	{
-		id: 'listing-002',
-		title: 'Carte bancaire retrouvée',
-		description:
-			'Carte VISA trouvée près de la station essence Total à Marcory.',
-		location: 'Marcory, Abidjan',
-		ville: 'Abidjan',
-		commune: 'Marcory',
-		date: '20 mars 2024',
-		dateISO: '2024-03-20',
-		type: 'found',
-		category: 'other',
-		status: 'resolved',
-		createdAt: '2024-03-20',
-		views: 156,
-		contacts: 3,
 	},
 ]
