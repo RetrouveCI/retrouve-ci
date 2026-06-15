@@ -155,11 +155,19 @@ Route structure:
 - `/(dashboard)/...` — all dashboard routes, wrapped in `AuthGuard`
 
 Dashboard sections: overview, posts, users, orders, qr (QR tokens),
-administrators, events, notifications, profile.
+administrators, events, notifications, contact-messages, profile.
 
 Auth is email/password, stored in `localStorage` under key `retrouveci_admin`.
 The mock credentials are `admin@retrouveci.com` / `admin123`. All data is mock
-(`lib/mock-data.ts`); no API backend is connected yet.
+(`lib/mock-data.ts`); no API backend is connected yet, **except**
+`/contact-messages`, the first dashboard page wired to the real API
+(`apps/api`'s `contact-messages` domain) via `infrastructure/http/api-client.ts`
+— see `infrastructure/repositories/api-contact-message-repository.ts` and
+`application/contact-messages/use-contact-messages.ts`. Calls go through
+`@AllowAnonymous()` (public submission) / `@Roles(['admin'])` (list, detail,
+status update) on the API side; since admin auth here is still mock-only
+(`localStorage`, not a better-auth session cookie), the admin-only endpoints
+will 401 until admin auth is connected to better-auth.
 
 The dashboard layout (`app/(dashboard)/layout.tsx`) renders `<Sidebar>`
 alongside `<main className="lg:pl-64">`. The `AuthGuard` component
