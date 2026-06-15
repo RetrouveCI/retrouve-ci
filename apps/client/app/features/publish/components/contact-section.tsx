@@ -1,8 +1,10 @@
 import { Input } from '@retrouve-ci/ui/components'
 import { getInputProps, type FieldMetadata } from '@conform-to/react'
-import { InputLabel } from '@/shared/components/form/input-label'
-import { InputField } from '@/shared/components/form/input-field'
-import { FieldError } from '@/shared/components/form/field-error'
+import {
+	InputLabel,
+	InputField,
+	FieldError,
+} from '@retrouve-ci/ui/components/form'
 
 interface ContactSectionProps {
 	name: FieldMetadata<string>

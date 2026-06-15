@@ -13,9 +13,11 @@ import {
 } from '@conform-to/react'
 import { cn } from '@retrouve-ci/ui/utils'
 import type { LostItemCategory } from '@/shared/types/lost-item'
-import { InputLabel } from '@/shared/components/form/input-label'
-import { InputField } from '@/shared/components/form/input-field'
-import { FieldError } from '@/shared/components/form/field-error'
+import {
+	InputLabel,
+	InputField,
+	FieldError,
+} from '@retrouve-ci/ui/components/form'
 import { ImageUpload } from './image-upload'
 import { OBJECT_TYPES } from '../publish.const'
 

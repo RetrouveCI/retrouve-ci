@@ -1,8 +1,7 @@
 import { Button, Input, Label } from '@retrouve-ci/ui/components'
 import type { FieldMetadata } from '@conform-to/react'
 import { ArrowLeft, ArrowRight, Tag, Check, X } from 'lucide-react'
-import { InputField } from '@/shared/components/form/input-field'
-import { TextareaField } from '@/shared/components/form/textarea-field'
+import { InputField, TextareaField } from '@retrouve-ci/ui/components/form'
 import { OrderSummaryCard } from './order-summary-card'
 
 interface Pack {

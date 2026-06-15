@@ -1,30 +1,32 @@
-import { Textarea } from '@retrouve-ci/ui/components'
-import { getTextareaProps, type FieldMetadata } from '@conform-to/react'
+import { Input } from '../ui/input'
+import { getInputProps, type FieldMetadata } from '@conform-to/react'
 import { InputLabel } from './input-label'
 import { FieldError } from './field-error'
 
-interface TextareaFieldProps {
+interface InputFieldProps {
 	field: FieldMetadata<string>
 	label: string
 	required?: boolean
+	type?: 'text' | 'tel' | 'date' | 'email'
 	placeholder?: string
 	className?: string
 }
 
-export function TextareaField({
+export function InputField({
 	field,
 	label,
 	required,
+	type = 'text',
 	placeholder,
-	className = 'min-h-20 resize-none',
-}: TextareaFieldProps) {
+	className = 'h-11',
+}: InputFieldProps) {
 	return (
 		<div className="space-y-2">
 			<InputLabel htmlFor={field.id} required={required}>
 				{label}
 			</InputLabel>
-			<Textarea
-				{...getTextareaProps(field)}
+			<Input
+				{...getInputProps(field, { type })}
 				key={field.key}
 				placeholder={placeholder}
 				className={className}
