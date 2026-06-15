@@ -8,6 +8,10 @@ export const phoneNumberSchema = z.object({
 		.regex(/^\d[\d\s]*$/, 'Numéro invalide'),
 })
 
+export const loginSchema = phoneNumberSchema.extend({
+	password: z.string().min(4, 'Mot de passe trop court.'),
+})
+
 export const otpSchema = z.object({
 	otp: z.string().length(6, 'Entrez le code complet à 6 chiffres'),
 })

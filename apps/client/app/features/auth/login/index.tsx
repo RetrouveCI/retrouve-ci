@@ -1,39 +1,55 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { ArrowLeft, Loader2 } from 'lucide-react'
+import { useForm, useInputControl, getFormProps } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { useAuth } from '@/shared/auth/auth-context'
 import { Button, Input, Label } from '@retrouve-ci/ui/components'
+import { FieldError } from '@retrouve-ci/ui/components/form'
+import { loginSchema } from '../auth.schema'
 import { PasswordInput } from '../components/password-input'
 
 export default function LoginPage() {
 	const navigate = useNavigate()
 	const { login, isAuthenticated } = useAuth()
 
-	const [phoneNumber, setPhoneNumber] = useState('')
-	const [password, setPassword] = useState('')
-	const [passwordError, setPasswordError] = useState('')
+	const [authError, setAuthError] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
 	useEffect(() => {
 		if (isAuthenticated) navigate('/account')
 	}, [isAuthenticated, navigate])
 
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		if (password.length < 4) {
-			setPasswordError('Mot de passe trop court.')
-			return
-		}
-		setPasswordError('')
+	const handleLogin = async (value: {
+		phoneNumber: string
+		password: string
+	}) => {
+		setAuthError('')
 		setIsSubmitting(true)
-		const result = await login(phoneNumber, password)
+		const result = await login(value.phoneNumber, value.password)
 		if (!result.success) {
-			setPasswordError(result.error ?? 'Mot de passe incorrect.')
+			setAuthError(result.error ?? 'Mot de passe incorrect.')
 			setIsSubmitting(false)
 			return
 		}
 		navigate('/account')
 	}
+
+	const [form, fields] = useForm({
+		id: 'login-form',
+		constraint: getZodConstraint(loginSchema),
+		shouldValidate: 'onSubmit',
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: loginSchema })
+		},
+		onSubmit(event, { submission }) {
+			event.preventDefault()
+			if (submission?.status !== 'success') return
+			void handleLogin(submission.value)
+		},
+	})
+	const phoneControl = useInputControl(fields.phoneNumber)
+	const passwordControl = useInputControl(fields.password)
 
 	return (
 		<>
@@ -54,7 +70,7 @@ export default function LoginPage() {
 				</p>
 			</div>
 
-			<form onSubmit={handleSubmit} className="space-y-5">
+			<form {...getFormProps(form)} className="space-y-5">
 				<div className="space-y-2">
 					<Label htmlFor="phone" className="text-sm font-medium">
 						Numéro de téléphone
@@ -72,32 +88,31 @@ export default function LoginPage() {
 						</div>
 						<Input
 							id="phone"
+							name="phoneNumber"
 							type="tel"
 							placeholder="07 XX XX XX XX"
-							value={phoneNumber}
-							onChange={e => setPhoneNumber(e.target.value)}
+							value={phoneControl.value ?? ''}
+							onChange={e => phoneControl.change(e.target.value)}
 							className="border-border bg-background focus:border-primary-green focus:ring-primary-green/20 h-12 flex-1 rounded-xl border-2 transition-all focus:ring-2"
 							autoComplete="tel"
 							autoFocus
 						/>
 					</div>
+					<FieldError errors={fields.phoneNumber.errors} />
 				</div>
 
 				<div className="space-y-1">
 					<PasswordInput
 						id="password"
+						name="password"
 						label="Mot de passe"
-						value={password}
-						onChange={v => {
-							setPassword(v)
-							setPasswordError('')
-						}}
+						value={passwordControl.value ?? ''}
+						onChange={passwordControl.change}
 						placeholder="••••••••"
 						disabled={isSubmitting}
 					/>
-					{passwordError && (
-						<p className="text-destructive text-xs">{passwordError}</p>
-					)}
+					<FieldError errors={fields.password.errors} />
+					{authError && <p className="text-destructive text-xs">{authError}</p>}
 					<div className="flex justify-end pt-1">
 						<Link
 							to="/auth/password-forgotten"
