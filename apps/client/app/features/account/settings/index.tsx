@@ -1,43 +1,18 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { Settings, ArrowLeft } from 'lucide-react'
-import { toast } from 'sonner'
-import { useAuth } from '@/shared/auth/auth-context'
 import { PersonalInfoSection } from './components/personal-info-section'
 import { NotificationsSection } from './components/notifications-section'
 import { SecuritySection } from './components/security-section'
 import { DangerZoneSection } from './components/danger-zone-section'
 import { settingsAction } from './servers/settings.action'
+import { settingsLoader } from './servers/settings.loader'
+import type { Route } from './+types/index'
 
 export const action = settingsAction
+export const loader = settingsLoader
 
-export default function ParametresPage() {
-	const navigate = useNavigate()
-	const { isAuthenticated, isLoading, user } = useAuth()
-
-	const [notifications, setNotifications] = useState({
-		whatsapp: true,
-		email: false,
-		stickerScans: true,
-		matches: true,
-	})
-
-	useEffect(() => {
-		if (!isLoading && !isAuthenticated) navigate('/auth')
-	}, [isLoading, isAuthenticated, navigate])
-
-	const handleNotificationChange = (key: keyof typeof notifications) => {
-		setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
-		toast.success('Préférences mises à jour')
-	}
-
-	if (isLoading) {
-		return (
-			<main className="flex flex-1 items-center justify-center">
-				<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
-			</main>
-		)
-	}
+export default function ParametresPage({ loaderData }: Route.ComponentProps) {
+	const { user } = loaderData
 
 	return (
 		<main className="flex-1">
@@ -70,10 +45,7 @@ export default function ParametresPage() {
 			<section className="py-8">
 				<div className="container mx-auto max-w-2xl space-y-6 px-4">
 					<PersonalInfoSection user={user} />
-					<NotificationsSection
-						notifications={notifications}
-						onChange={handleNotificationChange}
-					/>
+					<NotificationsSection />
 					<SecuritySection />
 					<DangerZoneSection />
 				</div>

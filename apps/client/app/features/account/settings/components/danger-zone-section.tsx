@@ -1,7 +1,6 @@
 import {
 	Button,
 	AlertDialog,
-	AlertDialogAction,
 	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
@@ -14,7 +13,8 @@ import { useEffect, useState } from 'react'
 import { useFetcher, useNavigate } from 'react-router'
 import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { parseWithZod } from '@conform-to/zod'
+import { useForm, useInputControl, getFormProps } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { PasswordInput } from '@/features/auth/components/password-input'
 import { FieldError } from '@retrouve-ci/ui/components/form'
 import { deleteAccountSchema } from '../settings.schema'
@@ -28,8 +28,18 @@ export function DangerZoneSection() {
 	const fetcher = useFetcher<ActionResult>()
 	const navigate = useNavigate()
 	const [open, setOpen] = useState(false)
-	const [password, setPassword] = useState('')
-	const [errors, setErrors] = useState<string[] | undefined>()
+
+	const [form, fields] = useForm({
+		id: 'delete-account-form',
+		constraint: getZodConstraint(deleteAccountSchema),
+		shouldValidate: 'onSubmit',
+		shouldRevalidate: 'onInput',
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: deleteAccountSchema })
+		},
+	})
+
+	const passwordControl = useInputControl(fields.password)
 
 	useEffect(() => {
 		if (fetcher.state !== 'idle' || !fetcher.data) return
@@ -39,39 +49,15 @@ export function DangerZoneSection() {
 			navigate('/')
 		} else {
 			toast.error(fetcher.data.error ?? 'Mot de passe incorrect')
-			setPassword('')
 		}
 	}, [fetcher.state, fetcher.data, navigate])
 
 	const handleOpenChange = (next: boolean) => {
 		setOpen(next)
-		if (!next) {
-			setPassword('')
-			setErrors(undefined)
-		}
-	}
-
-	const handlePasswordChange = (value: string) => {
-		setPassword(value)
-		setErrors(undefined)
+		if (!next) form.reset()
 	}
 
 	const isDeleting = fetcher.state !== 'idle'
-
-	const handleConfirm = () => {
-		const formData = new FormData()
-		formData.set('intent', 'delete-account')
-		formData.set('password', password)
-
-		const submission = parseWithZod(formData, { schema: deleteAccountSchema })
-		if (submission.status !== 'success') {
-			setErrors(submission.error?.password ?? undefined)
-			return
-		}
-
-		setErrors(undefined)
-		void fetcher.submit(submission.value, { method: 'post' })
-	}
 
 	return (
 		<div className="border-destructive/20 bg-destructive/5 overflow-hidden rounded-2xl border">
@@ -103,31 +89,34 @@ export function DangerZoneSection() {
 									annonces et vos stickers. Cette action est irréversible.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
-							<div className="py-2">
+							<fetcher.Form
+								method="post"
+								{...getFormProps(form)}
+								className="py-2"
+							>
+								<input type="hidden" name="intent" value="delete-account" />
 								<PasswordInput
 									id="delete-account-password"
 									label="Confirmez avec votre mot de passe"
-									value={password}
-									onChange={handlePasswordChange}
+									value={passwordControl.value ?? ''}
+									onChange={passwordControl.change}
 									disabled={isDeleting}
 								/>
-								<FieldError errors={errors} />
-							</div>
-							<AlertDialogFooter>
-								<AlertDialogCancel className="rounded-xl">
-									Annuler
-								</AlertDialogCancel>
-								<AlertDialogAction
-									onClick={e => {
-										e.preventDefault()
-										handleConfirm()
-									}}
-									disabled={!password || isDeleting}
-									className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
-								>
-									Supprimer mon compte
-								</AlertDialogAction>
-							</AlertDialogFooter>
+								<FieldError errors={fields.password.errors} />
+								<AlertDialogFooter>
+									<AlertDialogCancel className="rounded-xl">
+										Annuler
+									</AlertDialogCancel>
+									<Button
+										type="submit"
+										variant="destructive"
+										disabled={!passwordControl.value || isDeleting}
+										className="rounded-xl"
+									>
+										Supprimer mon compte
+									</Button>
+								</AlertDialogFooter>
+							</fetcher.Form>
 						</AlertDialogContent>
 					</AlertDialog>
 				</div>

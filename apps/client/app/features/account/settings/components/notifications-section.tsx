@@ -1,20 +1,8 @@
-import { Switch } from '@retrouve-ci/ui/components'
+import { Badge, Switch } from '@retrouve-ci/ui/components'
 import { Bell } from 'lucide-react'
 
-interface NotificationPrefs {
-	whatsapp: boolean
-	email: boolean
-	stickerScans: boolean
-	matches: boolean
-}
-
-interface NotificationsSectionProps {
-	notifications: NotificationPrefs
-	onChange: (key: keyof NotificationPrefs) => void
-}
-
 const NOTIFICATION_ITEMS: {
-	key: keyof NotificationPrefs
+	key: string
 	label: string
 	description: string
 }[] = [
@@ -40,16 +28,14 @@ const NOTIFICATION_ITEMS: {
 	},
 ]
 
-export function NotificationsSection({
-	notifications,
-	onChange,
-}: NotificationsSectionProps) {
+export function NotificationsSection() {
 	return (
 		<div className="bg-background overflow-hidden rounded-2xl border">
 			<div className="bg-muted/30 border-b p-5">
 				<h2 className="flex items-center gap-2 font-semibold">
 					<Bell className="text-primary-green h-4 w-4" />
 					Notifications
+					<Badge variant="secondary">Bientôt disponible</Badge>
 				</h2>
 			</div>
 			<div className="space-y-1 p-5">
@@ -64,10 +50,7 @@ export function NotificationsSection({
 								{item.description}
 							</p>
 						</div>
-						<Switch
-							checked={notifications[item.key]}
-							onCheckedChange={() => onChange(item.key)}
-						/>
+						<Switch checked={false} disabled />
 					</div>
 				))}
 			</div>
