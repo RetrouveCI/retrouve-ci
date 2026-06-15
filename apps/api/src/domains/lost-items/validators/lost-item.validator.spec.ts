@@ -4,7 +4,10 @@ import type {
 	CreateLostItemData,
 	UpdateLostItemData,
 } from '../types/lost-item.types'
-import { validateCreateLostItem, validateUpdateLostItem } from './lost-item.validator'
+import {
+	validateCreateLostItem,
+	validateUpdateLostItem,
+} from './lost-item.validator'
 
 const baseCreateData: CreateLostItemData = {
 	type: 'lost',
@@ -47,9 +50,9 @@ describe('validateUpdateLostItem', () => {
 	})
 
 	it('throws when the updated description is too short', () => {
-		expect(() =>
-			validateUpdateLostItem({ description: 'Trop court' }),
-		).toThrow(InvalidLostItemError)
+		expect(() => validateUpdateLostItem({ description: 'Trop court' })).toThrow(
+			InvalidLostItemError,
+		)
 	})
 
 	it('throws when there are too many photos', () => {

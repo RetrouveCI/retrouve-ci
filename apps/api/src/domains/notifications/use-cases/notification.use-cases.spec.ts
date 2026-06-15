@@ -4,7 +4,9 @@ import type { Notification } from '../models/notification.model'
 import type { NotificationRepository } from '../repository/notification.repository'
 import { NotificationUseCases } from './notification.use-cases'
 
-function buildNotification(overrides: Partial<Notification> = {}): Notification {
+function buildNotification(
+	overrides: Partial<Notification> = {},
+): Notification {
 	return {
 		id: 'notification-1',
 		type: 'match_found',
@@ -82,7 +84,10 @@ describe('NotificationUseCases', () => {
 	describe('markAsRead', () => {
 		it('marks the notification as read when owned by the user', async () => {
 			const notification = buildNotification()
-			const read = buildNotification({ read: true, readAt: new Date('2026-01-02') })
+			const read = buildNotification({
+				read: true,
+				readAt: new Date('2026-01-02'),
+			})
 			vi.mocked(repository.findById).mockResolvedValue(notification)
 			vi.mocked(repository.markAsRead).mockResolvedValue(read)
 
@@ -95,9 +100,9 @@ describe('NotificationUseCases', () => {
 		it('throws NotificationNotFoundError when the notification does not exist', async () => {
 			vi.mocked(repository.findById).mockResolvedValue(null)
 
-			await expect(
-				useCases.markAsRead('missing', 'user-1'),
-			).rejects.toThrow(NotificationNotFoundError)
+			await expect(useCases.markAsRead('missing', 'user-1')).rejects.toThrow(
+				NotificationNotFoundError,
+			)
 			expect(repository.markAsRead).not.toHaveBeenCalled()
 		})
 

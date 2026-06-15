@@ -304,10 +304,11 @@ utilisés par `lost-items`, `account` et `publish`) vit dans
 domaine métier — pas selon l'endroit où il a été vu la première fois (pas
 `listing.ts` si le concept est en réalité un "lost item").
 
-Chaque feature qui en a besoin l'importe **directement** via `@/shared/types/...`.
-Ne pas le ré-exporter depuis `<feature>.types.ts` — ce fichier ne contient que
-les types **propres à la feature** (ex: `LostItemFilters`, `LostItemDetail`),
-qui peuvent eux-mêmes composer les types partagés.
+Chaque feature qui en a besoin l'importe **directement** via
+`@/shared/types/...`. Ne pas le ré-exporter depuis `<feature>.types.ts` — ce
+fichier ne contient que les types **propres à la feature** (ex:
+`LostItemFilters`, `LostItemDetail`), qui peuvent eux-mêmes composer les types
+partagés.
 
 ```ts
 // features/publish/hooks/use-matching-suggestions.ts

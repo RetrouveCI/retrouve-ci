@@ -7,7 +7,10 @@ import {
 	MaxLength,
 	MinLength,
 } from 'class-validator'
-import { EVENT_STATUSES, MIN_DESCRIPTION_LENGTH } from '@/domains/events/constants'
+import {
+	EVENT_STATUSES,
+	MIN_DESCRIPTION_LENGTH,
+} from '@/domains/events/constants'
 import type { EventStatus } from '@/domains/events/types/event.types'
 
 export class UpdateEventDto {

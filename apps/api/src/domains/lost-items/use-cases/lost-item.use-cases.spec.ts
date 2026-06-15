@@ -268,9 +268,9 @@ describe('LostItemUseCases', () => {
 		it('throws LostItemNotFoundError when the item does not exist', async () => {
 			vi.mocked(repository.findById).mockResolvedValue(null)
 
-			await expect(
-				useCases.moderate('missing', 'published'),
-			).rejects.toThrow(LostItemNotFoundError)
+			await expect(useCases.moderate('missing', 'published')).rejects.toThrow(
+				LostItemNotFoundError,
+			)
 			expect(repository.updateModerationStatus).not.toHaveBeenCalled()
 		})
 	})

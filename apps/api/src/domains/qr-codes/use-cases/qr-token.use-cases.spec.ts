@@ -48,13 +48,18 @@ describe('QrTokenUseCases', () => {
 			const created = [buildQrToken(), buildQrToken({ id: 'qr-token-2' })]
 			vi.mocked(repository.createMany).mockResolvedValue(created)
 
-			const result = await useCases.generateBatch({ count: 2, batch: 'batch-1' })
+			const result = await useCases.generateBatch({
+				count: 2,
+				batch: 'batch-1',
+			})
 
 			expect(repository.createMany).toHaveBeenCalledWith(
 				expect.arrayContaining([expect.stringMatching(/^RCI-/)]),
 				'batch-1',
 			)
-			expect(vi.mocked(repository.createMany).mock.calls[0]?.[0]).toHaveLength(2)
+			expect(vi.mocked(repository.createMany).mock.calls[0]?.[0]).toHaveLength(
+				2,
+			)
 			expect(result).toEqual(created)
 		})
 
@@ -123,9 +128,9 @@ describe('QrTokenUseCases', () => {
 		it('throws QrTokenNotFoundError when the token does not exist', async () => {
 			vi.mocked(repository.findByCode).mockResolvedValue(null)
 
-			await expect(
-				useCases.activate('missing', 'user-1', {}),
-			).rejects.toThrow(QrTokenNotFoundError)
+			await expect(useCases.activate('missing', 'user-1', {})).rejects.toThrow(
+				QrTokenNotFoundError,
+			)
 		})
 	})
 

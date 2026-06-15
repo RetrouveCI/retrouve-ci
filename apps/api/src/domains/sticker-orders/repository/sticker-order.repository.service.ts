@@ -50,7 +50,9 @@ export class StickerOrderRepositoryService implements StickerOrderRepository {
 		return stickerOrder ? toDomainStickerOrder(stickerOrder) : null
 	}
 
-	async list(filter: ListStickerOrdersFilter): Promise<StickerOrderListResponse> {
+	async list(
+		filter: ListStickerOrdersFilter,
+	): Promise<StickerOrderListResponse> {
 		const where = {
 			...(filter.status && { status: toPrismaStatus(filter.status) }),
 			...(filter.userId && { userId: filter.userId }),
@@ -79,7 +81,8 @@ export class StickerOrderRepositoryService implements StickerOrderRepository {
 		status: StickerOrderStatus,
 	): Promise<StickerOrder> {
 		const now = new Date()
-		const shippedAt = status === 'shipped' ? now : status === 'delivered' ? undefined : null
+		const shippedAt =
+			status === 'shipped' ? now : status === 'delivered' ? undefined : null
 		const deliveredAt = status === 'delivered' ? now : null
 
 		const stickerOrder = await this.prisma.stickerOrder.update({

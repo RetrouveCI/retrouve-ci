@@ -1,5 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator'
+import {
+	IsIn,
+	IsOptional,
+	IsString,
+	MaxLength,
+	MinLength,
+} from 'class-validator'
 import { STICKER_PACK_IDS } from '@/domains/sticker-orders/constants'
 
 export class CreateStickerOrderDto {

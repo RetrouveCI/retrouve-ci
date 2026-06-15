@@ -93,8 +93,8 @@ domains/[feature]/
   `NotFoundError` ou `ValidationError`, définies dans
   `shared/errors/domain.error.ts`)
 - ✅ `repository/` contient l'interface **et** son implémentation Prisma
-  (`*.repository.service.ts`) ; `mappers/` contient les conversions
-  Prisma ↔ `models/` (entité + enums) utilisées par cette implémentation
+  (`*.repository.service.ts`) ; `mappers/` contient les conversions Prisma ↔
+  `models/` (entité + enums) utilisées par cette implémentation
 - ✅ `models/` centralise les **données sortantes du domaine** (ex: `LostItem`,
   `LostItemListResponse`). Un seul type est utilisé tout au long du flow —
   `repository`, `use-cases` et `presentation` (controllers) retournent et
@@ -104,32 +104,32 @@ domains/[feature]/
   token d'injection), jamais directement de l'implémentation Prisma
 - ✅ `use-cases/` contient **un seul fichier par domaine**
   (`[feature].use-cases.ts`) exportant **une seule classe** `[Feature]UseCases`
-  dont chaque méthode (`create`, `getById`, `list`...) est un cas d'usage —
-  pas une classe par use-case
+  dont chaque méthode (`create`, `getById`, `list`...) est un cas d'usage — pas
+  une classe par use-case
 
 ### Exemples RetrouveCI
 
-| Fichier                                                       | Rôle                                                                 |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `shared/errors/domain.error.ts`                               | Classes de base `DomainError`, `NotFoundError`, `ValidationError`   |
-| `domains/lost-items/repository/lost-item.repository.ts`       | Interface du repo LostItem                                          |
-| `domains/lost-items/repository/lost-item.repository.service.ts` | Implémentation Prisma du repo LostItem                            |
-| `domains/lost-items/mappers/lost-item.mapper.ts`              | Conversions Prisma ↔ `models/` (enums, entité `LostItem`)           |
-| `domains/lost-items/models/lost-item.model.ts`                | Types de sortie du domaine : `LostItem`, `LostItemListResponse`     |
-| `domains/lost-items/use-cases/lost-item.use-cases.ts`          | Classe `LostItemUseCases` (create, getById, list...)                |
-| `domains/matching/use-cases/matching.use-cases.ts`             | Classe `MatchingUseCases` (cas d'usage de matching perdu/retrouvé)  |
-| `domains/lost-items/errors/lost-item.errors.ts`                | `LostItemNotFoundError`, `InvalidLostItemError`                     |
-| `domains/lost-items/constants.ts`                              | `LOST_ITEM_CATEGORIES`, `MAX_PHOTOS`                                |
-| `domains/matching/helpers/compute-match-score.ts`              | Helper métier de scoring — reste dans `domains/`, pas dans `shared/` |
+| Fichier                                                         | Rôle                                                                 |
+| --------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `shared/errors/domain.error.ts`                                 | Classes de base `DomainError`, `NotFoundError`, `ValidationError`    |
+| `domains/lost-items/repository/lost-item.repository.ts`         | Interface du repo LostItem                                           |
+| `domains/lost-items/repository/lost-item.repository.service.ts` | Implémentation Prisma du repo LostItem                               |
+| `domains/lost-items/mappers/lost-item.mapper.ts`                | Conversions Prisma ↔ `models/` (enums, entité `LostItem`)           |
+| `domains/lost-items/models/lost-item.model.ts`                  | Types de sortie du domaine : `LostItem`, `LostItemListResponse`      |
+| `domains/lost-items/use-cases/lost-item.use-cases.ts`           | Classe `LostItemUseCases` (create, getById, list...)                 |
+| `domains/matching/use-cases/matching.use-cases.ts`              | Classe `MatchingUseCases` (cas d'usage de matching perdu/retrouvé)   |
+| `domains/lost-items/errors/lost-item.errors.ts`                 | `LostItemNotFoundError`, `InvalidLostItemError`                      |
+| `domains/lost-items/constants.ts`                               | `LOST_ITEM_CATEGORIES`, `MAX_PHOTOS`                                 |
+| `domains/matching/helpers/compute-match-score.ts`               | Helper métier de scoring — reste dans `domains/`, pas dans `shared/` |
 
 ---
 
 ## `infrastructure/` — Services d'infrastructure et externes
 
 > Services globaux transversaux (`database/`, `queue/`, `auth/`) injectés dans
-> plusieurs feature modules, et services externes spécifiques à une feature
-> qui ne sont **pas** des repositories (génération QR, notifications,
-> stockage...). Les implémentations de `repository/` vivent dans
+> plusieurs feature modules, et services externes spécifiques à une feature qui
+> ne sont **pas** des repositories (génération QR, notifications, stockage...).
+> Les implémentations de `repository/` vivent dans
 > `domains/[feature]/repository/`, pas ici.
 
 ```
@@ -159,8 +159,8 @@ infrastructure/
 ### Exemples RetrouveCI
 
 | Fichier                                                     | Rôle                                                     |
-| ------------------------------------------------------------ | -------------------------------------------------------- |
-| `infrastructure/database/prisma.service.ts`                | Config Prisma globale                                    |
+| ----------------------------------------------------------- | -------------------------------------------------------- |
+| `infrastructure/database/prisma.service.ts`                 | Config Prisma globale                                    |
 | `infrastructure/qr-codes/qr-code-generator.config.ts`       | Config du générateur de QR codes                         |
 | `infrastructure/qr-codes/qr-code-generator.service.ts`      | Implémentation via la lib QR (wrappée dans `libs/`)      |
 | `infrastructure/notifications/push-notification.service.ts` | Implémentation notifications (via `libs/notifications/`) |
@@ -194,12 +194,12 @@ presentation/[feature]/
 
 ### Exemples RetrouveCI
 
-| Fichier                                                       | Rôle                                       |
-| ---------------------------------------------------------------- | ------------------------------------------ |
-| `presentation/lost-items/controllers/lost-items.controller.ts` | Endpoints CRUD objets perdus               |
-| `presentation/lost-items/lost-items.module.ts`                 | Module NestJS de la feature lost-items     |
-| `presentation/qr-codes/controllers/qr-codes.controller.ts`     | Génération/scan de QR codes                |
-| `presentation/matching/workers/matching.worker.ts`             | Cron de matching périodique perdu/retrouvé |
+| Fichier                                                                | Rôle                                       |
+| ---------------------------------------------------------------------- | ------------------------------------------ |
+| `presentation/lost-items/controllers/lost-items.controller.ts`         | Endpoints CRUD objets perdus               |
+| `presentation/lost-items/lost-items.module.ts`                         | Module NestJS de la feature lost-items     |
+| `presentation/qr-codes/controllers/qr-codes.controller.ts`             | Génération/scan de QR codes                |
+| `presentation/matching/workers/matching.worker.ts`                     | Cron de matching périodique perdu/retrouvé |
 | `presentation/notifications/queue-consumers/notifications.consumer.ts` | Consumer queue pour envoi de notifications |
 
 ---
@@ -244,8 +244,8 @@ shared/
 > dans `shared/`.
 
 |                                      | `shared/helpers/` | `domains/[feature]/helpers/` |
-| ------------------------------------ | ----------------- | ----------------------------- |
-| Formater une date                    | ✅                | ❌                            |
-| Calculer un score de matching        | ❌                | ✅                            |
-| Générer un UUID                      | ✅                | ❌                            |
-| Valider le format d'une référence QR | ❌                | ✅                            |
+| ------------------------------------ | ----------------- | ---------------------------- |
+| Formater une date                    | ✅                | ❌                           |
+| Calculer un score de matching        | ❌                | ✅                           |
+| Générer un UUID                      | ✅                | ❌                           |
+| Valider le format d'une référence QR | ❌                | ✅                           |

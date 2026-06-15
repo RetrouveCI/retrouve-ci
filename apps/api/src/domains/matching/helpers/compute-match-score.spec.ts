@@ -61,7 +61,10 @@ describe('computeMatchScore', () => {
 		})
 
 		expect(computeMatchScore(source, candidate)).toBe(
-			SCORE_SAME_CATEGORY + SCORE_SAME_VILLE + SCORE_SAME_COMMUNE + SCORE_EVENT_DATE_CLOSE,
+			SCORE_SAME_CATEGORY +
+				SCORE_SAME_VILLE +
+				SCORE_SAME_COMMUNE +
+				SCORE_EVENT_DATE_CLOSE,
 		)
 	})
 
@@ -84,7 +87,8 @@ describe('computeMatchScore', () => {
 	it('scores text overlap between title and description', () => {
 		const source = buildLostItem({
 			title: 'iPhone 13 perdu',
-			description: 'Perdu près du marché de Cocody, coque noire avec autocollant',
+			description:
+				'Perdu près du marché de Cocody, coque noire avec autocollant',
 		})
 		const candidate = buildLostItem({
 			id: 'lost-item-2',

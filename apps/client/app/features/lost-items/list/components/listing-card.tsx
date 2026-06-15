@@ -79,7 +79,7 @@ function ListingImage({
 	isLost: boolean
 }) {
 	return (
-		<div className="bg-muted relative aspect-[16/9] shrink-0 overflow-hidden">
+		<div className="bg-muted relative aspect-video shrink-0 overflow-hidden">
 			{listing.image ? (
 				<img
 					src={listing.image}

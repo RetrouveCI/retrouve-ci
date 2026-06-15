@@ -8,7 +8,9 @@ import type { StickerOrderRepository } from '../repository/sticker-order.reposit
 import type { CreateStickerOrderData } from '../types/sticker-order.types'
 import { StickerOrderUseCases } from './sticker-order.use-cases'
 
-function buildStickerOrder(overrides: Partial<StickerOrder> = {}): StickerOrder {
+function buildStickerOrder(
+	overrides: Partial<StickerOrder> = {},
+): StickerOrder {
 	return {
 		id: 'order-1',
 		orderNumber: 'CMD-2026-000001',
