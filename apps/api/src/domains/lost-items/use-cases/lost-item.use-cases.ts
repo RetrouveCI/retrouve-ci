@@ -43,7 +43,7 @@ export class LostItemUseCases {
 	}
 
 	async view(id: string): Promise<LostItem> {
-		const lostItem = await this.getById(id)
+		const lostItem = await this.getPublishedById(id)
 
 		await this.lostItemRepository.incrementViews(id)
 
@@ -51,7 +51,7 @@ export class LostItemUseCases {
 	}
 
 	async recordContact(id: string): Promise<LostItem> {
-		const lostItem = await this.getById(id)
+		const lostItem = await this.getPublishedById(id)
 
 		await this.lostItemRepository.incrementContacts(id)
 
@@ -102,5 +102,15 @@ export class LostItemUseCases {
 		}
 
 		await this.lostItemRepository.delete(id)
+	}
+
+	private async getPublishedById(id: string): Promise<LostItem> {
+		const lostItem = await this.getById(id)
+
+		if (lostItem.moderationStatus !== 'published') {
+			throw new LostItemNotFoundError(id)
+		}
+
+		return lostItem
 	}
 }

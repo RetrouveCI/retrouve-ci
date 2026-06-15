@@ -107,7 +107,10 @@ describe('LostItemUseCases', () => {
 
 	describe('view', () => {
 		it('increments the view count and returns the updated lost item', async () => {
-			const lostItem = buildLostItem({ views: 5 })
+			const lostItem = buildLostItem({
+				moderationStatus: 'published',
+				views: 5,
+			})
 			vi.mocked(repository.findById).mockResolvedValue(lostItem)
 
 			const result = await useCases.view('lost-item-1')
@@ -124,11 +127,24 @@ describe('LostItemUseCases', () => {
 			)
 			expect(repository.incrementViews).not.toHaveBeenCalled()
 		})
+
+		it('throws LostItemNotFoundError when the item is not published', async () => {
+			const lostItem = buildLostItem({ moderationStatus: 'pending' })
+			vi.mocked(repository.findById).mockResolvedValue(lostItem)
+
+			await expect(useCases.view('lost-item-1')).rejects.toThrow(
+				LostItemNotFoundError,
+			)
+			expect(repository.incrementViews).not.toHaveBeenCalled()
+		})
 	})
 
 	describe('recordContact', () => {
 		it('increments the contacts count and returns the updated lost item', async () => {
-			const lostItem = buildLostItem({ contactsCount: 2 })
+			const lostItem = buildLostItem({
+				moderationStatus: 'published',
+				contactsCount: 2,
+			})
 			vi.mocked(repository.findById).mockResolvedValue(lostItem)
 
 			const result = await useCases.recordContact('lost-item-1')
@@ -141,6 +157,16 @@ describe('LostItemUseCases', () => {
 			vi.mocked(repository.findById).mockResolvedValue(null)
 
 			await expect(useCases.recordContact('missing')).rejects.toThrow(
+				LostItemNotFoundError,
+			)
+			expect(repository.incrementContacts).not.toHaveBeenCalled()
+		})
+
+		it('throws LostItemNotFoundError when the item is not published', async () => {
+			const lostItem = buildLostItem({ moderationStatus: 'hidden' })
+			vi.mocked(repository.findById).mockResolvedValue(lostItem)
+
+			await expect(useCases.recordContact('lost-item-1')).rejects.toThrow(
 				LostItemNotFoundError,
 			)
 			expect(repository.incrementContacts).not.toHaveBeenCalled()

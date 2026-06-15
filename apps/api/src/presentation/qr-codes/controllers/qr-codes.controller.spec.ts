@@ -28,6 +28,12 @@ describe('QrCodesController', () => {
 	})
 
 	describe('generate', () => {
+		it('is restricted to admins', () => {
+			expect(Reflect.getMetadata('ROLES', controller.generate)).toEqual([
+				'admin',
+			])
+		})
+
 		it('delegates to generateBatch', async () => {
 			const tokens = [{ code: 'RCI-ABC123' }]
 			vi.mocked(useCases.generateBatch).mockResolvedValue(tokens as never)
@@ -43,6 +49,10 @@ describe('QrCodesController', () => {
 	})
 
 	describe('list', () => {
+		it('is restricted to admins', () => {
+			expect(Reflect.getMetadata('ROLES', controller.list)).toEqual(['admin'])
+		})
+
 		it('delegates to list', async () => {
 			const response = { items: [], total: 0, page: 1, pageSize: 20 }
 			vi.mocked(useCases.list).mockResolvedValue(response as never)

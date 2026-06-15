@@ -8,7 +8,7 @@ import {
 	Query,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { AllowAnonymous, Session } from '@thallesp/nestjs-better-auth'
+import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { auth } from '@/infrastructure/auth/auth.config'
 import { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases'
@@ -24,11 +24,13 @@ export class QrCodesController {
 	constructor(private readonly qrTokenUseCases: QrTokenUseCases) {}
 
 	@Post('generate')
+	@Roles(['admin'])
 	generate(@Body() dto: GenerateQrTokensDto) {
 		return this.qrTokenUseCases.generateBatch(dto)
 	}
 
 	@Get()
+	@Roles(['admin'])
 	list(@Query() query: ListQrTokensQueryDto) {
 		return this.qrTokenUseCases.list(query)
 	}

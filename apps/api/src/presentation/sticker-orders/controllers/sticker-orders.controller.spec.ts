@@ -49,6 +49,10 @@ describe('StickerOrdersController', () => {
 	})
 
 	describe('list', () => {
+		it('is restricted to admins', () => {
+			expect(Reflect.getMetadata('ROLES', controller.list)).toEqual(['admin'])
+		})
+
 		it('delegates to list', async () => {
 			const response = { items: [], total: 0, page: 1, pageSize: 20 }
 			vi.mocked(useCases.list).mockResolvedValue(response as never)
@@ -91,6 +95,12 @@ describe('StickerOrdersController', () => {
 	})
 
 	describe('updateStatus', () => {
+		it('is restricted to admins', () => {
+			expect(Reflect.getMetadata('ROLES', controller.updateStatus)).toEqual([
+				'admin',
+			])
+		})
+
 		it('delegates to updateStatus', async () => {
 			const order = { id: 'order-1', status: 'shipped' }
 			vi.mocked(useCases.updateStatus).mockResolvedValue(order as never)

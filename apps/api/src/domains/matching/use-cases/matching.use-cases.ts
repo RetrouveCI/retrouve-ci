@@ -35,7 +35,17 @@ export class MatchingUseCases {
 	}
 
 	async notifyMatches(id: string): Promise<void> {
-		const { source, matches } = await this.computeMatches(id)
+		const source = await this.lostItemRepository.findById(id)
+
+		if (!source) {
+			throw new LostItemNotFoundError(id)
+		}
+
+		if (source.moderationStatus !== 'published') {
+			return
+		}
+
+		const { matches } = await this.computeMatches(source)
 
 		const relevantMatches = matches.filter(
 			match => match.lostItem.userId !== source.userId,
@@ -55,16 +65,26 @@ export class MatchingUseCases {
 	}
 
 	private async computeMatches(
-		id: string,
+		sourceOrId: LostItem | string,
 	): Promise<{ source: LostItem; matches: MatchCandidate[] }> {
-		const source = await this.lostItemRepository.findById(id)
+		const source =
+			typeof sourceOrId === 'string'
+				? await this.lostItemRepository.findById(sourceOrId)
+				: sourceOrId
 
 		if (!source) {
-			throw new LostItemNotFoundError(id)
+			throw new LostItemNotFoundError(
+				typeof sourceOrId === 'string' ? sourceOrId : sourceOrId.id,
+			)
+		}
+
+		if (source.moderationStatus !== 'published') {
+			throw new LostItemNotFoundError(source.id)
 		}
 
 		const { items: candidates } = await this.lostItemRepository.list({
 			type: OPPOSITE_TYPE[source.type],
+			moderationStatus: 'published',
 			resolutionStatus: 'active',
 			page: 1,
 			pageSize: MAX_CANDIDATES,

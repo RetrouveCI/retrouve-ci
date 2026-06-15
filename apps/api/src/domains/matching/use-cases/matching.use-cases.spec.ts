@@ -105,7 +105,11 @@ describe('MatchingUseCases', () => {
 		const result = await useCases.findMatches('lost-item-1')
 
 		expect(repository.list).toHaveBeenCalledWith(
-			expect.objectContaining({ type: 'found', resolutionStatus: 'active' }),
+			expect.objectContaining({
+				type: 'found',
+				moderationStatus: 'published',
+				resolutionStatus: 'active',
+			}),
 		)
 		expect(result).toHaveLength(1)
 		expect(result[0]?.lostItem).toEqual(strongMatch)
@@ -136,6 +140,16 @@ describe('MatchingUseCases', () => {
 		const result = await useCases.findMatches('lost-item-1')
 
 		expect(result).toEqual([])
+	})
+
+	it('throws LostItemNotFoundError when the source item is not published', async () => {
+		const source = buildLostItem({ moderationStatus: 'pending' })
+		vi.mocked(repository.findById).mockResolvedValue(source)
+
+		await expect(useCases.findMatches('lost-item-1')).rejects.toThrow(
+			LostItemNotFoundError,
+		)
+		expect(repository.list).not.toHaveBeenCalled()
 	})
 
 	describe('notifyMatches', () => {
@@ -190,6 +204,16 @@ describe('MatchingUseCases', () => {
 
 			await useCases.notifyMatches('lost-item-1')
 
+			expect(notificationRepository.create).not.toHaveBeenCalled()
+		})
+
+		it('does not notify while the source item is not published', async () => {
+			const source = buildLostItem({ moderationStatus: 'pending' })
+			vi.mocked(repository.findById).mockResolvedValue(source)
+
+			await useCases.notifyMatches('lost-item-1')
+
+			expect(repository.list).not.toHaveBeenCalled()
 			expect(notificationRepository.create).not.toHaveBeenCalled()
 		})
 
