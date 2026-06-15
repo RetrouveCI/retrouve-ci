@@ -10,25 +10,23 @@ import {
 import { Mail, Archive } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import type { ContactMessage } from '@/domain/entities/contact-message'
+import type { ContactMessage, ContactMessageStatus } from '../contact-messages.types'
 
 const statusConfig: Record<
-	ContactMessage['status'],
+	ContactMessageStatus,
 	{ label: string; className: string }
 > = {
 	new: { label: 'Nouveau', className: 'bg-blue-100 text-blue-700 hover:bg-blue-100' },
 	read: { label: 'Lu', className: 'bg-muted text-muted-foreground hover:bg-muted' },
-	archived: {
-		label: 'Archivé',
-		className: 'bg-gray-100 text-gray-700 hover:bg-gray-100',
-	},
+	archived: { label: 'Archivé', className: 'bg-gray-100 text-gray-700 hover:bg-gray-100' },
 }
 
 interface ContactMessageDetailDialogProps {
 	message: ContactMessage | null
 	open: boolean
-	onOpenChange: (v: boolean) => void
+	onOpenChange: (open: boolean) => void
 	onArchive: (id: string) => void
+	isArchiving?: boolean
 }
 
 export function ContactMessageDetailDialog({
@@ -36,6 +34,7 @@ export function ContactMessageDetailDialog({
 	open,
 	onOpenChange,
 	onArchive,
+	isArchiving = false,
 }: ContactMessageDetailDialogProps) {
 	if (!message) return null
 	const cfg = statusConfig[message.status]
@@ -74,8 +73,9 @@ export function ContactMessageDetailDialog({
 						Fermer
 					</Button>
 					{message.status !== 'archived' && (
-						<Button onClick={() => onArchive(message.id)}>
-							<Archive className="mr-2 h-4 w-4" /> Archiver
+						<Button onClick={() => onArchive(message.id)} disabled={isArchiving}>
+							<Archive className="mr-2 h-4 w-4" />
+							{isArchiving ? 'Archivage...' : 'Archiver'}
 						</Button>
 					)}
 				</DialogFooter>
