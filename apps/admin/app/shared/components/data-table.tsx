@@ -1,5 +1,3 @@
-'use client'
-
 import {
 	Table,
 	TableBody,
@@ -27,7 +25,6 @@ import {
 	type ColumnFiltersState,
 } from '@tanstack/react-table'
 import { useState } from 'react'
-
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
 interface DataTableProps<TData, TValue> {
@@ -65,9 +62,7 @@ export function DataTable<TData, TValue>({
 			globalFilter,
 		},
 		initialState: {
-			pagination: {
-				pageSize,
-			},
+			pagination: { pageSize },
 		},
 	})
 
@@ -78,7 +73,7 @@ export function DataTable<TData, TValue>({
 					<Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 					<Input
 						placeholder={searchPlaceholder}
-						value={globalFilter ?? ''}
+						value={globalFilter}
 						onChange={e => setGlobalFilter(e.target.value)}
 						className="pl-9"
 					/>
