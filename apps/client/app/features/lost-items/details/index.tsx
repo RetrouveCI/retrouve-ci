@@ -1,5 +1,7 @@
-import { Link } from 'react-router'
+import { useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
+import { toast } from 'sonner'
 import { PostContent } from './components/post-content'
 import { ContactCard } from './components/contact-card'
 import { postDetailLoader } from './servers/lost-items.loader'
@@ -22,6 +24,20 @@ export default function ListingDetailPage({
 	loaderData,
 }: Route.ComponentProps) {
 	const { listing } = loaderData
+	const navigate = useNavigate()
+	const [searchParams] = useSearchParams()
+
+	useEffect(() => {
+		if (searchParams.get('published') !== '1') return
+
+		toast.success('Annonce publiée !', {
+			description: 'Votre annonce est maintenant visible par tous.',
+		})
+
+		const next = new URLSearchParams(searchParams)
+		next.delete('published')
+		navigate({ search: next.toString() }, { replace: true })
+	}, [searchParams, navigate])
 
 	return (
 		<main className="flex-1 py-8 md:py-12">
