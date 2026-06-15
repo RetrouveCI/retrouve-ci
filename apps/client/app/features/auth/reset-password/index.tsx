@@ -3,6 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { OtpStepSection } from './components/otp-step-section'
 import { NewPasswordStepSection } from './components/new-password-step-section'
+import { resetPasswordAction } from './servers/reset-password.action'
+
+export const action = resetPasswordAction
 
 type Step = 'otp' | 'new-password'
 

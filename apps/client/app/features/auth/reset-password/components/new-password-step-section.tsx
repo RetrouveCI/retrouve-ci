@@ -1,10 +1,15 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
+import { useFetcher } from 'react-router'
 import { toast } from 'sonner'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { newPasswordSchema } from '../reset-password.schema'
-import { resetPhonePassword } from '../../lib/phone-auth.client'
 import { PasswordStep } from '../../components/password-step'
+
+interface ActionResult {
+	ok: boolean
+	error?: string
+}
 
 interface NewPasswordStepSectionProps {
 	phoneNumber: string
@@ -19,31 +24,24 @@ export function NewPasswordStepSection({
 	onSuccess,
 	onFail,
 }: NewPasswordStepSectionProps) {
-	const [isSubmitting, setIsSubmitting] = useState(false)
+	const fetcher = useFetcher<ActionResult>()
 
-	const handleSubmit = async (value: {
-		newPassword: string
-		confirmPassword: string
-	}) => {
-		setIsSubmitting(true)
-		const ok = await resetPhonePassword({
-			phoneNumber,
-			otp,
-			newPassword: value.newPassword,
-		})
-		setIsSubmitting(false)
-		if (!ok) {
+	useEffect(() => {
+		if (fetcher.state !== 'idle' || !fetcher.data) return
+
+		if (fetcher.data.ok) {
+			toast.success('Mot de passe réinitialisé !', {
+				description: 'Vous pouvez maintenant vous connecter.',
+			})
+			onSuccess()
+		} else {
 			toast.error('Code incorrect ou expiré', {
 				description: 'Veuillez resaisir le code reçu par SMS.',
 			})
 			onFail()
-			return
 		}
-		toast.success('Mot de passe réinitialisé !', {
-			description: 'Vous pouvez maintenant vous connecter.',
-		})
-		onSuccess()
-	}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [fetcher.state, fetcher.data])
 
 	const [form, fields] = useForm({
 		id: 'reset-password-new-password-form',
@@ -56,7 +54,15 @@ export function NewPasswordStepSection({
 		onSubmit(event, { submission }) {
 			event.preventDefault()
 			if (submission?.status !== 'success') return
-			void handleSubmit(submission.value)
+			void fetcher.submit(
+				{
+					intent: 'reset-password',
+					phoneNumber,
+					otp,
+					newPassword: submission.value.newPassword,
+				},
+				{ method: 'post' },
+			)
 		},
 	})
 	const newPasswordControl = useInputControl(fields.newPassword)
@@ -72,7 +78,7 @@ export function NewPasswordStepSection({
 				setConfirmPassword={confirmPasswordControl.change}
 				newPasswordErrors={fields.newPassword.errors}
 				confirmPasswordErrors={fields.confirmPassword.errors}
-				isSubmitting={isSubmitting}
+				isSubmitting={fetcher.state !== 'idle'}
 			/>
 		</form>
 	)

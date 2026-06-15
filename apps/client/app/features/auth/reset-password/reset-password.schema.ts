@@ -16,3 +16,15 @@ export const newPasswordSchema = z
 		message: 'Les mots de passe ne correspondent pas.',
 		path: ['confirmPassword'],
 	})
+
+export const resendOtpActionSchema = z.object({
+	intent: z.literal('resend-otp'),
+	phoneNumber: z.string(),
+})
+
+export const resetPasswordActionSchema = z.object({
+	intent: z.literal('reset-password'),
+	phoneNumber: z.string(),
+	otp: z.string().length(6),
+	newPassword: z.string().min(6).max(128),
+})

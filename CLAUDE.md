@@ -120,6 +120,15 @@ Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
   goes through a feature's `servers/*.loader.ts` / `servers/*.action.ts`
   (server-side) or a dedicated `lib/*.client.ts` wrapper (client-side calls that
   manage cookies/sessions, e.g. `features/auth/lib/phone-auth.client.ts`).
+  In `features/auth`, the two endpoints that create/refresh the better-auth
+  session cookie (`sign-in/phone-number` via `AuthContext.login`, and
+  `phone-number/verify` via `lib/phone-auth.client.ts`) are the only auth calls
+  made client-side — the browser needs the `Set-Cookie` response directly, and
+  this repo has no server-side mechanism to forward `Set-Cookie` from an API
+  response back through a React Router action. Every other auth mutation
+  (`send-otp`, `request-password-reset`, `reset-password`) goes through
+  `servers/*.action.ts`, using the `intent` field pattern when a route has more
+  than one action (e.g. `features/auth/reset-password/servers/reset-password.action.ts`).
 - Every form uses `@conform-to/react` + `@conform-to/zod` (`useForm`,
   `useInputControl`, `getFormProps`, `getZodConstraint`, `parseWithZod`) — no
   hand-rolled `useState` validation.
