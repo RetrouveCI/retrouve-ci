@@ -1,5 +1,8 @@
-import { Label, Input } from '@retrouve-ci/ui/components'
+import { Input } from '@retrouve-ci/ui/components'
 import { getInputProps, type FieldMetadata } from '@conform-to/react'
+import { InputLabel } from '@/shared/components/form/input-label'
+import { InputField } from '@/shared/components/form/input-field'
+import { FieldError } from '@/shared/components/form/field-error'
 
 interface ContactSectionProps {
 	name: FieldMetadata<string>
@@ -18,21 +21,10 @@ export function ContactSection({
 				Vos coordonnées
 			</h2>
 
-			<div className="space-y-2">
-				<Label htmlFor={name.id}>Nom / Prénom</Label>
-				<Input
-					{...getInputProps(name, { type: 'text' })}
-					key={name.key}
-					placeholder="Votre nom"
-					className="h-11"
-				/>
-				{name.errors && (
-					<p className="text-destructive text-xs">{name.errors[0]}</p>
-				)}
-			</div>
+			<InputField field={name} label="Nom / Prénom" placeholder="Votre nom" />
 
 			<div className="space-y-2">
-				<Label htmlFor={whatsapp.id}>Numéro WhatsApp</Label>
+				<InputLabel htmlFor={whatsapp.id}>Numéro WhatsApp</InputLabel>
 				<div className="flex gap-2">
 					<div className="bg-muted text-muted-foreground flex h-11 shrink-0 items-center rounded-md border px-3 text-sm">
 						+225
@@ -44,9 +36,7 @@ export function ContactSection({
 						className="h-11 flex-1"
 					/>
 				</div>
-				{whatsapp.errors && (
-					<p className="text-destructive text-xs">{whatsapp.errors[0]}</p>
-				)}
+				<FieldError errors={whatsapp.errors} />
 			</div>
 
 			{showPrivacyNote && (

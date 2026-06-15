@@ -1,5 +1,4 @@
 import {
-	Label,
 	Input,
 	Select,
 	SelectContent,
@@ -13,6 +12,8 @@ import {
 	type FieldMetadata,
 } from '@conform-to/react'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/lib/ci-locations'
+import { InputLabel } from '@/shared/components/form/input-label'
+import { FieldError } from '@/shared/components/form/field-error'
 
 interface LocationDateSectionProps {
 	ville: FieldMetadata<string>
@@ -40,9 +41,9 @@ export function LocationDateSection({
 
 			<div className="grid grid-cols-2 gap-3">
 				<div className="space-y-1.5">
-					<Label htmlFor={ville.id} className="text-sm">
-						Ville <span className="text-destructive">*</span>
-					</Label>
+					<InputLabel htmlFor={ville.id} required className="text-sm">
+						Ville
+					</InputLabel>
 					<Select
 						value={villeControl.value ?? ''}
 						onValueChange={v => {
@@ -62,20 +63,18 @@ export function LocationDateSection({
 							))}
 						</SelectContent>
 					</Select>
-					{ville.errors && (
-						<p className="text-destructive text-xs">{ville.errors[0]}</p>
-					)}
+					<FieldError errors={ville.errors} />
 				</div>
 
 				<div className="space-y-1.5">
-					<Label htmlFor={commune.id} className="text-sm">
+					<InputLabel htmlFor={commune.id} className="text-sm">
 						Commune{' '}
 						{villeControl.value !== 'Abidjan' && (
 							<span className="text-muted-foreground text-xs font-normal">
 								(optionnel)
 							</span>
 						)}
-					</Label>
+					</InputLabel>
 					<Select
 						value={communeControl.value ?? ''}
 						onValueChange={communeControl.change}
@@ -101,12 +100,12 @@ export function LocationDateSection({
 			</div>
 
 			<div className="space-y-1.5">
-				<Label htmlFor={date.id} className="text-sm">
+				<InputLabel htmlFor={date.id} className="text-sm">
 					{dateLabel}{' '}
 					<span className="text-muted-foreground text-xs font-normal">
 						(optionnel)
 					</span>
-				</Label>
+				</InputLabel>
 				<Input
 					{...getInputProps(date, { type: 'date' })}
 					key={date.key}
