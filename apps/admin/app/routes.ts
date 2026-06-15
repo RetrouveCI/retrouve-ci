@@ -13,6 +13,7 @@ export default [
 		route('qr', 'features/qr/index.tsx'),
 		route('qr/generate', 'features/qr/generate/index.tsx'),
 		route('qr/:code', 'features/qr/token/index.tsx'),
+		route('events', 'features/events/index.tsx'),
 	]),
 	route('auth', 'features/auth/layout.tsx', [
 		route('login', 'features/auth/login/index.tsx'),
