@@ -59,6 +59,12 @@ enum StickerOrderStatus {
   CANCELLED
 }
 
+enum ContactMessageStatus {
+  NEW
+  READ
+  ARCHIVED
+}
+
 enum NotificationType {
   MATCH_FOUND
 }
@@ -250,4 +256,18 @@ model Event {
   @@index([status])
   @@index([eventDate])
   @@map("event")
+}
+
+model ContactMessage {
+  id        String               @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    ContactMessageStatus @default(NEW)
+  createdAt DateTime             @default(now())
+  readAt    DateTime?
+
+  @@index([status])
+  @@map("contact_message")
 }
