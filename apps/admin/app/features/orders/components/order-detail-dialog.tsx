@@ -10,38 +10,20 @@ import {
 import { Package } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import type { StickerOrder } from '@/domain/entities/order'
+import type { StickerOrder, OrderStatus } from '../orders.types'
 
-const statusConfig: Record<
-	StickerOrder['status'],
-	{ label: string; className: string }
-> = {
-	pending: {
-		label: 'En attente',
-		className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100',
-	},
-	processing: {
-		label: 'En traitement',
-		className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
-	},
-	shipped: {
-		label: 'Expédiée',
-		className: 'bg-purple-100 text-purple-700 hover:bg-purple-100',
-	},
-	delivered: {
-		label: 'Livrée',
-		className: 'bg-green-100 text-green-700 hover:bg-green-100',
-	},
-	cancelled: {
-		label: 'Annulée',
-		className: 'bg-red-100 text-red-700 hover:bg-red-100',
-	},
+const STATUS_CONFIG: Record<OrderStatus, { label: string; className: string }> = {
+	pending: { label: 'En attente', className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100' },
+	processing: { label: 'En traitement', className: 'bg-blue-100 text-blue-700 hover:bg-blue-100' },
+	shipped: { label: 'Expédiée', className: 'bg-purple-100 text-purple-700 hover:bg-purple-100' },
+	delivered: { label: 'Livrée', className: 'bg-green-100 text-green-700 hover:bg-green-100' },
+	cancelled: { label: 'Annulée', className: 'bg-red-100 text-red-700 hover:bg-red-100' },
 }
 
 interface OrderDetailDialogProps {
 	order: StickerOrder | null
 	open: boolean
-	onOpenChange: (v: boolean) => void
+	onOpenChange: (open: boolean) => void
 }
 
 export function OrderDetailDialog({
@@ -50,7 +32,7 @@ export function OrderDetailDialog({
 	onOpenChange,
 }: OrderDetailDialogProps) {
 	if (!order) return null
-	const cfg = statusConfig[order.status]
+	const cfg = STATUS_CONFIG[order.status]
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -58,7 +40,7 @@ export function OrderDetailDialog({
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
 						<Package className="text-primary h-5 w-5" />
-						Commande {order.id}
+						Commande {order.orderNumber}
 					</DialogTitle>
 				</DialogHeader>
 				<div className="space-y-5 py-2">
@@ -68,25 +50,29 @@ export function OrderDetailDialog({
 						</span>
 						<Badge className={cfg.className}>{cfg.label}</Badge>
 					</div>
+
 					<div>
 						<p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
-							Client
+							Commande
 						</p>
 						<div className="bg-card space-y-1.5 rounded-xl border p-4">
-							<p className="font-semibold">{order.userName}</p>
-							<p className="text-muted-foreground text-sm">{order.userEmail}</p>
-							<p className="text-muted-foreground text-sm">{order.userPhone}</p>
+							<p className="font-semibold">{order.packName}</p>
+							<p className="text-muted-foreground text-sm">
+								{order.quantity} sticker{order.quantity > 1 ? 's' : ''}
+							</p>
+							<p className="text-muted-foreground text-sm">
+								Mode de paiement : {order.paymentMethod}
+							</p>
 						</div>
 					</div>
+
 					<div>
 						<p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
 							Livraison
 						</p>
 						<div className="bg-card space-y-1.5 rounded-xl border p-4">
 							<p className="text-sm">{order.deliveryAddress}</p>
-							<p className="text-muted-foreground text-sm">
-								{order.deliveryCity}
-							</p>
+							<p className="text-muted-foreground text-sm">{order.deliveryCity}</p>
 							{order.deliveryNotes && (
 								<p className="bg-muted text-muted-foreground mt-2 rounded-lg px-3 py-2 text-xs italic">
 									{order.deliveryNotes}
@@ -94,24 +80,28 @@ export function OrderDetailDialog({
 							)}
 						</div>
 					</div>
-					<div className="grid grid-cols-2 gap-3">
+
+					<div className="grid grid-cols-3 gap-3">
 						<div className="bg-card rounded-xl border p-3 text-center">
-							<p className="text-primary text-2xl font-bold">
+							<p className="text-primary text-xl font-bold">
 								{order.quantity}
 							</p>
-							<p className="text-muted-foreground text-xs">
-								sticker{order.quantity > 1 ? 's' : ''}
-							</p>
+							<p className="text-muted-foreground text-xs">stickers</p>
 						</div>
 						<div className="bg-card rounded-xl border p-3 text-center">
-							<p className="text-sm font-semibold">
+							<p className="text-sm font-bold">{order.total} F</p>
+							<p className="text-muted-foreground text-xs">Total</p>
+						</div>
+						<div className="bg-card rounded-xl border p-3 text-center">
+							<p className="font-mono text-xs font-semibold">
 								{order.trackingNumber ?? (
 									<span className="text-muted-foreground">—</span>
 								)}
 							</p>
-							<p className="text-muted-foreground text-xs">N° de suivi</p>
+							<p className="text-muted-foreground text-xs">N° suivi</p>
 						</div>
 					</div>
+
 					<div>
 						<p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
 							Historique
@@ -129,13 +119,9 @@ export function OrderDetailDialog({
 								<div className="flex justify-between">
 									<span className="text-muted-foreground">Expédié le</span>
 									<span>
-										{format(
-											new Date(order.shippedAt),
-											"dd MMM yyyy 'à' HH:mm",
-											{
-												locale: fr,
-											},
-										)}
+										{format(new Date(order.shippedAt), "dd MMM yyyy 'à' HH:mm", {
+											locale: fr,
+										})}
 									</span>
 								</div>
 							)}
@@ -143,13 +129,9 @@ export function OrderDetailDialog({
 								<div className="flex justify-between">
 									<span className="text-muted-foreground">Livré le</span>
 									<span>
-										{format(
-											new Date(order.deliveredAt),
-											"dd MMM yyyy 'à' HH:mm",
-											{
-												locale: fr,
-											},
-										)}
+										{format(new Date(order.deliveredAt), "dd MMM yyyy 'à' HH:mm", {
+											locale: fr,
+										})}
 									</span>
 								</div>
 							)}

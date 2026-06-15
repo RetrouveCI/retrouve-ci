@@ -9,6 +9,7 @@ export default [
 	layout('shared/components/dashboard-layout.tsx', [
 		index('features/dashboard/index.tsx'),
 		route('contact-messages', 'features/contact-messages/index.tsx'),
+		route('orders', 'features/orders/index.tsx'),
 	]),
 	route('auth', 'features/auth/layout.tsx', [
 		route('login', 'features/auth/login/index.tsx'),
