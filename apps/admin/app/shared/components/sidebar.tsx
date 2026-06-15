@@ -1,5 +1,5 @@
-'use client'
-
+import { useState } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router'
 import {
 	Avatar,
 	AvatarFallback,
@@ -8,11 +8,8 @@ import {
 	SheetContent,
 	SheetTrigger,
 } from '@retrouve-ci/ui/components'
-import Link from 'next/link'
-import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@retrouve-ci/ui/utils'
-import { useAuth } from '@/lib/auth-context'
+import { useAuth } from '@/shared/auth/auth-context'
 import {
 	LayoutDashboard,
 	Users,
@@ -27,46 +24,43 @@ import {
 	Bell,
 	Mail,
 } from 'lucide-react'
-import { useState } from 'react'
 
 const menuItems = [
-	{ href: '/', icon: LayoutDashboard, label: 'Dashboard' },
-	{ href: '/users', icon: Users, label: 'Utilisateurs' },
-	{ href: '/qr', icon: QrCode, label: 'Stickers / QR' },
-	{ href: '/orders', icon: Package, label: 'Commandes' },
-	{ href: '/posts', icon: FileText, label: 'Posts' },
-	{ href: '/events', icon: Activity, label: 'Événements' },
-	{ href: '/administrators', icon: Shield, label: 'Administrateurs' },
-	{ href: '/notifications', icon: Bell, label: 'Notifications' },
-	{ href: '/contact-messages', icon: Mail, label: 'Messages de contact' },
+	{ to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+	{ to: '/users', icon: Users, label: 'Utilisateurs', exact: false },
+	{ to: '/qr', icon: QrCode, label: 'Stickers / QR', exact: false },
+	{ to: '/orders', icon: Package, label: 'Commandes', exact: false },
+	{ to: '/posts', icon: FileText, label: 'Posts', exact: false },
+	{ to: '/events', icon: Activity, label: 'Événements', exact: false },
+	{ to: '/administrators', icon: Shield, label: 'Administrateurs', exact: false },
+	{ to: '/notifications', icon: Bell, label: 'Notifications', exact: false },
+	{
+		to: '/contact-messages',
+		icon: Mail,
+		label: 'Messages de contact',
+		exact: false,
+	},
 ]
 
 function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
-	const pathname = usePathname()
-	const router = useRouter()
+	const navigate = useNavigate()
 	const { user, logout } = useAuth()
 
-	const handleLogout = () => {
-		logout()
-		router.push('/auth/login')
-	}
-
-	const isActive = (href: string) => {
-		if (href === '/') return pathname === '/'
-		return pathname.startsWith(href)
+	const handleLogout = async () => {
+		await logout()
+		void navigate('/auth/login')
 	}
 
 	return (
 		<div className="from-card to-card/95 flex h-full flex-col bg-linear-to-b">
 			<div className="p-6">
-				<Link href="/" className="group flex items-center gap-3">
-					<Image
+				<Link to="/" className="group flex items-center gap-3">
+					<img
 						src="/logo.png"
 						alt="RetrouveCI"
 						width={40}
 						height={40}
 						className="h-10 w-10 rounded-xl transition-transform group-hover:scale-105"
-						priority
 					/>
 					<div>
 						<h1 className="text-foreground text-lg font-bold">RetrouveCI</h1>
@@ -82,31 +76,37 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 				<ul className="space-y-1">
 					{menuItems.map(item => {
 						const Icon = item.icon
-						const active = isActive(item.href)
 						return (
-							<li key={item.href}>
-								<Link
-									href={item.href}
+							<li key={item.to}>
+								<NavLink
+									to={item.to}
+									end={item.exact}
 									onClick={onItemClick}
-									className={cn(
-										'group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
-										active
-											? 'bg-primary text-primary-foreground shadow-sm'
-											: 'text-muted-foreground hover:bg-muted hover:text-foreground',
-									)}
+									className={({ isActive }) =>
+										cn(
+											'group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+											isActive
+												? 'bg-primary text-primary-foreground shadow-sm'
+												: 'text-muted-foreground hover:bg-muted hover:text-foreground',
+										)
+									}
 								>
-									<div className="flex items-center gap-3">
-										<Icon
-											size={18}
-											className={cn(
-												'transition-transform duration-200',
-												!active && 'group-hover:scale-110',
-											)}
-										/>
-										<span>{item.label}</span>
-									</div>
-									{active && <ChevronRight size={16} />}
-								</Link>
+									{({ isActive }) => (
+										<>
+											<div className="flex items-center gap-3">
+												<Icon
+													size={18}
+													className={cn(
+														'transition-transform duration-200',
+														!isActive && 'group-hover:scale-110',
+													)}
+												/>
+												<span>{item.label}</span>
+											</div>
+											{isActive && <ChevronRight size={16} />}
+										</>
+									)}
+								</NavLink>
 							</li>
 						)
 					})}
@@ -118,12 +118,12 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 					<div className="flex items-center gap-3">
 						<Avatar className="ring-primary/20 h-10 w-10 ring-2">
 							<AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
-								{user?.name?.charAt(0) || 'A'}
+								{user?.name?.charAt(0) ?? 'A'}
 							</AvatarFallback>
 						</Avatar>
 						<div className="min-w-0 flex-1">
 							<p className="truncate text-sm font-semibold">
-								{user?.name || 'Admin'}
+								{user?.name ?? 'Admin'}
 							</p>
 							<p className="text-muted-foreground truncate text-xs">
 								{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
@@ -134,7 +134,7 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 						variant="ghost"
 						size="sm"
 						className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive mt-3 w-full justify-start gap-2 rounded-lg"
-						onClick={handleLogout}
+						onClick={() => void handleLogout()}
 					>
 						<LogOut size={16} />
 						Déconnexion

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from 'react-router'
 import { Button } from '@retrouve-ci/ui/components'
 import { SearchX, LayoutDashboard } from 'lucide-react'
 
@@ -23,7 +23,7 @@ export default function NotFound() {
 				</div>
 
 				<Button asChild>
-					<Link href="/">
+					<Link to="/">
 						<LayoutDashboard className="mr-2 h-4 w-4" />
 						Retour au tableau de bord
 					</Link>

@@ -1,5 +1,3 @@
-'use client'
-
 import {
 	Button,
 	Calendar,
@@ -17,8 +15,8 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import type { DateRange } from 'react-day-picker'
-
 import { cn } from '@retrouve-ci/ui/utils'
+
 interface DateRangePickerProps {
 	dateRange: DateRange | undefined
 	onDateRangeChange: (range: DateRange | undefined) => void

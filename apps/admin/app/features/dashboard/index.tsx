@@ -1,15 +1,13 @@
-'use client'
-
 import { useState } from 'react'
-import { TopBar } from '@/components/topbar'
-import { BentoCard } from '@/components/bento-card'
-import { DateRangePicker } from '@/components/date-range-picker'
-import { ActivityChart } from '@/app/(dashboard)/components/activity-chart'
-import { CategoryChart } from '@/app/(dashboard)/components/category-chart'
-import { RecentActivity } from '@/app/(dashboard)/components/recent-activity'
-import { useDashboard } from '@/application/dashboard/use-dashboard'
-import { useRecentActivities } from '@/application/events/use-events'
+import { TopBar } from '@/shared/components/topbar'
+import { BentoCard } from '@/shared/components/bento-card'
+import { DateRangePicker } from '@/shared/components/date-range-picker'
+import { ActivityChart } from './components/activity-chart'
+import { CategoryChart } from './components/category-chart'
+import { RecentActivity } from './components/recent-activity'
+import { dashboardLoader } from './servers/dashboard.loader'
 import type { DateRange } from 'react-day-picker'
+import type { Route } from './+types/index'
 import {
 	QrCode,
 	CheckCircle2,
@@ -19,10 +17,11 @@ import {
 	Users,
 } from 'lucide-react'
 
-export default function DashboardPage() {
+export const loader = dashboardLoader
+
+export default function DashboardPage({ loaderData }: Route.ComponentProps) {
+	const { stats, activityChart, categoryChart, activities } = loaderData
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-	const { stats, chartData } = useDashboard()
-	const { activities } = useRecentActivities(6)
 
 	return (
 		<>
@@ -47,8 +46,8 @@ export default function DashboardPage() {
 					<div className="grid auto-rows-[minmax(180px,auto)] gap-4 md:grid-cols-2 lg:grid-cols-4">
 						<BentoCard
 							title="QR Codes Actifs"
-							value={stats?.qrActivated.value}
-							change={stats?.qrActivated.change}
+							value={stats.qrActivated.value}
+							change={stats.qrActivated.change}
 							icon={QrCode}
 							variant="highlight"
 							className="md:col-span-2"
@@ -56,8 +55,8 @@ export default function DashboardPage() {
 
 						<BentoCard
 							title="Scans Totaux"
-							value={stats?.scans.value}
-							change={stats?.scans.change}
+							value={stats.scans.value}
+							change={stats.scans.change}
 							icon={Scan}
 							iconColor="text-purple-600"
 							iconBgColor="bg-purple-100"
@@ -65,19 +64,19 @@ export default function DashboardPage() {
 
 						<BentoCard
 							title="Contacts"
-							value={stats?.contacts.value}
-							change={stats?.contacts.change}
+							value={stats.contacts.value}
+							change={stats.contacts.change}
 							icon={Phone}
 							iconColor="text-orange-600"
 							iconBgColor="bg-orange-100"
 						/>
 
-						<ActivityChart data={chartData?.activity} />
+						<ActivityChart data={activityChart} />
 
 						<BentoCard
 							title="Posts Perdus"
-							value={stats?.postsLost.value}
-							change={stats?.postsLost.change}
+							value={stats.postsLost.value}
+							change={stats.postsLost.change}
 							icon={AlertTriangle}
 							iconColor="text-red-600"
 							iconBgColor="bg-red-100"
@@ -85,19 +84,19 @@ export default function DashboardPage() {
 
 						<BentoCard
 							title="Posts Retrouvés"
-							value={stats?.postsFound.value}
-							change={stats?.postsFound.change}
+							value={stats.postsFound.value}
+							change={stats.postsFound.change}
 							icon={CheckCircle2}
 							iconColor="text-emerald-600"
 							iconBgColor="bg-emerald-100"
 						/>
 
-						<CategoryChart data={chartData?.postsByCategory} />
+						<CategoryChart data={categoryChart} />
 
 						<BentoCard
 							title="Nouveaux Utilisateurs"
-							value={stats?.newUsers.value}
-							change={stats?.newUsers.change}
+							value={stats.newUsers.value}
+							change={stats.newUsers.change}
 							icon={Users}
 							iconColor="text-blue-600"
 							iconBgColor="bg-blue-100"
@@ -105,8 +104,8 @@ export default function DashboardPage() {
 
 						<BentoCard
 							title="QR Générés"
-							value={stats?.qrGenerated.value}
-							change={stats?.qrGenerated.change}
+							value={stats.qrGenerated.value}
+							change={stats.qrGenerated.change}
 							icon={QrCode}
 							iconColor="text-indigo-600"
 							iconBgColor="bg-indigo-100"
