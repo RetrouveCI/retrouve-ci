@@ -3,7 +3,14 @@ import { apiFetch } from '@/shared/lib/api-client'
 
 interface ServerSession {
 	session: { id: string; userId: string }
-	user: { id: string; name: string; email: string }
+	user: {
+		id: string
+		name: string
+		email: string
+		phoneNumber: string | null
+		phoneNumberVerified: boolean | null
+		createdAt: string
+	}
 }
 
 export async function getServerSession(

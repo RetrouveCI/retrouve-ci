@@ -1,11 +1,12 @@
 import { data, redirect } from 'react-router'
-import { requireServerSession } from '@/shared/auth/auth.server'
+import { getServerSession } from '@/shared/auth/auth.server'
 import { ApiError } from '@/shared/lib/api-client'
 import { settingsActionSchema } from '../settings.schema'
 import { deleteAccount } from './settings.service'
 
 export async function settingsAction({ request }: { request: Request }) {
-	await requireServerSession(request)
+	const session = await getServerSession(request)
+	if (!session) throw redirect('/auth')
 
 	const submission = settingsActionSchema.safeParse(
 		Object.fromEntries(await request.formData()),
