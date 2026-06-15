@@ -14,7 +14,10 @@ import type {
 	ModerationStatus,
 	UpdateLostItemData,
 } from '../types/lost-item.types'
-import type { LostItemRepository } from './lost-item.repository'
+import type {
+	LostItemRepository,
+	MatchCandidatesFilter,
+} from './lost-item.repository'
 
 @Injectable()
 export class LostItemRepositoryService implements LostItemRepository {
@@ -87,6 +90,24 @@ export class LostItemRepositoryService implements LostItemRepository {
 			page: filter.page,
 			pageSize: filter.pageSize,
 		}
+	}
+
+	async findMatchCandidates(filter: MatchCandidatesFilter): Promise<LostItem[]> {
+		const items = await this.prisma.lostItem.findMany({
+			where: {
+				type: toPrismaType(filter.type),
+				moderationStatus: toPrismaModerationStatus(filter.moderationStatus),
+				resolutionStatus: toPrismaResolutionStatus(filter.resolutionStatus),
+				OR: [
+					{ category: toPrismaCategory(filter.category) },
+					{ ville: { equals: filter.ville, mode: 'insensitive' } },
+				],
+			},
+			orderBy: { createdAt: 'desc' },
+			take: filter.limit,
+		})
+
+		return items.map(toDomainLostItem)
 	}
 
 	async update(id: string, data: UpdateLostItemData): Promise<LostItem> {

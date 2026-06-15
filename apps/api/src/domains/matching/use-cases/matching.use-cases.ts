@@ -82,12 +82,13 @@ export class MatchingUseCases {
 			throw new LostItemNotFoundError(source.id)
 		}
 
-		const { items: candidates } = await this.lostItemRepository.list({
+		const candidates = await this.lostItemRepository.findMatchCandidates({
 			type: OPPOSITE_TYPE[source.type],
+			category: source.category,
+			ville: source.ville,
 			moderationStatus: 'published',
 			resolutionStatus: 'active',
-			page: 1,
-			pageSize: MAX_CANDIDATES,
+			limit: MAX_CANDIDATES,
 		})
 
 		const matches = candidates

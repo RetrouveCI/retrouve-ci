@@ -35,6 +35,7 @@ function buildRepository(): LostItemRepository {
 		create: vi.fn(),
 		findById: vi.fn(),
 		list: vi.fn(),
+		findMatchCandidates: vi.fn(),
 		update: vi.fn(),
 		updateModerationStatus: vi.fn(),
 		delete: vi.fn(),
@@ -71,7 +72,7 @@ describe('MatchingUseCases', () => {
 		await expect(useCases.findMatches('missing')).rejects.toThrow(
 			LostItemNotFoundError,
 		)
-		expect(repository.list).not.toHaveBeenCalled()
+		expect(repository.findMatchCandidates).not.toHaveBeenCalled()
 	})
 
 	it('searches the opposite type and returns matches above the threshold', async () => {
@@ -95,18 +96,18 @@ describe('MatchingUseCases', () => {
 		})
 
 		vi.mocked(repository.findById).mockResolvedValue(source)
-		vi.mocked(repository.list).mockResolvedValue({
-			items: [strongMatch, weakMatch],
-			total: 2,
-			page: 1,
-			pageSize: 100,
-		})
+		vi.mocked(repository.findMatchCandidates).mockResolvedValue([
+			strongMatch,
+			weakMatch,
+		])
 
 		const result = await useCases.findMatches('lost-item-1')
 
-		expect(repository.list).toHaveBeenCalledWith(
+		expect(repository.findMatchCandidates).toHaveBeenCalledWith(
 			expect.objectContaining({
 				type: 'found',
+				category: 'phone',
+				ville: 'Abidjan',
 				moderationStatus: 'published',
 				resolutionStatus: 'active',
 			}),
@@ -130,12 +131,7 @@ describe('MatchingUseCases', () => {
 		})
 
 		vi.mocked(repository.findById).mockResolvedValue(source)
-		vi.mocked(repository.list).mockResolvedValue({
-			items: [noMatch],
-			total: 1,
-			page: 1,
-			pageSize: 100,
-		})
+		vi.mocked(repository.findMatchCandidates).mockResolvedValue([noMatch])
 
 		const result = await useCases.findMatches('lost-item-1')
 
@@ -149,7 +145,7 @@ describe('MatchingUseCases', () => {
 		await expect(useCases.findMatches('lost-item-1')).rejects.toThrow(
 			LostItemNotFoundError,
 		)
-		expect(repository.list).not.toHaveBeenCalled()
+		expect(repository.findMatchCandidates).not.toHaveBeenCalled()
 	})
 
 	describe('notifyMatches', () => {
@@ -165,12 +161,7 @@ describe('MatchingUseCases', () => {
 			})
 
 			vi.mocked(repository.findById).mockResolvedValue(source)
-			vi.mocked(repository.list).mockResolvedValue({
-				items: [strongMatch],
-				total: 1,
-				page: 1,
-				pageSize: 100,
-			})
+			vi.mocked(repository.findMatchCandidates).mockResolvedValue([strongMatch])
 
 			await useCases.notifyMatches('lost-item-1')
 
@@ -195,12 +186,7 @@ describe('MatchingUseCases', () => {
 			})
 
 			vi.mocked(repository.findById).mockResolvedValue(source)
-			vi.mocked(repository.list).mockResolvedValue({
-				items: [ownMatch],
-				total: 1,
-				page: 1,
-				pageSize: 100,
-			})
+			vi.mocked(repository.findMatchCandidates).mockResolvedValue([ownMatch])
 
 			await useCases.notifyMatches('lost-item-1')
 
@@ -213,7 +199,7 @@ describe('MatchingUseCases', () => {
 
 			await useCases.notifyMatches('lost-item-1')
 
-			expect(repository.list).not.toHaveBeenCalled()
+			expect(repository.findMatchCandidates).not.toHaveBeenCalled()
 			expect(notificationRepository.create).not.toHaveBeenCalled()
 		})
 

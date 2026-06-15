@@ -163,6 +163,7 @@ model LostItem {
 
   @@index([userId])
   @@index([type, moderationStatus, resolutionStatus])
+  @@index([type, moderationStatus, resolutionStatus, category])
   @@map("lost_item")
 }
 

@@ -37,6 +37,7 @@ function buildRepository(): LostItemRepository {
 		create: vi.fn(),
 		findById: vi.fn(),
 		list: vi.fn(),
+		findMatchCandidates: vi.fn(),
 		update: vi.fn(),
 		updateModerationStatus: vi.fn(),
 		delete: vi.fn(),
