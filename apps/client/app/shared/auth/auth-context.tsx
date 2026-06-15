@@ -40,7 +40,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 						email: sessionUser.email.endsWith(TEMP_EMAIL_SUFFIX)
 							? undefined
 							: sessionUser.email,
-						createdAt: sessionUser.createdAt.toString(),
+						createdAt: new Date(sessionUser.createdAt).toLocaleDateString(
+							'fr-FR',
+							{ day: 'numeric', month: 'long', year: 'numeric' },
+						),
 					}
 				: null,
 		[sessionUser],
