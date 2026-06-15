@@ -1,17 +1,15 @@
 import { Label, Input } from '@retrouve-ci/ui/components'
+import { getInputProps, type FieldMetadata } from '@conform-to/react'
+
 interface ContactSectionProps {
-	name: string
-	whatsapp: string
-	onNameChange: (value: string) => void
-	onWhatsappChange: (value: string) => void
+	name: FieldMetadata<string>
+	whatsapp: FieldMetadata<string>
 	showPrivacyNote?: boolean
 }
 
 export function ContactSection({
 	name,
 	whatsapp,
-	onNameChange,
-	onWhatsappChange,
 	showPrivacyNote = false,
 }: ContactSectionProps) {
 	return (
@@ -21,31 +19,34 @@ export function ContactSection({
 			</h2>
 
 			<div className="space-y-2">
-				<Label htmlFor="name">Nom / Prénom</Label>
+				<Label htmlFor={name.id}>Nom / Prénom</Label>
 				<Input
-					id="name"
+					{...getInputProps(name, { type: 'text' })}
+					key={name.key}
 					placeholder="Votre nom"
-					value={name}
-					onChange={e => onNameChange(e.target.value)}
 					className="h-11"
 				/>
+				{name.errors && (
+					<p className="text-destructive text-xs">{name.errors[0]}</p>
+				)}
 			</div>
 
 			<div className="space-y-2">
-				<Label htmlFor="whatsapp">Numéro WhatsApp</Label>
+				<Label htmlFor={whatsapp.id}>Numéro WhatsApp</Label>
 				<div className="flex gap-2">
 					<div className="bg-muted text-muted-foreground flex h-11 shrink-0 items-center rounded-md border px-3 text-sm">
 						+225
 					</div>
 					<Input
-						id="whatsapp"
-						type="tel"
+						{...getInputProps(whatsapp, { type: 'tel' })}
+						key={whatsapp.key}
 						placeholder="07 XX XX XX XX"
-						value={whatsapp}
-						onChange={e => onWhatsappChange(e.target.value)}
 						className="h-11 flex-1"
 					/>
 				</div>
+				{whatsapp.errors && (
+					<p className="text-destructive text-xs">{whatsapp.errors[0]}</p>
+				)}
 			</div>
 
 			{showPrivacyNote && (

@@ -12,6 +12,11 @@ import {
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
+import {
+	getInputProps,
+	getTextareaProps,
+	useInputControl,
+} from '@conform-to/react'
 import { useAuth } from '@/shared/auth/auth-context'
 import { MatchingSuggestions } from '../components/matching-suggestions'
 import { ImageUpload } from '../components/image-upload'
@@ -36,37 +41,33 @@ export function meta() {
 	]
 }
 
-const progressItems = (
-	formData: ReturnType<typeof usePublishForm>['formData'],
-) => [
-	{ label: 'Titre', done: !!formData.title },
-	{ label: "Type d'objet", done: !!formData.objectType },
+const progressItems = (fields: ReturnType<typeof usePublishForm>['fields']) => [
+	{ label: 'Titre', done: !!fields.title.value },
+	{ label: "Type d'objet", done: !!fields.objectType.value },
 	{
 		label: 'Description (20 car. min)',
-		done: formData.description.length >= 20,
+		done: (fields.description.value?.length ?? 0) >= 20,
 	},
-	{ label: 'Lieu de perte', done: !!formData.ville },
-	{ label: 'Votre nom', done: !!formData.name },
-	{ label: 'WhatsApp', done: !!formData.whatsapp },
+	{ label: 'Lieu de perte', done: !!fields.ville.value },
+	{ label: 'Votre nom', done: !!fields.name.value },
+	{ label: 'WhatsApp', done: !!fields.whatsapp.value },
 ]
 
-export default function PublierPerduPage() {
+export default function PublishLostPage() {
 	const navigate = useNavigate()
 	const { isAuthenticated, isLoading } = useAuth()
 
 	const {
-		formData,
-		update,
+		form,
+		fields,
 		imagePreview,
 		setImagePreview,
 		handleImageChange,
 		progress,
 		isSubmitting,
-		handleSubmit,
-	} = usePublishForm(
-		'lost',
-		'Votre annonce est maintenant visible par tous.',
-	)
+	} = usePublishForm('lost', 'Votre annonce est maintenant visible par tous.')
+
+	const objectTypeControl = useInputControl(fields.objectType)
 
 	useEffect(() => {
 		if (!isLoading && !isAuthenticated) navigate('/auth')
@@ -110,35 +111,40 @@ export default function PublierPerduPage() {
 							</div>
 						</div>
 
-						<form onSubmit={handleSubmit} className="space-y-5">
+						<form id={form.id} onSubmit={form.onSubmit} className="space-y-5">
 							<div className="bg-background space-y-5 rounded-2xl border p-6">
 								<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
 									Informations sur l&apos;objet
 								</h2>
 
 								<div className="space-y-2">
-									<Label htmlFor="title">
+									<Label htmlFor={fields.title.id}>
 										Titre <span className="text-destructive">*</span>
 									</Label>
 									<Input
-										id="title"
+										{...getInputProps(fields.title, { type: 'text' })}
+										key={fields.title.key}
 										placeholder="Ex : iPhone 14 Pro noir"
-										value={formData.title}
-										onChange={e => update('title')(e.target.value)}
 										className="h-11"
 									/>
+									{fields.title.errors && (
+										<p className="text-destructive text-xs">
+											{fields.title.errors[0]}
+										</p>
+									)}
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="objectType">
+									<Label htmlFor={fields.objectType.id}>
 										Type d&apos;objet{' '}
 										<span className="text-destructive">*</span>
 									</Label>
 									<Select
-										value={formData.objectType}
-										onValueChange={update('objectType')}
+										value={objectTypeControl.value ?? ''}
+										onValueChange={objectTypeControl.change}
+										onOpenChange={open => !open && objectTypeControl.blur()}
 									>
-										<SelectTrigger id="objectType" className="h-11">
+										<SelectTrigger id={fields.objectType.id} className="h-11">
 											<SelectValue placeholder="Sélectionnez un type" />
 										</SelectTrigger>
 										<SelectContent>
@@ -149,31 +155,40 @@ export default function PublierPerduPage() {
 											))}
 										</SelectContent>
 									</Select>
+									{fields.objectType.errors && (
+										<p className="text-destructive text-xs">
+											{fields.objectType.errors[0]}
+										</p>
+									)}
 								</div>
 
 								<div className="space-y-2">
-									<Label htmlFor="description">
+									<Label htmlFor={fields.description.id}>
 										Description <span className="text-destructive">*</span>
 									</Label>
 									<Textarea
-										id="description"
+										{...getTextareaProps(fields.description)}
+										key={fields.description.key}
 										placeholder="Couleur, marque, signes distinctifs, contenu..."
-										value={formData.description}
-										onChange={e => update('description')(e.target.value)}
 										className="min-h-27.5 resize-none"
 									/>
 									<p
 										className={cn(
 											'text-xs',
-											formData.description.length >= 20
+											(fields.description.value?.length ?? 0) >= 20
 												? 'text-accent-orange'
 												: 'text-muted-foreground',
 										)}
 									>
-										{formData.description.length >= 20
+										{(fields.description.value?.length ?? 0) >= 20
 											? '✓ Suffisant'
-											: `Minimum 20 caractères (${formData.description.length}/20)`}
+											: `Minimum 20 caractères (${fields.description.value?.length ?? 0}/20)`}
 									</p>
+									{fields.description.errors && (
+										<p className="text-destructive text-xs">
+											{fields.description.errors[0]}
+										</p>
+									)}
 								</div>
 
 								<div className="space-y-2">
@@ -194,22 +209,14 @@ export default function PublierPerduPage() {
 							</div>
 
 							<LocationDateSection
-								ville={formData.ville}
-								commune={formData.commune}
-								date={formData.date}
+								ville={fields.ville}
+								commune={fields.commune}
+								date={fields.date}
 								dateLabel="Date de perte"
 								sectionTitle="Lieu & date de perte"
-								onVilleChange={update('ville')}
-								onCommuneChange={update('commune')}
-								onDateChange={update('date')}
 							/>
 
-							<ContactSection
-								name={formData.name}
-								whatsapp={formData.whatsapp}
-								onNameChange={update('name')}
-								onWhatsappChange={update('whatsapp')}
-							/>
+							<ContactSection name={fields.name} whatsapp={fields.whatsapp} />
 
 							<div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
 								<Button
@@ -240,15 +247,15 @@ export default function PublierPerduPage() {
 					<div className="space-y-4 self-start lg:sticky lg:top-24">
 						<FormProgress
 							progress={progress}
-							items={progressItems(formData)}
+							items={progressItems(fields)}
 							accentColor={ACCENT}
 						/>
 
-						{formData.objectType && formData.ville ? (
+						{fields.objectType.value && fields.ville.value ? (
 							<MatchingSuggestions
-								objectType={formData.objectType}
-								ville={formData.ville}
-								commune={formData.commune}
+								objectType={fields.objectType.value}
+								ville={fields.ville.value}
+								commune={fields.commune.value ?? ''}
 								formType="perdu"
 							/>
 						) : (

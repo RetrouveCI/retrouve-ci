@@ -12,6 +12,8 @@
 	},
 	"dependencies": {
 		"@retrouve-ci/ui": "workspace:*",
+		"@conform-to/react": "catalog:",
+		"@conform-to/zod": "catalog:",
 		"@hookform/resolvers": "catalog:",
 		"@react-router/node": "catalog:",
 		"@react-router/serve": "catalog:",
