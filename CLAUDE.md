@@ -86,8 +86,10 @@ Both apps share the same stack:
 - **Tailwind CSS v4** — configured via CSS `@theme` directives, not a JS config
   file
 - **shadcn/ui** — components imported via `@retrouve-ci/ui/components`
-- **react-hook-form + zod** for forms
 - **`next.config.ts`** sets `typescript.ignoreBuildErrors: true` in both apps
+
+Forms differ per app: `apps/admin` uses **react-hook-form + zod**; `apps/client`
+uses **`@conform-to/react` + `@conform-to/zod`** (see client conventions below).
 
 ### Client app (`apps/client`)
 
@@ -104,9 +106,35 @@ Route structure (all under `app/`):
     `/auth/reset-password` — individual auth pages
 - `/about`, `/contact`, `/download`, `/privacy`, `/terms`
 
-Auth is phone-number based. The `AuthContext` (`contexts/auth-context.tsx`) is
-currently mock-only: any credentials except password `"000000"` succeed. The
-context also stores the user's stickers and listings in memory.
+Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
+`AuthContext` (`app/shared/auth/auth-context.tsx`) wraps
+`authClient.useSession()` for client-side session state (`user`,
+`isAuthenticated`, `login`, `logout`). Server-side,
+`app/shared/auth/auth.server.ts` exposes `getServerSession` /
+`requireServerSession`, which forward the request's `Cookie` header to
+`/api/auth/get-session` — used by route loaders to gate server data fetches.
+
+#### Client app conventions (loader/action + Conform/Zod)
+
+- UI components never call `apiFetch` or `authClient` directly — all API access
+  goes through a feature's `servers/*.loader.ts` / `servers/*.action.ts`
+  (server-side) or a dedicated `lib/*.client.ts` wrapper (client-side calls that
+  manage cookies/sessions, e.g. `features/auth/lib/phone-auth.client.ts`).
+- Every form uses `@conform-to/react` + `@conform-to/zod` (`useForm`,
+  `useInputControl`, `getFormProps`, `getZodConstraint`, `parseWithZod`) — no
+  hand-rolled `useState` validation.
+- Each route feature owns its own Zod schema as a sibling `*.schema.ts` file
+  (e.g. `features/auth/login/login.schema.ts`,
+  `features/account/settings/settings.schema.ts`). Small schemas may be
+  duplicated across features rather than shared, to keep each feature
+  self-contained.
+- Route `index.tsx` files stay thin: page-level state (current step, layout,
+  redirects) only. Per-section/per-step form logic is extracted into components
+  under that feature's own `components/` folder (e.g.
+  `features/auth/register/components/otp-step-section.tsx`,
+  `features/account/settings/components/security-section.tsx`). Cross-feature UI
+  primitives (e.g. `features/auth/components/`) stay separate from these
+  feature-owned section components.
 
 ### Admin app (`apps/admin`)
 
