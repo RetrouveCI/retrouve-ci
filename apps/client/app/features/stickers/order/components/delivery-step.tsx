@@ -1,23 +1,9 @@
-import { Button, Input, Label, Textarea } from '@retrouve-ci/ui/components'
-import {
-	ArrowLeft,
-	ArrowRight,
-	MapPin,
-	Phone,
-	User,
-	Tag,
-	Check,
-	X,
-} from 'lucide-react'
+import { Button, Input, Label } from '@retrouve-ci/ui/components'
+import type { FieldMetadata } from '@conform-to/react'
+import { ArrowLeft, ArrowRight, Tag, Check, X } from 'lucide-react'
+import { InputField } from '@/shared/components/form/input-field'
+import { TextareaField } from '@/shared/components/form/textarea-field'
 import { OrderSummaryCard } from './order-summary-card'
-
-interface FormData {
-	name: string
-	phone: string
-	address: string
-	city: string
-	paymentPhone: string
-}
 
 interface Pack {
 	id: string
@@ -26,9 +12,15 @@ interface Pack {
 	price: number
 }
 
+interface DeliveryStepFields {
+	name: FieldMetadata<string>
+	phone: FieldMetadata<string>
+	address: FieldMetadata<string>
+	city: FieldMetadata<string>
+}
+
 interface DeliveryStepProps {
-	formData: FormData
-	onFormChange: (key: keyof FormData, value: string) => void
+	fields: DeliveryStepFields
 	couponInput: string
 	appliedCoupon: string | null
 	couponError: string
@@ -46,8 +38,7 @@ interface DeliveryStepProps {
 const DELIVERY_FEE_BASE = 1000
 
 export function DeliveryStep({
-	formData,
-	onFormChange,
+	fields,
 	couponInput,
 	appliedCoupon,
 	couponError,
@@ -66,6 +57,7 @@ export function DeliveryStep({
 			<div className="space-y-6 md:col-span-3">
 				<div>
 					<button
+						type="button"
 						onClick={onBack}
 						className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm"
 					>
@@ -79,58 +71,37 @@ export function DeliveryStep({
 				</div>
 
 				<div className="bg-background space-y-5 rounded-2xl border p-6">
-					<div className="space-y-2">
-						<Label htmlFor="name">Nom complet *</Label>
-						<div className="relative">
-							<User className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-							<Input
-								id="name"
-								value={formData.name}
-								onChange={e => onFormChange('name', e.target.value)}
-								placeholder="Kouadio Jean"
-								className="h-12 rounded-xl pl-10"
-							/>
-						</div>
-					</div>
+					<InputField
+						field={fields.name}
+						label="Nom complet"
+						required
+						placeholder="Kouadio Jean"
+						className="h-12 rounded-xl"
+					/>
 
-					<div className="space-y-2">
-						<Label htmlFor="phone">Téléphone *</Label>
-						<div className="relative">
-							<Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-							<Input
-								id="phone"
-								value={formData.phone}
-								onChange={e => onFormChange('phone', e.target.value)}
-								placeholder="07 XX XX XX XX"
-								className="h-12 rounded-xl pl-10"
-							/>
-						</div>
-					</div>
+					<InputField
+						field={fields.phone}
+						label="Téléphone"
+						required
+						type="tel"
+						placeholder="07 XX XX XX XX"
+						className="h-12 rounded-xl"
+					/>
 
-					<div className="space-y-2">
-						<Label htmlFor="address">Adresse de livraison *</Label>
-						<div className="relative">
-							<MapPin className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
-							<Textarea
-								id="address"
-								value={formData.address}
-								onChange={e => onFormChange('address', e.target.value)}
-								placeholder="Cocody Riviera 2, près de la pharmacie..."
-								className="min-h-[80px] resize-none rounded-xl pl-10"
-							/>
-						</div>
-					</div>
+					<TextareaField
+						field={fields.address}
+						label="Adresse de livraison"
+						required
+						placeholder="Cocody Riviera 2, près de la pharmacie..."
+						className="min-h-20 resize-none rounded-xl"
+					/>
 
-					<div className="space-y-2">
-						<Label htmlFor="city">Ville</Label>
-						<Input
-							id="city"
-							value={formData.city}
-							onChange={e => onFormChange('city', e.target.value)}
-							placeholder="Abidjan"
-							className="h-12 rounded-xl"
-						/>
-					</div>
+					<InputField
+						field={fields.city}
+						label="Ville"
+						placeholder="Abidjan"
+						className="h-12 rounded-xl"
+					/>
 
 					<div className="space-y-2 border-t pt-2">
 						<Label htmlFor="coupon" className="flex items-center gap-1.5">
@@ -147,6 +118,7 @@ export function DeliveryStep({
 									{appliedCoupon} — Livraison offerte
 								</span>
 								<button
+									type="button"
 									onClick={onRemoveCoupon}
 									className="text-muted-foreground hover:text-destructive transition-colors"
 								>
@@ -164,6 +136,7 @@ export function DeliveryStep({
 									className="h-12 rounded-xl uppercase"
 								/>
 								<button
+									type="button"
 									onClick={onApplyCoupon}
 									disabled={!couponInput.trim()}
 									className="hover:bg-muted h-12 shrink-0 rounded-xl border px-4 text-sm font-medium transition-colors disabled:opacity-40"
@@ -188,6 +161,7 @@ export function DeliveryStep({
 				</div>
 
 				<Button
+					type="button"
 					size="lg"
 					onClick={onNext}
 					className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-white"
