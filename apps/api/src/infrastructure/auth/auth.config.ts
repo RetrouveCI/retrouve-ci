@@ -3,16 +3,47 @@ import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { admin, phoneNumber } from 'better-auth/plugins'
 import { prisma } from '@retrouve-ci/database'
 
+const DEFAULT_TRUSTED_ORIGINS = [
+	'http://localhost:3000',
+	'http://localhost:3001',
+]
+
+function getTrustedOrigins(): string[] {
+	const configuredOrigins = process.env['BETTER_AUTH_TRUSTED_ORIGINS']
+		?.split(',')
+		.map(origin => origin.trim())
+		.filter(Boolean)
+
+	if (configuredOrigins?.length) {
+		return configuredOrigins
+	}
+
+	return process.env['NODE_ENV'] === 'production' ? [] : DEFAULT_TRUSTED_ORIGINS
+}
+
+function logSecretDelivery(
+	kind: string,
+	recipient: string,
+	secret: string,
+): void {
+	if (process.env['NODE_ENV'] === 'production') {
+		console.warn(`[auth] ${kind} delivery is not configured for ${recipient}`)
+		return
+	}
+
+	console.log(`[auth] ${kind} for ${recipient}: ${secret}`)
+}
+
 export const auth = betterAuth({
 	database: prismaAdapter(prisma, { provider: 'postgresql' }),
 	secret: process.env['BETTER_AUTH_SECRET'],
 	baseURL: process.env['BETTER_AUTH_URL'],
-	trustedOrigins: ['http://localhost:3000', 'http://localhost:3001'],
+	trustedOrigins: getTrustedOrigins(),
 	emailAndPassword: {
 		enabled: true,
 		minPasswordLength: 6,
 		sendResetPassword: async ({ user, url }) => {
-			console.log(`[auth] Password reset for ${user.email}: ${url}`)
+			logSecretDelivery('Password reset', user.email, url)
 		},
 	},
 	user: {
@@ -23,10 +54,10 @@ export const auth = betterAuth({
 	plugins: [
 		phoneNumber({
 			sendOTP: ({ phoneNumber, code }) => {
-				console.log(`[auth] OTP for ${phoneNumber}: ${code}`)
+				logSecretDelivery('OTP', phoneNumber, code)
 			},
 			sendPasswordResetOTP: ({ phoneNumber, code }) => {
-				console.log(`[auth] Password reset OTP for ${phoneNumber}: ${code}`)
+				logSecretDelivery('Password reset OTP', phoneNumber, code)
 			},
 			signUpOnVerification: {
 				getTempEmail: phoneNumber => `${phoneNumber}@phone.retrouveci.local`,

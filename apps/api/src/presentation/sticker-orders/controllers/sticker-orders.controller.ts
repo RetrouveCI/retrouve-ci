@@ -8,7 +8,7 @@ import {
 	Query,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { Session } from '@thallesp/nestjs-better-auth'
+import { Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { auth } from '@/infrastructure/auth/auth.config'
 import { StickerOrderUseCases } from '@/domains/sticker-orders/use-cases/sticker-order.use-cases'
@@ -34,6 +34,7 @@ export class StickerOrdersController {
 	}
 
 	@Get()
+	@Roles(['admin'])
 	list(@Query() query: ListStickerOrdersQueryDto) {
 		return this.stickerOrderUseCases.list(query)
 	}
@@ -55,6 +56,7 @@ export class StickerOrdersController {
 	}
 
 	@Patch(':id/status')
+	@Roles(['admin'])
 	updateStatus(
 		@Param('id') id: string,
 		@Body() dto: UpdateStickerOrderStatusDto,
