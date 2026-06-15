@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { Link, useFetcher, useNavigate } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
+import { useForm, useInputControl, getFormProps } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { useAuth } from '@/shared/auth/auth-context'
-import { authClient } from '@/shared/auth/auth-client'
-import { toE164 } from '@/shared/auth/phone'
+import { phoneNumberSchema, otpSchema, newPasswordSchema } from '../auth.schema'
+import { sendPhoneOtp, verifyPhoneOtp } from '../lib/phone-auth.client'
 import { PhoneStep } from '../components/phone-step'
 import { OtpStep } from '../components/otp-step'
 import { PasswordStep } from '../components/password-step'
@@ -23,11 +25,7 @@ export default function RegisterPage() {
 
 	const [step, setStep] = useState<Step>('phone')
 	const [phoneNumber, setPhoneNumber] = useState('')
-	const [otp, setOtp] = useState('')
 	const [otpError, setOtpError] = useState(false)
-	const [newPassword, setNewPassword] = useState('')
-	const [confirmPassword, setConfirmPassword] = useState('')
-	const [confirmError, setConfirmError] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS)
 	const [resendKey, setResendKey] = useState(0)
@@ -56,73 +54,85 @@ export default function RegisterPage() {
 			.toString()
 			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
-	const handlePhoneSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		const cleaned = phoneNumber.replace(/\s/g, '')
-		if (!cleaned || cleaned.length < 8) {
-			toast.error('Veuillez entrer un numéro valide')
-			return
-		}
+	const handlePhoneSubmit = async (value: string) => {
 		setIsSubmitting(true)
-		const result = await authClient.phoneNumber.sendOtp({
-			phoneNumber: toE164(phoneNumber),
-		})
+		const ok = await sendPhoneOtp(value)
+
 		setIsSubmitting(false)
-		if (result.error) {
+
+		if (!ok) {
 			toast.error('Impossible d’envoyer le code', {
 				description: 'Vérifiez le numéro et réessayez.',
 			})
 			return
 		}
+
 		toast.success('Code envoyé !', {
 			description: 'Vérifiez vos SMS ou WhatsApp.',
 		})
-		setOtp('')
+		setPhoneNumber(value)
+		otpControl.change('')
 		setOtpError(false)
 		setStep('otp')
 	}
 
-	const handleOtpSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		if (otp.length < 6) {
-			toast.error('Entrez le code complet à 6 chiffres')
-			setOtpError(true)
-			return
-		}
+	const [phoneForm, phoneFields] = useForm({
+		id: 'register-phone-form',
+		constraint: getZodConstraint(phoneNumberSchema),
+		shouldValidate: 'onSubmit',
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: phoneNumberSchema })
+		},
+		onSubmit(event, { submission }) {
+			event.preventDefault()
+			if (submission?.status !== 'success') return
+			void handlePhoneSubmit(submission.value.phoneNumber)
+		},
+	})
+
+	const phoneControl = useInputControl(phoneFields.phoneNumber)
+
+	const handleOtpSubmit = async (value: string) => {
 		setIsSubmitting(true)
-		const result = await authClient.phoneNumber.verify({
-			phoneNumber: toE164(phoneNumber),
-			code: otp,
-		})
+		const ok = await verifyPhoneOtp(phoneNumber, value)
 		setIsSubmitting(false)
-		if (result.error) {
+		if (!ok) {
 			setOtpError(true)
 			toast.error('Code incorrect', {
 				description: 'Vérifiez le code reçu et réessayez.',
 			})
-			setOtp('')
+			otpControl.change('')
 			return
 		}
 		setStep('create-password')
 	}
 
-	const handleCreatePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		if (newPassword.length < 6) {
-			setConfirmError('Le mot de passe doit contenir au moins 6 caractères.')
-			return
-		}
-		if (newPassword !== confirmPassword) {
-			setConfirmError('Les mots de passe ne correspondent pas.')
-			return
-		}
-		setConfirmError('')
+	const [otpForm, otpFields] = useForm({
+		id: 'register-otp-form',
+		constraint: getZodConstraint(otpSchema),
+		shouldValidate: 'onSubmit',
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: otpSchema })
+		},
+		onSubmit(event, { submission }) {
+			event.preventDefault()
+			if (submission?.status !== 'success') return
+			void handleOtpSubmit(submission.value.otp)
+		},
+	})
+	const otpControl = useInputControl(otpFields.otp)
 
-		void fetcher.submit(
-			{ intent: 'set-initial-password', newPassword },
-			{ method: 'post' },
-		)
-	}
+	const [passwordForm, passwordFields] = useForm({
+		id: 'register-password-form',
+		constraint: getZodConstraint(newPasswordSchema),
+		shouldValidate: 'onSubmit',
+		shouldRevalidate: 'onInput',
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: newPasswordSchema })
+		},
+	})
+	const newPasswordControl = useInputControl(passwordFields.newPassword)
+	const confirmPasswordControl = useInputControl(passwordFields.confirmPassword)
 
 	useEffect(() => {
 		if (fetcher.state !== 'idle' || !fetcher.data) return
@@ -141,16 +151,14 @@ export default function RegisterPage() {
 
 	const handleResend = async () => {
 		setIsSubmitting(true)
-		const result = await authClient.phoneNumber.sendOtp({
-			phoneNumber: toE164(phoneNumber),
-		})
+		const ok = await sendPhoneOtp(phoneNumber)
 		setIsSubmitting(false)
-		if (result.error) {
+		if (!ok) {
 			toast.error('Impossible d’envoyer le code')
 			return
 		}
 		toast.success('Nouveau code envoyé !')
-		setOtp('')
+		otpControl.change('')
 		setOtpError(false)
 		setResendKey(k => k + 1)
 	}
@@ -210,12 +218,14 @@ export default function RegisterPage() {
 
 			{step === 'phone' && (
 				<>
-					<PhoneStep
-						phoneNumber={phoneNumber}
-						setPhoneNumber={setPhoneNumber}
-						isSubmitting={isSubmitting}
-						onSubmit={handlePhoneSubmit}
-					/>
+					<form {...getFormProps(phoneForm)}>
+						<PhoneStep
+							phoneNumber={phoneControl.value ?? ''}
+							setPhoneNumber={phoneControl.change}
+							errors={phoneFields.phoneNumber.errors}
+							isSubmitting={isSubmitting}
+						/>
+					</form>
 					<p className="text-muted-foreground mt-6 text-center text-sm">
 						Déjà un compte ?{' '}
 						<Link
@@ -229,31 +239,34 @@ export default function RegisterPage() {
 			)}
 
 			{step === 'otp' && (
-				<OtpStep
-					otp={otp}
-					setOtp={setOtp}
-					otpError={otpError}
-					setOtpError={setOtpError}
-					timeLeft={timeLeft}
-					isSubmitting={isSubmitting}
-					formatTime={formatTime}
-					onSubmit={handleOtpSubmit}
-					onResend={handleResend}
-				/>
+				<form {...getFormProps(otpForm)}>
+					<OtpStep
+						otp={otpControl.value ?? ''}
+						setOtp={otpControl.change}
+						otpError={otpError}
+						setOtpError={setOtpError}
+						timeLeft={timeLeft}
+						isSubmitting={isSubmitting}
+						formatTime={formatTime}
+						onResend={handleResend}
+					/>
+				</form>
 			)}
 
 			{step === 'create-password' && (
-				<PasswordStep
-					step="create-password"
-					newPassword={newPassword}
-					setNewPassword={setNewPassword}
-					confirmPassword={confirmPassword}
-					setConfirmPassword={setConfirmPassword}
-					confirmError={confirmError}
-					setConfirmError={setConfirmError}
-					isSubmitting={fetcher.state !== 'idle'}
-					onSubmit={handleCreatePasswordSubmit}
-				/>
+				<fetcher.Form method="post" {...getFormProps(passwordForm)}>
+					<input type="hidden" name="intent" value="set-initial-password" />
+					<PasswordStep
+						step="create-password"
+						newPassword={newPasswordControl.value ?? ''}
+						setNewPassword={newPasswordControl.change}
+						confirmPassword={confirmPasswordControl.value ?? ''}
+						setConfirmPassword={confirmPasswordControl.change}
+						newPasswordErrors={passwordFields.newPassword.errors}
+						confirmPasswordErrors={passwordFields.confirmPassword.errors}
+						isSubmitting={fetcher.state !== 'idle'}
+					/>
+				</fetcher.Form>
 			)}
 		</>
 	)

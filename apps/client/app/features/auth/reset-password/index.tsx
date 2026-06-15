@@ -2,8 +2,13 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
-import { authClient } from '@/shared/auth/auth-client'
-import { toE164 } from '@/shared/auth/phone'
+import { useForm, useInputControl, getFormProps } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { otpSchema, newPasswordSchema } from '../auth.schema'
+import {
+	requestPhonePasswordReset,
+	resetPhonePassword,
+} from '../lib/phone-auth.client'
 import { OtpStep } from '../components/otp-step'
 import { PasswordStep } from '../components/password-step'
 
@@ -20,9 +25,6 @@ export default function ResetPasswordPage() {
 	const [step, setStep] = useState<Step>('otp')
 	const [otp, setOtp] = useState('')
 	const [otpError, setOtpError] = useState(false)
-	const [newPassword, setNewPassword] = useState('')
-	const [confirmPassword, setConfirmPassword] = useState('')
-	const [confirmError, setConfirmError] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS)
 	const [resendKey, setResendKey] = useState(0)
@@ -47,41 +49,42 @@ export default function ResetPasswordPage() {
 			.toString()
 			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
-	const handleOtpSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		if (otp.length < 6) {
-			toast.error('Entrez le code complet à 6 chiffres')
-			setOtpError(true)
-			return
-		}
+	const handleOtpSubmit = (value: string) => {
+		setOtp(value)
 		setStep('new-password')
 	}
 
-	const handleNewPasswordSubmit = async (
-		e: React.FormEvent<HTMLFormElement>,
-	) => {
-		e.preventDefault()
-		if (newPassword.length < 6) {
-			setConfirmError('Le mot de passe doit contenir au moins 6 caractères.')
-			return
-		}
-		if (newPassword !== confirmPassword) {
-			setConfirmError('Les mots de passe ne correspondent pas.')
-			return
-		}
-		setConfirmError('')
+	const [otpForm, otpFields] = useForm({
+		id: 'reset-password-otp-form',
+		constraint: getZodConstraint(otpSchema),
+		shouldValidate: 'onSubmit',
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: otpSchema })
+		},
+		onSubmit(event, { submission }) {
+			event.preventDefault()
+			if (submission?.status !== 'success') return
+			handleOtpSubmit(submission.value.otp)
+		},
+	})
+	const otpControl = useInputControl(otpFields.otp)
+
+	const handleNewPasswordSubmit = async (value: {
+		newPassword: string
+		confirmPassword: string
+	}) => {
 		setIsSubmitting(true)
-		const result = await authClient.phoneNumber.resetPassword({
+		const ok = await resetPhonePassword({
+			phoneNumber,
 			otp,
-			phoneNumber: toE164(phoneNumber),
-			newPassword,
+			newPassword: value.newPassword,
 		})
 		setIsSubmitting(false)
-		if (result.error) {
+		if (!ok) {
 			toast.error('Code incorrect ou expiré', {
 				description: 'Veuillez resaisir le code reçu par SMS.',
 			})
-			setOtp('')
+			otpControl.change('')
 			setOtpError(true)
 			setStep('otp')
 			return
@@ -92,14 +95,31 @@ export default function ResetPasswordPage() {
 		navigate('/auth/login')
 	}
 
+	const [passwordForm, passwordFields] = useForm({
+		id: 'reset-password-new-password-form',
+		constraint: getZodConstraint(newPasswordSchema),
+		shouldValidate: 'onSubmit',
+		shouldRevalidate: 'onInput',
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: newPasswordSchema })
+		},
+		onSubmit(event, { submission }) {
+			event.preventDefault()
+			if (submission?.status !== 'success') return
+			void handleNewPasswordSubmit(submission.value)
+		},
+	})
+	const newPasswordControl = useInputControl(passwordFields.newPassword)
+	const confirmPasswordControl = useInputControl(
+		passwordFields.confirmPassword,
+	)
+
 	const handleResend = async () => {
 		setIsSubmitting(true)
-		await authClient.phoneNumber.requestPasswordReset({
-			phoneNumber: toE164(phoneNumber),
-		})
+		await requestPhonePasswordReset(phoneNumber)
 		setIsSubmitting(false)
 		toast.success('Nouveau code envoyé !')
-		setOtp('')
+		otpControl.change('')
 		setOtpError(false)
 		setResendKey(k => k + 1)
 	}
@@ -140,31 +160,33 @@ export default function ResetPasswordPage() {
 			</div>
 
 			{step === 'otp' && (
-				<OtpStep
-					otp={otp}
-					setOtp={setOtp}
-					otpError={otpError}
-					setOtpError={setOtpError}
-					timeLeft={timeLeft}
-					isSubmitting={isSubmitting}
-					formatTime={formatTime}
-					onSubmit={handleOtpSubmit}
-					onResend={handleResend}
-				/>
+				<form {...getFormProps(otpForm)}>
+					<OtpStep
+						otp={otpControl.value ?? ''}
+						setOtp={otpControl.change}
+						otpError={otpError}
+						setOtpError={setOtpError}
+						timeLeft={timeLeft}
+						isSubmitting={isSubmitting}
+						formatTime={formatTime}
+						onResend={handleResend}
+					/>
+				</form>
 			)}
 
 			{step === 'new-password' && (
-				<PasswordStep
-					step="new-password"
-					newPassword={newPassword}
-					setNewPassword={setNewPassword}
-					confirmPassword={confirmPassword}
-					setConfirmPassword={setConfirmPassword}
-					confirmError={confirmError}
-					setConfirmError={setConfirmError}
-					isSubmitting={isSubmitting}
-					onSubmit={handleNewPasswordSubmit}
-				/>
+				<form {...getFormProps(passwordForm)}>
+					<PasswordStep
+						step="new-password"
+						newPassword={newPasswordControl.value ?? ''}
+						setNewPassword={newPasswordControl.change}
+						confirmPassword={confirmPasswordControl.value ?? ''}
+						setConfirmPassword={confirmPasswordControl.change}
+						newPasswordErrors={passwordFields.newPassword.errors}
+						confirmPasswordErrors={passwordFields.confirmPassword.errors}
+						isSubmitting={isSubmitting}
+					/>
+				</form>
 			)}
 		</>
 	)
