@@ -1,5 +1,5 @@
-'use client'
-
+import { useEffect, useState } from 'react'
+import { useSearchParams, useFetcher, Link } from 'react-router'
 import {
 	Button,
 	Badge,
@@ -14,19 +14,21 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components'
-import { useState } from 'react'
-import Link from 'next/link'
-import { TopBar } from '@/components/topbar'
-import { DataTable } from '@/components/data-table'
-import { DateRangePicker } from '@/components/date-range-picker'
-import { BentoCard } from '@/components/bento-card'
-import { useOrders } from '@/application/orders/use-orders'
-import type { StickerOrder } from '@/domain/entities/order'
-import type { DateRange } from 'react-day-picker'
-import type { ColumnDef } from '@tanstack/react-table'
+import { TopBar } from '@/shared/components/topbar'
+import { BentoCard } from '@/shared/components/bento-card'
+import { DataTable } from '@/shared/components/data-table'
+import { DateRangePicker } from '@/shared/components/date-range-picker'
+import { OrderDetailDialog } from './components/order-detail-dialog'
+import { OrderStatsGrid } from './components/order-stats-grid'
+import { ordersLoader } from './servers/orders.loader'
+import { ordersAction } from './servers/orders.action'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
+import type { DateRange } from 'react-day-picker'
+import type { ColumnDef } from '@tanstack/react-table'
+import type { StickerOrder, OrderStatus } from './orders.types'
+import type { Route } from './+types/index'
 import {
 	MoreHorizontal,
 	Eye,
@@ -38,55 +40,61 @@ import {
 	Clock,
 	PackageCheck,
 } from 'lucide-react'
-import { OrderDetailDialog } from './components/OrderDetailDialog'
-import { OrderStatsGrid } from './components/OrderStatsGrid'
 
-const statusConfig: Record<
-	StickerOrder['status'],
+export const loader = ordersLoader
+export const action = ordersAction
+
+const STATUS_CONFIG: Record<
+	OrderStatus,
 	{ label: string; className: string; icon: React.ElementType }
 > = {
-	pending: {
-		label: 'En attente',
-		className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100',
-		icon: Clock,
-	},
-	processing: {
-		label: 'En traitement',
-		className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
-		icon: Package,
-	},
-	shipped: {
-		label: 'Expédiée',
-		className: 'bg-purple-100 text-purple-700 hover:bg-purple-100',
-		icon: Truck,
-	},
-	delivered: {
-		label: 'Livrée',
-		className: 'bg-green-100 text-green-700 hover:bg-green-100',
-		icon: PackageCheck,
-	},
-	cancelled: {
-		label: 'Annulée',
-		className: 'bg-red-100 text-red-700 hover:bg-red-100',
-		icon: XCircle,
-	},
+	pending: { label: 'En attente', className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100', icon: Clock },
+	processing: { label: 'En traitement', className: 'bg-blue-100 text-blue-700 hover:bg-blue-100', icon: Package },
+	shipped: { label: 'Expédiée', className: 'bg-purple-100 text-purple-700 hover:bg-purple-100', icon: Truck },
+	delivered: { label: 'Livrée', className: 'bg-green-100 text-green-700 hover:bg-green-100', icon: PackageCheck },
+	cancelled: { label: 'Annulée', className: 'bg-red-100 text-red-700 hover:bg-red-100', icon: XCircle },
 }
 
-export default function OrdersPage() {
-	const [statusFilter, setStatusFilter] = useState<string>('all')
+interface ActionResult {
+	ok: boolean
+	order?: StickerOrder
+	error?: string
+}
+
+export default function OrdersPage({ loaderData }: Route.ComponentProps) {
+	const { orders, statusFilter } = loaderData
+	const [searchParams, setSearchParams] = useSearchParams()
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 	const [selectedOrder, setSelectedOrder] = useState<StickerOrder | null>(null)
 	const [detailOpen, setDetailOpen] = useState(false)
-	const { orders, updateStatus: _updateStatus } = useOrders()
 
-	const updateStatus = async (id: string, status: StickerOrder['status']) => {
-		await _updateStatus(id, status)
-		toast.success(`Commande ${id} — ${statusConfig[status].label}`)
+	const statusFetcher = useFetcher<ActionResult>()
+
+	useEffect(() => {
+		if (statusFetcher.state !== 'idle' || !statusFetcher.data) return
+		if (statusFetcher.data.ok) {
+			const order = statusFetcher.data.order
+			if (order) toast.success(`Commande ${order.orderNumber} — ${STATUS_CONFIG[order.status].label}`)
+		} else {
+			toast.error(statusFetcher.data.error ?? 'Impossible de mettre à jour le statut')
+		}
+	}, [statusFetcher.state, statusFetcher.data])
+
+	const updateStatus = (id: string, status: OrderStatus) => {
+		statusFetcher.submit({ id, status }, { method: 'post' })
+	}
+
+	const handleFilterChange = (value: string) => {
+		const next = new URLSearchParams(searchParams)
+		if (value === 'all') {
+			next.delete('status')
+		} else {
+			next.set('status', value)
+		}
+		setSearchParams(next)
 	}
 
 	let filteredOrders = orders
-	if (statusFilter !== 'all')
-		filteredOrders = filteredOrders.filter(o => o.status === statusFilter)
 	if (dateRange?.from) {
 		filteredOrders = filteredOrders.filter(o => {
 			const d = new Date(o.createdAt)
@@ -103,36 +111,18 @@ export default function OrdersPage() {
 	}
 
 	const handleExportCSV = () => {
-		const headers = [
-			'ID',
-			'Client',
-			'Email',
-			'Téléphone',
-			'Quantité',
-			'Statut',
-			'Ville',
-			'Adresse',
-			'Commandé le',
-			'Expédié le',
-			'Livré le',
-			'Suivi',
-		]
+		const headers = ['N° commande', 'Pack', 'Quantité', 'Total', 'Statut', 'Ville', 'Adresse', 'Commandé le', 'Expédié le', 'Livré le', 'Suivi']
 		const rows = filteredOrders.map(o => [
-			o.id,
-			o.userName,
-			o.userEmail,
-			o.userPhone,
+			o.orderNumber,
+			o.packName,
 			o.quantity,
-			statusConfig[o.status].label,
+			o.total,
+			STATUS_CONFIG[o.status].label,
 			o.deliveryCity,
 			o.deliveryAddress,
 			format(new Date(o.createdAt), 'dd/MM/yyyy', { locale: fr }),
-			o.shippedAt
-				? format(new Date(o.shippedAt), 'dd/MM/yyyy', { locale: fr })
-				: '-',
-			o.deliveredAt
-				? format(new Date(o.deliveredAt), 'dd/MM/yyyy', { locale: fr })
-				: '-',
+			o.shippedAt ? format(new Date(o.shippedAt), 'dd/MM/yyyy', { locale: fr }) : '-',
+			o.deliveredAt ? format(new Date(o.deliveredAt), 'dd/MM/yyyy', { locale: fr }) : '-',
 			o.trackingNumber ?? '-',
 		])
 		const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
@@ -148,26 +138,24 @@ export default function OrdersPage() {
 
 	const columns: ColumnDef<StickerOrder>[] = [
 		{
-			accessorKey: 'id',
+			accessorKey: 'orderNumber',
 			header: 'N° commande',
 			cell: ({ row }) => (
-				<span className="font-mono text-sm font-medium">{row.original.id}</span>
+				<span className="font-mono text-sm font-medium">{row.original.orderNumber}</span>
 			),
 		},
 		{
-			accessorKey: 'userName',
-			header: 'Client',
+			accessorKey: 'packName',
+			header: 'Pack',
 			cell: ({ row }) => (
 				<div>
+					<p className="text-sm font-medium">{row.original.packName}</p>
 					<Link
-						href={`/users/${row.original.userId}`}
-						className="text-primary text-sm font-medium hover:underline"
+						to={`/users/${row.original.userId}`}
+						className="text-primary text-xs hover:underline"
 					>
-						{row.original.userName}
+						Voir le client
 					</Link>
-					<p className="text-muted-foreground text-xs">
-						{row.original.userPhone}
-					</p>
 				</div>
 			),
 		},
@@ -185,7 +173,7 @@ export default function OrdersPage() {
 			accessorKey: 'status',
 			header: 'Statut',
 			cell: ({ row }) => {
-				const cfg = statusConfig[row.original.status]
+				const cfg = STATUS_CONFIG[row.original.status]
 				return <Badge className={cfg.className}>{cfg.label}</Badge>
 			},
 		},
@@ -193,9 +181,7 @@ export default function OrdersPage() {
 			accessorKey: 'deliveryCity',
 			header: 'Ville',
 			cell: ({ row }) => (
-				<span className="text-muted-foreground text-sm">
-					{row.original.deliveryCity}
-				</span>
+				<span className="text-muted-foreground text-sm">{row.original.deliveryCity}</span>
 			),
 		},
 		{
@@ -209,9 +195,7 @@ export default function OrdersPage() {
 			header: 'N° suivi',
 			cell: ({ row }) =>
 				row.original.trackingNumber ? (
-					<span className="font-mono text-xs">
-						{row.original.trackingNumber}
-					</span>
+					<span className="font-mono text-xs">{row.original.trackingNumber}</span>
 				) : (
 					<span className="text-muted-foreground">—</span>
 				),
@@ -239,9 +223,7 @@ export default function OrdersPage() {
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							{o.status === 'pending' && (
-								<DropdownMenuItem
-									onClick={() => updateStatus(o.id, 'processing')}
-								>
+								<DropdownMenuItem onClick={() => updateStatus(o.id, 'processing')}>
 									<Package className="mr-2 h-4 w-4" /> Marquer en traitement
 								</DropdownMenuItem>
 							)}
@@ -251,9 +233,7 @@ export default function OrdersPage() {
 								</DropdownMenuItem>
 							)}
 							{o.status === 'shipped' && (
-								<DropdownMenuItem
-									onClick={() => updateStatus(o.id, 'delivered')}
-								>
+								<DropdownMenuItem onClick={() => updateStatus(o.id, 'delivered')}>
 									<CheckCircle2 className="mr-2 h-4 w-4" /> Marquer comme livrée
 								</DropdownMenuItem>
 							)}
@@ -291,8 +271,8 @@ export default function OrdersPage() {
 					<BentoCard variant="table">
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex flex-wrap items-center gap-3">
-								<Select value={statusFilter} onValueChange={setStatusFilter}>
-									<SelectTrigger className="h-9 w-42.5">
+								<Select value={statusFilter} onValueChange={handleFilterChange}>
+									<SelectTrigger className="h-9 w-44">
 										<SelectValue placeholder="Statut" />
 									</SelectTrigger>
 									<SelectContent>
@@ -317,8 +297,8 @@ export default function OrdersPage() {
 							<DataTable
 								columns={columns}
 								data={filteredOrders}
-								searchKey="id"
-								searchPlaceholder="Rechercher par N° commande ou client..."
+								searchKey="orderNumber"
+								searchPlaceholder="Rechercher par N° commande..."
 							/>
 						</div>
 					</BentoCard>

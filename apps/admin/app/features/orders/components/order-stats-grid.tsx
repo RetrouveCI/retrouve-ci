@@ -1,4 +1,4 @@
-import { BentoCard } from '@/components/bento-card'
+import { BentoCard } from '@/shared/components/bento-card'
 import { Package, Clock, Truck, PackageCheck } from 'lucide-react'
 
 interface OrderStatsGridProps {
