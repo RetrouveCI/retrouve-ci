@@ -1,0 +1,20 @@
+@import '@retrouve-ci/ui/styles';
+@source '../../../packages/ui/src';
+
+@theme {
+	--font-sans: 'Montserrat Variable', 'Montserrat', system-ui, sans-serif;
+}
+
+:root {
+	--font-sans: 'Montserrat Variable', 'Montserrat', system-ui, sans-serif;
+}
+
+@layer utilities {
+	.bento-card {
+		@apply transition-all duration-300 ease-out;
+	}
+
+	.bento-card:hover {
+		@apply shadow-lg -translate-y-0.5;
+	}
+}
