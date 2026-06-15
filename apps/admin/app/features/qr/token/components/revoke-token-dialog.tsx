@@ -11,14 +11,14 @@ import {
 
 interface RevokeTokenDialogProps {
 	open: boolean
-	tokenId: string
+	tokenCode: string
 	onOpenChange: (open: boolean) => void
 	onConfirm: () => void
 }
 
 export function RevokeTokenDialog({
 	open,
-	tokenId,
+	tokenCode,
 	onOpenChange,
 	onConfirm,
 }: RevokeTokenDialogProps) {
@@ -28,8 +28,8 @@ export function RevokeTokenDialog({
 				<AlertDialogHeader>
 					<AlertDialogTitle>Révoquer ce token ?</AlertDialogTitle>
 					<AlertDialogDescription>
-						Cette action est irréversible. Le token <strong>{tokenId}</strong>{' '}
-						ne pourra plus être utilisé.
+						Cette action est irréversible. Le token{' '}
+						<strong>{tokenCode}</strong> ne pourra plus être utilisé.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

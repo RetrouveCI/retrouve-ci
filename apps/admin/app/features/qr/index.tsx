@@ -1,5 +1,5 @@
-'use client'
-
+import { useState } from 'react'
+import { useSearchParams, Link } from 'react-router'
 import {
 	Button,
 	Badge,
@@ -14,15 +14,19 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@retrouve-ci/ui/components'
-import { useState } from 'react'
-import Link from 'next/link'
-import { TopBar } from '@/components/topbar'
-import { DataTable } from '@/components/data-table'
-import { DateRangePicker } from '@/components/date-range-picker'
-import { BentoCard } from '@/components/bento-card'
-import { useQRTokens } from '@/application/qr/use-qr-tokens'
-import type { QRToken } from '@/domain/entities/qr-token'
+import { TopBar } from '@/shared/components/topbar'
+import { BentoCard } from '@/shared/components/bento-card'
+import { DataTable } from '@/shared/components/data-table'
+import { DateRangePicker } from '@/shared/components/date-range-picker'
+import { QrStatsGrid } from './components/qr-stats-grid'
+import { qrLoader } from './servers/qr.loader'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import { toast } from 'sonner'
 import type { DateRange } from 'react-day-picker'
+import type { ColumnDef } from '@tanstack/react-table'
+import type { QrToken } from './qr.types'
+import type { Route } from './+types/index'
 import {
 	MoreHorizontal,
 	Eye,
@@ -32,53 +36,65 @@ import {
 	Download,
 	Plus,
 } from 'lucide-react'
-import type { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
-import { toast } from 'sonner'
-import { QrStatsGrid } from './components/QrStatsGrid'
 
-export default function QRCodesPage() {
-	const [statusFilter, setStatusFilter] = useState<string>('all')
-	const [batchFilter, setBatchFilter] = useState<string>('all')
+export const loader = qrLoader
+
+const STATUS_LABEL: Record<string, string> = {
+	generated: 'Généré',
+	activated: 'Activé',
+	revoked: 'Révoqué',
+}
+
+const STATUS_CLASS: Record<string, string> = {
+	activated: 'bg-green-100 text-green-700 hover:bg-green-100',
+	generated: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+	revoked: 'bg-red-100 text-red-700 hover:bg-red-100',
+}
+
+export default function QrCodesPage({ loaderData }: Route.ComponentProps) {
+	const { tokens, statusFilter } = loaderData
+	const [searchParams, setSearchParams] = useSearchParams()
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-	const { tokens, revoke } = useQRTokens()
 
-	const batches = [...new Set(tokens.map(t => t.batch))]
-	const totalGenerated = tokens.length
+	const batches = [...new Set(tokens.map(t => t.batch).filter(Boolean))]
+	const [batchFilter, setBatchFilter] = useState('all')
+
 	const totalActivated = tokens.filter(t => t.status === 'activated').length
 	const totalRevoked = tokens.filter(t => t.status === 'revoked').length
 
-	let filteredTokens = tokens
-	if (statusFilter !== 'all')
-		filteredTokens = filteredTokens.filter(t => t.status === statusFilter)
-	if (batchFilter !== 'all')
-		filteredTokens = filteredTokens.filter(t => t.batch === batchFilter)
+	let filtered = tokens
+	if (batchFilter !== 'all') filtered = filtered.filter(t => t.batch === batchFilter)
 	if (dateRange?.from) {
-		filteredTokens = filteredTokens.filter(t => {
+		filtered = filtered.filter(t => {
 			const d = new Date(t.createdAt)
 			return d >= dateRange.from! && (!dateRange.to || d <= dateRange.to)
 		})
 	}
 
+	const handleStatusFilterChange = (value: string) => {
+		const next = new URLSearchParams(searchParams)
+		if (value === 'all') {
+			next.delete('status')
+		} else {
+			next.set('status', value)
+		}
+		setSearchParams(next)
+	}
+
+	const copyToClipboard = (text: string, label: string) => {
+		navigator.clipboard.writeText(text).catch(() => null)
+		toast.success(`${label} copié`)
+	}
+
 	const handleExportCSV = () => {
-		const headers = [
-			'Token',
-			'Statut',
-			'Batch',
-			'Créé le',
-			'Activé le',
-			'Utilisateur',
-		]
-		const rows = filteredTokens.map(t => [
-			t.token,
-			t.status,
-			t.batch,
+		const headers = ['Token', 'Statut', 'Batch', 'Label', 'Créé le', 'Activé le']
+		const rows = filtered.map(t => [
+			t.code,
+			STATUS_LABEL[t.status] ?? t.status,
+			t.batch ?? '-',
+			t.label ?? '-',
 			format(new Date(t.createdAt), 'dd/MM/yyyy', { locale: fr }),
-			t.activatedAt
-				? format(new Date(t.activatedAt), 'dd/MM/yyyy', { locale: fr })
-				: '-',
-			t.userName || '-',
+			t.activatedAt ? format(new Date(t.activatedAt), 'dd/MM/yyyy', { locale: fr }) : '-',
 		])
 		const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
 		const blob = new Blob([csv], { type: 'text/csv' })
@@ -91,37 +107,20 @@ export default function QRCodesPage() {
 		toast.success('Export CSV téléchargé')
 	}
 
-	const copyToClipboard = (text: string, label: string) => {
-		navigator.clipboard.writeText(text)
-		toast.success(`${label} copié`)
-	}
-
-	const columns: ColumnDef<QRToken>[] = [
+	const columns: ColumnDef<QrToken>[] = [
 		{
-			accessorKey: 'token',
+			accessorKey: 'code',
 			header: 'Token',
 			cell: ({ row }) => (
-				<span className="font-mono text-xs">{row.original.token}</span>
+				<span className="font-mono text-xs">{row.original.code}</span>
 			),
 		},
 		{
 			accessorKey: 'status',
 			header: 'Statut',
 			cell: ({ row }) => (
-				<Badge
-					className={
-						row.original.status === 'activated'
-							? 'bg-green-100 text-green-700 hover:bg-green-100'
-							: row.original.status === 'generated'
-								? 'bg-blue-100 text-blue-700 hover:bg-blue-100'
-								: 'bg-red-100 text-red-700 hover:bg-red-100'
-					}
-				>
-					{row.original.status === 'activated'
-						? 'Activé'
-						: row.original.status === 'generated'
-							? 'Généré'
-							: 'Révoqué'}
+				<Badge className={STATUS_CLASS[row.original.status] ?? ''}>
+					{STATUS_LABEL[row.original.status] ?? row.original.status}
 				</Badge>
 			),
 		},
@@ -130,7 +129,7 @@ export default function QRCodesPage() {
 			header: 'Batch',
 			cell: ({ row }) => (
 				<span className="text-muted-foreground text-sm">
-					{row.original.batch}
+					{row.original.batch ?? '-'}
 				</span>
 			),
 		},
@@ -145,21 +144,19 @@ export default function QRCodesPage() {
 			header: 'Activé le',
 			cell: ({ row }) =>
 				row.original.activatedAt
-					? format(new Date(row.original.activatedAt), 'dd MMM yyyy', {
-							locale: fr,
-						})
+					? format(new Date(row.original.activatedAt), 'dd MMM yyyy', { locale: fr })
 					: '-',
 		},
 		{
-			accessorKey: 'userName',
+			accessorKey: 'userId',
 			header: 'Utilisateur',
 			cell: ({ row }) =>
-				row.original.userName ? (
+				row.original.userId ? (
 					<Link
-						href={`/users/${row.original.userId}`}
+						to={`/users/${row.original.userId}`}
 						className="text-primary text-sm hover:underline"
 					>
-						{row.original.userName}
+						Voir
 					</Link>
 				) : (
 					<span className="text-muted-foreground">-</span>
@@ -177,33 +174,35 @@ export default function QRCodesPage() {
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuItem asChild>
-							<Link href={`/qr/${row.original.token}`}>
+							<Link to={`/qr/${row.original.code}`}>
 								<Eye className="mr-2 h-4 w-4" /> Voir détails
 							</Link>
 						</DropdownMenuItem>
 						<DropdownMenuItem
-							onClick={() => copyToClipboard(row.original.token, 'Token')}
+							onClick={() => copyToClipboard(row.original.code, 'Token')}
 						>
 							<Copy className="mr-2 h-4 w-4" /> Copier le token
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={() =>
 								copyToClipboard(
-									`https://retrouveci.com/q/${row.original.token}`,
+									`${import.meta.env.VITE_API_URL?.replace(':3002', ':3000') ?? 'https://retrouveci.com'}/q/${row.original.code}`,
 									'Lien',
 								)
 							}
 						>
 							<LinkIcon className="mr-2 h-4 w-4" /> Copier le lien
 						</DropdownMenuItem>
-						{row.original.status === 'activated' && (
+						{row.original.status !== 'revoked' && (
 							<>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem
-									className="text-destructive focus:text-destructive"
-									onClick={() => revoke(row.original.token)}
-								>
-									<Ban className="mr-2 h-4 w-4" /> Révoquer
+								<DropdownMenuItem asChild>
+									<Link
+										to={`/qr/${row.original.code}`}
+										className="text-destructive focus:text-destructive"
+									>
+										<Ban className="mr-2 h-4 w-4" /> Révoquer
+									</Link>
 								</DropdownMenuItem>
 							</>
 						)}
@@ -219,7 +218,7 @@ export default function QRCodesPage() {
 			<div className="pt-16">
 				<div className="space-y-4 p-4 lg:p-6">
 					<QrStatsGrid
-						total={totalGenerated}
+						total={tokens.length}
 						activated={totalActivated}
 						revoked={totalRevoked}
 					/>
@@ -227,8 +226,8 @@ export default function QRCodesPage() {
 					<BentoCard variant="table">
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex flex-wrap items-center gap-3">
-								<Select value={statusFilter} onValueChange={setStatusFilter}>
-									<SelectTrigger className="h-9 w-[140px]">
+								<Select value={statusFilter} onValueChange={handleStatusFilterChange}>
+									<SelectTrigger className="h-9 w-36">
 										<SelectValue placeholder="Statut" />
 									</SelectTrigger>
 									<SelectContent>
@@ -239,13 +238,13 @@ export default function QRCodesPage() {
 									</SelectContent>
 								</Select>
 								<Select value={batchFilter} onValueChange={setBatchFilter}>
-									<SelectTrigger className="h-9 w-[160px]">
+									<SelectTrigger className="h-9 w-40">
 										<SelectValue placeholder="Batch" />
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="all">Tous les batchs</SelectItem>
 										{batches.map(batch => (
-											<SelectItem key={batch} value={batch}>
+											<SelectItem key={batch!} value={batch!}>
 												{batch}
 											</SelectItem>
 										))}
@@ -261,7 +260,7 @@ export default function QRCodesPage() {
 									<Download className="mr-2 h-4 w-4" /> Exporter CSV
 								</Button>
 								<Button size="sm" asChild>
-									<Link href="/qr/generate">
+									<Link to="/qr/generate">
 										<Plus className="mr-2 h-4 w-4" /> Générer
 									</Link>
 								</Button>
@@ -270,8 +269,8 @@ export default function QRCodesPage() {
 						<div className="p-4">
 							<DataTable
 								columns={columns}
-								data={filteredTokens}
-								searchKey="token"
+								data={filtered}
+								searchKey="code"
 								searchPlaceholder="Rechercher par token..."
 							/>
 						</div>

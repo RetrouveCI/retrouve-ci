@@ -10,6 +10,9 @@ export default [
 		index('features/dashboard/index.tsx'),
 		route('contact-messages', 'features/contact-messages/index.tsx'),
 		route('orders', 'features/orders/index.tsx'),
+		route('qr', 'features/qr/index.tsx'),
+		route('qr/generate', 'features/qr/generate/index.tsx'),
+		route('qr/:code', 'features/qr/token/index.tsx'),
 	]),
 	route('auth', 'features/auth/layout.tsx', [
 		route('login', 'features/auth/login/index.tsx'),
