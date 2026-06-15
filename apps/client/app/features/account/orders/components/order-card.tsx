@@ -19,8 +19,8 @@ const STATUS_CONFIG: Record<
 		color: 'text-amber-600',
 		bgColor: 'bg-amber-500/10',
 	},
-	confirmed: {
-		label: 'Confirmée',
+	processing: {
+		label: 'En préparation',
 		icon: CheckCircle2,
 		color: 'text-blue-600',
 		bgColor: 'bg-blue-500/10',
