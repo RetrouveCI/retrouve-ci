@@ -5,17 +5,19 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@retrouve-ci/ui/components'
-import Link from 'next/link'
-import { ArrowLeft, Ban, Pause } from 'lucide-react'
+import { Link } from 'react-router'
+import { ArrowLeft, Ban } from 'lucide-react'
 
 interface TokenActionsCardProps {
 	status: string
 	onRevokeClick: () => void
+	isRevoking?: boolean
 }
 
 export function TokenActionsCard({
 	status,
 	onRevokeClick,
+	isRevoking = false,
 }: TokenActionsCardProps) {
 	return (
 		<>
@@ -24,33 +26,15 @@ export function TokenActionsCard({
 					<CardTitle>Actions</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-2">
-					{status === 'activated' && (
-						<>
-							<Button
-								variant="outline"
-								className="w-full justify-start text-orange-600 hover:text-orange-700"
-							>
-								<Pause className="mr-2 h-4 w-4" />
-								Désactiver temporairement
-							</Button>
-							<Button
-								variant="outline"
-								className="text-destructive hover:text-destructive w-full justify-start"
-								onClick={onRevokeClick}
-							>
-								<Ban className="mr-2 h-4 w-4" />
-								Révoquer définitivement
-							</Button>
-						</>
-					)}
-					{status === 'generated' && (
+					{status !== 'revoked' && (
 						<Button
 							variant="outline"
 							className="text-destructive hover:text-destructive w-full justify-start"
 							onClick={onRevokeClick}
+							disabled={isRevoking}
 						>
 							<Ban className="mr-2 h-4 w-4" />
-							Marquer comme révoqué
+							{isRevoking ? 'Révocation...' : 'Révoquer définitivement'}
 						</Button>
 					)}
 					{status === 'revoked' && (
@@ -62,7 +46,7 @@ export function TokenActionsCard({
 			</Card>
 
 			<Button variant="outline" className="w-full" asChild>
-				<Link href="/qr">
+				<Link to="/qr">
 					<ArrowLeft className="mr-2 h-4 w-4" />
 					Retour aux tokens
 				</Link>

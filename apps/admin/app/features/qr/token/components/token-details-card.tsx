@@ -6,7 +6,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@retrouve-ci/ui/components'
-import Link from 'next/link'
+import { Link } from 'react-router'
 import {
 	Copy,
 	ExternalLink,
@@ -20,19 +20,27 @@ import {
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { QRCodeSVG } from 'qrcode.react'
-import type { QRToken } from '@/domain/entities/qr-token'
+import type { QrToken } from '../../qr.types'
+
+const STATUS_LABEL: Record<string, string> = {
+	generated: 'Généré',
+	activated: 'Activé',
+	revoked: 'Révoqué',
+}
+
+const STATUS_CLASS: Record<string, string> = {
+	activated: 'bg-green-100 text-green-700 hover:bg-green-100',
+	generated: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+	revoked: 'bg-red-100 text-red-700 hover:bg-red-100',
+}
 
 interface TokenDetailsCardProps {
-	token: QRToken
+	token: QrToken
 	qrUrl: string
 	onCopy: (text: string, label: string) => void
 }
 
-export function TokenDetailsCard({
-	token,
-	qrUrl,
-	onCopy,
-}: TokenDetailsCardProps) {
+export function TokenDetailsCard({ token, qrUrl, onCopy }: TokenDetailsCardProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -44,14 +52,12 @@ export function TokenDetailsCard({
 						<div className="rounded-lg bg-white p-4">
 							<QRCodeSVG value={qrUrl} size={180} />
 						</div>
-						<p className="mt-4 font-mono text-lg font-semibold">
-							{token.token}
-						</p>
+						<p className="mt-4 font-mono text-lg font-semibold">{token.code}</p>
 						<div className="mt-2 flex gap-2">
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() => onCopy(token.token, 'Token')}
+								onClick={() => onCopy(token.code, 'Token')}
 							>
 								<Copy className="mr-2 h-3 w-3" />
 								Copier
@@ -62,20 +68,8 @@ export function TokenDetailsCard({
 					<div className="space-y-4">
 						<div>
 							<p className="text-muted-foreground text-sm">Statut actuel</p>
-							<Badge
-								className={`mt-1 ${
-									token.status === 'activated'
-										? 'bg-green-100 text-green-700 hover:bg-green-100'
-										: token.status === 'generated'
-											? 'bg-blue-100 text-blue-700 hover:bg-blue-100'
-											: 'bg-red-100 text-red-700 hover:bg-red-100'
-								}`}
-							>
-								{token.status === 'activated'
-									? 'Activé'
-									: token.status === 'generated'
-										? 'Généré'
-										: 'Révoqué'}
+							<Badge className={`mt-1 ${STATUS_CLASS[token.status] ?? ''}`}>
+								{STATUS_LABEL[token.status] ?? token.status}
 							</Badge>
 						</div>
 
@@ -83,12 +77,12 @@ export function TokenDetailsCard({
 							<User className="text-muted-foreground mt-0.5 h-4 w-4" />
 							<div>
 								<p className="text-muted-foreground text-sm">Utilisateur lié</p>
-								{token.userName ? (
+								{token.userId ? (
 									<Link
-										href={`/users/${token.userId}`}
+										to={`/users/${token.userId}`}
 										className="text-primary hover:underline"
 									>
-										{token.userName}
+										Voir l&apos;utilisateur
 									</Link>
 								) : (
 									<span className="text-muted-foreground">-</span>
@@ -100,15 +94,25 @@ export function TokenDetailsCard({
 							<Box className="text-muted-foreground mt-0.5 h-4 w-4" />
 							<div>
 								<p className="text-muted-foreground text-sm">Objet lié</p>
-								<p>{token.linkedObject || '-'}</p>
+								<p>{token.linkedObject ?? '-'}</p>
 							</div>
 						</div>
+
+						{token.label && (
+							<div className="flex items-start gap-3">
+								<Box className="text-muted-foreground mt-0.5 h-4 w-4" />
+								<div>
+									<p className="text-muted-foreground text-sm">Label</p>
+									<p>{token.label}</p>
+								</div>
+							</div>
+						)}
 
 						<div className="flex items-start gap-3">
 							<Package className="text-muted-foreground mt-0.5 h-4 w-4" />
 							<div>
 								<p className="text-muted-foreground text-sm">Batch</p>
-								<p>{token.batch}</p>
+								<p>{token.batch ?? '-'}</p>
 							</div>
 						</div>
 
@@ -116,11 +120,7 @@ export function TokenDetailsCard({
 							<Calendar className="text-muted-foreground mt-0.5 h-4 w-4" />
 							<div>
 								<p className="text-muted-foreground text-sm">Créé le</p>
-								<p>
-									{format(new Date(token.createdAt), 'dd MMMM yyyy', {
-										locale: fr,
-									})}
-								</p>
+								<p>{format(new Date(token.createdAt), 'dd MMMM yyyy', { locale: fr })}</p>
 							</div>
 						</div>
 
@@ -129,11 +129,7 @@ export function TokenDetailsCard({
 								<CheckCircle className="text-muted-foreground mt-0.5 h-4 w-4" />
 								<div>
 									<p className="text-muted-foreground text-sm">Activé le</p>
-									<p>
-										{format(new Date(token.activatedAt), 'dd MMMM yyyy', {
-											locale: fr,
-										})}
-									</p>
+									<p>{format(new Date(token.activatedAt), 'dd MMMM yyyy', { locale: fr })}</p>
 								</div>
 							</div>
 						)}
@@ -143,11 +139,7 @@ export function TokenDetailsCard({
 								<Ban className="text-muted-foreground mt-0.5 h-4 w-4" />
 								<div>
 									<p className="text-muted-foreground text-sm">Révoqué le</p>
-									<p>
-										{format(new Date(token.revokedAt), 'dd MMMM yyyy', {
-											locale: fr,
-										})}
-									</p>
+									<p>{format(new Date(token.revokedAt), 'dd MMMM yyyy', { locale: fr })}</p>
 								</div>
 							</div>
 						)}
@@ -158,11 +150,7 @@ export function TokenDetailsCard({
 					<p className="text-muted-foreground mb-2 text-sm">URL du QR Code</p>
 					<div className="flex items-center gap-2">
 						<code className="flex-1 truncate text-sm">{qrUrl}</code>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => onCopy(qrUrl, 'URL')}
-						>
+						<Button variant="outline" size="sm" onClick={() => onCopy(qrUrl, 'URL')}>
 							<Copy className="h-3 w-3" />
 						</Button>
 						<Button variant="outline" size="sm" asChild>
