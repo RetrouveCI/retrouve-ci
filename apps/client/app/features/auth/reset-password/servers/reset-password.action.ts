@@ -1,22 +1,21 @@
 import { data } from 'react-router'
-import { requireServerSession } from '@/shared/auth/auth.server'
 import { ApiError } from '@/shared/lib/api-client'
 import {
-	sendOtpActionSchema,
-	setInitialPasswordActionSchema,
-} from '../register.schema'
-import { setInitialPassword, sendOtp } from './register.service'
+	resendOtpActionSchema,
+	resetPasswordActionSchema,
+} from '../reset-password.schema'
+import { requestPasswordResetOtp, resetPassword } from './reset-password.service'
 
-export async function registerAction({ request }: { request: Request }) {
+export async function resetPasswordAction({ request }: { request: Request }) {
 	const formData = Object.fromEntries(await request.formData())
 
 	switch (formData.intent) {
-		case 'send-otp': {
-			const submission = sendOtpActionSchema.safeParse(formData)
+		case 'resend-otp': {
+			const submission = resendOtpActionSchema.safeParse(formData)
 			if (!submission.success) return data({ ok: false }, { status: 400 })
 
 			try {
-				await sendOtp(submission.data.phoneNumber, request)
+				await requestPasswordResetOtp(submission.data.phoneNumber, request)
 				return { ok: true }
 			} catch (err) {
 				if (err instanceof ApiError) {
@@ -25,14 +24,12 @@ export async function registerAction({ request }: { request: Request }) {
 				return data({ ok: false }, { status: 400 })
 			}
 		}
-		case 'set-initial-password': {
-			await requireServerSession(request)
-
-			const submission = setInitialPasswordActionSchema.safeParse(formData)
+		case 'reset-password': {
+			const submission = resetPasswordActionSchema.safeParse(formData)
 			if (!submission.success) return data({ ok: false }, { status: 400 })
 
 			try {
-				await setInitialPassword(submission.data.newPassword, request)
+				await resetPassword(submission.data, request)
 				return { ok: true }
 			} catch (err) {
 				if (err instanceof ApiError) {

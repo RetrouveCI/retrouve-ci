@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Link, useFetcher } from 'react-router'
 import { toast } from 'sonner'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { phoneNumberSchema } from '../register.schema'
-import { sendPhoneOtp } from '../../lib/phone-auth.client'
 import { PhoneStep } from '../../components/phone-step'
+
+interface ActionResult {
+	ok: boolean
+	error?: string
+}
 
 interface PhoneStepSectionProps {
 	onVerified: (phoneNumber: string) => void
 }
 
 export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
-	const [isSubmitting, setIsSubmitting] = useState(false)
+	const fetcher = useFetcher<ActionResult>()
+	const [submittedPhone, setSubmittedPhone] = useState<string | null>(null)
 
-	const handlePhoneSubmit = async (value: string) => {
-		setIsSubmitting(true)
-		const ok = await sendPhoneOtp(value)
-		setIsSubmitting(false)
-		if (!ok) {
+	useEffect(() => {
+		if (fetcher.state !== 'idle' || !fetcher.data || !submittedPhone) return
+
+		if (fetcher.data.ok) {
+			toast.success('Code envoyé !', {
+				description: 'Vérifiez vos SMS ou WhatsApp.',
+			})
+			onVerified(submittedPhone)
+		} else {
 			toast.error('Impossible d’envoyer le code', {
 				description: 'Vérifiez le numéro et réessayez.',
 			})
-			return
 		}
-
-		toast.success('Code envoyé !', {
-			description: 'Vérifiez vos SMS ou WhatsApp.',
-		})
-		onVerified(value)
-	}
+		setSubmittedPhone(null)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [fetcher.state, fetcher.data, submittedPhone])
 
 	const [form, fields] = useForm({
 		id: 'register-phone-form',
@@ -41,7 +46,11 @@ export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
 		onSubmit(event, { submission }) {
 			event.preventDefault()
 			if (submission?.status !== 'success') return
-			void handlePhoneSubmit(submission.value.phoneNumber)
+			setSubmittedPhone(submission.value.phoneNumber)
+			void fetcher.submit(
+				{ intent: 'send-otp', phoneNumber: submission.value.phoneNumber },
+				{ method: 'post' },
+			)
 		},
 	})
 	const phoneControl = useInputControl(fields.phoneNumber)
@@ -53,7 +62,7 @@ export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
 					phoneNumber={phoneControl.value ?? ''}
 					setPhoneNumber={phoneControl.change}
 					errors={fields.phoneNumber.errors}
-					isSubmitting={isSubmitting}
+					isSubmitting={fetcher.state !== 'idle'}
 				/>
 			</form>
 			<p className="text-muted-foreground mt-6 text-center text-sm">

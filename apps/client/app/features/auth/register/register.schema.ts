@@ -24,3 +24,16 @@ export const newPasswordSchema = z
 		message: 'Les mots de passe ne correspondent pas.',
 		path: ['confirmPassword'],
 	})
+
+export const sendOtpActionSchema = z.object({
+	intent: z.literal('send-otp'),
+	phoneNumber: z.string(),
+})
+
+export const setInitialPasswordActionSchema = z.object({
+	intent: z.literal('set-initial-password'),
+	newPassword: z
+		.string()
+		.min(6, 'Le mot de passe doit contenir au moins 6 caractères.')
+		.max(128),
+})

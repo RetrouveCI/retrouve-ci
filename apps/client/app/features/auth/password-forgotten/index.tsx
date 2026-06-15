@@ -1,6 +1,9 @@
 import { Link } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { PhoneForm } from './components/phone-form'
+import { passwordForgottenAction } from './servers/password-forgotten.action'
+
+export const action = passwordForgottenAction
 
 export default function PasswordForgottenPage() {
 	return (

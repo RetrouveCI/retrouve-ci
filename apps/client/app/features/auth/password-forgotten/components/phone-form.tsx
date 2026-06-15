@@ -1,27 +1,39 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useEffect, useState } from 'react'
+import { useFetcher, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { phoneNumberSchema } from '../password-forgotten.schema'
-import { requestPhonePasswordReset } from '../../lib/phone-auth.client'
 import { PhoneStep } from '../../components/phone-step'
+
+interface ActionResult {
+	ok: boolean
+	error?: string
+}
 
 export function PhoneForm() {
 	const navigate = useNavigate()
-	const [isSubmitting, setIsSubmitting] = useState(false)
+	const fetcher = useFetcher<ActionResult>()
+	const [submittedPhone, setSubmittedPhone] = useState<string | null>(null)
 
-	const handlePhoneSubmit = async (value: string) => {
-		setIsSubmitting(true)
+	useEffect(() => {
+		if (fetcher.state !== 'idle' || !fetcher.data || !submittedPhone) return
 
-		await requestPhonePasswordReset(value)
-		setIsSubmitting(false)
-		toast.success('Code envoyé !', {
-			description: 'Vérifiez vos SMS ou WhatsApp.',
-		})
+		if (fetcher.data.ok) {
+			toast.success('Code envoyé !', {
+				description: 'Vérifiez vos SMS ou WhatsApp.',
+			})
 
-		navigate(`/auth/reset-password?phone=${encodeURIComponent(value)}`)
-	}
+			navigate(
+				`/auth/reset-password?phone=${encodeURIComponent(submittedPhone)}`,
+			)
+		} else {
+			toast.error('Impossible d’envoyer le code', {
+				description: fetcher.data.error,
+			})
+		}
+		setSubmittedPhone(null)
+	}, [fetcher.state, fetcher.data, submittedPhone, navigate])
 
 	const [form, fields] = useForm({
 		id: 'password-forgotten-form',
@@ -30,14 +42,18 @@ export function PhoneForm() {
 		onValidate({ formData }) {
 			return parseWithZod(formData, { schema: phoneNumberSchema })
 		},
-		onSubmit(event, { submission }) {
+		onSubmit(event, { submission, formData }) {
 			event.preventDefault()
+
 			if (submission?.status !== 'success') return
-			void handlePhoneSubmit(submission.value.phoneNumber)
+
+			setSubmittedPhone(submission.value.phoneNumber)
+			void fetcher.submit(formData, { method: 'post' })
 		},
 	})
 
 	const phoneControl = useInputControl(fields.phoneNumber)
+	const isSubmitting = fetcher.state !== 'idle'
 
 	return (
 		<form {...getFormProps(form)}>
