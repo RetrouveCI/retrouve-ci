@@ -10,6 +10,11 @@ export interface ActivateQrTokenData {
 	linkedObject?: string
 }
 
+export interface UpdateQrTokenData {
+	label?: string
+	linkedObject?: string
+}
+
 export interface ListQrTokensFilter {
 	status?: QrTokenStatus
 	userId?: string

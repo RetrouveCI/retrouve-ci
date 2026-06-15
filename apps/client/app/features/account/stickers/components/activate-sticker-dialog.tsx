@@ -10,33 +10,53 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@retrouve-ci/ui/components'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useFetcher } from 'react-router'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 
-interface ActivateStickerDialogProps {
-	onActivate: (code: string, label: string, object?: string) => void
+interface ActionResult {
+	ok: boolean
+	error?: string
 }
 
-export function ActivateStickerDialog({
-	onActivate,
-}: ActivateStickerDialogProps) {
+export function ActivateStickerDialog() {
+	const fetcher = useFetcher<ActionResult>()
 	const [open, setOpen] = useState(false)
 	const [code, setCode] = useState('')
 	const [label, setLabel] = useState('')
 	const [linkedObject, setLinkedObject] = useState('')
+
+	useEffect(() => {
+		if (fetcher.state !== 'idle' || !fetcher.data) return
+
+		if (fetcher.data.ok) {
+			toast.success('Sticker activé avec succès')
+			setCode('')
+			setLabel('')
+			setLinkedObject('')
+			setOpen(false)
+		} else {
+			toast.error(
+				fetcher.data.error ?? "Impossible d'activer ce sticker",
+			)
+		}
+	}, [fetcher.state, fetcher.data])
 
 	const handleSubmit = () => {
 		if (!code || !label) {
 			toast.error('Veuillez remplir le code et le nom')
 			return
 		}
-		onActivate(code.toUpperCase(), label, linkedObject || undefined)
-		toast.success('Sticker activé avec succès')
-		setCode('')
-		setLabel('')
-		setLinkedObject('')
-		setOpen(false)
+		void fetcher.submit(
+			{
+				intent: 'activate',
+				code: code.toUpperCase(),
+				label,
+				linkedObject,
+			},
+			{ method: 'post' },
+		)
 	}
 
 	return (
@@ -98,6 +118,7 @@ export function ActivateStickerDialog({
 					</Button>
 					<Button
 						onClick={handleSubmit}
+						disabled={fetcher.state !== 'idle'}
 						className="bg-primary-green hover:bg-primary-green-dark rounded-xl text-white"
 					>
 						Activer

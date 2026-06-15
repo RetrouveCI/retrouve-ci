@@ -1,6 +1,5 @@
 import type { LostItem } from '@/shared/types/lost-item'
 import type { User } from '@/shared/types/user'
-import type { Sticker } from '@/shared/types/sticker'
 
 const today = new Date()
 const daysAgo = (n: number): string => {
@@ -186,27 +185,3 @@ export const MOCK_USER: User = {
 	createdAt: '2024-01-15',
 }
 
-export const MOCK_STICKERS: Sticker[] = [
-	{
-		id: 'sticker-001',
-		code: 'RCI-A1B2C3',
-		label: 'Clés de maison',
-		isActive: true,
-		activatedAt: '2024-02-10',
-		linkedObject: 'Trousseau de clés avec porte-clés rouge',
-	},
-	{
-		id: 'sticker-002',
-		code: 'RCI-D4E5F6',
-		label: 'Portefeuille',
-		isActive: true,
-		activatedAt: '2024-03-05',
-		linkedObject: 'Portefeuille cuir marron',
-	},
-	{
-		id: 'sticker-003',
-		code: 'RCI-G7H8I9',
-		label: 'Sac à dos',
-		isActive: false,
-	},
-]

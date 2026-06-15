@@ -1,8 +1,11 @@
+export type StickerStatus = 'generated' | 'activated' | 'revoked'
+
 export interface Sticker {
 	id: string
 	code: string
-	label: string
+	status: StickerStatus
 	isActive: boolean
-	activatedAt?: string
-	linkedObject?: string
+	label: string | null
+	linkedObject: string | null
+	activatedAt: string | null
 }

@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import {
 	QrTokenAlreadyActivatedError,
+	QrTokenForbiddenError,
 	QrTokenNotFoundError,
 	QrTokenRevokedError,
 } from '../errors/qr-token.errors'
@@ -14,6 +15,7 @@ import type {
 	ActivateQrTokenData,
 	GenerateQrTokensData,
 	ListQrTokensFilter,
+	UpdateQrTokenData,
 } from '../types/qr-token.types'
 import { validateGenerateQrTokens } from '../validators/qr-token.validator'
 
@@ -60,10 +62,28 @@ export class QrTokenUseCases {
 		return this.qrTokenRepository.activate(code, userId, data)
 	}
 
-	async revoke(code: string): Promise<QrToken> {
-		await this.getByCode(code)
+	async revoke(code: string, userId: string): Promise<QrToken> {
+		const qrToken = await this.getByCode(code)
+
+		if (qrToken.userId !== userId) {
+			throw new QrTokenForbiddenError(code)
+		}
 
 		return this.qrTokenRepository.revoke(code)
+	}
+
+	async updateDetails(
+		code: string,
+		userId: string,
+		data: UpdateQrTokenData,
+	): Promise<QrToken> {
+		const qrToken = await this.getByCode(code)
+
+		if (qrToken.userId !== userId) {
+			throw new QrTokenForbiddenError(code)
+		}
+
+		return this.qrTokenRepository.updateDetails(code, data)
 	}
 
 	async list(filter: ListQrTokensFilter): Promise<QrTokenListResponse> {
