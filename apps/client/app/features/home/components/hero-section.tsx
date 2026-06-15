@@ -91,15 +91,6 @@ export function HeroSection() {
 
 			<div className="relative z-10 container mx-auto px-4 py-20">
 				<div className="mx-auto max-w-5xl">
-					<div className="mb-8 flex justify-center">
-						<div className="bg-foreground/5 border-border/50 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm">
-							<span className="bg-primary-green flex h-2 w-2 animate-pulse rounded-full" />
-							<span className="text-muted-foreground">
-								La plateforme #1 en Côte d&apos;Ivoire
-							</span>
-						</div>
-					</div>
-
 					<h1 className="mb-6 text-center text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
 						<span className="block">
 							Perdre{' '}
