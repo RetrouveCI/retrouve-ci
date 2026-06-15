@@ -1,5 +1,6 @@
 import {
 	Button,
+	Input,
 	Label,
 	Textarea,
 	Select,
@@ -8,8 +9,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@retrouve-ci/ui/components'
+import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/shared/auth/auth-context'
 import { MatchingSuggestions } from '../components/matching-suggestions'
 import { ImageUpload } from '../components/image-upload'
 import { LocationDateSection } from '../components/location-date-section'
@@ -36,6 +39,7 @@ export function meta() {
 const progressItems = (
 	formData: ReturnType<typeof usePublishForm>['formData'],
 ) => [
+	{ label: 'Titre', done: !!formData.title },
 	{ label: "Type d'objet", done: !!formData.objectType },
 	{
 		label: 'Description (20 car. min)',
@@ -48,6 +52,7 @@ const progressItems = (
 
 export default function PublierPerduPage() {
 	const navigate = useNavigate()
+	const { isAuthenticated, isLoading } = useAuth()
 
 	const {
 		formData,
@@ -58,7 +63,26 @@ export default function PublierPerduPage() {
 		progress,
 		isSubmitting,
 		handleSubmit,
-	} = usePublishForm('Votre annonce est maintenant visible par tous.')
+	} = usePublishForm(
+		'lost',
+		'Votre annonce est maintenant visible par tous.',
+	)
+
+	useEffect(() => {
+		if (!isLoading && !isAuthenticated) navigate('/auth')
+	}, [isLoading, isAuthenticated, navigate])
+
+	if (isLoading) {
+		return (
+			<main className="flex flex-1 items-center justify-center">
+				<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
+			</main>
+		)
+	}
+
+	if (!isAuthenticated) {
+		return null
+	}
 
 	return (
 		<main className="bg-muted/20 flex-1">
@@ -91,6 +115,19 @@ export default function PublierPerduPage() {
 								<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
 									Informations sur l&apos;objet
 								</h2>
+
+								<div className="space-y-2">
+									<Label htmlFor="title">
+										Titre <span className="text-destructive">*</span>
+									</Label>
+									<Input
+										id="title"
+										placeholder="Ex : iPhone 14 Pro noir"
+										value={formData.title}
+										onChange={e => update('title')(e.target.value)}
+										className="h-11"
+									/>
+								</div>
 
 								<div className="space-y-2">
 									<Label htmlFor="objectType">
