@@ -10,35 +10,47 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@retrouve-ci/ui/components'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useFetcher, useNavigate } from 'react-router'
 import { Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { PasswordInput } from '@/features/auth/components/password-input'
 
-export function DangerZoneSection({
-	onDeleteAccount,
-}: {
-	onDeleteAccount: (password: string) => Promise<void>
-}) {
+interface ActionResult {
+	ok: boolean
+	error?: string
+}
+
+export function DangerZoneSection() {
+	const fetcher = useFetcher<ActionResult>()
+	const navigate = useNavigate()
 	const [open, setOpen] = useState(false)
 	const [password, setPassword] = useState('')
-	const [isDeleting, setIsDeleting] = useState(false)
+
+	useEffect(() => {
+		if (fetcher.state !== 'idle' || !fetcher.data) return
+
+		if (fetcher.data.ok) {
+			toast.success('Votre compte a été supprimé')
+			navigate('/')
+		} else {
+			toast.error(fetcher.data.error ?? 'Mot de passe incorrect')
+			setPassword('')
+		}
+	}, [fetcher.state, fetcher.data, navigate])
 
 	const handleOpenChange = (next: boolean) => {
 		setOpen(next)
 		if (!next) setPassword('')
 	}
 
-	const handleConfirm = async () => {
-		setIsDeleting(true)
-		try {
-			await onDeleteAccount(password)
-			setOpen(false)
-			setPassword('')
-		} catch {
-			setPassword('')
-		} finally {
-			setIsDeleting(false)
-		}
+	const isDeleting = fetcher.state !== 'idle'
+
+	const handleConfirm = () => {
+		void fetcher.submit(
+			{ intent: 'delete-account', password },
+			{ method: 'post' },
+		)
 	}
 
 	return (
@@ -87,7 +99,7 @@ export function DangerZoneSection({
 								<AlertDialogAction
 									onClick={e => {
 										e.preventDefault()
-										void handleConfirm()
+										handleConfirm()
 									}}
 									disabled={!password || isDeleting}
 									className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
