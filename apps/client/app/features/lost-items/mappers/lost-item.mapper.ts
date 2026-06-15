@@ -1,16 +1,6 @@
-import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { formatRelativeDate } from '@/shared/lib/format-relative-date'
 import type { LostItem, UserLostItem } from '@/shared/types/lost-item'
 import type { LostItemApiDto, LostItemDetail } from '../lost-items.types'
-
-function formatRelativeDate(isoDate: string): string {
-	const relative = formatDistanceToNow(new Date(isoDate), {
-		addSuffix: true,
-		locale: fr,
-	})
-
-	return relative.charAt(0).toUpperCase() + relative.slice(1)
-}
 
 export function toLostItem(dto: LostItemApiDto): LostItem {
 	return {

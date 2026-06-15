@@ -18,6 +18,7 @@ import {
 	ChevronRight,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
+import { NotificationBell } from '@/features/notifications/components/notification-bell'
 import { useAuth } from '@/shared/auth/auth-context'
 
 interface MobileNavProps {
@@ -92,26 +93,30 @@ export function MobileNav({
 					})}
 				</nav>
 
-				{/* Auth Section */}
 				<div className="space-y-2 border-t px-3 pt-3 pb-6">
 					{isAuthenticated ? (
 						<>
-							<Link
-								to="/account"
-								onClick={() => onOpenChange(false)}
-								className="bg-muted/60 hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 transition-colors"
-							>
-								<div className="bg-primary-green/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-									<User className="text-primary-green h-4 w-4" />
-								</div>
-								<div className="min-w-0 flex-1">
-									<p className="truncate text-sm font-semibold">{user?.name}</p>
-									<p className="text-muted-foreground truncate text-xs">
-										Voir mon compte
-									</p>
-								</div>
-								<ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
-							</Link>
+							<div className="flex items-center gap-2">
+								<Link
+									to="/account"
+									onClick={() => onOpenChange(false)}
+									className="bg-muted/60 hover:bg-muted flex flex-1 items-center gap-3 rounded-xl px-4 py-3 transition-colors"
+								>
+									<div className="bg-primary-green/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+										<User className="text-primary-green h-4 w-4" />
+									</div>
+									<div className="min-w-0 flex-1">
+										<p className="truncate text-sm font-semibold">
+											{user?.name}
+										</p>
+										<p className="text-muted-foreground truncate text-xs">
+											Voir mon compte
+										</p>
+									</div>
+									<ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
+								</Link>
+								<NotificationBell />
+							</div>
 							<Button
 								variant="outline"
 								className="text-destructive border-destructive/20 hover:bg-destructive/5 hover:text-destructive h-11 w-full justify-start gap-3"
