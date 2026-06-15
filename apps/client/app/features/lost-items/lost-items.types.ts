@@ -2,6 +2,7 @@ import type {
 	LostItem,
 	LostItemType,
 	LostItemCategory,
+	LostItemStatus,
 } from '@/shared/types/lost-item'
 
 export interface LostItemFilters {
@@ -30,6 +31,10 @@ export interface LostItemApiDto {
 	contactName: string
 	contactWhatsapp: string
 	photos: string[]
+	resolutionStatus: LostItemStatus
+	views: number
+	contactsCount: number
+	createdAt: string
 }
 
 export interface LostItemListApiResponse {

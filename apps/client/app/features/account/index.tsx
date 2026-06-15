@@ -1,10 +1,22 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
 import { User, LogIn } from 'lucide-react'
+import type { UserLostItem } from '@/shared/types/lost-item'
+import { getServerSession } from '@/shared/auth/auth.server'
+import { toUserLostItem } from '@/features/lost-items/mappers/lost-item.mapper'
+import { getMyLostItems } from '@/features/account/posts/servers/account-posts.service'
 import { ProfileHeader } from './components/profile-header'
 import { AccountStats } from './components/account-stats'
 import { AccountNav } from './components/account-nav'
 import { useAuth } from '@/shared/auth/auth-context'
+import type { Route } from './+types/index'
+
+export async function loader({ request }: Route.LoaderArgs) {
+	const session = await getServerSession(request)
+	if (!session) return { listings: [] }
+	const items = await getMyLostItems(request)
+	return { listings: items.map(toUserLostItem) }
+}
 
 function NotLoggedInView() {
 	return (
@@ -49,8 +61,8 @@ function NotLoggedInView() {
 	)
 }
 
-function DashboardView() {
-	const { user, logout, stickers, listings } = useAuth()
+function DashboardView({ listings }: { listings: UserLostItem[] }) {
+	const { user, logout, stickers } = useAuth()
 
 	if (!user) return null
 
@@ -63,7 +75,7 @@ function DashboardView() {
 	)
 }
 
-export default function ComptePage() {
+export default function ComptePage({ loaderData }: Route.ComponentProps) {
 	const { isAuthenticated, isLoading } = useAuth()
 
 	if (isLoading) {
@@ -74,5 +86,9 @@ export default function ComptePage() {
 		)
 	}
 
-	return isAuthenticated ? <DashboardView /> : <NotLoggedInView />
+	return isAuthenticated ? (
+		<DashboardView listings={loaderData.listings} />
+	) : (
+		<NotLoggedInView />
+	)
 }

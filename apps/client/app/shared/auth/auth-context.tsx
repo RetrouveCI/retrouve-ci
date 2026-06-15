@@ -10,8 +10,6 @@ import {
 import { useNavigate } from 'react-router'
 import type { User } from '@/shared/types/user'
 import type { Sticker } from '@/shared/types/sticker'
-import type { UserLostItem, LostItemStatus } from '@/shared/types/lost-item'
-import { accountService } from '@/features/account/posts/servers/account.service'
 import { stickersService } from '@/features/account/stickers/servers/stickers.service'
 import { authClient } from './auth-client'
 import { toE164 } from './phone'
@@ -28,12 +26,9 @@ interface AuthContextType {
 	) => Promise<{ success: boolean; error?: string }>
 	logout: () => void
 	stickers: Sticker[]
-	listings: UserLostItem[]
 	activateSticker: (code: string, label: string, linkedObject?: string) => void
 	deactivateSticker: (id: string) => void
 	updateSticker: (id: string, updates: Partial<Sticker>) => void
-	deleteListing: (id: string) => void
-	updateListingStatus: (id: string, status: LostItemStatus) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -42,7 +37,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const navigate = useNavigate()
 	const session = authClient.useSession()
 	const [stickers, setStickers] = useState<Sticker[]>([])
-	const [listings, setListings] = useState<UserLostItem[]>([])
 
 	const sessionUser = session.data?.user
 	const user: User | null = useMemo(
@@ -64,16 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		if (!user) {
 			setStickers([])
-			setListings([])
 			return
 		}
-		void Promise.all([
-			accountService.getUserListings(user.id),
-			stickersService.getUserStickers(user.id),
-		]).then(([userListings, userStickers]) => {
-			setListings(userListings)
-			setStickers(userStickers)
-		})
+		void stickersService.getUserStickers(user.id).then(setStickers)
 	}, [user])
 
 	const login = useCallback(
@@ -138,24 +125,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		[user],
 	)
 
-	const deleteListing = useCallback(
-		async (id: string) => {
-			if (!user) return
-			await accountService.deleteUserListing(user.id, id)
-			setListings(prev => prev.filter(l => l.id !== id))
-		},
-		[user],
-	)
-
-	const updateListingStatus = useCallback(
-		async (id: string, status: LostItemStatus) => {
-			if (!user) return
-			await accountService.updateUserListingStatus(user.id, id, status)
-			setListings(prev => prev.map(l => (l.id === id ? { ...l, status } : l)))
-		},
-		[user],
-	)
-
 	return (
 		<AuthContext.Provider
 			value={{
@@ -165,12 +134,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				login,
 				logout,
 				stickers,
-				listings,
 				activateSticker,
 				deactivateSticker,
 				updateSticker,
-				deleteListing,
-				updateListingStatus,
 			}}
 		>
 			{children}

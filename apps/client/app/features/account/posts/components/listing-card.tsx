@@ -11,7 +11,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@retrouve-ci/ui/components'
-import { Link } from 'react-router'
+import { Link, useFetcher } from 'react-router'
 import {
 	Eye,
 	MessageCircle,
@@ -23,6 +23,7 @@ import {
 	Package,
 	ChevronRight,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import type { UserLostItem } from '@/shared/types/lost-item'
 import { cn } from '@retrouve-ci/ui/utils'
 
@@ -46,15 +47,30 @@ const STATUS_CONFIG = {
 
 interface ListingCardProps {
 	listing: UserLostItem
-	onDelete: () => void
-	onStatusChange: (status: UserLostItem['status']) => void
 }
 
-export function ListingCard({
-	listing,
-	onDelete,
-	onStatusChange,
-}: ListingCardProps) {
+export function ListingCard({ listing }: ListingCardProps) {
+	const fetcher = useFetcher()
+	const isUpdating = fetcher.state !== 'idle'
+
+	const handleStatusChange = (status: UserLostItem['status']) => {
+		toast.success(
+			status === 'resolved' ? 'Annonce marquée résolue' : 'Annonce réactivée',
+		)
+		void fetcher.submit(
+			{ intent: 'update-status', id: listing.id, status },
+			{ method: 'post' },
+		)
+	}
+
+	const handleDelete = () => {
+		toast.success('Annonce supprimée')
+		void fetcher.submit(
+			{ intent: 'delete', id: listing.id },
+			{ method: 'post' },
+		)
+	}
+
 	return (
 		<div
 			className={cn(
@@ -143,7 +159,8 @@ export function ListingCard({
 							variant="ghost"
 							size="sm"
 							className="h-8 gap-1.5 rounded-lg text-xs"
-							onClick={() => onStatusChange('resolved')}
+							disabled={isUpdating}
+							onClick={() => handleStatusChange('resolved')}
 						>
 							<CheckCircle className="h-3.5 w-3.5" />
 							Marquer résolue
@@ -154,7 +171,8 @@ export function ListingCard({
 							variant="ghost"
 							size="sm"
 							className="h-8 gap-1.5 rounded-lg text-xs"
-							onClick={() => onStatusChange('active')}
+							disabled={isUpdating}
+							onClick={() => handleStatusChange('active')}
 						>
 							<XCircle className="h-3.5 w-3.5" />
 							Réactiver
@@ -195,7 +213,7 @@ export function ListingCard({
 									Annuler
 								</AlertDialogCancel>
 								<AlertDialogAction
-									onClick={onDelete}
+									onClick={handleDelete}
 									className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
 								>
 									Supprimer

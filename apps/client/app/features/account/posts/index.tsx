@@ -1,27 +1,21 @@
 import { Button, Input } from '@retrouve-ci/ui/components'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { FileText, Plus, ArrowLeft, Search } from 'lucide-react'
-import { toast } from 'sonner'
-import { useAuth } from '@/shared/auth/auth-context'
 import { cn } from '@retrouve-ci/ui/utils'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { ListingCard } from './components/listing-card'
+import { accountPostsLoader } from './servers/account-posts.loader'
+import { accountPostsAction } from './servers/account-posts.action'
+import type { Route } from './+types/index'
 
-export default function AnnoncesPage() {
-	const navigate = useNavigate()
-	const {
-		isAuthenticated,
-		isLoading,
-		listings,
-		deleteListing,
-		updateListingStatus,
-	} = useAuth()
+export const loader = accountPostsLoader
+
+export const action = accountPostsAction
+
+export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
+	const { listings } = loaderData
 	const [search, setSearch] = useState('')
 	const [filter, setFilter] = useState<'all' | 'active' | 'resolved'>('all')
-
-	useEffect(() => {
-		if (!isLoading && !isAuthenticated) navigate('/auth')
-	}, [isLoading, isAuthenticated, navigate])
 
 	const filteredListings = useMemo(() => {
 		return listings.filter(l => {
@@ -33,19 +27,6 @@ export default function AnnoncesPage() {
 
 	const activeCount = listings.filter(l => l.status === 'active').length
 	const resolvedCount = listings.filter(l => l.status === 'resolved').length
-
-	const handleDelete = (id: string) => {
-		deleteListing(id)
-		toast.success('Annonce supprimée')
-	}
-
-	if (isLoading) {
-		return (
-			<main className="flex flex-1 items-center justify-center">
-				<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
-			</main>
-		)
-	}
 
 	return (
 		<main className="flex-1">
@@ -143,14 +124,7 @@ export default function AnnoncesPage() {
 					{filteredListings.length > 0 ? (
 						<div className="grid gap-4 lg:grid-cols-2">
 							{filteredListings.map(listing => (
-								<ListingCard
-									key={listing.id}
-									listing={listing}
-									onDelete={() => handleDelete(listing.id)}
-									onStatusChange={status =>
-										updateListingStatus(listing.id, status)
-									}
-								/>
+								<ListingCard key={listing.id} listing={listing} />
 							))}
 						</div>
 					) : listings.length > 0 ? (

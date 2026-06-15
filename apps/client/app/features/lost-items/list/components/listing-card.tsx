@@ -188,9 +188,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 						<div className="flex flex-col gap-0.5">
 							<span className="text-muted-foreground flex items-center gap-1 text-[11px]">
 								<MapPin className="h-3 w-3 shrink-0" />
-								<span className="max-w-[110px] truncate">
-									{listing.location}
-								</span>
+								<span className="max-w-27.5 truncate">{listing.location}</span>
 							</span>
 							<span className="text-muted-foreground flex items-center gap-1 text-[11px]">
 								<Clock className="h-3 w-3 shrink-0" />

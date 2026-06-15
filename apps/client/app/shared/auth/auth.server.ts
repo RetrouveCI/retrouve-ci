@@ -1,3 +1,4 @@
+import { redirect } from 'react-router'
 import { apiFetch } from '@/shared/lib/api-client'
 
 interface ServerSession {
@@ -15,4 +16,12 @@ export async function getServerSession(
 	} catch {
 		return null
 	}
+}
+
+export async function requireServerSession(
+	request: Request,
+): Promise<ServerSession> {
+	const session = await getServerSession(request)
+	if (!session) throw redirect('/auth')
+	return session
 }
