@@ -10,13 +10,37 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@retrouve-ci/ui/components'
+import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
+import { PasswordInput } from '@/features/auth/components/password-input'
 
 export function DangerZoneSection({
 	onDeleteAccount,
 }: {
-	onDeleteAccount: () => void
+	onDeleteAccount: (password: string) => Promise<void>
 }) {
+	const [open, setOpen] = useState(false)
+	const [password, setPassword] = useState('')
+	const [isDeleting, setIsDeleting] = useState(false)
+
+	const handleOpenChange = (next: boolean) => {
+		setOpen(next)
+		if (!next) setPassword('')
+	}
+
+	const handleConfirm = async () => {
+		setIsDeleting(true)
+		try {
+			await onDeleteAccount(password)
+			setOpen(false)
+			setPassword('')
+		} catch {
+			setPassword('')
+		} finally {
+			setIsDeleting(false)
+		}
+	}
+
 	return (
 		<div className="border-destructive/20 bg-destructive/5 overflow-hidden rounded-2xl border">
 			<div className="border-destructive/20 bg-destructive/10 border-b p-5">
@@ -33,7 +57,7 @@ export function DangerZoneSection({
 							Cette action est irréversible et supprimera toutes vos données.
 						</p>
 					</div>
-					<AlertDialog>
+					<AlertDialog open={open} onOpenChange={handleOpenChange}>
 						<AlertDialogTrigger asChild>
 							<Button variant="destructive" size="sm" className="rounded-xl">
 								Supprimer
@@ -47,12 +71,25 @@ export function DangerZoneSection({
 									annonces et vos stickers. Cette action est irréversible.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
+							<div className="py-2">
+								<PasswordInput
+									id="delete-account-password"
+									label="Confirmez avec votre mot de passe"
+									value={password}
+									onChange={setPassword}
+									disabled={isDeleting}
+								/>
+							</div>
 							<AlertDialogFooter>
 								<AlertDialogCancel className="rounded-xl">
 									Annuler
 								</AlertDialogCancel>
 								<AlertDialogAction
-									onClick={onDeleteAccount}
+									onClick={e => {
+										e.preventDefault()
+										void handleConfirm()
+									}}
+									disabled={!password || isDeleting}
 									className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
 								>
 									Supprimer mon compte
