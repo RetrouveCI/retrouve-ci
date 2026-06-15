@@ -1,13 +1,7 @@
-import {
-	Button,
-	Input,
-	Label,
-	RadioGroup,
-	RadioGroupItem,
-} from '@retrouve-ci/ui/components'
+import { Button, RadioGroup, RadioGroupItem } from '@retrouve-ci/ui/components'
+import type { FieldMetadata } from '@conform-to/react'
 import {
 	ArrowLeft,
-	Phone,
 	Shield,
 	Smartphone,
 	Check,
@@ -15,15 +9,9 @@ import {
 	Loader2,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
+import { InputField } from '@/shared/components/form/input-field'
+import { FieldError } from '@/shared/components/form/field-error'
 import { OrderSummaryCard } from './order-summary-card'
-
-interface FormData {
-	name: string
-	phone: string
-	address: string
-	city: string
-	paymentPhone: string
-}
 
 interface Pack {
 	id: string
@@ -44,8 +32,8 @@ interface PaymentStepProps {
 	paymentMethods: PaymentMethod[]
 	paymentMethod: string | null
 	onPaymentMethodChange: (id: string) => void
-	formData: FormData
-	onFormChange: (key: keyof FormData, value: string) => void
+	paymentMethodError?: string
+	paymentPhoneField: FieldMetadata<string>
 	isProcessing: boolean
 	selectedPackData: Pack
 	selectedPaymentData: PaymentMethod | undefined
@@ -53,15 +41,14 @@ interface PaymentStepProps {
 	totalPrice: number
 	formatPrice: (n: number) => string
 	onBack: () => void
-	onNext: () => void
 }
 
 export function PaymentStep({
 	paymentMethods,
 	paymentMethod,
 	onPaymentMethodChange,
-	formData,
-	onFormChange,
+	paymentMethodError,
+	paymentPhoneField,
 	isProcessing,
 	selectedPackData,
 	selectedPaymentData,
@@ -69,13 +56,13 @@ export function PaymentStep({
 	totalPrice,
 	formatPrice,
 	onBack,
-	onNext,
 }: PaymentStepProps) {
 	return (
 		<div className="grid gap-8 md:grid-cols-5">
 			<div className="space-y-6 md:col-span-3">
 				<div>
 					<button
+						type="button"
 						onClick={onBack}
 						className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm"
 					>
@@ -119,22 +106,20 @@ export function PaymentStep({
 							))}
 						</div>
 					</RadioGroup>
+					<FieldError
+						errors={paymentMethodError ? [paymentMethodError] : undefined}
+					/>
 
 					{paymentMethod && (
 						<div className="space-y-2 border-t pt-4">
-							<Label htmlFor="payment-phone">
-								Numéro {selectedPaymentData?.name} *
-							</Label>
-							<div className="relative">
-								<Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-								<Input
-									id="payment-phone"
-									value={formData.paymentPhone}
-									onChange={e => onFormChange('paymentPhone', e.target.value)}
-									placeholder={`${selectedPaymentData?.prefix} XX XX XX XX`}
-									className="h-12 rounded-xl pl-10"
-								/>
-							</div>
+							<InputField
+								field={paymentPhoneField}
+								label={`Numéro ${selectedPaymentData?.name ?? ''}`}
+								required
+								type="tel"
+								placeholder={`${selectedPaymentData?.prefix} XX XX XX XX`}
+								className="h-12 rounded-xl"
+							/>
 							<p className="text-muted-foreground text-xs">
 								Vous recevrez une demande de paiement sur ce numéro.
 							</p>
@@ -150,9 +135,9 @@ export function PaymentStep({
 				</div>
 
 				<Button
+					type="submit"
 					size="lg"
-					onClick={onNext}
-					disabled={!paymentMethod || !formData.paymentPhone || isProcessing}
+					disabled={!paymentMethod || !paymentPhoneField.value || isProcessing}
 					className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-white"
 				>
 					{isProcessing ? (
@@ -175,11 +160,6 @@ export function PaymentStep({
 					deliveryFee={deliveryFee}
 					totalPrice={totalPrice}
 					formatPrice={formatPrice}
-					deliveryInfo={{
-						name: formData.name,
-						address: formData.address,
-						city: formData.city,
-					}}
 				/>
 			</div>
 		</div>

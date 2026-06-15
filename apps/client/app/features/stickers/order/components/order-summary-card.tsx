@@ -1,4 +1,4 @@
-import { QrCode, MapPin, Tag } from 'lucide-react'
+import { QrCode, Tag } from 'lucide-react'
 
 interface Pack {
 	id: string
@@ -7,18 +7,11 @@ interface Pack {
 	price: number
 }
 
-interface DeliveryInfo {
-	name: string
-	address: string
-	city: string
-}
-
 interface OrderSummaryCardProps {
 	selectedPackData: Pack
 	deliveryFee: number
 	totalPrice: number
 	formatPrice: (n: number) => string
-	deliveryInfo?: DeliveryInfo
 }
 
 export function OrderSummaryCard({
@@ -26,7 +19,6 @@ export function OrderSummaryCard({
 	deliveryFee,
 	totalPrice,
 	formatPrice,
-	deliveryInfo,
 }: OrderSummaryCardProps) {
 	return (
 		<div className="bg-background sticky top-36 rounded-2xl border p-6">
@@ -43,17 +35,6 @@ export function OrderSummaryCard({
 						</p>
 					</div>
 				</div>
-
-				{deliveryInfo && (
-					<div className="flex items-start gap-2 text-sm">
-						<MapPin className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
-						<div>
-							<p className="font-medium">{deliveryInfo.name}</p>
-							<p className="text-muted-foreground">{deliveryInfo.address}</p>
-							<p className="text-muted-foreground">{deliveryInfo.city}</p>
-						</div>
-					</div>
-				)}
 
 				<div className="space-y-2 text-sm">
 					<div className="flex justify-between">

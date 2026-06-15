@@ -18,6 +18,7 @@ interface PackSelectionStepProps {
 	onSelectPack: (id: string) => void
 	onNext: () => void
 	formatPrice: (n: number) => string
+	error?: string
 }
 
 export function PackSelectionStep({
@@ -26,6 +27,7 @@ export function PackSelectionStep({
 	onSelectPack,
 	onNext,
 	formatPrice,
+	error,
 }: PackSelectionStepProps) {
 	return (
 		<div className="space-y-6">
@@ -40,6 +42,7 @@ export function PackSelectionStep({
 				{packs.map(pack => (
 					<button
 						key={pack.id}
+						type="button"
 						onClick={() => onSelectPack(pack.id)}
 						className={cn(
 							'relative rounded-2xl border-2 p-6 text-left transition-all duration-200 hover:shadow-lg',
@@ -94,8 +97,11 @@ export function PackSelectionStep({
 				))}
 			</div>
 
+			{error && <p className="text-destructive text-center text-sm">{error}</p>}
+
 			<div className="flex justify-center pt-4">
 				<Button
+					type="button"
 					size="lg"
 					onClick={onNext}
 					disabled={!selectedPack}

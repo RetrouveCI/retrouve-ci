@@ -1,16 +1,25 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { useFetcher } from 'react-router'
+import {
+	useForm,
+	useInputControl,
+	getFormProps,
+	type SubmissionResult,
+} from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { OrderProgressBar } from './components/order-progress-bar'
 import { PackSelectionStep } from './components/pack-selection-step'
 import { DeliveryStep } from './components/delivery-step'
 import { PaymentStep } from './components/payment-step'
 import { ConfirmationStep } from './components/confirmation-step'
-import {
-	DELIVERY_FEE,
-	VALID_COUPONS,
-	PACKS,
-	PAYMENT_METHODS,
-} from './stickers-order.const'
+import { stickerOrderSchema } from './order.schema'
+import { orderAction } from './servers/order.action'
+import { DELIVERY_FEE, VALID_COUPONS, PACKS, PAYMENT_METHODS } from './stickers-order.const'
+import type { Order } from '../../account/orders/orders.types'
+
+export const action = ({ request }: { request: Request }) =>
+	orderAction(request)
 
 export function meta() {
 	return [
@@ -23,43 +32,64 @@ export function meta() {
 }
 
 type Step = 'select' | 'delivery' | 'payment' | 'confirmation'
-type FormDataKey = 'name' | 'phone' | 'address' | 'city' | 'paymentPhone'
+type ActionData = SubmissionResult | { ok: true; order: Order }
 
 export default function CommanderPage() {
+	const fetcher = useFetcher<ActionData>()
+	const actionData = fetcher.data
+	const lastResult =
+		actionData && 'status' in actionData ? actionData : undefined
+
 	const [step, setStep] = useState<Step>('select')
-	const [selectedPack, setSelectedPack] = useState<string | null>(null)
-	const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
-	const [isProcessing, setIsProcessing] = useState(false)
-	const [orderComplete, setOrderComplete] = useState(false)
+	const [order, setOrder] = useState<Order | null>(null)
 	const [couponInput, setCouponInput] = useState('')
 	const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
 	const [couponError, setCouponError] = useState('')
 
-	const [formData, setFormData] = useState({
-		name: '',
-		phone: '',
-		address: '',
-		city: 'Abidjan',
-		paymentPhone: '',
+	const [form, fields] = useForm({
+		lastResult,
+		constraint: getZodConstraint(stickerOrderSchema),
+		defaultValue: { city: 'Abidjan' },
+		shouldValidate: 'onSubmit',
+		shouldRevalidate: 'onInput',
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: stickerOrderSchema })
+		},
 	})
 
-	const selectedPackData = PACKS.find(p => p.id === selectedPack)
-	const selectedPaymentData = PAYMENT_METHODS.find(p => p.id === paymentMethod)
+	const packIdControl = useInputControl(fields.packId)
+	const paymentMethodControl = useInputControl(fields.paymentMethod)
+	const couponCodeControl = useInputControl(fields.couponCode)
+
+	const isProcessing = fetcher.state !== 'idle'
+
+	useEffect(() => {
+		if (!actionData) return
+		if ('ok' in actionData && actionData.ok) {
+			setOrder(actionData.order)
+			setStep('confirmation')
+		} else if ('status' in actionData && actionData.status === 'error') {
+			const formErrors = actionData.error?.[''] ?? []
+			if (formErrors.length > 0) toast.error(formErrors[0])
+		}
+	}, [actionData])
+
+	const selectedPackData = PACKS.find(p => p.id === packIdControl.value)
+	const selectedPaymentData = PAYMENT_METHODS.find(
+		p => p.id === paymentMethodControl.value,
+	)
 	const deliveryFee = appliedCoupon ? 0 : DELIVERY_FEE
 	const totalPrice = (selectedPackData?.price ?? 0) + deliveryFee
 
 	const formatPrice = (price: number) =>
 		new Intl.NumberFormat('fr-FR').format(price)
 
-	const handleFormChange = (key: FormDataKey, value: string) => {
-		setFormData(prev => ({ ...prev, [key]: value }))
-	}
-
 	const handleApplyCoupon = () => {
 		const code = couponInput.trim().toUpperCase()
 		if (VALID_COUPONS.includes(code)) {
 			setAppliedCoupon(code)
 			setCouponError('')
+			couponCodeControl.change(code)
 			toast.success('Coupon appliqué ! Livraison offerte.')
 		} else {
 			setCouponError('Code invalide ou expiré.')
@@ -71,25 +101,22 @@ export default function CommanderPage() {
 		setAppliedCoupon(null)
 		setCouponInput('')
 		setCouponError('')
+		couponCodeControl.change('')
 	}
 
 	const handleNext = () => {
-		if (step === 'select' && selectedPack) {
+		if (step === 'select') {
+			if (!packIdControl.value) {
+				toast.error('Veuillez sélectionner un pack')
+				return
+			}
 			setStep('delivery')
 		} else if (step === 'delivery') {
-			if (!formData.name || !formData.phone || !formData.address) {
+			if (!fields.name.value || !fields.phone.value || !fields.address.value) {
 				toast.error('Veuillez remplir tous les champs obligatoires')
 				return
 			}
 			setStep('payment')
-		} else if (step === 'payment') {
-			if (!paymentMethod || !formData.paymentPhone) {
-				toast.error(
-					'Veuillez sélectionner un moyen de paiement et entrer votre numéro',
-				)
-				return
-			}
-			handlePayment()
 		}
 	}
 
@@ -97,15 +124,6 @@ export default function CommanderPage() {
 		if (step === 'delivery') setStep('select')
 		else if (step === 'payment') setStep('delivery')
 		else if (step === 'confirmation') setStep('payment')
-	}
-
-	const handlePayment = async () => {
-		setIsProcessing(true)
-		await new Promise(resolve => setTimeout(resolve, 3000))
-		setIsProcessing(false)
-		setOrderComplete(true)
-		setStep('confirmation')
-		toast.success('Paiement effectué avec succès!')
 	}
 
 	const stepNumber =
@@ -117,63 +135,65 @@ export default function CommanderPage() {
 
 			<div className="container mx-auto px-4 py-8">
 				<div className="mx-auto max-w-4xl">
-					{step === 'select' && (
-						<PackSelectionStep
-							packs={PACKS}
-							selectedPack={selectedPack}
-							onSelectPack={setSelectedPack}
-							onNext={handleNext}
-							formatPrice={formatPrice}
-						/>
-					)}
+					<fetcher.Form method="post" {...getFormProps(form)}>
+						<div className={step === 'select' ? '' : 'hidden'}>
+							<PackSelectionStep
+								packs={PACKS}
+								selectedPack={packIdControl.value ?? null}
+								onSelectPack={packIdControl.change}
+								onNext={handleNext}
+								formatPrice={formatPrice}
+								error={fields.packId.errors?.[0]}
+							/>
+						</div>
 
-					{step === 'delivery' && selectedPackData && (
-						<DeliveryStep
-							formData={formData}
-							onFormChange={handleFormChange}
-							couponInput={couponInput}
-							appliedCoupon={appliedCoupon}
-							couponError={couponError}
-							onCouponInputChange={val => {
-								setCouponInput(val)
-								setCouponError('')
-							}}
-							onApplyCoupon={handleApplyCoupon}
-							onRemoveCoupon={handleRemoveCoupon}
-							selectedPackData={selectedPackData}
-							deliveryFee={deliveryFee}
-							totalPrice={totalPrice}
-							formatPrice={formatPrice}
-							onBack={handleBack}
-							onNext={handleNext}
-						/>
-					)}
+						<div className={step === 'delivery' ? '' : 'hidden'}>
+							{selectedPackData && (
+								<DeliveryStep
+									fields={fields}
+									couponInput={couponInput}
+									appliedCoupon={appliedCoupon}
+									couponError={couponError}
+									onCouponInputChange={val => {
+										setCouponInput(val)
+										setCouponError('')
+									}}
+									onApplyCoupon={handleApplyCoupon}
+									onRemoveCoupon={handleRemoveCoupon}
+									selectedPackData={selectedPackData}
+									deliveryFee={deliveryFee}
+									totalPrice={totalPrice}
+									formatPrice={formatPrice}
+									onBack={handleBack}
+									onNext={handleNext}
+								/>
+							)}
+						</div>
 
-					{step === 'payment' && !orderComplete && selectedPackData && (
-						<PaymentStep
-							paymentMethods={PAYMENT_METHODS}
-							paymentMethod={paymentMethod}
-							onPaymentMethodChange={setPaymentMethod}
-							formData={formData}
-							onFormChange={handleFormChange}
-							isProcessing={isProcessing}
-							selectedPackData={selectedPackData}
-							selectedPaymentData={selectedPaymentData}
-							deliveryFee={deliveryFee}
-							totalPrice={totalPrice}
-							formatPrice={formatPrice}
-							onBack={handleBack}
-							onNext={handleNext}
-						/>
-					)}
+						<div className={step === 'payment' ? '' : 'hidden'}>
+							{selectedPackData && (
+								<PaymentStep
+									paymentMethods={PAYMENT_METHODS}
+									paymentMethod={paymentMethodControl.value ?? null}
+									onPaymentMethodChange={paymentMethodControl.change}
+									paymentMethodError={fields.paymentMethod.errors?.[0]}
+									paymentPhoneField={fields.paymentPhone}
+									isProcessing={isProcessing}
+									selectedPackData={selectedPackData}
+									selectedPaymentData={selectedPaymentData}
+									deliveryFee={deliveryFee}
+									totalPrice={totalPrice}
+									formatPrice={formatPrice}
+									onBack={handleBack}
+								/>
+							)}
+						</div>
+					</fetcher.Form>
 
-					{step === 'confirmation' && orderComplete && selectedPackData && (
+					{step === 'confirmation' && order && (
 						<ConfirmationStep
-							selectedPackData={selectedPackData}
-							formData={formData}
-							selectedPaymentData={selectedPaymentData}
-							deliveryFee={deliveryFee}
-							totalPrice={totalPrice}
+							order={order}
+							phone={fields.phone.value ?? ''}
 							formatPrice={formatPrice}
 						/>
 					)}
