@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import {
 	Avatar,
@@ -11,7 +12,7 @@ import {
 	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components'
 import { useAuth } from '@/shared/auth/auth-context'
-import { MOCK_NOTIFICATIONS } from '@/shared/lib/mock-notifications'
+import { apiFetch } from '@/shared/lib/api-client'
 import { MobileSidebar } from './sidebar'
 import { Bell, LogOut, User, ChevronDown } from 'lucide-react'
 
@@ -22,7 +23,13 @@ interface TopBarProps {
 export function TopBar({ title }: TopBarProps) {
 	const { user, logout } = useAuth()
 	const navigate = useNavigate()
-	const unreadCount = MOCK_NOTIFICATIONS.filter(n => !n.read).length
+	const [unreadCount, setUnreadCount] = useState(0)
+
+	useEffect(() => {
+		apiFetch<{ count: number }>('/notifications/unread-count')
+			.then((res) => setUnreadCount(res.count))
+			.catch(() => {})
+	}, [])
 
 	const handleLogout = async () => {
 		await logout()
