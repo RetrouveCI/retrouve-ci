@@ -13,7 +13,7 @@ import { type DateRange } from 'react-day-picker'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { X, MapPin, Calendar, SlidersHorizontal } from 'lucide-react'
-import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/lib/ci-locations'
+import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants'
 import { cn } from '@retrouve-ci/ui/utils'
 
 interface FilterPanelProps {
