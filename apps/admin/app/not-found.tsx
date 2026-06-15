@@ -5,13 +5,13 @@ import { SearchX, LayoutDashboard } from 'lucide-react'
 export default function NotFound() {
 	return (
 		<div className="bg-background flex min-h-screen flex-col items-center justify-center px-4 text-center">
-			<div className="flex flex-col items-center gap-6 max-w-sm">
+			<div className="flex max-w-sm flex-col items-center gap-6">
 				<div className="bg-primary/10 text-primary flex h-20 w-20 items-center justify-center rounded-full">
 					<SearchX className="h-10 w-10" />
 				</div>
 
 				<div className="flex flex-col gap-2">
-					<p className="text-primary text-sm font-semibold uppercase tracking-widest">
+					<p className="text-primary text-sm font-semibold tracking-widest uppercase">
 						Erreur 404
 					</p>
 					<h1 className="text-3xl font-bold tracking-tight">

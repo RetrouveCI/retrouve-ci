@@ -38,6 +38,7 @@ export async function apiFetch<T>(
 		const body = (await response
 			.json()
 			.catch(() => null)) as ApiErrorBody | null
+
 		throw new ApiError(
 			response.status,
 			body ? toErrorMessage(body, response.statusText) : response.statusText,
@@ -49,5 +50,6 @@ export async function apiFetch<T>(
 	}
 
 	const text = await response.text()
+
 	return text ? (JSON.parse(text) as T) : (undefined as T)
 }

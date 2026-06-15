@@ -22,7 +22,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const sessionUser = session.data?.user
 	const user: AdminUser | null =
 		sessionUser && sessionUser.role === 'admin'
-			? { email: sessionUser.email, name: sessionUser.name, role: sessionUser.role }
+			? {
+					email: sessionUser.email,
+					name: sessionUser.name,
+					role: sessionUser.role,
+				}
 			: null
 
 	const login = async (

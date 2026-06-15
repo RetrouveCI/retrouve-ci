@@ -112,7 +112,9 @@ describe('EventUseCases', () => {
 			vi.mocked(repository.findById).mockResolvedValue(event)
 			vi.mocked(repository.update).mockResolvedValue(updated)
 
-			const result = await useCases.update('event-1', { title: 'Nouveau titre' })
+			const result = await useCases.update('event-1', {
+				title: 'Nouveau titre',
+			})
 
 			expect(repository.update).toHaveBeenCalledWith('event-1', {
 				title: 'Nouveau titre',

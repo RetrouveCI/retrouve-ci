@@ -193,7 +193,11 @@ describe('LostItemsController', () => {
 
 	describe('listForAdmin', () => {
 		it('delegates to the use cases without forcing a moderation status', async () => {
-			const query = { page: 1, pageSize: 20, moderationStatus: 'pending' as const }
+			const query = {
+				page: 1,
+				pageSize: 20,
+				moderationStatus: 'pending' as const,
+			}
 			const response = {
 				items: [buildLostItem({ moderationStatus: 'pending' })],
 				total: 1,
@@ -218,10 +222,7 @@ describe('LostItemsController', () => {
 				moderationStatus: 'published',
 			})
 
-			expect(useCases.moderate).toHaveBeenCalledWith(
-				'lost-item-1',
-				'published',
-			)
+			expect(useCases.moderate).toHaveBeenCalledWith('lost-item-1', 'published')
 			expect(result).toEqual(moderated)
 		})
 	})

@@ -1,6 +1,10 @@
 import { QrTokenStatus as PrismaQrTokenStatus } from '@retrouve-ci/database'
 import { describe, expect, it } from 'vitest'
-import { toDomainQrToken, toDomainStatus, toPrismaStatus } from './qr-token.mapper'
+import {
+	toDomainQrToken,
+	toDomainStatus,
+	toPrismaStatus,
+} from './qr-token.mapper'
 
 describe('qr-token mapper', () => {
 	it('maps a Prisma QrToken to the domain model', () => {

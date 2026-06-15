@@ -10,7 +10,10 @@ import type {
 	ListEventsFilter,
 	UpdateEventData,
 } from '../types/event.types'
-import { validateCreateEvent, validateUpdateEvent } from '../validators/event.validator'
+import {
+	validateCreateEvent,
+	validateUpdateEvent,
+} from '../validators/event.validator'
 
 @Injectable()
 export class EventUseCases {

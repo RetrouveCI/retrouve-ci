@@ -15,7 +15,7 @@ export class QrTokenRepositoryService implements QrTokenRepository {
 
 	async createMany(codes: string[], batch?: string): Promise<QrToken[]> {
 		await this.prisma.qrToken.createMany({
-			data: codes.map((code) => ({ code, batch: batch ?? null })),
+			data: codes.map(code => ({ code, batch: batch ?? null })),
 		})
 
 		const created = await this.prisma.qrToken.findMany({

@@ -40,7 +40,9 @@ export class NotificationRepositoryService implements NotificationRepository {
 		return notification ? toDomainNotification(notification) : null
 	}
 
-	async list(filter: ListNotificationsFilter): Promise<NotificationListResponse> {
+	async list(
+		filter: ListNotificationsFilter,
+	): Promise<NotificationListResponse> {
 		const where = {
 			userId: filter.userId,
 			...(filter.read !== undefined && { read: filter.read }),

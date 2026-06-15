@@ -13,7 +13,10 @@ import {
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
 
-export function computeMatchScore(source: LostItem, candidate: LostItem): number {
+export function computeMatchScore(
+	source: LostItem,
+	candidate: LostItem,
+): number {
 	let score = 0
 
 	if (source.category === candidate.category) {
@@ -51,14 +54,16 @@ export function computeMatchScore(source: LostItem, candidate: LostItem): number
 
 function hasTextOverlap(source: LostItem, candidate: LostItem): boolean {
 	const sourceWords = extractWords(`${source.title} ${source.description}`)
-	const candidateWords = extractWords(`${candidate.title} ${candidate.description}`)
+	const candidateWords = extractWords(
+		`${candidate.title} ${candidate.description}`,
+	)
 
-	return sourceWords.some((word) => candidateWords.includes(word))
+	return sourceWords.some(word => candidateWords.includes(word))
 }
 
 function extractWords(text: string): string[] {
 	return text
 		.toLowerCase()
 		.split(/[^a-z0-9àâäéèêëïîôöùûüÿç]+/)
-		.filter((word) => word.length >= MIN_OVERLAP_WORD_LENGTH)
+		.filter(word => word.length >= MIN_OVERLAP_WORD_LENGTH)
 }

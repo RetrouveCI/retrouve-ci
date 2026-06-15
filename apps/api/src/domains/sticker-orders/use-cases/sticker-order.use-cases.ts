@@ -72,7 +72,9 @@ export class StickerOrderUseCases {
 		return stickerOrder
 	}
 
-	async list(filter: ListStickerOrdersFilter): Promise<StickerOrderListResponse> {
+	async list(
+		filter: ListStickerOrdersFilter,
+	): Promise<StickerOrderListResponse> {
 		return this.stickerOrderRepository.list(filter)
 	}
 
