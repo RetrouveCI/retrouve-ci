@@ -1,20 +1,13 @@
 import { data, redirect } from 'react-router'
-import { z } from 'zod'
 import { requireServerSession } from '@/shared/auth/auth.server'
 import { ApiError } from '@/shared/lib/api-client'
+import { settingsActionSchema } from '../settings.schema'
 import { deleteAccount } from './settings.service'
-
-const actionSchema = z.discriminatedUnion('intent', [
-	z.object({
-		intent: z.literal('delete-account'),
-		password: z.string().min(1, 'Mot de passe requis'),
-	}),
-])
 
 export async function settingsAction({ request }: { request: Request }) {
 	await requireServerSession(request)
 
-	const submission = actionSchema.safeParse(
+	const submission = settingsActionSchema.safeParse(
 		Object.fromEntries(await request.formData()),
 	)
 	if (!submission.success) {

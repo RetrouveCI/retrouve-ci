@@ -14,7 +14,10 @@ import { useEffect, useState } from 'react'
 import { useFetcher, useNavigate } from 'react-router'
 import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { parseWithZod } from '@conform-to/zod'
 import { PasswordInput } from '@/features/auth/components/password-input'
+import { FieldError } from '@/shared/components/form/field-error'
+import { deleteAccountSchema } from '../settings.schema'
 
 interface ActionResult {
 	ok: boolean
@@ -26,6 +29,7 @@ export function DangerZoneSection() {
 	const navigate = useNavigate()
 	const [open, setOpen] = useState(false)
 	const [password, setPassword] = useState('')
+	const [errors, setErrors] = useState<string[] | undefined>()
 
 	useEffect(() => {
 		if (fetcher.state !== 'idle' || !fetcher.data) return
@@ -41,16 +45,32 @@ export function DangerZoneSection() {
 
 	const handleOpenChange = (next: boolean) => {
 		setOpen(next)
-		if (!next) setPassword('')
+		if (!next) {
+			setPassword('')
+			setErrors(undefined)
+		}
+	}
+
+	const handlePasswordChange = (value: string) => {
+		setPassword(value)
+		setErrors(undefined)
 	}
 
 	const isDeleting = fetcher.state !== 'idle'
 
 	const handleConfirm = () => {
-		void fetcher.submit(
-			{ intent: 'delete-account', password },
-			{ method: 'post' },
-		)
+		const formData = new FormData()
+		formData.set('intent', 'delete-account')
+		formData.set('password', password)
+
+		const submission = parseWithZod(formData, { schema: deleteAccountSchema })
+		if (submission.status !== 'success') {
+			setErrors(submission.error?.password ?? undefined)
+			return
+		}
+
+		setErrors(undefined)
+		void fetcher.submit(submission.value, { method: 'post' })
 	}
 
 	return (
@@ -88,9 +108,10 @@ export function DangerZoneSection() {
 									id="delete-account-password"
 									label="Confirmez avec votre mot de passe"
 									value={password}
-									onChange={setPassword}
+									onChange={handlePasswordChange}
 									disabled={isDeleting}
 								/>
+								<FieldError errors={errors} />
 							</div>
 							<AlertDialogFooter>
 								<AlertDialogCancel className="rounded-xl">
