@@ -22,8 +22,8 @@ const STATUS_CONFIG: Record<
 		color: 'text-amber-600',
 		bgColor: 'bg-amber-500/10',
 	},
-	confirmed: {
-		label: 'Confirmée',
+	processing: {
+		label: 'En préparation',
 		icon: CheckCircle2,
 		color: 'text-blue-600',
 		bgColor: 'bg-blue-500/10',
@@ -113,8 +113,8 @@ export function OrderDetail({ order, onClose }: OrderDetailProps) {
 
 					{order.status !== 'cancelled' && (
 						<div className="flex items-center justify-between">
-							{['confirmed', 'shipped', 'delivered'].map((s, idx) => {
-								const steps = ['confirmed', 'shipped', 'delivered']
+							{['processing', 'shipped', 'delivered'].map((s, idx) => {
+								const steps = ['processing', 'shipped', 'delivered']
 								const currentIdx = steps.indexOf(order.status)
 								const isCompleted = idx <= currentIdx
 								const isCurrent = s === order.status
@@ -227,7 +227,7 @@ export function OrderDetail({ order, onClose }: OrderDetailProps) {
 								<Link to="/account/stickers">Voir mes stickers</Link>
 							</Button>
 						)}
-						{(order.status === 'pending' || order.status === 'confirmed') && (
+						{(order.status === 'pending' || order.status === 'processing') && (
 							<Button
 								variant="outline"
 								className="text-destructive border-destructive/20 hover:bg-destructive/10 h-12 flex-1 rounded-xl"

@@ -1,88 +1,33 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { useState } from 'react'
+import { Link } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
-import { useAuth } from '@/shared/auth/auth-context'
 import { cn } from '@retrouve-ci/ui/utils'
 import { OrderDetail } from './components/order-detail'
 import { EmptyOrdersState } from './components/empty-orders-state'
 import { OrderCard } from './components/order-card'
 import { NewOrderCta } from './components/new-order-cta'
 import type { Order, OrderStatus } from './orders.types'
+import { ordersLoader } from './servers/orders.loader'
+import type { Route } from './+types/index'
 
-const mockOrders: Order[] = [
-	{
-		id: '1',
-		orderNumber: 'CMD-2025-001847',
-		date: '2025-04-20',
-		pack: { name: 'Famille', quantity: 8, price: 2500 },
-		deliveryFee: 0,
-		total: 2500,
-		status: 'delivered',
-		paymentMethod: 'Orange Money',
-		deliveryAddress: 'Cocody Riviera 3, Abidjan',
-		trackingNumber: 'TRK789456123',
-	},
-	{
-		id: '2',
-		orderNumber: 'CMD-2025-002134',
-		date: '2025-04-23',
-		pack: { name: 'Starter', quantity: 4, price: 1500 },
-		deliveryFee: 1000,
-		total: 2500,
-		status: 'shipped',
-		paymentMethod: 'MTN MoMo',
-		deliveryAddress: 'Plateau, Rue du Commerce, Abidjan',
-		estimatedDelivery: '25 Avril 2025',
-		trackingNumber: 'TRK987654321',
-	},
-	{
-		id: '3',
-		orderNumber: 'CMD-2025-002201',
-		date: '2025-04-24',
-		pack: { name: 'Pro', quantity: 20, price: 7000 },
-		deliveryFee: 1000,
-		total: 8000,
-		status: 'confirmed',
-		paymentMethod: 'Wave',
-		deliveryAddress: 'Yopougon Sicogi, Abidjan',
-		estimatedDelivery: '27 Avril 2025',
-	},
-]
+export const loader = ordersLoader
 
 const FILTER_OPTIONS: { value: OrderStatus | 'all'; label: string }[] = [
 	{ value: 'all', label: 'Toutes' },
 	{ value: 'pending', label: 'En attente' },
-	{ value: 'confirmed', label: 'Confirmées' },
+	{ value: 'processing', label: 'En préparation' },
 	{ value: 'shipped', label: 'En livraison' },
 	{ value: 'delivered', label: 'Livrées' },
 	{ value: 'cancelled', label: 'Annulées' },
 ]
 
-export default function CommandesPage() {
-	const navigate = useNavigate()
-	const { isAuthenticated, isLoading } = useAuth()
+export default function CommandesPage({ loaderData }: Route.ComponentProps) {
+	const { orders } = loaderData
 	const [filter, setFilter] = useState<OrderStatus | 'all'>('all')
 	const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
-	useEffect(() => {
-		if (!isLoading && !isAuthenticated) navigate('/auth')
-	}, [isLoading, isAuthenticated, navigate])
-
-	const orders = mockOrders
 	const filteredOrders =
 		filter === 'all' ? orders : orders.filter(o => o.status === filter)
-
-	if (isLoading) {
-		return (
-			<main className="flex flex-1 items-center justify-center">
-				<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
-			</main>
-		)
-	}
-
-	if (!isAuthenticated) {
-		return null
-	}
 
 	return (
 		<>
