@@ -2,6 +2,7 @@ import { Button } from '@retrouve-ci/ui/components'
 import { Link, useLocation } from 'react-router'
 import { Menu, User, LogOut, LogIn } from 'lucide-react'
 import { MobileNav } from '@/shared/components/mobile-nav'
+import { NotificationBell } from '@/features/notifications/components/notification-bell'
 import { useAuth } from '@/shared/auth/auth-context'
 import { useState, useEffect } from 'react'
 import { cn } from '@retrouve-ci/ui/utils'
@@ -64,6 +65,7 @@ export function Header() {
 				<div className="hidden items-center gap-2 md:flex">
 					{isAuthenticated ? (
 						<>
+							<NotificationBell />
 							<Button asChild variant="ghost" size="sm" className="h-9 gap-2">
 								<Link to="/account">
 									<div className="bg-primary-green/10 flex h-7 w-7 items-center justify-center rounded-full">
