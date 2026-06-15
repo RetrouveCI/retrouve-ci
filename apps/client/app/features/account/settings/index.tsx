@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router'
 import { Settings, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/shared/auth/auth-context'
-import { authClient } from '@/shared/auth/auth-client'
 import { PersonalInfoSection } from './components/personal-info-section'
 import { NotificationsSection } from './components/notifications-section'
 import { SecuritySection } from './components/security-section'
 import { DangerZoneSection } from './components/danger-zone-section'
+import { settingsAction } from './servers/settings.action'
+
+export const action = settingsAction
 
 export default function ParametresPage() {
 	const navigate = useNavigate()
@@ -27,18 +29,6 @@ export default function ParametresPage() {
 	const handleNotificationChange = (key: keyof typeof notifications) => {
 		setNotifications(prev => ({ ...prev, [key]: !prev[key] }))
 		toast.success('Préférences mises à jour')
-	}
-
-	const handleDeleteAccount = async (password: string) => {
-		const { error } = await authClient.deleteUser({ password })
-		if (error) {
-			toast.error('Mot de passe incorrect')
-			throw new Error(error.message)
-		}
-
-		toast.success('Votre compte a été supprimé')
-
-		navigate('/')
 	}
 
 	if (isLoading) {
@@ -85,7 +75,7 @@ export default function ParametresPage() {
 						onChange={handleNotificationChange}
 					/>
 					<SecuritySection />
-					<DangerZoneSection onDeleteAccount={handleDeleteAccount} />
+					<DangerZoneSection />
 				</div>
 			</section>
 		</main>
