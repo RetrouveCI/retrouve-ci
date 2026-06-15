@@ -119,7 +119,6 @@ export default function PublishLostPage() {
 						accentColor={ACCENT}
 						objectType={fields.objectType.value ?? ''}
 						ville={fields.ville.value ?? ''}
-						commune={fields.commune.value ?? ''}
 						formType="perdu"
 						tips={LOST_TIPS}
 						hint="Remplissez le type d'objet et la ville pour voir les correspondances."

@@ -16,6 +16,7 @@ export default [
 		route('publish', 'features/publish/index.tsx'),
 		route('publish/lost', 'features/publish/lost/index.tsx'),
 		route('publish/found', 'features/publish/found/index.tsx'),
+		route('publish/matches', 'features/publish/servers/matching.loader.ts'),
 		route('stickers', 'features/stickers/index.tsx'),
 		route('stickers/order', 'features/stickers/order/index.tsx'),
 		route('posts', 'features/lost-items/list/index.tsx'),

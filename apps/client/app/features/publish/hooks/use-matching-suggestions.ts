@@ -1,31 +1,44 @@
-import { useMemo } from 'react'
-import { MOCK_LISTINGS } from '@/shared/mock/data'
+import { useEffect } from 'react'
+import { useFetcher } from 'react-router'
 import type { LostItem, LostItemType } from '@/shared/types/lost-item'
-import { TYPE_TO_CATEGORY } from '../publish.const'
 
 interface MatchingSuggestionsParams {
 	objectType: string
 	ville: string
-	commune?: string
 	formType: 'perdu' | 'retrouve'
+}
+
+interface MatchingSuggestionsResult {
+	matches: LostItem[]
+	isLoading: boolean
 }
 
 export function useMatchingSuggestions({
 	objectType,
 	ville,
 	formType,
-}: MatchingSuggestionsParams): LostItem[] {
-	return useMemo(() => {
-		if (!objectType || !ville) return []
+}: MatchingSuggestionsParams): MatchingSuggestionsResult {
+	const fetcher = useFetcher<{ items: LostItem[] }>()
+
+	useEffect(() => {
+		if (!objectType || !ville) return
 
 		const targetType: LostItemType = formType === 'perdu' ? 'found' : 'lost'
-		const category = TYPE_TO_CATEGORY[objectType]
-
-		return MOCK_LISTINGS.filter(
-			l =>
-				l.type === targetType &&
-				l.category === category &&
-				l.ville?.toLowerCase() === ville.toLowerCase(),
-		).slice(0, 4)
+		const params = new URLSearchParams({
+			type: targetType,
+			category: objectType,
+			ville,
+		})
+		fetcher.load(`/publish/matches?${params}`)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [objectType, ville, formType])
+
+	if (!objectType || !ville) {
+		return { matches: [], isLoading: false }
+	}
+
+	return {
+		matches: fetcher.data?.items ?? [],
+		isLoading: fetcher.state === 'loading',
+	}
 }

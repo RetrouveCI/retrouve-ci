@@ -125,7 +125,6 @@ export default function PublishFoundPage() {
 						accentColor={ACCENT}
 						objectType={fields.objectType.value ?? ''}
 						ville={fields.ville.value ?? ''}
-						commune={fields.commune.value ?? ''}
 						formType="retrouve"
 						tips={FOUND_TIPS}
 						hint="Remplissez le type d'objet et la ville pour voir les correspondances."

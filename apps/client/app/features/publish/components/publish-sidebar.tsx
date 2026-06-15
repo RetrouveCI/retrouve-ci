@@ -13,7 +13,6 @@ interface PublishSidebarProps {
 	accentColor: string
 	objectType: string
 	ville: string
-	commune: string
 	formType: 'perdu' | 'retrouve'
 	tips: string[]
 	hint: string
@@ -25,7 +24,6 @@ export function PublishSidebar({
 	accentColor,
 	objectType,
 	ville,
-	commune,
 	formType,
 	tips,
 	hint,
@@ -38,7 +36,6 @@ export function PublishSidebar({
 				<MatchingSuggestions
 					objectType={objectType}
 					ville={ville}
-					commune={commune}
 					formType={formType}
 				/>
 			) : (
