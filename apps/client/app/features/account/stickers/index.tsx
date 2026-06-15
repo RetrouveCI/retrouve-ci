@@ -1,50 +1,19 @@
-import { useEffect } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { QrCode, ArrowLeft } from 'lucide-react'
-import { toast } from 'sonner'
-import { useAuth } from '@/shared/auth/auth-context'
-import type { Sticker } from '@/shared/types/sticker'
 import { StickerCard } from './components/sticker-card'
 import { ActivateStickerDialog } from './components/activate-sticker-dialog'
 import { OrderMoreCta } from './components/order-more-cta'
+import { stickersLoader } from './servers/stickers.loader'
+import { stickersAction } from './servers/stickers.action'
+import type { Route } from './+types/index'
 
-export default function StickersPage() {
-	const navigate = useNavigate()
-	const {
-		isAuthenticated,
-		isLoading,
-		stickers,
-		activateSticker,
-		deactivateSticker,
-		updateSticker,
-	} = useAuth()
+export const loader = stickersLoader
 
-	useEffect(() => {
-		if (!isLoading && !isAuthenticated) navigate('/auth')
-	}, [isLoading, isAuthenticated, navigate])
+export const action = stickersAction
 
+export default function StickersPage({ loaderData }: Route.ComponentProps) {
+	const { stickers } = loaderData
 	const activeStickers = stickers.filter(s => s.isActive).length
-
-	const handleToggleSticker = (sticker: Sticker) => {
-		if (sticker.isActive) {
-			deactivateSticker(sticker.id)
-			toast.success('Sticker désactivé')
-		} else {
-			updateSticker(sticker.id, {
-				isActive: true,
-				activatedAt: new Date().toISOString().split('T')[0],
-			})
-			toast.success('Sticker réactivé')
-		}
-	}
-
-	if (isLoading) {
-		return (
-			<main className="flex flex-1 items-center justify-center">
-				<div className="border-primary-green h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" />
-			</main>
-		)
-	}
 
 	return (
 		<main className="flex-1">
@@ -73,7 +42,7 @@ export default function StickersPage() {
 								</p>
 							</div>
 						</div>
-						<ActivateStickerDialog onActivate={activateSticker} />
+						<ActivateStickerDialog />
 					</div>
 				</div>
 			</section>
@@ -108,12 +77,7 @@ export default function StickersPage() {
 					{stickers.length > 0 ? (
 						<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 							{stickers.map(sticker => (
-								<StickerCard
-									key={sticker.id}
-									sticker={sticker}
-									onToggle={() => handleToggleSticker(sticker)}
-									onUpdate={updates => updateSticker(sticker.id, updates)}
-								/>
+								<StickerCard key={sticker.id} sticker={sticker} />
 							))}
 						</div>
 					) : (
@@ -126,7 +90,7 @@ export default function StickersPage() {
 								Activez votre premier sticker QR pour protéger vos objets
 								précieux.
 							</p>
-							<ActivateStickerDialog onActivate={activateSticker} />
+							<ActivateStickerDialog />
 						</div>
 					)}
 

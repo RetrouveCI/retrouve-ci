@@ -1,4 +1,8 @@
-import { NotFoundError, ValidationError } from '@/shared/errors/domain.error'
+import {
+	ForbiddenError,
+	NotFoundError,
+	ValidationError,
+} from '@/shared/errors/domain.error'
 
 export class QrTokenNotFoundError extends NotFoundError {
 	constructor(code: string) {
@@ -17,5 +21,11 @@ export class QrTokenAlreadyActivatedError extends ValidationError {
 export class QrTokenRevokedError extends ValidationError {
 	constructor(code: string) {
 		super(`QR token "${code}" has been revoked`)
+	}
+}
+
+export class QrTokenForbiddenError extends ForbiddenError {
+	constructor(code: string) {
+		super(`You are not allowed to modify QR token "${code}"`)
 	}
 }

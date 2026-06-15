@@ -2,6 +2,7 @@ import type { QrToken, QrTokenListResponse } from '../models/qr-token.model'
 import type {
 	ActivateQrTokenData,
 	ListQrTokensFilter,
+	UpdateQrTokenData,
 } from '../types/qr-token.types'
 
 export const QR_TOKEN_REPOSITORY = Symbol('QR_TOKEN_REPOSITORY')
@@ -15,5 +16,6 @@ export interface QrTokenRepository {
 		data: ActivateQrTokenData,
 	): Promise<QrToken>
 	revoke(code: string): Promise<QrToken>
+	updateDetails(code: string, data: UpdateQrTokenData): Promise<QrToken>
 	list(filter: ListQrTokensFilter): Promise<QrTokenListResponse>
 }

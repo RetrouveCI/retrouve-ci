@@ -8,6 +8,7 @@ function buildUseCases(): QrTokenUseCases {
 		getByCode: vi.fn(),
 		activate: vi.fn(),
 		revoke: vi.fn(),
+		updateDetails: vi.fn(),
 		list: vi.fn(),
 		listMine: vi.fn(),
 	} as unknown as QrTokenUseCases
@@ -100,13 +101,31 @@ describe('QrCodesController', () => {
 	})
 
 	describe('revoke', () => {
-		it('delegates to revoke', async () => {
+		it('delegates to revoke with the session user id', async () => {
 			const qrToken = { code: 'RCI-ABC123', status: 'revoked' }
 			vi.mocked(useCases.revoke).mockResolvedValue(qrToken as never)
 
-			const result = await controller.revoke('RCI-ABC123')
+			const result = await controller.revoke(session, 'RCI-ABC123')
 
-			expect(useCases.revoke).toHaveBeenCalledWith('RCI-ABC123')
+			expect(useCases.revoke).toHaveBeenCalledWith('RCI-ABC123', 'user-1')
+			expect(result).toEqual(qrToken)
+		})
+	})
+
+	describe('update', () => {
+		it('delegates to updateDetails with the session user id', async () => {
+			const qrToken = { code: 'RCI-ABC123', label: 'Mes clés' }
+			vi.mocked(useCases.updateDetails).mockResolvedValue(qrToken as never)
+
+			const result = await controller.update(session, 'RCI-ABC123', {
+				label: 'Mes clés',
+			})
+
+			expect(useCases.updateDetails).toHaveBeenCalledWith(
+				'RCI-ABC123',
+				'user-1',
+				{ label: 'Mes clés' },
+			)
 			expect(result).toEqual(qrToken)
 		})
 	})

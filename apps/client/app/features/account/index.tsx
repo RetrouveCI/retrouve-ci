@@ -2,9 +2,12 @@ import { Button } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
 import { User, LogIn } from 'lucide-react'
 import type { UserLostItem } from '@/shared/types/lost-item'
+import type { Sticker } from '@/shared/types/sticker'
 import { getServerSession } from '@/shared/auth/auth.server'
 import { toUserLostItem } from '@/features/lost-items/mappers/lost-item.mapper'
 import { getMyLostItems } from '@/features/account/posts/servers/account-posts.service'
+import { toSticker } from '@/features/account/stickers/mappers/sticker.mapper'
+import { getMyStickers } from '@/features/account/stickers/servers/stickers.service'
 import { ProfileHeader } from './components/profile-header'
 import { AccountStats } from './components/account-stats'
 import { AccountNav } from './components/account-nav'
@@ -13,9 +16,15 @@ import type { Route } from './+types/index'
 
 export async function loader({ request }: Route.LoaderArgs) {
 	const session = await getServerSession(request)
-	if (!session) return { listings: [] }
-	const items = await getMyLostItems(request)
-	return { listings: items.map(toUserLostItem) }
+	if (!session) return { listings: [], stickers: [] }
+	const [items, stickerItems] = await Promise.all([
+		getMyLostItems(request),
+		getMyStickers(request),
+	])
+	return {
+		listings: items.map(toUserLostItem),
+		stickers: stickerItems.map(toSticker),
+	}
 }
 
 function NotLoggedInView() {
@@ -61,8 +70,14 @@ function NotLoggedInView() {
 	)
 }
 
-function DashboardView({ listings }: { listings: UserLostItem[] }) {
-	const { user, logout, stickers } = useAuth()
+function DashboardView({
+	listings,
+	stickers,
+}: {
+	listings: UserLostItem[]
+	stickers: Sticker[]
+}) {
+	const { user, logout } = useAuth()
 
 	if (!user) return null
 
@@ -87,7 +102,10 @@ export default function ComptePage({ loaderData }: Route.ComponentProps) {
 	}
 
 	return isAuthenticated ? (
-		<DashboardView listings={loaderData.listings} />
+		<DashboardView
+			listings={loaderData.listings}
+			stickers={loaderData.stickers}
+		/>
 	) : (
 		<NotLoggedInView />
 	)

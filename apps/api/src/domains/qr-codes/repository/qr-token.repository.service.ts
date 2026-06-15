@@ -6,6 +6,7 @@ import type { QrToken, QrTokenListResponse } from '../models/qr-token.model'
 import type {
 	ActivateQrTokenData,
 	ListQrTokensFilter,
+	UpdateQrTokenData,
 } from '../types/qr-token.types'
 import type { QrTokenRepository } from './qr-token.repository'
 
@@ -56,6 +57,20 @@ export class QrTokenRepositoryService implements QrTokenRepository {
 			data: {
 				status: PrismaQrTokenStatus.REVOKED,
 				revokedAt: new Date(),
+			},
+		})
+
+		return toDomainQrToken(qrToken)
+	}
+
+	async updateDetails(code: string, data: UpdateQrTokenData): Promise<QrToken> {
+		const qrToken = await this.prisma.qrToken.update({
+			where: { code },
+			data: {
+				...(data.label !== undefined && { label: data.label }),
+				...(data.linkedObject !== undefined && {
+					linkedObject: data.linkedObject,
+				}),
 			},
 		})
 

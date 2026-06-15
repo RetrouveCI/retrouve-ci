@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	QrTokenAlreadyActivatedError,
+	QrTokenForbiddenError,
 	QrTokenNotFoundError,
 	QrTokenRevokedError,
 } from '../errors/qr-token.errors'
@@ -30,6 +31,7 @@ function buildRepository(): QrTokenRepository {
 		findByCode: vi.fn(),
 		activate: vi.fn(),
 		revoke: vi.fn(),
+		updateDetails: vi.fn(),
 		list: vi.fn(),
 	}
 }
@@ -135,25 +137,76 @@ describe('QrTokenUseCases', () => {
 	})
 
 	describe('revoke', () => {
-		it('revokes an existing token', async () => {
-			const qrToken = buildQrToken()
-			const revoked = buildQrToken({ status: 'revoked' })
+		it('revokes an existing token owned by the user', async () => {
+			const qrToken = buildQrToken({ status: 'activated', userId: 'user-1' })
+			const revoked = buildQrToken({ status: 'revoked', userId: 'user-1' })
 			vi.mocked(repository.findByCode).mockResolvedValue(qrToken)
 			vi.mocked(repository.revoke).mockResolvedValue(revoked)
 
-			const result = await useCases.revoke('RCI-ABC123')
+			const result = await useCases.revoke('RCI-ABC123', 'user-1')
 
 			expect(repository.revoke).toHaveBeenCalledWith('RCI-ABC123')
 			expect(result).toEqual(revoked)
 		})
 
+		it('throws QrTokenForbiddenError when the user does not own the token', async () => {
+			const qrToken = buildQrToken({ status: 'activated', userId: 'user-1' })
+			vi.mocked(repository.findByCode).mockResolvedValue(qrToken)
+
+			await expect(useCases.revoke('RCI-ABC123', 'user-2')).rejects.toThrow(
+				QrTokenForbiddenError,
+			)
+			expect(repository.revoke).not.toHaveBeenCalled()
+		})
+
 		it('throws QrTokenNotFoundError when the token does not exist', async () => {
 			vi.mocked(repository.findByCode).mockResolvedValue(null)
 
-			await expect(useCases.revoke('missing')).rejects.toThrow(
+			await expect(useCases.revoke('missing', 'user-1')).rejects.toThrow(
 				QrTokenNotFoundError,
 			)
 			expect(repository.revoke).not.toHaveBeenCalled()
+		})
+	})
+
+	describe('updateDetails', () => {
+		it('updates label and linkedObject for the owner', async () => {
+			const qrToken = buildQrToken({ status: 'activated', userId: 'user-1' })
+			const updated = buildQrToken({
+				status: 'activated',
+				userId: 'user-1',
+				label: 'Nouveau nom',
+			})
+			vi.mocked(repository.findByCode).mockResolvedValue(qrToken)
+			vi.mocked(repository.updateDetails).mockResolvedValue(updated)
+
+			const result = await useCases.updateDetails('RCI-ABC123', 'user-1', {
+				label: 'Nouveau nom',
+			})
+
+			expect(repository.updateDetails).toHaveBeenCalledWith('RCI-ABC123', {
+				label: 'Nouveau nom',
+			})
+			expect(result).toEqual(updated)
+		})
+
+		it('throws QrTokenForbiddenError when the user does not own the token', async () => {
+			const qrToken = buildQrToken({ status: 'activated', userId: 'user-1' })
+			vi.mocked(repository.findByCode).mockResolvedValue(qrToken)
+
+			await expect(
+				useCases.updateDetails('RCI-ABC123', 'user-2', { label: 'X' }),
+			).rejects.toThrow(QrTokenForbiddenError)
+			expect(repository.updateDetails).not.toHaveBeenCalled()
+		})
+
+		it('throws QrTokenNotFoundError when the token does not exist', async () => {
+			vi.mocked(repository.findByCode).mockResolvedValue(null)
+
+			await expect(
+				useCases.updateDetails('missing', 'user-1', { label: 'X' }),
+			).rejects.toThrow(QrTokenNotFoundError)
+			expect(repository.updateDetails).not.toHaveBeenCalled()
 		})
 	})
 
