@@ -1,4 +1,4 @@
-import { Label } from '@retrouve-ci/ui/components'
+import { Label } from '../ui/label'
 import type { ReactNode } from 'react'
 
 interface InputLabelProps {

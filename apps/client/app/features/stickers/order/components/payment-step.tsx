@@ -9,8 +9,10 @@ import {
 	Loader2,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import { InputField } from '@/shared/components/form/input-field'
-import { FieldError } from '@/shared/components/form/field-error'
+import {
+	InputField,
+	FieldError,
+} from '@retrouve-ci/ui/components/form'
 import { OrderSummaryCard } from './order-summary-card'
 
 interface Pack {

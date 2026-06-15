@@ -16,7 +16,7 @@ import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { parseWithZod } from '@conform-to/zod'
 import { PasswordInput } from '@/features/auth/components/password-input'
-import { FieldError } from '@/shared/components/form/field-error'
+import { FieldError } from '@retrouve-ci/ui/components/form'
 import { deleteAccountSchema } from '../settings.schema'
 
 interface ActionResult {

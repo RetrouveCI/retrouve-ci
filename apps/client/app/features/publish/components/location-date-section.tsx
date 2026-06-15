@@ -12,8 +12,7 @@ import {
 	type FieldMetadata,
 } from '@conform-to/react'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/lib/ci-locations'
-import { InputLabel } from '@/shared/components/form/input-label'
-import { FieldError } from '@/shared/components/form/field-error'
+import { InputLabel, FieldError } from '@retrouve-ci/ui/components/form'
 
 interface LocationDateSectionProps {
 	ville: FieldMetadata<string>
