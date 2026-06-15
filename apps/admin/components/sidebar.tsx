@@ -25,6 +25,7 @@ import {
 	ChevronRight,
 	Package,
 	Bell,
+	Mail,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -37,6 +38,7 @@ const menuItems = [
 	{ href: '/events', icon: Activity, label: 'Événements' },
 	{ href: '/administrators', icon: Shield, label: 'Administrateurs' },
 	{ href: '/notifications', icon: Bell, label: 'Notifications' },
+	{ href: '/contact-messages', icon: Mail, label: 'Messages de contact' },
 ]
 
 function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
