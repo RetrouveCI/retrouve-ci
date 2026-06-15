@@ -7,17 +7,19 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@retrouve-ci/ui/components'
+import {
+	getInputProps,
+	useInputControl,
+	type FieldMetadata,
+} from '@conform-to/react'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/lib/ci-locations'
 
 interface LocationDateSectionProps {
-	ville: string
-	commune: string
-	date: string
+	ville: FieldMetadata<string>
+	commune: FieldMetadata<string>
+	date: FieldMetadata<string>
 	dateLabel: string
 	sectionTitle: string
-	onVilleChange: (value: string) => void
-	onCommuneChange: (value: string) => void
-	onDateChange: (value: string) => void
 }
 
 export function LocationDateSection({
@@ -26,10 +28,10 @@ export function LocationDateSection({
 	date,
 	dateLabel,
 	sectionTitle,
-	onVilleChange,
-	onCommuneChange,
-	onDateChange,
 }: LocationDateSectionProps) {
+	const villeControl = useInputControl(ville)
+	const communeControl = useInputControl(commune)
+
 	return (
 		<div className="bg-background space-y-5 rounded-2xl border p-6">
 			<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
@@ -38,17 +40,18 @@ export function LocationDateSection({
 
 			<div className="grid grid-cols-2 gap-3">
 				<div className="space-y-1.5">
-					<Label htmlFor="ville" className="text-sm">
+					<Label htmlFor={ville.id} className="text-sm">
 						Ville <span className="text-destructive">*</span>
 					</Label>
 					<Select
-						value={ville}
+						value={villeControl.value ?? ''}
 						onValueChange={v => {
-							onVilleChange(v)
-							onCommuneChange('')
+							villeControl.change(v)
+							communeControl.change('')
 						}}
+						onOpenChange={open => !open && villeControl.blur()}
 					>
-						<SelectTrigger id="ville" className="h-11">
+						<SelectTrigger id={ville.id} className="h-11">
 							<SelectValue placeholder="Sélectionnez" />
 						</SelectTrigger>
 						<SelectContent>
@@ -59,25 +62,31 @@ export function LocationDateSection({
 							))}
 						</SelectContent>
 					</Select>
+					{ville.errors && (
+						<p className="text-destructive text-xs">{ville.errors[0]}</p>
+					)}
 				</div>
 
 				<div className="space-y-1.5">
-					<Label htmlFor="commune" className="text-sm">
+					<Label htmlFor={commune.id} className="text-sm">
 						Commune{' '}
-						{ville !== 'Abidjan' && (
+						{villeControl.value !== 'Abidjan' && (
 							<span className="text-muted-foreground text-xs font-normal">
 								(optionnel)
 							</span>
 						)}
 					</Label>
 					<Select
-						value={commune}
-						onValueChange={onCommuneChange}
-						disabled={ville !== 'Abidjan'}
+						value={communeControl.value ?? ''}
+						onValueChange={communeControl.change}
+						onOpenChange={open => !open && communeControl.blur()}
+						disabled={villeControl.value !== 'Abidjan'}
 					>
-						<SelectTrigger id="commune" className="h-11">
+						<SelectTrigger id={commune.id} className="h-11">
 							<SelectValue
-								placeholder={ville === 'Abidjan' ? 'Sélectionnez' : '—'}
+								placeholder={
+									villeControl.value === 'Abidjan' ? 'Sélectionnez' : '—'
+								}
 							/>
 						</SelectTrigger>
 						<SelectContent>
@@ -92,17 +101,15 @@ export function LocationDateSection({
 			</div>
 
 			<div className="space-y-1.5">
-				<Label htmlFor="date" className="text-sm">
+				<Label htmlFor={date.id} className="text-sm">
 					{dateLabel}{' '}
 					<span className="text-muted-foreground text-xs font-normal">
 						(optionnel)
 					</span>
 				</Label>
 				<Input
-					id="date"
-					type="date"
-					value={date}
-					onChange={e => onDateChange(e.target.value)}
+					{...getInputProps(date, { type: 'date' })}
+					key={date.key}
 					className="h-11"
 				/>
 			</div>
