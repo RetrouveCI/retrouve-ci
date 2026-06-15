@@ -1,9 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { publishService } from '../servers/publish.service'
+import { ApiError } from '@/shared/lib/api-client'
+import type { LostItemType, LostItemCategory } from '@/shared/types/lost-item'
+import { createLostItem } from '../servers/publish.service'
+import type { CreateLostItemPayload } from '../publish.types'
 
 export interface PublishFormData {
+	title: string
 	objectType: string
 	description: string
 	ville: string
@@ -13,11 +17,12 @@ export interface PublishFormData {
 	whatsapp: string
 }
 
-export function usePublishForm(successMessage: string) {
+export function usePublishForm(type: LostItemType, successMessage: string) {
 	const navigate = useNavigate()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [imagePreview, setImagePreview] = useState<string | null>(null)
 	const [formData, setFormData] = useState<PublishFormData>({
+		title: '',
 		objectType: '',
 		description: '',
 		ville: '',
@@ -39,6 +44,7 @@ export function usePublishForm(successMessage: string) {
 	}
 
 	const completedFieldCount = [
+		formData.title,
 		formData.objectType,
 		formData.description.length >= 20,
 		formData.ville,
@@ -46,11 +52,16 @@ export function usePublishForm(successMessage: string) {
 		formData.whatsapp,
 	].filter(Boolean).length
 
-	const progress = Math.round((completedFieldCount / 5) * 100)
+	const progress = Math.round((completedFieldCount / 6) * 100)
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
-		if (!formData.objectType || !formData.description || !formData.ville) {
+		if (
+			!formData.title ||
+			!formData.objectType ||
+			!formData.description ||
+			!formData.ville
+		) {
 			toast.error('Veuillez remplir tous les champs obligatoires')
 			return
 		}
@@ -59,10 +70,37 @@ export function usePublishForm(successMessage: string) {
 			toast.error('La description doit contenir au moins 20 caractères')
 			return
 		}
+
 		setIsSubmitting(true)
-		await publishService.create()
-		toast.success('Annonce publiée !', { description: successMessage })
-		navigate('/posts')
+		try {
+			const payload: CreateLostItemPayload = {
+				type,
+				category: formData.objectType as LostItemCategory,
+				title: formData.title,
+				description: formData.description,
+				ville: formData.ville,
+				commune: formData.commune || undefined,
+				eventDate: formData.date
+					? new Date(formData.date).toISOString()
+					: new Date().toISOString(),
+				contactName: formData.name,
+				contactWhatsapp: `+225${formData.whatsapp}`,
+			}
+			const created = await createLostItem(payload)
+			toast.success('Annonce publiée !', { description: successMessage })
+			navigate(`/posts/${created.id}`)
+		} catch (err) {
+			if (err instanceof ApiError && err.status === 401) {
+				toast.error('Connectez-vous pour publier une annonce.')
+				navigate('/auth')
+			} else if (err instanceof ApiError) {
+				toast.error(err.message)
+			} else {
+				throw err
+			}
+		} finally {
+			setIsSubmitting(false)
+		}
 	}
 
 	return {
