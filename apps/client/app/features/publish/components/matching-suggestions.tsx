@@ -10,6 +10,9 @@ import {
 	Wallet,
 	Briefcase,
 	Laptop,
+	Shirt,
+	Gem,
+	FileText,
 	AlertCircle,
 	CheckCircle,
 } from 'lucide-react'
@@ -18,31 +21,31 @@ import { useMatchingSuggestions } from '../hooks/use-matching-suggestions'
 import type { LostItemCategory } from '@/shared/types/lost-item'
 
 const CATEGORY_ICONS: Record<LostItemCategory | string, React.ElementType> = {
-	phones: Smartphone,
+	phone: Smartphone,
 	keys: Key,
-	wallets: Wallet,
-	bags: Briefcase,
+	wallet: Wallet,
+	bag: Briefcase,
 	electronics: Laptop,
+	clothing: Shirt,
+	jewelry: Gem,
+	documents: FileText,
 	other: Package,
 }
 
 interface MatchingSuggestionsProps {
 	objectType: string
 	ville: string
-	commune: string
 	formType: 'perdu' | 'retrouve'
 }
 
 export function MatchingSuggestions({
 	objectType,
 	ville,
-	commune,
 	formType,
 }: MatchingSuggestionsProps) {
-	const matches = useMatchingSuggestions({
+	const { matches, isLoading } = useMatchingSuggestions({
 		objectType,
 		ville,
-		commune,
 		formType,
 	})
 
@@ -67,9 +70,11 @@ export function MatchingSuggestions({
 							: 'Objets similaires perdus'}
 					</p>
 					<p className="text-muted-foreground mt-0.5 text-[11px]">
-						{matches.length > 0
-							? `${matches.length} correspondance${matches.length > 1 ? 's' : ''} trouvée${matches.length > 1 ? 's' : ''}`
-							: 'Aucune correspondance pour le moment'}
+						{isLoading
+							? 'Recherche en cours...'
+							: matches.length > 0
+								? `${matches.length} correspondance${matches.length > 1 ? 's' : ''} trouvée${matches.length > 1 ? 's' : ''}`
+								: 'Aucune correspondance pour le moment'}
 					</p>
 				</div>
 				<TypeIcon
@@ -78,7 +83,19 @@ export function MatchingSuggestions({
 				/>
 			</div>
 
-			{matches.length === 0 ? (
+			{isLoading ? (
+				<div className="space-y-3 px-4 py-4">
+					{Array.from({ length: 2 }).map((_, i) => (
+						<div key={i} className="flex items-center gap-3">
+							<div className="bg-muted h-9 w-9 shrink-0 animate-pulse rounded-xl" />
+							<div className="flex-1 space-y-1.5">
+								<div className="bg-muted h-3 w-3/4 animate-pulse rounded" />
+								<div className="bg-muted h-2.5 w-1/2 animate-pulse rounded" />
+							</div>
+						</div>
+					))}
+				</div>
+			) : matches.length === 0 ? (
 				<div className="px-4 py-6 text-center">
 					<div className="bg-muted mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl">
 						<Package className="text-muted-foreground/40 h-5 w-5" />

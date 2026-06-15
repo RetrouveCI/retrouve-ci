@@ -23,15 +23,3 @@ export const FOUND_TIPS = [
 	"Précisez où vous conservez l'objet",
 	'Répondez rapidement aux messages',
 ]
-
-export const TYPE_TO_CATEGORY: Record<string, string> = {
-	phone: 'phones',
-	keys: 'keys',
-	wallet: 'wallets',
-	bag: 'bags',
-	electronics: 'electronics',
-	clothing: 'other',
-	jewelry: 'other',
-	documents: 'other',
-	other: 'other',
-}
