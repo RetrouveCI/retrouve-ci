@@ -1,17 +1,5 @@
 import { z } from 'zod'
 
-export const phoneNumberSchema = z.object({
-	phoneNumber: z
-		.string()
-		.trim()
-		.min(8, 'Veuillez entrer un numéro valide')
-		.regex(/^\d[\d\s]*$/, 'Numéro invalide'),
-})
-
-export const loginSchema = phoneNumberSchema.extend({
-	password: z.string().min(4, 'Mot de passe trop court.'),
-})
-
 export const otpSchema = z.object({
 	otp: z.string().length(6, 'Entrez le code complet à 6 chiffres'),
 })
