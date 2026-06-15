@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useFetcher, useNavigate } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/shared/auth/auth-context'
 import { authClient } from '@/shared/auth/auth-client'
-import { apiFetch } from '@/shared/lib/api-client'
 import { toE164 } from '@/shared/auth/phone'
 import { PhoneStep } from '../components/phone-step'
 import { OtpStep } from '../components/otp-step'
 import { PasswordStep } from '../components/password-step'
+import { registerAction } from './servers/register.action'
+
+export const action = registerAction
 
 type Step = 'phone' | 'otp' | 'create-password'
 
@@ -17,6 +19,7 @@ const OTP_EXPIRY_SECONDS = 120
 export default function RegisterPage() {
 	const navigate = useNavigate()
 	const { isAuthenticated } = useAuth()
+	const fetcher = useFetcher<{ ok: boolean; error?: string }>()
 
 	const [step, setStep] = useState<Step>('phone')
 	const [phoneNumber, setPhoneNumber] = useState('')
@@ -103,9 +106,7 @@ export default function RegisterPage() {
 		setStep('create-password')
 	}
 
-	const handleCreatePasswordSubmit = async (
-		e: React.FormEvent<HTMLFormElement>,
-	) => {
+	const handleCreatePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		if (newPassword.length < 6) {
 			setConfirmError('Le mot de passe doit contenir au moins 6 caractères.')
@@ -116,15 +117,27 @@ export default function RegisterPage() {
 			return
 		}
 		setConfirmError('')
-		setIsSubmitting(true)
-		await apiFetch('/account/set-initial-password', {
-			method: 'POST',
-			body: JSON.stringify({ newPassword }),
-		})
-		setIsSubmitting(false)
-		toast.success('Compte créé !', { description: 'Bienvenue sur RetrouveCI.' })
-		navigate('/account')
+
+		void fetcher.submit(
+			{ intent: 'set-initial-password', newPassword },
+			{ method: 'post' },
+		)
 	}
+
+	useEffect(() => {
+		if (fetcher.state !== 'idle' || !fetcher.data) return
+
+		if (fetcher.data.ok) {
+			toast.success('Compte créé !', {
+				description: 'Bienvenue sur RetrouveCI.',
+			})
+			navigate('/account')
+		} else {
+			toast.error(
+				fetcher.data.error ?? 'Une erreur est survenue. Veuillez réessayer.',
+			)
+		}
+	}, [fetcher.state, fetcher.data, navigate])
 
 	const handleResend = async () => {
 		setIsSubmitting(true)
@@ -238,7 +251,7 @@ export default function RegisterPage() {
 					setConfirmPassword={setConfirmPassword}
 					confirmError={confirmError}
 					setConfirmError={setConfirmError}
-					isSubmitting={isSubmitting}
+					isSubmitting={fetcher.state !== 'idle'}
 					onSubmit={handleCreatePasswordSubmit}
 				/>
 			)}
