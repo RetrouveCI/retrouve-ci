@@ -1,6 +1,6 @@
 import { requireAdminSession } from '@/shared/auth/auth.server'
-import { listUsers } from './users.service'
-import type { UserStatus } from '../users.types'
+import { listUsers } from '../../servers/users.service'
+import type { UserStatus } from '../../users.types'
 
 const VALID_STATUSES: UserStatus[] = ['active', 'inactive']
 

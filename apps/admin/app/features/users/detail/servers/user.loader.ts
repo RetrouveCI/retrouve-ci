@@ -1,6 +1,6 @@
 import { redirect } from 'react-router'
 import { requireAdminSession } from '@/shared/auth/auth.server'
-import { getUserById } from './users.service'
+import { getUserById } from '../../servers/users.service'
 
 export async function userLoader({
 	request,

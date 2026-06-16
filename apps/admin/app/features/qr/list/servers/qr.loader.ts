@@ -1,6 +1,6 @@
 import { requireAdminSession } from '@/shared/auth/auth.server'
-import { listQrTokens } from './qr.service'
-import type { QrTokenStatus } from '../qr.types'
+import { listQrTokens } from '../../servers/qr.service'
+import type { QrTokenStatus } from '../../qr.types'
 
 const VALID_STATUSES: QrTokenStatus[] = ['generated', 'activated', 'revoked']
 
