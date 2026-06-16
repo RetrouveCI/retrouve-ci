@@ -32,9 +32,7 @@ export function meta() {
 	]
 }
 
-const progressItems = (
-	fields: ReturnType<typeof usePublishForm>['fields'],
-) => [
+const progressItems = (fields: ReturnType<typeof usePublishForm>['fields']) => [
 	{ label: 'Titre', done: !!fields.title.value },
 	{ label: "Type d'objet", done: !!fields.objectType.value },
 	{
@@ -78,11 +76,7 @@ export default function PublishLostPage() {
 							description="Décrivez votre objet pour que quelqu'un puisse vous aider."
 						/>
 
-						<Form
-							method="post"
-							{...getFormProps(form)}
-							className="space-y-5"
-						>
+						<Form method="post" {...getFormProps(form)} className="space-y-5">
 							<ObjectInfoSection
 								title={fields.title}
 								objectType={fields.objectType}

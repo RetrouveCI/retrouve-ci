@@ -16,9 +16,16 @@ export async function postsAction({ request }: { request: Request }) {
 	try {
 		if (intent === 'moderate' && id) {
 			if (!VALID_MODERATION.includes(statusRaw as ModerationStatus)) {
-				return data({ ok: false, error: 'Statut de modération invalide' }, { status: 400 })
+				return data(
+					{ ok: false, error: 'Statut de modération invalide' },
+					{ status: 400 },
+				)
 			}
-			const post = await moderatePost(id, statusRaw as ModerationStatus, request)
+			const post = await moderatePost(
+				id,
+				statusRaw as ModerationStatus,
+				request,
+			)
 			return { ok: true, post, intent }
 		}
 

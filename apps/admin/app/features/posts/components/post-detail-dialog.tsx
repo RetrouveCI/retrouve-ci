@@ -114,7 +114,9 @@ export function PostDetailDialog({
 						<div className="flex items-center gap-2">
 							<CalendarDays className="text-muted-foreground h-4 w-4 shrink-0" />
 							<span>
-								{format(new Date(post.eventDate), 'dd MMM yyyy', { locale: fr })}
+								{format(new Date(post.eventDate), 'dd MMM yyyy', {
+									locale: fr,
+								})}
 							</span>
 						</div>
 						<div className="flex items-center gap-2">
@@ -157,10 +159,7 @@ export function PostDetailDialog({
 				</div>
 
 				<DialogFooter className="flex-wrap gap-2">
-					<Button
-						variant="outline"
-						onClick={() => onOpenChange(false)}
-					>
+					<Button variant="outline" onClick={() => onOpenChange(false)}>
 						Fermer
 					</Button>
 					{post.moderationStatus !== 'published' && (

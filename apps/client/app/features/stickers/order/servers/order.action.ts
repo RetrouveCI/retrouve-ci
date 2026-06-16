@@ -19,8 +19,7 @@ export async function orderAction(request: Request) {
 
 	const v = submission.value
 	const paymentMethodLabel =
-		PAYMENT_METHODS.find(p => p.id === v.paymentMethod)?.name ??
-		v.paymentMethod
+		PAYMENT_METHODS.find(p => p.id === v.paymentMethod)?.name ?? v.paymentMethod
 
 	try {
 		const order = await createStickerOrder(

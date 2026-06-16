@@ -1,21 +1,21 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(cp /home/joeldigbeu/workspace/retrouve-ci/apps/client/components/ui/*.tsx /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/components/ui/)",
-      "Bash(cp /home/joeldigbeu/workspace/retrouve-ci/apps/client/components/ui/*.ts /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/components/ui/)",
-      "Bash(cp /home/joeldigbeu/workspace/retrouve-ci/apps/client/lib/utils.ts /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/lib/utils.ts)",
-      "Bash(pnpm install *)",
-      "Bash(pnpm check-types *)",
-      "Bash(sed -i 's|from \"@/hooks/use-mobile\"|from \"./use-mobile\"|g' /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/components/ui/sidebar.tsx)",
-      "Bash(sed -i 's|from \"@/hooks/use-toast\"|from \"./use-toast\"|g' /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/components/ui/toaster.tsx)",
-      "Bash(pnpm --filter client check-types)",
-      "Bash(pnpm --filter @retrouve-ci/ui check-types)",
-      "Bash(pnpm info *)",
-      "Bash(pnpm --filter @retrouve-ci/ui lint)",
-      "Bash(pnpm format *)",
-      "Bash(tree -L 5 /home/joeldigbeu/workspace/retrouve-ci/apps/admin --ignore node_modules -I '.next')",
-      "Bash(pnpm --filter admin build)",
-      "Bash(pnpm lint *)"
-    ]
-  }
+	"permissions": {
+		"allow": [
+			"Bash(cp /home/joeldigbeu/workspace/retrouve-ci/apps/client/components/ui/*.tsx /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/components/ui/)",
+			"Bash(cp /home/joeldigbeu/workspace/retrouve-ci/apps/client/components/ui/*.ts /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/components/ui/)",
+			"Bash(cp /home/joeldigbeu/workspace/retrouve-ci/apps/client/lib/utils.ts /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/lib/utils.ts)",
+			"Bash(pnpm install *)",
+			"Bash(pnpm check-types *)",
+			"Bash(sed -i 's|from \"@/hooks/use-mobile\"|from \"./use-mobile\"|g' /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/components/ui/sidebar.tsx)",
+			"Bash(sed -i 's|from \"@/hooks/use-toast\"|from \"./use-toast\"|g' /home/joeldigbeu/workspace/retrouve-ci/packages/ui/src/components/ui/toaster.tsx)",
+			"Bash(pnpm --filter client check-types)",
+			"Bash(pnpm --filter @retrouve-ci/ui check-types)",
+			"Bash(pnpm info *)",
+			"Bash(pnpm --filter @retrouve-ci/ui lint)",
+			"Bash(pnpm format *)",
+			"Bash(tree -L 5 /home/joeldigbeu/workspace/retrouve-ci/apps/admin --ignore node_modules -I '.next')",
+			"Bash(pnpm --filter admin build)",
+			"Bash(pnpm lint *)"
+		]
+	}
 }

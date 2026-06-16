@@ -15,7 +15,12 @@ import { PaymentStep } from './components/payment-step'
 import { ConfirmationStep } from './components/confirmation-step'
 import { stickerOrderSchema } from './order.schema'
 import { orderAction } from './servers/order.action'
-import { DELIVERY_FEE, VALID_COUPONS, PACKS, PAYMENT_METHODS } from './stickers-order.const'
+import {
+	DELIVERY_FEE,
+	VALID_COUPONS,
+	PACKS,
+	PAYMENT_METHODS,
+} from './stickers-order.const'
 import type { Order } from '../../account/orders/orders.types'
 
 export const action = ({ request }: { request: Request }) =>

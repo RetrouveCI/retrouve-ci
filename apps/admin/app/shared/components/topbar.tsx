@@ -27,7 +27,7 @@ export function TopBar({ title }: TopBarProps) {
 
 	useEffect(() => {
 		apiFetch<{ count: number }>('/notifications/unread-count')
-			.then((res) => setUnreadCount(res.count))
+			.then(res => setUnreadCount(res.count))
 			.catch(() => {})
 	}, [])
 

@@ -30,7 +30,11 @@ export function PublishSidebar({
 }: PublishSidebarProps) {
 	return (
 		<div className="space-y-4 self-start lg:sticky lg:top-24">
-			<FormProgress progress={progress} items={items} accentColor={accentColor} />
+			<FormProgress
+				progress={progress}
+				items={items}
+				accentColor={accentColor}
+			/>
 
 			{objectType && ville ? (
 				<MatchingSuggestions

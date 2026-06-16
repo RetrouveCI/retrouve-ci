@@ -87,10 +87,7 @@ describe('ContactMessageUseCases', () => {
 
 			const result = await useCases.getOne('message-1')
 
-			expect(repository.updateStatus).toHaveBeenCalledWith(
-				'message-1',
-				'read',
-			)
+			expect(repository.updateStatus).toHaveBeenCalledWith('message-1', 'read')
 			expect(result).toEqual(updated)
 		})
 

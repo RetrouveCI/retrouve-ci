@@ -29,12 +29,11 @@ export default function ForgotPasswordPage() {
 					Mot de passe oublié
 				</CardTitle>
 				<CardDescription className="text-base">
-					Entrez votre email pour recevoir les instructions de
-					réinitialisation.
+					Entrez votre email pour recevoir les instructions de réinitialisation.
 				</CardDescription>
 			</CardHeader>
 
-			<CardContent className="pb-8 space-y-5">
+			<CardContent className="space-y-5 pb-8">
 				<ForgotPasswordForm />
 
 				<div className="text-center">

@@ -64,7 +64,10 @@ export function RecentActivity({ activities }: RecentActivityProps) {
 					Activité Récente
 				</CardTitle>
 				<Button variant="ghost" size="sm" asChild>
-					<Link to="/events" className="text-primary hover:text-primary/80 gap-1">
+					<Link
+						to="/events"
+						className="text-primary hover:text-primary/80 gap-1"
+					>
 						Voir tout <ArrowRight className="h-4 w-4" />
 					</Link>
 				</Button>

@@ -11,7 +11,10 @@ export async function changePassword(
 	})
 
 	if (result.error) {
-		return { ok: false, error: result.error.message ?? 'Mot de passe actuel incorrect' }
+		return {
+			ok: false,
+			error: result.error.message ?? 'Mot de passe actuel incorrect',
+		}
 	}
 
 	return { ok: true }

@@ -46,9 +46,7 @@ describe('ContactMessagesController', () => {
 
 	describe('list', () => {
 		it('is restricted to admins', () => {
-			expect(Reflect.getMetadata('ROLES', controller.list)).toEqual([
-				'admin',
-			])
+			expect(Reflect.getMetadata('ROLES', controller.list)).toEqual(['admin'])
 		})
 
 		it('delegates to list', async () => {
@@ -64,9 +62,7 @@ describe('ContactMessagesController', () => {
 
 	describe('getOne', () => {
 		it('is restricted to admins', () => {
-			expect(Reflect.getMetadata('ROLES', controller.getOne)).toEqual([
-				'admin',
-			])
+			expect(Reflect.getMetadata('ROLES', controller.getOne)).toEqual(['admin'])
 		})
 
 		it('delegates to getOne', async () => {

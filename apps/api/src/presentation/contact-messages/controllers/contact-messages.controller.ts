@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import {
+	Body,
+	Controller,
+	Get,
+	Param,
+	Patch,
+	Post,
+	Query,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth'
 import { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'

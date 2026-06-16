@@ -1,12 +1,26 @@
 {
 	"$schema": "https://turborepo.dev/schema.json",
 	"ui": "tui",
-	"globalEnv": ["NODE_ENV", "PORT", "DATABASE_URL", "PGBOUNCER_URL", "REDIS_URL", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL"],
+	"globalEnv": [
+		"NODE_ENV",
+		"PORT",
+		"DATABASE_URL",
+		"PGBOUNCER_URL",
+		"REDIS_URL",
+		"BETTER_AUTH_SECRET",
+		"BETTER_AUTH_URL"
+	],
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": ["dist/**", ".next/**", "!.next/cache/**", "build/**", "src/generated/**"]
+			"outputs": [
+				"dist/**",
+				".next/**",
+				"!.next/cache/**",
+				"build/**",
+				"src/generated/**"
+			]
 		},
 		"lint": {
 			"dependsOn": ["^lint"]

@@ -63,12 +63,42 @@ const MOCK_CATEGORY_CHART: CategoryChartPoint[] = [
 ]
 
 const MOCK_ACTIVITIES: Activity[] = [
-	{ id: 1, type: 'scan', text: 'QR Code #8392 scanné à Cocody', timestamp: 'Il y a 2 min' },
-	{ id: 2, type: 'user', text: 'Nouvel utilisateur inscrit: Aminata D.', timestamp: 'Il y a 15 min' },
-	{ id: 3, type: 'post', text: 'Nouveau post "Clés perdues" signalé', timestamp: 'Il y a 32 min' },
-	{ id: 4, type: 'contact', text: 'Contact établi pour le post #123', timestamp: 'Il y a 1h' },
-	{ id: 5, type: 'scan', text: 'QR Code #7732 scanné au Plateau', timestamp: 'Il y a 1h 30min' },
-	{ id: 6, type: 'user', text: 'Utilisateur Ibrahim K. désactivé', timestamp: 'Il y a 2h' },
+	{
+		id: 1,
+		type: 'scan',
+		text: 'QR Code #8392 scanné à Cocody',
+		timestamp: 'Il y a 2 min',
+	},
+	{
+		id: 2,
+		type: 'user',
+		text: 'Nouvel utilisateur inscrit: Aminata D.',
+		timestamp: 'Il y a 15 min',
+	},
+	{
+		id: 3,
+		type: 'post',
+		text: 'Nouveau post "Clés perdues" signalé',
+		timestamp: 'Il y a 32 min',
+	},
+	{
+		id: 4,
+		type: 'contact',
+		text: 'Contact établi pour le post #123',
+		timestamp: 'Il y a 1h',
+	},
+	{
+		id: 5,
+		type: 'scan',
+		text: 'QR Code #7732 scanné au Plateau',
+		timestamp: 'Il y a 1h 30min',
+	},
+	{
+		id: 6,
+		type: 'user',
+		text: 'Utilisateur Ibrahim K. désactivé',
+		timestamp: 'Il y a 2h',
+	},
 ]
 
 import { requireAdminSession } from '@/shared/auth/auth.server'

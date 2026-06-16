@@ -9,7 +9,10 @@ export async function notificationsLoader({ request }: { request: Request }) {
 	const readFilter =
 		rawRead === 'true' ? true : rawRead === 'false' ? false : undefined
 
-	const { items, total } = await listNotifications({ read: readFilter }, request)
+	const { items, total } = await listNotifications(
+		{ read: readFilter },
+		request,
+	)
 
 	return { notifications: items, total, readFilter: rawRead ?? 'all' }
 }

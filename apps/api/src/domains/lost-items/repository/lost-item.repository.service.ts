@@ -92,7 +92,9 @@ export class LostItemRepositoryService implements LostItemRepository {
 		}
 	}
 
-	async findMatchCandidates(filter: MatchCandidatesFilter): Promise<LostItem[]> {
+	async findMatchCandidates(
+		filter: MatchCandidatesFilter,
+	): Promise<LostItem[]> {
 		const items = await this.prisma.lostItem.findMany({
 			where: {
 				type: toPrismaType(filter.type),

@@ -7,7 +7,11 @@ interface UsersStatsGridProps {
 	inactive: number
 }
 
-export function UsersStatsGrid({ total, active, inactive }: UsersStatsGridProps) {
+export function UsersStatsGrid({
+	total,
+	active,
+	inactive,
+}: UsersStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
 			<BentoCard

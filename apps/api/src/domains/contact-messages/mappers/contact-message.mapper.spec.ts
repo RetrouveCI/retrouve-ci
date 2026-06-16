@@ -35,8 +35,11 @@ describe('contact-message mapper', () => {
 		['new', PrismaContactMessageStatus.NEW],
 		['read', PrismaContactMessageStatus.READ],
 		['archived', PrismaContactMessageStatus.ARCHIVED],
-	] as const)('maps domain status %s to/from Prisma status', (domain, prisma) => {
-		expect(toPrismaStatus(domain)).toBe(prisma)
-		expect(toDomainStatus(prisma)).toBe(domain)
-	})
+	] as const)(
+		'maps domain status %s to/from Prisma status',
+		(domain, prisma) => {
+			expect(toPrismaStatus(domain)).toBe(prisma)
+			expect(toDomainStatus(prisma)).toBe(domain)
+		},
+	)
 })

@@ -4,7 +4,10 @@ import {
 	resendOtpActionSchema,
 	resetPasswordActionSchema,
 } from '../reset-password.schema'
-import { requestPasswordResetOtp, resetPassword } from './reset-password.service'
+import {
+	requestPasswordResetOtp,
+	resetPassword,
+} from './reset-password.service'
 
 export async function resetPasswordAction({ request }: { request: Request }) {
 	const formData = Object.fromEntries(await request.formData())

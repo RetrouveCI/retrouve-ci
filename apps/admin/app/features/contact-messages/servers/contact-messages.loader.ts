@@ -4,11 +4,7 @@ import type { ContactMessageStatus } from '../contact-messages.types'
 
 const VALID_STATUSES: ContactMessageStatus[] = ['new', 'read', 'archived']
 
-export async function contactMessagesLoader({
-	request,
-}: {
-	request: Request
-}) {
+export async function contactMessagesLoader({ request }: { request: Request }) {
 	await requireAdminSession(request)
 
 	const url = new URL(request.url)

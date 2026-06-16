@@ -142,9 +142,7 @@ export function StickerCard({ sticker }: StickerCardProps) {
 								{isActive ? 'Actif' : 'Désactivé'}
 							</Badge>
 						</div>
-						<h4 className="truncate text-lg font-semibold">
-							{sticker.label}
-						</h4>
+						<h4 className="truncate text-lg font-semibold">{sticker.label}</h4>
 						{sticker.linkedObject && (
 							<p className="text-muted-foreground mt-0.5 flex items-center gap-1.5 truncate text-sm">
 								<Package className="h-3.5 w-3.5" />

@@ -1,9 +1,5 @@
 import { apiFetch } from '@/shared/lib/api-client'
-import type {
-	Event,
-	EventListResponse,
-	EventStatus,
-} from '../events.types'
+import type { Event, EventListResponse, EventStatus } from '../events.types'
 
 export async function listEvents(
 	params: { status?: EventStatus; page?: number; pageSize?: number },
@@ -58,10 +54,7 @@ export async function updateEvent(
 	})
 }
 
-export async function deleteEvent(
-	id: string,
-	request: Request,
-): Promise<void> {
+export async function deleteEvent(id: string, request: Request): Promise<void> {
 	return apiFetch<void>(`/events/${id}`, {
 		method: 'DELETE',
 		headers: { Cookie: request.headers.get('cookie') ?? '' },

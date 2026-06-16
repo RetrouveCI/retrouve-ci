@@ -31,7 +31,7 @@ export function NotificationList({
 
 	return (
 		<ul className="divide-y">
-			{notifications.map((notif) => (
+			{notifications.map(notif => (
 				<li
 					key={notif.id}
 					className={cn(

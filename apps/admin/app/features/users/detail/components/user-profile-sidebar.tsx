@@ -9,7 +9,14 @@ import {
 import { BentoCard } from '@/shared/components/bento-card'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Phone, Mail, Calendar, Ban, CheckCircle, ArrowLeft } from 'lucide-react'
+import {
+	Phone,
+	Mail,
+	Calendar,
+	Ban,
+	CheckCircle,
+	ArrowLeft,
+} from 'lucide-react'
 import type { User } from '../../users.types'
 
 interface UserProfileSidebarProps {
@@ -55,7 +62,7 @@ export function UserProfileSidebar({
 						)}
 						<div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3 text-sm">
 							<Mail className="text-primary h-4 w-4 shrink-0" />
-							<span className="break-all font-medium">{user.email}</span>
+							<span className="font-medium break-all">{user.email}</span>
 						</div>
 						<div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3 text-sm">
 							<Calendar className="text-primary h-4 w-4 shrink-0" />

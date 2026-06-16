@@ -28,7 +28,8 @@ export default function QrCodesPage({ loaderData }: Route.ComponentProps) {
 	const totalRevoked = tokens.filter(t => t.status === 'revoked').length
 
 	let filtered = tokens
-	if (batchFilter !== 'all') filtered = filtered.filter(t => t.batch === batchFilter)
+	if (batchFilter !== 'all')
+		filtered = filtered.filter(t => t.batch === batchFilter)
 	if (dateRange?.from) {
 		filtered = filtered.filter(t => {
 			const d = new Date(t.createdAt)
@@ -49,7 +50,14 @@ export default function QrCodesPage({ loaderData }: Route.ComponentProps) {
 	}
 
 	const handleExportCSV = () => {
-		const headers = ['Token', 'Statut', 'Batch', 'Label', 'Créé le', 'Activé le']
+		const headers = [
+			'Token',
+			'Statut',
+			'Batch',
+			'Label',
+			'Créé le',
+			'Activé le',
+		]
 		const rows = filtered.map(t => [
 			t.code,
 			t.status,

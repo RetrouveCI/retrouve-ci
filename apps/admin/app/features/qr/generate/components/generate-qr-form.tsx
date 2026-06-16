@@ -47,7 +47,12 @@ export function GenerateQrForm() {
 
 			if (exportCSV?.checked && tokens.length > 0) {
 				const headers = ['code', 'batch', 'status', 'createdAt']
-				const rows = tokens.map(t => [t.code, t.batch ?? '', t.status, t.createdAt])
+				const rows = tokens.map(t => [
+					t.code,
+					t.batch ?? '',
+					t.status,
+					t.createdAt,
+				])
 				const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
 				const blob = new Blob([csv], { type: 'text/csv' })
 				const url = URL.createObjectURL(blob)
@@ -110,7 +115,9 @@ export function GenerateQrForm() {
 				<Field>
 					<FieldLabel htmlFor="batch">
 						Nom du Batch{' '}
-						<span className="text-muted-foreground font-normal">(optionnel)</span>
+						<span className="text-muted-foreground font-normal">
+							(optionnel)
+						</span>
 					</FieldLabel>
 					<Input
 						{...getInputProps(fields.batch, { type: 'text' })}
