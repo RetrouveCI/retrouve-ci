@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Link, useFetcher, useRevalidator, useSearchParams } from 'react-router'
 import {
 	Avatar,
 	AvatarFallback,
@@ -10,6 +10,11 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components'
 import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
@@ -17,21 +22,44 @@ import { DataTable } from '@/shared/components/data-table'
 import { DateRangePicker } from '@/shared/components/date-range-picker'
 import { UsersStatsGrid } from './components/users-stats-grid'
 import { usersLoader } from './servers/users.loader'
+import { usersAction } from './servers/users.action'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
-import { Eye, Download, QrCode, FileText } from 'lucide-react'
+import { Eye, Download, MoreHorizontal, Ban, CheckCircle } from 'lucide-react'
 import type { DateRange } from 'react-day-picker'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { User } from './users.types'
 import type { Route } from './+types/index'
 
 export const loader = usersLoader
+export const action = usersAction
+
+interface ActionResult {
+	ok: boolean
+	intent?: string
+	error?: string
+}
 
 export default function UsersPage({ loaderData }: Route.ComponentProps) {
 	const { users, total, statusFilter } = loaderData
+	const revalidator = useRevalidator()
 	const [searchParams, setSearchParams] = useSearchParams()
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+
+	const fetcher = useFetcher<ActionResult>()
+
+	useEffect(() => {
+		if (fetcher.state !== 'idle' || !fetcher.data) return
+		if (fetcher.data.ok) {
+			toast.success(
+				fetcher.data.intent === 'ban' ? 'Compte désactivé' : 'Compte activé',
+			)
+			revalidator.revalidate()
+		} else if (fetcher.data.error) {
+			toast.error(fetcher.data.error)
+		}
+	}, [fetcher.state, fetcher.data, revalidator])
 
 	const handleStatusFilter = (value: string) => {
 		const next = new URLSearchParams(searchParams)
@@ -40,30 +68,42 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 		setSearchParams(next)
 	}
 
+	const handleToggleBan = (user: User) => {
+		fetcher.submit(
+			{ intent: user.status === 'active' ? 'ban' : 'unban', userId: user.id },
+			{ method: 'post' },
+		)
+	}
+
 	let filtered = users
 	if (dateRange?.from) {
-		filtered = filtered.filter((u) => {
+		filtered = filtered.filter(u => {
 			const d = new Date(u.createdAt)
 			return d >= dateRange.from! && (!dateRange.to || d <= dateRange.to)
 		})
 	}
 
-	const active = users.filter((u) => u.status === 'active').length
-	const inactive = users.filter((u) => u.status === 'inactive').length
+	const active = users.filter(u => u.status === 'active').length
+	const inactive = users.filter(u => u.status === 'inactive').length
 
 	const handleExportCSV = () => {
-		const headers = ['ID', 'Nom', 'Email', 'Téléphone', 'Statut', 'QR Codes', 'Posts', "Date d'inscription"]
-		const rows = filtered.map((u) => [
+		const headers = [
+			'ID',
+			'Nom',
+			'Email',
+			'Téléphone',
+			'Statut',
+			"Date d'inscription",
+		]
+		const rows = filtered.map(u => [
 			u.id,
 			u.name,
 			u.email,
-			u.phone,
+			u.phone ?? '',
 			u.status === 'active' ? 'Actif' : 'Inactif',
-			u.qrCodesCount,
-			u.postsCount,
 			format(new Date(u.createdAt), 'dd/MM/yyyy', { locale: fr }),
 		])
-		const csv = [headers, ...rows].map((r) => r.join(',')).join('\n')
+		const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
 		const blob = new Blob([csv], { type: 'text/csv' })
 		const url = URL.createObjectURL(blob)
 		const a = document.createElement('a')
@@ -87,7 +127,9 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 					</Avatar>
 					<div>
 						<p className="text-sm font-medium">{row.original.name}</p>
-						<p className="text-muted-foreground text-xs">{row.original.email}</p>
+						<p className="text-muted-foreground text-xs">
+							{row.original.email}
+						</p>
 					</div>
 				</div>
 			),
@@ -96,34 +138,18 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 			accessorKey: 'phone',
 			header: 'Téléphone',
 			cell: ({ row }) => (
-				<span className="font-mono text-sm">{row.original.phone}</span>
-			),
-		},
-		{
-			accessorKey: 'qrCodesCount',
-			header: 'QR Codes',
-			cell: ({ row }) => (
-				<div className="flex items-center gap-1.5">
-					<QrCode className="text-muted-foreground h-3.5 w-3.5" />
-					<span className="font-semibold">{row.original.qrCodesCount}</span>
-				</div>
-			),
-		},
-		{
-			accessorKey: 'postsCount',
-			header: 'Posts',
-			cell: ({ row }) => (
-				<div className="flex items-center gap-1.5">
-					<FileText className="text-muted-foreground h-3.5 w-3.5" />
-					<span className="font-semibold">{row.original.postsCount}</span>
-				</div>
+				<span className="font-mono text-sm">
+					{row.original.phone ?? '—'}
+				</span>
 			),
 		},
 		{
 			accessorKey: 'createdAt',
 			header: 'Inscription',
 			cell: ({ row }) =>
-				format(new Date(row.original.createdAt), 'dd MMM yyyy', { locale: fr }),
+				format(new Date(row.original.createdAt), 'dd MMM yyyy', {
+					locale: fr,
+				}),
 		},
 		{
 			accessorKey: 'status',
@@ -143,13 +169,37 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 		{
 			id: 'actions',
 			header: 'Actions',
-			cell: ({ row }) => (
-				<Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-					<Link to={`/users/${row.original.id}`}>
-						<Eye className="h-4 w-4" />
-					</Link>
-				</Button>
-			),
+			cell: ({ row }) => {
+				const user = row.original
+				return (
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" size="icon" className="h-8 w-8">
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-48">
+							<DropdownMenuItem asChild>
+								<Link to={`/users/${user.id}`}>
+									<Eye className="mr-2 h-4 w-4" /> Voir le profil
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem onClick={() => handleToggleBan(user)}>
+								{user.status === 'active' ? (
+									<>
+										<Ban className="mr-2 h-4 w-4" /> Désactiver
+									</>
+								) : (
+									<>
+										<CheckCircle className="mr-2 h-4 w-4" /> Activer
+									</>
+								)}
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				)
+			},
 		},
 	]
 
@@ -163,7 +213,10 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 					<BentoCard variant="table">
 						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex flex-wrap items-center gap-3">
-								<Select value={statusFilter} onValueChange={handleStatusFilter}>
+								<Select
+									value={statusFilter}
+									onValueChange={handleStatusFilter}
+								>
 									<SelectTrigger className="h-9 w-40">
 										<SelectValue placeholder="Statut" />
 									</SelectTrigger>

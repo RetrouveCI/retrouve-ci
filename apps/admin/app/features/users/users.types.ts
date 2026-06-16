@@ -4,10 +4,8 @@ export interface User {
 	id: string
 	name: string
 	email: string
-	phone: string
+	phone: string | null
 	avatar: string | null
 	status: UserStatus
 	createdAt: string
-	qrCodesCount: number
-	postsCount: number
 }
