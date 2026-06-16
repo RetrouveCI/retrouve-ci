@@ -36,7 +36,8 @@ export async function publishAction(request: Request, type: LostItemType) {
 			},
 			request,
 		)
-		return redirect(`/posts/${created.id}?published=1`)
+
+		return redirect(`/posts/${created.id}`)
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 401) throw redirect('/auth')
 		const message =
