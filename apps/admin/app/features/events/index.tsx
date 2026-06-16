@@ -177,7 +177,7 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 			accessorKey: 'location',
 			header: 'Lieu',
 			cell: ({ row }) => (
-				<span className="text-muted-foreground max-w-[160px] truncate text-sm">
+				<span className="text-muted-foreground max-w-40 truncate text-sm">
 					{row.original.location}
 				</span>
 			),

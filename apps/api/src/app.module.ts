@@ -12,6 +12,7 @@ import { MatchingModule } from '@/presentation/matching/matching.module'
 import { NotificationsModule } from '@/presentation/notifications/notifications.module'
 import { QrCodesModule } from '@/presentation/qr-codes/qr-codes.module'
 import { StickerOrdersModule } from '@/presentation/sticker-orders/sticker-orders.module'
+import { StatsModule } from '@/presentation/stats/stats.module'
 
 @Module({
 	imports: [
@@ -30,6 +31,7 @@ import { StickerOrdersModule } from '@/presentation/sticker-orders/sticker-order
 		NotificationsModule,
 		QrCodesModule,
 		StickerOrdersModule,
+		StatsModule,
 	],
 })
 export class AppModule {}
