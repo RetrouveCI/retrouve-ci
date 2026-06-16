@@ -1,4 +1,4 @@
-import { BentoCard } from '@/components/bento-card'
+import { BentoCard } from '@/shared/components/bento-card'
 import { Users, ShieldCheck, Shield } from 'lucide-react'
 
 interface AdminStatsGridProps {
@@ -7,19 +7,10 @@ interface AdminStatsGridProps {
 	superAdmins: number
 }
 
-export function AdminStatsGrid({
-	total,
-	active,
-	superAdmins,
-}: AdminStatsGridProps) {
+export function AdminStatsGrid({ total, active, superAdmins }: AdminStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-			<BentoCard
-				variant="highlight"
-				title="Total admins"
-				value={total}
-				icon={Users}
-			/>
+			<BentoCard variant="highlight" title="Total admins" value={total} icon={Users} />
 			<BentoCard
 				variant="stat"
 				title="Actifs"

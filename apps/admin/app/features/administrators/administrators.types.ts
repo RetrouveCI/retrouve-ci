@@ -2,7 +2,7 @@ export type AdminRole = 'super_admin' | 'admin' | 'moderator'
 export type AdminStatus = 'active' | 'inactive'
 
 export interface Admin {
-	id: number
+	id: string
 	name: string
 	email: string
 	phone: string
@@ -10,10 +10,4 @@ export interface Admin {
 	status: AdminStatus
 	createdAt: string
 	lastLogin: string | null
-}
-
-export interface AdminUser {
-	email: string
-	name: string
-	role: string
 }
