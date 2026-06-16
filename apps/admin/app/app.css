@@ -15,6 +15,6 @@
 	}
 
 	.bento-card:hover {
-		@apply shadow-lg -translate-y-0.5;
+		@apply -translate-y-0.5 shadow-lg;
 	}
 }

@@ -6,11 +6,7 @@ import {
 	updateContactMessageStatus,
 } from './contact-messages.service'
 
-export async function contactMessagesAction({
-	request,
-}: {
-	request: Request
-}) {
+export async function contactMessagesAction({ request }: { request: Request }) {
 	await requireAdminSession(request)
 	const formData = await request.formData()
 	const intent = formData.get('intent')

@@ -32,7 +32,12 @@ const menuItems = [
 	{ to: '/orders', icon: Package, label: 'Commandes', exact: false },
 	{ to: '/posts', icon: FileText, label: 'Posts', exact: false },
 	{ to: '/events', icon: Activity, label: 'Événements', exact: false },
-	{ to: '/administrators', icon: Shield, label: 'Administrateurs', exact: false },
+	{
+		to: '/administrators',
+		icon: Shield,
+		label: 'Administrateurs',
+		exact: false,
+	},
 	{ to: '/notifications', icon: Bell, label: 'Notifications', exact: false },
 	{
 		to: '/contact-messages',

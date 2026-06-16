@@ -40,7 +40,11 @@ interface TokenDetailsCardProps {
 	onCopy: (text: string, label: string) => void
 }
 
-export function TokenDetailsCard({ token, qrUrl, onCopy }: TokenDetailsCardProps) {
+export function TokenDetailsCard({
+	token,
+	qrUrl,
+	onCopy,
+}: TokenDetailsCardProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -120,7 +124,11 @@ export function TokenDetailsCard({ token, qrUrl, onCopy }: TokenDetailsCardProps
 							<Calendar className="text-muted-foreground mt-0.5 h-4 w-4" />
 							<div>
 								<p className="text-muted-foreground text-sm">Créé le</p>
-								<p>{format(new Date(token.createdAt), 'dd MMMM yyyy', { locale: fr })}</p>
+								<p>
+									{format(new Date(token.createdAt), 'dd MMMM yyyy', {
+										locale: fr,
+									})}
+								</p>
 							</div>
 						</div>
 
@@ -129,7 +137,11 @@ export function TokenDetailsCard({ token, qrUrl, onCopy }: TokenDetailsCardProps
 								<CheckCircle className="text-muted-foreground mt-0.5 h-4 w-4" />
 								<div>
 									<p className="text-muted-foreground text-sm">Activé le</p>
-									<p>{format(new Date(token.activatedAt), 'dd MMMM yyyy', { locale: fr })}</p>
+									<p>
+										{format(new Date(token.activatedAt), 'dd MMMM yyyy', {
+											locale: fr,
+										})}
+									</p>
 								</div>
 							</div>
 						)}
@@ -139,7 +151,11 @@ export function TokenDetailsCard({ token, qrUrl, onCopy }: TokenDetailsCardProps
 								<Ban className="text-muted-foreground mt-0.5 h-4 w-4" />
 								<div>
 									<p className="text-muted-foreground text-sm">Révoqué le</p>
-									<p>{format(new Date(token.revokedAt), 'dd MMMM yyyy', { locale: fr })}</p>
+									<p>
+										{format(new Date(token.revokedAt), 'dd MMMM yyyy', {
+											locale: fr,
+										})}
+									</p>
 								</div>
 							</div>
 						)}
@@ -150,7 +166,11 @@ export function TokenDetailsCard({ token, qrUrl, onCopy }: TokenDetailsCardProps
 					<p className="text-muted-foreground mb-2 text-sm">URL du QR Code</p>
 					<div className="flex items-center gap-2">
 						<code className="flex-1 truncate text-sm">{qrUrl}</code>
-						<Button variant="outline" size="sm" onClick={() => onCopy(qrUrl, 'URL')}>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => onCopy(qrUrl, 'URL')}
+						>
 							<Copy className="h-3 w-3" />
 						</Button>
 						<Button variant="outline" size="sm" asChild>

@@ -97,7 +97,9 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 				toast.success(`Événement mis à jour — ${label}`)
 			}
 		} else {
-			toast.error(statusFetcher.data.error ?? 'Impossible de mettre à jour le statut')
+			toast.error(
+				statusFetcher.data.error ?? 'Impossible de mettre à jour le statut',
+			)
 		}
 	}, [statusFetcher.state, statusFetcher.data])
 
@@ -107,7 +109,9 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 			toast.success('Événement supprimé')
 			setDeleteTarget(null)
 		} else {
-			toast.error(deleteFetcher.data.error ?? 'Impossible de supprimer l\'événement')
+			toast.error(
+				deleteFetcher.data.error ?? "Impossible de supprimer l'événement",
+			)
 		}
 	}, [deleteFetcher.state, deleteFetcher.data])
 
@@ -122,7 +126,10 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 	}
 
 	const handleStatusUpdate = (id: string, status: EventStatus) => {
-		statusFetcher.submit({ intent: 'update-status', id, status }, { method: 'post' })
+		statusFetcher.submit(
+			{ intent: 'update-status', id, status },
+			{ method: 'post' },
+		)
 	}
 
 	const handleDelete = () => {
@@ -227,9 +234,7 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 								</DropdownMenuItem>
 							)}
 							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={() => handleEdit(ev)}
-							>
+							<DropdownMenuItem onClick={() => handleEdit(ev)}>
 								<Pencil className="mr-2 h-4 w-4" />
 								Modifier
 							</DropdownMenuItem>
@@ -285,7 +290,7 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 
 			<EventFormDialog
 				open={formOpen}
-				onOpenChange={(open) => {
+				onOpenChange={open => {
 					setFormOpen(open)
 					if (!open) setEditingEvent(null)
 				}}
@@ -294,14 +299,15 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 
 			<AlertDialog
 				open={!!deleteTarget}
-				onOpenChange={(open) => !open && setDeleteTarget(null)}
+				onOpenChange={open => !open && setDeleteTarget(null)}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Supprimer l&apos;événement ?</AlertDialogTitle>
 						<AlertDialogDescription>
 							Cette action est irréversible.{' '}
-							<strong>{deleteTarget?.title}</strong> sera définitivement supprimé.
+							<strong>{deleteTarget?.title}</strong> sera définitivement
+							supprimé.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

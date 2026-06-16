@@ -37,9 +37,7 @@ export function ActivateStickerDialog() {
 			setLinkedObject('')
 			setOpen(false)
 		} else {
-			toast.error(
-				fetcher.data.error ?? "Impossible d'activer ce sticker",
-			)
+			toast.error(fetcher.data.error ?? "Impossible d'activer ce sticker")
 		}
 	}, [fetcher.state, fetcher.data])
 

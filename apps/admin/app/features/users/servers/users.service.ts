@@ -35,8 +35,10 @@ export async function listUsers(
 
 	let users = res.users.filter(u => u.role === 'user').map(mapUser)
 
-	if (statusFilter === 'active') users = users.filter(u => u.status === 'active')
-	if (statusFilter === 'inactive') users = users.filter(u => u.status === 'inactive')
+	if (statusFilter === 'active')
+		users = users.filter(u => u.status === 'active')
+	if (statusFilter === 'inactive')
+		users = users.filter(u => u.status === 'inactive')
 
 	return { users, total: res.users.filter(u => u.role === 'user').length }
 }

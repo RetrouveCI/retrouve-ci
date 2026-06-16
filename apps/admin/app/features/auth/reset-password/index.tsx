@@ -75,7 +75,7 @@ export default function ResetPasswordPage({
 				</CardDescription>
 			</CardHeader>
 
-			<CardContent className="pb-8 space-y-5">
+			<CardContent className="space-y-5 pb-8">
 				<ResetPasswordForm token={token} />
 
 				<div className="text-center">

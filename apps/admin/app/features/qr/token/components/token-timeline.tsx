@@ -45,9 +45,13 @@ export function TokenTimeline({ token }: TokenTimelineProps) {
 							<div>
 								<p className="text-sm font-medium">Activé</p>
 								<p className="text-muted-foreground text-xs">
-									{format(new Date(token.activatedAt), "dd MMM yyyy 'à' HH:mm", {
-										locale: fr,
-									})}
+									{format(
+										new Date(token.activatedAt),
+										"dd MMM yyyy 'à' HH:mm",
+										{
+											locale: fr,
+										},
+									)}
 								</p>
 							</div>
 						</div>

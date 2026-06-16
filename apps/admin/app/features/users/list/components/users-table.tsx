@@ -48,9 +48,7 @@ export function UsersTable({ data, onToggleBan, isBusy }: UsersTableProps) {
 			accessorKey: 'phone',
 			header: 'Téléphone',
 			cell: ({ row }) => (
-				<span className="font-mono text-sm">
-					{row.original.phone ?? '—'}
-				</span>
+				<span className="font-mono text-sm">{row.original.phone ?? '—'}</span>
 			),
 		},
 		{

@@ -16,7 +16,10 @@ import { AppModule } from './app.module'
 const DEFAULT_PORT = 3002
 const DEFAULT_HOST = '0.0.0.0'
 const SWAGGER_PATH = 'docs'
-const DEFAULT_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://localhost:3001']
+const DEFAULT_ALLOWED_ORIGINS = [
+	'http://localhost:3000',
+	'http://localhost:3001',
+]
 
 function getAllowedOrigins(): string[] {
 	const configuredOrigins = process.env.ALLOWED_ORIGINS?.split(',')
@@ -32,7 +35,8 @@ function getAllowedOrigins(): string[] {
 
 function shouldExposeSwagger(): boolean {
 	return (
-		process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true'
+		process.env.NODE_ENV !== 'production' ||
+		process.env.ENABLE_SWAGGER === 'true'
 	)
 }
 

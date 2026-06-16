@@ -19,7 +19,8 @@ export async function listPosts(
 		page: String(params.page ?? 1),
 		pageSize: String(params.pageSize ?? 50),
 	})
-	if (params.moderationStatus) query.set('moderationStatus', params.moderationStatus)
+	if (params.moderationStatus)
+		query.set('moderationStatus', params.moderationStatus)
 	if (params.type) query.set('type', params.type)
 
 	return apiFetch<PostListResponse>(`/lost-items/admin?${query.toString()}`, {

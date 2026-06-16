@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { Button, Input, Field, FieldGroup, FieldLabel } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	Input,
+	Field,
+	FieldGroup,
+	FieldLabel,
+} from '@retrouve-ci/ui/components'
 import { FieldError } from '@retrouve-ci/ui/components/form'
 import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { BentoCard } from '@/shared/components/bento-card'
 import { toast } from 'sonner'
-import {
-	useForm,
-	getFormProps,
-	getInputProps,
-} from '@conform-to/react'
+import { useForm, getFormProps, getInputProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { changePasswordSchema } from '../profile.schema'
 import { changePassword } from '../lib/profile.client'
@@ -29,7 +31,9 @@ export function PasswordChangeForm() {
 		},
 		async onSubmit(event, { formData }) {
 			event.preventDefault()
-			const submission = parseWithZod(formData, { schema: changePasswordSchema })
+			const submission = parseWithZod(formData, {
+				schema: changePasswordSchema,
+			})
 			if (submission.status !== 'success') return
 
 			setIsSubmitting(true)
@@ -79,7 +83,7 @@ export function PasswordChangeForm() {
 									variant="ghost"
 									size="icon"
 									className="absolute top-0 right-0 h-full px-3 hover:bg-transparent"
-									onClick={() => setShowCurrent((p) => !p)}
+									onClick={() => setShowCurrent(p => !p)}
 								>
 									{showCurrent ? (
 										<EyeOff className="text-muted-foreground h-4 w-4" />
@@ -107,7 +111,7 @@ export function PasswordChangeForm() {
 									variant="ghost"
 									size="icon"
 									className="absolute top-0 right-0 h-full px-3 hover:bg-transparent"
-									onClick={() => setShowNew((p) => !p)}
+									onClick={() => setShowNew(p => !p)}
 								>
 									{showNew ? (
 										<EyeOff className="text-muted-foreground h-4 w-4" />
@@ -138,7 +142,7 @@ export function PasswordChangeForm() {
 									variant="ghost"
 									size="icon"
 									className="absolute top-0 right-0 h-full px-3 hover:bg-transparent"
-									onClick={() => setShowConfirm((p) => !p)}
+									onClick={() => setShowConfirm(p => !p)}
 								>
 									{showConfirm ? (
 										<EyeOff className="text-muted-foreground h-4 w-4" />

@@ -28,7 +28,7 @@ export function PermissionsCard({ role }: PermissionsCardProps) {
 			<div className="p-6">
 				<h4 className="mb-4 text-lg font-semibold">Permissions</h4>
 				<ul className="space-y-2.5">
-					{permissions.map((p) => (
+					{permissions.map(p => (
 						<li
 							key={p.label}
 							className={cn(
@@ -36,7 +36,9 @@ export function PermissionsCard({ role }: PermissionsCardProps) {
 								p.allowed ? 'bg-green-50' : 'bg-muted/50',
 							)}
 						>
-							<span className={p.allowed ? 'font-medium' : 'text-muted-foreground'}>
+							<span
+								className={p.allowed ? 'font-medium' : 'text-muted-foreground'}
+							>
 								{p.label}
 							</span>
 							{p.allowed ? (

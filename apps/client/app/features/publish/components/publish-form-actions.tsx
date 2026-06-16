@@ -16,11 +16,7 @@ export function PublishFormActions({
 
 	return (
 		<div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
-			<Button
-				type="button"
-				variant="outline"
-				onClick={() => navigate(-1)}
-			>
+			<Button type="button" variant="outline" onClick={() => navigate(-1)}>
 				Annuler
 			</Button>
 			<Button

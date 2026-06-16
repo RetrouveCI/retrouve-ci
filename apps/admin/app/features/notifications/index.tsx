@@ -22,7 +22,9 @@ interface ActionResult {
 	error?: string
 }
 
-export default function NotificationsPage({ loaderData }: Route.ComponentProps) {
+export default function NotificationsPage({
+	loaderData,
+}: Route.ComponentProps) {
 	const { notifications, total, readFilter } = loaderData
 	const [searchParams, setSearchParams] = useSearchParams()
 
@@ -65,7 +67,7 @@ export default function NotificationsPage({ loaderData }: Route.ComponentProps) 
 		setSearchParams(next)
 	}
 
-	const unreadCount = notifications.filter((n) => !n.read).length
+	const unreadCount = notifications.filter(n => !n.read).length
 
 	const FILTER_OPTIONS = [
 		{ value: 'all', label: 'Toutes', icon: Bell },
@@ -82,7 +84,12 @@ export default function NotificationsPage({ loaderData }: Route.ComponentProps) 
 			<div className="pt-16">
 				<div className="space-y-4 p-4 lg:p-6">
 					<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-						<BentoCard variant="highlight" title="Total" value={total} icon={Bell} />
+						<BentoCard
+							variant="highlight"
+							title="Total"
+							value={total}
+							icon={Bell}
+						/>
 						<BentoCard
 							variant="stat"
 							title="Non lues"

@@ -121,16 +121,17 @@ Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
 - UI components never call `apiFetch` or `authClient` directly — all API access
   goes through a feature's `servers/*.loader.ts` / `servers/*.action.ts`
   (server-side) or a dedicated `lib/*.client.ts` wrapper (client-side calls that
-  manage cookies/sessions, e.g. `features/auth/lib/phone-auth.client.ts`).
-  In `features/auth`, the two endpoints that create/refresh the better-auth
-  session cookie (`sign-in/phone-number` via `AuthContext.login`, and
+  manage cookies/sessions, e.g. `features/auth/lib/phone-auth.client.ts`). In
+  `features/auth`, the two endpoints that create/refresh the better-auth session
+  cookie (`sign-in/phone-number` via `AuthContext.login`, and
   `phone-number/verify` via `lib/phone-auth.client.ts`) are the only auth calls
   made client-side — the browser needs the `Set-Cookie` response directly, and
   this repo has no server-side mechanism to forward `Set-Cookie` from an API
   response back through a React Router action. Every other auth mutation
   (`send-otp`, `request-password-reset`, `reset-password`) goes through
   `servers/*.action.ts`, using the `intent` field pattern when a route has more
-  than one action (e.g. `features/auth/reset-password/servers/reset-password.action.ts`).
+  than one action (e.g.
+  `features/auth/reset-password/servers/reset-password.action.ts`).
 - Every form uses `@conform-to/react` + `@conform-to/zod` (`useForm`,
   `useInputControl`, `getFormProps`, `getZodConstraint`, `parseWithZod`) — no
   hand-rolled `useState` validation.
@@ -156,7 +157,8 @@ better-auth (`adminClient()` plugin, role check `role === 'admin'`).
 Route structure (defined in `app/routes.ts`):
 
 - `/` — dashboard overview (mock stats and charts)
-- `/contact-messages` — contact form submissions (real API: `contact-messages` domain)
+- `/contact-messages` — contact form submissions (real API: `contact-messages`
+  domain)
 - `/orders` — sticker orders (real API: `sticker-orders` domain)
 - `/qr`, `/qr/generate`, `/qr/:code` — QR tokens (real API: `qr-codes` domain)
 - `/events` — community events (real API: `events` domain)
@@ -164,7 +166,8 @@ Route structure (defined in `app/routes.ts`):
 - `/posts` — lost/found listings moderation (real API: `lost-items` domain)
 - `/users`, `/users/:id` — user management (mock — no API domain yet)
 - `/administrators` — admin account management (mock — no API domain yet)
-- `/profile` — admin profile (better-auth session data; password change via `authClient.changePassword`)
+- `/profile` — admin profile (better-auth session data; password change via
+  `authClient.changePassword`)
 - `/auth/login`, `/auth/forgot-password`, `/auth/reset-password` — auth pages
 
 All dashboard routes are nested under `shared/components/dashboard-layout.tsx`.

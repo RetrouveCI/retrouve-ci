@@ -68,7 +68,14 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 	const inactive = users.filter(u => u.status === 'inactive').length
 
 	const handleExportCSV = () => {
-		const headers = ['ID', 'Nom', 'Email', 'Téléphone', 'Statut', "Date d'inscription"]
+		const headers = [
+			'ID',
+			'Nom',
+			'Email',
+			'Téléphone',
+			'Statut',
+			"Date d'inscription",
+		]
 		const rows = filtered.map(u => [
 			u.id,
 			u.name,

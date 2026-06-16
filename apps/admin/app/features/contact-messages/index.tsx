@@ -10,7 +10,10 @@ import { fr } from 'date-fns/locale'
 import { Eye } from 'lucide-react'
 import { toast } from 'sonner'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { ContactMessage, ContactMessageStatus } from './contact-messages.types'
+import type {
+	ContactMessage,
+	ContactMessageStatus,
+} from './contact-messages.types'
 import { ContactMessageDetailDialog } from './components/contact-message-detail-dialog'
 import { contactMessagesLoader } from './servers/contact-messages.loader'
 import { contactMessagesAction } from './servers/contact-messages.action'
@@ -29,10 +32,22 @@ const STATUS_LABELS: Record<StatusFilter, string> = {
 	archived: 'Archivés',
 }
 
-const STATUS_BADGE: Record<ContactMessageStatus, { label: string; className: string }> = {
-	new: { label: 'Nouveau', className: 'bg-blue-100 text-blue-700 hover:bg-blue-100' },
-	read: { label: 'Lu', className: 'bg-muted text-muted-foreground hover:bg-muted' },
-	archived: { label: 'Archivé', className: 'bg-gray-100 text-gray-700 hover:bg-gray-100' },
+const STATUS_BADGE: Record<
+	ContactMessageStatus,
+	{ label: string; className: string }
+> = {
+	new: {
+		label: 'Nouveau',
+		className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+	},
+	read: {
+		label: 'Lu',
+		className: 'bg-muted text-muted-foreground hover:bg-muted',
+	},
+	archived: {
+		label: 'Archivé',
+		className: 'bg-gray-100 text-gray-700 hover:bg-gray-100',
+	},
 }
 
 interface ActionResult {
@@ -46,7 +61,9 @@ export default function ContactMessagesPage({
 }: Route.ComponentProps) {
 	const { messages, statusFilter } = loaderData
 	const [searchParams, setSearchParams] = useSearchParams()
-	const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null)
+	const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(
+		null,
+	)
 	const [detailOpen, setDetailOpen] = useState(false)
 
 	const viewFetcher = useFetcher<ActionResult>()
@@ -69,7 +86,9 @@ export default function ContactMessagesPage({
 				setSelectedMessage(archiveFetcher.data.message)
 			}
 		} else {
-			toast.error(archiveFetcher.data.error ?? 'Impossible d\'archiver le message')
+			toast.error(
+				archiveFetcher.data.error ?? "Impossible d'archiver le message",
+			)
 		}
 	}, [archiveFetcher.state, archiveFetcher.data])
 
@@ -77,18 +96,12 @@ export default function ContactMessagesPage({
 		setSelectedMessage(message)
 		setDetailOpen(true)
 		if (message.status === 'new') {
-			viewFetcher.submit(
-				{ intent: 'view', id: message.id },
-				{ method: 'post' },
-			)
+			viewFetcher.submit({ intent: 'view', id: message.id }, { method: 'post' })
 		}
 	}
 
 	const handleArchive = (id: string) => {
-		archiveFetcher.submit(
-			{ intent: 'archive', id },
-			{ method: 'post' },
-		)
+		archiveFetcher.submit({ intent: 'archive', id }, { method: 'post' })
 	}
 
 	const handleFilterChange = (filter: StatusFilter) => {

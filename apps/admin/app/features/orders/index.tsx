@@ -48,11 +48,31 @@ const STATUS_CONFIG: Record<
 	OrderStatus,
 	{ label: string; className: string; icon: React.ElementType }
 > = {
-	pending: { label: 'En attente', className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100', icon: Clock },
-	processing: { label: 'En traitement', className: 'bg-blue-100 text-blue-700 hover:bg-blue-100', icon: Package },
-	shipped: { label: 'Expédiée', className: 'bg-purple-100 text-purple-700 hover:bg-purple-100', icon: Truck },
-	delivered: { label: 'Livrée', className: 'bg-green-100 text-green-700 hover:bg-green-100', icon: PackageCheck },
-	cancelled: { label: 'Annulée', className: 'bg-red-100 text-red-700 hover:bg-red-100', icon: XCircle },
+	pending: {
+		label: 'En attente',
+		className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100',
+		icon: Clock,
+	},
+	processing: {
+		label: 'En traitement',
+		className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+		icon: Package,
+	},
+	shipped: {
+		label: 'Expédiée',
+		className: 'bg-purple-100 text-purple-700 hover:bg-purple-100',
+		icon: Truck,
+	},
+	delivered: {
+		label: 'Livrée',
+		className: 'bg-green-100 text-green-700 hover:bg-green-100',
+		icon: PackageCheck,
+	},
+	cancelled: {
+		label: 'Annulée',
+		className: 'bg-red-100 text-red-700 hover:bg-red-100',
+		icon: XCircle,
+	},
 }
 
 interface ActionResult {
@@ -74,9 +94,14 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 		if (statusFetcher.state !== 'idle' || !statusFetcher.data) return
 		if (statusFetcher.data.ok) {
 			const order = statusFetcher.data.order
-			if (order) toast.success(`Commande ${order.orderNumber} — ${STATUS_CONFIG[order.status].label}`)
+			if (order)
+				toast.success(
+					`Commande ${order.orderNumber} — ${STATUS_CONFIG[order.status].label}`,
+				)
 		} else {
-			toast.error(statusFetcher.data.error ?? 'Impossible de mettre à jour le statut')
+			toast.error(
+				statusFetcher.data.error ?? 'Impossible de mettre à jour le statut',
+			)
 		}
 	}, [statusFetcher.state, statusFetcher.data])
 
@@ -111,7 +136,19 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 	}
 
 	const handleExportCSV = () => {
-		const headers = ['N° commande', 'Pack', 'Quantité', 'Total', 'Statut', 'Ville', 'Adresse', 'Commandé le', 'Expédié le', 'Livré le', 'Suivi']
+		const headers = [
+			'N° commande',
+			'Pack',
+			'Quantité',
+			'Total',
+			'Statut',
+			'Ville',
+			'Adresse',
+			'Commandé le',
+			'Expédié le',
+			'Livré le',
+			'Suivi',
+		]
 		const rows = filteredOrders.map(o => [
 			o.orderNumber,
 			o.packName,
@@ -121,8 +158,12 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			o.deliveryCity,
 			o.deliveryAddress,
 			format(new Date(o.createdAt), 'dd/MM/yyyy', { locale: fr }),
-			o.shippedAt ? format(new Date(o.shippedAt), 'dd/MM/yyyy', { locale: fr }) : '-',
-			o.deliveredAt ? format(new Date(o.deliveredAt), 'dd/MM/yyyy', { locale: fr }) : '-',
+			o.shippedAt
+				? format(new Date(o.shippedAt), 'dd/MM/yyyy', { locale: fr })
+				: '-',
+			o.deliveredAt
+				? format(new Date(o.deliveredAt), 'dd/MM/yyyy', { locale: fr })
+				: '-',
 			o.trackingNumber ?? '-',
 		])
 		const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
@@ -141,7 +182,9 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			accessorKey: 'orderNumber',
 			header: 'N° commande',
 			cell: ({ row }) => (
-				<span className="font-mono text-sm font-medium">{row.original.orderNumber}</span>
+				<span className="font-mono text-sm font-medium">
+					{row.original.orderNumber}
+				</span>
 			),
 		},
 		{
@@ -181,7 +224,9 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			accessorKey: 'deliveryCity',
 			header: 'Ville',
 			cell: ({ row }) => (
-				<span className="text-muted-foreground text-sm">{row.original.deliveryCity}</span>
+				<span className="text-muted-foreground text-sm">
+					{row.original.deliveryCity}
+				</span>
 			),
 		},
 		{
@@ -195,7 +240,9 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			header: 'N° suivi',
 			cell: ({ row }) =>
 				row.original.trackingNumber ? (
-					<span className="font-mono text-xs">{row.original.trackingNumber}</span>
+					<span className="font-mono text-xs">
+						{row.original.trackingNumber}
+					</span>
 				) : (
 					<span className="text-muted-foreground">—</span>
 				),
@@ -223,7 +270,9 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							{o.status === 'pending' && (
-								<DropdownMenuItem onClick={() => updateStatus(o.id, 'processing')}>
+								<DropdownMenuItem
+									onClick={() => updateStatus(o.id, 'processing')}
+								>
 									<Package className="mr-2 h-4 w-4" /> Marquer en traitement
 								</DropdownMenuItem>
 							)}
@@ -233,7 +282,9 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 								</DropdownMenuItem>
 							)}
 							{o.status === 'shipped' && (
-								<DropdownMenuItem onClick={() => updateStatus(o.id, 'delivered')}>
+								<DropdownMenuItem
+									onClick={() => updateStatus(o.id, 'delivered')}
+								>
 									<CheckCircle2 className="mr-2 h-4 w-4" /> Marquer comme livrée
 								</DropdownMenuItem>
 							)}

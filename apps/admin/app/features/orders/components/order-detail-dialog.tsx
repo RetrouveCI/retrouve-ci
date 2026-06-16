@@ -12,13 +12,29 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { StickerOrder, OrderStatus } from '../orders.types'
 
-const STATUS_CONFIG: Record<OrderStatus, { label: string; className: string }> = {
-	pending: { label: 'En attente', className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100' },
-	processing: { label: 'En traitement', className: 'bg-blue-100 text-blue-700 hover:bg-blue-100' },
-	shipped: { label: 'Expédiée', className: 'bg-purple-100 text-purple-700 hover:bg-purple-100' },
-	delivered: { label: 'Livrée', className: 'bg-green-100 text-green-700 hover:bg-green-100' },
-	cancelled: { label: 'Annulée', className: 'bg-red-100 text-red-700 hover:bg-red-100' },
-}
+const STATUS_CONFIG: Record<OrderStatus, { label: string; className: string }> =
+	{
+		pending: {
+			label: 'En attente',
+			className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100',
+		},
+		processing: {
+			label: 'En traitement',
+			className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+		},
+		shipped: {
+			label: 'Expédiée',
+			className: 'bg-purple-100 text-purple-700 hover:bg-purple-100',
+		},
+		delivered: {
+			label: 'Livrée',
+			className: 'bg-green-100 text-green-700 hover:bg-green-100',
+		},
+		cancelled: {
+			label: 'Annulée',
+			className: 'bg-red-100 text-red-700 hover:bg-red-100',
+		},
+	}
 
 interface OrderDetailDialogProps {
 	order: StickerOrder | null
@@ -72,7 +88,9 @@ export function OrderDetailDialog({
 						</p>
 						<div className="bg-card space-y-1.5 rounded-xl border p-4">
 							<p className="text-sm">{order.deliveryAddress}</p>
-							<p className="text-muted-foreground text-sm">{order.deliveryCity}</p>
+							<p className="text-muted-foreground text-sm">
+								{order.deliveryCity}
+							</p>
 							{order.deliveryNotes && (
 								<p className="bg-muted text-muted-foreground mt-2 rounded-lg px-3 py-2 text-xs italic">
 									{order.deliveryNotes}
@@ -83,9 +101,7 @@ export function OrderDetailDialog({
 
 					<div className="grid grid-cols-3 gap-3">
 						<div className="bg-card rounded-xl border p-3 text-center">
-							<p className="text-primary text-xl font-bold">
-								{order.quantity}
-							</p>
+							<p className="text-primary text-xl font-bold">{order.quantity}</p>
 							<p className="text-muted-foreground text-xs">stickers</p>
 						</div>
 						<div className="bg-card rounded-xl border p-3 text-center">
@@ -119,9 +135,13 @@ export function OrderDetailDialog({
 								<div className="flex justify-between">
 									<span className="text-muted-foreground">Expédié le</span>
 									<span>
-										{format(new Date(order.shippedAt), "dd MMM yyyy 'à' HH:mm", {
-											locale: fr,
-										})}
+										{format(
+											new Date(order.shippedAt),
+											"dd MMM yyyy 'à' HH:mm",
+											{
+												locale: fr,
+											},
+										)}
 									</span>
 								</div>
 							)}
@@ -129,9 +149,13 @@ export function OrderDetailDialog({
 								<div className="flex justify-between">
 									<span className="text-muted-foreground">Livré le</span>
 									<span>
-										{format(new Date(order.deliveredAt), "dd MMM yyyy 'à' HH:mm", {
-											locale: fr,
-										})}
+										{format(
+											new Date(order.deliveredAt),
+											"dd MMM yyyy 'à' HH:mm",
+											{
+												locale: fr,
+											},
+										)}
 									</span>
 								</div>
 							)}

@@ -90,9 +90,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 				}
 			}
 		} else {
-			toast.error(
-				moderateFetcher.data.error ?? 'Impossible de modérer ce post',
-			)
+			toast.error(moderateFetcher.data.error ?? 'Impossible de modérer ce post')
 		}
 	}, [moderateFetcher.state, moderateFetcher.data, selectedPost?.id])
 
@@ -117,14 +115,14 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 		setSearchParams(next)
 	}
 
-	const lostPosts = posts.filter((p) => p.type === 'lost')
-	const foundPosts = posts.filter((p) => p.type === 'found')
+	const lostPosts = posts.filter(p => p.type === 'lost')
+	const foundPosts = posts.filter(p => p.type === 'found')
 
 	const counts = {
 		total,
-		published: posts.filter((p) => p.moderationStatus === 'published').length,
-		pending: posts.filter((p) => p.moderationStatus === 'pending').length,
-		hidden: posts.filter((p) => p.moderationStatus === 'hidden').length,
+		published: posts.filter(p => p.moderationStatus === 'published').length,
+		pending: posts.filter(p => p.moderationStatus === 'pending').length,
+		hidden: posts.filter(p => p.moderationStatus === 'hidden').length,
 	}
 
 	const columns: ColumnDef<Post>[] = [
@@ -258,14 +256,9 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 						</div>
 
 						<div className="p-4">
-							<Tabs
-								value={activeTypeTab}
-								onValueChange={handleTypeTab}
-							>
+							<Tabs value={activeTypeTab} onValueChange={handleTypeTab}>
 								<TabsList className="mb-4">
-									<TabsTrigger value="all">
-										Tous ({posts.length})
-									</TabsTrigger>
+									<TabsTrigger value="all">Tous ({posts.length})</TabsTrigger>
 									<TabsTrigger value="lost">
 										Perdus ({lostPosts.length})
 									</TabsTrigger>
@@ -306,7 +299,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 			<PostDetailDialog
 				post={selectedPost}
 				open={detailOpen}
-				onOpenChange={(open) => {
+				onOpenChange={open => {
 					setDetailOpen(open)
 					if (!open) setSelectedPost(null)
 				}}

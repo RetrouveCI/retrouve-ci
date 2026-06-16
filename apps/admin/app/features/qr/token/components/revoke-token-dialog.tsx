@@ -28,8 +28,8 @@ export function RevokeTokenDialog({
 				<AlertDialogHeader>
 					<AlertDialogTitle>Révoquer ce token ?</AlertDialogTitle>
 					<AlertDialogDescription>
-						Cette action est irréversible. Le token{' '}
-						<strong>{tokenCode}</strong> ne pourra plus être utilisé.
+						Cette action est irréversible. Le token <strong>{tokenCode}</strong>{' '}
+						ne pourra plus être utilisé.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

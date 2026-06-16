@@ -1,12 +1,18 @@
-import { Avatar, AvatarFallback, Badge, Separator } from '@retrouve-ci/ui/components'
+import {
+	Avatar,
+	AvatarFallback,
+	Badge,
+	Separator,
+} from '@retrouve-ci/ui/components'
 import { Mail, Shield, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { BentoCard } from '@/shared/components/bento-card'
 
-const ROLE_CONFIG: Record<string, { label: string; icon: React.ElementType }> = {
-	super_admin: { label: 'Super Administrateur', icon: ShieldCheck },
-	admin: { label: 'Administrateur', icon: Shield },
-	moderator: { label: 'Modérateur', icon: ShieldAlert },
-}
+const ROLE_CONFIG: Record<string, { label: string; icon: React.ElementType }> =
+	{
+		super_admin: { label: 'Super Administrateur', icon: ShieldCheck },
+		admin: { label: 'Administrateur', icon: Shield },
+		moderator: { label: 'Modérateur', icon: ShieldAlert },
+	}
 
 interface ProfileIdentityCardProps {
 	name: string
@@ -14,7 +20,11 @@ interface ProfileIdentityCardProps {
 	role: string
 }
 
-export function ProfileIdentityCard({ name, email, role }: ProfileIdentityCardProps) {
+export function ProfileIdentityCard({
+	name,
+	email,
+	role,
+}: ProfileIdentityCardProps) {
 	const roleConfig = ROLE_CONFIG[role] ?? { label: role, icon: Shield }
 	const RoleIcon = roleConfig.icon
 

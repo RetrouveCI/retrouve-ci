@@ -8,9 +8,9 @@ interface EventsStatsGridProps {
 }
 
 export function EventsStatsGrid({ events, total }: EventsStatsGridProps) {
-	const published = events.filter((e) => e.status === 'published').length
-	const draft = events.filter((e) => e.status === 'draft').length
-	const cancelled = events.filter((e) => e.status === 'cancelled').length
+	const published = events.filter(e => e.status === 'published').length
+	const draft = events.filter(e => e.status === 'draft').length
+	const cancelled = events.filter(e => e.status === 'cancelled').length
 
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -1,7 +1,10 @@
 import { data } from 'react-router'
 import { parseWithZod } from '@conform-to/zod'
 import { requireAdminSession } from '@/shared/auth/auth.server'
-import { adminCreateSchema, adminUpdateRoleSchema } from '../administrators.schema'
+import {
+	adminCreateSchema,
+	adminUpdateRoleSchema,
+} from '../administrators.schema'
 import {
 	createAdminUser,
 	setAdminRole,
@@ -38,7 +41,7 @@ export async function administratorsAction({ request }: { request: Request }) {
 			return { ok: true, intent }
 		} catch (err) {
 			const message =
-				err instanceof Error ? err.message : "Erreur lors de la création"
+				err instanceof Error ? err.message : 'Erreur lors de la création'
 			return data({ ok: false, error: message }, { status: 400 })
 		}
 	}
@@ -58,7 +61,7 @@ export async function administratorsAction({ request }: { request: Request }) {
 			return { ok: true, intent }
 		} catch (err) {
 			const message =
-				err instanceof Error ? err.message : "Erreur lors de la mise à jour"
+				err instanceof Error ? err.message : 'Erreur lors de la mise à jour'
 			return data({ ok: false, error: message }, { status: 400 })
 		}
 	}
@@ -75,7 +78,9 @@ export async function administratorsAction({ request }: { request: Request }) {
 			return { ok: true, intent, status: newStatus }
 		} catch (err) {
 			const message =
-				err instanceof Error ? err.message : "Erreur lors du changement de statut"
+				err instanceof Error
+					? err.message
+					: 'Erreur lors du changement de statut'
 			return data({ ok: false, error: message }, { status: 400 })
 		}
 	}
@@ -87,7 +92,7 @@ export async function administratorsAction({ request }: { request: Request }) {
 			return { ok: true, intent }
 		} catch (err) {
 			const message =
-				err instanceof Error ? err.message : "Erreur lors de la suppression"
+				err instanceof Error ? err.message : 'Erreur lors de la suppression'
 			return data({ ok: false, error: message }, { status: 400 })
 		}
 	}

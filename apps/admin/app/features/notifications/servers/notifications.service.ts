@@ -1,5 +1,8 @@
 import { apiFetch } from '@/shared/lib/api-client'
-import type { Notification, NotificationListResponse } from '../notifications.types'
+import type {
+	Notification,
+	NotificationListResponse,
+} from '../notifications.types'
 
 export async function listNotifications(
 	params: { read?: boolean; page?: number; pageSize?: number },
@@ -11,18 +14,26 @@ export async function listNotifications(
 	})
 	if (params.read !== undefined) query.set('read', String(params.read))
 
-	return apiFetch<NotificationListResponse>(`/notifications/mine?${query.toString()}`, {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
-	})
+	return apiFetch<NotificationListResponse>(
+		`/notifications/mine?${query.toString()}`,
+		{
+			headers: { Cookie: request.headers.get('cookie') ?? '' },
+		},
+	)
 }
 
-export async function getUnreadCount(request: Request): Promise<{ count: number }> {
+export async function getUnreadCount(
+	request: Request,
+): Promise<{ count: number }> {
 	return apiFetch<{ count: number }>('/notifications/unread-count', {
 		headers: { Cookie: request.headers.get('cookie') ?? '' },
 	})
 }
 
-export async function markAsRead(id: string, request: Request): Promise<Notification> {
+export async function markAsRead(
+	id: string,
+	request: Request,
+): Promise<Notification> {
 	return apiFetch<Notification>(`/notifications/${id}/read`, {
 		method: 'PATCH',
 		headers: { Cookie: request.headers.get('cookie') ?? '' },

@@ -12,7 +12,9 @@ export async function postsLoader({ request }: { request: Request }) {
 	const rawStatus = url.searchParams.get('status')
 	const rawType = url.searchParams.get('type')
 
-	const moderationStatus = VALID_MODERATION.includes(rawStatus as ModerationStatus)
+	const moderationStatus = VALID_MODERATION.includes(
+		rawStatus as ModerationStatus,
+	)
 		? (rawStatus as ModerationStatus)
 		: undefined
 
