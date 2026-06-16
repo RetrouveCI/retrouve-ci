@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@/infrastructure/database/prisma.service'
+import type { DashboardStats, StatValue } from '../models/dashboard-stats.model'
+import type { ReportingRepository } from './reporting.repository'
 
 interface StatRow {
 	value: number
@@ -26,10 +28,10 @@ interface RecentActivityRow {
 }
 
 @Injectable()
-export class StatsService {
+export class ReportingRepositoryService implements ReportingRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async getDashboardStats() {
+	async getDashboardStats(): Promise<DashboardStats> {
 		const [
 			qrGenerated,
 			qrActivated,
@@ -247,6 +249,6 @@ export class StatsService {
 	}
 }
 
-function toStatValue(row: StatRow | undefined): { value: number; change: number } {
+function toStatValue(row: StatRow | undefined): StatValue {
 	return { value: row?.value ?? 0, change: row?.change ?? 0 }
 }
