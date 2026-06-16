@@ -26,8 +26,11 @@ export class ContactMessageRepositoryService
 			data: {
 				name: data.name,
 				email: data.email,
+				phone: data.phone,
 				subject: data.subject,
 				message: data.message,
+				qrTokenCode: data.qrTokenCode,
+				recipientUserId: data.recipientUserId,
 			},
 		})
 

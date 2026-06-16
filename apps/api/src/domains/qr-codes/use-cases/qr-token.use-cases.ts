@@ -6,7 +6,11 @@ import {
 	QrTokenRevokedError,
 } from '../errors/qr-token.errors'
 import { generateQrCode } from '../helpers/generate-qr-code'
-import type { QrToken, QrTokenListResponse } from '../models/qr-token.model'
+import type {
+	QrToken,
+	QrTokenListResponse,
+	QrTokenPublicView,
+} from '../models/qr-token.model'
 import {
 	QR_TOKEN_REPOSITORY,
 	type QrTokenRepository,
@@ -95,5 +99,15 @@ export class QrTokenUseCases {
 		filter: ListQrTokensFilter,
 	): Promise<QrTokenListResponse> {
 		return this.qrTokenRepository.list({ ...filter, userId })
+	}
+
+	async getPublicView(code: string): Promise<QrTokenPublicView> {
+		const view = await this.qrTokenRepository.findPublicView(code)
+
+		if (!view) {
+			throw new QrTokenNotFoundError(code)
+		}
+
+		return view
 	}
 }

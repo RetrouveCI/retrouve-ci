@@ -13,5 +13,6 @@ import { ContactMessagesController } from './controllers/contact-messages.contro
 			useClass: ContactMessageRepositoryService,
 		},
 	],
+	exports: [ContactMessageUseCases, CONTACT_MESSAGE_REPOSITORY],
 })
 export class ContactMessagesModule {}

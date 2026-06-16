@@ -1,4 +1,4 @@
-export type NotificationType = 'match_found'
+export type NotificationType = 'match_found' | 'qr_scan'
 
 export interface CreateNotificationData {
 	type: NotificationType

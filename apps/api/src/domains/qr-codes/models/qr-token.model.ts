@@ -1,5 +1,12 @@
 import type { QrTokenStatus } from '../types/qr-token.types'
 
+export interface QrTokenPublicView {
+	status: QrTokenStatus
+	ownerFirstName: string | null
+	label: string | null
+	linkedObject: string | null
+}
+
 export interface QrToken {
 	id: string
 	code: string

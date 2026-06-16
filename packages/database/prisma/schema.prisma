@@ -67,6 +67,7 @@ enum ContactMessageStatus {
 
 enum NotificationType {
   MATCH_FOUND
+  QR_SCAN
 }
 
 model User {
@@ -259,15 +260,19 @@ model Event {
 }
 
 model ContactMessage {
-  id        String               @id @default(uuid())
-  name      String
-  email     String
-  subject   String
-  message   String
-  status    ContactMessageStatus @default(NEW)
-  createdAt DateTime             @default(now())
-  readAt    DateTime?
+  id              String               @id @default(uuid())
+  name            String
+  email           String?
+  phone           String?
+  subject         String
+  message         String
+  status          ContactMessageStatus @default(NEW)
+  qrTokenCode     String?
+  recipientUserId String?
+  createdAt       DateTime             @default(now())
+  readAt          DateTime?
 
   @@index([status])
+  @@index([recipientUserId])
   @@map("contact_message")
 }

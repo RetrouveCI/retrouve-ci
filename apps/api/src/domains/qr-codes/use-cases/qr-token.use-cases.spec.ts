@@ -29,6 +29,7 @@ function buildRepository(): QrTokenRepository {
 	return {
 		createMany: vi.fn(),
 		findByCode: vi.fn(),
+		findPublicView: vi.fn(),
 		activate: vi.fn(),
 		revoke: vi.fn(),
 		updateDetails: vi.fn(),

@@ -1,4 +1,8 @@
-import type { QrToken, QrTokenListResponse } from '../models/qr-token.model'
+import type {
+	QrToken,
+	QrTokenListResponse,
+	QrTokenPublicView,
+} from '../models/qr-token.model'
 import type {
 	ActivateQrTokenData,
 	ListQrTokensFilter,
@@ -10,6 +14,7 @@ export const QR_TOKEN_REPOSITORY = Symbol('QR_TOKEN_REPOSITORY')
 export interface QrTokenRepository {
 	createMany(codes: string[], batch?: string): Promise<QrToken[]>
 	findByCode(code: string): Promise<QrToken | null>
+	findPublicView(code: string): Promise<QrTokenPublicView | null>
 	activate(
 		code: string,
 		userId: string,

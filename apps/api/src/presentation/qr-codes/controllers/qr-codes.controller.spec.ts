@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'
+import type { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
 import type { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases'
 import { QrCodesController } from './qr-codes.controller'
 
@@ -6,12 +8,21 @@ function buildUseCases(): QrTokenUseCases {
 	return {
 		generateBatch: vi.fn(),
 		getByCode: vi.fn(),
+		getPublicView: vi.fn(),
 		activate: vi.fn(),
 		revoke: vi.fn(),
 		updateDetails: vi.fn(),
 		list: vi.fn(),
 		listMine: vi.fn(),
 	} as unknown as QrTokenUseCases
+}
+
+function buildContactMessageUseCases(): ContactMessageUseCases {
+	return { create: vi.fn() } as unknown as ContactMessageUseCases
+}
+
+function buildNotificationUseCases(): NotificationUseCases {
+	return { create: vi.fn() } as unknown as NotificationUseCases
 }
 
 const session = { user: { id: 'user-1' } } as Parameters<
@@ -24,7 +35,11 @@ describe('QrCodesController', () => {
 
 	beforeEach(() => {
 		useCases = buildUseCases()
-		controller = new QrCodesController(useCases)
+		controller = new QrCodesController(
+			useCases,
+			buildContactMessageUseCases(),
+			buildNotificationUseCases(),
+		)
 	})
 
 	describe('generate', () => {

@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { QrTokenStatus as PrismaQrTokenStatus } from '@retrouve-ci/database'
 import { PrismaService } from '@/infrastructure/database/prisma.service'
-import { toDomainQrToken, toPrismaStatus } from '../mappers/qr-token.mapper'
-import type { QrToken, QrTokenListResponse } from '../models/qr-token.model'
+import { toDomainQrToken, toDomainStatus, toPrismaStatus } from '../mappers/qr-token.mapper'
+import type {
+	QrToken,
+	QrTokenListResponse,
+	QrTokenPublicView,
+} from '../models/qr-token.model'
 import type {
 	ActivateQrTokenData,
 	ListQrTokensFilter,
@@ -30,6 +34,22 @@ export class QrTokenRepositoryService implements QrTokenRepository {
 		const qrToken = await this.prisma.qrToken.findUnique({ where: { code } })
 
 		return qrToken ? toDomainQrToken(qrToken) : null
+	}
+
+	async findPublicView(code: string): Promise<QrTokenPublicView | null> {
+		const qrToken = await this.prisma.qrToken.findUnique({
+			where: { code },
+			include: { user: { select: { name: true } } },
+		})
+
+		if (!qrToken) return null
+
+		return {
+			status: toDomainStatus(qrToken.status),
+			ownerFirstName: qrToken.user?.name.split(' ')[0] ?? null,
+			label: qrToken.label,
+			linkedObject: qrToken.linkedObject,
+		}
 	}
 
 	async activate(
