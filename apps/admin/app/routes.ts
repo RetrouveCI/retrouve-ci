@@ -16,6 +16,8 @@ export default [
 		route('events', 'features/events/index.tsx'),
 		route('notifications', 'features/notifications/index.tsx'),
 		route('posts', 'features/posts/index.tsx'),
+		route('users', 'features/users/index.tsx'),
+		route('users/:id', 'features/users/detail/index.tsx'),
 	]),
 	route('auth', 'features/auth/layout.tsx', [
 		route('login', 'features/auth/login/index.tsx'),

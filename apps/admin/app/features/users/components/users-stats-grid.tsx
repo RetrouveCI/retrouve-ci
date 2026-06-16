@@ -1,4 +1,4 @@
-import { BentoCard } from '@/components/bento-card'
+import { BentoCard } from '@/shared/components/bento-card'
 import { Users, UserCheck, UserX } from 'lucide-react'
 
 interface UsersStatsGridProps {
@@ -7,11 +7,7 @@ interface UsersStatsGridProps {
 	inactive: number
 }
 
-export function UsersStatsGrid({
-	total,
-	active,
-	inactive,
-}: UsersStatsGridProps) {
+export function UsersStatsGrid({ total, active, inactive }: UsersStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
 			<BentoCard
@@ -22,7 +18,7 @@ export function UsersStatsGrid({
 			/>
 			<BentoCard
 				variant="stat"
-				title="Utilisateurs actifs"
+				title="Actifs"
 				value={active}
 				icon={UserCheck}
 				iconColor="text-green-600"
@@ -30,7 +26,7 @@ export function UsersStatsGrid({
 			/>
 			<BentoCard
 				variant="stat"
-				title="Utilisateurs inactifs"
+				title="Inactifs"
 				value={inactive}
 				icon={UserX}
 				iconColor="text-gray-500"
