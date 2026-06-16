@@ -5,7 +5,7 @@ export interface Admin {
 	id: string
 	name: string
 	email: string
-	phone: string
+	phone: string | null
 	role: AdminRole
 	status: AdminStatus
 	createdAt: string
