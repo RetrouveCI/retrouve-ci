@@ -7,7 +7,7 @@ import { DataTable } from '@/shared/components/data-table'
 import { cn } from '@retrouve-ci/ui/utils'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Eye } from 'lucide-react'
+import { Eye, QrCode } from 'lucide-react'
 import { toast } from 'sonner'
 import type { ColumnDef } from '@tanstack/react-table'
 import type {
@@ -123,19 +123,29 @@ export default function ContactMessagesPage({
 		},
 		{
 			accessorKey: 'name',
-			header: 'Nom',
-			cell: ({ row }) => (
-				<div>
-					<p className="text-sm font-medium">{row.original.name}</p>
-					<p className="text-muted-foreground text-xs">{row.original.email}</p>
-				</div>
-			),
+			header: 'Expéditeur',
+			cell: ({ row }) => {
+				const { name, email, phone } = row.original
+				return (
+					<div>
+						<p className="text-sm font-medium">{name}</p>
+						<p className="text-muted-foreground text-xs">
+							{email ?? phone ?? '—'}
+						</p>
+					</div>
+				)
+			},
 		},
 		{
 			accessorKey: 'subject',
 			header: 'Sujet',
 			cell: ({ row }) => (
-				<span className="text-sm">{row.original.subject}</span>
+				<div className="flex items-center gap-1.5">
+					{row.original.qrTokenCode && (
+						<QrCode className="text-muted-foreground h-3.5 w-3.5 shrink-0" />
+					)}
+					<span className="text-sm">{row.original.subject}</span>
+				</div>
 			),
 		},
 		{

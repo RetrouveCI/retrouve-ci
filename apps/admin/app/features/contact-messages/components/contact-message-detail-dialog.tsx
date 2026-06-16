@@ -7,7 +7,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@retrouve-ci/ui/components'
-import { Mail, Archive } from 'lucide-react'
+import { Mail, Phone, Archive, QrCode } from 'lucide-react'
+import { Link } from 'react-router'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type {
@@ -61,13 +62,41 @@ export function ContactMessageDetailDialog({
 					</DialogTitle>
 				</DialogHeader>
 				<div className="space-y-4">
-					<div className="flex items-center justify-between">
-						<div>
+					<div className="flex items-start justify-between gap-4">
+						<div className="space-y-0.5">
 							<p className="text-sm font-medium">{message.name}</p>
-							<p className="text-muted-foreground text-sm">{message.email}</p>
+							{message.email && (
+								<p className="text-muted-foreground flex items-center gap-1 text-sm">
+									<Mail className="h-3.5 w-3.5" />
+									{message.email}
+								</p>
+							)}
+							{message.phone && (
+								<p className="text-muted-foreground flex items-center gap-1 text-sm">
+									<Phone className="h-3.5 w-3.5" />
+									{message.phone}
+								</p>
+							)}
 						</div>
 						<Badge className={cfg.className}>{cfg.label}</Badge>
 					</div>
+
+					{message.qrTokenCode && (
+						<div className="flex items-center gap-2 rounded-xl border border-dashed bg-gray-50 px-4 py-3">
+							<QrCode className="text-muted-foreground h-4 w-4 shrink-0" />
+							<span className="text-muted-foreground text-sm">
+								Via sticker QR —{' '}
+								<Link
+									to={`/qr/${message.qrTokenCode}`}
+									className="text-foreground font-medium hover:underline"
+									onClick={() => onOpenChange(false)}
+								>
+									{message.qrTokenCode}
+								</Link>
+							</span>
+						</div>
+					)}
+
 					<div className="bg-muted/30 rounded-xl border p-4 text-sm whitespace-pre-wrap">
 						{message.message}
 					</div>
