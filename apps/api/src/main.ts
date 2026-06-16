@@ -62,6 +62,7 @@ async function bootstrap(): Promise<void> {
 		origin: getAllowedOrigins(),
 		credentials: true,
 	})
+
 	app.useGlobalPipes(
 		new ValidationPipe({
 			whitelist: true,
