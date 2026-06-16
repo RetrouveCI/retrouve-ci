@@ -60,6 +60,7 @@ const CATEGORIES: {
 
 export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 	const { listings } = loaderData
+
 	const {
 		searchQuery,
 		setSearchQuery,

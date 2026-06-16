@@ -90,6 +90,7 @@ export default function AdministratorsPage({
 
 	useEffect(() => {
 		if (toggleFetcher.state !== 'idle' || !toggleFetcher.data) return
+
 		if (toggleFetcher.data.ok) {
 			toast.success(
 				toggleFetcher.data.status === 'inactive'
@@ -104,6 +105,7 @@ export default function AdministratorsPage({
 
 	useEffect(() => {
 		if (deleteFetcher.state !== 'idle' || !deleteFetcher.data) return
+
 		if (deleteFetcher.data.ok) {
 			toast.success('Administrateur supprimé')
 			setDeleteTarget(null)
@@ -115,6 +117,7 @@ export default function AdministratorsPage({
 
 	useEffect(() => {
 		if (resetFetcher.state !== 'idle' || !resetFetcher.data) return
+
 		if (resetFetcher.data.ok) {
 			toast.success('Email de réinitialisation envoyé')
 			setResetTarget(null)
