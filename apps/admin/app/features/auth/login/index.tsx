@@ -1,3 +1,4 @@
+import { redirect } from 'react-router'
 import {
 	Card,
 	CardContent,
@@ -5,7 +6,14 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@retrouve-ci/ui/components'
+import { getServerSession } from '@/shared/auth/auth.server'
 import { LoginForm } from './components/login-form'
+
+export async function loader({ request }: { request: Request }) {
+	const session = await getServerSession(request)
+	if (session?.user?.role === 'admin') throw redirect('/')
+	return null
+}
 
 export default function LoginPage() {
 	return (

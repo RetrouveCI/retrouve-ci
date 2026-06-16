@@ -1,10 +1,12 @@
 import { data } from 'react-router'
 import { parseWithZod } from '@conform-to/zod'
 import { ApiError } from '@/shared/lib/api-client'
+import { requireAdminSession } from '@/shared/auth/auth.server'
 import { generateQrTokens } from '../../servers/qr.service'
 import { generateQrSchema } from '../generate.schema'
 
 export async function generateQrAction({ request }: { request: Request }) {
+	await requireAdminSession(request)
 	const formData = await request.formData()
 	const submission = parseWithZod(formData, { schema: generateQrSchema })
 

@@ -1,11 +1,13 @@
 import { data } from 'react-router'
 import { ApiError } from '@/shared/lib/api-client'
+import { requireAdminSession } from '@/shared/auth/auth.server'
 import { moderatePost } from './posts.service'
 import type { ModerationStatus } from '../posts.types'
 
 const VALID_MODERATION: ModerationStatus[] = ['pending', 'published', 'hidden']
 
 export async function postsAction({ request }: { request: Request }) {
+	await requireAdminSession(request)
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 	const id = String(formData.get('id') ?? '')

@@ -1,11 +1,13 @@
 import { data } from 'react-router'
 import { parseWithZod } from '@conform-to/zod'
 import { ApiError } from '@/shared/lib/api-client'
+import { requireAdminSession } from '@/shared/auth/auth.server'
 import { createEvent, updateEvent, deleteEvent } from './events.service'
 import { eventSchema, updateStatusSchema } from '../events.schema'
 import type { EventStatus } from '../events.types'
 
 export async function eventsAction({ request }: { request: Request }) {
+	await requireAdminSession(request)
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 	const id = String(formData.get('id') ?? '')
