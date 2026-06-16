@@ -1,18 +1,18 @@
-import { BentoCard } from '@/components/bento-card'
-import { FileText, CheckCircle2, Clock, AlertTriangle } from 'lucide-react'
+import { BentoCard } from '@/shared/components/bento-card'
+import { FileText, CheckCircle2, Clock, EyeOff } from 'lucide-react'
 
 interface PostsStatsGridProps {
 	total: number
 	published: number
 	pending: number
-	lost: number
+	hidden: number
 }
 
 export function PostsStatsGrid({
 	total,
 	published,
 	pending,
-	lost,
+	hidden,
 }: PostsStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -40,11 +40,11 @@ export function PostsStatsGrid({
 			/>
 			<BentoCard
 				variant="stat"
-				title="Perdus signalés"
-				value={lost}
-				icon={AlertTriangle}
-				iconColor="text-red-500"
-				iconBgColor="bg-red-100"
+				title="Masqués"
+				value={hidden}
+				icon={EyeOff}
+				iconColor="text-gray-600"
+				iconBgColor="bg-gray-100"
 			/>
 		</div>
 	)
