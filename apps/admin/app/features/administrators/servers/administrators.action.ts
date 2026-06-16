@@ -1,14 +1,25 @@
 import { data } from 'react-router'
 import { parseWithZod } from '@conform-to/zod'
-import { adminFormSchema } from '../administrators.schema'
-import type { Admin, AdminRole, AdminStatus } from '../administrators.types'
+import { requireAdminSession } from '@/shared/auth/auth.server'
+import { adminCreateSchema, adminUpdateRoleSchema } from '../administrators.schema'
+import {
+	createAdminUser,
+	setAdminRole,
+	banAdminUser,
+	unbanAdminUser,
+	removeAdminUser,
+	sendPasswordReset,
+} from './administrators.service'
 
 export async function administratorsAction({ request }: { request: Request }) {
+	await requireAdminSession(request)
+
+	const cookie = request.headers.get('cookie') ?? ''
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 
 	if (intent === 'create') {
-		const submission = parseWithZod(formData, { schema: adminFormSchema })
+		const submission = parseWithZod(formData, { schema: adminCreateSchema })
 		if (submission.status !== 'success') {
 			return data(
 				{ ok: false, submission: submission.reply() },
@@ -16,21 +27,24 @@ export async function administratorsAction({ request }: { request: Request }) {
 			)
 		}
 
-		const admin: Admin = {
-			id: `a-${Date.now()}`,
-			...submission.value,
-			role: submission.value.role as AdminRole,
-			status: 'active',
-			createdAt: new Date().toISOString(),
-			lastLogin: null,
+		try {
+			await createAdminUser(cookie, {
+				name: submission.value.name,
+				email: submission.value.email,
+				password: submission.value.password,
+				role: submission.value.role,
+				phone: submission.value.phone,
+			})
+			return { ok: true, intent }
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Erreur lors de la création"
+			return data({ ok: false, error: message }, { status: 400 })
 		}
-
-		return { ok: true, admin, intent }
 	}
 
 	if (intent === 'update') {
-		const submission = parseWithZod(formData, { schema: adminFormSchema })
-
+		const submission = parseWithZod(formData, { schema: adminUpdateRoleSchema })
 		if (submission.status !== 'success') {
 			return data(
 				{ ok: false, submission: submission.reply() },
@@ -38,27 +52,56 @@ export async function administratorsAction({ request }: { request: Request }) {
 			)
 		}
 
-		return {
-			ok: true,
-			id: String(formData.get('id') ?? ''),
-			updates: submission.value,
-			intent,
+		const userId = String(formData.get('id') ?? '')
+		try {
+			await setAdminRole(cookie, userId, submission.value.role)
+			return { ok: true, intent }
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Erreur lors de la mise à jour"
+			return data({ ok: false, error: message }, { status: 400 })
 		}
 	}
 
 	if (intent === 'toggle-status') {
-		const id = String(formData.get('id') ?? '')
-		const status = String(formData.get('status') ?? '') as AdminStatus
-		return { ok: true, id, status, intent }
+		const userId = String(formData.get('id') ?? '')
+		const newStatus = String(formData.get('status') ?? '')
+		try {
+			if (newStatus === 'inactive') {
+				await banAdminUser(cookie, userId)
+			} else {
+				await unbanAdminUser(cookie, userId)
+			}
+			return { ok: true, intent, status: newStatus }
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Erreur lors du changement de statut"
+			return data({ ok: false, error: message }, { status: 400 })
+		}
 	}
 
 	if (intent === 'delete') {
-		const id = String(formData.get('id') ?? '')
-		return { ok: true, id, intent }
+		const userId = String(formData.get('id') ?? '')
+		try {
+			await removeAdminUser(cookie, userId)
+			return { ok: true, intent }
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Erreur lors de la suppression"
+			return data({ ok: false, error: message }, { status: 400 })
+		}
 	}
 
 	if (intent === 'reset-password') {
-		return { ok: true, intent }
+		const email = String(formData.get('email') ?? '')
+		try {
+			await sendPasswordReset(email)
+			return { ok: true, intent }
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Erreur lors de l'envoi"
+			return data({ ok: false, error: message }, { status: 400 })
+		}
 	}
 
 	return data({ ok: false, error: 'Intent inconnu' }, { status: 400 })

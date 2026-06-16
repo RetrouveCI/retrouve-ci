@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useFetcher } from 'react-router'
+import { useFetcher, useRevalidator } from 'react-router'
 import {
 	Avatar,
 	AvatarFallback,
@@ -67,17 +67,17 @@ const ROLE_CONFIG: Record<
 
 interface MutationResult {
 	ok: boolean
-	admin?: Admin
-	id?: string
-	updates?: Partial<Admin>
-	status?: AdminStatus
 	intent?: string
+	status?: string
+	error?: string
 }
 
 export default function AdministratorsPage({
 	loaderData,
 }: Route.ComponentProps) {
-	const [admins, setAdmins] = useState<Admin[]>(loaderData.admins)
+	const { admins } = loaderData
+	const revalidator = useRevalidator()
+
 	const [statusFilter, setStatusFilter] = useState<string>('all')
 	const [formOpen, setFormOpen] = useState(false)
 	const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null)
@@ -89,38 +89,42 @@ export default function AdministratorsPage({
 	const resetFetcher = useFetcher<MutationResult>()
 
 	useEffect(() => {
-		if (toggleFetcher.state !== 'idle' || !toggleFetcher.data?.ok) return
-		const { id, status } = toggleFetcher.data
-		if (id && status) {
-			setAdmins(prev => prev.map(a => (a.id === id ? { ...a, status } : a)))
-			toast.success(status === 'active' ? 'Compte activé' : 'Compte désactivé')
+		if (toggleFetcher.state !== 'idle' || !toggleFetcher.data) return
+		if (toggleFetcher.data.ok) {
+			toast.success(
+				toggleFetcher.data.status === 'inactive'
+					? 'Compte désactivé'
+					: 'Compte activé',
+			)
+			revalidator.revalidate()
+		} else if (toggleFetcher.data.error) {
+			toast.error(toggleFetcher.data.error)
 		}
-	}, [toggleFetcher.state, toggleFetcher.data])
+	}, [toggleFetcher.state, toggleFetcher.data, revalidator])
 
 	useEffect(() => {
-		if (deleteFetcher.state !== 'idle' || !deleteFetcher.data?.ok) return
-		const { id } = deleteFetcher.data
-		if (id) {
-			setAdmins(prev => prev.filter(a => a.id !== id))
+		if (deleteFetcher.state !== 'idle' || !deleteFetcher.data) return
+		if (deleteFetcher.data.ok) {
 			toast.success('Administrateur supprimé')
 			setDeleteTarget(null)
+			revalidator.revalidate()
+		} else if (deleteFetcher.data.error) {
+			toast.error(deleteFetcher.data.error)
 		}
-	}, [deleteFetcher.state, deleteFetcher.data])
+	}, [deleteFetcher.state, deleteFetcher.data, revalidator])
 
 	useEffect(() => {
-		if (resetFetcher.state !== 'idle' || !resetFetcher.data?.ok) return
-		toast.success('Email de réinitialisation envoyé')
-		setResetTarget(null)
+		if (resetFetcher.state !== 'idle' || !resetFetcher.data) return
+		if (resetFetcher.data.ok) {
+			toast.success('Email de réinitialisation envoyé')
+			setResetTarget(null)
+		} else if (resetFetcher.data.error) {
+			toast.error(resetFetcher.data.error)
+		}
 	}, [resetFetcher.state, resetFetcher.data])
 
-	const handleFormSuccess = (result: MutationResult) => {
-		if (result.intent === 'create' && result.admin) {
-			setAdmins(prev => [...prev, result.admin!])
-		} else if (result.intent === 'update' && result.id && result.updates) {
-			setAdmins(prev =>
-				prev.map(a => (a.id === result.id ? { ...a, ...result.updates } : a)),
-			)
-		}
+	const handleFormSuccess = () => {
+		revalidator.revalidate()
 	}
 
 	const handleToggleStatus = (admin: Admin) => {
@@ -143,7 +147,7 @@ export default function AdministratorsPage({
 	const handleResetPassword = () => {
 		if (!resetTarget) return
 		resetFetcher.submit(
-			{ intent: 'reset-password', id: resetTarget.id },
+			{ intent: 'reset-password', email: resetTarget.email },
 			{ method: 'post' },
 		)
 	}
@@ -184,7 +188,7 @@ export default function AdministratorsPage({
 			header: 'Téléphone',
 			cell: ({ row }) => (
 				<span className="text-muted-foreground font-mono text-sm">
-					{row.original.phone}
+					{row.original.phone ?? '—'}
 				</span>
 			),
 		},
@@ -248,8 +252,9 @@ export default function AdministratorsPage({
 									setEditingAdmin(admin)
 									setFormOpen(true)
 								}}
+								disabled={isSuperAdmin}
 							>
-								<Edit className="mr-2 h-4 w-4" /> Modifier
+								<Edit className="mr-2 h-4 w-4" /> Modifier le rôle
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => setResetTarget(admin)}>
 								<Key className="mr-2 h-4 w-4" /> Réinitialiser le mot de passe
