@@ -1,9 +1,17 @@
 import { Module } from '@nestjs/common'
+import { REPORTING_REPOSITORY } from '@/domains/reporting/repository/reporting.repository'
+import { ReportingRepositoryService } from '@/domains/reporting/repository/reporting.repository.service'
+import { ReportingUseCases } from '@/domains/reporting/use-cases/reporting.use-cases'
 import { StatsController } from './stats.controller'
-import { StatsService } from './stats.service'
 
 @Module({
 	controllers: [StatsController],
-	providers: [StatsService],
+	providers: [
+		ReportingUseCases,
+		{
+			provide: REPORTING_REPOSITORY,
+			useClass: ReportingRepositoryService,
+		},
+	],
 })
 export class StatsModule {}
