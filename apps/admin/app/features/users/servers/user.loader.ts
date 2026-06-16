@@ -1,6 +1,6 @@
 import { redirect } from 'react-router'
 import { requireAdminSession } from '@/shared/auth/auth.server'
-import { MOCK_USERS } from './users.loader'
+import { getUserById } from './users.service'
 
 export async function userLoader({
 	request,
@@ -11,7 +11,8 @@ export async function userLoader({
 }) {
 	await requireAdminSession(request)
 
-	const user = MOCK_USERS.find((u) => u.id === params.id)
+	const cookie = request.headers.get('cookie') ?? ''
+	const user = await getUserById(cookie, params.id ?? '')
 	if (!user) throw redirect('/users')
 
 	return { user }

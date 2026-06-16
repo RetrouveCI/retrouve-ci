@@ -1,4 +1,5 @@
-import { Link } from 'react-router'
+import { useEffect } from 'react'
+import { Link, useFetcher, useRevalidator } from 'react-router'
 import {
 	Avatar,
 	AvatarFallback,
@@ -9,22 +10,45 @@ import {
 import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { userLoader } from '../servers/user.loader'
+import { usersAction } from '../servers/users.action'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import {
-	ArrowLeft,
-	Phone,
-	Mail,
-	Calendar,
-	QrCode,
-	FileText,
-} from 'lucide-react'
+import { toast } from 'sonner'
+import { ArrowLeft, Phone, Mail, Calendar, Ban, CheckCircle } from 'lucide-react'
 import type { Route } from './+types/index'
 
 export const loader = userLoader
+export const action = usersAction
+
+interface ActionResult {
+	ok: boolean
+	intent?: string
+	error?: string
+}
 
 export default function UserDetailPage({ loaderData }: Route.ComponentProps) {
 	const { user } = loaderData
+	const revalidator = useRevalidator()
+	const fetcher = useFetcher<ActionResult>()
+
+	useEffect(() => {
+		if (fetcher.state !== 'idle' || !fetcher.data) return
+		if (fetcher.data.ok) {
+			toast.success(
+				fetcher.data.intent === 'ban' ? 'Compte désactivé' : 'Compte activé',
+			)
+			revalidator.revalidate()
+		} else if (fetcher.data.error) {
+			toast.error(fetcher.data.error)
+		}
+	}, [fetcher.state, fetcher.data, revalidator])
+
+	const handleToggleBan = () => {
+		fetcher.submit(
+			{ intent: user.status === 'active' ? 'ban' : 'unban', userId: user.id },
+			{ method: 'post' },
+		)
+	}
 
 	return (
 		<>
@@ -42,7 +66,7 @@ export default function UserDetailPage({ loaderData }: Route.ComponentProps) {
 											</AvatarFallback>
 										</Avatar>
 										<h2 className="mt-4 text-xl font-bold">{user.name}</h2>
-										<p className="text-muted-foreground text-sm">
+										<p className="text-muted-foreground text-xs">
 											ID: {user.id}
 										</p>
 										<Badge
@@ -57,28 +81,53 @@ export default function UserDetailPage({ loaderData }: Route.ComponentProps) {
 									</div>
 
 									<div className="mt-6 space-y-3">
-										<div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3 text-sm">
-											<Phone className="text-primary h-4 w-4 shrink-0" />
-											<span className="font-mono font-medium">{user.phone}</span>
-										</div>
+										{user.phone && (
+											<div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3 text-sm">
+												<Phone className="text-primary h-4 w-4 shrink-0" />
+												<span className="font-mono font-medium">
+													{user.phone}
+												</span>
+											</div>
+										)}
 										<div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3 text-sm">
 											<Mail className="text-primary h-4 w-4 shrink-0" />
-											<span className="break-all font-medium">{user.email}</span>
+											<span className="break-all font-medium">
+												{user.email}
+											</span>
 										</div>
 										<div className="bg-muted/50 flex items-center gap-3 rounded-lg p-3 text-sm">
 											<Calendar className="text-primary h-4 w-4 shrink-0" />
 											<span>
 												Inscrit le{' '}
 												<span className="font-medium">
-													{format(new Date(user.createdAt), 'dd MMMM yyyy', {
-														locale: fr,
-													})}
+													{format(
+														new Date(user.createdAt),
+														'dd MMMM yyyy',
+														{ locale: fr },
+													)}
 												</span>
 											</span>
 										</div>
 									</div>
 								</CardContent>
 							</BentoCard>
+
+							<Button
+								variant={user.status === 'active' ? 'destructive' : 'default'}
+								className="w-full"
+								onClick={handleToggleBan}
+								disabled={fetcher.state !== 'idle'}
+							>
+								{user.status === 'active' ? (
+									<>
+										<Ban className="mr-2 h-4 w-4" /> Désactiver le compte
+									</>
+								) : (
+									<>
+										<CheckCircle className="mr-2 h-4 w-4" /> Activer le compte
+									</>
+								)}
+							</Button>
 
 							<Button variant="outline" className="w-full" asChild>
 								<Link to="/users">
@@ -89,29 +138,11 @@ export default function UserDetailPage({ loaderData }: Route.ComponentProps) {
 						</div>
 
 						<div className="lg:col-span-2">
-							<div className="grid gap-4 sm:grid-cols-2">
-								<BentoCard
-									variant="stat"
-									title="QR Codes activés"
-									value={user.qrCodesCount}
-									icon={QrCode}
-									iconColor="text-primary"
-									iconBgColor="bg-primary/10"
-								/>
-								<BentoCard
-									variant="stat"
-									title="Posts publiés"
-									value={user.postsCount}
-									icon={FileText}
-									iconColor="text-purple-600"
-									iconBgColor="bg-purple-100"
-								/>
-							</div>
-
-							<div className="bg-muted/30 mt-4 rounded-xl border p-6 text-center">
+							<div className="bg-muted/30 rounded-xl border p-6 text-center">
 								<p className="text-muted-foreground text-sm">
-									L&apos;historique détaillé (QR, commandes, posts) sera
-									disponible une fois les utilisateurs connectés à l&apos;API.
+									L&apos;historique détaillé (QR codes, commandes, posts) sera
+									disponible lorsqu&apos;un domaine utilisateurs sera ajouté à
+									l&apos;API.
 								</p>
 							</div>
 						</div>
