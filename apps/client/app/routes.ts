@@ -28,6 +28,7 @@ export default [
 		route('account/settings', 'features/account/settings/index.tsx'),
 		route('notifications', 'features/notifications/index.ts'),
 	]),
+	route('q/:code', 'features/qr-contact/index.tsx'),
 	route('auth', 'features/auth/layout.tsx', [
 		index('features/auth/index.tsx'),
 		route('login', 'features/auth/login/index.tsx'),
