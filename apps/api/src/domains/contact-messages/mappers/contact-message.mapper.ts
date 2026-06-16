@@ -13,9 +13,12 @@ export function toDomainContactMessage(
 		id: contactMessage.id,
 		name: contactMessage.name,
 		email: contactMessage.email,
+		phone: contactMessage.phone,
 		subject: contactMessage.subject,
 		message: contactMessage.message,
 		status: toDomainStatus(contactMessage.status),
+		qrTokenCode: contactMessage.qrTokenCode,
+		recipientUserId: contactMessage.recipientUserId,
 		createdAt: contactMessage.createdAt,
 		readAt: contactMessage.readAt,
 	}
