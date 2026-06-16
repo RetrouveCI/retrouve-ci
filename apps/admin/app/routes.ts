@@ -19,6 +19,7 @@ export default [
 		route('users', 'features/users/index.tsx'),
 		route('users/:id', 'features/users/detail/index.tsx'),
 		route('administrators', 'features/administrators/index.tsx'),
+		route('profile', 'features/profile/index.tsx'),
 	]),
 	route('auth', 'features/auth/layout.tsx', [
 		route('login', 'features/auth/login/index.tsx'),
