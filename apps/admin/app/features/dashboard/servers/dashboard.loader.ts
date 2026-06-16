@@ -71,7 +71,10 @@ const MOCK_ACTIVITIES: Activity[] = [
 	{ id: 6, type: 'user', text: 'Utilisateur Ibrahim K. désactivé', timestamp: 'Il y a 2h' },
 ]
 
-export function dashboardLoader() {
+import { requireAdminSession } from '@/shared/auth/auth.server'
+
+export async function dashboardLoader({ request }: { request: Request }) {
+	await requireAdminSession(request)
 	return {
 		stats: MOCK_STATS,
 		activityChart: MOCK_ACTIVITY_CHART,

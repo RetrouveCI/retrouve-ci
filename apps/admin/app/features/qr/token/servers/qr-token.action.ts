@@ -1,5 +1,6 @@
 import { data } from 'react-router'
 import { ApiError } from '@/shared/lib/api-client'
+import { requireAdminSession } from '@/shared/auth/auth.server'
 import { revokeQrToken } from '../../servers/qr.service'
 
 export async function qrTokenAction({
@@ -9,6 +10,7 @@ export async function qrTokenAction({
 	request: Request
 	params: { code: string }
 }) {
+	await requireAdminSession(request)
 	const formData = await request.formData()
 	const intent = formData.get('intent')
 
