@@ -38,8 +38,9 @@ There are no tests configured yet.
 
 ```text
 apps/
-  client/   # Public-facing app (Next.js, port 3000)
-  admin/    # Admin dashboard (Next.js, port 3001)
+  client/   # Public-facing app (React Router v7 / Vite, port 3000)
+  admin/    # Admin dashboard (React Router v7 / Vite, port 3001)
+  api/      # Backend REST API (NestJS, port 3333)
 packages/
   ui/                  # Shared component library (source-only, no build step)
   eslint-config/       # Shared ESLint configs (base, next, react-internal)
@@ -78,18 +79,19 @@ paths in each app's `tsconfig.json` resolve imports directly to `src/`.
 Turborepo's `"dependsOn": ["^build"]` applies only when the package has a build
 script.
 
-### Next.js apps
+### Frontend apps (React Router v7)
 
 Both apps share the same stack:
 
-- **Next.js 16.2** with App Router, React 19, TypeScript
+- **React Router v7** (Vite, SSR) with React 19, TypeScript
 - **Tailwind CSS v4** — configured via CSS `@theme` directives, not a JS config
   file
 - **shadcn/ui** — components imported via `@retrouve-ci/ui/components`
-- **`next.config.ts`** sets `typescript.ignoreBuildErrors: true` in both apps
+- **`@conform-to/react` + `@conform-to/zod`** for all forms in both apps
 
-Forms differ per app: `apps/admin` uses **react-hook-form + zod**; `apps/client`
-uses **`@conform-to/react` + `@conform-to/zod`** (see client conventions below).
+Both use the same feature-based architecture under `app/features/[feature]/`
+with `servers/*.loader.ts` / `servers/*.action.ts` for all server-side data
+access (see conventions below).
 
 ### Client app (`apps/client`)
 
@@ -147,36 +149,50 @@ Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
 
 ### Admin app (`apps/admin`)
 
-Route structure:
+Migrated from Next.js App Router to **React Router v7 (Vite, SSR)** with the
+same feature-based architecture as `apps/client`. Auth is email/password via
+better-auth (`adminClient()` plugin, role check `role === 'admin'`).
 
-- `/auth` — auth entry point with shared layout (`app/auth/layout.tsx`),
-  delegating rendering to `components/auth-layout.tsx`
-  - `/auth/login`, `/auth/forgot-password`, `/auth/reset-password`
-- `/(dashboard)/...` — all dashboard routes, wrapped in `AuthGuard`
+Route structure (defined in `app/routes.ts`):
 
-Dashboard sections: overview, posts, users, orders, qr (QR tokens),
-administrators, events, notifications, contact-messages, profile.
+- `/` — dashboard overview (mock stats and charts)
+- `/contact-messages` — contact form submissions (real API: `contact-messages` domain)
+- `/orders` — sticker orders (real API: `sticker-orders` domain)
+- `/qr`, `/qr/generate`, `/qr/:code` — QR tokens (real API: `qr-codes` domain)
+- `/events` — community events (real API: `events` domain)
+- `/notifications` — admin notifications (real API: `notifications` domain)
+- `/posts` — lost/found listings moderation (real API: `lost-items` domain)
+- `/users`, `/users/:id` — user management (mock — no API domain yet)
+- `/administrators` — admin account management (mock — no API domain yet)
+- `/profile` — admin profile (better-auth session data; password change via `authClient.changePassword`)
+- `/auth/login`, `/auth/forgot-password`, `/auth/reset-password` — auth pages
 
-Auth is email/password, stored in `localStorage` under key `retrouveci_admin`.
-The mock credentials are `admin@retrouveci.com` / `admin123`. All data is mock
-(`lib/mock-data.ts`); no API backend is connected yet, **except**
-`/contact-messages`, the first dashboard page wired to the real API
-(`apps/api`'s `contact-messages` domain) via `infrastructure/http/api-client.ts`
-— see `infrastructure/repositories/api-contact-message-repository.ts` and
-`application/contact-messages/use-contact-messages.ts`. Calls go through
-`@AllowAnonymous()` (public submission) / `@Roles(['admin'])` (list, detail,
-status update) on the API side; since admin auth here is still mock-only
-(`localStorage`, not a better-auth session cookie), the admin-only endpoints
-will 401 until admin auth is connected to better-auth.
+All dashboard routes are nested under `shared/components/dashboard-layout.tsx`.
+Every dashboard loader calls `requireAdminSession(request)` (from
+`shared/auth/auth.server.ts`), which forwards the `Cookie` header to
+`/api/auth/get-session` and throws `redirect('/auth/login')` if no valid admin
+session is found.
 
-The dashboard layout (`app/(dashboard)/layout.tsx`) renders `<Sidebar>`
-alongside `<main className="lg:pl-64">`. The `AuthGuard` component
-(`components/auth-guard.tsx`) handles redirect to `/auth/login` when
-unauthenticated.
+#### Admin app conventions
 
-Global shared components live flat in `components/` (sidebar, topbar,
-data-table, stats-card, bento-card, etc.). Route-level components are co-located
-in each route's own `components/` subfolder.
+Identical to the client app conventions above, with these admin-specific notes:
+
+- `shared/auth/auth-client.ts` uses better-auth's `adminClient()` plugin for
+  admin-only operations. `shared/auth/auth.server.ts` provides
+  `getServerSession` / `requireAdminSession` — these replace the old `AuthGuard`
+  client component.
+- Password change (`features/profile`) is the only client-side auth exception:
+  `lib/profile.client.ts` calls `authClient.changePassword` directly (browser
+  needs the `Set-Cookie` response). Login (`features/auth/login`) similarly
+  calls `authClient.signIn.email` client-side via `lib/login.client.ts`.
+- For sections with no API domain (`users`, `administrators`), mock data is
+  inlined in `servers/*.loader.ts` with `id: string` (forward-compatible).
+  Actions return mock mutation results; real persistence deferred until API
+  domains exist.
+- The `shared/components/topbar.tsx` fetches the unread notification count on
+  mount via `apiFetch('/notifications/unread-count')` with
+  `credentials: 'include'` (client-side, since the topbar is part of the
+  dashboard layout and not owned by the notifications feature).
 
 ### Styling
 
