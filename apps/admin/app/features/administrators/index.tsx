@@ -52,7 +52,14 @@ import type { Route } from './+types/index'
 export const loader = administratorsLoader
 export const action = administratorsAction
 
-const ROLE_CONFIG: Record<AdminRole, { label: string; icon: React.ElementType; variant: 'default' | 'secondary' | 'outline' }> = {
+const ROLE_CONFIG: Record<
+	AdminRole,
+	{
+		label: string
+		icon: React.ElementType
+		variant: 'default' | 'secondary' | 'outline'
+	}
+> = {
 	super_admin: { label: 'Super Admin', icon: ShieldCheck, variant: 'default' },
 	admin: { label: 'Admin', icon: Shield, variant: 'secondary' },
 	moderator: { label: 'Modérateur', icon: ShieldAlert, variant: 'outline' },
@@ -67,7 +74,9 @@ interface MutationResult {
 	intent?: string
 }
 
-export default function AdministratorsPage({ loaderData }: Route.ComponentProps) {
+export default function AdministratorsPage({
+	loaderData,
+}: Route.ComponentProps) {
 	const [admins, setAdmins] = useState<Admin[]>(loaderData.admins)
 	const [statusFilter, setStatusFilter] = useState<string>('all')
 	const [formOpen, setFormOpen] = useState(false)
@@ -83,7 +92,7 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 		if (toggleFetcher.state !== 'idle' || !toggleFetcher.data?.ok) return
 		const { id, status } = toggleFetcher.data
 		if (id && status) {
-			setAdmins((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)))
+			setAdmins(prev => prev.map(a => (a.id === id ? { ...a, status } : a)))
 			toast.success(status === 'active' ? 'Compte activé' : 'Compte désactivé')
 		}
 	}, [toggleFetcher.state, toggleFetcher.data])
@@ -92,7 +101,7 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 		if (deleteFetcher.state !== 'idle' || !deleteFetcher.data?.ok) return
 		const { id } = deleteFetcher.data
 		if (id) {
-			setAdmins((prev) => prev.filter((a) => a.id !== id))
+			setAdmins(prev => prev.filter(a => a.id !== id))
 			toast.success('Administrateur supprimé')
 			setDeleteTarget(null)
 		}
@@ -106,18 +115,17 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 
 	const handleFormSuccess = (result: MutationResult) => {
 		if (result.intent === 'create' && result.admin) {
-			setAdmins((prev) => [...prev, result.admin!])
+			setAdmins(prev => [...prev, result.admin!])
 		} else if (result.intent === 'update' && result.id && result.updates) {
-			setAdmins((prev) =>
-				prev.map((a) =>
-					a.id === result.id ? { ...a, ...result.updates } : a,
-				),
+			setAdmins(prev =>
+				prev.map(a => (a.id === result.id ? { ...a, ...result.updates } : a)),
 			)
 		}
 	}
 
 	const handleToggleStatus = (admin: Admin) => {
-		const newStatus: AdminStatus = admin.status === 'active' ? 'inactive' : 'active'
+		const newStatus: AdminStatus =
+			admin.status === 'active' ? 'inactive' : 'active'
 		toggleFetcher.submit(
 			{ intent: 'toggle-status', id: admin.id, status: newStatus },
 			{ method: 'post' },
@@ -126,22 +134,29 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 
 	const handleDelete = () => {
 		if (!deleteTarget) return
-		deleteFetcher.submit({ intent: 'delete', id: deleteTarget.id }, { method: 'post' })
+		deleteFetcher.submit(
+			{ intent: 'delete', id: deleteTarget.id },
+			{ method: 'post' },
+		)
 	}
 
 	const handleResetPassword = () => {
 		if (!resetTarget) return
-		resetFetcher.submit({ intent: 'reset-password', id: resetTarget.id }, { method: 'post' })
+		resetFetcher.submit(
+			{ intent: 'reset-password', id: resetTarget.id },
+			{ method: 'post' },
+		)
 	}
 
-	const filtered = statusFilter === 'all'
-		? admins
-		: admins.filter((a) => a.status === statusFilter)
+	const filtered =
+		statusFilter === 'all'
+			? admins
+			: admins.filter(a => a.status === statusFilter)
 
 	const counts = {
 		total: admins.length,
-		active: admins.filter((a) => a.status === 'active').length,
-		superAdmins: admins.filter((a) => a.role === 'super_admin').length,
+		active: admins.filter(a => a.status === 'active').length,
+		superAdmins: admins.filter(a => a.role === 'super_admin').length,
 	}
 
 	const columns: ColumnDef<Admin>[] = [
@@ -157,7 +172,9 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 					</Avatar>
 					<div>
 						<p className="text-sm font-medium">{row.original.name}</p>
-						<p className="text-muted-foreground text-xs">{row.original.email}</p>
+						<p className="text-muted-foreground text-xs">
+							{row.original.email}
+						</p>
 					</div>
 				</div>
 			),
@@ -166,7 +183,9 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 			accessorKey: 'phone',
 			header: 'Téléphone',
 			cell: ({ row }) => (
-				<span className="text-muted-foreground font-mono text-sm">{row.original.phone}</span>
+				<span className="text-muted-foreground font-mono text-sm">
+					{row.original.phone}
+				</span>
 			),
 		},
 		{
@@ -204,7 +223,9 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 			cell: ({ row }) => (
 				<span className="text-muted-foreground text-sm">
 					{row.original.lastLogin
-						? format(new Date(row.original.lastLogin), 'dd/MM/yyyy HH:mm', { locale: fr })
+						? format(new Date(row.original.lastLogin), 'dd/MM/yyyy HH:mm', {
+								locale: fr,
+							})
 						: 'Jamais'}
 				</span>
 			),
@@ -230,9 +251,7 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 							>
 								<Edit className="mr-2 h-4 w-4" /> Modifier
 							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => setResetTarget(admin)}
-							>
+							<DropdownMenuItem onClick={() => setResetTarget(admin)}>
 								<Key className="mr-2 h-4 w-4" /> Réinitialiser le mot de passe
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
@@ -304,7 +323,7 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 
 			<AdminFormDialog
 				open={formOpen}
-				onOpenChange={(open) => {
+				onOpenChange={open => {
 					setFormOpen(open)
 					if (!open) setEditingAdmin(null)
 				}}
@@ -314,11 +333,13 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 
 			<AlertDialog
 				open={!!deleteTarget}
-				onOpenChange={(open) => !open && setDeleteTarget(null)}
+				onOpenChange={open => !open && setDeleteTarget(null)}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Supprimer l&apos;administrateur ?</AlertDialogTitle>
+						<AlertDialogTitle>
+							Supprimer l&apos;administrateur ?
+						</AlertDialogTitle>
 						<AlertDialogDescription>
 							Cette action est irréversible.{' '}
 							<strong>{deleteTarget?.name}</strong> perdra l&apos;accès à
@@ -339,7 +360,7 @@ export default function AdministratorsPage({ loaderData }: Route.ComponentProps)
 
 			<AlertDialog
 				open={!!resetTarget}
-				onOpenChange={(open) => !open && setResetTarget(null)}
+				onOpenChange={open => !open && setResetTarget(null)}
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>

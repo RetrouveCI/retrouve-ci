@@ -1,8 +1,0 @@
-export type { User } from '@/domain/entities/user'
-export type { Post } from '@/domain/entities/post'
-export type { QRToken } from '@/domain/entities/qr-token'
-export type { StickerOrder } from '@/domain/entities/order'
-export type { Event, Activity } from '@/domain/entities/event'
-export type { DashboardStats } from '@/domain/entities/dashboard'
-export type { Admin } from '@/domain/entities/admin'
-export type { Notification } from '@/domain/entities/notification'
