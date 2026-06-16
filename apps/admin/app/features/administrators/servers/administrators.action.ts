@@ -10,8 +10,12 @@ export async function administratorsAction({ request }: { request: Request }) {
 	if (intent === 'create') {
 		const submission = parseWithZod(formData, { schema: adminFormSchema })
 		if (submission.status !== 'success') {
-			return data({ ok: false, submission: submission.reply() }, { status: 400 })
+			return data(
+				{ ok: false, submission: submission.reply() },
+				{ status: 400 },
+			)
 		}
+
 		const admin: Admin = {
 			id: `a-${Date.now()}`,
 			...submission.value,
@@ -20,14 +24,20 @@ export async function administratorsAction({ request }: { request: Request }) {
 			createdAt: new Date().toISOString(),
 			lastLogin: null,
 		}
+
 		return { ok: true, admin, intent }
 	}
 
 	if (intent === 'update') {
 		const submission = parseWithZod(formData, { schema: adminFormSchema })
+
 		if (submission.status !== 'success') {
-			return data({ ok: false, submission: submission.reply() }, { status: 400 })
+			return data(
+				{ ok: false, submission: submission.reply() },
+				{ status: 400 },
+			)
 		}
+
 		return {
 			ok: true,
 			id: String(formData.get('id') ?? ''),
