@@ -7,7 +7,7 @@ export async function listQrTokens(
 ): Promise<QrTokenListResponse> {
 	const query = new URLSearchParams({
 		page: String(params.page ?? 1),
-		pageSize: String(params.pageSize ?? 100),
+		pageSize: String(params.pageSize ?? 25),
 	})
 
 	if (params.status) query.set('status', params.status)
