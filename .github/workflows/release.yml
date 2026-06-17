@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+
+concurrency:
+  group:
+    ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from PR
+        uses: K-Phoen/semver-release-action@master
+        id: tag_version
+        with:
+          release_branch: main
+          release_strategy: tag
+          tag_format: 'v%major%.%minor%.%patch%'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_RETROUVECI }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2
+        with:
+          tag_name: ${{ steps.tag_version.outputs.tag }}
+          name: ${{ steps.tag_version.outputs.tag }}
+          body: ${{ github.event.pull_request.body }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_RETROUVECI }}
