@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"private": true,
 	"type": "commonjs",
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"build": "nest build && tsc-alias -p tsconfig.build.json",
 		"dev": "concurrently \"tsc-alias -p tsconfig.build.json -w\" \"nest start --watch\"",
