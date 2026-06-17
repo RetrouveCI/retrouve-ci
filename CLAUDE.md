@@ -15,11 +15,28 @@ All commands are run from the repo root using pnpm and Turborepo.
 
 ```bash
 pnpm install          # Install all dependencies
-pnpm dev              # Start all apps in parallel (client :3000, admin :3001)
+pnpm dev              # Start all apps in parallel (client :3000, admin :3001, api :3002)
 pnpm build            # Build all packages and apps (packages build first)
 pnpm lint             # Lint all workspaces
 pnpm check-types      # Type-check all workspaces
-pnpm format           # Format with Prettier (ts, tsx, md)
+pnpm test             # Run unit tests (Vitest — currently the api app only)
+pnpm format           # Format with Prettier (ts, tsx, js, jsx, json, md, css)
+pnpm format:check     # Verify formatting without writing (used by CI)
+```
+
+Database (Prisma — schema lives in `packages/database`):
+
+```bash
+pnpm db:generate      # Generate the Prisma client
+pnpm db:migrate       # Create/apply a migration in development
+pnpm db:deploy        # Apply pending migrations (production)
+pnpm db:studio        # Open Prisma Studio
+```
+
+Postgres and Redis for local development are provided by `docker-compose.yml`:
+
+```bash
+docker compose up -d  # Start Postgres (:5432) and Redis (:6379)
 ```
 
 To run a single app or package in isolation:
@@ -27,10 +44,12 @@ To run a single app or package in isolation:
 ```bash
 pnpm --filter client dev
 pnpm --filter admin dev
+pnpm --filter api dev
 pnpm --filter @retrouve-ci/ui build
 ```
 
-There are no tests configured yet.
+Tests are run with **Vitest**. Only the `api` app currently has tests
+(`pnpm --filter api test`); the frontends have no test suite yet.
 
 ## Architecture
 
@@ -40,11 +59,13 @@ There are no tests configured yet.
 apps/
   client/   # Public-facing app (React Router v7 / Vite, port 3000)
   admin/    # Admin dashboard (React Router v7 / Vite, port 3001)
-  api/      # Backend REST API (NestJS, port 3333)
+  api/      # Backend REST API (NestJS / Fastify, port 3002)
 packages/
+  database/            # Prisma schema, migrations & generated client (@retrouve-ci/database)
   ui/                  # Shared component library (source-only, no build step)
   eslint-config/       # Shared ESLint configs (base, next, react-internal)
   typescript-config/   # Shared tsconfig presets
+  vitest-config/       # Shared Vitest presets (base, react)
 ```
 
 ### Shared UI package (`packages/ui`)
@@ -78,6 +99,55 @@ The package exports:
 paths in each app's `tsconfig.json` resolve imports directly to `src/`.
 Turborepo's `"dependsOn": ["^build"]` applies only when the package has a build
 script.
+
+### Database package (`packages/database`)
+
+`@retrouve-ci/database` owns the **Prisma schema, migrations and generated
+client**. It is the single source of truth for the data model and is consumed by
+the `api` app via its barrel export (`prisma`, `createPrismaClientOptions`, and
+all generated types).
+
+- The schema lives in `packages/database/prisma/schema.prisma`; the client is
+  generated into `src/generated/prisma` (provider `prisma-client`, CJS).
+- Connections use Prisma **driver adapters** (`@prisma/adapter-pg` over `pg`),
+  with the connection string read from `PGBOUNCER_URL` or `DATABASE_URL`.
+- Unlike `ui`, this package **has a build step** (`prisma generate` + `tsc`) and
+  apps resolve it through its emitted `dist`, so it builds before the `api` via
+  Turborepo's `^build`.
+- Prisma's CLI is driven by `prisma.config.ts` (paths + `DATABASE_URL` via
+  dotenv), not by a `url` in the datasource block.
+
+### Backend API app (`apps/api`)
+
+A **NestJS (Fastify adapter)** REST API on port **3002**, with Swagger exposed
+at `/docs` in non-production (or when `ENABLE_SWAGGER=true`). It follows a
+**Domain-Driven / Clean Architecture** layout under `src/`:
+
+```text
+domains/          # Business core, one folder per bounded context
+  <domain>/         # use-cases, models, repository, validators, mappers, errors, types
+infrastructure/   # Framework/IO wiring: database, auth, queue (BullMQ), seeder
+presentation/     # HTTP layer: controllers + DTOs, one folder per domain
+shared/           # Cross-cutting: errors, exception filters
+```
+
+- Domains: `contact-messages`, `events`, `lost-items`, `matching`,
+  `notifications`, `qr-codes`, `reporting`, `sticker-orders`. Each keeps its
+  use-cases free of NestJS/HTTP concerns; controllers in `presentation/` are
+  thin and delegate to use-cases.
+- Auth is **better-auth** (`@thallesp/nestjs-better-auth`): phone-number based
+  for the client, email/password + admin role for the admin app.
+- Background jobs (e.g. match notifications) run on **BullMQ** backed by Redis.
+- A startup **seeder** creates the super admin and a mock user from env vars
+  when absent.
+- Validation uses NestJS `ValidationPipe` (`whitelist` + `forbidNonWhitelisted`)
+  with `class-validator` DTOs; domain errors are translated to HTTP responses by
+  `DomainExceptionFilter`.
+- Tests are **Vitest** (`*.spec.ts` colocated with use-cases, validators,
+  mappers and controllers).
+
+For where new code belongs (domains vs presentation vs infrastructure), use the
+`retrouveci-architecture` skill.
 
 ### Frontend apps (React Router v7)
 
@@ -213,6 +283,35 @@ The `@source` directive tells Tailwind to scan the shared package's source files
 so component class names are included in the generated CSS. No `ui-` prefix is
 used — all Tailwind classes are standard. Apps can add app-specific overrides
 after the import in their own `app/globals.css`.
+
+### CI/CD and Docker
+
+GitHub Actions workflows live in `.github/workflows/`:
+
+- **`test-ci.yml`** — on every push to `main` and every pull request. Installs
+  with pnpm, builds `@retrouve-ci/database` (so Prisma types resolve), then runs
+  `format:check`, `check-types`, `lint` and `test`.
+- **`release.yml`** — when a PR is **merged** into `main`. Uses
+  `K-Phoen/semver-release-action` to create the next semver tag; the bump is
+  derived from the merged PR's labels (defaults to patch). It must push the tag
+  with a **PAT** (`secrets.PAT_RETROUVECI`), because a tag pushed with the
+  default `GITHUB_TOKEN` would not trigger `docker.yml`.
+- **`docker.yml`** — on a new version tag (`*.*.*`). Builds and pushes the
+  `api`, `client` and `admin` images to Docker Hub (matrix), tagged with the
+  version and `latest`. Requires `secrets.DOCKER_USERNAME` and
+  `secrets.DOCKER_ACCESS_TOKEN`.
+
+Each app has a multi-stage **`Dockerfile`** (build context = repo root). The
+build runs `turbo run build --filter=<app>` then `pnpm deploy` to produce a
+self-contained runtime bundle. Notes:
+
+- `pnpm deploy` needs `--legacy` (pnpm v10+) and only includes files listed in
+  each package's `files` field — this is why the apps and `packages/database`
+  declare a `files` allowlist (their build output is git-ignored and would
+  otherwise be dropped).
+- The **api image** bundles a separate Prisma "migrator" deployment and an
+  `entrypoint.sh` that runs `prisma migrate deploy` before starting the server;
+  `openssl` is installed in the runtime image for the Prisma schema engine.
 
 ### Dependency updates
 
