@@ -1,7 +1,5 @@
 name: Docker
 
-# Runs when a new version tag is pushed (created by the release workflow).
-# Matches both "1.2.3" and "v1.2.3" style tags.
 on:
   push:
     tags:
