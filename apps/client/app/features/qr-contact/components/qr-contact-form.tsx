@@ -74,7 +74,7 @@ export function QrContactForm() {
 						placeholder="Konan Yao"
 						value={nameControl.value ?? ''}
 						onChange={e => nameControl.change(e.target.value)}
-						className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 h-11 w-full rounded-xl border px-4 text-sm outline-none transition-all focus:ring-2"
+						className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2"
 					/>
 					<FieldError errors={fields.name.errors} />
 				</div>
@@ -85,7 +85,7 @@ export function QrContactForm() {
 						placeholder="+225 07 00 00 00 00"
 						value={phoneControl.value ?? ''}
 						onChange={e => phoneControl.change(e.target.value)}
-						className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 h-11 w-full rounded-xl border px-4 text-sm outline-none transition-all focus:ring-2"
+						className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2"
 					/>
 					<FieldError errors={fields.phone.errors} />
 				</div>
@@ -100,7 +100,7 @@ export function QrContactForm() {
 					placeholder="vous@exemple.ci"
 					value={emailControl.value ?? ''}
 					onChange={e => emailControl.change(e.target.value)}
-					className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 h-11 w-full rounded-xl border px-4 text-sm outline-none transition-all focus:ring-2"
+					className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 h-11 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2"
 				/>
 				<FieldError errors={fields.email.errors} />
 			</div>
@@ -111,7 +111,7 @@ export function QrContactForm() {
 					placeholder="Décrivez où vous avez trouvé l'objet et comment le propriétaire peut vous joindre…"
 					value={messageControl.value ?? ''}
 					onChange={e => messageControl.change(e.target.value)}
-					className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 w-full resize-none rounded-xl border px-4 py-3 text-sm outline-none transition-all focus:ring-2"
+					className="bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 w-full resize-none rounded-xl border px-4 py-3 text-sm transition-all outline-none focus:ring-2"
 				/>
 				<FieldError errors={fields.message.errors} />
 			</div>

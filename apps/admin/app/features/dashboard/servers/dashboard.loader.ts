@@ -25,7 +25,12 @@ interface StatsApiResponse {
 	newUsers: { value: number; change: number }
 	activityChart: Array<{ date: string; scans: number; activations: number }>
 	categoryChart: Array<{ category: string; lost: number; found: number }>
-	recentActivities: Array<{ id: string; type: string; text: string; createdAt: string }>
+	recentActivities: Array<{
+		id: string
+		type: string
+		text: string
+		createdAt: string
+	}>
 }
 
 export async function dashboardLoader({ request }: { request: Request }) {

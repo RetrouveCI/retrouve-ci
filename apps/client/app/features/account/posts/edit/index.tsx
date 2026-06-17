@@ -34,20 +34,26 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 	const categoryLabel =
 		OBJECT_TYPES.find(t => t.value === item.category)?.label ?? item.category
 
-	const { form, fields, imagePreview, setImagePreview, handleImageChange, isSubmitting } =
-		useEditPostForm(
-			{
-				title: item.title,
-				objectType: item.category,
-				description: item.description,
-				ville: item.ville,
-				commune: item.commune ?? undefined,
-				date: item.eventDate.slice(0, 10),
-				name: item.contactName,
-				whatsapp: item.contactWhatsapp.replace(/^\+225/, ''),
-			},
-			item.photos[0] ?? null,
-		)
+	const {
+		form,
+		fields,
+		imagePreview,
+		setImagePreview,
+		handleImageChange,
+		isSubmitting,
+	} = useEditPostForm(
+		{
+			title: item.title,
+			objectType: item.category,
+			description: item.description,
+			ville: item.ville,
+			commune: item.commune ?? undefined,
+			date: item.eventDate.slice(0, 10),
+			name: item.contactName,
+			whatsapp: item.contactWhatsapp.replace(/^\+225/, ''),
+		},
+		item.photos[0] ?? null,
+	)
 
 	return (
 		<main className="bg-muted/20 flex-1">

@@ -81,7 +81,7 @@ export class QrCodesController {
 		const token = await this.qrTokenUseCases.getByCode(code)
 
 		if (token.status !== 'activated' || !token.userId) {
-			throw new BadRequestException('Ce sticker n\'est pas encore activé')
+			throw new BadRequestException("Ce sticker n'est pas encore activé")
 		}
 
 		await this.contactMessageUseCases.create({
@@ -96,7 +96,7 @@ export class QrCodesController {
 
 		await this.notificationUseCases.create({
 			type: 'qr_scan',
-			title: 'Quelqu\'un a trouvé votre objet',
+			title: "Quelqu'un a trouvé votre objet",
 			message: `${dto.name} vous a contacté via votre sticker QR.`,
 			link: '/account/stickers',
 			userId: token.userId,
