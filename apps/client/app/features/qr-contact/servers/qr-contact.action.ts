@@ -26,9 +26,6 @@ export async function qrContactAction({ request, params }: Route.ActionArgs) {
 				{ status: err.status },
 			)
 		}
-		return data(
-			{ ok: false, submission: submission.reply() },
-			{ status: 500 },
-		)
+		return data({ ok: false, submission: submission.reply() }, { status: 500 })
 	}
 }

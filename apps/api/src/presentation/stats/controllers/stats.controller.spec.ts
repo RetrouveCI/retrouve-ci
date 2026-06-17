@@ -43,9 +43,9 @@ describe('StatsController', () => {
 
 	describe('getDashboardStats', () => {
 		it('is restricted to admins', () => {
-			expect(Reflect.getMetadata('ROLES', controller.getDashboardStats)).toEqual(
-				['admin'],
-			)
+			expect(
+				Reflect.getMetadata('ROLES', controller.getDashboardStats),
+			).toEqual(['admin'])
 		})
 
 		it('delegates to getDashboardStats', async () => {
