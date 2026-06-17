@@ -19,8 +19,6 @@ interface AccountNavProps {
 
 export function AccountNav({ stickers, listings }: AccountNavProps) {
 	const activeStickers = stickers.filter(s => s.isActive).length
-	const activeListings = listings.filter(l => l.status === 'active').length
-
 	const featuredItems = [
 		{
 			href: '/account/stickers',
@@ -35,7 +33,7 @@ export function AccountNav({ stickers, listings }: AccountNavProps) {
 			icon: FileText,
 			label: 'Mes Annonces',
 			description: 'Objets perdus et retrouvés',
-			stat: `${activeListings} active${activeListings > 1 ? 's' : ''}`,
+			stat: `${listings.length} annonce${listings.length > 1 ? 's' : ''}`,
 			color: 'accent-orange',
 		},
 		{

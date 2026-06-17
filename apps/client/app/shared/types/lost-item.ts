@@ -1,5 +1,6 @@
 export type LostItemType = 'lost' | 'found'
 export type LostItemStatus = 'active' | 'resolved' | 'expired'
+export type ModerationStatus = 'pending' | 'published' | 'hidden'
 export type LostItemCategory =
 	| 'phone'
 	| 'keys'
@@ -27,6 +28,7 @@ export interface LostItem {
 
 export interface UserLostItem extends LostItem {
 	status: LostItemStatus
+	moderationStatus: ModerationStatus
 	createdAt: string
 	views: number
 	contacts: number

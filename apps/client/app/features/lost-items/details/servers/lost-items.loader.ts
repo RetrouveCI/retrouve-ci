@@ -7,6 +7,7 @@ import { toLostItemDetail } from '../../mappers/lost-item.mapper'
 export async function postDetailLoader({ params }: Route.LoaderArgs) {
 	try {
 		const dto = await getLostItemById(params.id)
+
 		return { listing: toLostItemDetail(dto) }
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 404) {

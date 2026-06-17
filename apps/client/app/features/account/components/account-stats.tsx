@@ -9,7 +9,10 @@ interface AccountStatsProps {
 
 export function AccountStats({ stickers, listings }: AccountStatsProps) {
 	const activeStickers = stickers.filter(s => s.isActive).length
-	const activeListings = listings.filter(l => l.status === 'active').length
+	const activeListings = listings.filter(
+		l => l.moderationStatus === 'published' && l.status === 'active',
+	).length
+
 	const totalViews = listings.reduce((sum, l) => sum + l.views, 0)
 
 	const statItems = [

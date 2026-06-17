@@ -84,7 +84,7 @@ export class LostItemsController {
 	@Get(':id')
 	@AllowAnonymous()
 	getOne(@Param('id') id: string) {
-		return this.lostItemUseCases.view(id)
+		return this.lostItemUseCases.getById(id)
 	}
 
 	@Post(':id/contact')
