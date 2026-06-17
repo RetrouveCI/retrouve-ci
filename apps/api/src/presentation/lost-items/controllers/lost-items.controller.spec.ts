@@ -138,11 +138,11 @@ describe('LostItemsController', () => {
 	describe('getOne', () => {
 		it('delegates to the use cases', async () => {
 			const lostItem = buildLostItem()
-			vi.mocked(useCases.view).mockResolvedValue(lostItem)
+			vi.mocked(useCases.getById).mockResolvedValue(lostItem)
 
 			const result = await controller.getOne('lost-item-1')
 
-			expect(useCases.view).toHaveBeenCalledWith('lost-item-1')
+			expect(useCases.getById).toHaveBeenCalledWith('lost-item-1')
 			expect(result).toEqual(lostItem)
 		})
 	})
