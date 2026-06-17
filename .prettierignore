@@ -1,6 +1,10 @@
 node_modules
 .next
 dist
+build
+coverage
 .turbo
+.react-router
+**/generated
 *.tsbuildinfo
 pnpm-lock.yaml
