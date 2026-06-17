@@ -25,4 +25,4 @@ export const FREE_DELIVERY_COUPONS = ['RETROUVECI', 'LIVRAISON0', 'WELCOME2025']
 export const ORDER_NUMBER_PREFIX = 'CMD'
 
 export const DEFAULT_PAGE_SIZE = 20
-export const MAX_PAGE_SIZE = 50
+export const MAX_PAGE_SIZE = 100

@@ -1,14 +1,12 @@
 import { redirect, data } from 'react-router'
 import { parseWithZod } from '@conform-to/zod'
-import { publishFormSchema } from '../publish.schema'
-import { createLostItem } from './publish.service'
-import { getServerSession } from '@/shared/auth/auth.server'
+import { publishFormSchema } from '@/features/publish/publish.schema'
+import { patchLostItemContent } from '../../servers/account-posts.service'
+import { requireServerSession } from '@/shared/auth/auth.server'
 import { ApiError } from '@/shared/lib/api-client'
-import type { LostItemType } from '@/shared/types/lost-item'
 
-export async function publishAction(request: Request, type: LostItemType) {
-	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth')
+export async function editPostAction(request: Request, id: string) {
+	await requireServerSession(request)
 
 	const formData = await request.formData()
 	const submission = parseWithZod(formData, { schema: publishFormSchema })
@@ -20,24 +18,21 @@ export async function publishAction(request: Request, type: LostItemType) {
 	const v = submission.value
 
 	try {
-		const created = await createLostItem(
+		await patchLostItemContent(
+			id,
 			{
-				type,
-				category: v.objectType,
 				title: v.title,
 				description: v.description,
 				ville: v.ville,
 				commune: v.commune || undefined,
-				eventDate: v.date
-					? new Date(v.date).toISOString()
-					: new Date().toISOString(),
+				eventDate: v.date ? new Date(v.date).toISOString() : undefined,
 				contactName: v.name,
 				contactWhatsapp: `+225${v.whatsapp}`,
 			},
 			request,
 		)
 
-		return redirect(`/posts/${created.id}`)
+		return redirect('/account/posts')
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 401) throw redirect('/auth')
 		const message =

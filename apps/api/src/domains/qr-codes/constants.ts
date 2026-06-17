@@ -13,4 +13,4 @@ export const MIN_GENERATE_COUNT = 1
 export const MAX_GENERATE_COUNT = 500
 
 export const DEFAULT_PAGE_SIZE = 20
-export const MAX_PAGE_SIZE = 50
+export const MAX_PAGE_SIZE = 100

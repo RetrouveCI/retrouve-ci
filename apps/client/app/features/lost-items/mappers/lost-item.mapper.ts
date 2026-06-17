@@ -29,6 +29,7 @@ export function toUserLostItem(dto: LostItemApiDto): UserLostItem {
 	return {
 		...toLostItem(dto),
 		status: dto.resolutionStatus,
+		moderationStatus: dto.moderationStatus,
 		createdAt: dto.createdAt,
 		views: dto.views,
 		contacts: dto.contactsCount,

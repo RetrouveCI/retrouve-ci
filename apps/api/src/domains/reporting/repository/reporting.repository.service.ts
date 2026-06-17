@@ -49,10 +49,10 @@ export class ReportingRepositoryService implements ReportingRepository {
 					COUNT(*)::int AS value,
 					COALESCE(
 						ROUND((
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days')::numeric
-							- COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '30 days')::numeric
+							- COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric
 						) / NULLIF(
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric,
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric,
 							0
 						) * 100)::int,
 					0) AS change
@@ -64,10 +64,10 @@ export class ReportingRepositoryService implements ReportingRepository {
 					COUNT(*)::int AS value,
 					COALESCE(
 						ROUND((
-							COUNT(*) FILTER (WHERE activated_at >= NOW() - INTERVAL '30 days')::numeric
-							- COUNT(*) FILTER (WHERE activated_at >= NOW() - INTERVAL '60 days' AND activated_at < NOW() - INTERVAL '30 days')::numeric
+							COUNT(*) FILTER (WHERE "activatedAt" >= NOW() - INTERVAL '30 days')::numeric
+							- COUNT(*) FILTER (WHERE "activatedAt" >= NOW() - INTERVAL '60 days' AND "activatedAt" < NOW() - INTERVAL '30 days')::numeric
 						) / NULLIF(
-							COUNT(*) FILTER (WHERE activated_at >= NOW() - INTERVAL '60 days' AND activated_at < NOW() - INTERVAL '30 days')::numeric,
+							COUNT(*) FILTER (WHERE "activatedAt" >= NOW() - INTERVAL '60 days' AND "activatedAt" < NOW() - INTERVAL '30 days')::numeric,
 							0
 						) * 100)::int,
 					0) AS change
@@ -80,15 +80,15 @@ export class ReportingRepositoryService implements ReportingRepository {
 					COUNT(*)::int AS value,
 					COALESCE(
 						ROUND((
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days')::numeric
-							- COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '30 days')::numeric
+							- COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric
 						) / NULLIF(
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric,
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric,
 							0
 						) * 100)::int,
 					0) AS change
 				FROM contact_message
-				WHERE qr_token_code IS NOT NULL
+				WHERE "qrTokenCode" IS NOT NULL
 			`,
 
 			this.prisma.$queryRaw<StatRow[]>`
@@ -96,10 +96,10 @@ export class ReportingRepositoryService implements ReportingRepository {
 					COUNT(*)::int AS value,
 					COALESCE(
 						ROUND((
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days')::numeric
-							- COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '30 days')::numeric
+							- COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric
 						) / NULLIF(
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric,
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric,
 							0
 						) * 100)::int,
 					0) AS change
@@ -111,10 +111,10 @@ export class ReportingRepositoryService implements ReportingRepository {
 					COUNT(*)::int AS value,
 					COALESCE(
 						ROUND((
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days')::numeric
-							- COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '30 days')::numeric
+							- COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric
 						) / NULLIF(
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric,
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric,
 							0
 						) * 100)::int,
 					0) AS change
@@ -127,10 +127,10 @@ export class ReportingRepositoryService implements ReportingRepository {
 					COUNT(*)::int AS value,
 					COALESCE(
 						ROUND((
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days')::numeric
-							- COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '30 days')::numeric
+							- COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric
 						) / NULLIF(
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric,
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric,
 							0
 						) * 100)::int,
 					0) AS change
@@ -143,10 +143,10 @@ export class ReportingRepositoryService implements ReportingRepository {
 					COUNT(*)::int AS value,
 					COALESCE(
 						ROUND((
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days')::numeric
-							- COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '30 days')::numeric
+							- COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric
 						) / NULLIF(
-							COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '60 days' AND created_at < NOW() - INTERVAL '30 days')::numeric,
+							COUNT(*) FILTER (WHERE "createdAt" >= NOW() - INTERVAL '60 days' AND "createdAt" < NOW() - INTERVAL '30 days')::numeric,
 							0
 						) * 100)::int,
 					0) AS change
@@ -162,17 +162,17 @@ export class ReportingRepositoryService implements ReportingRepository {
 					) AS day
 				),
 				daily_scans AS (
-					SELECT DATE_TRUNC('day', created_at) AS day, COUNT(*) AS cnt
+					SELECT DATE_TRUNC('day', "createdAt") AS day, COUNT(*) AS cnt
 					FROM contact_message
-					WHERE qr_token_code IS NOT NULL
-						AND created_at >= NOW() - INTERVAL '7 days'
+					WHERE "qrTokenCode" IS NOT NULL
+						AND "createdAt" >= NOW() - INTERVAL '7 days'
 					GROUP BY 1
 				),
 				daily_activations AS (
-					SELECT DATE_TRUNC('day', activated_at) AS day, COUNT(*) AS cnt
+					SELECT DATE_TRUNC('day', "activatedAt") AS day, COUNT(*) AS cnt
 					FROM qr_token
-					WHERE activated_at IS NOT NULL
-						AND activated_at >= NOW() - INTERVAL '7 days'
+					WHERE "activatedAt" IS NOT NULL
+						AND "activatedAt" >= NOW() - INTERVAL '7 days'
 					GROUP BY 1
 				)
 				SELECT
@@ -204,11 +204,11 @@ export class ReportingRepositoryService implements ReportingRepository {
 					SELECT
 						id::text,
 						'contact' AS type,
-						CONCAT(name, ' a contacté via sticker ', qr_token_code) AS text,
-						created_at
+						CONCAT(name, ' a contacté via sticker ', "qrTokenCode") AS text,
+						"createdAt" AS created_at
 					FROM contact_message
-					WHERE qr_token_code IS NOT NULL
-					ORDER BY created_at DESC
+					WHERE "qrTokenCode" IS NOT NULL
+					ORDER BY "createdAt" DESC
 					LIMIT 3
 				),
 				recent_posts AS (
@@ -216,9 +216,9 @@ export class ReportingRepositoryService implements ReportingRepository {
 						id::text,
 						'post' AS type,
 						CONCAT('Annonce "', title, '" publiée') AS text,
-						created_at
+						"createdAt" AS created_at
 					FROM lost_item
-					ORDER BY created_at DESC
+					ORDER BY "createdAt" DESC
 					LIMIT 3
 				)
 				SELECT * FROM recent_contacts

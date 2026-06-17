@@ -23,6 +23,7 @@ export default [
 		route('posts/:id', 'features/lost-items/details/index.tsx'),
 		route('account', 'features/account/index.tsx'),
 		route('account/posts', 'features/account/posts/index.tsx'),
+		route('account/posts/:id', 'features/account/posts/edit/index.tsx'),
 		route('account/orders', 'features/account/orders/index.tsx'),
 		route('account/stickers', 'features/account/stickers/index.tsx'),
 		route('account/settings', 'features/account/settings/index.tsx'),

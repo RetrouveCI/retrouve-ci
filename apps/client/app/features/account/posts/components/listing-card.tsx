@@ -22,12 +22,23 @@ import {
 	Calendar,
 	Package,
 	ChevronRight,
+	Pencil,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { UserLostItem } from '@/shared/types/lost-item'
 import { cn } from '@retrouve-ci/ui/utils'
 
 const STATUS_CONFIG = {
+	pending: {
+		label: 'En attente',
+		color: 'bg-yellow-500 text-white',
+		border: 'border-yellow-500/20',
+	},
+	hidden: {
+		label: 'Masquée',
+		color: 'bg-muted text-muted-foreground',
+		border: 'border-muted',
+	},
 	active: {
 		label: 'Active',
 		color: 'bg-primary-green text-white',
@@ -45,6 +56,14 @@ const STATUS_CONFIG = {
 	},
 }
 
+type DisplayStatus = keyof typeof STATUS_CONFIG
+
+function getDisplayStatus(listing: UserLostItem): DisplayStatus {
+	if (listing.moderationStatus === 'pending') return 'pending'
+	if (listing.moderationStatus === 'hidden') return 'hidden'
+	return listing.status
+}
+
 interface ListingCardProps {
 	listing: UserLostItem
 }
@@ -52,6 +71,7 @@ interface ListingCardProps {
 export function ListingCard({ listing }: ListingCardProps) {
 	const fetcher = useFetcher()
 	const isUpdating = fetcher.state !== 'idle'
+	const displayStatus = getDisplayStatus(listing)
 
 	const handleStatusChange = (status: UserLostItem['status']) => {
 		toast.success(
@@ -75,17 +95,19 @@ export function ListingCard({ listing }: ListingCardProps) {
 		<div
 			className={cn(
 				'group bg-background relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg',
-				STATUS_CONFIG[listing.status].border,
+				STATUS_CONFIG[displayStatus].border,
 			)}
 		>
 			<div
 				className={cn(
 					'h-1',
-					listing.status === 'active'
+					displayStatus === 'active'
 						? 'bg-primary-green'
-						: listing.status === 'resolved'
+						: displayStatus === 'resolved'
 							? 'bg-blue-500'
-							: 'bg-muted',
+							: displayStatus === 'pending'
+								? 'bg-yellow-500'
+								: 'bg-muted',
 				)}
 			/>
 
@@ -120,10 +142,10 @@ export function ListingCard({ listing }: ListingCardProps) {
 							<Badge
 								className={cn(
 									'text-[10px] font-medium',
-									STATUS_CONFIG[listing.status].color,
+									STATUS_CONFIG[displayStatus].color,
 								)}
 							>
-								{STATUS_CONFIG[listing.status].label}
+								{STATUS_CONFIG[displayStatus].label}
 							</Badge>
 						</div>
 						<h4 className="truncate font-semibold">{listing.title}</h4>
@@ -154,32 +176,47 @@ export function ListingCard({ listing }: ListingCardProps) {
 
 			<div className="bg-muted/30 flex items-center justify-between border-t px-4 py-3">
 				<div className="flex items-center gap-2">
-					{listing.status === 'active' && (
-						<Button
-							variant="ghost"
-							size="sm"
-							className="h-8 gap-1.5 rounded-lg text-xs"
-							disabled={isUpdating}
-							onClick={() => handleStatusChange('resolved')}
-						>
-							<CheckCircle className="h-3.5 w-3.5" />
-							Marquer résolue
-						</Button>
-					)}
-					{listing.status === 'resolved' && (
-						<Button
-							variant="ghost"
-							size="sm"
-							className="h-8 gap-1.5 rounded-lg text-xs"
-							disabled={isUpdating}
-							onClick={() => handleStatusChange('active')}
-						>
-							<XCircle className="h-3.5 w-3.5" />
-							Réactiver
-						</Button>
-					)}
+					{listing.moderationStatus === 'published' &&
+						listing.status === 'active' && (
+							<Button
+								variant="ghost"
+								size="sm"
+								className="h-8 gap-1.5 rounded-lg text-xs"
+								disabled={isUpdating}
+								onClick={() => handleStatusChange('resolved')}
+							>
+								<CheckCircle className="h-3.5 w-3.5" />
+								Marquer résolue
+							</Button>
+						)}
+					{listing.moderationStatus === 'published' &&
+						listing.status === 'resolved' && (
+							<Button
+								variant="ghost"
+								size="sm"
+								className="h-8 gap-1.5 rounded-lg text-xs"
+								disabled={isUpdating}
+								onClick={() => handleStatusChange('active')}
+							>
+								<XCircle className="h-3.5 w-3.5" />
+								Réactiver
+							</Button>
+						)}
 				</div>
 				<div className="flex items-center gap-1">
+					{listing.moderationStatus === 'pending' && (
+						<Button
+							asChild
+							variant="ghost"
+							size="sm"
+							className="h-8 gap-1.5 rounded-lg text-xs"
+						>
+							<Link to={`/account/posts/${listing.id}`}>
+								<Pencil className="h-3.5 w-3.5" />
+								Modifier
+							</Link>
+						</Button>
+					)}
 					<Button
 						asChild
 						variant="ghost"
