@@ -30,7 +30,7 @@ export function ProfileHeader({ user, onLogout }: ProfileHeaderProps) {
 							<h1 className="text-2xl font-bold md:text-3xl">{user.name}</h1>
 							<p className="text-muted-foreground mt-1 flex items-center gap-1.5">
 								<Smartphone className="h-4 w-4" />
-								+225 {user.phone}
+								{user.phone}
 							</p>
 						</div>
 					</div>
