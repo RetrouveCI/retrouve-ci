@@ -1,8 +1,8 @@
-import { Button, Input } from '@retrouve-ci/ui/components'
 import { useEffect, useState } from 'react'
-import { Form, Link } from 'react-router'
-import { ArrowRight, Search, ShieldCheck, Users, MapPin } from 'lucide-react'
+import { Link } from 'react-router'
+import { ArrowRight, ShieldCheck, Users, MapPin } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
+import { SearchBar } from '@/shared/components/search-bar'
 
 const CYCLING_WORDS = [
 	'un objet',
@@ -74,34 +74,14 @@ export function HeroSection() {
 						communauté active dans toute la Côte d&apos;Ivoire.
 					</p>
 
-					<Form
-						method="get"
-						action="/posts"
-						role="search"
-						className="mx-auto mb-4 max-w-2xl"
-					>
-						<div className="bg-background focus-within:border-primary-green/50 flex items-center gap-2 rounded-full border-2 py-1.5 pr-1.5 pl-5 shadow-lg transition-all">
-							<Search className="text-muted-foreground h-5 w-5 shrink-0" />
-							<label htmlFor="hero-search" className="sr-only">
-								Rechercher un objet
-							</label>
-							<Input
-								id="hero-search"
-								name="q"
-								type="search"
-								placeholder="Quel objet recherchez-vous ?"
-								className="h-12 border-0 bg-transparent px-0 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
-							/>
-							<Button
-								type="submit"
-								size="lg"
-								className="bg-foreground text-background hover:bg-foreground/90 h-12 shrink-0 rounded-full px-6 transition-all duration-300 hover:scale-105"
-							>
-								<span className="hidden sm:inline">Rechercher</span>
-								<Search className="h-4 w-4 sm:hidden" />
-							</Button>
-						</div>
-					</Form>
+					<div className="mx-auto mb-4 max-w-2xl">
+						<SearchBar
+							mode="navigate"
+							action="/posts"
+							size="lg"
+							className="shadow-lg"
+						/>
+					</div>
 
 					<p className="text-muted-foreground mb-16 text-center text-sm">
 						Vous avez trouvé un objet ?{' '}

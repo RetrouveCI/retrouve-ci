@@ -1,13 +1,12 @@
 import {
 	Button,
-	Input,
 	Sheet,
 	SheetContent,
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
 } from '@retrouve-ci/ui/components'
-import { Form, Link } from 'react-router'
+import { Link } from 'react-router'
 import {
 	Home,
 	Newspaper,
@@ -17,11 +16,11 @@ import {
 	LogOut,
 	User,
 	ChevronRight,
-	Search,
 	Plus,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 import { NotificationBell } from '@/features/notifications/components/notification-bell'
+import { SearchBar } from '@/shared/components/search-bar'
 import { useAuth } from '@/shared/auth/auth-context'
 
 interface MobileNavProps {
@@ -80,21 +79,14 @@ export function MobileNav({
 				</SheetHeader>
 
 				<div className="px-3 pt-4">
-					<Form method="get" action="/posts" role="search" onSubmit={close}>
-						<div className="bg-muted/50 focus-within:border-primary-green/40 flex items-center gap-2 rounded-xl border px-3">
-							<Search className="text-muted-foreground h-4 w-4 shrink-0" />
-							<label htmlFor="mobile-search" className="sr-only">
-								Rechercher un objet
-							</label>
-							<Input
-								id="mobile-search"
-								name="q"
-								type="search"
-								placeholder="Rechercher un objet..."
-								className="h-11 border-0 bg-transparent px-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
-							/>
-						</div>
-					</Form>
+					<SearchBar
+						mode="navigate"
+						action="/posts"
+						size="sm"
+						showSubmit={false}
+						onSubmit={close}
+						placeholder="Rechercher un objet..."
+					/>
 				</div>
 
 				<nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">

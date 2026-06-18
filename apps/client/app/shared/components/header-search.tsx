@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Form } from 'react-router'
 import { Search } from 'lucide-react'
 import {
 	Button,
@@ -8,8 +7,8 @@ import {
 	DialogDescription,
 	DialogTitle,
 	DialogTrigger,
-	Input,
 } from '@retrouve-ci/ui/components'
+import { SearchBar } from '@/shared/components/search-bar'
 
 export function HeaderSearch() {
 	const [open, setOpen] = useState(false)
@@ -42,33 +41,13 @@ export function HeaderSearch() {
 				<DialogDescription className="sr-only">
 					Recherchez parmi les annonces d&apos;objets perdus et retrouvés.
 				</DialogDescription>
-				<Form
-					method="get"
+				<SearchBar
+					mode="navigate"
 					action="/posts"
-					role="search"
+					size="md"
+					autoFocus
 					onSubmit={() => setOpen(false)}
-				>
-					<div className="bg-background focus-within:border-primary-green/50 flex items-center gap-2 rounded-full border-2 py-1.5 pr-1.5 pl-4 transition-all">
-						<Search className="text-muted-foreground h-5 w-5 shrink-0" />
-						<label htmlFor="header-search" className="sr-only">
-							Rechercher un objet
-						</label>
-						<Input
-							id="header-search"
-							name="q"
-							type="search"
-							autoFocus
-							placeholder="Quel objet recherchez-vous ?"
-							className="h-10 border-0 bg-transparent px-0 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
-						/>
-						<Button
-							type="submit"
-							className="bg-primary-green hover:bg-primary-green-dark h-10 shrink-0 rounded-full px-5 text-white"
-						>
-							Rechercher
-						</Button>
-					</div>
-				</Form>
+				/>
 			</DialogContent>
 		</Dialog>
 	)

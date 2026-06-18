@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import { type DateRange } from 'react-day-picker'
 import { format } from 'date-fns'
@@ -13,7 +13,8 @@ const ITEMS_PER_PAGE = 6
 
 export function usePostsFilters(listings: LostItem[]) {
 	const [searchParams] = useSearchParams()
-	const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '')
+	const urlQuery = searchParams.get('q') ?? ''
+	const [searchQuery, setSearchQuery] = useState(urlQuery)
 	const [activeTab, setActiveTab] = useState<LostItemType | 'all'>('all')
 	const [activeCategory, setActiveCategory] = useState<
 		LostItemCategory | 'all'
@@ -24,6 +25,13 @@ export function usePostsFilters(listings: LostItem[]) {
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 	const [showFilters, setShowFilters] = useState(false)
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+
+	// Keep the query in sync with the URL `?q=` param (e.g. the header search
+	// navigating to /posts, even when already on the page).
+	useEffect(() => {
+		setSearchQuery(urlQuery)
+		setCurrentPage(1)
+	}, [urlQuery])
 
 	const activeFiltersCount = [
 		filterVille !== 'all',
