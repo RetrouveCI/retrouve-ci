@@ -61,6 +61,12 @@ const CATEGORIES: {
 export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 	const { listings } = loaderData
 
+	const lostCount = listings.filter(l => l.type === 'lost').length
+	const foundCount = listings.filter(l => l.type === 'found').length
+	const cityCount = new Set(
+		listings.map(l => l.ville ?? l.location).filter(Boolean),
+	).size
+
 	const {
 		searchQuery,
 		setSearchQuery,
@@ -94,6 +100,9 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 				searchQuery={searchQuery}
 				onSearchChange={setSearchQuery}
 				listingsCount={listings.length}
+				lostCount={lostCount}
+				foundCount={foundCount}
+				cityCount={cityCount}
 			/>
 
 			<section className="py-8 md:py-10">

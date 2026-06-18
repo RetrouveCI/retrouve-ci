@@ -1,26 +1,32 @@
 import { Input } from '@retrouve-ci/ui/components'
 import { Search, X, TrendingUp } from 'lucide-react'
-const STATS = [
-	{ label: 'Annonces actives', value: '1 240' },
-	{ label: 'Objets retrouvés', value: '890' },
-	{ label: 'Villes couvertes', value: '30+' },
-]
 
 interface PostsHeroProps {
 	searchQuery: string
 	onSearchChange: (value: string) => void
 	listingsCount: number
+	lostCount: number
+	foundCount: number
+	cityCount: number
 }
 
 export function PostsHero({
 	searchQuery,
 	onSearchChange,
 	listingsCount,
+	lostCount,
+	foundCount,
+	cityCount,
 }: PostsHeroProps) {
+	const stats = [
+		{ label: 'Objets perdus', value: lostCount },
+		{ label: 'Objets retrouvés', value: foundCount },
+		{ label: 'Villes couvertes', value: cityCount },
+	]
 	return (
 		<section className="relative overflow-hidden border-b">
 			<div className="pointer-events-none absolute inset-0">
-				<div className="bg-primary-green/5 absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full blur-3xl" />
+				<div className="bg-primary-green/5 absolute -top-40 -right-40 h-150 w-150 rounded-full blur-3xl" />
 				<div className="bg-accent-orange/5 absolute -bottom-20 -left-20 h-80 w-80 rounded-full blur-3xl" />
 			</div>
 
@@ -65,7 +71,7 @@ export function PostsHero({
 			<div className="bg-muted/30 border-t">
 				<div className="container mx-auto px-4">
 					<div className="flex items-center justify-center divide-x">
-						{STATS.map(s => (
+						{stats.map(s => (
 							<div
 								key={s.label}
 								className="flex flex-col items-center px-8 py-3"
