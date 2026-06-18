@@ -15,6 +15,7 @@ export function toLostItem(dto: LostItemApiDto): LostItem {
 		type: dto.type,
 		category: dto.category,
 		image: dto.photos[0],
+		images: dto.photos,
 	}
 }
 
