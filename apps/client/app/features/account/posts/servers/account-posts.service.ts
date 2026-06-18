@@ -13,6 +13,7 @@ export interface PatchLostItemPayload {
 	eventDate?: string
 	contactName?: string
 	contactWhatsapp?: string
+	photos?: string[]
 }
 
 export async function getMyLostItems(

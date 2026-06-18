@@ -45,16 +45,7 @@ const progressItems = (fields: ReturnType<typeof usePublishForm>['fields']) => [
 ]
 
 export default function PublishFoundPage() {
-	const {
-		form,
-		fields,
-		imagePreview,
-		photoError,
-		handleImageRemove,
-		handleImageChange,
-		progress,
-		isSubmitting,
-	} = usePublishForm()
+	const { form, fields, progress, isSubmitting } = usePublishForm()
 
 	return (
 		<main className="bg-muted/20 flex-1">
@@ -88,10 +79,6 @@ export default function PublishFoundPage() {
 								title={fields.title}
 								objectType={fields.objectType}
 								description={fields.description}
-								imagePreview={imagePreview}
-								photoError={photoError}
-								onImageRemove={handleImageRemove}
-								handleImageChange={handleImageChange}
 								accentColor={ACCENT}
 								counterAccentClass="text-primary-green"
 								descriptionPlaceholder="Couleur, marque, signes distinctifs, état de l'objet..."

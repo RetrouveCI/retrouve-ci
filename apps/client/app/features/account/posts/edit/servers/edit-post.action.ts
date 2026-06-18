@@ -1,6 +1,7 @@
 import { redirect, data } from 'react-router'
 import { parseWithZod } from '@conform-to/zod'
 import { publishFormSchema } from '@/features/publish/publish.schema'
+import { collectPhotoUrls } from '@/features/publish/servers/upload.service'
 import { patchLostItemContent } from '../../servers/account-posts.service'
 import { requireServerSession } from '@/shared/auth/auth.server'
 import { ApiError } from '@/shared/lib/api-client'
@@ -18,6 +19,8 @@ export async function editPostAction(request: Request, id: string) {
 	const v = submission.value
 
 	try {
+		const photos = await collectPhotoUrls(formData, request)
+
 		await patchLostItemContent(
 			id,
 			{
@@ -28,6 +31,7 @@ export async function editPostAction(request: Request, id: string) {
 				eventDate: v.date ? new Date(v.date).toISOString() : undefined,
 				contactName: v.name,
 				contactWhatsapp: `+225${v.whatsapp}`,
+				photos,
 			},
 			request,
 		)

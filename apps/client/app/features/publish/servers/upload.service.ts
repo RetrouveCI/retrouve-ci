@@ -1,7 +1,32 @@
 import { ApiError } from '@/shared/lib/api-client'
+import { MAX_PHOTOS } from '../publish.const'
 
 interface UploadPhotoResponse {
 	url: string
+}
+
+/**
+ * Resolves the final photo URLs for a submitted form: kept remote URLs
+ * (`existingPhotos`) plus freshly uploaded files (`photos`), capped at
+ * MAX_PHOTOS.
+ */
+export async function collectPhotoUrls(
+	formData: FormData,
+	request: Request,
+): Promise<string[]> {
+	const existing = formData
+		.getAll('existingPhotos')
+		.filter((value): value is string => typeof value === 'string' && !!value)
+
+	const files = formData
+		.getAll('photos')
+		.filter((value): value is File => value instanceof File && value.size > 0)
+
+	const uploaded = await Promise.all(
+		files.map(file => uploadLostItemPhoto(file, request)),
+	)
+
+	return [...existing, ...uploaded].slice(0, MAX_PHOTOS)
 }
 
 export async function uploadLostItemPhoto(

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useActionData, useNavigation } from 'react-router'
 import { useForm, type SubmissionResult } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
@@ -16,15 +15,9 @@ interface EditPostFormDefaults {
 	whatsapp: string
 }
 
-export function useEditPostForm(
-	defaultValue: EditPostFormDefaults,
-	initialImagePreview: string | null,
-) {
+export function useEditPostForm(defaultValue: EditPostFormDefaults) {
 	const lastResult = useActionData() as SubmissionResult | null | undefined
 	const navigation = useNavigation()
-	const [imagePreview, setImagePreview] = useState<string | null>(
-		initialImagePreview,
-	)
 
 	const [form, fields] = useForm({
 		lastResult,
@@ -37,22 +30,11 @@ export function useEditPostForm(
 		},
 	})
 
-	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0]
-		if (!file) return
-		const reader = new FileReader()
-		reader.onloadend = () => setImagePreview(reader.result as string)
-		reader.readAsDataURL(file)
-	}
-
 	const isSubmitting = navigation.state === 'submitting'
 
 	return {
 		form,
 		fields,
-		imagePreview,
-		setImagePreview,
-		handleImageChange,
 		isSubmitting,
 	}
 }

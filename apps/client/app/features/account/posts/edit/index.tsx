@@ -18,7 +18,7 @@ import { SectionHeader } from '@/features/publish/components/section-header'
 import { LocationDateSection } from '@/features/publish/components/location-date-section'
 import { ContactSection } from '@/features/publish/components/contact-section'
 import { PublishPageHeader } from '@/features/publish/components/publish-page-header'
-import { ImageUpload } from '@/features/publish/components/image-upload'
+import { PhotosUpload } from '@/features/publish/components/photos-upload'
 import { OBJECT_TYPES } from '@/features/publish/publish.const'
 import { useEditPostForm } from './hooks/use-edit-post-form'
 import { editPostLoader } from './servers/edit-post.loader'
@@ -41,26 +41,16 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 	const categoryLabel =
 		OBJECT_TYPES.find(t => t.value === item.category)?.label ?? item.category
 
-	const {
-		form,
-		fields,
-		imagePreview,
-		setImagePreview,
-		handleImageChange,
-		isSubmitting,
-	} = useEditPostForm(
-		{
-			title: item.title,
-			objectType: item.category,
-			description: item.description,
-			ville: item.ville,
-			commune: item.commune ?? undefined,
-			date: item.eventDate.slice(0, 10),
-			name: item.contactName,
-			whatsapp: item.contactWhatsapp.replace(/^\+225/, ''),
-		},
-		item.photos[0] ?? null,
-	)
+	const { form, fields, isSubmitting } = useEditPostForm({
+		title: item.title,
+		objectType: item.category,
+		description: item.description,
+		ville: item.ville,
+		commune: item.commune ?? undefined,
+		date: item.eventDate.slice(0, 10),
+		name: item.contactName,
+		whatsapp: item.contactWhatsapp.replace(/^\+225/, ''),
+	})
 
 	return (
 		<main className="bg-muted/20 flex-1">
@@ -84,7 +74,12 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 						description="Corrigez les informations avant validation par l'administrateur."
 					/>
 
-					<Form method="post" {...getFormProps(form)} className="space-y-5">
+					<Form
+						method="post"
+						{...getFormProps(form)}
+						encType="multipart/form-data"
+						className="space-y-5"
+					>
 						<input
 							type="hidden"
 							name={fields.objectType.name}
@@ -147,7 +142,7 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 
 							<div className="space-y-2">
 								<InputLabel>
-									Photo{' '}
+									Photos{' '}
 									{isLost ? (
 										<span className="text-muted-foreground text-xs font-normal">
 											(optionnel)
@@ -158,10 +153,8 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 										</span>
 									)}
 								</InputLabel>
-								<ImageUpload
-									preview={imagePreview}
-									onRemove={() => setImagePreview(null)}
-									onChange={handleImageChange}
+								<PhotosUpload
+									initialPhotos={item.photos}
 									variant={isLost ? 'optional' : 'recommended'}
 									accentColor={
 										isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
