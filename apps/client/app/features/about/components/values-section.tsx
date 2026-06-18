@@ -6,8 +6,8 @@ const values = [
 		title: 'Solidarité',
 		description:
 			'Nous croyons que chaque objet retrouvé est un acte de générosité envers un inconnu.',
-		color: 'text-rose-500',
-		bg: 'bg-rose-500/10',
+		color: 'text-accent-orange',
+		bg: 'bg-accent-orange/10',
 	},
 	{
 		icon: ShieldCheck,
@@ -30,8 +30,8 @@ const values = [
 		title: 'Inclusion',
 		description:
 			"RetrouveCI est conçu pour chaque habitant de Côte d'Ivoire, en ville comme en région.",
-		color: 'text-blue-500',
-		bg: 'bg-blue-500/10',
+		color: 'text-primary-green',
+		bg: 'bg-primary-green/10',
 	},
 ]
 

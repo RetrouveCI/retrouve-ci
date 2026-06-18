@@ -1,8 +1,10 @@
-const stats = [
-	{ value: '2 000+', label: 'Objets retrouvés' },
-	{ value: '15 000+', label: 'Utilisateurs actifs' },
-	{ value: '26', label: 'Villes couvertes' },
-	{ value: '94%', label: 'Taux de satisfaction' },
+import { Gift, ShieldCheck, MapPin, Users } from 'lucide-react'
+
+const pillars = [
+	{ icon: Gift, label: '100 % gratuit' },
+	{ icon: ShieldCheck, label: 'Contact sécurisé' },
+	{ icon: MapPin, label: 'Couverture nationale' },
+	{ icon: Users, label: 'Communautaire' },
 ]
 
 export function StatsBar() {
@@ -10,12 +12,15 @@ export function StatsBar() {
 		<section className="bg-muted/30 border-b">
 			<div className="container mx-auto px-4 py-6">
 				<div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-					{stats.map(s => (
-						<div key={s.label} className="text-center">
-							<p className="text-primary-green text-2xl font-bold md:text-3xl">
-								{s.value}
-							</p>
-							<p className="text-muted-foreground mt-0.5 text-xs">{s.label}</p>
+					{pillars.map(({ icon: Icon, label }) => (
+						<div
+							key={label}
+							className="flex items-center justify-center gap-2.5"
+						>
+							<div className="bg-primary-green/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
+								<Icon className="text-primary-green h-4.5 w-4.5" />
+							</div>
+							<span className="text-sm font-semibold">{label}</span>
 						</div>
 					))}
 				</div>

@@ -5,12 +5,13 @@ import {
 	Bell,
 	MapPin,
 	CheckCircle2,
+	ShieldCheck,
 } from 'lucide-react'
 
-const stats = [
-	{ value: '50K+', label: 'Utilisateurs' },
-	{ value: '4.8', label: 'Note', suffix: '★' },
-	{ value: '15K+', label: 'Objets retrouvés' },
+const highlights = [
+	{ icon: QrCode, label: 'Scan QR instantané' },
+	{ icon: Bell, label: 'Alertes en temps réel' },
+	{ icon: ShieldCheck, label: '100 % gratuit' },
 ]
 
 export function DownloadHero() {
@@ -64,14 +65,14 @@ export function DownloadHero() {
 							</button>
 						</div>
 
-						<div className="flex items-center justify-center gap-8 border-t pt-6 md:justify-start">
-							{stats.map(s => (
-								<div key={s.label} className="text-center md:text-left">
-									<p className="text-xl font-bold">
-										{s.value}
-										{s.suffix ?? ''}
-									</p>
-									<p className="text-muted-foreground text-xs">{s.label}</p>
+						<div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t pt-6 md:justify-start">
+							{highlights.map(({ icon: Icon, label }) => (
+								<div
+									key={label}
+									className="text-muted-foreground flex items-center gap-2 text-sm font-medium"
+								>
+									<Icon className="text-primary-green h-4.5 w-4.5" />
+									{label}
 								</div>
 							))}
 						</div>
