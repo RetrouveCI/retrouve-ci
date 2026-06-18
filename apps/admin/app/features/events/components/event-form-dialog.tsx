@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useFetcher } from 'react-router'
 import {
 	Button,
@@ -7,21 +7,11 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	Input,
-	Textarea,
-	Field,
-	FieldGroup,
-	FieldLabel,
 } from '@retrouve-ci/ui/components'
-import { FieldError } from '@retrouve-ci/ui/components/form'
+import { InputField, TextareaField } from '@retrouve-ci/ui/components/form'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-	useForm,
-	getFormProps,
-	getInputProps,
-	getTextareaProps,
-} from '@conform-to/react'
+import { useForm, getFormProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { eventSchema } from '../events.schema'
 import type { Event } from '../events.types'
@@ -48,9 +38,13 @@ export function EventFormDialog({
 	const isEditing = !!event
 	const fetcher = useFetcher<ActionResult>()
 	const isSubmitting = fetcher.state !== 'idle'
+	const processedRef = useRef<ActionResult | undefined>(undefined)
 
 	useEffect(() => {
 		if (fetcher.state !== 'idle' || !fetcher.data) return
+		if (fetcher.data === processedRef.current) return
+		processedRef.current = fetcher.data
+
 		if (fetcher.data.ok) {
 			toast.success(
 				isEditing ? 'Événement mis à jour' : 'Événement créé avec succès',
@@ -79,15 +73,14 @@ export function EventFormDialog({
 		onValidate({ formData }) {
 			return parseWithZod(formData, { schema: eventSchema })
 		},
+		onSubmit(e, { submission, formData }) {
+			e.preventDefault()
+			if (submission?.status !== 'success') return
+			formData.set('intent', isEditing ? 'update' : 'create')
+			if (event) formData.set('id', event.id)
+			void fetcher.submit(formData, { method: 'post' })
+		},
 	})
-
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		const formData = new FormData(e.currentTarget)
-		formData.set('intent', isEditing ? 'update' : 'create')
-		if (isEditing) formData.set('id', event.id)
-		void fetcher.submit(formData, { method: 'post' })
-	}
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -97,76 +90,41 @@ export function EventFormDialog({
 						{isEditing ? "Modifier l'événement" : 'Nouvel événement'}
 					</DialogTitle>
 				</DialogHeader>
-				<form {...getFormProps(form)} onSubmit={handleSubmit}>
+				<form {...getFormProps(form)}>
 					<div className="space-y-4 py-2">
-						<FieldGroup>
-							<Field>
-								<FieldLabel htmlFor={fields.title.id}>Titre</FieldLabel>
-								<Input
-									{...getInputProps(fields.title, { type: 'text' })}
-									placeholder="Titre de l'événement"
-								/>
-								<FieldError errors={fields.title.errors} />
-							</Field>
-
-							<Field>
-								<FieldLabel htmlFor={fields.description.id}>
-									Description
-								</FieldLabel>
-								<Textarea
-									{...getTextareaProps(fields.description)}
-									placeholder="Description de l'événement"
-									rows={4}
-								/>
-								<FieldError errors={fields.description.errors} />
-							</Field>
-
-							<Field>
-								<FieldLabel htmlFor={fields.location.id}>Lieu</FieldLabel>
-								<Input
-									{...getInputProps(fields.location, { type: 'text' })}
-									placeholder="Adresse ou lieu"
-								/>
-								<FieldError errors={fields.location.errors} />
-							</Field>
-
-							<div className="grid grid-cols-2 gap-4">
-								<Field>
-									<FieldLabel htmlFor={fields.ville.id}>Ville</FieldLabel>
-									<Input
-										{...getInputProps(fields.ville, { type: 'text' })}
-										placeholder="ex: Abidjan"
-									/>
-									<FieldError errors={fields.ville.errors} />
-								</Field>
-
-								<Field>
-									<FieldLabel htmlFor={fields.commune.id}>
-										Commune{' '}
-										<span className="text-muted-foreground font-normal">
-											(optionnel)
-										</span>
-									</FieldLabel>
-									<Input
-										{...getInputProps(fields.commune, { type: 'text' })}
-										placeholder="ex: Plateau"
-									/>
-									<FieldError errors={fields.commune.errors} />
-								</Field>
-							</div>
-
-							<Field>
-								<FieldLabel htmlFor={fields.eventDate.id}>
-									Date et heure
-								</FieldLabel>
-								<Input
-									{...getInputProps(fields.eventDate, {
-										type: 'datetime-local',
-									})}
-								/>
-								<FieldError errors={fields.eventDate.errors} />
-							</Field>
-						</FieldGroup>
+						<InputField
+							field={fields.title}
+							label="Titre"
+							placeholder="Titre de l'événement"
+						/>
+						<TextareaField
+							field={fields.description}
+							label="Description"
+							placeholder="Description de l'événement"
+							className="min-h-24 resize-none"
+						/>
+						<InputField
+							field={fields.location}
+							label="Lieu"
+							placeholder="Adresse ou lieu"
+						/>
+						<div className="grid grid-cols-2 gap-4">
+							<InputField
+								field={fields.ville}
+								label="Ville"
+								placeholder="ex: Abidjan"
+							/>
+							<InputField
+								field={fields.commune}
+								label="Commune (optionnel)"
+								placeholder="ex: Plateau"
+							/>
+						</div>
+						<InputField
+							field={fields.eventDate}
+							label="Date et heure"
+							type="datetime-local"
+						/>
 					</div>
 					<DialogFooter className="mt-4">
 						<Button

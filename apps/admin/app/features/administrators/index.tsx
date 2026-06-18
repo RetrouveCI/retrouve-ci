@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFetcher, useRevalidator } from 'react-router'
 import {
 	Avatar,
@@ -88,8 +88,14 @@ export default function AdministratorsPage({
 	const deleteFetcher = useFetcher<MutationResult>()
 	const resetFetcher = useFetcher<MutationResult>()
 
+	const processedToggle = useRef<MutationResult | undefined>(undefined)
+	const processedDelete = useRef<MutationResult | undefined>(undefined)
+	const processedReset = useRef<MutationResult | undefined>(undefined)
+
 	useEffect(() => {
 		if (toggleFetcher.state !== 'idle' || !toggleFetcher.data) return
+		if (toggleFetcher.data === processedToggle.current) return
+		processedToggle.current = toggleFetcher.data
 
 		if (toggleFetcher.data.ok) {
 			toast.success(
@@ -105,6 +111,8 @@ export default function AdministratorsPage({
 
 	useEffect(() => {
 		if (deleteFetcher.state !== 'idle' || !deleteFetcher.data) return
+		if (deleteFetcher.data === processedDelete.current) return
+		processedDelete.current = deleteFetcher.data
 
 		if (deleteFetcher.data.ok) {
 			toast.success('Administrateur supprimé')
@@ -117,6 +125,8 @@ export default function AdministratorsPage({
 
 	useEffect(() => {
 		if (resetFetcher.state !== 'idle' || !resetFetcher.data) return
+		if (resetFetcher.data === processedReset.current) return
+		processedReset.current = resetFetcher.data
 
 		if (resetFetcher.data.ok) {
 			toast.success('Email de réinitialisation envoyé')

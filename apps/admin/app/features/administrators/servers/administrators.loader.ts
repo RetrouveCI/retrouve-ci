@@ -5,6 +5,7 @@ export async function administratorsLoader({ request }: { request: Request }) {
 	await requireAdminSession(request)
 
 	const cookie = request.headers.get('cookie') ?? ''
-	const admins = await listAdminUsers(cookie)
+	const origin = request.headers.get('origin') ?? ''
+	const admins = await listAdminUsers({ cookie, origin })
 	return { admins }
 }

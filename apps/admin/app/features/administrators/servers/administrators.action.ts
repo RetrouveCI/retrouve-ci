@@ -18,6 +18,8 @@ export async function administratorsAction({ request }: { request: Request }) {
 	await requireAdminSession(request)
 
 	const cookie = request.headers.get('cookie') ?? ''
+	const origin = request.headers.get('origin') ?? ''
+	const headers = { cookie, origin }
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 
@@ -31,7 +33,7 @@ export async function administratorsAction({ request }: { request: Request }) {
 		}
 
 		try {
-			await createAdminUser(cookie, {
+			await createAdminUser(headers, {
 				name: submission.value.name,
 				email: submission.value.email,
 				password: submission.value.password,
@@ -57,7 +59,7 @@ export async function administratorsAction({ request }: { request: Request }) {
 
 		const userId = String(formData.get('id') ?? '')
 		try {
-			await setAdminRole(cookie, userId, submission.value.role)
+			await setAdminRole(headers, userId, submission.value.role)
 			return { ok: true, intent }
 		} catch (err) {
 			const message =
@@ -71,9 +73,9 @@ export async function administratorsAction({ request }: { request: Request }) {
 		const newStatus = String(formData.get('status') ?? '')
 		try {
 			if (newStatus === 'inactive') {
-				await banAdminUser(cookie, userId)
+				await banAdminUser(headers, userId)
 			} else {
-				await unbanAdminUser(cookie, userId)
+				await unbanAdminUser(headers, userId)
 			}
 			return { ok: true, intent, status: newStatus }
 		} catch (err) {
@@ -88,7 +90,7 @@ export async function administratorsAction({ request }: { request: Request }) {
 	if (intent === 'delete') {
 		const userId = String(formData.get('id') ?? '')
 		try {
-			await removeAdminUser(cookie, userId)
+			await removeAdminUser(headers, userId)
 			return { ok: true, intent }
 		} catch (err) {
 			const message =
@@ -100,7 +102,7 @@ export async function administratorsAction({ request }: { request: Request }) {
 	if (intent === 'reset-password') {
 		const email = String(formData.get('email') ?? '')
 		try {
-			await sendPasswordReset(email)
+			await sendPasswordReset(headers, email)
 			return { ok: true, intent }
 		} catch (err) {
 			const message =

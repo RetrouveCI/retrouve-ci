@@ -1,14 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import {
-	Button,
-	Field,
-	FieldGroup,
-	FieldLabel,
-	Input,
-} from '@retrouve-ci/ui/components'
-import { FieldError } from '@retrouve-ci/ui/components/form'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
+import { Button, Input } from '@retrouve-ci/ui/components'
+import { InputLabel, FieldError } from '@retrouve-ci/ui/components/form'
+import { useForm, getFormProps, getInputProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { Loader2, Lock, Mail } from 'lucide-react'
 import { toast } from 'sonner'
@@ -48,46 +42,40 @@ export function LoginForm() {
 		},
 	})
 
-	const emailControl = useInputControl(fields.email)
-	const passwordControl = useInputControl(fields.password)
-
 	return (
 		<form {...getFormProps(form)} className="space-y-5">
-			<FieldGroup>
-				<Field>
-					<FieldLabel htmlFor="email" className="text-sm font-medium">
+			<div className="space-y-4">
+				<div className="space-y-2">
+					<InputLabel htmlFor={fields.email.id} className="text-sm font-medium">
 						Email
-					</FieldLabel>
+					</InputLabel>
 					<div className="relative">
 						<Mail className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 						<Input
-							id="email"
-							name="email"
-							type="email"
+							{...getInputProps(fields.email, { type: 'email' })}
+							key={fields.email.key}
 							placeholder="admin@retrouveci.com"
 							className="h-10 rounded-lg pl-9"
-							value={emailControl.value ?? ''}
-							onChange={e => emailControl.change(e.target.value)}
 							disabled={isSubmitting}
 						/>
 					</div>
 					<FieldError errors={fields.email.errors} />
-				</Field>
+				</div>
 
-				<Field>
-					<FieldLabel htmlFor="password" className="text-sm font-medium">
+				<div className="space-y-2">
+					<InputLabel
+						htmlFor={fields.password.id}
+						className="text-sm font-medium"
+					>
 						Mot de passe
-					</FieldLabel>
+					</InputLabel>
 					<div className="relative">
 						<Lock className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 						<Input
-							id="password"
-							name="password"
-							type="password"
+							{...getInputProps(fields.password, { type: 'password' })}
+							key={fields.password.key}
 							placeholder="Entrez votre mot de passe"
 							className="h-10 rounded-lg pl-9"
-							value={passwordControl.value ?? ''}
-							onChange={e => passwordControl.change(e.target.value)}
 							disabled={isSubmitting}
 						/>
 					</div>
@@ -100,8 +88,8 @@ export function LoginForm() {
 							Mot de passe oublié ?
 						</Link>
 					</div>
-				</Field>
-			</FieldGroup>
+				</div>
+			</div>
 
 			<Button
 				type="submit"
