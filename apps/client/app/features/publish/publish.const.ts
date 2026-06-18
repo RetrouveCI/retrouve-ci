@@ -1,3 +1,4 @@
+export const MAX_PHOTOS = 5
 export const MAX_PHOTO_SIZE = 5 * 1024 * 1024 // 5 Mo
 export const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
