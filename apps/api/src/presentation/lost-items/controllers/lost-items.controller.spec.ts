@@ -115,6 +115,33 @@ describe('LostItemsController', () => {
 			})
 			expect(result).toEqual(response)
 		})
+
+		it('forwards commune and converts the date range to inclusive day bounds', async () => {
+			const query: ListLostItemsQueryDto = {
+				page: 1,
+				pageSize: 20,
+				commune: 'Cocody',
+				dateFrom: '2026-01-01',
+				dateTo: '2026-01-31',
+			}
+			vi.mocked(useCases.list).mockResolvedValue({
+				items: [],
+				total: 0,
+				page: 1,
+				pageSize: 20,
+			})
+
+			await controller.list(query)
+
+			expect(useCases.list).toHaveBeenCalledWith({
+				page: 1,
+				pageSize: 20,
+				commune: 'Cocody',
+				dateFrom: new Date('2026-01-01T00:00:00.000Z'),
+				dateTo: new Date('2026-01-31T23:59:59.999Z'),
+				moderationStatus: 'published',
+			})
+		})
 	})
 
 	describe('listMine', () => {

@@ -5,24 +5,13 @@ interface PostsHeroProps {
 	searchQuery: string
 	onSearchChange: (value: string) => void
 	listingsCount: number
-	lostCount: number
-	foundCount: number
-	cityCount: number
 }
 
 export function PostsHero({
 	searchQuery,
 	onSearchChange,
 	listingsCount,
-	lostCount,
-	foundCount,
-	cityCount,
 }: PostsHeroProps) {
-	const stats = [
-		{ label: 'Objets perdus', value: lostCount },
-		{ label: 'Objets retrouvés', value: foundCount },
-		{ label: 'Villes couvertes', value: cityCount },
-	]
 	return (
 		<section className="relative overflow-hidden border-b">
 			<div className="pointer-events-none absolute inset-0">
@@ -52,22 +41,6 @@ export function PostsHero({
 							onChange={onSearchChange}
 							className="shadow-sm"
 						/>
-					</div>
-				</div>
-			</div>
-
-			<div className="bg-muted/30 border-t">
-				<div className="container mx-auto px-4">
-					<div className="flex items-center justify-center divide-x">
-						{stats.map(s => (
-							<div
-								key={s.label}
-								className="flex flex-col items-center px-8 py-3"
-							>
-								<span className="text-lg font-bold">{s.value}</span>
-								<span className="text-muted-foreground text-xs">{s.label}</span>
-							</div>
-						))}
 					</div>
 				</div>
 			</div>

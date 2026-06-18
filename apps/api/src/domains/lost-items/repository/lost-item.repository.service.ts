@@ -54,6 +54,13 @@ export class LostItemRepositoryService implements LostItemRepository {
 			...(filter.type && { type: toPrismaType(filter.type) }),
 			...(filter.category && { category: toPrismaCategory(filter.category) }),
 			...(filter.ville && { ville: filter.ville }),
+			...(filter.commune && { commune: filter.commune }),
+			...((filter.dateFrom || filter.dateTo) && {
+				eventDate: {
+					...(filter.dateFrom && { gte: filter.dateFrom }),
+					...(filter.dateTo && { lte: filter.dateTo }),
+				},
+			}),
 			...(filter.moderationStatus && {
 				moderationStatus: toPrismaModerationStatus(filter.moderationStatus),
 			}),

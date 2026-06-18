@@ -45,10 +45,13 @@ export interface ListLostItemsFilter {
 	type?: LostItemType
 	category?: LostItemCategory
 	ville?: string
+	commune?: string
 	moderationStatus?: ModerationStatus
 	resolutionStatus?: ResolutionStatus
 	userId?: string
 	search?: string
+	dateFrom?: Date
+	dateTo?: Date
 	page: number
 	pageSize: number
 }

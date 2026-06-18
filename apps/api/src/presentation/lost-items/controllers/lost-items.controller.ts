@@ -16,6 +16,7 @@ import type { Queue } from 'bullmq'
 import type { auth } from '@/infrastructure/auth/auth.config'
 import { FIND_MATCHES_JOB, MATCHING_QUEUE } from '@/domains/matching/constants'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
+import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
 import { AdminListLostItemsQueryDto } from '../dto/admin-list-lost-items.query.dto'
 import { CreateLostItemDto } from '../dto/create-lost-item.dto'
 import { ListLostItemsQueryDto } from '../dto/list-lost-items.query.dto'
@@ -53,7 +54,7 @@ export class LostItemsController {
 	@AllowAnonymous()
 	list(@Query() query: ListLostItemsQueryDto) {
 		return this.lostItemUseCases.list({
-			...query,
+			...this.toListFilter(query),
 			moderationStatus: 'published',
 		})
 	}
@@ -63,13 +64,35 @@ export class LostItemsController {
 		@Session() session: UserSession<typeof auth>,
 		@Query() query: ListLostItemsQueryDto,
 	) {
-		return this.lostItemUseCases.listMine(session.user.id, query)
+		return this.lostItemUseCases.listMine(
+			session.user.id,
+			this.toListFilter(query),
+		)
+	}
+
+	private toListFilter(query: ListLostItemsQueryDto): ListLostItemsFilter {
+		const { dateFrom, dateTo, ...rest } = query
+
+		return {
+			...rest,
+			...(dateFrom && {
+				dateFrom: new Date(`${dateFrom.slice(0, 10)}T00:00:00.000Z`),
+			}),
+			...(dateTo && {
+				dateTo: new Date(`${dateTo.slice(0, 10)}T23:59:59.999Z`),
+			}),
+		}
 	}
 
 	@Get('admin')
 	@Roles(['admin'])
 	listForAdmin(@Query() query: AdminListLostItemsQueryDto) {
-		return this.lostItemUseCases.list(query)
+		return this.lostItemUseCases.list({
+			...this.toListFilter(query),
+			...(query.moderationStatus && {
+				moderationStatus: query.moderationStatus,
+			}),
+		})
 	}
 
 	@Patch(':id/moderation')
