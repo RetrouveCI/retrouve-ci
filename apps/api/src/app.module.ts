@@ -14,6 +14,7 @@ import { NotificationsModule } from '@/presentation/notifications/notifications.
 import { QrCodesModule } from '@/presentation/qr-codes/qr-codes.module'
 import { StickerOrdersModule } from '@/presentation/sticker-orders/sticker-orders.module'
 import { StatsModule } from '@/presentation/stats/stats.module'
+import { UploadsModule } from '@/presentation/uploads/uploads.module'
 
 @Module({
 	imports: [
@@ -34,6 +35,7 @@ import { StatsModule } from '@/presentation/stats/stats.module'
 		QrCodesModule,
 		StickerOrdersModule,
 		StatsModule,
+		UploadsModule,
 	],
 })
 export class AppModule {}

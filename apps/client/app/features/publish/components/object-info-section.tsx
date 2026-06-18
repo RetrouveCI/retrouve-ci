@@ -28,7 +28,8 @@ interface ObjectInfoSectionProps {
 	objectType: FieldMetadata<LostItemCategory>
 	description: FieldMetadata<string>
 	imagePreview: string | null
-	setImagePreview: (preview: string | null) => void
+	photoError: string | null
+	onImageRemove: () => void
 	handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 	accentColor: string
 	counterAccentClass: string
@@ -44,7 +45,8 @@ export function ObjectInfoSection({
 	objectType,
 	description,
 	imagePreview,
-	setImagePreview,
+	photoError,
+	onImageRemove,
 	handleImageChange,
 	accentColor,
 	counterAccentClass,
@@ -144,11 +146,12 @@ export function ObjectInfoSection({
 				)}
 				<ImageUpload
 					preview={imagePreview}
-					onRemove={() => setImagePreview(null)}
+					onRemove={onImageRemove}
 					onChange={handleImageChange}
 					variant={photoVariant}
 					accentColor={accentColor}
 				/>
+				{photoError && <FieldError errors={[photoError]} />}
 			</div>
 		</div>
 	)
