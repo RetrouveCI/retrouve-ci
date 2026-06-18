@@ -20,7 +20,6 @@ import {
 	X,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import { FloatingActionButton } from './components/floating-action-button'
 import { PostsHero } from './components/posts-hero'
 import { FilterPanel } from './components/filter-panel'
 import { ListingsContent } from './components/listings-content'
@@ -249,8 +248,6 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 					</Tabs>
 				</div>
 			</section>
-
-			<FloatingActionButton href="/publish" />
 		</main>
 	)
 }

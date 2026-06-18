@@ -33,9 +33,7 @@ function authHeaders(h: ServerHeaders): Record<string, string> {
 	return { Cookie: h.cookie, Origin: h.origin }
 }
 
-export async function listAdminUsers(
-	headers: ServerHeaders,
-): Promise<Admin[]> {
+export async function listAdminUsers(headers: ServerHeaders): Promise<Admin[]> {
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
 		'/api/auth/admin/list-users?limit=200&filterField=role&filterOperator=ne&filterValue=user',
 		{ headers: authHeaders(headers) },

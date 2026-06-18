@@ -10,6 +10,7 @@ import {
 } from 'react-router'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/shared/auth/auth-context'
+import { ActivityHub } from '@/shared/components/activity-hub'
 import { ThemeProvider } from '@/shared/theme/theme-context'
 import { getThemeFromRequest } from '@/shared/theme/theme.server'
 import { Header } from '@/shared/components/header'
@@ -97,6 +98,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
 		<ThemeProvider initialTheme={loaderData.theme}>
 			<AuthProvider>
 				<Outlet />
+				<ActivityHub />
 				<Toaster
 					position="bottom-right"
 					richColors

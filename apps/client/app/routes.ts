@@ -27,7 +27,7 @@ export default [
 		route('account/orders', 'features/account/orders/index.tsx'),
 		route('account/stickers', 'features/account/stickers/index.tsx'),
 		route('account/settings', 'features/account/settings/index.tsx'),
-		route('notifications', 'features/notifications/index.ts'),
+		route('notifications', 'features/notifications/index.tsx'),
 	]),
 	route('q/:code', 'features/qr-contact/index.tsx'),
 	route('auth', 'features/auth/layout.tsx', [

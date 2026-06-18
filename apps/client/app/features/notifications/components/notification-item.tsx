@@ -67,8 +67,12 @@ export function NotificationItem({
 		</>
 	)
 
-	const className =
-		'hover:bg-muted/40 flex items-start gap-3 px-4 py-3 text-left transition-colors'
+	const className = cn(
+		'flex items-start gap-3 px-4 py-3 text-left transition-colors',
+		notification.read
+			? 'hover:bg-muted/40'
+			: 'bg-primary-green/[0.04] hover:bg-primary-green/[0.08]',
+	)
 
 	if (notification.link) {
 		return (

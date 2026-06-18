@@ -10,6 +10,7 @@ export function toNotification(dto: NotificationApiDto): Notification {
 		message: dto.message,
 		link: dto.link,
 		read: dto.read,
+		createdAt: dto.createdAt,
 		relativeDate: formatRelativeDate(dto.createdAt),
 	}
 }

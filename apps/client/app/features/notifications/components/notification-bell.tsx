@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react'
-import { useFetcher } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useFetcher } from 'react-router'
 import { Bell, BellOff } from 'lucide-react'
 import {
 	Badge,
@@ -7,7 +7,6 @@ import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-	ScrollArea,
 	Separator,
 } from '@retrouve-ci/ui/components'
 import type { Notification } from '@/shared/types/notification'
@@ -21,6 +20,7 @@ interface NotificationsLoaderData {
 }
 
 export function NotificationBell() {
+	const [open, setOpen] = useState(false)
 	const listFetcher = useFetcher<NotificationsLoaderData>()
 	const actionFetcher = useFetcher<{ ok: boolean }>()
 	const previousActionState = useRef(actionFetcher.state)
@@ -47,7 +47,8 @@ export function NotificationBell() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [actionFetcher.state])
 
-	const items = listFetcher.data?.items ?? []
+	const allItems = listFetcher.data?.items ?? []
+	const items = allItems.slice(0, 5)
 	const unreadCount = listFetcher.data?.unreadCount ?? 0
 
 	const handleMarkAllAsRead = () => {
@@ -58,7 +59,7 @@ export function NotificationBell() {
 	}
 
 	return (
-		<Popover>
+		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
 				<Button
 					variant="ghost"
@@ -99,18 +100,30 @@ export function NotificationBell() {
 						</p>
 					</div>
 				) : (
-					<ScrollArea className="max-h-96">
-						<ul className="divide-y">
-							{items.map(notification => (
-								<li key={notification.id}>
-									<NotificationItem
-										notification={notification}
-										actionFetcher={actionFetcher}
-									/>
-								</li>
-							))}
-						</ul>
-					</ScrollArea>
+					<>
+						<div className="max-h-80 overflow-y-auto">
+							<ul className="divide-y">
+								{items.map(notification => (
+									<li key={notification.id}>
+										<NotificationItem
+											notification={notification}
+											actionFetcher={actionFetcher}
+										/>
+									</li>
+								))}
+							</ul>
+						</div>
+						<Separator />
+						<div className="p-2">
+							<Link
+								to="/notifications"
+								onClick={() => setOpen(false)}
+								className="text-primary-green hover:bg-muted/50 block rounded-md px-3 py-2 text-center text-sm font-medium transition-colors"
+							>
+								Voir toutes les notifications
+							</Link>
+						</div>
+					</>
 				)}
 			</PopoverContent>
 		</Popover>
