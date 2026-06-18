@@ -1,5 +1,6 @@
 import { redirect } from 'react-router'
 import { apiFetch } from '@/shared/lib/api-client'
+import { loginUrlWithRedirect, sanitizeRedirect } from './redirect'
 
 interface ServerSession {
 	session: { id: string; userId: string }
@@ -31,6 +32,22 @@ export async function requireServerSession(
 	request: Request,
 ): Promise<ServerSession> {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth')
+	if (!session) {
+		const url = new URL(request.url)
+		throw redirect(loginUrlWithRedirect(url.pathname + url.search))
+	}
 	return session
+}
+
+/**
+ * Guard for auth pages (login, register, …): an already-authenticated user
+ * should never see them — send them back to where they came from (or the
+ * default landing page). Call from each auth route's loader.
+ */
+export async function redirectIfAuthenticated(request: Request): Promise<void> {
+	const session = await getServerSession(request)
+	if (session) {
+		const url = new URL(request.url)
+		throw redirect(sanitizeRedirect(url.searchParams.get('redirectTo')))
+	}
 }

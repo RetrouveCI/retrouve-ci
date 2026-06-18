@@ -8,7 +8,7 @@ import type { LostItemType } from '@/shared/types/lost-item'
 
 export async function publishAction(request: Request, type: LostItemType) {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth')
+	if (!session) throw redirect('/auth/login')
 
 	const formData = await request.formData()
 	const submission = parseWithZod(formData, { schema: publishFormSchema })
@@ -39,7 +39,8 @@ export async function publishAction(request: Request, type: LostItemType) {
 
 		return redirect(`/posts/${created.id}`)
 	} catch (err) {
-		if (err instanceof ApiError && err.status === 401) throw redirect('/auth')
+		if (err instanceof ApiError && err.status === 401)
+			throw redirect('/auth/login')
 		const message =
 			err instanceof ApiError ? err.message : 'Une erreur est survenue.'
 		return data(submission.reply({ formErrors: [message] }), { status: 400 })

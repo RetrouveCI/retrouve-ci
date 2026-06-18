@@ -1,7 +1,10 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
 import { ArrowRight, Shield } from 'lucide-react'
+import { useAuth } from '@/shared/auth/auth-context'
 export function StickersCta() {
+	const { isAuthenticated } = useAuth()
+
 	return (
 		<section className="py-16 md:py-20">
 			<div className="container mx-auto px-4">
@@ -27,9 +30,11 @@ export function StickersCta() {
 								<ArrowRight className="ml-2 h-4 w-4" />
 							</Link>
 						</Button>
-						<Button asChild size="lg" variant="outline" className="h-12 px-6">
-							<Link to="/auth/register">Créer un compte</Link>
-						</Button>
+						{!isAuthenticated && (
+							<Button asChild size="lg" variant="outline" className="h-12 px-6">
+								<Link to="/auth/register">Créer un compte</Link>
+							</Button>
+						)}
 					</div>
 				</div>
 			</div>

@@ -4,12 +4,13 @@ import { Loader2 } from 'lucide-react'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { useAuth } from '@/shared/auth/auth-context'
+import { withRedirect } from '@/shared/auth/redirect'
 import { Button, Input, Label } from '@retrouve-ci/ui/components'
 import { FieldError } from '@retrouve-ci/ui/components/form'
 import { loginSchema } from '../login.schema'
 import { PasswordInput } from '../../components/password-input'
 
-export function LoginForm() {
+export function LoginForm({ redirectTo }: { redirectTo: string }) {
 	const navigate = useNavigate()
 	const { login } = useAuth()
 
@@ -28,7 +29,7 @@ export function LoginForm() {
 			setIsSubmitting(false)
 			return
 		}
-		navigate('/account')
+		navigate(redirectTo, { replace: true })
 	}
 
 	const [form, fields] = useForm({
@@ -118,7 +119,7 @@ export function LoginForm() {
 			<p className="text-muted-foreground text-center text-sm">
 				Pas encore de compte ?{' '}
 				<Link
-					to="/auth/register"
+					to={withRedirect('/auth/register', redirectTo)}
 					className="text-primary-green font-semibold hover:underline"
 				>
 					Créer un compte

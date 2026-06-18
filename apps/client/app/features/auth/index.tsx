@@ -1,5 +1,9 @@
-import { redirect } from 'react-router'
+import { redirect, type LoaderFunctionArgs } from 'react-router'
+import { redirectIfAuthenticated } from '@/shared/auth/auth.server'
+import { loginUrlWithRedirect } from '@/shared/auth/redirect'
 
-export function loader() {
-	return redirect('/auth/login')
+export async function loader({ request }: LoaderFunctionArgs) {
+	await redirectIfAuthenticated(request)
+	const url = new URL(request.url)
+	return redirect(loginUrlWithRedirect(url.searchParams.get('redirectTo')))
 }
