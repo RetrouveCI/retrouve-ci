@@ -1,12 +1,6 @@
 @import '@retrouve-ci/ui/styles';
 @source '../../../packages/ui/src';
 
-/*
- * Admin-only design foundations (minimal / clean SaaS).
- * Overrides stay local to the admin app so the shared client look is untouched.
- * Native Tailwind shadow utilities are softened here so cards/buttons read as a
- * refined, quiet elevation everywhere (and tailwind-merge still dedupes them).
- */
 @theme {
 	--font-sans: 'Montserrat Variable', 'Montserrat', system-ui, sans-serif;
 
@@ -21,11 +15,7 @@
 
 :root {
 	--font-sans: 'Montserrat Variable', 'Montserrat', system-ui, sans-serif;
-
-	/* Tighter, more consistent corners than the shared 0.75rem. */
 	--radius: 0.625rem;
-
-	/* Very light neutral surface for page / brand backgrounds. */
 	--surface-muted: oklch(0.985 0.002 256);
 }
 

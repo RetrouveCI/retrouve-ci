@@ -32,7 +32,6 @@ const highlights = [
 export default function AuthLayout() {
 	return (
 		<div className="bg-background grid min-h-screen lg:grid-cols-2">
-			{/* Brand panel — desktop only */}
 			<aside className="bg-primary text-primary-foreground relative hidden flex-col justify-between p-12 lg:flex">
 				<div className="flex items-center gap-3">
 					<img
@@ -83,7 +82,6 @@ export default function AuthLayout() {
 				</p>
 			</aside>
 
-			{/* Form panel */}
 			<main className="bg-surface-muted flex items-center justify-center p-6 sm:p-10">
 				<Outlet />
 			</main>

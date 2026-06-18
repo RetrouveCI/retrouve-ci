@@ -4,15 +4,9 @@ interface AuthCardProps {
 	title: string
 	description?: string
 	children?: ReactNode
-	/** Slot rendered under the children (e.g. "Retour à la connexion"). */
 	footer?: ReactNode
 }
 
-/**
- * Shared chrome for the admin auth pages (login, forgot/reset password).
- * The brand panel lives in the auth layout, so the compact logo here is shown
- * on mobile only, where that panel is hidden.
- */
 export function AuthCard({
 	title,
 	description,
