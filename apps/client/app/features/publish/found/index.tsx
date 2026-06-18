@@ -49,7 +49,8 @@ export default function PublishFoundPage() {
 		form,
 		fields,
 		imagePreview,
-		setImagePreview,
+		photoError,
+		handleImageRemove,
 		handleImageChange,
 		progress,
 		isSubmitting,
@@ -76,14 +77,20 @@ export default function PublishFoundPage() {
 							description="Aidez le propriétaire à récupérer son bien."
 						/>
 
-						<Form method="post" {...getFormProps(form)} className="space-y-5">
+						<Form
+							method="post"
+							{...getFormProps(form)}
+							encType="multipart/form-data"
+							className="space-y-5"
+						>
 							<ObjectInfoSection
 								step={1}
 								title={fields.title}
 								objectType={fields.objectType}
 								description={fields.description}
 								imagePreview={imagePreview}
-								setImagePreview={setImagePreview}
+								photoError={photoError}
+								onImageRemove={handleImageRemove}
 								handleImageChange={handleImageChange}
 								accentColor={ACCENT}
 								counterAccentClass="text-primary-green"

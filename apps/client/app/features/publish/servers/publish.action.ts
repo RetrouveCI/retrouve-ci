@@ -2,6 +2,7 @@ import { redirect, data } from 'react-router'
 import { parseWithZod } from '@conform-to/zod'
 import { publishFormSchema } from '../publish.schema'
 import { createLostItem } from './publish.service'
+import { uploadLostItemPhoto } from './upload.service'
 import { getServerSession } from '@/shared/auth/auth.server'
 import { ApiError } from '@/shared/lib/api-client'
 import type { LostItemType } from '@/shared/types/lost-item'
@@ -18,8 +19,14 @@ export async function publishAction(request: Request, type: LostItemType) {
 	}
 
 	const v = submission.value
+	const photo = formData.get('photo')
 
 	try {
+		const photos =
+			photo instanceof File && photo.size > 0
+				? [await uploadLostItemPhoto(photo, request)]
+				: undefined
+
 		const created = await createLostItem(
 			{
 				type,
@@ -33,6 +40,7 @@ export async function publishAction(request: Request, type: LostItemType) {
 					: new Date().toISOString(),
 				contactName: v.name,
 				contactWhatsapp: `+225${v.whatsapp}`,
+				photos,
 			},
 			request,
 		)

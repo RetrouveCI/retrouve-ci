@@ -10,4 +10,5 @@ export interface CreateLostItemPayload {
 	eventDate: string
 	contactName: string
 	contactWhatsapp: string
+	photos?: string[]
 }
