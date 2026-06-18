@@ -7,7 +7,7 @@ interface InputFieldProps {
 	field: FieldMetadata<string>
 	label: string
 	required?: boolean
-	type?: 'text' | 'tel' | 'date' | 'email'
+	type?: 'text' | 'tel' | 'date' | 'email' | 'password' | 'datetime-local'
 	placeholder?: string
 	className?: string
 }

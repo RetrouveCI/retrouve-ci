@@ -6,6 +6,7 @@ export async function usersAction({ request }: { request: Request }) {
 	await requireAdminSession(request)
 
 	const cookie = request.headers.get('cookie') ?? ''
+	const origin = request.headers.get('origin') ?? ''
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 	const userId = String(formData.get('userId') ?? '')
@@ -14,12 +15,12 @@ export async function usersAction({ request }: { request: Request }) {
 
 	try {
 		if (intent === 'ban') {
-			await banUser(cookie, userId)
+			await banUser(cookie, origin, userId)
 			return { ok: true, intent }
 		}
 
 		if (intent === 'unban') {
-			await unbanUser(cookie, userId)
+			await unbanUser(cookie, origin, userId)
 			return { ok: true, intent }
 		}
 

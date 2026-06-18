@@ -1,27 +1,22 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useFetcher } from 'react-router'
 import {
 	Button,
-	Input,
 	Checkbox,
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-	Field,
-	FieldGroup,
-	FieldLabel,
 } from '@retrouve-ci/ui/components'
-import { FieldError } from '@retrouve-ci/ui/components/form'
+import {
+	InputField,
+	InputLabel,
+	FieldError,
+} from '@retrouve-ci/ui/components/form'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-	useForm,
-	useInputControl,
-	getFormProps,
-	getInputProps,
-} from '@conform-to/react'
+import { useForm, useInputControl, getFormProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { generateQrSchema } from '../generate.schema'
 import type { QrToken } from '../../qr.types'
@@ -36,9 +31,13 @@ interface ActionResult {
 export function GenerateQrForm() {
 	const fetcher = useFetcher<ActionResult>()
 	const isGenerating = fetcher.state !== 'idle'
+	const processedRef = useRef<ActionResult | undefined>(undefined)
 
 	useEffect(() => {
 		if (fetcher.state !== 'idle' || !fetcher.data) return
+		if (fetcher.data === processedRef.current) return
+		processedRef.current = fetcher.data
+
 		if (fetcher.data.ok && fetcher.data.tokens) {
 			const tokens = fetcher.data.tokens
 			const exportCSV = document.getElementById(
@@ -86,9 +85,9 @@ export function GenerateQrForm() {
 
 	return (
 		<form {...getFormProps(form)} className="space-y-6">
-			<FieldGroup>
-				<Field>
-					<FieldLabel htmlFor="count">Quantité</FieldLabel>
+			<div className="space-y-4">
+				<div className="space-y-2">
+					<InputLabel htmlFor="count">Quantité</InputLabel>
 					<Select
 						value={countControl.value ?? '100'}
 						onValueChange={value => countControl.change(value)}
@@ -110,25 +109,14 @@ export function GenerateQrForm() {
 						value={countControl.value ?? '100'}
 					/>
 					<FieldError errors={fields.count.errors} />
-				</Field>
+				</div>
 
-				<Field>
-					<FieldLabel htmlFor="batch">
-						Nom du Batch{' '}
-						<span className="text-muted-foreground font-normal">
-							(optionnel)
-						</span>
-					</FieldLabel>
-					<Input
-						{...getInputProps(fields.batch, { type: 'text' })}
-						placeholder="ex: Batch-Juillet-2026"
-					/>
-					<p className="text-muted-foreground text-xs">
-						Utilisé pour organiser les tokens
-					</p>
-					<FieldError errors={fields.batch.errors} />
-				</Field>
-			</FieldGroup>
+				<InputField
+					field={fields.batch}
+					label="Nom du Batch (optionnel)"
+					placeholder="ex: Batch-Juillet-2026"
+				/>
+			</div>
 
 			<div className="space-y-3">
 				<p className="text-sm font-medium">Options</p>
