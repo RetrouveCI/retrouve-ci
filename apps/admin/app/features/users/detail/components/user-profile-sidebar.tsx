@@ -45,8 +45,8 @@ export function UserProfileSidebar({
 						<Badge
 							className={`mt-3 ${
 								user.status === 'active'
-									? 'bg-green-100 text-green-700 hover:bg-green-100'
-									: 'bg-gray-100 text-gray-700 hover:bg-gray-100'
+									? 'bg-green-50 text-green-700 hover:bg-green-50'
+									: 'bg-gray-50 text-gray-700 hover:bg-gray-50'
 							}`}
 						>
 							{user.status === 'active' ? 'Actif' : 'Inactif'}

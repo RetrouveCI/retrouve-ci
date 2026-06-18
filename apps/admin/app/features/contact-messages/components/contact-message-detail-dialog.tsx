@@ -22,7 +22,7 @@ const statusConfig: Record<
 > = {
 	new: {
 		label: 'Nouveau',
-		className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+		className: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
 	},
 	read: {
 		label: 'Lu',
@@ -30,7 +30,7 @@ const statusConfig: Record<
 	},
 	archived: {
 		label: 'Archivé',
-		className: 'bg-gray-100 text-gray-700 hover:bg-gray-100',
+		className: 'bg-gray-50 text-gray-700 hover:bg-gray-50',
 	},
 }
 
@@ -82,7 +82,7 @@ export function ContactMessageDetailDialog({
 					</div>
 
 					{message.qrTokenCode && (
-						<div className="flex items-center gap-2 rounded-xl border border-dashed bg-gray-50 px-4 py-3">
+						<div className="flex items-center gap-2 rounded-lg border border-dashed bg-gray-50 px-4 py-3">
 							<QrCode className="text-muted-foreground h-4 w-4 shrink-0" />
 							<span className="text-muted-foreground text-sm">
 								Via sticker QR —{' '}
@@ -97,7 +97,7 @@ export function ContactMessageDetailDialog({
 						</div>
 					)}
 
-					<div className="bg-muted/30 rounded-xl border p-4 text-sm whitespace-pre-wrap">
+					<div className="bg-muted/30 rounded-lg border p-4 text-sm whitespace-pre-wrap">
 						{message.message}
 					</div>
 					<div className="text-muted-foreground flex justify-between text-sm">

@@ -28,7 +28,7 @@ export function PostsStatsGrid({
 				value={published}
 				icon={CheckCircle2}
 				iconColor="text-green-600"
-				iconBgColor="bg-green-100"
+				iconBgColor="bg-green-50"
 			/>
 			<BentoCard
 				variant="stat"
@@ -36,7 +36,7 @@ export function PostsStatsGrid({
 				value={pending}
 				icon={Clock}
 				iconColor="text-orange-600"
-				iconBgColor="bg-orange-100"
+				iconBgColor="bg-orange-50"
 			/>
 			<BentoCard
 				variant="stat"
@@ -44,7 +44,7 @@ export function PostsStatsGrid({
 				value={hidden}
 				icon={EyeOff}
 				iconColor="text-gray-600"
-				iconBgColor="bg-gray-100"
+				iconBgColor="bg-gray-50"
 			/>
 		</div>
 	)

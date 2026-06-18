@@ -49,15 +49,15 @@ const MODERATION_CONFIG: Record<
 > = {
 	pending: {
 		label: 'En attente',
-		className: 'bg-orange-100 text-orange-700 hover:bg-orange-100',
+		className: 'bg-orange-50 text-orange-700 hover:bg-orange-50',
 	},
 	published: {
 		label: 'Publié',
-		className: 'bg-green-100 text-green-700 hover:bg-green-100',
+		className: 'bg-green-50 text-green-700 hover:bg-green-50',
 	},
 	hidden: {
 		label: 'Masqué',
-		className: 'bg-gray-100 text-gray-600 hover:bg-gray-100',
+		className: 'bg-gray-50 text-gray-600 hover:bg-gray-50',
 	},
 }
 

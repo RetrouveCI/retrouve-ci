@@ -23,7 +23,7 @@ export function TokenTimeline({ token }: TokenTimelineProps) {
 				<div className="space-y-4">
 					{token.revokedAt && (
 						<div className="border-destructive/30 flex items-start gap-3 border-l-2 pb-4 pl-4">
-							<div className="rounded-full bg-red-100 p-1.5">
+							<div className="rounded-full bg-red-50 p-1.5">
 								<CheckCircle className="h-3 w-3 text-red-600" />
 							</div>
 							<div>
@@ -39,7 +39,7 @@ export function TokenTimeline({ token }: TokenTimelineProps) {
 
 					{token.activatedAt && (
 						<div className="border-primary/20 flex items-start gap-3 border-l-2 pb-4 pl-4">
-							<div className="rounded-full bg-green-100 p-1.5">
+							<div className="rounded-full bg-green-50 p-1.5">
 								<CheckCircle className="h-3 w-3 text-green-600" />
 							</div>
 							<div>
@@ -58,7 +58,7 @@ export function TokenTimeline({ token }: TokenTimelineProps) {
 					)}
 
 					<div className="border-primary/20 flex items-start gap-3 border-l-2 pl-4">
-						<div className="rounded-full bg-blue-100 p-1.5">
+						<div className="rounded-full bg-blue-50 p-1.5">
 							<Package className="h-3 w-3 text-blue-600" />
 						</div>
 						<div>

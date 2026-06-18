@@ -33,10 +33,10 @@ const ACTIVITY_ICONS: Record<ActivityType, React.ElementType> = {
 }
 
 const ACTIVITY_BG: Record<ActivityType, string> = {
-	scan: 'bg-green-100',
-	user: 'bg-blue-100',
-	post: 'bg-orange-100',
-	contact: 'bg-purple-100',
+	scan: 'bg-green-50',
+	user: 'bg-blue-50',
+	post: 'bg-orange-50',
+	contact: 'bg-purple-50',
 }
 
 const ACTIVITY_ICON_COLOR: Record<ActivityType, string> = {
@@ -82,7 +82,7 @@ export function RecentActivity({ activities }: RecentActivityProps) {
 							<div
 								className={cn(
 									'rounded-full p-2.5',
-									ACTIVITY_BG[activity.type as ActivityType] ?? 'bg-gray-100',
+									ACTIVITY_BG[activity.type as ActivityType] ?? 'bg-gray-50',
 								)}
 							>
 								<ActivityIcon type={activity.type} />

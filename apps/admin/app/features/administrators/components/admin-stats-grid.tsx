@@ -26,7 +26,7 @@ export function AdminStatsGrid({
 				value={active}
 				icon={ShieldCheck}
 				iconColor="text-green-600"
-				iconBgColor="bg-green-100"
+				iconBgColor="bg-green-50"
 			/>
 			<BentoCard
 				variant="stat"

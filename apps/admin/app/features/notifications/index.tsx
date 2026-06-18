@@ -96,7 +96,7 @@ export default function NotificationsPage({
 							value={unreadCount}
 							icon={BellOff}
 							iconColor="text-orange-600"
-							iconBgColor="bg-orange-100"
+							iconBgColor="bg-orange-50"
 						/>
 						<BentoCard
 							variant="stat"
@@ -104,7 +104,7 @@ export default function NotificationsPage({
 							value={total - unreadCount}
 							icon={CheckCheck}
 							iconColor="text-green-600"
-							iconBgColor="bg-green-100"
+							iconBgColor="bg-green-50"
 						/>
 					</div>
 

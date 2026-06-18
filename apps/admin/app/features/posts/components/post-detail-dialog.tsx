@@ -25,15 +25,15 @@ const MODERATION_CONFIG: Record<
 > = {
 	pending: {
 		label: 'En attente',
-		className: 'bg-orange-100 text-orange-700 hover:bg-orange-100',
+		className: 'bg-orange-50 text-orange-700 hover:bg-orange-50',
 	},
 	published: {
 		label: 'Publié',
-		className: 'bg-green-100 text-green-700 hover:bg-green-100',
+		className: 'bg-green-50 text-green-700 hover:bg-green-50',
 	},
 	hidden: {
 		label: 'Masqué',
-		className: 'bg-gray-100 text-gray-600 hover:bg-gray-100',
+		className: 'bg-gray-50 text-gray-600 hover:bg-gray-50',
 	},
 }
 
@@ -76,8 +76,8 @@ export function PostDetailDialog({
 						<Badge
 							className={
 								post.type === 'lost'
-									? 'bg-red-100 text-red-700 hover:bg-red-100'
-									: 'bg-green-100 text-green-700 hover:bg-green-100'
+									? 'bg-red-50 text-red-700 hover:bg-red-50'
+									: 'bg-green-50 text-green-700 hover:bg-green-50'
 							}
 						>
 							{post.type === 'lost' ? 'Perdu' : 'Retrouvé'}
@@ -95,7 +95,7 @@ export function PostDetailDialog({
 							{CATEGORY_LABELS[post.category] ?? post.category}
 						</Badge>
 						{post.resolutionStatus === 'resolved' && (
-							<Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
+							<Badge className="bg-blue-50 text-blue-700 hover:bg-blue-50">
 								Résolu
 							</Badge>
 						)}

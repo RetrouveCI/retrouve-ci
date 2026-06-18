@@ -38,7 +38,7 @@ const STATUS_BADGE: Record<
 > = {
 	new: {
 		label: 'Nouveau',
-		className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+		className: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
 	},
 	read: {
 		label: 'Lu',
@@ -46,7 +46,7 @@ const STATUS_BADGE: Record<
 	},
 	archived: {
 		label: 'Archivé',
-		className: 'bg-gray-100 text-gray-700 hover:bg-gray-100',
+		className: 'bg-gray-50 text-gray-700 hover:bg-gray-50',
 	},
 }
 

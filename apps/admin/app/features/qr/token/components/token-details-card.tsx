@@ -29,9 +29,9 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 const STATUS_CLASS: Record<string, string> = {
-	activated: 'bg-green-100 text-green-700 hover:bg-green-100',
-	generated: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
-	revoked: 'bg-red-100 text-red-700 hover:bg-red-100',
+	activated: 'bg-green-50 text-green-700 hover:bg-green-50',
+	generated: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
+	revoked: 'bg-red-50 text-red-700 hover:bg-red-50',
 }
 
 interface TokenDetailsCardProps {

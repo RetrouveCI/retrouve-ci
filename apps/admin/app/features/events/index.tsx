@@ -55,17 +55,17 @@ const STATUS_CONFIG: Record<
 > = {
 	draft: {
 		label: 'Brouillon',
-		className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100',
+		className: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-50',
 		icon: FileEdit,
 	},
 	published: {
 		label: 'Publié',
-		className: 'bg-green-100 text-green-700 hover:bg-green-100',
+		className: 'bg-green-50 text-green-700 hover:bg-green-50',
 		icon: CheckCircle2,
 	},
 	cancelled: {
 		label: 'Annulé',
-		className: 'bg-red-100 text-red-700 hover:bg-red-100',
+		className: 'bg-red-50 text-red-700 hover:bg-red-50',
 		icon: XCircle,
 	},
 }
