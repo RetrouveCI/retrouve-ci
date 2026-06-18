@@ -10,7 +10,7 @@ export function ActiveSessionsCard() {
 					<Monitor className="text-primary h-5 w-5" />
 					<h4 className="text-lg font-semibold">Sessions actives</h4>
 				</div>
-				<div className="bg-primary/5 border-primary/20 rounded-xl border p-4">
+				<div className="bg-primary/5 border-primary/20 rounded-lg border p-4">
 					<div className="mb-3 flex items-center gap-3">
 						<div className="bg-primary/10 flex h-9 w-9 items-center justify-center rounded-full">
 							<Monitor className="text-primary h-4 w-4" />

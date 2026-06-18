@@ -43,21 +43,33 @@ import type { Route } from './+types/index'
 export const loader = postsLoader
 export const action = postsAction
 
+const CATEGORY_LABELS: Record<string, string> = {
+	phone: 'Téléphone',
+	keys: 'Clés',
+	wallet: 'Portefeuille',
+	bag: 'Sac',
+	electronics: 'Électronique',
+	clothing: 'Vêtement',
+	jewelry: 'Bijou',
+	documents: 'Documents',
+	other: 'Autre',
+}
+
 const MODERATION_CONFIG: Record<
 	ModerationStatus,
 	{ label: string; className: string }
 > = {
 	pending: {
 		label: 'En attente',
-		className: 'bg-orange-100 text-orange-700 hover:bg-orange-100',
+		className: 'bg-orange-50 text-orange-700 hover:bg-orange-50',
 	},
 	published: {
 		label: 'Publié',
-		className: 'bg-green-100 text-green-700 hover:bg-green-100',
+		className: 'bg-green-50 text-green-700 hover:bg-green-50',
 	},
 	hidden: {
 		label: 'Masqué',
-		className: 'bg-gray-100 text-gray-600 hover:bg-gray-100',
+		className: 'bg-gray-50 text-gray-600 hover:bg-gray-50',
 	},
 }
 
@@ -85,6 +97,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 				toast.success(
 					`"${post.title}" — ${MODERATION_CONFIG[post.moderationStatus].label}`,
 				)
+
 				if (selectedPost?.id === post.id) {
 					setSelectedPost(post)
 				}
@@ -130,7 +143,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 			accessorKey: 'title',
 			header: 'Titre',
 			cell: ({ row }) => (
-				<div className="max-w-[220px]">
+				<div className="max-w-55">
 					<p className="truncate text-sm font-medium">{row.original.title}</p>
 					<p className="text-muted-foreground flex items-center gap-1 truncate text-xs">
 						<MapPin className="h-3 w-3 shrink-0" />
@@ -144,8 +157,8 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 			accessorKey: 'category',
 			header: 'Catégorie',
 			cell: ({ row }) => (
-				<Badge variant="outline" className="capitalize">
-					{row.original.category}
+				<Badge variant="outline">
+					{CATEGORY_LABELS[row.original.category] ?? row.original.category}
 				</Badge>
 			),
 		},
@@ -241,32 +254,28 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 					/>
 
 					<BentoCard variant="table">
-						<div className="flex flex-wrap items-center gap-3 border-b p-4">
-							<Select value={statusFilter} onValueChange={handleStatusFilter}>
-								<SelectTrigger className="h-9 w-44">
-									<SelectValue placeholder="Statut" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">Tous les statuts</SelectItem>
-									<SelectItem value="pending">En attente</SelectItem>
-									<SelectItem value="published">Publiés</SelectItem>
-									<SelectItem value="hidden">Masqués</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-
-						<div className="p-4">
-							<Tabs value={activeTypeTab} onValueChange={handleTypeTab}>
-								<TabsList className="mb-4">
-									<TabsTrigger value="all">Tous ({posts.length})</TabsTrigger>
-									<TabsTrigger value="lost">
-										Perdus ({lostPosts.length})
-									</TabsTrigger>
-									<TabsTrigger value="found">
-										Retrouvés ({foundPosts.length})
-									</TabsTrigger>
+						<Tabs value={activeTypeTab} onValueChange={handleTypeTab}>
+							<div className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
+								<TabsList>
+									<TabsTrigger value="all">Tous</TabsTrigger>
+									<TabsTrigger value="lost">Perdus</TabsTrigger>
+									<TabsTrigger value="found">Retrouvés</TabsTrigger>
 								</TabsList>
-								<TabsContent value="all">
+								<Select value={statusFilter} onValueChange={handleStatusFilter}>
+									<SelectTrigger className="h-9 w-44">
+										<SelectValue placeholder="Statut" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="all">Tous les statuts</SelectItem>
+										<SelectItem value="pending">En attente</SelectItem>
+										<SelectItem value="published">Publiés</SelectItem>
+										<SelectItem value="hidden">Masqués</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+
+							<div className="p-4">
+								<TabsContent value="all" className="mt-0">
 									<DataTable
 										columns={columns}
 										data={posts}
@@ -274,7 +283,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 										searchPlaceholder="Rechercher par titre..."
 									/>
 								</TabsContent>
-								<TabsContent value="lost">
+								<TabsContent value="lost" className="mt-0">
 									<DataTable
 										columns={columns}
 										data={lostPosts}
@@ -282,7 +291,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 										searchPlaceholder="Rechercher par titre..."
 									/>
 								</TabsContent>
-								<TabsContent value="found">
+								<TabsContent value="found" className="mt-0">
 									<DataTable
 										columns={columns}
 										data={foundPosts}
@@ -290,8 +299,8 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 										searchPlaceholder="Rechercher par titre..."
 									/>
 								</TabsContent>
-							</Tabs>
-						</div>
+							</div>
+						</Tabs>
 					</BentoCard>
 				</div>
 			</div>

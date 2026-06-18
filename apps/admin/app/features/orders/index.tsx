@@ -50,27 +50,27 @@ const STATUS_CONFIG: Record<
 > = {
 	pending: {
 		label: 'En attente',
-		className: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100',
+		className: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-50',
 		icon: Clock,
 	},
 	processing: {
 		label: 'En traitement',
-		className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+		className: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
 		icon: Package,
 	},
 	shipped: {
 		label: 'Expédiée',
-		className: 'bg-purple-100 text-purple-700 hover:bg-purple-100',
+		className: 'bg-purple-50 text-purple-700 hover:bg-purple-50',
 		icon: Truck,
 	},
 	delivered: {
 		label: 'Livrée',
-		className: 'bg-green-100 text-green-700 hover:bg-green-100',
+		className: 'bg-green-50 text-green-700 hover:bg-green-50',
 		icon: PackageCheck,
 	},
 	cancelled: {
 		label: 'Annulée',
-		className: 'bg-red-100 text-red-700 hover:bg-red-100',
+		className: 'bg-red-50 text-red-700 hover:bg-red-50',
 		icon: XCircle,
 	},
 }

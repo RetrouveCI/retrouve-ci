@@ -40,13 +40,13 @@ export function UserProfileSidebar({
 								{user.name.charAt(0)}
 							</AvatarFallback>
 						</Avatar>
-						<h2 className="mt-4 text-xl font-bold">{user.name}</h2>
+						<h2 className="mt-4 text-lg font-semibold">{user.name}</h2>
 						<p className="text-muted-foreground text-xs">ID: {user.id}</p>
 						<Badge
 							className={`mt-3 ${
 								user.status === 'active'
-									? 'bg-green-100 text-green-700 hover:bg-green-100'
-									: 'bg-gray-100 text-gray-700 hover:bg-gray-100'
+									? 'bg-green-50 text-green-700 hover:bg-green-50'
+									: 'bg-gray-50 text-gray-700 hover:bg-gray-50'
 							}`}
 						>
 							{user.status === 'active' ? 'Actif' : 'Inactif'}

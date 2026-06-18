@@ -69,13 +69,13 @@ export function ResetPasswordForm({ token }: { token: string }) {
 						Nouveau mot de passe
 					</FieldLabel>
 					<div className="relative">
-						<Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+						<Lock className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 						<Input
 							id="newPassword"
 							name="newPassword"
 							type={showNew ? 'text' : 'password'}
 							placeholder="Minimum 8 caractères"
-							className="h-11 rounded-xl pr-11 pl-10"
+							className="h-10 rounded-lg pr-10 pl-9"
 							value={newPasswordControl.value ?? ''}
 							onChange={e => newPasswordControl.change(e.target.value)}
 							disabled={isSubmitting}
@@ -105,13 +105,13 @@ export function ResetPasswordForm({ token }: { token: string }) {
 						Confirmer le mot de passe
 					</FieldLabel>
 					<div className="relative">
-						<Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+						<Lock className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 						<Input
 							id="confirmPassword"
 							name="confirmPassword"
 							type={showConfirm ? 'text' : 'password'}
 							placeholder="••••••••"
-							className="h-11 rounded-xl pr-11 pl-10"
+							className="h-10 rounded-lg pr-10 pl-9"
 							value={confirmPasswordControl.value ?? ''}
 							onChange={e => confirmPasswordControl.change(e.target.value)}
 							disabled={isSubmitting}
@@ -135,7 +135,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
 			<Button
 				type="submit"
-				className="shadow-primary/25 h-11 w-full rounded-xl text-base font-medium shadow-lg"
+				className="h-10 w-full rounded-lg text-sm font-medium"
 				disabled={isSubmitting}
 			>
 				{isSubmitting ? (

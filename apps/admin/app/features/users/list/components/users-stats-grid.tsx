@@ -26,7 +26,7 @@ export function UsersStatsGrid({
 				value={active}
 				icon={UserCheck}
 				iconColor="text-green-600"
-				iconBgColor="bg-green-100"
+				iconBgColor="bg-green-50"
 			/>
 			<BentoCard
 				variant="stat"
@@ -34,7 +34,7 @@ export function UsersStatsGrid({
 				value={inactive}
 				icon={UserX}
 				iconColor="text-gray-500"
-				iconBgColor="bg-gray-100"
+				iconBgColor="bg-gray-50"
 				className="col-span-2 lg:col-span-1"
 			/>
 		</div>

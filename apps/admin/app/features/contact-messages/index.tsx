@@ -38,7 +38,7 @@ const STATUS_BADGE: Record<
 > = {
 	new: {
 		label: 'Nouveau',
-		className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+		className: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
 	},
 	read: {
 		label: 'Lu',
@@ -46,7 +46,7 @@ const STATUS_BADGE: Record<
 	},
 	archived: {
 		label: 'Archivé',
-		className: 'bg-gray-100 text-gray-700 hover:bg-gray-100',
+		className: 'bg-gray-50 text-gray-700 hover:bg-gray-50',
 	},
 }
 
@@ -178,21 +178,23 @@ export default function ContactMessagesPage({
 			<div className="pt-16">
 				<div className="space-y-4 p-4 lg:p-6">
 					<BentoCard variant="table">
-						<div className="flex flex-wrap items-center gap-2 border-b px-5 py-4">
-							{STATUS_FILTERS.map(val => (
-								<button
-									key={val}
-									onClick={() => handleFilterChange(val)}
-									className={cn(
-										'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
-										statusFilter === val
-											? 'bg-primary text-primary-foreground'
-											: 'bg-muted text-muted-foreground hover:bg-muted/80',
-									)}
-								>
-									{STATUS_LABELS[val]}
-								</button>
-							))}
+						<div className="border-b px-5 py-4">
+							<div className="bg-muted/60 inline-flex flex-wrap items-center gap-0.5 rounded-lg p-0.5">
+								{STATUS_FILTERS.map(val => (
+									<button
+										key={val}
+										onClick={() => handleFilterChange(val)}
+										className={cn(
+											'rounded-md px-3 py-1 text-xs font-medium transition-colors',
+											statusFilter === val
+												? 'bg-card text-foreground shadow-sm'
+												: 'text-muted-foreground hover:text-foreground',
+										)}
+									>
+										{STATUS_LABELS[val]}
+									</button>
+								))}
+							</div>
 						</div>
 						<div className="p-4">
 							<DataTable

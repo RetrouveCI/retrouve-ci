@@ -36,10 +36,9 @@ export function ProfileIdentityCard({
 						{name.charAt(0)}
 					</AvatarFallback>
 				</Avatar>
-				<div>
-					<h3 className="text-xl font-bold">{name}</h3>
-					<p className="text-muted-foreground mb-2 text-sm">{email}</p>
-					<Badge className="gap-1">
+				<div className="space-y-2">
+					<h3 className="text-lg font-semibold">{name}</h3>
+					<Badge variant="secondary" className="gap-1">
 						<RoleIcon className="h-3.5 w-3.5" />
 						{roleConfig.label}
 					</Badge>

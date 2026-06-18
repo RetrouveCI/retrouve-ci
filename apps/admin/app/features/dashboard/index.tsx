@@ -30,10 +30,10 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 				<div className="p-4 lg:p-6">
 					<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 						<div>
-							<h1 className="text-foreground text-2xl font-bold lg:text-3xl">
+							<h1 className="text-foreground text-2xl font-semibold tracking-tight">
 								Bienvenue sur RetrouveCI
 							</h1>
-							<p className="text-muted-foreground mt-1">
+							<p className="text-muted-foreground mt-1 text-sm">
 								Voici un aperçu de votre plateforme
 							</p>
 						</div>
@@ -58,8 +58,6 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 							value={stats.scans.value}
 							change={stats.scans.change}
 							icon={Scan}
-							iconColor="text-purple-600"
-							iconBgColor="bg-purple-100"
 						/>
 
 						<BentoCard
@@ -67,8 +65,6 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 							value={stats.contacts.value}
 							change={stats.contacts.change}
 							icon={Phone}
-							iconColor="text-orange-600"
-							iconBgColor="bg-orange-100"
 						/>
 
 						<ActivityChart data={activityChart} />
@@ -78,8 +74,6 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 							value={stats.postsLost.value}
 							change={stats.postsLost.change}
 							icon={AlertTriangle}
-							iconColor="text-red-600"
-							iconBgColor="bg-red-100"
 						/>
 
 						<BentoCard
@@ -87,8 +81,6 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 							value={stats.postsFound.value}
 							change={stats.postsFound.change}
 							icon={CheckCircle2}
-							iconColor="text-emerald-600"
-							iconBgColor="bg-emerald-100"
 						/>
 
 						<CategoryChart data={categoryChart} />
@@ -98,8 +90,6 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 							value={stats.newUsers.value}
 							change={stats.newUsers.change}
 							icon={Users}
-							iconColor="text-blue-600"
-							iconBgColor="bg-blue-100"
 						/>
 
 						<BentoCard
@@ -107,8 +97,6 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 							value={stats.qrGenerated.value}
 							change={stats.qrGenerated.change}
 							icon={QrCode}
-							iconColor="text-indigo-600"
-							iconBgColor="bg-indigo-100"
 						/>
 
 						<RecentActivity activities={activities} />

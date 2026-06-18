@@ -30,7 +30,7 @@ export function OrderStatsGrid({
 				value={pending}
 				icon={Clock}
 				iconColor="text-yellow-600"
-				iconBgColor="bg-yellow-100"
+				iconBgColor="bg-yellow-50"
 			/>
 			<BentoCard
 				variant="stat"
@@ -38,7 +38,7 @@ export function OrderStatsGrid({
 				value={processing}
 				icon={Package}
 				iconColor="text-blue-600"
-				iconBgColor="bg-blue-100"
+				iconBgColor="bg-blue-50"
 			/>
 			<BentoCard
 				variant="stat"
@@ -46,7 +46,7 @@ export function OrderStatsGrid({
 				value={shipped}
 				icon={Truck}
 				iconColor="text-purple-600"
-				iconBgColor="bg-purple-100"
+				iconBgColor="bg-purple-50"
 			/>
 			<BentoCard
 				variant="stat"
@@ -54,7 +54,7 @@ export function OrderStatsGrid({
 				value={delivered}
 				icon={PackageCheck}
 				iconColor="text-green-600"
-				iconBgColor="bg-green-100"
+				iconBgColor="bg-green-50"
 			/>
 		</div>
 	)

@@ -10,9 +10,9 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function DashboardLayout() {
 	return (
-		<div className="bg-background min-h-screen">
+		<div className="bg-surface-muted min-h-screen">
 			<Sidebar />
-			<main className="lg:pl-64">
+			<main className="bg-surface-muted min-h-screen lg:pl-64">
 				<Outlet />
 			</main>
 		</div>

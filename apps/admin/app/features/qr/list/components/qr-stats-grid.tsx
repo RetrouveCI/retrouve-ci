@@ -22,7 +22,7 @@ export function QrStatsGrid({ total, activated, revoked }: QrStatsGridProps) {
 				value={activated}
 				icon={CheckCircle}
 				iconColor="text-green-600"
-				iconBgColor="bg-green-100"
+				iconBgColor="bg-green-50"
 			/>
 			<BentoCard
 				variant="stat"
@@ -30,7 +30,7 @@ export function QrStatsGrid({ total, activated, revoked }: QrStatsGridProps) {
 				value={revoked}
 				icon={Hash}
 				iconColor="text-red-500"
-				iconBgColor="bg-red-100"
+				iconBgColor="bg-red-50"
 				className="col-span-2 lg:col-span-1"
 			/>
 		</div>

@@ -62,13 +62,13 @@ export function ForgotPasswordForm() {
 						Email
 					</FieldLabel>
 					<div className="relative">
-						<Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+						<Mail className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 						<Input
 							id="email"
 							name="email"
 							type="email"
 							placeholder="admin@retrouveci.com"
-							className="h-11 rounded-xl pl-10"
+							className="h-10 rounded-lg pl-9"
 							value={emailControl.value ?? ''}
 							onChange={e => emailControl.change(e.target.value)}
 							disabled={isSubmitting}
@@ -81,7 +81,7 @@ export function ForgotPasswordForm() {
 
 			<Button
 				type="submit"
-				className="shadow-primary/25 h-11 w-full rounded-xl text-base font-medium shadow-lg"
+				className="h-10 w-full rounded-lg text-sm font-medium"
 				disabled={isSubmitting}
 			>
 				{isSubmitting ? (

@@ -3,18 +3,24 @@
 
 @theme {
 	--font-sans: 'Montserrat Variable', 'Montserrat', system-ui, sans-serif;
+
+	--shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.04);
+	--shadow-sm:
+		0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+	--shadow-md:
+		0 2px 4px rgba(16, 24, 40, 0.05), 0 4px 12px rgba(16, 24, 40, 0.08);
+	--shadow-lg:
+		0 4px 8px rgba(16, 24, 40, 0.06), 0 12px 24px rgba(16, 24, 40, 0.1);
 }
 
 :root {
 	--font-sans: 'Montserrat Variable', 'Montserrat', system-ui, sans-serif;
+	--radius: 0.625rem;
+	--surface-muted: oklch(0.985 0.002 256);
 }
 
 @layer utilities {
-	.bento-card {
-		@apply transition-all duration-300 ease-out;
-	}
-
-	.bento-card:hover {
-		@apply -translate-y-0.5 shadow-lg;
+	.bg-surface-muted {
+		background-color: var(--surface-muted);
 	}
 }

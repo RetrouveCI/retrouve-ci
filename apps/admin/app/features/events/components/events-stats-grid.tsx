@@ -26,7 +26,7 @@ export function EventsStatsGrid({ events, total }: EventsStatsGridProps) {
 				value={published}
 				icon={CheckCircle2}
 				iconColor="text-green-600"
-				iconBgColor="bg-green-100"
+				iconBgColor="bg-green-50"
 			/>
 			<BentoCard
 				variant="stat"
@@ -34,7 +34,7 @@ export function EventsStatsGrid({ events, total }: EventsStatsGridProps) {
 				value={draft}
 				icon={FileEdit}
 				iconColor="text-yellow-600"
-				iconBgColor="bg-yellow-100"
+				iconBgColor="bg-yellow-50"
 			/>
 			<BentoCard
 				variant="stat"
@@ -42,7 +42,7 @@ export function EventsStatsGrid({ events, total }: EventsStatsGridProps) {
 				value={cancelled}
 				icon={XCircle}
 				iconColor="text-red-600"
-				iconBgColor="bg-red-100"
+				iconBgColor="bg-red-50"
 			/>
 		</div>
 	)

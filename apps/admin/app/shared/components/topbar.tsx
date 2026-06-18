@@ -37,27 +37,24 @@ export function TopBar({ title }: TopBarProps) {
 	}
 
 	return (
-		<header className="bg-card/80 fixed top-0 right-0 left-0 z-20 h-16 border-b backdrop-blur-md lg:left-64">
+		<header className="bg-card/95 fixed top-0 right-0 left-0 z-20 h-16 border-b backdrop-blur-sm lg:left-64">
 			<div className="flex h-full items-center justify-between px-4 lg:px-6">
-				<div className="flex items-center gap-3">
+				<div className="flex items-center gap-2">
 					<MobileSidebar />
-					<div>
-						<h2 className="text-lg font-bold lg:text-xl">{title}</h2>
-					</div>
+					<h2 className="text-base font-semibold lg:text-lg">{title}</h2>
 				</div>
 
-				<div className="flex items-center gap-3">
+				<div className="flex items-center gap-1">
 					<Button
 						variant="ghost"
 						size="icon"
-						className="relative rounded-full"
+						className="relative rounded-lg"
 						asChild
 					>
 						<Link to="/notifications">
 							<Bell size={18} />
 							{unreadCount > 0 && (
-								<span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center">
-									<span className="bg-destructive absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+								<span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center">
 									<span className="bg-destructive relative inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white">
 										{unreadCount > 9 ? '9+' : unreadCount}
 									</span>
@@ -71,10 +68,10 @@ export function TopBar({ title }: TopBarProps) {
 						<DropdownMenuTrigger asChild>
 							<Button
 								variant="ghost"
-								className="hover:bg-muted gap-2 rounded-full px-2"
+								className="hover:bg-muted gap-2 rounded-lg px-2"
 							>
-								<Avatar className="ring-primary/20 h-8 w-8 ring-2">
-									<AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
+								<Avatar className="h-8 w-8">
+									<AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
 										{user?.name?.charAt(0) ?? 'A'}
 									</AvatarFallback>
 								</Avatar>
@@ -82,7 +79,7 @@ export function TopBar({ title }: TopBarProps) {
 									<p className="text-sm leading-none font-medium">
 										{user?.name ?? 'Admin'}
 									</p>
-									<p className="text-muted-foreground text-xs">
+									<p className="text-muted-foreground mt-0.5 text-xs">
 										{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
 									</p>
 								</div>

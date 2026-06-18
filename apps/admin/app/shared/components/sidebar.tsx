@@ -19,7 +19,6 @@ import {
 	LogOut,
 	Menu,
 	Shield,
-	ChevronRight,
 	Package,
 	Bell,
 	Mail,
@@ -57,28 +56,30 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 	}
 
 	return (
-		<div className="from-card to-card/95 flex h-full flex-col bg-linear-to-b">
-			<div className="p-6">
-				<Link to="/" className="group flex items-center gap-3">
+		<div className="bg-card flex h-full flex-col">
+			<div className="flex h-16 items-center px-5">
+				<Link to="/" className="flex items-center gap-2.5">
 					<img
 						src="/logo.png"
 						alt="RetrouveCI"
-						width={40}
-						height={40}
-						className="h-10 w-10 rounded-xl transition-transform group-hover:scale-105"
+						width={32}
+						height={32}
+						className="h-8 w-8 rounded-lg"
 					/>
-					<div>
-						<h1 className="text-foreground text-lg font-bold">RetrouveCI</h1>
+					<div className="leading-tight">
+						<h1 className="text-foreground text-sm font-semibold">
+							RetrouveCI
+						</h1>
 						<p className="text-muted-foreground text-xs">Administration</p>
 					</div>
 				</Link>
 			</div>
 
-			<nav className="flex-1 px-3">
-				<p className="text-muted-foreground mb-2 px-3 text-xs font-semibold tracking-wider uppercase">
+			<nav className="flex-1 overflow-y-auto px-3 py-4">
+				<p className="text-muted-foreground/70 mb-2 px-3 text-[11px] font-medium tracking-wider uppercase">
 					Menu
 				</p>
-				<ul className="space-y-1">
+				<ul className="space-y-0.5">
 					{menuItems.map(item => {
 						const Icon = item.icon
 						return (
@@ -89,28 +90,15 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 									onClick={onItemClick}
 									className={({ isActive }) =>
 										cn(
-											'group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+											'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
 											isActive
-												? 'bg-primary text-primary-foreground shadow-sm'
+												? 'bg-primary/10 text-primary'
 												: 'text-muted-foreground hover:bg-muted hover:text-foreground',
 										)
 									}
 								>
-									{({ isActive }) => (
-										<>
-											<div className="flex items-center gap-3">
-												<Icon
-													size={18}
-													className={cn(
-														'transition-transform duration-200',
-														!isActive && 'group-hover:scale-110',
-													)}
-												/>
-												<span>{item.label}</span>
-											</div>
-											{isActive && <ChevronRight size={16} />}
-										</>
-									)}
+									<Icon size={18} className="shrink-0" />
+									<span>{item.label}</span>
 								</NavLink>
 							</li>
 						)
@@ -118,31 +106,29 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 				</ul>
 			</nav>
 
-			<div className="border-t p-4">
-				<div className="bg-muted/50 rounded-xl p-3">
-					<div className="flex items-center gap-3">
-						<Avatar className="ring-primary/20 h-10 w-10 ring-2">
-							<AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
-								{user?.name?.charAt(0) ?? 'A'}
-							</AvatarFallback>
-						</Avatar>
-						<div className="min-w-0 flex-1">
-							<p className="truncate text-sm font-semibold">
-								{user?.name ?? 'Admin'}
-							</p>
-							<p className="text-muted-foreground truncate text-xs">
-								{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
-							</p>
-						</div>
+			<div className="p-3">
+				<div className="flex items-center gap-3 rounded-lg px-2 py-2">
+					<Avatar className="h-9 w-9">
+						<AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+							{user?.name?.charAt(0) ?? 'A'}
+						</AvatarFallback>
+					</Avatar>
+					<div className="min-w-0 flex-1">
+						<p className="truncate text-sm font-medium">
+							{user?.name ?? 'Admin'}
+						</p>
+						<p className="text-muted-foreground truncate text-xs">
+							{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+						</p>
 					</div>
 					<Button
 						variant="ghost"
-						size="sm"
-						className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive mt-3 w-full justify-start gap-2 rounded-lg"
+						size="icon"
+						className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-8 w-8 shrink-0 rounded-lg"
 						onClick={() => void handleLogout()}
+						aria-label="Déconnexion"
 					>
 						<LogOut size={16} />
-						Déconnexion
 					</Button>
 				</div>
 			</div>
@@ -152,7 +138,7 @@ function SidebarContent({ onItemClick }: { onItemClick?: () => void }) {
 
 export function Sidebar() {
 	return (
-		<aside className="bg-card fixed top-0 left-0 z-30 hidden h-screen w-64 border-r shadow-sm lg:block">
+		<aside className="bg-card fixed top-0 left-0 z-30 hidden h-screen w-64 border-r lg:block">
 			<SidebarContent />
 		</aside>
 	)
