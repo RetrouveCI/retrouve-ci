@@ -26,7 +26,7 @@ export function BentoGridSection() {
 							>
 								<path
 									d="M0 7 Q50 0 100 7"
-									stroke="varprimary-green"
+									stroke="var(--primary-green)"
 									strokeWidth="2"
 									fill="none"
 									strokeLinecap="round"
