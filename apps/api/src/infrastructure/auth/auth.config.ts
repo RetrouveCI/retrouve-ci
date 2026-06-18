@@ -47,6 +47,10 @@ export const auth = betterAuth({
 		},
 	},
 	user: {
+		additionalFields: {
+			city: { type: 'string', required: false, input: true },
+			commune: { type: 'string', required: false, input: true },
+		},
 		deleteUser: {
 			enabled: true,
 		},

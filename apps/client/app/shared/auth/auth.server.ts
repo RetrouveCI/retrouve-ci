@@ -9,6 +9,8 @@ interface ServerSession {
 		email: string
 		phoneNumber: string | null
 		phoneNumberVerified: boolean | null
+		city: string | null
+		commune: string | null
 		createdAt: string
 	}
 }
