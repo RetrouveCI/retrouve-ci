@@ -18,7 +18,7 @@ export function NotificationList({
 	if (notifications.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-				<div className="bg-muted flex h-14 w-14 items-center justify-center rounded-2xl">
+				<div className="bg-muted flex h-14 w-14 items-center justify-center rounded-xl">
 					<BellOff className="text-muted-foreground h-7 w-7" />
 				</div>
 				<p className="font-semibold">Aucune notification</p>

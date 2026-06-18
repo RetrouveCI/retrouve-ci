@@ -69,24 +69,30 @@ export function DataTable<TData, TValue>({
 	return (
 		<div className="space-y-4">
 			{searchKey && (
-				<div className="relative max-w-sm">
-					<Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+				<div className="relative max-w-xs">
+					<Search className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 					<Input
 						placeholder={searchPlaceholder}
 						value={globalFilter}
 						onChange={e => setGlobalFilter(e.target.value)}
-						className="pl-9"
+						className="h-9 rounded-lg pl-9"
 					/>
 				</div>
 			)}
 
-			<div className="bg-card rounded-md border">
+			<div className="bg-card overflow-hidden rounded-lg border">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map(headerGroup => (
-							<TableRow key={headerGroup.id}>
+							<TableRow
+								key={headerGroup.id}
+								className="bg-muted/40 hover:bg-muted/40"
+							>
 								{headerGroup.headers.map(header => (
-									<TableHead key={header.id}>
+									<TableHead
+										key={header.id}
+										className="text-muted-foreground h-10 px-4 text-xs font-medium tracking-wide uppercase"
+									>
 										{header.isPlaceholder
 											? null
 											: flexRender(
@@ -103,7 +109,7 @@ export function DataTable<TData, TValue>({
 							table.getRowModel().rows.map(row => (
 								<TableRow key={row.id}>
 									{row.getVisibleCells().map(cell => (
-										<TableCell key={cell.id}>
+										<TableCell key={cell.id} className="px-4 py-3">
 											{flexRender(
 												cell.column.columnDef.cell,
 												cell.getContext(),

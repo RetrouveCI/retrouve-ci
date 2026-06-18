@@ -110,17 +110,17 @@ export default function NotificationsPage({
 
 					<BentoCard variant="table">
 						<div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
-							<div className="flex flex-wrap items-center gap-2">
+							<div className="bg-muted/60 inline-flex flex-wrap items-center gap-0.5 rounded-lg p-0.5">
 								{FILTER_OPTIONS.map(({ value, label }) => (
 									<button
 										key={value}
 										type="button"
 										onClick={() => handleFilterChange(value)}
 										className={cn(
-											'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+											'rounded-md px-3 py-1 text-xs font-medium transition-colors',
 											activeFilter === value
-												? 'bg-primary text-primary-foreground'
-												: 'bg-muted text-muted-foreground hover:bg-muted/80',
+												? 'bg-card text-foreground shadow-sm'
+												: 'text-muted-foreground hover:text-foreground',
 										)}
 									>
 										{label}
