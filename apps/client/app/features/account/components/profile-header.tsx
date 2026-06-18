@@ -2,17 +2,7 @@ import { Button } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
 import { Smartphone, LogOut, Settings, CalendarDays } from 'lucide-react'
 import type { User as UserType } from '@/shared/types/user'
-
-function getInitials(name: string) {
-	return (
-		name
-			.trim()
-			.split(/\s+/)
-			.slice(0, 2)
-			.map(part => part[0]?.toUpperCase() ?? '')
-			.join('') || '?'
-	)
-}
+import { getInitials } from '@/shared/lib/get-initials'
 
 interface ProfileHeaderProps {
 	user: UserType

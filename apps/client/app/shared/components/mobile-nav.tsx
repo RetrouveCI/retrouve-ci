@@ -1,12 +1,13 @@
 import {
 	Button,
+	Input,
 	Sheet,
 	SheetContent,
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
 } from '@retrouve-ci/ui/components'
-import { Link } from 'react-router'
+import { Form, Link } from 'react-router'
 import {
 	Home,
 	Newspaper,
@@ -16,6 +17,8 @@ import {
 	LogOut,
 	User,
 	ChevronRight,
+	Search,
+	Plus,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 import { NotificationBell } from '@/features/notifications/components/notification-bell'
@@ -35,6 +38,11 @@ const NAV_ICONS: Record<string, React.ElementType> = {
 	'/stickers': QrCode,
 }
 
+function isActivePath(pathname: string, href: string) {
+	if (href === '/') return pathname === '/'
+	return pathname === href || pathname.startsWith(`${href}/`)
+}
+
 export function MobileNav({
 	open,
 	onOpenChange,
@@ -43,9 +51,11 @@ export function MobileNav({
 }: MobileNavProps) {
 	const { user, isAuthenticated, logout } = useAuth()
 
+	const close = () => onOpenChange(false)
+
 	const handleLogout = () => {
 		logout()
-		onOpenChange(false)
+		close()
 	}
 
 	return (
@@ -69,15 +79,33 @@ export function MobileNav({
 					</SheetDescription>
 				</SheetHeader>
 
+				<div className="px-3 pt-4">
+					<Form method="get" action="/posts" role="search" onSubmit={close}>
+						<div className="bg-muted/50 focus-within:border-primary-green/40 flex items-center gap-2 rounded-xl border px-3">
+							<Search className="text-muted-foreground h-4 w-4 shrink-0" />
+							<label htmlFor="mobile-search" className="sr-only">
+								Rechercher un objet
+							</label>
+							<Input
+								id="mobile-search"
+								name="q"
+								type="search"
+								placeholder="Rechercher un objet..."
+								className="h-11 border-0 bg-transparent px-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+							/>
+						</div>
+					</Form>
+				</div>
+
 				<nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
 					{links.map(link => {
 						const Icon = NAV_ICONS[link.href] ?? Home
-						const isActive = currentPath === link.href
+						const isActive = isActivePath(currentPath, link.href)
 						return (
 							<Link
 								key={link.href}
 								to={link.href}
-								onClick={() => onOpenChange(false)}
+								onClick={close}
 								className={cn(
 									'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
 									isActive
@@ -94,12 +122,22 @@ export function MobileNav({
 				</nav>
 
 				<div className="space-y-2 border-t px-3 pt-3 pb-6">
+					<Button
+						asChild
+						className="bg-primary-green hover:bg-primary-green-dark h-12 w-full gap-2 rounded-xl text-white"
+					>
+						<Link to="/publish" onClick={close}>
+							<Plus className="h-4 w-4" />
+							Publier une annonce
+						</Link>
+					</Button>
+
 					{isAuthenticated ? (
 						<>
 							<div className="flex items-center gap-2">
 								<Link
 									to="/account"
-									onClick={() => onOpenChange(false)}
+									onClick={close}
 									className="bg-muted/60 hover:bg-muted flex flex-1 items-center gap-3 rounded-xl px-4 py-3 transition-colors"
 								>
 									<div className="bg-primary-green/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
@@ -128,10 +166,11 @@ export function MobileNav({
 						</>
 					) : (
 						<Button
-							className="bg-primary-green hover:bg-primary-green-dark h-12 w-full gap-2 rounded-xl text-white"
+							variant="outline"
+							className="h-12 w-full gap-2 rounded-xl"
 							asChild
 						>
-							<Link to="/auth/login" onClick={() => onOpenChange(false)}>
+							<Link to="/auth/login" onClick={close}>
 								<LogIn className="h-4 w-4" />
 								Se connecter
 							</Link>
