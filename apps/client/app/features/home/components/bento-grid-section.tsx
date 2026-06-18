@@ -74,28 +74,28 @@ export function BentoGridSection() {
 									<div className="bg-accent-orange/10 mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
 										<TrendingUp className="text-accent-orange h-6 w-6" />
 									</div>
-									<h3 className="mb-1 text-lg font-bold">27 villes</h3>
-									<p className="text-muted-foreground text-sm">
+									<h3 className="mb-1 text-lg font-bold">
 										Couverture nationale
+									</h3>
+									<p className="text-muted-foreground text-sm">
+										Présent dans les grandes villes du pays.
 									</p>
 								</div>
-								<div className="mt-6 space-y-3">
+								<div className="mt-6 flex flex-wrap gap-2">
 									{[
-										{ label: 'Abidjan', width: '85%' },
-										{ label: 'Bouaké', width: '45%' },
-										{ label: 'Autres', width: '30%' },
-									].map(({ label, width }) => (
-										<div key={label} className="flex items-center gap-3">
-											<div className="bg-muted h-2 flex-1 overflow-hidden rounded-full">
-												<div
-													className="bg-primary-green h-full rounded-full"
-													style={{ width }}
-												/>
-											</div>
-											<span className="text-muted-foreground w-16 text-xs">
-												{label}
-											</span>
-										</div>
+										'Abidjan',
+										'Bouaké',
+										'Yamoussoukro',
+										'Daloa',
+										'San-Pédro',
+										'Korhogo',
+									].map(city => (
+										<span
+											key={city}
+											className="bg-primary-green/10 text-primary-green rounded-full px-3 py-1 text-xs font-medium"
+										>
+											{city}
+										</span>
 									))}
 								</div>
 							</div>
@@ -117,21 +117,18 @@ export function BentoGridSection() {
 								<div className="flex flex-1 flex-col justify-end space-y-2">
 									{[
 										{
-											title: 'iPhone 15 retrouvé',
+											title: 'iPhone retrouvé',
 											loc: 'Cocody',
-											time: '2 min',
 											isNew: true,
 										},
 										{
 											title: 'Clés de voiture',
 											loc: 'Plateau',
-											time: '15 min',
 											isNew: true,
 										},
 										{
 											title: 'Portefeuille',
 											loc: 'Marcory',
-											time: '1h',
 											isNew: false,
 										},
 									].map((n, i) => (
@@ -152,7 +149,7 @@ export function BentoGridSection() {
 														{n.title}
 													</p>
 													<p className="text-muted-foreground text-xs">
-														{n.loc} · {n.time}
+														{n.loc}
 													</p>
 												</div>
 											</div>
@@ -169,9 +166,9 @@ export function BentoGridSection() {
 								<div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10 transition-transform group-hover:scale-110">
 									<Clock className="h-5 w-5 text-blue-600" />
 								</div>
-								<h3 className="mb-1 text-base font-bold">2 minutes</h3>
+								<h3 className="mb-1 text-base font-bold">Simple et rapide</h3>
 								<p className="text-muted-foreground text-xs">
-									Pour publier une annonce
+									Publiez une annonce en quelques instants
 								</p>
 							</div>
 						</div>
@@ -183,8 +180,10 @@ export function BentoGridSection() {
 								<div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10 transition-transform group-hover:scale-110">
 									<Users className="h-5 w-5 text-purple-600" />
 								</div>
-								<h3 className="mb-1 text-base font-bold">12 500+</h3>
-								<p className="text-muted-foreground text-xs">Membres actifs</p>
+								<h3 className="mb-1 text-base font-bold">Entraide</h3>
+								<p className="text-muted-foreground text-xs">
+									Une communauté qui s&apos;agrandit
+								</p>
 							</div>
 						</div>
 					</div>

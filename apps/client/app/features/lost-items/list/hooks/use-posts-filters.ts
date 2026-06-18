@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useSearchParams } from 'react-router'
 import { type DateRange } from 'react-day-picker'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -11,7 +12,8 @@ import type {
 const ITEMS_PER_PAGE = 6
 
 export function usePostsFilters(listings: LostItem[]) {
-	const [searchQuery, setSearchQuery] = useState('')
+	const [searchParams] = useSearchParams()
+	const [searchQuery, setSearchQuery] = useState(searchParams.get('q') ?? '')
 	const [activeTab, setActiveTab] = useState<LostItemType | 'all'>('all')
 	const [activeCategory, setActiveCategory] = useState<
 		LostItemCategory | 'all'

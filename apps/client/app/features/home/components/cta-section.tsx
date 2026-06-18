@@ -1,6 +1,6 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, QrCode } from 'lucide-react'
 
 export function CtaSection() {
 	return (
@@ -11,11 +11,16 @@ export function CtaSection() {
 					<div className="bg-primary-green/20 absolute -top-20 -right-20 h-60 w-60 rounded-full blur-3xl" />
 
 					<div className="relative z-10 space-y-6 text-center">
+						<span className="bg-primary-green/20 text-primary-green inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
+							Gratuit, simple et solidaire
+						</span>
 						<h2 className="text-2xl font-bold text-white md:text-3xl">
-							Prêt à retrouver ce qui vous appartient ?
+							Créez votre compte et protégez vos objets
 						</h2>
 						<p className="mx-auto max-w-md text-white/70">
-							Rejoignez des milliers d&apos;Ivoiriens qui utilisent RetrouveCI.
+							Activez les alertes pour vos recherches et commandez des stickers
+							QR pour qu&apos;on puisse vous joindre sans dévoiler vos
+							coordonnées.
 						</p>
 						<div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row">
 							<Button
@@ -23,8 +28,8 @@ export function CtaSection() {
 								size="lg"
 								className="text-foreground h-12 rounded-full bg-white px-6 hover:bg-white/90"
 							>
-								<Link to="/publish" className="flex items-center gap-2">
-									Publier une annonce
+								<Link to="/auth/register" className="flex items-center gap-2">
+									Créer un compte gratuit
 									<ArrowRight className="h-4 w-4" />
 								</Link>
 							</Button>
@@ -34,7 +39,10 @@ export function CtaSection() {
 								size="lg"
 								className="h-12 rounded-full border-white/20 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
 							>
-								<Link to="/posts">Voir les annonces</Link>
+								<Link to="/stickers" className="flex items-center gap-2">
+									<QrCode className="h-4 w-4" />
+									Découvrir les stickers QR
+								</Link>
 							</Button>
 						</div>
 					</div>
