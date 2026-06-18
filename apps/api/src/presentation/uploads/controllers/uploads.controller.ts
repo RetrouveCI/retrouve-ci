@@ -1,6 +1,12 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common'
-import { FileInterceptor, type File } from '@nest-lab/fastify-multer'
+import {
+	BadRequestException,
+	Controller,
+	PayloadTooLargeException,
+	Post,
+	Req,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger'
+import type { FastifyRequest } from 'fastify'
 import { StorageService } from '@/infrastructure/storage/storage.service'
 
 @ApiTags('uploads')
@@ -11,9 +17,26 @@ export class UploadsController {
 
 	@Post('lost-item-photo')
 	@ApiConsumes('multipart/form-data')
-	@UseInterceptors(FileInterceptor('photo'))
-	async uploadLostItemPhoto(@UploadedFile() photo: File) {
-		const url = await this.storageService.uploadLostItemPhoto(photo)
+	async uploadLostItemPhoto(@Req() request: FastifyRequest) {
+		const file = await request.file()
+
+		if (!file) {
+			throw new BadRequestException('Aucun fichier reçu')
+		}
+
+		const buffer = await file.toBuffer()
+
+		if (file.file.truncated) {
+			throw new PayloadTooLargeException(
+				'Image trop volumineuse : 5 Mo maximum',
+			)
+		}
+
+		const url = await this.storageService.uploadLostItemPhoto({
+			buffer,
+			mimetype: file.mimetype,
+			size: buffer.length,
+		})
 
 		return { url }
 	}
