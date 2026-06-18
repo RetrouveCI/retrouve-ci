@@ -6,7 +6,11 @@ import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { newPasswordSchema } from '../register.schema'
 import { PasswordStep } from '../../components/password-step'
 
-export function CreatePasswordStepSection() {
+export function CreatePasswordStepSection({
+	redirectTo,
+}: {
+	redirectTo: string
+}) {
 	const navigate = useNavigate()
 	const fetcher = useFetcher<{ ok: boolean; error?: string }>()
 
@@ -17,13 +21,13 @@ export function CreatePasswordStepSection() {
 			toast.success('Compte créé !', {
 				description: 'Bienvenue sur RetrouveCI.',
 			})
-			navigate('/account')
+			navigate(redirectTo, { replace: true })
 		} else {
 			toast.error(
 				fetcher.data.error ?? 'Une erreur est survenue. Veuillez réessayer.',
 			)
 		}
-	}, [fetcher.state, fetcher.data, navigate])
+	}, [fetcher.state, fetcher.data, navigate, redirectTo])
 
 	const [form, fields] = useForm({
 		id: 'register-password-form',

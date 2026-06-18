@@ -1,7 +1,10 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
 import { ArrowRight, Sparkles, QrCode, Zap } from 'lucide-react'
+import { useAuth } from '@/shared/auth/auth-context'
 export function StickersHero() {
+	const { isAuthenticated } = useAuth()
+
 	return (
 		<section className="relative overflow-hidden border-b">
 			<div className="pointer-events-none absolute inset-0">
@@ -37,14 +40,16 @@ export function StickersHero() {
 										<ArrowRight className="ml-2 h-4 w-4" />
 									</Link>
 								</Button>
-								<Button
-									asChild
-									size="lg"
-									variant="outline"
-									className="h-12 px-6"
-								>
-									<Link to="/auth/register">Créer un compte</Link>
-								</Button>
+								{!isAuthenticated && (
+									<Button
+										asChild
+										size="lg"
+										variant="outline"
+										className="h-12 px-6"
+									>
+										<Link to="/auth/register">Créer un compte</Link>
+									</Button>
+								)}
 							</div>
 							<p className="text-muted-foreground mt-4 text-sm">
 								À partir de{' '}

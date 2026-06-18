@@ -35,7 +35,8 @@ export async function orderAction(request: Request) {
 		)
 		return data({ ok: true as const, order: toOrder(order) })
 	} catch (err) {
-		if (err instanceof ApiError && err.status === 401) throw redirect('/auth')
+		if (err instanceof ApiError && err.status === 401)
+			throw redirect('/auth/login')
 		const message =
 			err instanceof ApiError ? err.message : 'Une erreur est survenue.'
 		return data(submission.reply({ formErrors: [message] }), { status: 400 })

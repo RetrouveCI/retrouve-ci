@@ -1,8 +1,11 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
 import { ArrowRight, QrCode } from 'lucide-react'
+import { useAuth } from '@/shared/auth/auth-context'
 
 export function CtaSection() {
+	const { isAuthenticated } = useAuth()
+
 	return (
 		<section className="py-20">
 			<div className="container mx-auto px-4">
@@ -15,7 +18,9 @@ export function CtaSection() {
 							Gratuit, simple et solidaire
 						</span>
 						<h2 className="text-2xl font-bold text-white md:text-3xl">
-							Créez votre compte et protégez vos objets
+							{isAuthenticated
+								? 'Protégez vos objets dès aujourd’hui'
+								: 'Créez votre compte et protégez vos objets'}
 						</h2>
 						<p className="mx-auto max-w-md text-white/70">
 							Activez les alertes pour vos recherches et commandez des stickers
@@ -28,8 +33,13 @@ export function CtaSection() {
 								size="lg"
 								className="h-12 rounded-full bg-white px-6 text-neutral-900 hover:bg-white/90"
 							>
-								<Link to="/auth/register" className="flex items-center gap-2">
-									Créer un compte gratuit
+								<Link
+									to={isAuthenticated ? '/publish' : '/auth/register'}
+									className="flex items-center gap-2"
+								>
+									{isAuthenticated
+										? 'Publier une annonce'
+										: 'Créer un compte gratuit'}
 									<ArrowRight className="h-4 w-4" />
 								</Link>
 							</Button>
