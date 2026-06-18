@@ -64,8 +64,8 @@ export function AdminFormDialog({
 	const [form, fields] = useForm<CreateSchema>({
 		id: `admin-form-${admin?.id ?? 'new'}`,
 		constraint: getZodConstraint(adminCreateSchema),
-		shouldValidate: 'onBlur',
-		shouldRevalidate: 'onSubmit',
+		shouldValidate: 'onSubmit',
+		shouldRevalidate: 'onBlur',
 		defaultValue: admin ? { role: admin.role } : { role: 'moderator' },
 		onValidate({ formData }) {
 			if (isEditing) {
