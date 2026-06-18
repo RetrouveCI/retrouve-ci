@@ -14,7 +14,7 @@ import { publishLoader } from '../servers/publish.loader'
 import { publishAction } from '../servers/publish.action'
 import type { Route } from './+types/index'
 
-const ACCENT = 'varaccent-orange'
+const ACCENT = 'var(--accent-orange)'
 
 export const loader = publishLoader
 
