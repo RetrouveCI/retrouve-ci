@@ -78,6 +78,7 @@ export default function PublishLostPage() {
 
 						<Form method="post" {...getFormProps(form)} className="space-y-5">
 							<ObjectInfoSection
+								step={1}
 								title={fields.title}
 								objectType={fields.objectType}
 								description={fields.description}
@@ -91,14 +92,21 @@ export default function PublishLostPage() {
 							/>
 
 							<LocationDateSection
+								step={2}
 								ville={fields.ville}
 								commune={fields.commune}
 								date={fields.date}
 								dateLabel="Date de perte"
 								sectionTitle="Lieu & date de perte"
+								accentColor={ACCENT}
 							/>
 
-							<ContactSection name={fields.name} whatsapp={fields.whatsapp} />
+							<ContactSection
+								step={3}
+								name={fields.name}
+								whatsapp={fields.whatsapp}
+								accentColor={ACCENT}
+							/>
 
 							<PublishFormActions
 								isSubmitting={isSubmitting}

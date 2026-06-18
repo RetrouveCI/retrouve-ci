@@ -1,27 +1,37 @@
 import { Input } from '@retrouve-ci/ui/components'
 import { getInputProps, type FieldMetadata } from '@conform-to/react'
+import { UserRound, Lock } from 'lucide-react'
 import {
 	InputLabel,
 	InputField,
 	FieldError,
 } from '@retrouve-ci/ui/components/form'
+import { SectionHeader } from './section-header'
 
 interface ContactSectionProps {
 	name: FieldMetadata<string>
 	whatsapp: FieldMetadata<string>
+	accentColor: string
 	showPrivacyNote?: boolean
+	step?: number
 }
 
 export function ContactSection({
 	name,
 	whatsapp,
+	accentColor,
 	showPrivacyNote = false,
+	step,
 }: ContactSectionProps) {
 	return (
 		<div className="bg-background space-y-5 rounded-2xl border p-6">
-			<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-				Vos coordonnées
-			</h2>
+			<SectionHeader
+				step={step}
+				icon={UserRound}
+				title="Vos coordonnées"
+				description="Pour être contacté au sujet de l'objet."
+				accentColor={accentColor}
+			/>
 
 			<InputField field={name} label="Nom / Prénom" placeholder="Votre nom" />
 
@@ -42,10 +52,13 @@ export function ContactSection({
 			</div>
 
 			{showPrivacyNote && (
-				<p className="text-muted-foreground pt-1 text-xs">
-					Votre numéro ne sera jamais affiché publiquement. Le contact se fait
-					via notre messagerie sécurisée.
-				</p>
+				<div className="bg-muted/50 text-muted-foreground flex items-start gap-2 rounded-xl border p-3 text-xs">
+					<Lock className="text-primary-green mt-0.5 h-3.5 w-3.5 shrink-0" />
+					<span>
+						Votre numéro ne sera jamais affiché publiquement. Le contact se fait
+						via notre messagerie sécurisée.
+					</span>
+				</div>
 			)}
 		</div>
 	)

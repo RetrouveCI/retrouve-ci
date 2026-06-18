@@ -50,7 +50,7 @@ export function MatchingSuggestions({
 	})
 
 	const accentColor =
-		formType === 'perdu' ? 'varaccent-orange' : 'varprimary-green'
+		formType === 'perdu' ? 'var(--accent-orange)' : 'var(--primary-green)'
 	const TypeIcon = formType === 'perdu' ? CheckCircle : AlertCircle
 
 	return (

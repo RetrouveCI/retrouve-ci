@@ -11,8 +11,10 @@ import {
 	useInputControl,
 	type FieldMetadata,
 } from '@conform-to/react'
+import { MapPin } from 'lucide-react'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants'
 import { InputLabel, FieldError } from '@retrouve-ci/ui/components/form'
+import { SectionHeader } from './section-header'
 
 interface LocationDateSectionProps {
 	ville: FieldMetadata<string>
@@ -20,6 +22,8 @@ interface LocationDateSectionProps {
 	date: FieldMetadata<string>
 	dateLabel: string
 	sectionTitle: string
+	accentColor: string
+	step?: number
 }
 
 export function LocationDateSection({
@@ -28,15 +32,20 @@ export function LocationDateSection({
 	date,
 	dateLabel,
 	sectionTitle,
+	accentColor,
+	step,
 }: LocationDateSectionProps) {
 	const villeControl = useInputControl(ville)
 	const communeControl = useInputControl(commune)
 
 	return (
 		<div className="bg-background space-y-5 rounded-2xl border p-6">
-			<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-				{sectionTitle}
-			</h2>
+			<SectionHeader
+				step={step}
+				icon={MapPin}
+				title={sectionTitle}
+				accentColor={accentColor}
+			/>
 
 			<div className="grid grid-cols-2 gap-3">
 				<div className="space-y-1.5">
