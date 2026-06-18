@@ -101,11 +101,13 @@ export function OrderDetailDialog({
 
 					<div className="grid grid-cols-3 gap-3">
 						<div className="bg-card rounded-lg border p-3 text-center">
-							<p className="text-primary text-xl font-bold">{order.quantity}</p>
+							<p className="text-primary text-xl font-semibold">
+								{order.quantity}
+							</p>
 							<p className="text-muted-foreground text-xs">stickers</p>
 						</div>
 						<div className="bg-card rounded-lg border p-3 text-center">
-							<p className="text-sm font-bold">{order.total} F</p>
+							<p className="text-sm font-semibold">{order.total} F</p>
 							<p className="text-muted-foreground text-xs">Total</p>
 						</div>
 						<div className="bg-card rounded-lg border p-3 text-center">

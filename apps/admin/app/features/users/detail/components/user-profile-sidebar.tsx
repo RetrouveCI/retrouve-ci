@@ -40,7 +40,7 @@ export function UserProfileSidebar({
 								{user.name.charAt(0)}
 							</AvatarFallback>
 						</Avatar>
-						<h2 className="mt-4 text-xl font-bold">{user.name}</h2>
+						<h2 className="mt-4 text-lg font-semibold">{user.name}</h2>
 						<p className="text-muted-foreground text-xs">ID: {user.id}</p>
 						<Badge
 							className={`mt-3 ${
