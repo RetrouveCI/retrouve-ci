@@ -10,7 +10,9 @@ import {
 	type NestFastifyApplication,
 } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import fastifyMultipart from '@fastify/multipart'
 import { DomainExceptionFilter } from '@/shared/filters/domain-exception.filter'
+import { MAX_PHOTO_SIZE } from '@/infrastructure/storage/storage.service'
 import { AppModule } from './app.module'
 
 const DEFAULT_PORT = 3002
@@ -61,6 +63,11 @@ async function bootstrap(): Promise<void> {
 	app.enableCors({
 		origin: getAllowedOrigins(),
 		credentials: true,
+	})
+
+	await app.register(fastifyMultipart, {
+		throwFileSizeLimit: false,
+		limits: { fileSize: MAX_PHOTO_SIZE, files: 1 },
 	})
 
 	app.useGlobalPipes(
