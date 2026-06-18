@@ -6,7 +6,7 @@ export function CtaSection() {
 	return (
 		<section className="py-20">
 			<div className="container mx-auto px-4">
-				<div className="bg-foreground relative mx-auto max-w-3xl overflow-hidden rounded-3xl p-10 md:p-14">
+				<div className="relative mx-auto max-w-3xl overflow-hidden rounded-3xl bg-neutral-900 p-10 md:p-14">
 					<div className="from-primary-green/20 to-accent-orange/10 absolute inset-0 bg-linear-to-br via-transparent" />
 					<div className="bg-primary-green/20 absolute -top-20 -right-20 h-60 w-60 rounded-full blur-3xl" />
 
@@ -26,7 +26,7 @@ export function CtaSection() {
 							<Button
 								asChild
 								size="lg"
-								className="text-foreground h-12 rounded-full bg-white px-6 hover:bg-white/90"
+								className="h-12 rounded-full bg-white px-6 text-neutral-900 hover:bg-white/90"
 							>
 								<Link to="/auth/register" className="flex items-center gap-2">
 									Créer un compte gratuit

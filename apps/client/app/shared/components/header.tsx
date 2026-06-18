@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router'
 import { Menu, LogIn, Plus } from 'lucide-react'
 import { MobileNav } from '@/shared/components/mobile-nav'
 import { HeaderSearch } from '@/shared/components/header-search'
+import { ThemeToggle } from '@/shared/components/theme-toggle'
 import { UserMenu } from '@/shared/components/user-menu'
 import { NotificationBell } from '@/features/notifications/components/notification-bell'
 import { useAuth } from '@/shared/auth/auth-context'
@@ -70,6 +71,7 @@ export function Header() {
 
 				<div className="flex items-center gap-1.5">
 					<HeaderSearch />
+					<ThemeToggle className="hidden h-9 w-9 rounded-full md:inline-flex" />
 
 					<Button
 						asChild

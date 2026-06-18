@@ -217,7 +217,7 @@ export function BentoGridSection() {
 
 					<div className="group col-span-12 md:col-span-4">
 						<Link to="/download" className="block h-full">
-							<div className="bg-foreground relative h-full min-h-[220px] overflow-hidden rounded-3xl p-6 transition-all duration-300 hover:shadow-xl">
+							<div className="relative h-full min-h-[220px] overflow-hidden rounded-3xl bg-neutral-900 p-6 transition-all duration-300 hover:shadow-xl">
 								<div className="bg-primary-green/20 absolute top-0 right-0 h-32 w-32 translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl" />
 								<div className="relative z-10 flex h-full flex-col">
 									<div className="mb-4 flex items-center gap-2">

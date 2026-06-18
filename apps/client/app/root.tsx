@@ -6,9 +6,12 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useRouteLoaderData,
 } from 'react-router'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/shared/auth/auth-context'
+import { ThemeProvider } from '@/shared/theme/theme-context'
+import { getThemeFromRequest } from '@/shared/theme/theme.server'
 import { Header } from '@/shared/components/header'
 import { Footer } from '@/shared/components/footer'
 import { NotFoundContent } from '@/shared/components/not-found-content'
@@ -18,6 +21,10 @@ import '@fontsource-variable/geist-mono'
 import './app.css'
 
 import type { Route } from './+types/root'
+
+export function loader({ request }: Route.LoaderArgs) {
+	return { theme: getThemeFromRequest(request) }
+}
 
 export function meta() {
 	const title = "RetrouveCI - Perdre un objet n'est plus une fatalité"
@@ -59,8 +66,17 @@ export function links() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+	const data = useRouteLoaderData<typeof loader>('root')
+
+	const theme = data?.theme ?? 'light'
+
 	return (
-		<html lang="fr">
+		<html
+			lang="fr"
+			className={theme === 'dark' ? 'dark' : ''}
+			style={{ colorScheme: theme }}
+			suppressHydrationWarning
+		>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -76,33 +92,37 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	)
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
 	return (
-		<AuthProvider>
-			<Outlet />
-			<Toaster
-				position="bottom-right"
-				richColors
-				closeButton
-				toastOptions={{
-					classNames: {
-						toast: 'font-sans',
-					},
-				}}
-			/>
-			{import.meta.env.PROD && <Analytics />}
-		</AuthProvider>
+		<ThemeProvider initialTheme={loaderData.theme}>
+			<AuthProvider>
+				<Outlet />
+				<Toaster
+					position="bottom-right"
+					richColors
+					closeButton
+					toastOptions={{
+						classNames: {
+							toast: 'font-sans',
+						},
+					}}
+				/>
+				{import.meta.env.PROD && <Analytics />}
+			</AuthProvider>
+		</ThemeProvider>
 	)
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	if (isRouteErrorResponse(error) && error.status === 404) {
 		return (
-			<AuthProvider>
-				<Header />
-				<NotFoundContent />
-				<Footer />
-			</AuthProvider>
+			<ThemeProvider initialTheme="light">
+				<AuthProvider>
+					<Header />
+					<NotFoundContent />
+					<Footer />
+				</AuthProvider>
+			</ThemeProvider>
 		)
 	}
 

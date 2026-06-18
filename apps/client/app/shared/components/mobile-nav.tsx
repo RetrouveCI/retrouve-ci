@@ -17,11 +17,14 @@ import {
 	User,
 	ChevronRight,
 	Plus,
+	Moon,
+	Sun,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 import { NotificationBell } from '@/features/notifications/components/notification-bell'
 import { SearchBar } from '@/shared/components/search-bar'
 import { useAuth } from '@/shared/auth/auth-context'
+import { useTheme } from '@/shared/theme/theme-context'
 
 interface MobileNavProps {
 	open: boolean
@@ -49,6 +52,8 @@ export function MobileNav({
 	currentPath,
 }: MobileNavProps) {
 	const { user, isAuthenticated, logout } = useAuth()
+	const { theme, toggleTheme } = useTheme()
+	const isDark = theme === 'dark'
 
 	const close = () => onOpenChange(false)
 
@@ -114,6 +119,20 @@ export function MobileNav({
 				</nav>
 
 				<div className="space-y-2 border-t px-3 pt-3 pb-6">
+					<button
+						onClick={toggleTheme}
+						className="hover:bg-muted flex w-full items-center justify-between rounded-xl px-4 py-3 transition-colors"
+					>
+						<span className="flex items-center gap-3 text-sm font-medium">
+							{isDark ? (
+								<Sun className="h-4 w-4 shrink-0" />
+							) : (
+								<Moon className="h-4 w-4 shrink-0" />
+							)}
+							{isDark ? 'Mode clair' : 'Mode sombre'}
+						</span>
+					</button>
+
 					<Button
 						asChild
 						className="bg-primary-green hover:bg-primary-green-dark h-12 w-full gap-2 rounded-xl text-white"
