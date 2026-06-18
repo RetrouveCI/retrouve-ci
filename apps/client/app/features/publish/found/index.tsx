@@ -14,7 +14,7 @@ import { publishLoader } from '../servers/publish.loader'
 import { publishAction } from '../servers/publish.action'
 import type { Route } from './+types/index'
 
-const ACCENT = 'varprimary-green'
+const ACCENT = 'var(--primary-green)'
 
 export const loader = publishLoader
 
@@ -78,6 +78,7 @@ export default function PublishFoundPage() {
 
 						<Form method="post" {...getFormProps(form)} className="space-y-5">
 							<ObjectInfoSection
+								step={1}
 								title={fields.title}
 								objectType={fields.objectType}
 								description={fields.description}
@@ -93,16 +94,20 @@ export default function PublishFoundPage() {
 							/>
 
 							<LocationDateSection
+								step={2}
 								ville={fields.ville}
 								commune={fields.commune}
 								date={fields.date}
 								dateLabel="Date de la trouvaille"
 								sectionTitle="Lieu & date de la trouvaille"
+								accentColor={ACCENT}
 							/>
 
 							<ContactSection
+								step={3}
 								name={fields.name}
 								whatsapp={fields.whatsapp}
+								accentColor={ACCENT}
 								showPrivacyNote
 							/>
 

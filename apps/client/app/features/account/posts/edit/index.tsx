@@ -1,6 +1,12 @@
 import { Form, Link } from 'react-router'
 import { getFormProps, getTextareaProps } from '@conform-to/react'
-import { AlertCircle, CheckCircle, ArrowLeft, Loader2 } from 'lucide-react'
+import {
+	AlertCircle,
+	CheckCircle,
+	ArrowLeft,
+	Loader2,
+	Package,
+} from 'lucide-react'
 import { Button, Textarea } from '@retrouve-ci/ui/components'
 import {
 	InputField,
@@ -8,6 +14,7 @@ import {
 	InputLabel,
 } from '@retrouve-ci/ui/components/form'
 import { cn } from '@retrouve-ci/ui/utils'
+import { SectionHeader } from '@/features/publish/components/section-header'
 import { LocationDateSection } from '@/features/publish/components/location-date-section'
 import { ContactSection } from '@/features/publish/components/contact-section'
 import { PublishPageHeader } from '@/features/publish/components/publish-page-header'
@@ -85,9 +92,13 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 						/>
 
 						<div className="bg-background space-y-5 rounded-2xl border p-6">
-							<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-								Informations sur l&apos;objet
-							</h2>
+							<SectionHeader
+								icon={Package}
+								title="Informations sur l'objet"
+								accentColor={
+									isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
+								}
+							/>
 
 							<InputField
 								field={fields.title}
@@ -152,7 +163,9 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 									onRemove={() => setImagePreview(null)}
 									onChange={handleImageChange}
 									variant={isLost ? 'optional' : 'recommended'}
-									accentColor={isLost ? 'varaccent-orange' : 'varprimary-green'}
+									accentColor={
+										isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
+									}
 								/>
 							</div>
 						</div>
@@ -165,11 +178,17 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 							sectionTitle={
 								isLost ? 'Lieu & date de perte' : 'Lieu & date de la trouvaille'
 							}
+							accentColor={
+								isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
+							}
 						/>
 
 						<ContactSection
 							name={fields.name}
 							whatsapp={fields.whatsapp}
+							accentColor={
+								isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
+							}
 							showPrivacyNote={!isLost}
 						/>
 

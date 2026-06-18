@@ -24,8 +24,8 @@ const channels = [
 		title: 'Adresse',
 		value: 'Cocody, Abidjan',
 		detail: "Côte d'Ivoire",
-		color: 'text-blue-500',
-		bg: 'bg-blue-500/10',
+		color: 'text-foreground',
+		bg: 'bg-muted',
 		href: null,
 	},
 ]

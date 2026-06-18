@@ -21,7 +21,7 @@ const faqs = [
 	},
 	{
 		q: "RetrouveCI est-il disponible en dehors d'Abidjan ?",
-		a: "Oui ! La plateforme couvre 26 villes ivoiriennes dont Bouaké, Yamoussoukro, Daloa, San-Pédro et bien d'autres.",
+		a: "Oui ! La plateforme couvre de nombreuses villes ivoiriennes dont Bouaké, Yamoussoukro, Daloa, San-Pédro et bien d'autres.",
 	},
 ]
 

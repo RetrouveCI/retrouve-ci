@@ -1,8 +1,8 @@
-import { Button } from '@retrouve-ci/ui/components'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Users, MapPin } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
+import { SearchBar } from '@/shared/components/search-bar'
 
 const CYCLING_WORDS = [
 	'un objet',
@@ -13,10 +13,10 @@ const CYCLING_WORDS = [
 	'un bijou',
 ]
 
-const HERO_STATS = [
-	{ value: 2847, label: 'Objets retrouvés', suffix: '+' },
-	{ value: 12500, label: 'Utilisateurs', suffix: '+' },
-	{ value: 95, label: 'Taux de succès', suffix: '%' },
+const TRUST_POINTS = [
+	{ icon: ShieldCheck, label: 'Contact 100 % sécurisé' },
+	{ icon: Users, label: "Une communauté d'entraide" },
+	{ icon: MapPin, label: 'Partout en Côte d’Ivoire' },
 ]
 
 function CyclingWord() {
@@ -42,42 +42,6 @@ function CyclingWord() {
 			)}
 		>
 			{CYCLING_WORDS[index]}
-		</span>
-	)
-}
-
-function AnimatedCounter({
-	target,
-	suffix = '',
-}: {
-	target: number
-	suffix?: string
-}) {
-	const [count, setCount] = useState(0)
-
-	useEffect(() => {
-		const duration = 2000
-		const steps = 60
-		const increment = target / steps
-		let current = 0
-
-		const timer = setInterval(() => {
-			current += increment
-			if (current >= target) {
-				setCount(target)
-				clearInterval(timer)
-			} else {
-				setCount(Math.floor(current))
-			}
-		}, duration / steps)
-
-		return () => clearInterval(timer)
-	}, [target])
-
-	return (
-		<span className="tabular-nums">
-			{count.toLocaleString('fr-FR')}
-			{suffix}
 		</span>
 	)
 }
@@ -110,36 +74,34 @@ export function HeroSection() {
 						communauté active dans toute la Côte d&apos;Ivoire.
 					</p>
 
-					<div className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row">
-						<Button
-							asChild
+					<div className="mx-auto mb-4 max-w-2xl">
+						<SearchBar
+							mode="navigate"
+							action="/posts"
 							size="lg"
-							className="bg-foreground text-background hover:bg-foreground/90 h-14 rounded-full px-8 text-base transition-all duration-300 hover:scale-105 hover:shadow-xl"
-						>
-							<Link to="/publish" className="flex items-center gap-2">
-								Signaler un objet
-								<ArrowRight className="h-4 w-4" />
-							</Link>
-						</Button>
-						<Button
-							asChild
-							variant="outline"
-							size="lg"
-							className="h-14 rounded-full border-2 px-8 text-base transition-all duration-300 hover:scale-105"
-						>
-							<Link to="/posts">Parcourir les annonces</Link>
-						</Button>
+							className="shadow-lg"
+						/>
 					</div>
 
-					<div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
-						{HERO_STATS.map(stat => (
-							<div key={stat.label} className="text-center">
-								<div className="text-2xl font-bold md:text-3xl">
-									<AnimatedCounter target={stat.value} suffix={stat.suffix} />
-								</div>
-								<div className="text-muted-foreground text-sm">
-									{stat.label}
-								</div>
+					<p className="text-muted-foreground mb-16 text-center text-sm">
+						Vous avez trouvé un objet ?{' '}
+						<Link
+							to="/publish"
+							className="text-primary-green inline-flex items-center gap-1 font-medium hover:underline"
+						>
+							Signalez-le
+							<ArrowRight className="h-3.5 w-3.5" />
+						</Link>
+					</p>
+
+					<div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 md:gap-x-12">
+						{TRUST_POINTS.map(({ icon: Icon, label }) => (
+							<div
+								key={label}
+								className="text-muted-foreground flex items-center gap-2 text-sm font-medium"
+							>
+								<Icon className="text-primary-green h-5 w-5" />
+								{label}
 							</div>
 						))}
 					</div>

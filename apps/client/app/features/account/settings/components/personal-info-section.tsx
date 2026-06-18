@@ -1,6 +1,9 @@
-import { Button, Label } from '@retrouve-ci/ui/components'
-import { User, Smartphone, Mail, Calendar, Check } from 'lucide-react'
+import { Label } from '@retrouve-ci/ui/components'
+import { User, Smartphone, MapPin, Calendar, Check } from 'lucide-react'
 import type { UserProfile } from '../mappers/profile.mapper'
+import { EditNameDialog } from './edit-name-dialog'
+import { EditPhoneDialog } from './edit-phone-dialog'
+import { EditZoneDialog } from './edit-zone-dialog'
 
 export function PersonalInfoSection({ user }: { user: UserProfile }) {
 	return (
@@ -11,61 +14,69 @@ export function PersonalInfoSection({ user }: { user: UserProfile }) {
 					Informations personnelles
 				</h2>
 			</div>
-			<div className="space-y-4 p-5">
-				<div className="flex items-center justify-between py-3">
-					<div className="flex items-center gap-3">
-						<div className="bg-muted flex h-10 w-10 items-center justify-center rounded-xl">
-							<User className="text-muted-foreground h-5 w-5" />
+			<div className="px-5">
+				<div className="flex items-center justify-between gap-3 py-4">
+					<div className="flex min-w-0 items-center gap-3">
+						<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+							<User className="text-primary-green h-5 w-5" />
 						</div>
-						<div>
-							<Label className="text-sm font-medium">Nom complet</Label>
-							<p className="text-muted-foreground text-sm">{user.name}</p>
+						<div className="min-w-0">
+							<Label className="text-sm font-medium">Nom et prénoms</Label>
+							<p className="text-muted-foreground truncate text-sm">
+								{user.name}
+							</p>
 						</div>
 					</div>
+					<EditNameDialog currentName={user.name} />
 				</div>
-				<div className="flex items-center justify-between border-t py-3">
-					<div className="flex items-center gap-3">
-						<div className="bg-muted flex h-10 w-10 items-center justify-center rounded-xl">
-							<Smartphone className="text-muted-foreground h-5 w-5" />
+
+				<div className="flex items-center justify-between gap-3 border-t py-4">
+					<div className="flex min-w-0 items-center gap-3">
+						<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+							<Smartphone className="text-primary-green h-5 w-5" />
 						</div>
-						<div>
-							<Label className="text-sm font-medium">Téléphone</Label>
-							<p className="text-muted-foreground text-sm">
+						<div className="min-w-0">
+							<Label className="text-sm font-medium">Numéro de téléphone</Label>
+							<p className="text-muted-foreground flex items-center gap-1.5 truncate text-sm">
 								{user.phone ?? 'Non renseigné'}
+								{user.phone && user.phoneVerified && (
+									<span className="text-primary-green inline-flex items-center gap-0.5 text-xs font-medium">
+										<Check className="h-3 w-3" />
+										Vérifié
+									</span>
+								)}
 							</p>
 						</div>
 					</div>
-					{user.phone && user.phoneVerified && (
-						<span className="bg-primary-green/10 text-primary-green flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium">
-							<Check className="h-3 w-3" />
-							Vérifié
-						</span>
-					)}
+					<EditPhoneDialog />
 				</div>
-				<div className="flex items-center justify-between border-t py-3">
-					<div className="flex items-center gap-3">
-						<div className="bg-muted flex h-10 w-10 items-center justify-center rounded-xl">
-							<Mail className="text-muted-foreground h-5 w-5" />
+
+				<div className="flex items-center justify-between gap-3 border-t py-4">
+					<div className="flex min-w-0 items-center gap-3">
+						<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+							<MapPin className="text-primary-green h-5 w-5" />
 						</div>
-						<div>
-							<Label className="text-sm font-medium">Email</Label>
-							<p className="text-muted-foreground text-sm">
-								{user.email || 'Non renseigné'}
+						<div className="min-w-0">
+							<Label className="text-sm font-medium">Zone</Label>
+							<p className="text-muted-foreground truncate text-sm">
+								{user.zone ?? 'Non renseignée'}
 							</p>
 						</div>
 					</div>
-					<Button variant="ghost" size="sm" className="rounded-lg text-xs">
-						Modifier
-					</Button>
+					<EditZoneDialog
+						currentCity={user.city}
+						currentCommune={user.commune}
+					/>
 				</div>
-				<div className="flex items-center justify-between border-t py-3">
-					<div className="flex items-center gap-3">
-						<div className="bg-muted flex h-10 w-10 items-center justify-center rounded-xl">
+
+				<div className="flex items-center justify-between gap-3 border-t py-4">
+					<div className="flex min-w-0 items-center gap-3">
+						<div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
 							<Calendar className="text-muted-foreground h-5 w-5" />
 						</div>
-						<div>
+						<div className="min-w-0">
 							<Label className="text-sm font-medium">Membre depuis</Label>
-							<p className="text-muted-foreground text-sm">
+							<p className="text-muted-foreground truncate text-sm">
 								{user.memberSince}
 							</p>
 						</div>

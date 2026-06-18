@@ -80,6 +80,8 @@ model User {
   updatedAt           DateTime   @updatedAt
   phoneNumber         String?
   phoneNumberVerified Boolean?
+  city                String?
+  commune             String?
   role                String?
   banned              Boolean?   @default(false)
   banReason           String?

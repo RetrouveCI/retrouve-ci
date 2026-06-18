@@ -2,7 +2,11 @@ import { data, redirect } from 'react-router'
 import { getServerSession } from '@/shared/auth/auth.server'
 import { ApiError } from '@/shared/lib/api-client'
 import { settingsActionSchema } from '../settings.schema'
-import { deleteAccount } from './settings.service'
+import {
+	deleteAccount,
+	sendPhoneChangeOtp,
+	updateProfile,
+} from './settings.service'
 
 export async function settingsAction({ request }: { request: Request }) {
 	const session = await getServerSession(request)
@@ -17,6 +21,18 @@ export async function settingsAction({ request }: { request: Request }) {
 
 	try {
 		switch (submission.data.intent) {
+			case 'update-name':
+				await updateProfile(request, { name: submission.data.name })
+				break
+			case 'update-zone':
+				await updateProfile(request, {
+					city: submission.data.city,
+					commune: submission.data.commune ?? '',
+				})
+				break
+			case 'send-phone-otp':
+				await sendPhoneChangeOtp(request, submission.data.phone)
+				break
 			case 'delete-account':
 				await deleteAccount(submission.data.password, request)
 				break

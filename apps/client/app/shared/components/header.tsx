@@ -1,7 +1,10 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Link, useLocation } from 'react-router'
-import { Menu, User, LogOut, LogIn } from 'lucide-react'
+import { Menu, LogIn, Plus } from 'lucide-react'
 import { MobileNav } from '@/shared/components/mobile-nav'
+import { HeaderSearch } from '@/shared/components/header-search'
+import { ThemeToggle } from '@/shared/components/theme-toggle'
+import { UserMenu } from '@/shared/components/user-menu'
 import { NotificationBell } from '@/features/notifications/components/notification-bell'
 import { useAuth } from '@/shared/auth/auth-context'
 import { useState, useEffect } from 'react'
@@ -11,9 +14,13 @@ import { LogoRetrouveCI } from './logo-retrouveci'
 const navLinks = [
 	{ href: '/', label: 'Accueil' },
 	{ href: '/posts', label: 'Annonces' },
-	{ href: '/publish', label: 'Publier' },
 	{ href: '/stickers', label: 'Stickers QR' },
 ]
+
+function isActivePath(pathname: string, href: string) {
+	if (href === '/') return pathname === '/'
+	return pathname === href || pathname.startsWith(`${href}/`)
+}
 
 export function Header() {
 	const [mobileNavOpen, setMobileNavOpen] = useState(false)
@@ -51,7 +58,7 @@ export function Header() {
 								to={link.href}
 								className={cn(
 									'rounded-full px-4 py-2 text-sm font-medium transition-all duration-200',
-									pathname === link.href
+									isActivePath(pathname, link.href)
 										? 'bg-background text-foreground shadow-sm'
 										: 'text-muted-foreground hover:text-foreground',
 								)}
@@ -62,35 +69,38 @@ export function Header() {
 					</div>
 				</nav>
 
-				<div className="hidden items-center gap-2 md:flex">
+				<div className="flex items-center gap-1.5">
+					<HeaderSearch />
+					<ThemeToggle className="hidden h-9 w-9 rounded-full md:inline-flex" />
+
+					<Button
+						asChild
+						size="sm"
+						className="bg-primary-green hover:bg-primary-green-dark hidden h-9 gap-1.5 rounded-full px-4 text-white md:inline-flex"
+					>
+						<Link to="/publish">
+							<Plus className="h-4 w-4" />
+							Publier
+						</Link>
+					</Button>
+
 					{isAuthenticated ? (
 						<>
 							<NotificationBell />
-							<Button asChild variant="ghost" size="sm" className="h-9 gap-2">
-								<Link to="/account">
-									<div className="bg-primary-green/10 flex h-7 w-7 items-center justify-center rounded-full">
-										<User className="text-primary-green h-4 w-4" />
-									</div>
-									<span className="max-w-25 truncate font-medium">
-										{user?.name}
-									</span>
-								</Link>
-							</Button>
-							<Button
-								variant="ghost"
-								size="icon"
-								onClick={logout}
-								className="text-muted-foreground hover:text-destructive h-9 w-9"
-								aria-label="Déconnexion"
-							>
-								<LogOut className="h-4 w-4" />
-							</Button>
+							<div className="hidden md:block">
+								<UserMenu
+									name={user?.name ?? ''}
+									phone={user?.phone}
+									onLogout={logout}
+								/>
+							</div>
 						</>
 					) : (
 						<Button
 							asChild
 							size="sm"
-							className="bg-primary-green hover:bg-primary-green-dark h-9 rounded-full px-4 text-white"
+							variant="outline"
+							className="hidden h-9 rounded-full px-4 md:inline-flex"
 						>
 							<Link to="/auth/login" className="gap-2">
 								<LogIn className="h-4 w-4" />
@@ -98,17 +108,17 @@ export function Header() {
 							</Link>
 						</Button>
 					)}
-				</div>
 
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-9 w-9 md:hidden"
-					onClick={() => setMobileNavOpen(true)}
-					aria-label="Ouvrir le menu"
-				>
-					<Menu className="h-5 w-5" />
-				</Button>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="h-9 w-9 md:hidden"
+						onClick={() => setMobileNavOpen(true)}
+						aria-label="Ouvrir le menu"
+					>
+						<Menu className="h-5 w-5" />
+					</Button>
+				</div>
 			</div>
 
 			{mounted && (

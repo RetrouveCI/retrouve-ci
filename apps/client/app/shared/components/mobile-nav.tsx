@@ -16,10 +16,15 @@ import {
 	LogOut,
 	User,
 	ChevronRight,
+	Plus,
+	Moon,
+	Sun,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 import { NotificationBell } from '@/features/notifications/components/notification-bell'
+import { SearchBar } from '@/shared/components/search-bar'
 import { useAuth } from '@/shared/auth/auth-context'
+import { useTheme } from '@/shared/theme/theme-context'
 
 interface MobileNavProps {
 	open: boolean
@@ -35,6 +40,11 @@ const NAV_ICONS: Record<string, React.ElementType> = {
 	'/stickers': QrCode,
 }
 
+function isActivePath(pathname: string, href: string) {
+	if (href === '/') return pathname === '/'
+	return pathname === href || pathname.startsWith(`${href}/`)
+}
+
 export function MobileNav({
 	open,
 	onOpenChange,
@@ -42,10 +52,14 @@ export function MobileNav({
 	currentPath,
 }: MobileNavProps) {
 	const { user, isAuthenticated, logout } = useAuth()
+	const { theme, toggleTheme } = useTheme()
+	const isDark = theme === 'dark'
+
+	const close = () => onOpenChange(false)
 
 	const handleLogout = () => {
 		logout()
-		onOpenChange(false)
+		close()
 	}
 
 	return (
@@ -69,15 +83,26 @@ export function MobileNav({
 					</SheetDescription>
 				</SheetHeader>
 
+				<div className="px-3 pt-4">
+					<SearchBar
+						mode="navigate"
+						action="/posts"
+						size="sm"
+						showSubmit={false}
+						onSubmit={close}
+						placeholder="Rechercher un objet..."
+					/>
+				</div>
+
 				<nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
 					{links.map(link => {
 						const Icon = NAV_ICONS[link.href] ?? Home
-						const isActive = currentPath === link.href
+						const isActive = isActivePath(currentPath, link.href)
 						return (
 							<Link
 								key={link.href}
 								to={link.href}
-								onClick={() => onOpenChange(false)}
+								onClick={close}
 								className={cn(
 									'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
 									isActive
@@ -94,12 +119,36 @@ export function MobileNav({
 				</nav>
 
 				<div className="space-y-2 border-t px-3 pt-3 pb-6">
+					<button
+						onClick={toggleTheme}
+						className="hover:bg-muted flex w-full items-center justify-between rounded-xl px-4 py-3 transition-colors"
+					>
+						<span className="flex items-center gap-3 text-sm font-medium">
+							{isDark ? (
+								<Sun className="h-4 w-4 shrink-0" />
+							) : (
+								<Moon className="h-4 w-4 shrink-0" />
+							)}
+							{isDark ? 'Mode clair' : 'Mode sombre'}
+						</span>
+					</button>
+
+					<Button
+						asChild
+						className="bg-primary-green hover:bg-primary-green-dark h-12 w-full gap-2 rounded-xl text-white"
+					>
+						<Link to="/publish" onClick={close}>
+							<Plus className="h-4 w-4" />
+							Publier une annonce
+						</Link>
+					</Button>
+
 					{isAuthenticated ? (
 						<>
 							<div className="flex items-center gap-2">
 								<Link
 									to="/account"
-									onClick={() => onOpenChange(false)}
+									onClick={close}
 									className="bg-muted/60 hover:bg-muted flex flex-1 items-center gap-3 rounded-xl px-4 py-3 transition-colors"
 								>
 									<div className="bg-primary-green/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
@@ -128,10 +177,11 @@ export function MobileNav({
 						</>
 					) : (
 						<Button
-							className="bg-primary-green hover:bg-primary-green-dark h-12 w-full gap-2 rounded-xl text-white"
+							variant="outline"
+							className="h-12 w-full gap-2 rounded-xl"
 							asChild
 						>
-							<Link to="/auth/login" onClick={() => onOpenChange(false)}>
+							<Link to="/auth/login" onClick={close}>
 								<LogIn className="h-4 w-4" />
 								Se connecter
 							</Link>

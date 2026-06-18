@@ -1,4 +1,5 @@
-import { QrCode, Shield, FileText, Eye } from 'lucide-react'
+import { FileText, Eye, MessageCircle, Shield } from 'lucide-react'
+import { cn } from '@retrouve-ci/ui/utils'
 import type { Sticker } from '@/shared/types/sticker'
 import type { UserLostItem } from '@/shared/types/lost-item'
 
@@ -12,58 +13,65 @@ export function AccountStats({ stickers, listings }: AccountStatsProps) {
 	const activeListings = listings.filter(
 		l => l.moderationStatus === 'published' && l.status === 'active',
 	).length
-
 	const totalViews = listings.reduce((sum, l) => sum + l.views, 0)
+	const totalContacts = listings.reduce((sum, l) => sum + l.contacts, 0)
 
 	const statItems = [
 		{
-			icon: QrCode,
-			value: stickers.length,
-			label: 'Stickers total',
-			color: 'primary-green',
-			hoverBorder: 'hover:border-primary-green/40',
+			icon: FileText,
+			value: activeListings,
+			label: 'Annonces actives',
+			accent: 'green',
+		},
+		{ icon: Eye, value: totalViews, label: 'Vues totales', accent: 'orange' },
+		{
+			icon: MessageCircle,
+			value: totalContacts,
+			label: 'Contacts reçus',
+			accent: 'green',
 		},
 		{
 			icon: Shield,
 			value: activeStickers,
 			label: 'Stickers actifs',
-			color: 'primary-green',
-			hoverBorder: 'hover:border-primary-green/40',
+			accent: 'orange',
 		},
-		{
-			icon: FileText,
-			value: activeListings,
-			label: 'Annonces actives',
-			color: 'accent-orange',
-			hoverBorder: 'hover:border-accent-orange/40',
-		},
-		{
-			icon: Eye,
-			value: totalViews,
-			label: 'Vues totales',
-			color: 'blue-500',
-			hoverBorder: 'hover:border-blue-400/40',
-		},
-	]
+	] as const
 
 	return (
-		<section className="py-6">
+		<section className="py-8">
 			<div className="container mx-auto px-4">
 				<div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-					{statItems.map(({ icon: Icon, value, label, hoverBorder }) => (
-						<div
-							key={label}
-							className={`bg-background border-border/50 group rounded-2xl border p-4 transition-all hover:shadow-sm ${hoverBorder}`}
-						>
-							<div className="mb-2 flex items-center justify-between">
-								<div className="bg-primary-green/10 flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-									<Icon className="text-primary-green h-5 w-5" />
+					{statItems.map(({ icon: Icon, value, label, accent }) => {
+						const isGreen = accent === 'green'
+						return (
+							<div
+								key={label}
+								className={cn(
+									'bg-background border-border/50 group rounded-2xl border p-4 transition-all hover:shadow-sm',
+									isGreen
+										? 'hover:border-primary-green/40'
+										: 'hover:border-accent-orange/40',
+								)}
+							>
+								<div
+									className={cn(
+										'mb-3 flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110',
+										isGreen ? 'bg-primary-green/10' : 'bg-accent-orange/10',
+									)}
+								>
+									<Icon
+										className={cn(
+											'h-5 w-5',
+											isGreen ? 'text-primary-green' : 'text-accent-orange',
+										)}
+									/>
 								</div>
+								<p className="text-2xl font-bold md:text-3xl">{value}</p>
+								<p className="text-muted-foreground text-xs">{label}</p>
 							</div>
-							<p className="text-2xl font-bold md:text-3xl">{value}</p>
-							<p className="text-muted-foreground text-xs">{label}</p>
-						</div>
-					))}
+						)
+					})}
 				</div>
 			</div>
 		</section>

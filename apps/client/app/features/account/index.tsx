@@ -8,22 +8,26 @@ import { toUserLostItem } from '@/features/lost-items/mappers/lost-item.mapper'
 import { getMyLostItems } from '@/features/account/posts/servers/account-posts.service'
 import { toSticker } from '@/features/account/stickers/mappers/sticker.mapper'
 import { getMyStickers } from '@/features/account/stickers/servers/stickers.service'
+import { getMyStickerOrders } from '@/features/account/orders/servers/orders.service'
 import { ProfileHeader } from './components/profile-header'
 import { AccountStats } from './components/account-stats'
+import { RecentListings } from './components/recent-listings'
 import { AccountNav } from './components/account-nav'
 import { useAuth } from '@/shared/auth/auth-context'
 import type { Route } from './+types/index'
 
 export async function loader({ request }: Route.LoaderArgs) {
 	const session = await getServerSession(request)
-	if (!session) return { listings: [], stickers: [] }
-	const [items, stickerItems] = await Promise.all([
+	if (!session) return { listings: [], stickers: [], ordersCount: 0 }
+	const [items, stickerItems, orders] = await Promise.all([
 		getMyLostItems(request),
 		getMyStickers(request),
+		getMyStickerOrders(request),
 	])
 	return {
 		listings: items.map(toUserLostItem),
 		stickers: stickerItems.map(toSticker),
+		ordersCount: orders.length,
 	}
 }
 
@@ -73,9 +77,11 @@ function NotLoggedInView() {
 function DashboardView({
 	listings,
 	stickers,
+	ordersCount,
 }: {
 	listings: UserLostItem[]
 	stickers: Sticker[]
+	ordersCount: number
 }) {
 	const { user, logout } = useAuth()
 
@@ -85,7 +91,19 @@ function DashboardView({
 		<main className="flex-1">
 			<ProfileHeader user={user} onLogout={logout} />
 			<AccountStats stickers={stickers} listings={listings} />
-			<AccountNav stickers={stickers} listings={listings} />
+			<section className="pb-12">
+				<div className="container mx-auto px-4">
+					<div className="grid gap-6 lg:grid-cols-3">
+						<RecentListings listings={listings} className="lg:col-span-2" />
+						<AccountNav
+							stickers={stickers}
+							listings={listings}
+							ordersCount={ordersCount}
+							className="lg:col-span-1"
+						/>
+					</div>
+				</div>
+			</section>
 		</main>
 	)
 }
@@ -105,6 +123,7 @@ export default function ComptePage({ loaderData }: Route.ComponentProps) {
 		<DashboardView
 			listings={loaderData.listings}
 			stickers={loaderData.stickers}
+			ordersCount={loaderData.ordersCount}
 		/>
 	) : (
 		<NotLoggedInView />

@@ -47,13 +47,13 @@ export function MissionBento() {
 					</div>
 
 					<div className="bg-background flex flex-col gap-4 rounded-2xl border p-8 md:col-span-4">
-						<div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10">
-							<MapPin className="h-6 w-6 text-blue-500" />
+						<div className="bg-primary-green/10 inline-flex h-12 w-12 items-center justify-center rounded-xl">
+							<MapPin className="text-primary-green h-6 w-6" />
 						</div>
 						<div>
 							<h3 className="mb-1.5 text-lg font-bold">Couverture nationale</h3>
 							<p className="text-muted-foreground text-sm leading-relaxed">
-								Présent dans 26 villes ivoiriennes, de l&apos;Abidjan
+								Présent dans de nombreuses villes ivoiriennes, de l&apos;Abidjan
 								cosmopolite aux villes de l&apos;intérieur comme Bouaké,
 								Yamoussoukro et San-Pédro.
 							</p>
@@ -61,14 +61,14 @@ export function MissionBento() {
 					</div>
 
 					<div className="bg-muted/30 flex flex-col gap-4 rounded-2xl border p-8 md:col-span-4">
-						<div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-rose-500/10">
-							<Users className="h-6 w-6 text-rose-500" />
+						<div className="bg-accent-orange/10 inline-flex h-12 w-12 items-center justify-center rounded-xl">
+							<Users className="text-accent-orange h-6 w-6" />
 						</div>
 						<div>
 							<h3 className="mb-1.5 text-lg font-bold">Communauté active</h3>
 							<p className="text-muted-foreground text-sm leading-relaxed">
-								Plus de 15 000 utilisateurs font confiance à RetrouveCI chaque
-								mois pour signaler, chercher et retrouver leurs objets.
+								Une communauté grandissante d&apos;Ivoiriens fait confiance à
+								RetrouveCI pour signaler, chercher et retrouver leurs objets.
 							</p>
 						</div>
 					</div>

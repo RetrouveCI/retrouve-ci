@@ -1,5 +1,5 @@
-import { Button } from '@retrouve-ci/ui/components'
 import { Shield } from 'lucide-react'
+import { ChangePasswordDialog } from './change-password-dialog'
 
 export function SecuritySection() {
 	return (
@@ -10,28 +10,15 @@ export function SecuritySection() {
 					Sécurité
 				</h2>
 			</div>
-			<div className="space-y-4 p-5">
-				<div className="flex items-center justify-between py-3">
+			<div className="p-5">
+				<div className="flex items-center justify-between gap-3">
 					<div>
-						<p className="text-sm font-medium">Changer le code PIN</p>
+						<p className="text-sm font-medium">Mot de passe</p>
 						<p className="text-muted-foreground text-xs">
-							Modifiez votre code de connexion
+							Modifiez votre mot de passe de connexion
 						</p>
 					</div>
-					<Button variant="outline" size="sm" className="rounded-xl">
-						Modifier
-					</Button>
-				</div>
-				<div className="flex items-center justify-between border-t py-3">
-					<div>
-						<p className="text-sm font-medium">Sessions actives</p>
-						<p className="text-muted-foreground text-xs">
-							Gérez vos appareils connectés
-						</p>
-					</div>
-					<Button variant="outline" size="sm" className="rounded-xl">
-						Voir
-					</Button>
+					<ChangePasswordDialog />
 				</div>
 			</div>
 		</div>

@@ -59,7 +59,7 @@ const CATEGORIES: {
 ]
 
 export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
-	const { listings } = loaderData
+	const { listings, total, pageSize } = loaderData
 
 	const {
 		searchQuery,
@@ -81,19 +81,17 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 		viewMode,
 		setViewMode,
 		activeFiltersCount,
-		filteredListings,
-		paginatedListings,
 		totalPages,
 		resetFilters,
 		activeChips,
-	} = usePostsFilters(listings)
+	} = usePostsFilters({ total, pageSize })
 
 	return (
 		<main className="flex-1">
 			<PostsHero
 				searchQuery={searchQuery}
 				onSearchChange={setSearchQuery}
-				listingsCount={listings.length}
+				listingsCount={total}
 			/>
 
 			<section className="py-8 md:py-10">
@@ -239,8 +237,8 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 
 						<TabsContent value={activeTab} className="mt-0">
 							<ListingsContent
-								paginatedListings={paginatedListings}
-								filteredCount={filteredListings.length}
+								paginatedListings={listings}
+								filteredCount={total}
 								viewMode={viewMode}
 								searchQuery={searchQuery}
 								currentPage={currentPage}

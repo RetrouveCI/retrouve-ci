@@ -12,6 +12,7 @@ import {
 	type FieldMetadata,
 } from '@conform-to/react'
 import { cn } from '@retrouve-ci/ui/utils'
+import { Package } from 'lucide-react'
 import type { LostItemCategory } from '@/shared/types/lost-item'
 import {
 	InputLabel,
@@ -19,6 +20,7 @@ import {
 	FieldError,
 } from '@retrouve-ci/ui/components/form'
 import { ImageUpload } from './image-upload'
+import { SectionHeader } from './section-header'
 import { OBJECT_TYPES } from '../publish.const'
 
 interface ObjectInfoSectionProps {
@@ -34,6 +36,7 @@ interface ObjectInfoSectionProps {
 	photoVariant: 'optional' | 'recommended'
 	photoBadge?: string
 	photoBadgeClassName?: string
+	step?: number
 }
 
 export function ObjectInfoSection({
@@ -49,14 +52,19 @@ export function ObjectInfoSection({
 	photoVariant,
 	photoBadge,
 	photoBadgeClassName,
+	step,
 }: ObjectInfoSectionProps) {
 	const objectTypeControl = useInputControl(objectType)
 
 	return (
 		<div className="bg-background space-y-5 rounded-2xl border p-6">
-			<h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
-				Informations sur l&apos;objet
-			</h2>
+			<SectionHeader
+				step={step}
+				icon={Package}
+				title="Informations sur l'objet"
+				description="Titre, type et description détaillée."
+				accentColor={accentColor}
+			/>
 
 			<InputField
 				field={title}

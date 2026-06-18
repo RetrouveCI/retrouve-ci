@@ -1,6 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator'
+import {
+	IsDateString,
+	IsIn,
+	IsInt,
+	IsOptional,
+	IsString,
+	Max,
+	Min,
+} from 'class-validator'
 import {
 	DEFAULT_PAGE_SIZE,
 	LOST_ITEM_CATEGORIES,
@@ -28,12 +36,27 @@ export class ListLostItemsQueryDto {
 	@IsString()
 	ville?: string
 
+	@ApiPropertyOptional()
+	@IsOptional()
+	@IsString()
+	commune?: string
+
 	@ApiPropertyOptional({
 		description: 'Recherche textuelle dans le titre et la description',
 	})
 	@IsOptional()
 	@IsString()
 	search?: string
+
+	@ApiPropertyOptional({ description: 'Date de début (ISO 8601)' })
+	@IsOptional()
+	@IsDateString()
+	dateFrom?: string
+
+	@ApiPropertyOptional({ description: 'Date de fin (ISO 8601)' })
+	@IsOptional()
+	@IsDateString()
+	dateTo?: string
 
 	@ApiPropertyOptional({ minimum: 1, default: 1 })
 	@IsOptional()
