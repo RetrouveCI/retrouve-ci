@@ -1,14 +1,21 @@
 import { useEffect } from 'react'
 import { useFetcher, useRevalidator } from 'react-router'
-import { TopBar } from '@/shared/components/topbar'
 import { UserProfileSidebar } from './components/user-profile-sidebar'
 import { userLoader } from './servers/user.loader'
 import { usersAction } from '../servers/users.action'
 import { toast } from 'sonner'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = userLoader
 export const action = usersAction
+
+export const handle: RouteHandle = {
+	title: data =>
+		(data as Route.ComponentProps['loaderData'] | undefined)?.user?.name ??
+		'Utilisateur',
+	breadcrumb: [{ label: 'Utilisateurs', to: '/users' }],
+}
 
 interface ActionResult {
 	ok: boolean
@@ -42,8 +49,7 @@ export default function UserDetailPage({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<>
-			<TopBar title={user.name} />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-6 p-4 lg:p-6">
 					<div className="grid gap-6 lg:grid-cols-3">
 						<UserProfileSidebar

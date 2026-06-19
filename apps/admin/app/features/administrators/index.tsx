@@ -24,7 +24,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
 import { AdminStatsGrid } from './components/admin-stats-grid'
@@ -47,10 +46,13 @@ import {
 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Admin, AdminRole, AdminStatus } from './administrators.types'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = administratorsLoader
 export const action = administratorsAction
+
+export const handle: RouteHandle = { title: 'Administrateurs' }
 
 const ROLE_CONFIG: Record<
 	AdminRole,
@@ -296,8 +298,7 @@ export default function AdministratorsPage({
 
 	return (
 		<>
-			<TopBar title="Administrateurs" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<AdminStatsGrid
 						total={counts.total}

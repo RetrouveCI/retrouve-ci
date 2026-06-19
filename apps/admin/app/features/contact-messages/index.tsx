@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useFetcher } from 'react-router'
 import { Badge, Button } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
 import { cn } from '@retrouve-ci/ui/utils'
@@ -17,10 +16,13 @@ import type {
 import { ContactMessageDetailDialog } from './components/contact-message-detail-dialog'
 import { contactMessagesLoader } from './servers/contact-messages.loader'
 import { contactMessagesAction } from './servers/contact-messages.action'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = contactMessagesLoader
 export const action = contactMessagesAction
+
+export const handle: RouteHandle = { title: 'Messages de contact' }
 
 const STATUS_FILTERS = ['all', 'new', 'read', 'archived'] as const
 type StatusFilter = (typeof STATUS_FILTERS)[number]
@@ -174,8 +176,7 @@ export default function ContactMessagesPage({
 
 	return (
 		<>
-			<TopBar title="Messages de contact" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<BentoCard variant="table">
 						<div className="border-b px-5 py-4">

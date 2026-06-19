@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment } from 'react'
 import { Link, useNavigate } from 'react-router'
 import {
 	Avatar,
@@ -11,25 +11,19 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components'
+import { cn } from '@retrouve-ci/ui/utils'
 import { useAuth } from '@/shared/auth/auth-context'
-import { apiFetch } from '@/shared/lib/api-client'
+import { usePageMeta } from '@/shared/lib/page-meta'
 import { MobileSidebar } from './sidebar'
-import { Bell, LogOut, User, ChevronDown } from 'lucide-react'
+import { useDashboard } from './dashboard-context'
+import { Bell, LogOut, User, ChevronDown, ChevronRight } from 'lucide-react'
 
-interface TopBarProps {
-	title: string
-}
-
-export function TopBar({ title }: TopBarProps) {
+export function TopBar() {
 	const { user, logout } = useAuth()
 	const navigate = useNavigate()
-	const [unreadCount, setUnreadCount] = useState(0)
-
-	useEffect(() => {
-		apiFetch<{ count: number }>('/notifications/unread-count')
-			.then(res => setUnreadCount(res.count))
-			.catch(() => {})
-	}, [])
+	const { title, breadcrumb } = usePageMeta()
+	const { collapsed, counts } = useDashboard()
+	const unreadCount = counts.notificationsUnread
 
 	const handleLogout = async () => {
 		await logout()
@@ -37,11 +31,35 @@ export function TopBar({ title }: TopBarProps) {
 	}
 
 	return (
-		<header className="bg-card/95 fixed top-0 right-0 left-0 z-20 h-16 border-b backdrop-blur-sm lg:left-64">
+		<header
+			className={cn(
+				'bg-card/95 fixed top-0 right-0 left-0 z-20 h-16 border-b backdrop-blur-sm transition-[left] duration-200',
+				collapsed ? 'lg:left-20' : 'lg:left-64',
+			)}
+		>
 			<div className="flex h-full items-center justify-between px-4 lg:px-6">
-				<div className="flex items-center gap-2">
+				<div className="flex min-w-0 items-center gap-2">
 					<MobileSidebar />
-					<h2 className="text-base font-semibold lg:text-lg">{title}</h2>
+					<div className="min-w-0">
+						{breadcrumb.length > 0 && (
+							<nav className="text-muted-foreground flex items-center gap-1 text-xs">
+								{breadcrumb.map(crumb => (
+									<Fragment key={crumb.to}>
+										<Link
+											to={crumb.to}
+											className="hover:text-foreground transition-colors"
+										>
+											{crumb.label}
+										</Link>
+										<ChevronRight size={12} className="shrink-0" />
+									</Fragment>
+								))}
+							</nav>
+						)}
+						<h2 className="truncate text-base font-semibold lg:text-lg">
+							{title}
+						</h2>
+					</div>
 				</div>
 
 				<div className="flex items-center gap-1">

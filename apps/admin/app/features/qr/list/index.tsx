@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { QrStatsGrid } from './components/qr-stats-grid'
 import { QrTokensFilters } from './components/qr-tokens-filters'
@@ -10,9 +9,12 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
 import type { DateRange } from 'react-day-picker'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = qrLoader
+
+export const handle: RouteHandle = { title: 'Stickers / QR Codes' }
 
 export default function QrCodesPage({ loaderData }: Route.ComponentProps) {
 	const { tokens, statusFilter } = loaderData
@@ -81,8 +83,7 @@ export default function QrCodesPage({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<>
-			<TopBar title="Stickers / QR Codes" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<QrStatsGrid
 						total={tokens.length}

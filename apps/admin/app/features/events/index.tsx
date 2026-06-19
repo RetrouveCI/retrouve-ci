@@ -22,7 +22,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
 import { EventsStatsGrid } from './components/events-stats-grid'
@@ -44,10 +43,13 @@ import {
 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Event, EventStatus } from './events.types'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = eventsLoader
 export const action = eventsAction
+
+export const handle: RouteHandle = { title: 'Événements' }
 
 const STATUS_CONFIG: Record<
 	EventStatus,
@@ -253,8 +255,7 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<>
-			<TopBar title="Événements" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<EventsStatsGrid events={events} total={total} />
 

@@ -18,7 +18,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
 import { PostsStatsGrid } from './components/posts-stats-grid'
@@ -38,10 +37,13 @@ import {
 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Post, ModerationStatus } from './posts.types'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = postsLoader
 export const action = postsAction
+
+export const handle: RouteHandle = { title: 'Posts' }
 
 const CATEGORY_LABELS: Record<string, string> = {
 	phone: 'Téléphone',
@@ -243,8 +245,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<>
-			<TopBar title="Posts" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<PostsStatsGrid
 						total={counts.total}

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useFetcher } from 'react-router'
 import { Button } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { TokenDetailsCard } from './components/token-details-card'
@@ -11,10 +10,20 @@ import { RevokeTokenDialog } from './components/revoke-token-dialog'
 import { qrTokenLoader } from './servers/qr-token.loader'
 import { qrTokenAction } from './servers/qr-token.action'
 import type { QrToken } from '../qr.types'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = qrTokenLoader
 export const action = qrTokenAction
+
+export const handle: RouteHandle = {
+	title: data => {
+		const token = (data as Route.ComponentProps['loaderData'] | undefined)
+			?.token
+		return token ? `Token ${token.code}` : 'Token'
+	},
+	breadcrumb: [{ label: 'Stickers / QR', to: '/qr' }],
+}
 
 interface ActionResult {
 	ok: boolean
@@ -56,8 +65,7 @@ export default function QrTokenDetailPage({
 
 	return (
 		<>
-			<TopBar title={`Token ${token.code}`} />
-			<div className="pt-16">
+			<div>
 				<div className="p-4 lg:p-6">
 					<div className="grid gap-6 lg:grid-cols-3">
 						<div className="space-y-6 lg:col-span-2">
@@ -93,8 +101,7 @@ export default function QrTokenDetailPage({
 export function ErrorBoundary() {
 	return (
 		<>
-			<TopBar title="Token non trouvé" />
-			<div className="pt-16">
+			<div>
 				<div className="p-4 lg:p-6">
 					<div className="flex flex-col items-center justify-center py-12 text-center">
 						<AlertTriangle className="text-muted-foreground h-12 w-12" />
