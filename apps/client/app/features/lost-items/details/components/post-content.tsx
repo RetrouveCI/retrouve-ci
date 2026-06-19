@@ -1,6 +1,6 @@
-import { Button, Badge } from '@retrouve-ci/ui/components'
-import { MapPin, Calendar, Tag, Share2, Flag, Package } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { Button } from '@retrouve-ci/ui/components'
+import { MapPin, Calendar, Tag, Share2, Flag } from 'lucide-react'
+import { PostGallery } from './post-gallery'
 
 interface LostItem {
 	title: string
@@ -9,7 +9,7 @@ interface LostItem {
 	date: string
 	type: 'lost' | 'found'
 	category: string
-	image?: string
+	images?: string[]
 }
 
 export function PostContent({ listing }: { listing: LostItem }) {
@@ -17,30 +17,11 @@ export function PostContent({ listing }: { listing: LostItem }) {
 
 	return (
 		<div className="space-y-6 lg:col-span-3">
-			<div className="bg-muted relative aspect-4/3 overflow-hidden rounded-2xl">
-				{listing.image ? (
-					<img
-						src={listing.image}
-						alt={listing.title}
-						className="absolute inset-0 h-full w-full object-cover"
-					/>
-				) : (
-					<div className="from-muted to-muted/50 absolute inset-0 flex items-center justify-center bg-linear-to-br">
-						<Package className="text-muted-foreground/30 h-24 w-24" />
-					</div>
-				)}
-
-				<Badge
-					className={cn(
-						'absolute top-4 left-4 px-3 py-1 text-sm',
-						isLost
-							? 'bg-accent-orange border-0 text-white'
-							: 'bg-primary-green border-0 text-white',
-					)}
-				>
-					{isLost ? 'Objet perdu' : 'Objet retrouvé'}
-				</Badge>
-			</div>
+			<PostGallery
+				images={listing.images ?? []}
+				title={listing.title}
+				isLost={isLost}
+			/>
 
 			<div>
 				<h1 className="mb-4 text-2xl font-bold md:text-3xl">{listing.title}</h1>

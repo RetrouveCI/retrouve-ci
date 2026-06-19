@@ -45,15 +45,7 @@ const progressItems = (fields: ReturnType<typeof usePublishForm>['fields']) => [
 ]
 
 export default function PublishLostPage() {
-	const {
-		form,
-		fields,
-		imagePreview,
-		setImagePreview,
-		handleImageChange,
-		progress,
-		isSubmitting,
-	} = usePublishForm()
+	const { form, fields, progress, isSubmitting } = usePublishForm()
 
 	return (
 		<main className="bg-muted/20 flex-1">
@@ -76,15 +68,17 @@ export default function PublishLostPage() {
 							description="Décrivez votre objet pour que quelqu'un puisse vous aider."
 						/>
 
-						<Form method="post" {...getFormProps(form)} className="space-y-5">
+						<Form
+							method="post"
+							{...getFormProps(form)}
+							encType="multipart/form-data"
+							className="space-y-5"
+						>
 							<ObjectInfoSection
 								step={1}
 								title={fields.title}
 								objectType={fields.objectType}
 								description={fields.description}
-								imagePreview={imagePreview}
-								setImagePreview={setImagePreview}
-								handleImageChange={handleImageChange}
 								accentColor={ACCENT}
 								counterAccentClass="text-accent-orange"
 								descriptionPlaceholder="Couleur, marque, signes distinctifs, contenu..."

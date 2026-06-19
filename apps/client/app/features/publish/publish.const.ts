@@ -1,3 +1,7 @@
+export const MAX_PHOTOS = 5
+export const MAX_PHOTO_SIZE = 5 * 1024 * 1024 // 5 Mo
+export const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
 export const OBJECT_TYPES = [
 	{ value: 'phone', label: 'Téléphone' },
 	{ value: 'keys', label: 'Clés' },

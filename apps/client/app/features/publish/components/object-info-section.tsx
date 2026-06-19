@@ -19,7 +19,7 @@ import {
 	InputField,
 	FieldError,
 } from '@retrouve-ci/ui/components/form'
-import { ImageUpload } from './image-upload'
+import { PhotosUpload } from './photos-upload'
 import { SectionHeader } from './section-header'
 import { OBJECT_TYPES } from '../publish.const'
 
@@ -27,9 +27,6 @@ interface ObjectInfoSectionProps {
 	title: FieldMetadata<string>
 	objectType: FieldMetadata<LostItemCategory>
 	description: FieldMetadata<string>
-	imagePreview: string | null
-	setImagePreview: (preview: string | null) => void
-	handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 	accentColor: string
 	counterAccentClass: string
 	descriptionPlaceholder: string
@@ -43,9 +40,6 @@ export function ObjectInfoSection({
 	title,
 	objectType,
 	description,
-	imagePreview,
-	setImagePreview,
-	handleImageChange,
 	accentColor,
 	counterAccentClass,
 	descriptionPlaceholder,
@@ -124,7 +118,7 @@ export function ObjectInfoSection({
 			<div className="space-y-2">
 				{photoBadge ? (
 					<div className="flex items-center gap-2">
-						<InputLabel>Photo</InputLabel>
+						<InputLabel>Photos</InputLabel>
 						<span
 							className={cn(
 								'rounded-full border px-2 py-0.5 text-[10px] font-semibold',
@@ -136,19 +130,13 @@ export function ObjectInfoSection({
 					</div>
 				) : (
 					<InputLabel>
-						Photo{' '}
+						Photos{' '}
 						<span className="text-muted-foreground text-xs font-normal">
 							(optionnel)
 						</span>
 					</InputLabel>
 				)}
-				<ImageUpload
-					preview={imagePreview}
-					onRemove={() => setImagePreview(null)}
-					onChange={handleImageChange}
-					variant={photoVariant}
-					accentColor={accentColor}
-				/>
+				<PhotosUpload variant={photoVariant} accentColor={accentColor} />
 			</div>
 		</div>
 	)

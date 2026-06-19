@@ -16,7 +16,12 @@ import {
 	Eye,
 	MessageCircle,
 	CalendarDays,
+	CheckCircle2,
+	EyeOff,
+	Clock,
 } from 'lucide-react'
+import { cn } from '@retrouve-ci/ui/utils'
+import { PostPhotos } from './post-photos'
 import type { Post, ModerationStatus } from '../posts.types'
 
 const MODERATION_CONFIG: Record<
@@ -49,6 +54,11 @@ const CATEGORY_LABELS: Record<string, string> = {
 	other: 'Autre',
 }
 
+interface MetaItem {
+	icon: typeof MapPin
+	value: string
+}
+
 interface PostDetailDialogProps {
 	post: Post | null
 	open: boolean
@@ -67,26 +77,45 @@ export function PostDetailDialog({
 	if (!post) return null
 
 	const moderationCfg = MODERATION_CONFIG[post.moderationStatus]
+	const isLost = post.type === 'lost'
+
+	const metaItems: MetaItem[] = [
+		{
+			icon: MapPin,
+			value: `${post.ville}${post.commune ? ` · ${post.commune}` : ''}`,
+		},
+		{
+			icon: CalendarDays,
+			value: format(new Date(post.eventDate), 'dd MMM yyyy', { locale: fr }),
+		},
+		{ icon: User, value: post.contactName },
+		{ icon: Phone, value: post.contactWhatsapp },
+		{ icon: Eye, value: `${post.views} vues` },
+		{ icon: MessageCircle, value: `${post.contactsCount} contacts` },
+	]
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl">
-				<DialogHeader>
-					<DialogTitle className="flex items-center gap-2 pr-6">
+			<DialogContent className="max-h-[90vh] gap-0 overflow-y-auto p-0 sm:max-w-3xl">
+				<DialogHeader className="space-y-0 px-6 pt-6 pb-4">
+					<DialogTitle className="flex items-center gap-2 pr-6 text-lg">
 						<Badge
-							className={
-								post.type === 'lost'
+							className={cn(
+								'border-0',
+								isLost
 									? 'bg-red-50 text-red-700 hover:bg-red-50'
-									: 'bg-green-50 text-green-700 hover:bg-green-50'
-							}
+									: 'bg-green-50 text-green-700 hover:bg-green-50',
+							)}
 						>
-							{post.type === 'lost' ? 'Perdu' : 'Retrouvé'}
+							{isLost ? 'Perdu' : 'Retrouvé'}
 						</Badge>
 						<span className="truncate">{post.title}</span>
 					</DialogTitle>
 				</DialogHeader>
 
-				<div className="space-y-4">
+				<div className="space-y-5 px-6 pb-6">
+					<PostPhotos photos={post.photos} title={post.title} />
+
 					<div className="flex flex-wrap items-center gap-2">
 						<Badge className={moderationCfg.className}>
 							{moderationCfg.label}
@@ -101,54 +130,25 @@ export function PostDetailDialog({
 						)}
 					</div>
 
-					<p className="text-sm leading-relaxed">{post.description}</p>
-
-					<div className="grid grid-cols-2 gap-3 text-sm">
-						<div className="flex items-center gap-2">
-							<MapPin className="text-muted-foreground h-4 w-4 shrink-0" />
-							<span>
-								{post.ville}
-								{post.commune ? ` · ${post.commune}` : ''}
-							</span>
-						</div>
-						<div className="flex items-center gap-2">
-							<CalendarDays className="text-muted-foreground h-4 w-4 shrink-0" />
-							<span>
-								{format(new Date(post.eventDate), 'dd MMM yyyy', {
-									locale: fr,
-								})}
-							</span>
-						</div>
-						<div className="flex items-center gap-2">
-							<User className="text-muted-foreground h-4 w-4 shrink-0" />
-							<span>{post.contactName}</span>
-						</div>
-						<div className="flex items-center gap-2">
-							<Phone className="text-muted-foreground h-4 w-4 shrink-0" />
-							<span className="font-mono">{post.contactWhatsapp}</span>
-						</div>
-						<div className="flex items-center gap-2">
-							<Eye className="text-muted-foreground h-4 w-4 shrink-0" />
-							<span>{post.views} vues</span>
-						</div>
-						<div className="flex items-center gap-2">
-							<MessageCircle className="text-muted-foreground h-4 w-4 shrink-0" />
-							<span>{post.contactsCount} contacts</span>
-						</div>
+					<div className="bg-muted/40 rounded-xl border p-4">
+						<p className="text-sm leading-relaxed whitespace-pre-line">
+							{post.description}
+						</p>
 					</div>
 
-					{post.photos.length > 0 && (
-						<div className="flex flex-wrap gap-2">
-							{post.photos.map((url, i) => (
-								<img
-									key={i}
-									src={url}
-									alt={`Photo ${i + 1}`}
-									className="h-20 w-20 rounded-lg object-cover"
-								/>
-							))}
-						</div>
-					)}
+					<div className="grid gap-2.5 sm:grid-cols-2">
+						{metaItems.map(({ icon: Icon, value }, i) => (
+							<div
+								key={i}
+								className="bg-muted/30 flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm"
+							>
+								<span className="bg-background text-muted-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded-md border">
+									<Icon className="h-4 w-4" />
+								</span>
+								<span className="truncate">{value}</span>
+							</div>
+						))}
+					</div>
 
 					<p className="text-muted-foreground text-xs">
 						Publié le{' '}
@@ -158,7 +158,7 @@ export function PostDetailDialog({
 					</p>
 				</div>
 
-				<DialogFooter className="flex-wrap gap-2">
+				<DialogFooter className="bg-muted/20 flex-wrap gap-2 border-t px-6 py-4">
 					<Button variant="outline" onClick={() => onOpenChange(false)}>
 						Fermer
 					</Button>
@@ -168,6 +168,7 @@ export function PostDetailDialog({
 							onClick={() => onModerate(post.id, 'published')}
 							disabled={isModerating}
 						>
+							<CheckCircle2 className="mr-2 h-4 w-4" />
 							Approuver
 						</Button>
 					)}
@@ -178,6 +179,7 @@ export function PostDetailDialog({
 							onClick={() => onModerate(post.id, 'hidden')}
 							disabled={isModerating}
 						>
+							<EyeOff className="mr-2 h-4 w-4" />
 							Masquer
 						</Button>
 					)}
@@ -187,6 +189,7 @@ export function PostDetailDialog({
 							onClick={() => onModerate(post.id, 'pending')}
 							disabled={isModerating}
 						>
+							<Clock className="mr-2 h-4 w-4" />
 							Remettre en attente
 						</Button>
 					)}

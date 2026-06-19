@@ -24,6 +24,7 @@ export interface LostItem {
 	type: LostItemType
 	category: LostItemCategory | string
 	image?: string
+	images?: string[]
 }
 
 export interface UserLostItem extends LostItem {
