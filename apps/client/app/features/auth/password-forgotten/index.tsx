@@ -1,9 +1,16 @@
 import { Link } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
+import { redirectIfAuthenticated } from '@/shared/auth/auth.server'
 import { PhoneForm } from './components/phone-form'
 import { passwordForgottenAction } from './servers/password-forgotten.action'
+import type { Route } from './+types/index'
 
 export const action = passwordForgottenAction
+
+export async function loader({ request }: Route.LoaderArgs) {
+	await redirectIfAuthenticated(request)
+	return null
+}
 
 export default function PasswordForgottenPage() {
 	return (

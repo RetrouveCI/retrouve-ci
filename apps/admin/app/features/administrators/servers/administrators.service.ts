@@ -24,16 +24,25 @@ function mapUser(user: BetterAuthUser): Admin {
 	}
 }
 
-export async function listAdminUsers(cookie: string): Promise<Admin[]> {
+interface ServerHeaders {
+	cookie: string
+	origin: string
+}
+
+function authHeaders(h: ServerHeaders): Record<string, string> {
+	return { Cookie: h.cookie, Origin: h.origin }
+}
+
+export async function listAdminUsers(headers: ServerHeaders): Promise<Admin[]> {
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
 		'/api/auth/admin/list-users?limit=200&filterField=role&filterOperator=ne&filterValue=user',
-		{ headers: { Cookie: cookie } },
+		{ headers: authHeaders(headers) },
 	)
 	return res.users.filter(u => u.role !== 'user').map(mapUser)
 }
 
 export async function createAdminUser(
-	cookie: string,
+	headers: ServerHeaders,
 	data: {
 		name: string
 		email: string
@@ -47,7 +56,7 @@ export async function createAdminUser(
 		'/api/auth/admin/create-user',
 		{
 			method: 'POST',
-			headers: { Cookie: cookie },
+			headers: authHeaders(headers),
 			body: JSON.stringify({
 				...rest,
 				data: phone ? { phoneNumber: phone } : undefined,
@@ -58,53 +67,57 @@ export async function createAdminUser(
 }
 
 export async function setAdminRole(
-	cookie: string,
+	headers: ServerHeaders,
 	userId: string,
 	role: string,
 ): Promise<void> {
 	await apiFetch('/api/auth/admin/set-role', {
 		method: 'POST',
-		headers: { Cookie: cookie },
+		headers: authHeaders(headers),
 		body: JSON.stringify({ userId, role }),
 	})
 }
 
 export async function banAdminUser(
-	cookie: string,
+	headers: ServerHeaders,
 	userId: string,
 ): Promise<void> {
 	await apiFetch('/api/auth/admin/ban-user', {
 		method: 'POST',
-		headers: { Cookie: cookie },
+		headers: authHeaders(headers),
 		body: JSON.stringify({ userId }),
 	})
 }
 
 export async function unbanAdminUser(
-	cookie: string,
+	headers: ServerHeaders,
 	userId: string,
 ): Promise<void> {
 	await apiFetch('/api/auth/admin/unban-user', {
 		method: 'POST',
-		headers: { Cookie: cookie },
+		headers: authHeaders(headers),
 		body: JSON.stringify({ userId }),
 	})
 }
 
 export async function removeAdminUser(
-	cookie: string,
+	headers: ServerHeaders,
 	userId: string,
 ): Promise<void> {
 	await apiFetch('/api/auth/admin/remove-user', {
 		method: 'POST',
-		headers: { Cookie: cookie },
+		headers: authHeaders(headers),
 		body: JSON.stringify({ userId }),
 	})
 }
 
-export async function sendPasswordReset(email: string): Promise<void> {
+export async function sendPasswordReset(
+	headers: ServerHeaders,
+	email: string,
+): Promise<void> {
 	await apiFetch('/api/auth/forget-password', {
 		method: 'POST',
+		headers: authHeaders(headers),
 		body: JSON.stringify({ email, redirectTo: '/auth/reset-password' }),
 	})
 }

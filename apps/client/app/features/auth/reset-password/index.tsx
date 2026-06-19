@@ -1,11 +1,18 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
+import { redirectIfAuthenticated } from '@/shared/auth/auth.server'
 import { OtpStepSection } from './components/otp-step-section'
 import { NewPasswordStepSection } from './components/new-password-step-section'
 import { resetPasswordAction } from './servers/reset-password.action'
+import type { Route } from './+types/index'
 
 export const action = resetPasswordAction
+
+export async function loader({ request }: Route.LoaderArgs) {
+	await redirectIfAuthenticated(request)
+	return null
+}
 
 type Step = 'otp' | 'new-password'
 

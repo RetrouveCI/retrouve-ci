@@ -10,7 +10,7 @@ import {
 
 export async function settingsAction({ request }: { request: Request }) {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth')
+	if (!session) throw redirect('/auth/login')
 
 	const submission = settingsActionSchema.safeParse(
 		Object.fromEntries(await request.formData()),
@@ -39,7 +39,8 @@ export async function settingsAction({ request }: { request: Request }) {
 		}
 		return { ok: true }
 	} catch (err) {
-		if (err instanceof ApiError && err.status === 401) throw redirect('/auth')
+		if (err instanceof ApiError && err.status === 401)
+			throw redirect('/auth/login')
 		if (err instanceof ApiError) {
 			return data({ ok: false, error: err.message }, { status: err.status })
 		}

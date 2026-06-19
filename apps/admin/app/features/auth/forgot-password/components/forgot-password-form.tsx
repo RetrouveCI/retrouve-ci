@@ -1,14 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useFetcher } from 'react-router'
-import {
-	Button,
-	Field,
-	FieldGroup,
-	FieldLabel,
-	Input,
-} from '@retrouve-ci/ui/components'
-import { FieldError } from '@retrouve-ci/ui/components/form'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
+import { Button, Input } from '@retrouve-ci/ui/components'
+import { InputLabel, FieldError } from '@retrouve-ci/ui/components/form'
+import { useForm, getFormProps, getInputProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { Loader2, Mail } from 'lucide-react'
 import { toast } from 'sonner'
@@ -22,9 +16,12 @@ interface ActionResult {
 export function ForgotPasswordForm() {
 	const fetcher = useFetcher<ActionResult>()
 	const isSubmitting = fetcher.state !== 'idle'
+	const processedRef = useRef<ActionResult | undefined>(undefined)
 
 	useEffect(() => {
 		if (fetcher.state !== 'idle' || !fetcher.data) return
+		if (fetcher.data === processedRef.current) return
+		processedRef.current = fetcher.data
 
 		if (fetcher.data.ok) {
 			toast.success('Instructions envoyées', {
@@ -52,32 +49,25 @@ export function ForgotPasswordForm() {
 		},
 	})
 
-	const emailControl = useInputControl(fields.email)
-
 	return (
 		<form {...getFormProps(form)} className="space-y-5">
-			<FieldGroup>
-				<Field>
-					<FieldLabel htmlFor="email" className="text-sm font-medium">
-						Email
-					</FieldLabel>
-					<div className="relative">
-						<Mail className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-						<Input
-							id="email"
-							name="email"
-							type="email"
-							placeholder="admin@retrouveci.com"
-							className="h-10 rounded-lg pl-9"
-							value={emailControl.value ?? ''}
-							onChange={e => emailControl.change(e.target.value)}
-							disabled={isSubmitting}
-							autoFocus
-						/>
-					</div>
-					<FieldError errors={fields.email.errors} />
-				</Field>
-			</FieldGroup>
+			<div className="space-y-2">
+				<InputLabel htmlFor={fields.email.id} className="text-sm font-medium">
+					Email
+				</InputLabel>
+				<div className="relative">
+					<Mail className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+					<Input
+						{...getInputProps(fields.email, { type: 'email' })}
+						key={fields.email.key}
+						placeholder="admin@retrouveci.com"
+						className="h-10 rounded-lg pl-9"
+						disabled={isSubmitting}
+						autoFocus
+					/>
+				</div>
+				<FieldError errors={fields.email.errors} />
+			</div>
 
 			<Button
 				type="submit"

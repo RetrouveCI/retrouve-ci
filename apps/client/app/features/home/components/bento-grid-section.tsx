@@ -42,7 +42,7 @@ export function BentoGridSection() {
 
 				<div className="mx-auto grid max-w-6xl grid-cols-12 gap-4">
 					<div className="group col-span-12 md:col-span-8">
-						<div className="bg-primary-green relative h-full min-h-[280px] overflow-hidden rounded-3xl p-8 transition-all duration-500 hover:shadow-2xl">
+						<div className="bg-primary-green relative h-full min-h-70 overflow-hidden rounded-3xl p-8 transition-all duration-500 hover:shadow-2xl">
 							<div className="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-black/10" />
 							<div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
 							<div className="relative z-10 flex h-full flex-col">
@@ -68,7 +68,7 @@ export function BentoGridSection() {
 					</div>
 
 					<div className="group col-span-12 md:col-span-4">
-						<div className="bg-background border-border/50 hover:border-border relative h-full min-h-[280px] overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-lg">
+						<div className="bg-background border-border/50 hover:border-border relative h-full min-h-70 overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-lg">
 							<div className="flex h-full flex-col justify-between">
 								<div>
 									<div className="bg-accent-orange/10 mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
@@ -103,7 +103,7 @@ export function BentoGridSection() {
 					</div>
 
 					<div className="group col-span-12 md:col-span-4 md:row-span-2">
-						<div className="bg-background border-border/50 hover:border-border relative h-full min-h-[400px] overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-lg">
+						<div className="bg-background border-border/50 hover:border-border relative h-full min-h-100 overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-lg">
 							<div className="flex h-full flex-col">
 								<div className="bg-accent-orange/10 mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
 									<Bell className="text-accent-orange h-6 w-6" />
@@ -161,7 +161,7 @@ export function BentoGridSection() {
 					</div>
 
 					<div className="group col-span-6 md:col-span-4">
-						<div className="border-border/50 relative h-full min-h-[180px] overflow-hidden rounded-3xl border bg-linear-to-br from-blue-500/10 to-blue-600/5 p-6 transition-all duration-300 hover:border-blue-500/30 hover:shadow-lg">
+						<div className="border-border/50 relative h-full min-h-45 overflow-hidden rounded-3xl border bg-linear-to-br from-blue-500/10 to-blue-600/5 p-6 transition-all duration-300 hover:border-blue-500/30 hover:shadow-lg">
 							<div className="flex h-full flex-col">
 								<div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10 transition-transform group-hover:scale-110">
 									<Clock className="h-5 w-5 text-blue-600" />
@@ -175,7 +175,7 @@ export function BentoGridSection() {
 					</div>
 
 					<div className="group col-span-6 md:col-span-4">
-						<div className="border-border/50 relative h-full min-h-[180px] overflow-hidden rounded-3xl border bg-linear-to-br from-purple-500/10 to-purple-600/5 p-6 transition-all duration-300 hover:border-purple-500/30 hover:shadow-lg">
+						<div className="border-border/50 relative h-full min-h-45 overflow-hidden rounded-3xl border bg-linear-to-br from-purple-500/10 to-purple-600/5 p-6 transition-all duration-300 hover:border-purple-500/30 hover:shadow-lg">
 							<div className="flex h-full flex-col">
 								<div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10 transition-transform group-hover:scale-110">
 									<Users className="h-5 w-5 text-purple-600" />
@@ -189,7 +189,7 @@ export function BentoGridSection() {
 					</div>
 
 					<div className="group col-span-12 md:col-span-8">
-						<div className="border-border/50 from-accent-orange/10 via-accent-orange/5 hover:border-accent-orange/30 relative h-full min-h-[220px] overflow-hidden rounded-3xl border bg-linear-to-r to-transparent p-8 transition-all duration-300 hover:shadow-lg">
+						<div className="border-border/50 from-accent-orange/10 via-accent-orange/5 hover:border-accent-orange/30 relative h-full min-h-55 overflow-hidden rounded-3xl border bg-linear-to-r to-transparent p-8 transition-all duration-300 hover:shadow-lg">
 							<div className="bg-accent-orange/10 absolute -right-10 -bottom-10 h-40 w-40 rounded-full blur-2xl" />
 							<div className="relative z-10 flex h-full flex-col items-start gap-6 md:flex-row md:items-center">
 								<div className="bg-accent-orange/10 flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl transition-transform group-hover:scale-110">
@@ -217,7 +217,7 @@ export function BentoGridSection() {
 
 					<div className="group col-span-12 md:col-span-4">
 						<Link to="/download" className="block h-full">
-							<div className="relative h-full min-h-[220px] overflow-hidden rounded-3xl bg-neutral-900 p-6 transition-all duration-300 hover:shadow-xl">
+							<div className="relative h-full min-h-55 overflow-hidden rounded-3xl bg-neutral-900 p-6 transition-all duration-300 hover:shadow-xl">
 								<div className="bg-primary-green/20 absolute top-0 right-0 h-32 w-32 translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl" />
 								<div className="relative z-10 flex h-full flex-col">
 									<div className="mb-4 flex items-center gap-2">

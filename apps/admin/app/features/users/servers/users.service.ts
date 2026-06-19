@@ -55,18 +55,26 @@ export async function getUserById(
 	return found ? mapUser(found) : null
 }
 
-export async function banUser(cookie: string, userId: string): Promise<void> {
+export async function banUser(
+	cookie: string,
+	origin: string,
+	userId: string,
+): Promise<void> {
 	await apiFetch('/api/auth/admin/ban-user', {
 		method: 'POST',
-		headers: { Cookie: cookie },
+		headers: { Cookie: cookie, Origin: origin },
 		body: JSON.stringify({ userId }),
 	})
 }
 
-export async function unbanUser(cookie: string, userId: string): Promise<void> {
+export async function unbanUser(
+	cookie: string,
+	origin: string,
+	userId: string,
+): Promise<void> {
 	await apiFetch('/api/auth/admin/unban-user', {
 		method: 'POST',
-		headers: { Cookie: cookie },
+		headers: { Cookie: cookie, Origin: origin },
 		body: JSON.stringify({ userId }),
 	})
 }

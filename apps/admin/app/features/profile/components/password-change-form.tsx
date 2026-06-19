@@ -1,12 +1,6 @@
 import { useState } from 'react'
-import {
-	Button,
-	Input,
-	Field,
-	FieldGroup,
-	FieldLabel,
-} from '@retrouve-ci/ui/components'
-import { FieldError } from '@retrouve-ci/ui/components/form'
+import { Button, Input } from '@retrouve-ci/ui/components'
+import { InputLabel, FieldError } from '@retrouve-ci/ui/components/form'
 import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { BentoCard } from '@/shared/components/bento-card'
 import { toast } from 'sonner'
@@ -66,16 +60,17 @@ export function PasswordChangeForm() {
 				</p>
 
 				<form {...getFormProps(form)} className="max-w-md">
-					<FieldGroup className="space-y-4">
-						<Field>
-							<FieldLabel htmlFor={fields.currentPassword.id}>
+					<div className="space-y-4">
+						<div className="space-y-2">
+							<InputLabel htmlFor={fields.currentPassword.id}>
 								Mot de passe actuel
-							</FieldLabel>
+							</InputLabel>
 							<div className="relative">
 								<Input
 									{...getInputProps(fields.currentPassword, {
 										type: showCurrent ? 'text' : 'password',
 									})}
+									key={fields.currentPassword.key}
 									className="pr-10"
 								/>
 								<Button
@@ -93,17 +88,18 @@ export function PasswordChangeForm() {
 								</Button>
 							</div>
 							<FieldError errors={fields.currentPassword.errors} />
-						</Field>
+						</div>
 
-						<Field>
-							<FieldLabel htmlFor={fields.newPassword.id}>
+						<div className="space-y-2">
+							<InputLabel htmlFor={fields.newPassword.id}>
 								Nouveau mot de passe
-							</FieldLabel>
+							</InputLabel>
 							<div className="relative">
 								<Input
 									{...getInputProps(fields.newPassword, {
 										type: showNew ? 'text' : 'password',
 									})}
+									key={fields.newPassword.key}
 									className="pr-10"
 								/>
 								<Button
@@ -124,17 +120,18 @@ export function PasswordChangeForm() {
 								Min. 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre
 							</p>
 							<FieldError errors={fields.newPassword.errors} />
-						</Field>
+						</div>
 
-						<Field>
-							<FieldLabel htmlFor={fields.confirmPassword.id}>
+						<div className="space-y-2">
+							<InputLabel htmlFor={fields.confirmPassword.id}>
 								Confirmer le mot de passe
-							</FieldLabel>
+							</InputLabel>
 							<div className="relative">
 								<Input
 									{...getInputProps(fields.confirmPassword, {
 										type: showConfirm ? 'text' : 'password',
 									})}
+									key={fields.confirmPassword.key}
 									className="pr-10"
 								/>
 								<Button
@@ -152,8 +149,8 @@ export function PasswordChangeForm() {
 								</Button>
 							</div>
 							<FieldError errors={fields.confirmPassword.errors} />
-						</Field>
-					</FieldGroup>
+						</div>
+					</div>
 
 					<Button type="submit" className="mt-6" disabled={isSubmitting}>
 						{isSubmitting ? (
