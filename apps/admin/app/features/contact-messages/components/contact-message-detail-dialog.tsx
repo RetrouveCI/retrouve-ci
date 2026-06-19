@@ -11,6 +11,7 @@ import { Mail, Phone, Archive, QrCode } from 'lucide-react'
 import { Link } from 'react-router'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import type {
 	ContactMessage,
 	ContactMessageStatus,
@@ -20,18 +21,9 @@ const statusConfig: Record<
 	ContactMessageStatus,
 	{ label: string; className: string }
 > = {
-	new: {
-		label: 'Nouveau',
-		className: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
-	},
-	read: {
-		label: 'Lu',
-		className: 'bg-muted text-muted-foreground hover:bg-muted',
-	},
-	archived: {
-		label: 'Archivé',
-		className: 'bg-gray-50 text-gray-700 hover:bg-gray-50',
-	},
+	new: { label: 'Nouveau', className: STATUS_TONE_CLASSES.info },
+	read: { label: 'Lu', className: STATUS_TONE_CLASSES.neutral },
+	archived: { label: 'Archivé', className: STATUS_TONE_CLASSES.neutral },
 }
 
 interface ContactMessageDetailDialogProps {
@@ -82,7 +74,7 @@ export function ContactMessageDetailDialog({
 					</div>
 
 					{message.qrTokenCode && (
-						<div className="flex items-center gap-2 rounded-lg border border-dashed bg-gray-50 px-4 py-3">
+						<div className="bg-muted/50 flex items-center gap-2 rounded-lg border border-dashed px-4 py-3">
 							<QrCode className="text-muted-foreground h-4 w-4 shrink-0" />
 							<span className="text-muted-foreground text-sm">
 								Via sticker QR —{' '}

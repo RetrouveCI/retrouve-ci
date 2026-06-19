@@ -20,6 +20,7 @@ import {
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { QRCodeSVG } from 'qrcode.react'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import type { QrToken } from '../../qr.types'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -29,9 +30,9 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 const STATUS_CLASS: Record<string, string> = {
-	activated: 'bg-green-50 text-green-700 hover:bg-green-50',
-	generated: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
-	revoked: 'bg-red-50 text-red-700 hover:bg-red-50',
+	activated: STATUS_TONE_CLASSES.success,
+	generated: STATUS_TONE_CLASSES.info,
+	revoked: STATUS_TONE_CLASSES.danger,
 }
 
 interface TokenDetailsCardProps {

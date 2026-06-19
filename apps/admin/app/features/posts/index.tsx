@@ -20,6 +20,7 @@ import {
 } from '@retrouve-ci/ui/components'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { PostsStatsGrid } from './components/posts-stats-grid'
 import { PostDetailDialog } from './components/post-detail-dialog'
 import { postsLoader } from './servers/posts.loader'
@@ -61,18 +62,9 @@ const MODERATION_CONFIG: Record<
 	ModerationStatus,
 	{ label: string; className: string }
 > = {
-	pending: {
-		label: 'En attente',
-		className: 'bg-orange-50 text-orange-700 hover:bg-orange-50',
-	},
-	published: {
-		label: 'Publié',
-		className: 'bg-green-50 text-green-700 hover:bg-green-50',
-	},
-	hidden: {
-		label: 'Masqué',
-		className: 'bg-gray-50 text-gray-600 hover:bg-gray-50',
-	},
+	pending: { label: 'En attente', className: STATUS_TONE_CLASSES.warning },
+	published: { label: 'Publié', className: STATUS_TONE_CLASSES.success },
+	hidden: { label: 'Masqué', className: STATUS_TONE_CLASSES.neutral },
 }
 
 interface ActionResult {

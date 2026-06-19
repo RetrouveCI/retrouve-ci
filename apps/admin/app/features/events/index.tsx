@@ -24,6 +24,7 @@ import {
 } from '@retrouve-ci/ui/components'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { EventsStatsGrid } from './components/events-stats-grid'
 import { EventFormDialog } from './components/event-form-dialog'
 import { eventsLoader } from './servers/events.loader'
@@ -57,17 +58,17 @@ const STATUS_CONFIG: Record<
 > = {
 	draft: {
 		label: 'Brouillon',
-		className: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-50',
+		className: STATUS_TONE_CLASSES.warning,
 		icon: FileEdit,
 	},
 	published: {
 		label: 'Publié',
-		className: 'bg-green-50 text-green-700 hover:bg-green-50',
+		className: STATUS_TONE_CLASSES.success,
 		icon: CheckCircle2,
 	},
 	cancelled: {
 		label: 'Annulé',
-		className: 'bg-red-50 text-red-700 hover:bg-red-50',
+		className: STATUS_TONE_CLASSES.danger,
 		icon: XCircle,
 	},
 }

@@ -21,6 +21,7 @@ import {
 	Clock,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { PostPhotos } from './post-photos'
 import type { Post, ModerationStatus } from '../posts.types'
 
@@ -28,18 +29,9 @@ const MODERATION_CONFIG: Record<
 	ModerationStatus,
 	{ label: string; className: string }
 > = {
-	pending: {
-		label: 'En attente',
-		className: 'bg-orange-50 text-orange-700 hover:bg-orange-50',
-	},
-	published: {
-		label: 'Publié',
-		className: 'bg-green-50 text-green-700 hover:bg-green-50',
-	},
-	hidden: {
-		label: 'Masqué',
-		className: 'bg-gray-50 text-gray-600 hover:bg-gray-50',
-	},
+	pending: { label: 'En attente', className: STATUS_TONE_CLASSES.warning },
+	published: { label: 'Publié', className: STATUS_TONE_CLASSES.success },
+	hidden: { label: 'Masqué', className: STATUS_TONE_CLASSES.neutral },
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -103,8 +95,8 @@ export function PostDetailDialog({
 							className={cn(
 								'border-0',
 								isLost
-									? 'bg-red-50 text-red-700 hover:bg-red-50'
-									: 'bg-green-50 text-green-700 hover:bg-green-50',
+									? STATUS_TONE_CLASSES.danger
+									: STATUS_TONE_CLASSES.success,
 							)}
 						>
 							{isLost ? 'Perdu' : 'Retrouvé'}
@@ -124,9 +116,7 @@ export function PostDetailDialog({
 							{CATEGORY_LABELS[post.category] ?? post.category}
 						</Badge>
 						{post.resolutionStatus === 'resolved' && (
-							<Badge className="bg-blue-50 text-blue-700 hover:bg-blue-50">
-								Résolu
-							</Badge>
+							<Badge className={STATUS_TONE_CLASSES.info}>Résolu</Badge>
 						)}
 					</div>
 

@@ -11,6 +11,7 @@ import {
 	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components'
 import { DataTable } from '@/shared/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Eye, MoreHorizontal, Ban, CheckCircle } from 'lucide-react'
@@ -64,8 +65,8 @@ export function UsersTable({ data, onToggleBan, isBusy }: UsersTableProps) {
 				<Badge
 					className={
 						row.original.status === 'active'
-							? 'bg-green-50 text-green-700 hover:bg-green-50'
-							: 'bg-gray-50 text-gray-600 hover:bg-gray-50'
+							? STATUS_TONE_CLASSES.success
+							: STATUS_TONE_CLASSES.neutral
 					}
 				>
 					{row.original.status === 'active' ? 'Actif' : 'Inactif'}

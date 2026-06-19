@@ -9,6 +9,7 @@ import {
 	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components'
 import { DataTable } from '@/shared/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { MoreHorizontal, Eye, Copy, Link as LinkIcon, Ban } from 'lucide-react'
@@ -22,9 +23,9 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 const STATUS_CLASS: Record<string, string> = {
-	activated: 'bg-green-50 text-green-700 hover:bg-green-50',
-	generated: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
-	revoked: 'bg-red-50 text-red-700 hover:bg-red-50',
+	activated: STATUS_TONE_CLASSES.success,
+	generated: STATUS_TONE_CLASSES.info,
+	revoked: STATUS_TONE_CLASSES.danger,
 }
 
 interface QrTokensTableProps {

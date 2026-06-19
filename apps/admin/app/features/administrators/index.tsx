@@ -26,6 +26,7 @@ import {
 } from '@retrouve-ci/ui/components'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { AdminStatsGrid } from './components/admin-stats-grid'
 import { AdminFormDialog } from './components/admin-form-dialog'
 import { administratorsLoader } from './servers/administrators.loader'
@@ -228,8 +229,8 @@ export default function AdministratorsPage({
 				<Badge
 					className={
 						row.original.status === 'active'
-							? 'bg-green-50 text-green-700 hover:bg-green-50'
-							: 'bg-gray-50 text-gray-600 hover:bg-gray-50'
+							? STATUS_TONE_CLASSES.success
+							: STATUS_TONE_CLASSES.neutral
 					}
 				>
 					{row.original.status === 'active' ? 'Actif' : 'Inactif'}
