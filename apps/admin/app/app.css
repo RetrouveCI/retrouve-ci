@@ -17,6 +17,30 @@
 	--font-sans: 'Montserrat Variable', 'Montserrat', system-ui, sans-serif;
 	--radius: 0.625rem;
 	--surface-muted: oklch(0.985 0.002 256);
+
+	/* Branded green sidebar (admin only — overrides the neutral package tokens) */
+	--sidebar: oklch(0.32 0.06 150);
+	--sidebar-foreground: oklch(0.95 0.015 150);
+	--sidebar-primary: oklch(0.42 0.08 150);
+	--sidebar-primary-foreground: oklch(0.99 0 0);
+	--sidebar-accent: oklch(0.37 0.07 150);
+	--sidebar-accent-foreground: oklch(0.98 0 0);
+	--sidebar-border: oklch(0.4 0.06 150);
+	--sidebar-ring: oklch(0.65 0.13 150);
+}
+
+.dark {
+	--surface-muted: oklch(0.16 0.006 256);
+
+	/* Deeper green sidebar for dark mode */
+	--sidebar: oklch(0.24 0.05 150);
+	--sidebar-foreground: oklch(0.93 0.015 150);
+	--sidebar-primary: oklch(0.36 0.08 150);
+	--sidebar-primary-foreground: oklch(0.99 0 0);
+	--sidebar-accent: oklch(0.3 0.06 150);
+	--sidebar-accent-foreground: oklch(0.98 0 0);
+	--sidebar-border: oklch(0.32 0.05 150);
+	--sidebar-ring: oklch(0.6 0.13 150);
 }
 
 @layer utilities {

@@ -106,25 +106,32 @@ function SidebarItem({
 			onClick={onItemClick}
 			className={({ isActive }) =>
 				cn(
-					'flex items-center rounded-lg text-sm font-medium transition-colors',
+					'relative flex items-center rounded-lg text-sm font-medium transition-colors',
 					collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2',
 					isActive
-						? 'bg-primary/10 text-primary'
-						: 'text-muted-foreground hover:bg-muted hover:text-foreground',
+						? 'bg-sidebar-primary text-sidebar-primary-foreground'
+						: 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
 				)
 			}
 		>
-			<span className="relative shrink-0">
-				<Icon size={18} />
-				{collapsed && badge > 0 && (
-					<span className="bg-destructive ring-card absolute -top-1 -right-1 h-2 w-2 rounded-full ring-2" />
-				)}
-			</span>
-			{!collapsed && <span className="flex-1 truncate">{item.label}</span>}
-			{!collapsed && badge > 0 && (
-				<Badge className="bg-destructive h-5 min-w-5 justify-center px-1.5 text-[10px] text-white">
-					{badge > 99 ? '99+' : badge}
-				</Badge>
+			{({ isActive }) => (
+				<>
+					{isActive && !collapsed && (
+						<span className="bg-accent absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full" />
+					)}
+					<span className="relative shrink-0">
+						<Icon size={18} />
+						{collapsed && badge > 0 && (
+							<span className="bg-accent ring-sidebar absolute -top-1 -right-1 h-2 w-2 rounded-full ring-2" />
+						)}
+					</span>
+					{!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+					{!collapsed && badge > 0 && (
+						<Badge className="bg-accent text-accent-foreground h-5 min-w-5 justify-center px-1.5 text-[10px]">
+							{badge > 99 ? '99+' : badge}
+						</Badge>
+					)}
+				</>
 			)}
 		</NavLink>
 	)
@@ -165,7 +172,7 @@ function SidebarContent({
 	}
 
 	return (
-		<div className="bg-card flex h-full flex-col">
+		<div className="bg-sidebar text-sidebar-foreground flex h-full flex-col">
 			<div
 				className={cn(
 					'flex h-16 items-center',
@@ -182,10 +189,12 @@ function SidebarContent({
 					/>
 					{!collapsed && (
 						<div className="leading-tight">
-							<h1 className="text-foreground text-sm font-semibold">
+							<h1 className="text-sidebar-foreground text-sm font-semibold">
 								RetrouveCI
 							</h1>
-							<p className="text-muted-foreground text-xs">Administration</p>
+							<p className="text-sidebar-foreground/60 text-xs">
+								Administration
+							</p>
 						</div>
 					)}
 				</Link>
@@ -195,7 +204,7 @@ function SidebarContent({
 				{menuSections.map((section, index) => (
 					<div key={section.label ?? `section-${index}`}>
 						{section.label && !collapsed && (
-							<p className="text-muted-foreground/70 mb-2 px-3 text-[11px] font-medium tracking-wider uppercase">
+							<p className="text-sidebar-foreground/50 mb-2 px-3 text-[11px] font-medium tracking-wider uppercase">
 								{section.label}
 							</p>
 						)}
@@ -214,14 +223,14 @@ function SidebarContent({
 				))}
 			</nav>
 
-			<div className="space-y-1 p-3">
+			<div className="border-sidebar-border space-y-1 border-t p-3">
 				{showCollapseToggle && (
 					<Button
 						variant="ghost"
 						onClick={toggleSidebar}
 						aria-label={collapsed ? 'Déplier le menu' : 'Réduire le menu'}
 						className={cn(
-							'text-muted-foreground hover:text-foreground w-full',
+							'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full',
 							collapsed ? 'justify-center px-0' : 'justify-start gap-3 px-3',
 						)}
 					>
@@ -241,7 +250,7 @@ function SidebarContent({
 						<Tooltip>
 							<TooltipTrigger asChild>
 								<Avatar className="h-9 w-9">
-									<AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+									<AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold">
 										{user?.name?.charAt(0) ?? 'A'}
 									</AvatarFallback>
 								</Avatar>
@@ -253,7 +262,7 @@ function SidebarContent({
 						<Button
 							variant="ghost"
 							size="icon"
-							className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-8 w-8 rounded-lg"
+							className="text-sidebar-foreground/70 hover:bg-destructive/20 h-8 w-8 rounded-lg hover:text-white"
 							onClick={() => void handleLogout()}
 							aria-label="Déconnexion"
 						>
@@ -263,22 +272,22 @@ function SidebarContent({
 				) : (
 					<div className="flex items-center gap-3 rounded-lg px-2 py-2">
 						<Avatar className="h-9 w-9">
-							<AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+							<AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold">
 								{user?.name?.charAt(0) ?? 'A'}
 							</AvatarFallback>
 						</Avatar>
 						<div className="min-w-0 flex-1">
-							<p className="truncate text-sm font-medium">
+							<p className="text-sidebar-foreground truncate text-sm font-medium">
 								{user?.name ?? 'Admin'}
 							</p>
-							<p className="text-muted-foreground truncate text-xs">
+							<p className="text-sidebar-foreground/60 truncate text-xs">
 								{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
 							</p>
 						</div>
 						<Button
 							variant="ghost"
 							size="icon"
-							className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive h-8 w-8 shrink-0 rounded-lg"
+							className="text-sidebar-foreground/70 hover:bg-destructive/20 h-8 w-8 shrink-0 rounded-lg hover:text-white"
 							onClick={() => void handleLogout()}
 							aria-label="Déconnexion"
 						>
@@ -297,7 +306,7 @@ export function Sidebar() {
 	return (
 		<aside
 			className={cn(
-				'bg-card fixed top-0 left-0 z-30 hidden h-screen border-r transition-[width] duration-200 lg:block',
+				'border-sidebar-border fixed top-0 left-0 z-30 hidden h-screen border-r transition-[width] duration-200 lg:block',
 				collapsed ? 'w-20' : 'w-64',
 			)}
 		>

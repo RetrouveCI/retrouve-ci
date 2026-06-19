@@ -6,13 +6,22 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useRouteLoaderData,
 } from 'react-router'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/shared/auth/auth-context'
+import { ThemeProvider } from '@/shared/components/theme-context'
 
 import './app.css'
 
 import type { Route } from './+types/root'
+
+export function loader({ request }: Route.LoaderArgs) {
+	const cookie = request.headers.get('cookie') ?? ''
+	const theme = /(?:^|;\s*)theme=dark(?:;|$)/.test(cookie) ? 'dark' : 'light'
+
+	return { theme: theme as 'light' | 'dark' }
+}
 
 export function meta() {
 	const title = 'RetrouveCI Admin - Backoffice'
@@ -45,8 +54,11 @@ export function links() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+	const data = useRouteLoaderData<typeof loader>('root')
+	const theme = data?.theme ?? 'light'
+
 	return (
-		<html lang="fr">
+		<html lang="fr" className={theme === 'dark' ? 'dark' : undefined}>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -62,13 +74,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	)
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
 	return (
-		<AuthProvider>
-			<Outlet />
-			<Toaster position="top-right" />
-			{import.meta.env.PROD && <Analytics />}
-		</AuthProvider>
+		<ThemeProvider initialTheme={loaderData.theme}>
+			<AuthProvider>
+				<Outlet />
+				<Toaster position="top-right" />
+				{import.meta.env.PROD && <Analytics />}
+			</AuthProvider>
+		</ThemeProvider>
 	)
 }
 

@@ -16,6 +16,7 @@ import { useAuth } from '@/shared/auth/auth-context'
 import { usePageMeta } from '@/shared/lib/page-meta'
 import { MobileSidebar } from './sidebar'
 import { useDashboard } from './dashboard-context'
+import { ThemeToggle } from './theme-toggle'
 import { Bell, LogOut, User, ChevronDown, ChevronRight } from 'lucide-react'
 
 export function TopBar() {
@@ -63,6 +64,7 @@ export function TopBar() {
 				</div>
 
 				<div className="flex items-center gap-1">
+					<ThemeToggle />
 					<Button
 						variant="ghost"
 						size="icon"
