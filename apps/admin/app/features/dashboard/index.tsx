@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { PageHeader } from '@/shared/components/page-header'
 import { DateRangePicker } from '@/shared/components/date-range-picker'
 import { useAuth } from '@/shared/auth/auth-context'
-import { StatCard } from './components/stat-card'
+import { StatCard } from '@/shared/components/stat-card'
 import { ActivityChart } from './components/activity-chart'
 import { CategoryChart } from './components/category-chart'
 import { PostsSummary } from './components/posts-summary'
@@ -49,7 +49,7 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 					value={stats.scans.value}
 					change={stats.scans.change}
 					icon={Scan}
-					accent="accent"
+					tone="accent"
 				/>
 				<StatCard
 					title="Contacts"
@@ -62,7 +62,7 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 					value={stats.newUsers.value}
 					change={stats.newUsers.change}
 					icon={Users}
-					accent="accent"
+					tone="accent"
 				/>
 			</div>
 

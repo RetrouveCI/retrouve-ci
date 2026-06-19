@@ -1,4 +1,4 @@
-import { BentoCard } from '@/shared/components/bento-card'
+import { StatCard } from '@/shared/components/stat-card'
 import { FileText, CheckCircle2, Clock, EyeOff } from 'lucide-react'
 
 interface PostsStatsGridProps {
@@ -16,36 +16,20 @@ export function PostsStatsGrid({
 }: PostsStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-			<BentoCard
-				variant="highlight"
-				title="Total posts"
-				value={total}
-				icon={FileText}
-			/>
-			<BentoCard
-				variant="stat"
+			<StatCard highlight title="Total posts" value={total} icon={FileText} />
+			<StatCard
+				tone="success"
 				title="Publiés"
 				value={published}
 				icon={CheckCircle2}
-				iconColor="text-green-600"
-				iconBgColor="bg-green-50"
 			/>
-			<BentoCard
-				variant="stat"
+			<StatCard
+				tone="warning"
 				title="En attente"
 				value={pending}
 				icon={Clock}
-				iconColor="text-orange-600"
-				iconBgColor="bg-orange-50"
 			/>
-			<BentoCard
-				variant="stat"
-				title="Masqués"
-				value={hidden}
-				icon={EyeOff}
-				iconColor="text-gray-600"
-				iconBgColor="bg-gray-50"
-			/>
+			<StatCard tone="neutral" title="Masqués" value={hidden} icon={EyeOff} />
 		</div>
 	)
 }

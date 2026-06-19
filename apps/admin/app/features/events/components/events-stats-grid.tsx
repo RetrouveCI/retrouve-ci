@@ -1,4 +1,4 @@
-import { BentoCard } from '@/shared/components/bento-card'
+import { StatCard } from '@/shared/components/stat-card'
 import { CalendarDays, CheckCircle2, FileEdit, XCircle } from 'lucide-react'
 import type { Event } from '../events.types'
 
@@ -14,35 +14,29 @@ export function EventsStatsGrid({ events, total }: EventsStatsGridProps) {
 
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-			<BentoCard
-				variant="highlight"
+			<StatCard
+				highlight
 				title="Total événements"
 				value={total}
 				icon={CalendarDays}
 			/>
-			<BentoCard
-				variant="stat"
+			<StatCard
+				tone="success"
 				title="Publiés"
 				value={published}
 				icon={CheckCircle2}
-				iconColor="text-green-600"
-				iconBgColor="bg-green-50"
 			/>
-			<BentoCard
-				variant="stat"
+			<StatCard
+				tone="warning"
 				title="Brouillons"
 				value={draft}
 				icon={FileEdit}
-				iconColor="text-yellow-600"
-				iconBgColor="bg-yellow-50"
 			/>
-			<BentoCard
-				variant="stat"
+			<StatCard
+				tone="danger"
 				title="Annulés"
 				value={cancelled}
 				icon={XCircle}
-				iconColor="text-red-600"
-				iconBgColor="bg-red-50"
 			/>
 		</div>
 	)

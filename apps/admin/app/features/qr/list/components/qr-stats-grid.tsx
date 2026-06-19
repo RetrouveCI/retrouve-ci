@@ -1,4 +1,4 @@
-import { BentoCard } from '@/shared/components/bento-card'
+import { StatCard } from '@/shared/components/stat-card'
 import { QrCode, CheckCircle, Hash } from 'lucide-react'
 
 interface QrStatsGridProps {
@@ -10,27 +10,18 @@ interface QrStatsGridProps {
 export function QrStatsGrid({ total, activated, revoked }: QrStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-			<BentoCard
-				variant="highlight"
-				title="Total générés"
-				value={total}
-				icon={QrCode}
-			/>
-			<BentoCard
-				variant="stat"
+			<StatCard highlight title="Total générés" value={total} icon={QrCode} />
+			<StatCard
+				tone="success"
 				title="Activés"
 				value={activated}
 				icon={CheckCircle}
-				iconColor="text-green-600"
-				iconBgColor="bg-green-50"
 			/>
-			<BentoCard
-				variant="stat"
+			<StatCard
+				tone="danger"
 				title="Révoqués"
 				value={revoked}
 				icon={Hash}
-				iconColor="text-red-500"
-				iconBgColor="bg-red-50"
 				className="col-span-2 lg:col-span-1"
 			/>
 		</div>
