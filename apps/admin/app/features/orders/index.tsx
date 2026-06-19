@@ -14,9 +14,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { DateRangePicker } from '@/shared/components/date-range-picker'
 import { OrderDetailDialog } from './components/order-detail-dialog'
 import { OrderStatsGrid } from './components/order-stats-grid'
@@ -28,6 +28,7 @@ import { toast } from 'sonner'
 import type { DateRange } from 'react-day-picker'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { StickerOrder, OrderStatus } from './orders.types'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 import {
 	MoreHorizontal,
@@ -44,33 +45,35 @@ import {
 export const loader = ordersLoader
 export const action = ordersAction
 
+export const handle: RouteHandle = { title: 'Commandes de stickers' }
+
 const STATUS_CONFIG: Record<
 	OrderStatus,
 	{ label: string; className: string; icon: React.ElementType }
 > = {
 	pending: {
 		label: 'En attente',
-		className: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-50',
+		className: STATUS_TONE_CLASSES.warning,
 		icon: Clock,
 	},
 	processing: {
 		label: 'En traitement',
-		className: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
+		className: STATUS_TONE_CLASSES.info,
 		icon: Package,
 	},
 	shipped: {
 		label: 'Expédiée',
-		className: 'bg-purple-50 text-purple-700 hover:bg-purple-50',
+		className: STATUS_TONE_CLASSES.purple,
 		icon: Truck,
 	},
 	delivered: {
 		label: 'Livrée',
-		className: 'bg-green-50 text-green-700 hover:bg-green-50',
+		className: STATUS_TONE_CLASSES.success,
 		icon: PackageCheck,
 	},
 	cancelled: {
 		label: 'Annulée',
-		className: 'bg-red-50 text-red-700 hover:bg-red-50',
+		className: STATUS_TONE_CLASSES.danger,
 		icon: XCircle,
 	},
 }
@@ -308,8 +311,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<>
-			<TopBar title="Commandes de stickers" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<OrderStatsGrid
 						total={counts.total}

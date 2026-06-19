@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useFetcher } from 'react-router'
 import { Badge, Button } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { cn } from '@retrouve-ci/ui/utils'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -17,10 +17,13 @@ import type {
 import { ContactMessageDetailDialog } from './components/contact-message-detail-dialog'
 import { contactMessagesLoader } from './servers/contact-messages.loader'
 import { contactMessagesAction } from './servers/contact-messages.action'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = contactMessagesLoader
 export const action = contactMessagesAction
+
+export const handle: RouteHandle = { title: 'Messages de contact' }
 
 const STATUS_FILTERS = ['all', 'new', 'read', 'archived'] as const
 type StatusFilter = (typeof STATUS_FILTERS)[number]
@@ -36,18 +39,9 @@ const STATUS_BADGE: Record<
 	ContactMessageStatus,
 	{ label: string; className: string }
 > = {
-	new: {
-		label: 'Nouveau',
-		className: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
-	},
-	read: {
-		label: 'Lu',
-		className: 'bg-muted text-muted-foreground hover:bg-muted',
-	},
-	archived: {
-		label: 'Archivé',
-		className: 'bg-gray-50 text-gray-700 hover:bg-gray-50',
-	},
+	new: { label: 'Nouveau', className: STATUS_TONE_CLASSES.info },
+	read: { label: 'Lu', className: STATUS_TONE_CLASSES.neutral },
+	archived: { label: 'Archivé', className: STATUS_TONE_CLASSES.neutral },
 }
 
 interface ActionResult {
@@ -174,8 +168,7 @@ export default function ContactMessagesPage({
 
 	return (
 		<>
-			<TopBar title="Messages de contact" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<BentoCard variant="table">
 						<div className="border-b px-5 py-4">

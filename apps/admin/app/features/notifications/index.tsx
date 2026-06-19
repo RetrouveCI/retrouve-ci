@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useSearchParams, useFetcher } from 'react-router'
 import { Button } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
+import { StatCard } from '@/shared/components/stat-card'
 import { NotificationList } from './components/notification-list'
 import { notificationsLoader } from './servers/notifications.loader'
 import { notificationsAction } from './servers/notifications.action'
@@ -10,10 +10,13 @@ import { CheckCheck, Bell, BellOff } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@retrouve-ci/ui/utils'
 import type { Notification } from './notifications.types'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = notificationsLoader
 export const action = notificationsAction
+
+export const handle: RouteHandle = { title: 'Notifications' }
 
 interface ActionResult {
 	ok: boolean
@@ -80,31 +83,21 @@ export default function NotificationsPage({
 
 	return (
 		<>
-			<TopBar title="Notifications" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-						<BentoCard
-							variant="highlight"
-							title="Total"
-							value={total}
-							icon={Bell}
-						/>
-						<BentoCard
-							variant="stat"
+						<StatCard highlight title="Total" value={total} icon={Bell} />
+						<StatCard
+							tone="warning"
 							title="Non lues"
 							value={unreadCount}
 							icon={BellOff}
-							iconColor="text-orange-600"
-							iconBgColor="bg-orange-50"
 						/>
-						<BentoCard
-							variant="stat"
+						<StatCard
+							tone="success"
 							title="Lues"
 							value={total - unreadCount}
 							icon={CheckCheck}
-							iconColor="text-green-600"
-							iconBgColor="bg-green-50"
 						/>
 					</div>
 

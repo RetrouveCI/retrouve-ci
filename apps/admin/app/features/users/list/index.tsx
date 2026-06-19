@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useFetcher, useRevalidator, useSearchParams } from 'react-router'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { UsersStatsGrid } from './components/users-stats-grid'
 import { UsersFilters } from './components/users-filters'
@@ -12,10 +11,13 @@ import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
 import type { DateRange } from 'react-day-picker'
 import type { User } from '../users.types'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = usersLoader
 export const action = usersAction
+
+export const handle: RouteHandle = { title: 'Utilisateurs' }
 
 interface ActionResult {
 	ok: boolean
@@ -97,8 +99,7 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<>
-			<TopBar title="Utilisateurs" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<UsersStatsGrid total={total} active={active} inactive={inactive} />
 					<BentoCard variant="table">

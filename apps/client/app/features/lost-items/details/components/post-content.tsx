@@ -1,6 +1,7 @@
 import { Button } from '@retrouve-ci/ui/components'
-import { MapPin, Calendar, Tag, Share2, Flag } from 'lucide-react'
+import { MapPin, Calendar, Tag, Flag } from 'lucide-react'
 import { PostGallery } from './post-gallery'
+import { ShareMenu } from './share-menu'
 
 interface LostItem {
 	title: string
@@ -50,10 +51,7 @@ export function PostContent({ listing }: { listing: LostItem }) {
 			</div>
 
 			<div className="flex gap-4">
-				<Button variant="outline" size="sm" className="gap-2">
-					<Share2 className="h-4 w-4" />
-					Partager
-				</Button>
+				<ShareMenu title={listing.title} type={listing.type} />
 				<Button
 					variant="ghost"
 					size="sm"

@@ -24,9 +24,9 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { BentoCard } from '@/shared/components/bento-card'
 import { DataTable } from '@/shared/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { AdminStatsGrid } from './components/admin-stats-grid'
 import { AdminFormDialog } from './components/admin-form-dialog'
 import { administratorsLoader } from './servers/administrators.loader'
@@ -47,10 +47,13 @@ import {
 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Admin, AdminRole, AdminStatus } from './administrators.types'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = administratorsLoader
 export const action = administratorsAction
+
+export const handle: RouteHandle = { title: 'Administrateurs' }
 
 const ROLE_CONFIG: Record<
 	AdminRole,
@@ -226,8 +229,8 @@ export default function AdministratorsPage({
 				<Badge
 					className={
 						row.original.status === 'active'
-							? 'bg-green-50 text-green-700 hover:bg-green-50'
-							: 'bg-gray-50 text-gray-600 hover:bg-gray-50'
+							? STATUS_TONE_CLASSES.success
+							: STATUS_TONE_CLASSES.neutral
 					}
 				>
 					{row.original.status === 'active' ? 'Actif' : 'Inactif'}
@@ -296,8 +299,7 @@ export default function AdministratorsPage({
 
 	return (
 		<>
-			<TopBar title="Administrateurs" />
-			<div className="pt-16">
+			<div>
 				<div className="space-y-4 p-4 lg:p-6">
 					<AdminStatsGrid
 						total={counts.total}

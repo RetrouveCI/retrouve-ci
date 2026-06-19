@@ -7,6 +7,7 @@ import {
 	CardContent,
 } from '@retrouve-ci/ui/components'
 import { BentoCard } from '@/shared/components/bento-card'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import {
@@ -45,8 +46,8 @@ export function UserProfileSidebar({
 						<Badge
 							className={`mt-3 ${
 								user.status === 'active'
-									? 'bg-green-50 text-green-700 hover:bg-green-50'
-									: 'bg-gray-50 text-gray-700 hover:bg-gray-50'
+									? STATUS_TONE_CLASSES.success
+									: STATUS_TONE_CLASSES.neutral
 							}`}
 						>
 							{user.status === 'active' ? 'Actif' : 'Inactif'}

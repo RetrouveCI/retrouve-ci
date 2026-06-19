@@ -33,7 +33,7 @@ export function PermissionsCard({ role }: PermissionsCardProps) {
 							key={p.label}
 							className={cn(
 								'flex items-center justify-between rounded-lg px-4 py-2.5 text-sm',
-								p.allowed ? 'bg-green-50' : 'bg-muted/50',
+								p.allowed ? 'bg-emerald-500/10' : 'bg-muted/50',
 							)}
 						>
 							<span
@@ -42,7 +42,7 @@ export function PermissionsCard({ role }: PermissionsCardProps) {
 								{p.label}
 							</span>
 							{p.allowed ? (
-								<CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+								<CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
 							) : (
 								<XCircle className="text-muted-foreground h-4 w-4 shrink-0" />
 							)}

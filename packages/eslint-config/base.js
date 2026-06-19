@@ -18,7 +18,14 @@ export const config = [
 			turbo: turboPlugin,
 		},
 		rules: {
-			'turbo/no-undeclared-env-vars': 'warn',
+			'turbo/no-undeclared-env-vars': [
+				'warn',
+				{
+					// Vite compile-time builtins on `import.meta.env` — replaced at
+					// build time, not real environment variables managed by Turborepo.
+					allowList: ['^MODE$', '^BASE_URL$', '^PROD$', '^DEV$', '^SSR$'],
+				},
+			],
 			'@typescript-eslint/no-unused-vars': [
 				'warn',
 				{

@@ -4,23 +4,24 @@ import {
 	TabsList,
 	TabsTrigger,
 } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { ProfileIdentityCard } from './components/profile-identity-card'
 import { PermissionsCard } from './components/permissions-card'
 import { PasswordChangeForm } from './components/password-change-form'
 import { ActiveSessionsCard } from './components/active-sessions-card'
 import { profileLoader } from './servers/profile.loader'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = profileLoader
+
+export const handle: RouteHandle = { title: 'Mon profil' }
 
 export default function ProfilePage({ loaderData }: Route.ComponentProps) {
 	const { user } = loaderData
 
 	return (
 		<>
-			<TopBar title="Mon profil" />
-			<div className="pt-16">
+			<div>
 				<div className="p-4 lg:p-6">
 					<Tabs defaultValue="info">
 						<TabsList className="mb-6">

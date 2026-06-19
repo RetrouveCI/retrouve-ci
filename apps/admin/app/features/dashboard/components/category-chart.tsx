@@ -4,6 +4,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@retrouve-ci/ui/components'
+import { cn } from '@retrouve-ci/ui/utils'
+import { useTheme } from '@/shared/components/theme-context'
 import {
 	BarChart,
 	Bar,
@@ -13,59 +15,89 @@ import {
 	Tooltip,
 	ResponsiveContainer,
 } from 'recharts'
+import { ChartTooltip } from './chart-tooltip'
+
+const LOST_COLOR = '#EF4444'
+const FOUND_COLOR = '#1E7F43'
 
 interface CategoryChartProps {
 	data: { category: string; lost: number; found: number }[] | undefined
+	className?: string
 }
 
-export function CategoryChart({ data }: CategoryChartProps) {
+function LegendDot({ color, label }: { color: string; label: string }) {
 	return (
-		<Card className="overflow-hidden md:col-span-2">
-			<CardHeader className="pb-2">
-				<CardTitle className="text-lg font-semibold">
+		<span className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
+			<span
+				className="h-2.5 w-2.5 rounded-full"
+				style={{ backgroundColor: color }}
+			/>
+			{label}
+		</span>
+	)
+}
+
+export function CategoryChart({ data, className }: CategoryChartProps) {
+	const { theme } = useTheme()
+	const isDark = theme === 'dark'
+	const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'
+	const axisColor = isDark ? '#71717a' : '#9ca3af'
+
+	return (
+		<Card className={cn('overflow-hidden', className)}>
+			<CardHeader className="flex flex-row items-center justify-between gap-4 pb-2">
+				<CardTitle className="text-base font-semibold">
 					Posts par catégorie
 				</CardTitle>
+				<div className="flex items-center gap-4">
+					<LegendDot color={LOST_COLOR} label="Perdus" />
+					<LegendDot color={FOUND_COLOR} label="Retrouvés" />
+				</div>
 			</CardHeader>
 			<CardContent className="pb-4">
-				<ResponsiveContainer width="100%" height={180}>
-					<BarChart data={data} barGap={8}>
+				<ResponsiveContainer width="100%" height={260}>
+					<BarChart
+						data={data}
+						barGap={6}
+						margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+					>
 						<CartesianGrid
 							strokeDasharray="3 3"
-							stroke="#E5E7EB"
+							stroke={gridColor}
 							vertical={false}
 						/>
 						<XAxis
 							dataKey="category"
-							tick={{ fontSize: 11 }}
-							stroke="#9CA3AF"
+							tick={{ fontSize: 11, fill: axisColor }}
+							stroke={gridColor}
 							axisLine={false}
 							tickLine={false}
+							interval={0}
+							angle={-25}
+							textAnchor="end"
+							height={56}
 						/>
 						<YAxis
-							tick={{ fontSize: 11 }}
-							stroke="#9CA3AF"
+							tick={{ fontSize: 11, fill: axisColor }}
+							stroke={gridColor}
 							axisLine={false}
 							tickLine={false}
+							width={40}
 						/>
-						<Tooltip
-							contentStyle={{
-								backgroundColor: '#fff',
-								border: 'none',
-								borderRadius: '12px',
-								boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-							}}
-						/>
+						<Tooltip content={<ChartTooltip />} cursor={{ fill: gridColor }} />
 						<Bar
 							dataKey="lost"
 							name="Perdus"
-							fill="#EF4444"
-							radius={[6, 6, 0, 0]}
+							fill={LOST_COLOR}
+							radius={[4, 4, 0, 0]}
+							maxBarSize={28}
 						/>
 						<Bar
 							dataKey="found"
 							name="Retrouvés"
-							fill="#1E7F43"
-							radius={[6, 6, 0, 0]}
+							fill={FOUND_COLOR}
+							radius={[4, 4, 0, 0]}
+							maxBarSize={28}
 						/>
 					</BarChart>
 				</ResponsiveContainer>

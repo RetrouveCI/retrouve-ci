@@ -10,30 +10,19 @@ import {
 import { Package } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import type { StickerOrder, OrderStatus } from '../orders.types'
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; className: string }> =
 	{
-		pending: {
-			label: 'En attente',
-			className: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-50',
-		},
+		pending: { label: 'En attente', className: STATUS_TONE_CLASSES.warning },
 		processing: {
 			label: 'En traitement',
-			className: 'bg-blue-50 text-blue-700 hover:bg-blue-50',
+			className: STATUS_TONE_CLASSES.info,
 		},
-		shipped: {
-			label: 'Expédiée',
-			className: 'bg-purple-50 text-purple-700 hover:bg-purple-50',
-		},
-		delivered: {
-			label: 'Livrée',
-			className: 'bg-green-50 text-green-700 hover:bg-green-50',
-		},
-		cancelled: {
-			label: 'Annulée',
-			className: 'bg-red-50 text-red-700 hover:bg-red-50',
-		},
+		shipped: { label: 'Expédiée', className: STATUS_TONE_CLASSES.purple },
+		delivered: { label: 'Livrée', className: STATUS_TONE_CLASSES.success },
+		cancelled: { label: 'Annulée', className: STATUS_TONE_CLASSES.danger },
 	}
 
 interface OrderDetailDialogProps {

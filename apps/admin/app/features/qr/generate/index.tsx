@@ -7,18 +7,22 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@retrouve-ci/ui/components'
-import { TopBar } from '@/shared/components/topbar'
 import { ArrowLeft } from 'lucide-react'
 import { GenerateQrForm } from './components/generate-qr-form'
 import { generateQrAction } from './servers/generate.action'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 
 export const action = generateQrAction
+
+export const handle: RouteHandle = {
+	title: 'Générer des QR Tokens',
+	breadcrumb: [{ label: 'Stickers / QR', to: '/qr' }],
+}
 
 export default function GenerateQrPage() {
 	return (
 		<>
-			<TopBar title="Générer des QR Tokens" />
-			<div className="pt-16">
+			<div>
 				<div className="flex items-center justify-center p-4 lg:p-6">
 					<Card className="w-full max-w-lg">
 						<CardHeader>

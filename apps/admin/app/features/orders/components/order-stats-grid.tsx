@@ -1,4 +1,4 @@
-import { BentoCard } from '@/shared/components/bento-card'
+import { StatCard } from '@/shared/components/stat-card'
 import { Package, Clock, Truck, PackageCheck } from 'lucide-react'
 
 interface OrderStatsGridProps {
@@ -18,43 +18,30 @@ export function OrderStatsGrid({
 }: OrderStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-			<BentoCard
-				variant="highlight"
+			<StatCard
+				highlight
 				title="Total commandes"
 				value={total}
 				icon={Package}
 			/>
-			<BentoCard
-				variant="stat"
+			<StatCard
+				tone="warning"
 				title="En attente"
 				value={pending}
 				icon={Clock}
-				iconColor="text-yellow-600"
-				iconBgColor="bg-yellow-50"
 			/>
-			<BentoCard
-				variant="stat"
+			<StatCard
+				tone="info"
 				title="En traitement"
 				value={processing}
 				icon={Package}
-				iconColor="text-blue-600"
-				iconBgColor="bg-blue-50"
 			/>
-			<BentoCard
-				variant="stat"
-				title="Expédiées"
-				value={shipped}
-				icon={Truck}
-				iconColor="text-purple-600"
-				iconBgColor="bg-purple-50"
-			/>
-			<BentoCard
-				variant="stat"
+			<StatCard tone="purple" title="Expédiées" value={shipped} icon={Truck} />
+			<StatCard
+				tone="success"
 				title="Livrées"
 				value={delivered}
 				icon={PackageCheck}
-				iconColor="text-green-600"
-				iconBgColor="bg-green-50"
 			/>
 		</div>
 	)
