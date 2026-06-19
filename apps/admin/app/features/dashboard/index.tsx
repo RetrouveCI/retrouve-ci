@@ -1,22 +1,17 @@
 import { useState } from 'react'
-import { BentoCard } from '@/shared/components/bento-card'
 import { PageHeader } from '@/shared/components/page-header'
 import { DateRangePicker } from '@/shared/components/date-range-picker'
+import { useAuth } from '@/shared/auth/auth-context'
+import { StatCard } from './components/stat-card'
 import { ActivityChart } from './components/activity-chart'
 import { CategoryChart } from './components/category-chart'
+import { PostsSummary } from './components/posts-summary'
 import { RecentActivity } from './components/recent-activity'
 import { dashboardLoader } from './servers/dashboard.loader'
 import type { DateRange } from 'react-day-picker'
 import type { RouteHandle } from '@/shared/lib/page-meta'
 import type { Route } from './+types/index'
-import {
-	QrCode,
-	CheckCircle2,
-	Scan,
-	Phone,
-	AlertTriangle,
-	Users,
-} from 'lucide-react'
+import { QrCode, Scan, Phone, Users } from 'lucide-react'
 
 export const loader = dashboardLoader
 
@@ -24,78 +19,64 @@ export const handle: RouteHandle = { title: 'Dashboard' }
 
 export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 	const { stats, activityChart, categoryChart, activities } = loaderData
+	const { user } = useAuth()
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 
+	const firstName = user?.name?.split(' ')[0] ?? 'Admin'
+
 	return (
-		<div className="p-4 lg:p-6">
+		<div className="space-y-6 p-4 lg:p-6">
 			<PageHeader
-				title="Bienvenue sur RetrouveCI"
-				description="Voici un aperçu de votre plateforme"
+				title={`Bonjour, ${firstName}`}
+				description="Voici l'activité de RetrouveCI en un coup d'œil"
 				actions={
 					<DateRangePicker
 						dateRange={dateRange}
 						onDateRangeChange={setDateRange}
 					/>
 				}
-				className="mb-8"
 			/>
 
-			<div className="grid auto-rows-[minmax(180px,auto)] gap-4 md:grid-cols-2 lg:grid-cols-4">
-				<BentoCard
-					title="QR Codes Actifs"
+			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+				<StatCard
+					title="QR Codes actifs"
 					value={stats.qrActivated.value}
 					change={stats.qrActivated.change}
 					icon={QrCode}
-					variant="highlight"
-					className="md:col-span-2"
 				/>
-
-				<BentoCard
-					title="Scans Totaux"
+				<StatCard
+					title="Scans totaux"
 					value={stats.scans.value}
 					change={stats.scans.change}
 					icon={Scan}
+					accent="accent"
 				/>
-
-				<BentoCard
+				<StatCard
 					title="Contacts"
 					value={stats.contacts.value}
 					change={stats.contacts.change}
 					icon={Phone}
 				/>
-
-				<ActivityChart data={activityChart} />
-
-				<BentoCard
-					title="Posts Perdus"
-					value={stats.postsLost.value}
-					change={stats.postsLost.change}
-					icon={AlertTriangle}
-				/>
-
-				<BentoCard
-					title="Posts Retrouvés"
-					value={stats.postsFound.value}
-					change={stats.postsFound.change}
-					icon={CheckCircle2}
-				/>
-
-				<CategoryChart data={categoryChart} />
-
-				<BentoCard
-					title="Nouveaux Utilisateurs"
+				<StatCard
+					title="Nouveaux utilisateurs"
 					value={stats.newUsers.value}
 					change={stats.newUsers.change}
 					icon={Users}
+					accent="accent"
 				/>
+			</div>
 
-				<BentoCard
-					title="QR Générés"
-					value={stats.qrGenerated.value}
-					change={stats.qrGenerated.change}
-					icon={QrCode}
+			<div className="grid gap-4 lg:grid-cols-3">
+				<ActivityChart data={activityChart} className="lg:col-span-2" />
+				<PostsSummary
+					lost={stats.postsLost}
+					found={stats.postsFound}
+					qrGenerated={stats.qrGenerated}
 				/>
+			</div>
 
+			<div className="grid gap-4 lg:grid-cols-2">
+				<CategoryChart data={categoryChart} />
 				<RecentActivity activities={activities} />
 			</div>
 		</div>
