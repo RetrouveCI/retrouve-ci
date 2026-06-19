@@ -12,6 +12,8 @@ import { Toaster } from 'sonner'
 import { AuthProvider } from '@/shared/auth/auth-context'
 import { ThemeProvider } from '@/shared/components/theme-context'
 
+import '@fontsource-variable/geist'
+import '@fontsource-variable/geist-mono'
 import './app.css'
 
 import type { Route } from './+types/root'
@@ -38,19 +40,7 @@ export function meta() {
 }
 
 export function links() {
-	return [
-		{ rel: 'icon', href: '/logo.png' },
-		{ rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-		{
-			rel: 'preconnect',
-			href: 'https://fonts.gstatic.com',
-			crossOrigin: 'anonymous',
-		},
-		{
-			rel: 'stylesheet',
-			href: 'https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap',
-		},
-	]
+	return [{ rel: 'icon', href: '/logo.png' }]
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {

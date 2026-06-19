@@ -107,7 +107,7 @@ function SidebarItem({
 			className={({ isActive }) =>
 				cn(
 					'relative flex items-center rounded-lg text-sm font-medium transition-colors',
-					collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2',
+					collapsed ? 'mx-auto h-11 w-11 justify-center' : 'gap-3 px-3 py-2',
 					isActive
 						? 'bg-sidebar-primary text-sidebar-primary-foreground'
 						: 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -200,7 +200,12 @@ function SidebarContent({
 				</Link>
 			</div>
 
-			<nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+			<nav
+				className={cn(
+					'flex-1 space-y-4 overflow-y-auto py-4',
+					collapsed ? 'px-2' : 'px-3',
+				)}
+			>
 				{menuSections.map((section, index) => (
 					<div key={section.label ?? `section-${index}`}>
 						{section.label && !collapsed && (
@@ -208,7 +213,7 @@ function SidebarContent({
 								{section.label}
 							</p>
 						)}
-						<ul className="space-y-0.5">
+						<ul className={cn(collapsed ? 'space-y-1.5' : 'space-y-0.5')}>
 							{section.items.map(item => (
 								<SidebarItem
 									key={item.to}
@@ -249,14 +254,16 @@ function SidebarContent({
 					<div className="flex flex-col items-center gap-1">
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<Avatar className="h-9 w-9">
-									<AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold">
-										{user?.name?.charAt(0) ?? 'A'}
-									</AvatarFallback>
-								</Avatar>
+								<Link to="/profile" aria-label="Mon profil">
+									<Avatar className="h-9 w-9">
+										<AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold">
+											{user?.name?.charAt(0) ?? 'A'}
+										</AvatarFallback>
+									</Avatar>
+								</Link>
 							</TooltipTrigger>
 							<TooltipContent side="right">
-								{user?.name ?? 'Admin'}
+								{user?.name ?? 'Admin'} · Mon profil
 							</TooltipContent>
 						</Tooltip>
 						<Button
@@ -271,19 +278,25 @@ function SidebarContent({
 					</div>
 				) : (
 					<div className="flex items-center gap-3 rounded-lg px-2 py-2">
-						<Avatar className="h-9 w-9">
-							<AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold">
-								{user?.name?.charAt(0) ?? 'A'}
-							</AvatarFallback>
-						</Avatar>
-						<div className="min-w-0 flex-1">
-							<p className="text-sidebar-foreground truncate text-sm font-medium">
-								{user?.name ?? 'Admin'}
-							</p>
-							<p className="text-sidebar-foreground/60 truncate text-xs">
-								{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
-							</p>
-						</div>
+						<Link
+							to="/profile"
+							onClick={onItemClick}
+							className="flex min-w-0 flex-1 items-center gap-3 transition-opacity hover:opacity-80"
+						>
+							<Avatar className="h-9 w-9">
+								<AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold">
+									{user?.name?.charAt(0) ?? 'A'}
+								</AvatarFallback>
+							</Avatar>
+							<div className="min-w-0 flex-1">
+								<p className="text-sidebar-foreground truncate text-sm font-medium">
+									{user?.name ?? 'Admin'}
+								</p>
+								<p className="text-sidebar-foreground/60 truncate text-xs">
+									{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+								</p>
+							</div>
+						</Link>
 						<Button
 							variant="ghost"
 							size="icon"

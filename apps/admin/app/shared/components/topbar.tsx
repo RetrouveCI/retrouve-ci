@@ -1,35 +1,17 @@
 import { Fragment } from 'react'
-import { Link, useNavigate } from 'react-router'
-import {
-	Avatar,
-	AvatarFallback,
-	Button,
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@retrouve-ci/ui/components'
+import { Link } from 'react-router'
+import { Button } from '@retrouve-ci/ui/components'
 import { cn } from '@retrouve-ci/ui/utils'
-import { useAuth } from '@/shared/auth/auth-context'
 import { usePageMeta } from '@/shared/lib/page-meta'
 import { MobileSidebar } from './sidebar'
 import { useDashboard } from './dashboard-context'
 import { ThemeToggle } from './theme-toggle'
-import { Bell, LogOut, User, ChevronDown, ChevronRight } from 'lucide-react'
+import { Bell, ChevronRight } from 'lucide-react'
 
 export function TopBar() {
-	const { user, logout } = useAuth()
-	const navigate = useNavigate()
 	const { title, breadcrumb } = usePageMeta()
 	const { collapsed, counts } = useDashboard()
 	const unreadCount = counts.notificationsUnread
-
-	const handleLogout = async () => {
-		await logout()
-		void navigate('/auth/login')
-	}
 
 	return (
 		<header
@@ -83,60 +65,6 @@ export function TopBar() {
 							<span className="sr-only">Notifications</span>
 						</Link>
 					</Button>
-
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								variant="ghost"
-								className="hover:bg-muted gap-2 rounded-lg px-2"
-							>
-								<Avatar className="h-8 w-8">
-									<AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
-										{user?.name?.charAt(0) ?? 'A'}
-									</AvatarFallback>
-								</Avatar>
-								<div className="hidden text-left md:block">
-									<p className="text-sm leading-none font-medium">
-										{user?.name ?? 'Admin'}
-									</p>
-									<p className="text-muted-foreground mt-0.5 text-xs">
-										{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
-									</p>
-								</div>
-								<ChevronDown
-									size={16}
-									className="text-muted-foreground hidden md:block"
-								/>
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
-							<DropdownMenuLabel className="font-normal">
-								<div className="flex flex-col space-y-1">
-									<p className="text-sm font-semibold">
-										{user?.name ?? 'Admin User'}
-									</p>
-									<p className="text-muted-foreground text-xs">
-										{user?.email ?? 'admin@retrouveci.com'}
-									</p>
-								</div>
-							</DropdownMenuLabel>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem asChild className="cursor-pointer rounded-lg">
-								<Link to="/profile" className="flex w-full items-center gap-2">
-									<User size={16} />
-									Mon profil
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={() => void handleLogout()}
-								className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer rounded-lg"
-							>
-								<LogOut size={16} className="mr-2" />
-								Déconnexion
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
 				</div>
 			</div>
 		</header>
