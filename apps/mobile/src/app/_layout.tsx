@@ -49,6 +49,14 @@ export default function RootLayout() {
                 name="(modals)/scan"
                 options={{ presentation: 'fullScreenModal', animation: 'fade' }}
               />
+              <Stack.Screen
+                name="(modals)/auth"
+                options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+              />
+              <Stack.Screen
+                name="(modals)/order"
+                options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+              />
             </Stack>
             <ToastHost />
           </BottomSheetModalProvider>

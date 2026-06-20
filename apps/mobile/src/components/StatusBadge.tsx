@@ -1,39 +1,47 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { radius } from '@/design/tokens';
 import { usePalette } from '@/design/useScheme';
+import type { AnnonceStatus } from '@/services/types';
 
 import { Txt } from './Txt';
 
-export type ItemStatus = 'lost' | 'found' | 'resolved';
+/** Resolve the label + brand color for a listing status. */
+export function statusMeta(status: AnnonceStatus, palette: ReturnType<typeof usePalette>) {
+  return status === 'lost'
+    ? { label: 'Perdu', color: palette.orange, soft: palette.orangeSoft }
+    : { label: 'Retrouvé', color: palette.green, soft: palette.greenSoft };
+}
 
-const LABELS: Record<ItemStatus, string> = {
-  lost: 'Perdu',
-  found: 'Retrouvé',
-  resolved: 'Résolu',
-};
-
-/** Pill badge reflecting a listing status (perdu / retrouvé / résolu). */
-export function StatusBadge({ status }: { status: ItemStatus }) {
+/** Pill badge with a leading dot, reflecting perdu / retrouvé. */
+export function StatusBadge({
+  status,
+  size = 'md',
+}: {
+  status: AnnonceStatus;
+  size?: 'sm' | 'md';
+}) {
   const palette = usePalette();
-  const tone =
-    status === 'found' || status === 'resolved'
-      ? { bg: palette.greenSoft, fg: palette.green }
-      : { bg: palette.orangeSoft, fg: palette.orange };
+  const m = statusMeta(status, palette);
+  const sm = size === 'sm';
+  const dot = sm ? 5 : 6;
 
   return (
     <View
       style={{
-        backgroundColor: tone.bg,
-        borderRadius: radius.full,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
         alignSelf: 'flex-start',
+        paddingHorizontal: sm ? 8 : 11,
+        paddingVertical: sm ? 3 : 5,
+        borderRadius: 999,
+        backgroundColor: m.soft,
       }}
     >
-      <Txt weight="semibold" style={{ color: tone.fg, fontSize: 11 }}>
-        {LABELS[status]}
+      <View style={{ width: dot, height: dot, borderRadius: dot / 2, backgroundColor: m.color }} />
+      <Txt weight="semibold" style={{ color: m.color, fontSize: sm ? 11 : 12.5 }}>
+        {m.label}
       </Txt>
     </View>
   );

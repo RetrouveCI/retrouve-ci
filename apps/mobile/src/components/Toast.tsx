@@ -1,20 +1,21 @@
 import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/design/Icon';
-import { radius, shadows } from '@/design/tokens';
+import { shadows } from '@/design/tokens';
 import { usePalette } from '@/design/useScheme';
 import { useAppStore } from '@/store/app.store';
 
 import { Txt } from './Txt';
 
-const AUTO_DISMISS_MS = 2600;
+const AUTO_DISMISS_MS = 2200;
 
 /**
- * Global toast host. Reads the single toast from the store, animates it in from
- * the top and auto-dismisses. Mount once near the root layout.
+ * Global toast host — dark pill sitting above the floating tab bar, matching the
+ * prototype. Reads the single toast from the store and auto-dismisses. Mount
+ * once near the root layout.
  */
 export function ToastHost() {
   const toast = useAppStore((s) => s.toast);
@@ -33,20 +34,16 @@ export function ToastHost() {
   return (
     <Animated.View
       entering={FadeInDown.springify().damping(18)}
-      exiting={FadeOutUp}
+      exiting={FadeOutDown}
       pointerEvents="none"
       style={[
         styles.container,
         shadows.lg,
-        {
-          top: insets.top + 8,
-          backgroundColor: palette.surface,
-          borderColor: palette.border,
-        },
+        { bottom: Math.max(insets.bottom, 14) + 78, backgroundColor: palette.text },
       ]}
     >
-      <Icon name={(toast.icon as IconName) ?? 'checkCircle'} size={20} color={palette.green} />
-      <Txt weight="medium" style={{ color: palette.text, flexShrink: 1 }}>
+      <Icon name={(toast.icon as IconName) ?? 'checkCircle'} size={20} color={palette.greenLight} />
+      <Txt weight="medium" style={{ color: palette.bg, flexShrink: 1 }}>
         {toast.message}
       </Txt>
     </Animated.View>
@@ -58,13 +55,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     right: 16,
-    zIndex: 100,
+    zIndex: 200,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    paddingVertical: 12,
+    paddingVertical: 13,
     paddingHorizontal: 16,
-    borderRadius: radius.lg,
-    borderWidth: 1,
+    borderRadius: 14,
   },
 });

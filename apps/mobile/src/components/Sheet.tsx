@@ -17,6 +17,8 @@ interface SheetProps {
   children: React.ReactNode;
   /** Render children inside the scrollable BottomSheetView container. */
   padding?: number;
+  /** Fires with the active snap index (-1 when closed). */
+  onChange?: (index: number) => void;
 }
 
 /**
@@ -25,7 +27,7 @@ interface SheetProps {
  * `ref.current?.present()` / `.dismiss()`.
  */
 export const Sheet = forwardRef<SheetRef, SheetProps>(function Sheet(
-  { snapPoints, children, padding = 20 },
+  { snapPoints, children, padding = 20, onChange },
   ref,
 ) {
   const palette = usePalette();
@@ -43,6 +45,7 @@ export const Sheet = forwardRef<SheetRef, SheetProps>(function Sheet(
       ref={ref}
       snapPoints={snapPoints}
       enableDynamicSizing={!snapPoints}
+      onChange={onChange}
       backdropComponent={renderBackdrop}
       handleIndicatorStyle={{ backgroundColor: palette.text3 }}
       backgroundStyle={{

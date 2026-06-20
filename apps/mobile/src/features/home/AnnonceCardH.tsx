@@ -2,14 +2,12 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
 
-import { Card, StatusBadge, Txt } from '@/components';
+import { Card, ObjectThumb, StatusBadge, Txt } from '@/components';
 import { Icon } from '@/design/Icon';
-import { radius } from '@/design/tokens';
 import { usePalette } from '@/design/useScheme';
-import { timeAgo } from '@/lib/format';
 import type { Annonce } from '@/services/types';
 
-/** Horizontal annonce card used in the Home "annonces récentes" carousel. */
+/** Horizontal annonce card used in the Home "Dernières annonces" carousel. */
 export function AnnonceCardH({ annonce }: { annonce: Annonce }) {
   const palette = usePalette();
   const router = useRouter();
@@ -18,41 +16,38 @@ export function AnnonceCardH({ annonce }: { annonce: Annonce }) {
     <Card
       padding={0}
       onPress={() => router.push(`/annonce/${annonce.id}`)}
-      style={{ width: 220, overflow: 'hidden' }}
+      style={{ width: 200, overflow: 'hidden' }}
     >
-      <View
-        style={{
-          height: 110,
-          backgroundColor: palette.surface3,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Icon name="image" size={32} color={palette.text3} />
+      <View>
+        <ObjectThumb
+          tone={annonce.tone}
+          radius={0}
+          iconSize={30}
+          showLabel
+          style={{ width: '100%', height: 116 }}
+        />
         <View style={{ position: 'absolute', top: 10, left: 10 }}>
-          <StatusBadge status={annonce.status} />
+          <StatusBadge status={annonce.status} size="sm" />
         </View>
       </View>
-      <View style={{ padding: 12, gap: 6 }}>
-        <Txt weight="semibold" numberOfLines={1} style={{ fontSize: 14, color: palette.text }}>
+      <View style={{ padding: 13 }}>
+        <Txt
+          weight="semibold"
+          numberOfLines={2}
+          style={{ fontSize: 14.5, lineHeight: 18, minHeight: 36, color: palette.text }}
+        >
           {annonce.title}
         </Txt>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 9 }}>
           <Icon name="pin" size={13} color={palette.text3} />
-          <Txt
-            weight="medium"
-            numberOfLines={1}
-            style={{ fontSize: 12, color: palette.text3, flexShrink: 1 }}
-          >
-            {annonce.commune}, {annonce.city}
+          <Txt weight="medium" style={{ fontSize: 12.5, color: palette.text3 }}>
+            {annonce.commune ?? annonce.city}
+          </Txt>
+          <Txt weight="regular" style={{ fontSize: 12.5, color: palette.text3, marginLeft: 'auto' }}>
+            {annonce.timeLabel}
           </Txt>
         </View>
-        <Txt weight="regular" style={{ fontSize: 11, color: palette.text3 }}>
-          {timeAgo(annonce.createdAt)}
-        </Txt>
       </View>
     </Card>
   );
 }
-
-export const CARD_GAP = radius.md;

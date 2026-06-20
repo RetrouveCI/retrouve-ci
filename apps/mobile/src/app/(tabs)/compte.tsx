@@ -1,11 +1,5 @@
-import { ComingSoon } from '@/components/ComingSoon';
+import { AccountScreen } from '@/features/account/AccountScreen';
 
 export default function CompteRoute() {
-  return (
-    <ComingSoon
-      icon="user"
-      title="Mon compte"
-      subtitle="Annonces, stickers, commandes et paramètres arrivent bientôt."
-    />
-  );
+  return <AccountScreen />;
 }

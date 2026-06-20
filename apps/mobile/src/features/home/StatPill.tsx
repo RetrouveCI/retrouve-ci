@@ -3,54 +3,40 @@ import { View } from 'react-native';
 
 import { Txt } from '@/components';
 import { Icon, type IconName } from '@/design/Icon';
-import { radius } from '@/design/tokens';
 import { usePalette } from '@/design/useScheme';
 
 interface StatPillProps {
   icon: IconName;
   value: string;
   label: string;
-  accent?: 'green' | 'orange';
+  accent?: boolean;
 }
 
-/** Horizontal stat pill used on the Home header (objets rendus, stickers actifs). */
-export function StatPill({ icon, value, label, accent = 'green' }: StatPillProps) {
+/** Compact stat (icon + value + label) used inside the Home stats strip. */
+export function StatPill({ icon, value, label, accent }: StatPillProps) {
   const palette = usePalette();
-  const color = accent === 'orange' ? palette.orange : palette.green;
-  const soft = accent === 'orange' ? palette.orangeSoft : palette.greenSoft;
+  const soft = accent ? palette.orangeSoft : palette.greenSoft;
+  const color = accent ? palette.orangeDark : palette.green;
 
   return (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        backgroundColor: palette.surface,
-        borderColor: palette.border,
-        borderWidth: 1,
-        borderRadius: radius.lg,
-        paddingVertical: 12,
-        paddingHorizontal: 14,
-      }}
-    >
+    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
       <View
         style={{
           width: 38,
           height: 38,
-          borderRadius: radius.md,
+          borderRadius: 12,
           backgroundColor: soft,
           alignItems: 'center',
           justifyContent: 'center',
         }}
       >
-        <Icon name={icon} size={20} color={color} />
+        <Icon name={icon} size={19} color={color} />
       </View>
-      <View style={{ flexShrink: 1 }}>
-        <Txt weight="bold" style={{ fontSize: 16, color: palette.text }}>
+      <View>
+        <Txt weight="bold" style={{ fontSize: 17, color: palette.text }}>
           {value}
         </Txt>
-        <Txt weight="medium" style={{ fontSize: 11, color: palette.text3 }}>
+        <Txt weight="regular" style={{ fontSize: 11.5, color: palette.text3, marginTop: 3 }}>
           {label}
         </Txt>
       </View>

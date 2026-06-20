@@ -1,5 +1,6 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Image, View } from 'react-native';
+import { Image } from 'react-native';
 
 import { usePalette } from '@/design/useScheme';
 
@@ -9,6 +10,8 @@ interface AvatarProps {
   name?: string | null;
   uri?: string | null;
   size?: number;
+  /** Orange gradient instead of the default green. */
+  accent?: boolean;
 }
 
 /** Derive up-to-two uppercase initials from a full name. */
@@ -22,26 +25,33 @@ function initials(name?: string | null) {
     .join('');
 }
 
-/** Circular user avatar — image when available, initials fallback otherwise. */
-export function Avatar({ name, uri, size = 40 }: AvatarProps) {
+/** Circular avatar — gradient brand fill with initials, or an image when set. */
+export function Avatar({ name, uri, size = 44, accent = false }: AvatarProps) {
   const palette = usePalette();
   if (uri) {
-    return <Image source={{ uri }} style={{ width: size, height: size, borderRadius: size / 2 }} />;
+    return (
+      <Image source={{ uri }} style={{ width: size, height: size, borderRadius: size / 2 }} />
+    );
   }
+  const gradient = accent
+    ? [palette.orangeLight, palette.orangeDark]
+    : [palette.greenLight, palette.greenDark];
   return (
-    <View
+    <LinearGradient
+      colors={gradient as [string, string]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       style={{
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: palette.greenSoft,
         alignItems: 'center',
         justifyContent: 'center',
       }}
     >
-      <Txt weight="semibold" style={{ color: palette.green, fontSize: size * 0.4 }}>
+      <Txt weight="bold" style={{ color: '#FFFFFF', fontSize: size * 0.36 }}>
         {initials(name)}
       </Txt>
-    </View>
+    </LinearGradient>
   );
 }

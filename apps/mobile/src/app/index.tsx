@@ -1,6 +1,14 @@
 import { Redirect } from 'expo-router';
 
-// Entry point — onboarding gating will be added in Phase 2.
+import { useAppStore } from '@/store/app.store';
+
+/** Entry gate — show onboarding on first launch, otherwise the home tab. */
 export default function Index() {
-  return <Redirect href="/accueil" />;
+  const isHydrated = useAppStore((s) => s.isHydrated);
+  const hasOnboarded = useAppStore((s) => s.hasOnboarded);
+
+  // Wait for the store to hydrate (onboarding flag from secure storage).
+  if (!isHydrated) return null;
+
+  return <Redirect href={hasOnboarded ? '/accueil' : '/onboarding'} />;
 }

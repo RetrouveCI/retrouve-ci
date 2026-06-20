@@ -1,6 +1,13 @@
-/** Format an amount as `1 500 FCFA` using the French locale grouping. */
+/** Group a number's thousands with regular spaces (Hermes-safe, no Intl). */
+export function formatNumber(n: number): string {
+  return Math.round(n)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+/** Format an amount as `1 500 FCFA`. */
 export function formatPrice(n: number): string {
-  return `${n.toLocaleString('fr-FR')} FCFA`;
+  return `${formatNumber(n)} FCFA`;
 }
 
 /** Relative French time label (e.g. "il y a 2 h", "il y a 3 j"). */

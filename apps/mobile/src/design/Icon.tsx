@@ -61,6 +61,15 @@ const ICON_PATHS = {
     '<rect x="4" y="5.5" width="16" height="15" rx="2.2"/><path d="M4 10h16"/><path d="M8 3.5v4"/><path d="M16 3.5v4"/>',
   globe:
     '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.5 2.4 3.8 5.4 3.8 8.5S14.5 18.1 12 20.5c-2.5-2.4-3.8-5.4-3.8-8.5S9.5 5.9 12 3.5Z"/>',
+  sliders:
+    '<path d="M4 8h9"/><path d="M17 8h3"/><circle cx="15" cy="8" r="2"/><path d="M4 16h3"/><path d="M11 16h9"/><circle cx="9" cy="16" r="2"/>',
+  grid: '<rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/>',
+  flag: '<path d="M5 21V4"/><path d="M5 5h11l-1.5 3.5L16 12H5"/>',
+  alert: '<path d="M12 3.5 2 20.5h20Z"/><path d="M12 10v4.5"/><path d="M12 17.8v.2"/>',
+  telegram: '<path d="M21 4 3 11l5 2 2 6 3-4 4 3Z"/><path d="m8 13 9-7"/>',
+  facebook: '<path d="M15 4h-2.2A3 3 0 0 0 9.8 7v2.5H7.5V12h2.3v8h2.8v-8h2.2l.5-2.5h-2.7V7.3c0-.5.3-.8.8-.8H15Z"/>',
+  instagram: '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.9" cy="7.1" r="1.1"/>',
+  snapchat: '<path d="M12 3.2c2.4 0 3.9 1.9 3.9 4.4 0 1 0 1.9.5 2.4.5.5 1.5.5 2 1 .3.3 0 .8-.6 1-1 .4-1.9.3-2.4 1.2-.3.6.2 1.3-.5 1.6-.6.3-1.5-.3-2.4-.3s-1.8.6-2.4.3c-.7-.3-.2-1-.5-1.6-.5-.9-1.4-.8-2.4-1.2-.6-.2-.9-.7-.6-1 .5-.5 1.5-.5 2-1 .5-.5.5-1.4.5-2.4 0-2.5 1.5-4.4 3.9-4.4Z"/>',
 } as const;
 
 export type IconName = keyof typeof ICON_PATHS;

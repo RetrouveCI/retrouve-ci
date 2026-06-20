@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { Annonce, HomeStats } from './types';
 
 /**
- * Annonces service. For Phase 1 these return coherent Ivorian mock data with a
+ * Annonces service. Mirrors the prototype's mock data (Ivorian listings) with a
  * simulated latency. When the NestJS endpoints are wired (Orval), swap the
  * bodies of `fetchAnnonces` / `fetchAnnonce` for real `api` calls — the hooks
  * and query keys stay the same.
@@ -11,67 +11,127 @@ import type { Annonce, HomeStats } from './types';
 const MOCK_ANNONCES: Annonce[] = [
   {
     id: 'a1',
-    title: 'Sac à dos Eastpak noir',
-    status: 'lost',
-    category: 'Bagagerie',
+    status: 'found',
+    title: "Carte Nationale d'Identité",
+    category: 'Papiers',
     city: 'Abidjan',
     commune: 'Cocody',
-    imageUrl: null,
-    description: 'Perdu près de la pharmacie Saint Jean, contient des documents.',
-    contactPhone: '+2250708112233',
-    createdAt: new Date(Date.now() - 2 * 3600_000).toISOString(),
+    dateLabel: '14 juin',
+    timeLabel: 'il y a 1 j',
+    author: 'Aya Koné',
+    phone: '+225 07 08 12 44 90',
+    tone: 'doc',
+    description:
+      "CNI trouvée près de la pharmacie des II Plateaux. Le nom commence par K. À récupérer après vérification d'identité.",
   },
   {
     id: 'a2',
-    title: 'Trousseau de clés avec porte-clés rouge',
-    status: 'found',
+    status: 'lost',
+    title: 'Trousseau de clés + porte-clés rouge',
     category: 'Clés',
     city: 'Abidjan',
     commune: 'Marcory',
-    imageUrl: null,
-    description: 'Trouvé devant la station Total de Marcory Zone 4.',
-    contactPhone: '+2250575004411',
-    createdAt: new Date(Date.now() - 6 * 3600_000).toISOString(),
+    dateLabel: '13 juin',
+    timeLabel: 'il y a 2 j',
+    author: 'Kouassi Yao',
+    phone: '+225 05 64 21 07 33',
+    tone: 'key',
+    description:
+      'Perdu un trousseau de 4 clés avec un porte-clés en forme de ballon rouge, entre Marcory Zone 4 et le marché.',
   },
   {
     id: 'a3',
-    title: 'Téléphone Tecno Camon 20',
-    status: 'lost',
+    status: 'found',
+    title: 'Téléphone Tecno Spark',
     category: 'Électronique',
     city: 'Abidjan',
     commune: 'Yopougon',
-    imageUrl: null,
-    description: 'Coque bleue, perdu dans un gbaka en direction de Yopougon.',
-    contactPhone: '+2250102938475',
-    createdAt: new Date(Date.now() - 26 * 3600_000).toISOString(),
+    dateLabel: '13 juin',
+    timeLabel: 'il y a 2 j',
+    author: 'Fatou Diabaté',
+    phone: '+225 01 22 88 54 10',
+    tone: 'phone',
+    description:
+      'Téléphone retrouvé dans un gbaka ligne Yopougon–Adjamé. Écran fissuré en haut à droite. Coque bleue.',
   },
   {
     id: 'a4',
-    title: "Carte d'identité au nom de Koffi A.",
-    status: 'found',
+    status: 'lost',
+    title: 'Permis de conduire',
     category: 'Papiers',
     city: 'Bouaké',
-    commune: 'Bouaké',
-    imageUrl: null,
-    description: 'CNI trouvée au marché de Bouaké, à récupérer rapidement.',
-    contactPhone: '+2250709887766',
-    createdAt: new Date(Date.now() - 2 * 86400_000).toISOString(),
+    commune: null,
+    dateLabel: '12 juin',
+    timeLabel: 'il y a 3 j',
+    author: 'Ibrahim Touré',
+    phone: '+225 07 47 90 23 65',
+    tone: 'doc',
+    description:
+      'Permis catégorie B perdu au quartier Air France. Récompense pour la personne qui le retrouve.',
   },
   {
     id: 'a5',
-    title: 'Montre connectée grise',
-    status: 'resolved',
-    category: 'Accessoires',
+    status: 'found',
+    title: "Sac à dos d'école",
+    category: 'Bagages',
+    city: 'Abidjan',
+    commune: 'Abobo',
+    dateLabel: '11 juin',
+    timeLabel: 'il y a 4 j',
+    author: 'Mariam Bamba',
+    phone: '+225 05 10 76 32 88',
+    tone: 'bag',
+    description:
+      "Sac à dos noir avec cahiers au nom d'un élève de 4ème. Retrouvé devant le collège moderne d'Abobo.",
+  },
+  {
+    id: 'a6',
+    status: 'lost',
+    title: 'Carte étudiante + carnet',
+    category: 'Papiers',
+    city: 'Abidjan',
+    commune: 'Cocody',
+    dateLabel: '10 juin',
+    timeLabel: 'il y a 5 j',
+    author: 'Adjoua Konan',
+    phone: '+225 01 90 45 11 27',
+    tone: 'doc',
+    description:
+      "Carte étudiante de l'Université FHB et carnet de notes perdus sur le campus, côté amphi B.",
+  },
+  {
+    id: 'a7',
+    status: 'found',
+    title: 'Montre connectée',
+    category: 'Électronique',
+    city: 'San-Pédro',
+    commune: null,
+    dateLabel: '9 juin',
+    timeLabel: 'il y a 6 j',
+    author: 'Seydou Coulibaly',
+    phone: '+225 07 33 60 78 12',
+    tone: 'phone',
+    description:
+      'Montre retrouvée sur la plage. Bracelet noir, écran rond. À identifier par le propriétaire.',
+  },
+  {
+    id: 'a8',
+    status: 'lost',
+    title: 'Portefeuille en cuir marron',
+    category: 'Bagages',
     city: 'Abidjan',
     commune: 'Plateau',
-    imageUrl: null,
-    description: 'Rendue à son propriétaire grâce au sticker RetrouveCI.',
-    contactPhone: '+2250544221100',
-    createdAt: new Date(Date.now() - 3 * 86400_000).toISOString(),
+    dateLabel: '8 juin',
+    timeLabel: 'il y a 7 j',
+    author: 'Awa Sangaré',
+    phone: '+225 05 80 14 99 02',
+    tone: 'bag',
+    description:
+      'Portefeuille perdu au Plateau près de la gare Sud. Contient pièces et cartes. Sans valeur pour autrui.',
   },
 ];
 
-const MOCK_STATS: HomeStats = { itemsReturned: 1284, activeStickers: 5630 };
+const MOCK_STATS: HomeStats = { itemsReturned: 1284, activeStickers: 6920 };
 
 function delay<T>(value: T, ms = 350): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(value), ms));
@@ -94,6 +154,10 @@ export function fetchAnnonce(id: string): Promise<Annonce | undefined> {
 
 export function fetchHomeStats(): Promise<HomeStats> {
   return delay(MOCK_STATS);
+}
+
+export function useAnnonces() {
+  return useQuery({ queryKey: annoncesKeys.list(), queryFn: fetchAnnonces });
 }
 
 export function useRecentAnnonces() {

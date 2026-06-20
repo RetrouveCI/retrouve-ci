@@ -8,7 +8,7 @@ export interface User {
 export type ThemeMode = 'light' | 'dark' | 'auto';
 export type TabKey = 'accueil' | 'annonces' | 'compte';
 export type OverlayKey = 'scan' | 'auth' | 'order' | null;
-export type AccountSection = 'annonces' | 'stickers' | 'commandes';
+export type AccountSection = 'annonces' | 'stickers' | 'commandes' | 'params';
 
 export interface ToastState {
   message: string;

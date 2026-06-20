@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import type { AccountSection, OverlayKey, TabKey, ThemeMode, ToastState, User } from './types';
 
 const TOKEN_KEY = 'retrouveci.auth.token';
+const ONBOARDED_KEY = 'retrouveci.onboarded';
 
 /**
  * Global UI/auth store. The auth token is NEVER kept in React state — it lives
@@ -15,6 +16,9 @@ interface AppState {
   isAuthenticated: boolean;
   user: User | null;
   isHydrated: boolean;
+
+  // Onboarding
+  hasOnboarded: boolean;
 
   // Navigation
   activeTab: TabKey;
@@ -29,6 +33,7 @@ interface AppState {
 
   // Actions
   hydrate: () => Promise<void>;
+  completeOnboarding: () => Promise<void>;
   setAuth: (user: User, token: string) => Promise<void>;
   logout: () => Promise<void>;
   setActiveTab: (tab: TabKey) => void;
@@ -44,6 +49,8 @@ export const useAppStore = create<AppState>((set) => ({
   user: null,
   isHydrated: false,
 
+  hasOnboarded: false,
+
   activeTab: 'accueil',
   activeOverlay: null,
 
@@ -54,7 +61,23 @@ export const useAppStore = create<AppState>((set) => ({
 
   hydrate: async () => {
     //const token = await SecureStore.getItemAsync(TOKEN_KEY);
-    set({ isAuthenticated: true /*Boolean(token)*/, isHydrated: true });
+    let onboarded = false;
+    try {
+      onboarded = (await SecureStore.getItemAsync(ONBOARDED_KEY)) === '1';
+    } catch {
+      // Secure storage unavailable (e.g. web/dev) — don't block on onboarding.
+      onboarded = true;
+    }
+    set({ isAuthenticated: true /*Boolean(token)*/, hasOnboarded: onboarded, isHydrated: true });
+  },
+
+  completeOnboarding: async () => {
+    try {
+      await SecureStore.setItemAsync(ONBOARDED_KEY, '1');
+    } catch {
+      // ignore — flag persists in-memory for the session
+    }
+    set({ hasOnboarded: true });
   },
 
   setAuth: async (user, token) => {
