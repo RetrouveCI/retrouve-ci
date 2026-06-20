@@ -1,43 +1,37 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 
-import { clearAuthToken, getAuthToken, useAppStore } from '@/store/app.store';
+import { authClient } from './auth-client';
+import { API_BASE_URL } from './config';
+
+export { API_BASE_URL };
 
 /**
  * Configured axios instance for the RetrouveCI NestJS API.
- * - baseURL from EXPO_PUBLIC_API_URL (falls back to localhost dev port 3002).
- * - injects the bearer token read from expo-secure-store on every request.
- * - on 401, clears the token and flips the store back to unauthenticated.
+ * - baseURL from EXPO_PUBLIC_API_URL (defaults to localhost:3002 for dev).
+ * - forwards the better-auth session cookie (stored by @better-auth/expo) so the
+ *   cookie-authenticated REST controllers accept the request.
  */
 export const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3002',
+  baseURL: API_BASE_URL,
   timeout: 15000,
 });
 
-api.interceptors.request.use(async (config) => {
-  const token = await getAuthToken();
-  if (token) {
+api.interceptors.request.use((config) => {
+  // expoClient exposes the stored cookie string for non-better-auth requests.
+  const cookie = authClient.getCookie();
+  if (cookie) {
     config.headers = config.headers ?? {};
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers.Cookie = cookie;
   }
   return config;
 });
 
-api.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    if (error?.response?.status === 401) {
-      await clearAuthToken();
-      useAppStore.setState({ isAuthenticated: false, user: null });
-    }
-    return Promise.reject(error);
-  },
-);
-
 /**
- * Orval mutator: every generated SDK call routes through this function so it
- * shares the configured instance, token injection and 401 handling.
+ * Orval mutator: the generated SDK routes every call through this function so it
+ * shares the configured instance and cookie forwarding. Orval may pass a second
+ * options object (extra axios config), so accept and merge it.
  */
-export const apiClient = <T>(config: AxiosRequestConfig): Promise<T> =>
-  api({ ...config }).then((r) => r.data);
+export const apiClient = <T>(config: AxiosRequestConfig, options?: AxiosRequestConfig): Promise<T> =>
+  api({ ...config, ...options }).then((r) => r.data);
 
 export default apiClient;

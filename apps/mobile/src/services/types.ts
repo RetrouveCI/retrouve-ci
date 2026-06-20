@@ -22,6 +22,7 @@ export interface Annonce {
   phone: string;
   tone: ObjectTone;
   description: string;
+  image?: string | null;
 }
 
 export type NotificationType = 'scan' | 'match' | 'order' | 'resolved' | 'info';

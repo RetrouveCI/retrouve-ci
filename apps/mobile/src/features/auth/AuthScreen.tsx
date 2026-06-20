@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -6,6 +6,8 @@ import { Btn, Field, IconBtn, MeshBg, Txt } from '@/components';
 import { Icon } from '@/design/Icon';
 import { shadows } from '@/design/tokens';
 import { usePalette } from '@/design/useScheme';
+import { authClient, toE164 } from '@/services/auth-client';
+import { useAppStore } from '@/store/app.store';
 
 import { OtpInput } from './OtpInput';
 
@@ -20,6 +22,7 @@ interface AuthScreenProps {
 export function AuthScreen({ initialView = 'login', onAuthed, onClose }: AuthScreenProps) {
   const palette = usePalette();
   const insets = useSafeAreaInsets();
+  const showToast = useAppStore((s) => s.showToast);
 
   const [view, setView] = useState<AuthView>(initialView);
   const [phone, setPhone] = useState('07 08 45 11 27');
@@ -28,6 +31,36 @@ export function AuthScreen({ initialView = 'login', onAuthed, onClose }: AuthScr
   const [pwd, setPwd] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [resend, setResend] = useState(28);
+  const [busy, setBusy] = useState(false);
+
+  // Request an OTP for the entered phone number, then move to the code step.
+  const sendOtp = async () => {
+    setBusy(true);
+    const { error } = await authClient.phoneNumber.sendOtp({ phoneNumber: toE164(phone) });
+    setBusy(false);
+    if (error) {
+      showToast(error.message ?? "Échec de l'envoi du code", 'alert');
+      return;
+    }
+    setOtp('');
+    setView('otp');
+  };
+
+  // Verify the code — better-auth signs in (or signs up on first verification).
+  const verifyOtp = useCallback(
+    async (code: string) => {
+      setBusy(true);
+      const { error } = await authClient.phoneNumber.verify({ phoneNumber: toE164(phone), code });
+      setBusy(false);
+      if (error) {
+        showToast(error.message ?? 'Code invalide', 'alert');
+        setOtp('');
+        return;
+      }
+      onAuthed();
+    },
+    [phone, onAuthed, showToast],
+  );
 
   useEffect(() => {
     if (view !== 'otp') return;
@@ -37,11 +70,11 @@ export function AuthScreen({ initialView = 'login', onAuthed, onClose }: AuthScr
   }, [view]);
 
   useEffect(() => {
-    if (view === 'otp' && otp.length === 4) {
-      const t = setTimeout(onAuthed, 420);
+    if (view === 'otp' && otp.length === 4 && !busy) {
+      const t = setTimeout(() => verifyOtp(otp), 300);
       return () => clearTimeout(t);
     }
-  }, [otp, view, onAuthed]);
+  }, [otp, view, busy, verifyOtp]);
 
   const Header = ({ title, sub }: { title: string; sub?: string }) => (
     <View style={{ marginBottom: 30 }}>
@@ -113,7 +146,7 @@ export function AuthScreen({ initialView = 'login', onAuthed, onClose }: AuthScr
               Mot de passe oublié ?
             </Txt>
             <View style={{ marginTop: 'auto', paddingTop: 30, gap: 14 }}>
-              <Btn variant="primary" fullWidth iconRight="arrowR" label="Recevoir le code" onPress={() => setView('otp')} />
+              <Btn variant="primary" fullWidth iconRight="arrowR" label="Recevoir le code" loading={busy} onPress={sendOtp} />
               <Txt weight="regular" onPress={() => setView('register')} style={{ textAlign: 'center', fontSize: 15, color: palette.text2 }}>
                 Pas encore de compte ? <Txt weight="semibold" style={{ color: palette.green }}>Créer un compte</Txt>
               </Txt>
@@ -134,13 +167,13 @@ export function AuthScreen({ initialView = 'login', onAuthed, onClose }: AuthScr
                   </Txt>
                 </Txt>
               ) : (
-                <Txt weight="semibold" onPress={() => setResend(28)} style={{ fontSize: 14.5, color: palette.green }}>
+                <Txt weight="semibold" onPress={sendOtp} style={{ fontSize: 14.5, color: palette.green }}>
                   Renvoyer le code
                 </Txt>
               )}
             </View>
             <View style={{ marginTop: 'auto', paddingTop: 30 }}>
-              <Btn variant="primary" fullWidth label="Vérifier" disabled={otp.length < 4} onPress={onAuthed} />
+              <Btn variant="primary" fullWidth label="Vérifier" loading={busy} disabled={otp.length < 4} onPress={() => verifyOtp(otp)} />
               <Txt weight="regular" style={{ textAlign: 'center', fontSize: 12.5, color: palette.text3, marginTop: 16 }}>
                 Astuce démo : saisissez 4 chiffres pour continuer.
               </Txt>
@@ -176,7 +209,7 @@ export function AuthScreen({ initialView = 'login', onAuthed, onClose }: AuthScr
               En continuant, vous acceptez les Conditions d&apos;utilisation et la Politique de confidentialité de RetrouveCI.
             </Txt>
             <View style={{ marginTop: 'auto', paddingTop: 24, gap: 14 }}>
-              <Btn variant="primary" fullWidth iconRight="arrowR" label="Continuer" onPress={() => setView('otp')} />
+              <Btn variant="primary" fullWidth iconRight="arrowR" label="Continuer" loading={busy} onPress={sendOtp} />
               <Txt weight="regular" onPress={() => setView('login')} style={{ textAlign: 'center', fontSize: 15, color: palette.text2 }}>
                 Déjà inscrit ? <Txt weight="semibold" style={{ color: palette.green }}>Se connecter</Txt>
               </Txt>

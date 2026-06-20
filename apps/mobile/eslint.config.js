@@ -5,6 +5,7 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*'],
+    // Generated Orval client — don't lint machine-generated code.
+    ignores: ['dist/*', 'src/services/generated/*'],
   },
 ]);

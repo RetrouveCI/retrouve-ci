@@ -21,6 +21,7 @@ export function AnnonceCardH({ annonce }: { annonce: Annonce }) {
       <View>
         <ObjectThumb
           tone={annonce.tone}
+          uri={annonce.image}
           radius={0}
           iconSize={30}
           showLabel

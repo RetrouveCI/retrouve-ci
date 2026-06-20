@@ -56,6 +56,7 @@ export default function AnnonceDetailRoute() {
           <>
             <ObjectThumb
               tone={annonce.tone}
+              uri={annonce.image}
               radius={18}
               iconSize={48}
               showLabel

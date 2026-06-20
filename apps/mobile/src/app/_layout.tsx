@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '@/global.css';
 
 import { ToastHost } from '@/components';
+import { SessionSync } from '@/features/auth/SessionSync';
 import { geistFonts } from '@/design/fonts';
 import { useScheme } from '@/design/useScheme';
 import { useAppStore } from '@/store/app.store';
@@ -58,6 +59,7 @@ export default function RootLayout() {
                 options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
               />
             </Stack>
+            <SessionSync />
             <ToastHost />
           </BottomSheetModalProvider>
         </QueryClientProvider>

@@ -16,7 +16,7 @@ export function AnnonceRow({ annonce }: { annonce: Annonce }) {
   return (
     <Card padding={12} onPress={() => router.push(`/annonce/${annonce.id}`)}>
       <View style={{ flexDirection: 'row', gap: 13 }}>
-        <ObjectThumb tone={annonce.tone} radius={14} iconSize={26} style={{ width: 78, height: 78 }} />
+        <ObjectThumb tone={annonce.tone} uri={annonce.image} radius={14} iconSize={26} style={{ width: 78, height: 78 }} />
         <View style={{ flex: 1 }}>
           <View
             style={{
