@@ -64,6 +64,14 @@
 		"dev": {
 			"cache": false,
 			"persistent": true
+		},
+		"start": {
+			"cache": false,
+			"persistent": true
+		},
+		"tunnel": {
+			"cache": false,
+			"persistent": true
 		}
 	}
 }

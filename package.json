@@ -4,6 +4,8 @@
 	"scripts": {
 		"build": "turbo run build",
 		"dev": "turbo run dev",
+		"mobile": "turbo run start --filter=mobile",
+		"mobile:tunnel": "turbo run tunnel --filter=mobile",
 		"lint": "turbo run lint",
 		"check-types": "turbo run check-types",
 		"test": "turbo run test",
