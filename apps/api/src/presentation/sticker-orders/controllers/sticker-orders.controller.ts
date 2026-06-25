@@ -10,7 +10,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
-import type { auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructure/auth/auth.config'
 import { StickerOrderUseCases } from '@/domains/sticker-orders/use-cases/sticker-order.use-cases'
 import { CreateStickerOrderDto } from '../dto/create-sticker-order.dto'
 import { ListStickerOrdersQueryDto } from '../dto/list-sticker-orders.query.dto'
@@ -24,7 +24,7 @@ export class StickerOrdersController {
 
 	@Post()
 	create(
-		@Session() session: UserSession<typeof auth>,
+		@Session() session: UserSession<Auth>,
 		@Body() dto: CreateStickerOrderDto,
 	) {
 		return this.stickerOrderUseCases.create({
@@ -41,17 +41,14 @@ export class StickerOrdersController {
 
 	@Get('mine')
 	listMine(
-		@Session() session: UserSession<typeof auth>,
+		@Session() session: UserSession<Auth>,
 		@Query() query: ListStickerOrdersQueryDto,
 	) {
 		return this.stickerOrderUseCases.listMine(session.user.id, query)
 	}
 
 	@Get(':id')
-	getOne(
-		@Session() session: UserSession<typeof auth>,
-		@Param('id') id: string,
-	) {
+	getOne(@Session() session: UserSession<Auth>, @Param('id') id: string) {
 		return this.stickerOrderUseCases.getOne(id, session.user.id)
 	}
 

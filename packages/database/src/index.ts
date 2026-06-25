@@ -1,2 +1,2 @@
-export { createPrismaClientOptions, prisma } from './client.js'
+export { createPrismaClientOptions } from './client.js'
 export * from './generated/prisma/client.js'

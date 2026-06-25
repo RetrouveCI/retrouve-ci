@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { auth } from '@/infrastructure/auth/auth.config'
+import { AuthService } from '@thallesp/nestjs-better-auth'
+import type { Auth } from '@/infrastructure/auth/auth.config'
 import { PrismaService } from '@/infrastructure/database/prisma.service'
 
 @Injectable()
@@ -10,6 +11,7 @@ export class SeederService implements OnApplicationBootstrap {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly config: ConfigService,
+		private readonly authService: AuthService<Auth>,
 	) {}
 
 	async onApplicationBootstrap(): Promise<void> {
@@ -34,7 +36,7 @@ export class SeederService implements OnApplicationBootstrap {
 		if (existing) return
 
 		try {
-			const result = await auth.api.signUpEmail({
+			const result = await this.authService.api.signUpEmail({
 				body: { email, password, name },
 			})
 
@@ -76,7 +78,7 @@ export class SeederService implements OnApplicationBootstrap {
 		if (existing) return
 
 		try {
-			const result = await auth.api.signUpEmail({
+			const result = await this.authService.api.signUpEmail({
 				body: { email, password, name },
 			})
 

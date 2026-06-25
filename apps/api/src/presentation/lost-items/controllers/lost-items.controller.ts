@@ -13,7 +13,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Queue } from 'bullmq'
-import type { auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructure/auth/auth.config'
 import { FIND_MATCHES_JOB, MATCHING_QUEUE } from '@/domains/matching/constants'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
@@ -34,7 +34,7 @@ export class LostItemsController {
 
 	@Post()
 	async create(
-		@Session() session: UserSession<typeof auth>,
+		@Session() session: UserSession<Auth>,
 		@Body() dto: CreateLostItemDto,
 	) {
 		const lostItem = await this.lostItemUseCases.create({
@@ -61,7 +61,7 @@ export class LostItemsController {
 
 	@Get('mine')
 	listMine(
-		@Session() session: UserSession<typeof auth>,
+		@Session() session: UserSession<Auth>,
 		@Query() query: ListLostItemsQueryDto,
 	) {
 		return this.lostItemUseCases.listMine(
@@ -118,7 +118,7 @@ export class LostItemsController {
 
 	@Patch(':id')
 	update(
-		@Session() session: UserSession<typeof auth>,
+		@Session() session: UserSession<Auth>,
 		@Param('id') id: string,
 		@Body() dto: UpdateLostItemDto,
 	) {
@@ -131,10 +131,7 @@ export class LostItemsController {
 	}
 
 	@Delete(':id')
-	delete(
-		@Session() session: UserSession<typeof auth>,
-		@Param('id') id: string,
-	) {
+	delete(@Session() session: UserSession<Auth>, @Param('id') id: string) {
 		return this.lostItemUseCases.delete(id, session.user.id)
 	}
 }
