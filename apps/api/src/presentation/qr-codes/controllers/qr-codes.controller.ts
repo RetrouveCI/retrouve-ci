@@ -11,7 +11,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
-import type { auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructure/auth/auth.config'
 import { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases'
 import { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'
 import { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
@@ -45,7 +45,7 @@ export class QrCodesController {
 
 	@Get('mine')
 	listMine(
-		@Session() session: UserSession<typeof auth>,
+		@Session() session: UserSession<Auth>,
 		@Query() query: ListQrTokensQueryDto,
 	) {
 		return this.qrTokenUseCases.listMine(session.user.id, query)
@@ -65,7 +65,7 @@ export class QrCodesController {
 
 	@Post(':code/activate')
 	activate(
-		@Session() session: UserSession<typeof auth>,
+		@Session() session: UserSession<Auth>,
 		@Param('code') code: string,
 		@Body() dto: ActivateQrTokenDto,
 	) {
@@ -107,7 +107,7 @@ export class QrCodesController {
 
 	@Patch(':code')
 	update(
-		@Session() session: UserSession<typeof auth>,
+		@Session() session: UserSession<Auth>,
 		@Param('code') code: string,
 		@Body() dto: UpdateQrTokenDto,
 	) {
@@ -115,10 +115,7 @@ export class QrCodesController {
 	}
 
 	@Post(':code/revoke')
-	revoke(
-		@Session() session: UserSession<typeof auth>,
-		@Param('code') code: string,
-	) {
+	revoke(@Session() session: UserSession<Auth>, @Param('code') code: string) {
 		return this.qrTokenUseCases.revoke(code, session.user.id)
 	}
 }

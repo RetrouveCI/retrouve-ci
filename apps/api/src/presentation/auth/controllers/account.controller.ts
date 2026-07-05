@@ -3,14 +3,14 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AuthService } from '@thallesp/nestjs-better-auth'
 import { fromNodeHeaders } from 'better-auth/node'
 import type { FastifyRequest } from 'fastify'
-import { auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructure/auth/auth.config'
 import { SetInitialPasswordDto } from '../dto/set-initial-password.dto'
 
 @ApiTags('account')
 @ApiBearerAuth()
 @Controller('account')
 export class AccountController {
-	constructor(private readonly authService: AuthService<typeof auth>) {}
+	constructor(private readonly authService: AuthService<Auth>) {}
 
 	@Post('set-initial-password')
 	setInitialPassword(
