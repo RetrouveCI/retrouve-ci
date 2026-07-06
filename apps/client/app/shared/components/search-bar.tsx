@@ -4,12 +4,18 @@ import { Search, X } from 'lucide-react'
 import { Button, Input } from '@retrouve-ci/ui/components'
 import { cn } from '@retrouve-ci/ui/utils'
 
-type Size = 'sm' | 'md' | 'lg'
+type Size = 'xs' | 'sm' | 'md' | 'lg'
 
 const SIZE: Record<
 	Size,
 	{ shell: string; input: string; icon: string; button: string }
 > = {
+	xs: {
+		shell: 'py-0.5 pl-3.5 pr-1.5',
+		input: 'h-9 text-sm',
+		icon: 'h-4 w-4',
+		button: 'h-8 px-4 text-sm',
+	},
 	sm: {
 		shell: 'py-1 pl-3.5 pr-1.5',
 		input: 'h-10 text-sm',
@@ -64,6 +70,7 @@ export function SearchBar(props: SearchBarProps) {
 		size.shell,
 		props.className,
 	)
+
 	const inputClass = cn(
 		'border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0',
 		size.input,

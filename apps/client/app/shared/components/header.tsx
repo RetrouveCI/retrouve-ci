@@ -1,8 +1,14 @@
-import { Button } from '@retrouve-ci/ui/components'
+import {
+	Button,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@retrouve-ci/ui/components'
 import { Link, useLocation } from 'react-router'
-import { Menu, LogIn, Plus } from 'lucide-react'
+import { Menu, LogIn, Plus, ChevronDown } from 'lucide-react'
 import { MobileNav } from '@/shared/components/mobile-nav'
-import { HeaderSearch } from '@/shared/components/header-search'
+import { SearchBar } from '@/shared/components/search-bar'
 import { ThemeToggle } from '@/shared/components/theme-toggle'
 import { UserMenu } from '@/shared/components/user-menu'
 import { NotificationBell } from '@/features/notifications/components/notification-bell'
@@ -46,19 +52,19 @@ export function Header() {
 					: 'bg-background border-b',
 			)}
 		>
-			<div className="container mx-auto flex h-16 items-center justify-between px-4">
+			<div className="mx-auto flex h-16 w-full max-w-400 items-center justify-between gap-6 px-6 lg:px-10">
 				<Link to="/" className="group flex shrink-0 items-center gap-2.5">
 					<LogoRetrouveCI />
 				</Link>
 
-				<nav className="hidden items-center md:flex">
+				<nav className="hidden shrink-0 items-center md:flex">
 					<div className="bg-muted/50 flex items-center gap-1 rounded-full p-1">
 						{navLinks.map(link => (
 							<Link
 								key={link.href}
 								to={link.href}
 								className={cn(
-									'rounded-full px-4 py-2 text-sm font-medium transition-all duration-200',
+									'rounded-full px-6 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200',
 									isActivePath(pathname, link.href)
 										? 'bg-background text-foreground shadow-sm'
 										: 'text-muted-foreground hover:text-foreground',
@@ -70,32 +76,51 @@ export function Header() {
 					</div>
 				</nav>
 
-				<div className="flex items-center gap-1.5">
-					<HeaderSearch />
+				<div className="hidden min-w-0 grow shrink-0 md:flex md:w-md">
+					<SearchBar
+						mode="navigate"
+						action="/posts"
+						size="xs"
+						showSubmit={false}
+						placeholder="Rechercher un objet..."
+						className="w-full max-w-2xl"
+					/>
+				</div>
+
+				<div className="flex shrink-0 items-center gap-1.5">
 					<ThemeToggle className="hidden h-9 w-9 rounded-full md:inline-flex" />
 
-					<Button
-						asChild
-						size="sm"
-						className="bg-primary-green hover:bg-primary-green-dark hidden h-9 gap-1.5 rounded-full px-4 text-white md:inline-flex"
-					>
-						<Link to="/publish">
-							<Plus className="h-4 w-4" />
-							Publier
-						</Link>
-					</Button>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								size="sm"
+								className="bg-primary-green hover:bg-primary-green-dark hidden h-9 gap-1.5 rounded-full px-4 text-white md:inline-flex"
+							>
+								<Plus className="h-4 w-4" />
+								Publier
+								<ChevronDown className="h-3.5 w-3.5 opacity-80" />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-48">
+							<DropdownMenuItem asChild>
+								<Link to="/publish/lost">Objet perdu</Link>
+							</DropdownMenuItem>
+							<DropdownMenuItem asChild>
+								<Link to="/publish/found">Objet trouvé</Link>
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 
 					{isAuthenticated ? (
-						<>
+						<div className="bg-muted/50 hidden items-center gap-1 rounded-full p-1 md:flex">
 							<NotificationBell />
-							<div className="hidden md:block">
-								<UserMenu
-									name={user?.name ?? ''}
-									phone={user?.phone}
-									onLogout={logout}
-								/>
-							</div>
-						</>
+							<div className="bg-border h-5 w-px" />
+							<UserMenu
+								name={user?.name ?? ''}
+								phone={user?.phone}
+								onLogout={logout}
+							/>
+						</div>
 					) : (
 						<Button
 							asChild
@@ -123,12 +148,7 @@ export function Header() {
 			</div>
 
 			{mounted && (
-				<MobileNav
-					open={mobileNavOpen}
-					onOpenChange={setMobileNavOpen}
-					links={navLinks}
-					currentPath={pathname}
-				/>
+				<MobileNav open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
 			)}
 		</header>
 	)
