@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { ArrowRight, ShieldCheck, Users, MapPin } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
 import { SearchBar } from '@/shared/components/search-bar'
-import { HeroGlobe } from './hero-globe'
+import { HeroMap } from './hero-map'
 
 const CYCLING_WORDS = [
 	'un objet',
@@ -53,7 +53,7 @@ export function HeroSection() {
 			<div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-size-[4rem_4rem]" />
 			<div className="bg-primary-green/15 absolute top-1/4 -right-20 h-125 w-125 rounded-full bg-linear-to-br to-transparent blur-3xl" />
 			<div className="bg-accent-orange/10 absolute bottom-1/4 -left-20 h-100 w-100 rounded-full bg-linear-to-tl to-transparent blur-3xl" />
-			<HeroGlobe />
+			<HeroMap />
 
 			<div className="relative z-10 container mx-auto px-4 py-20">
 				<div className="mx-auto max-w-5xl">
