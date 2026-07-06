@@ -241,6 +241,12 @@
 	}
 }
 
+@keyframes flow-dash {
+	to {
+		stroke-dashoffset: -24;
+	}
+}
+
 .animate-float {
 	animation: float 4s ease-in-out infinite;
 }
@@ -284,6 +290,10 @@
 
 .animate-spin-slow {
 	animation: spin-slow 3s linear infinite;
+}
+
+.animate-flow-dash {
+	animation: flow-dash 1.2s linear infinite;
 }
 
 .glass-effect {
