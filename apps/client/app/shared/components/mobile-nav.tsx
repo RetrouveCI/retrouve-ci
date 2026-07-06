@@ -11,7 +11,7 @@ import {
 	Home,
 	Newspaper,
 	PlusCircle,
-	QrCode,
+	// QrCode, // stickers on stand-by
 	LogIn,
 	LogOut,
 	User,
@@ -37,7 +37,7 @@ const NAV_ICONS: Record<string, React.ElementType> = {
 	'/': Home,
 	'/posts': Newspaper,
 	'/publish': PlusCircle,
-	'/stickers': QrCode,
+	// '/stickers': QrCode, // stickers on stand-by
 }
 
 function isActivePath(pathname: string, href: string) {

@@ -11,10 +11,11 @@ const faqs = [
 		q: 'Mes données personnelles sont-elles protégées ?',
 		a: "Oui. Votre numéro de téléphone n'est jamais affiché publiquement. Tout contact se fait via notre messagerie sécurisée.",
 	},
-	{
-		q: 'Comment fonctionnent les stickers QR ?',
-		a: "Chaque sticker contient un QR code unique lié à votre profil. Quand quelqu'un scanne le sticker sur votre objet, il peut vous contacter directement sans voir vos informations personnelles.",
-	},
+	// Stickers on stand-by until we have a reliable printer/logistics partner
+	// {
+	// 	q: 'Comment fonctionnent les stickers QR ?',
+	// 	a: "Chaque sticker contient un QR code unique lié à votre profil. Quand quelqu'un scanne le sticker sur votre objet, il peut vous contacter directement sans voir vos informations personnelles.",
+	// },
 	{
 		q: 'Comment supprimer mon annonce ?',
 		a: "Connectez-vous à votre compte, accédez à la section « Mes annonces » et cliquez sur « Supprimer ». L'annonce disparaît immédiatement.",

@@ -1,6 +1,9 @@
 import { Button } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
-import { ArrowRight, QrCode } from 'lucide-react'
+import {
+	ArrowRight,
+	// QrCode, // stickers on stand-by
+} from 'lucide-react'
 import { useAuth } from '@/shared/auth/auth-context'
 
 export function CtaSection() {
@@ -19,13 +22,12 @@ export function CtaSection() {
 						</span>
 						<h2 className="text-2xl font-bold text-white md:text-3xl">
 							{isAuthenticated
-								? 'Protégez vos objets dès aujourd’hui'
-								: 'Créez votre compte et protégez vos objets'}
+								? 'Publiez votre annonce dès aujourd’hui'
+								: 'Créez votre compte et publiez votre annonce'}
 						</h2>
 						<p className="mx-auto max-w-md text-white/70">
-							Activez les alertes pour vos recherches et commandez des stickers
-							QR pour qu&apos;on puisse vous joindre sans dévoiler vos
-							coordonnées.
+							Activez les alertes pour vos recherches et laissez la communauté
+							RetrouveCI vous aider à retrouver ce qui compte pour vous.
 						</p>
 						<div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row">
 							<Button
@@ -43,6 +45,7 @@ export function CtaSection() {
 									<ArrowRight className="h-4 w-4" />
 								</Link>
 							</Button>
+							{/* Stickers on stand-by until we have a reliable printer/logistics partner
 							<Button
 								asChild
 								variant="outline"
@@ -54,6 +57,7 @@ export function CtaSection() {
 									Découvrir les stickers QR
 								</Link>
 							</Button>
+							*/}
 						</div>
 					</div>
 				</div>

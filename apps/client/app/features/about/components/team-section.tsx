@@ -1,7 +1,11 @@
 const team = [
-	{ name: 'Konan Yao', role: 'Fondateur & CEO', initials: 'KY' },
-	{ name: 'Amina Traoré', role: 'Directrice Produit', initials: 'AT' },
-	{ name: 'Brice Assi', role: 'Lead Développeur', initials: 'BA' },
+	{ name: 'Joël Ephraïm DIGBEU', role: 'Founder & CEO', initials: 'KY' },
+	{
+		name: 'Luc Coulibaly',
+		role: 'Co-founder & Lead Développeur',
+		initials: 'BA',
+	},
+	{ name: 'Emmanuelle Adji', role: 'Directrice Produit', initials: 'AT' },
 	{ name: 'Fatou Koné', role: 'Community Manager', initials: 'FK' },
 ]
 

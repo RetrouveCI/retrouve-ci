@@ -15,8 +15,9 @@ const footerLinks = {
 		{ href: '/', label: 'Accueil' },
 		{ href: '/posts', label: 'Annonces' },
 		{ href: '/publish', label: 'Publier' },
-		{ href: '/stickers', label: 'Stickers QR' },
-		{ href: '/download', label: 'Télécharger' },
+		// Stickers/download on stand-by until we have a printer/logistics partner
+		// { href: '/stickers', label: 'Stickers QR' },
+		// { href: '/download', label: 'Télécharger' },
 	],
 	legal: [
 		{ href: '/about', label: 'À propos' },

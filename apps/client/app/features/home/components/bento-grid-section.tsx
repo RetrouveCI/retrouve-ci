@@ -6,8 +6,8 @@ import {
 	TrendingUp,
 	Clock,
 	Users,
-	QrCode,
-	Smartphone,
+	// QrCode, // stickers on stand-by
+	// Smartphone, // download/mobile app teaser on stand-by
 } from 'lucide-react'
 
 export function BentoGridSection() {
@@ -102,8 +102,8 @@ export function BentoGridSection() {
 						</div>
 					</div>
 
-					<div className="group col-span-12 md:col-span-4 md:row-span-2">
-						<div className="bg-background border-border/50 hover:border-border relative h-full min-h-100 overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-lg">
+					<div className="group col-span-12 md:col-span-4">
+						<div className="bg-background border-border/50 hover:border-border relative h-full min-h-70 overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-lg">
 							<div className="flex h-full flex-col">
 								<div className="bg-accent-orange/10 mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
 									<Bell className="text-accent-orange h-6 w-6" />
@@ -188,6 +188,9 @@ export function BentoGridSection() {
 						</div>
 					</div>
 
+					{/* Stickers QR + app mobile tiles on stand-by until we have a reliable
+					    printer/logistics partner (kept intact, see features/stickers,
+					    features/download)
 					<div className="group col-span-12 md:col-span-8">
 						<div className="border-border/50 from-accent-orange/10 via-accent-orange/5 hover:border-accent-orange/30 relative h-full min-h-55 overflow-hidden rounded-3xl border bg-linear-to-r to-transparent p-8 transition-all duration-300 hover:shadow-lg">
 							<div className="bg-accent-orange/10 absolute -right-10 -bottom-10 h-40 w-40 rounded-full blur-2xl" />
@@ -240,6 +243,7 @@ export function BentoGridSection() {
 							</div>
 						</Link>
 					</div>
+					*/}
 				</div>
 			</div>
 		</section>

@@ -1,4 +1,9 @@
-import { Heart, QrCode, MapPin, Users } from 'lucide-react'
+import {
+	Heart,
+	// QrCode, // stickers on stand-by
+	MapPin,
+	Users,
+} from 'lucide-react'
 
 export function MissionBento() {
 	return (
@@ -25,13 +30,14 @@ export function MissionBento() {
 							Fondée en
 						</p>
 						<div>
-							<p className="text-6xl font-bold">2024</p>
+							<p className="text-6xl font-bold">2026</p>
 							<p className="mt-1 text-sm text-white/80">
 								Abidjan, Côte d&apos;Ivoire
 							</p>
 						</div>
 					</div>
 
+					{/* Stickers QR tile on stand-by until we have a reliable printer/logistics partner
 					<div className="bg-background flex flex-col gap-4 rounded-2xl border p-8 md:col-span-4">
 						<div className="bg-accent-orange/10 inline-flex h-12 w-12 items-center justify-center rounded-xl">
 							<QrCode className="text-accent-orange h-6 w-6" />
@@ -45,8 +51,9 @@ export function MissionBento() {
 							</p>
 						</div>
 					</div>
+					*/}
 
-					<div className="bg-background flex flex-col gap-4 rounded-2xl border p-8 md:col-span-4">
+					<div className="bg-background flex flex-col gap-4 rounded-2xl border p-8 md:col-span-6">
 						<div className="bg-primary-green/10 inline-flex h-12 w-12 items-center justify-center rounded-xl">
 							<MapPin className="text-primary-green h-6 w-6" />
 						</div>
@@ -60,7 +67,7 @@ export function MissionBento() {
 						</div>
 					</div>
 
-					<div className="bg-muted/30 flex flex-col gap-4 rounded-2xl border p-8 md:col-span-4">
+					<div className="bg-muted/30 flex flex-col gap-4 rounded-2xl border p-8 md:col-span-6">
 						<div className="bg-accent-orange/10 inline-flex h-12 w-12 items-center justify-center rounded-xl">
 							<Users className="text-accent-orange h-6 w-6" />
 						</div>
