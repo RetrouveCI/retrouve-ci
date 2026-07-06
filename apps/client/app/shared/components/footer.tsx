@@ -15,8 +15,9 @@ const footerLinks = {
 		{ href: '/', label: 'Accueil' },
 		{ href: '/posts', label: 'Annonces' },
 		{ href: '/publish', label: 'Publier' },
-		{ href: '/stickers', label: 'Stickers QR' },
-		{ href: '/download', label: 'Télécharger' },
+		// Stickers/download on stand-by until we have a printer/logistics partner
+		// { href: '/stickers', label: 'Stickers QR' },
+		// { href: '/download', label: 'Télécharger' },
 	],
 	legal: [
 		{ href: '/about', label: 'À propos' },
@@ -35,13 +36,13 @@ const socials = [
 const contactItems = [
 	{
 		icon: Mail,
-		label: 'contact@retrouveci.ci',
-		href: 'mailto:contact@retrouveci.ci',
+		label: 'contact@retrouveci.com',
+		href: 'mailto:contact@retrouveci.com',
 	},
 	{
 		icon: MessageSquare,
-		label: '+225 07 00 00 00 00',
-		href: 'https://wa.me/2250700000000',
+		label: '225 07 58 99 14 27',
+		href: 'https://wa.me/2250758991427',
 	},
 	{ icon: MapPin, label: 'Cocody, Abidjan — Côte d’Ivoire', href: null },
 ]

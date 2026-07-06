@@ -14,7 +14,8 @@ import { LogoRetrouveCI } from './logo-retrouveci'
 const navLinks = [
 	{ href: '/', label: 'Accueil' },
 	{ href: '/posts', label: 'Annonces' },
-	{ href: '/stickers', label: 'Stickers QR' },
+	// Stickers on stand-by until we have a reliable printer/logistics partner
+	// { href: '/stickers', label: 'Stickers QR' },
 ]
 
 function isActivePath(pathname: string, href: string) {

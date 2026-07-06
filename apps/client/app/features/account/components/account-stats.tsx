@@ -1,15 +1,23 @@
-import { FileText, Eye, MessageCircle, Shield } from 'lucide-react'
+import {
+	FileText,
+	Eye,
+	MessageCircle,
+	// Shield, // stickers on stand-by
+} from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import type { Sticker } from '@/shared/types/sticker'
+// import type { Sticker } from '@/shared/types/sticker' // stickers on stand-by
 import type { UserLostItem } from '@/shared/types/lost-item'
 
 interface AccountStatsProps {
-	stickers: Sticker[]
+	// stickers: Sticker[] // stickers on stand-by
 	listings: UserLostItem[]
 }
 
-export function AccountStats({ stickers, listings }: AccountStatsProps) {
-	const activeStickers = stickers.filter(s => s.isActive).length
+export function AccountStats({
+	// stickers, // stickers on stand-by
+	listings,
+}: AccountStatsProps) {
+	// const activeStickers = stickers.filter(s => s.isActive).length // stickers on stand-by
 	const activeListings = listings.filter(
 		l => l.moderationStatus === 'published' && l.status === 'active',
 	).length
@@ -30,18 +38,19 @@ export function AccountStats({ stickers, listings }: AccountStatsProps) {
 			label: 'Contacts reçus',
 			accent: 'green',
 		},
-		{
-			icon: Shield,
-			value: activeStickers,
-			label: 'Stickers actifs',
-			accent: 'orange',
-		},
+		// Stickers on stand-by until we have a reliable printer/logistics partner
+		// {
+		// 	icon: Shield,
+		// 	value: activeStickers,
+		// 	label: 'Stickers actifs',
+		// 	accent: 'orange',
+		// },
 	] as const
 
 	return (
 		<section className="py-8">
 			<div className="container mx-auto px-4">
-				<div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+				<div className="grid grid-cols-3 gap-3">
 					{statItems.map(({ icon: Icon, value, label, accent }) => {
 						const isGreen = accent === 'green'
 						return (

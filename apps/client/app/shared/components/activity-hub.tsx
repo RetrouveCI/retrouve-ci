@@ -5,12 +5,12 @@ import { Link } from 'react-router'
 import {
 	Zap,
 	FileText,
-	QrCode,
-	Package,
+	// QrCode, // stickers on stand-by
+	// Package, // stickers on stand-by
 	Bell,
 	Plus,
 	Search,
-	ShoppingCart,
+	// ShoppingCart, // stickers on stand-by
 	X,
 	Loader2,
 } from 'lucide-react'
@@ -26,8 +26,9 @@ import { apiFetch } from '@/shared/lib/api-client'
 
 interface ActivitySummary {
 	posts: { total: number; active: number; pending: number }
-	stickers: { total: number; activated: number }
-	orders: { total: number; inProgress: number }
+	// Stickers/orders on stand-by until we have a reliable printer/logistics partner
+	// stickers: { total: number; activated: number }
+	// orders: { total: number; inProgress: number }
 	unreadNotifications: number
 }
 
@@ -48,24 +49,25 @@ export function ActivityHub() {
 	const fetchSummary = useCallback(async () => {
 		setLoading(true)
 		try {
-			const [postsRes, stickersRes, ordersRes, unreadCount] = await Promise.all(
-				[
-					apiFetch<{
-						items: Array<{
-							moderationStatus: string
-							resolutionStatus: string
-						}>
-						total: number
-					}>('/lost-items/mine?pageSize=50'),
-					apiFetch<{ items: Array<{ status: string }>; total: number }>(
-						'/qr-codes/mine?pageSize=50',
-					),
-					apiFetch<{ items: Array<{ status: string }>; total: number }>(
-						'/sticker-orders/mine?pageSize=50',
-					),
-					apiFetch<number>('/notifications/unread-count'),
-				],
-			)
+			// Stickers/orders fetching on stand-by until we have a reliable printer/logistics partner
+			// const [postsRes, stickersRes, ordersRes, unreadCount] = await Promise.all([
+			// 	apiFetch<{ items: Array<{ status: string }>; total: number }>(
+			// 		'/qr-codes/mine?pageSize=50',
+			// 	),
+			// 	apiFetch<{ items: Array<{ status: string }>; total: number }>(
+			// 		'/sticker-orders/mine?pageSize=50',
+			// 	),
+			// ])
+			const [postsRes, unreadCount] = await Promise.all([
+				apiFetch<{
+					items: Array<{
+						moderationStatus: string
+						resolutionStatus: string
+					}>
+					total: number
+				}>('/lost-items/mine?pageSize=50'),
+				apiFetch<number>('/notifications/unread-count'),
+			])
 
 			const newSummary: ActivitySummary = {
 				posts: {
@@ -78,20 +80,20 @@ export function ActivityHub() {
 					pending: postsRes.items.filter(i => i.moderationStatus === 'pending')
 						.length,
 				},
-				stickers: {
-					total: stickersRes.total,
-					activated: stickersRes.items.filter(i => i.status === 'activated')
-						.length,
-				},
-				orders: {
-					total: ordersRes.total,
-					inProgress: ordersRes.items.filter(
-						i =>
-							i.status === 'pending' ||
-							i.status === 'processing' ||
-							i.status === 'shipped',
-					).length,
-				},
+				// stickers: {
+				// 	total: stickersRes.total,
+				// 	activated: stickersRes.items.filter(i => i.status === 'activated')
+				// 		.length,
+				// },
+				// orders: {
+				// 	total: ordersRes.total,
+				// 	inProgress: ordersRes.items.filter(
+				// 		i =>
+				// 			i.status === 'pending' ||
+				// 			i.status === 'processing' ||
+				// 			i.status === 'shipped',
+				// 	).length,
+				// },
 				unreadNotifications: unreadCount,
 			}
 			setSummary(newSummary)
@@ -113,8 +115,8 @@ export function ActivityHub() {
 
 	const hasActivity =
 		hasUnread ||
-		(summary !== null &&
-			(summary.posts.pending > 0 || summary.orders.inProgress > 0))
+		// stand-by: summary.orders.inProgress > 0 (stickers on stand-by)
+		(summary !== null && summary.posts.pending > 0)
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -174,6 +176,7 @@ export function ActivityHub() {
 								highlight={summary.posts.pending > 0}
 								onClick={() => setOpen(false)}
 							/>
+							{/* Stickers/orders rows on stand-by until we have a reliable printer/logistics partner
 							<SummaryRow
 								icon={QrCode}
 								label="Stickers QR"
@@ -199,6 +202,7 @@ export function ActivityHub() {
 								highlight={summary.orders.inProgress > 0}
 								onClick={() => setOpen(false)}
 							/>
+							*/}
 							<SummaryRow
 								icon={Bell}
 								label="Notifications"
@@ -231,12 +235,14 @@ export function ActivityHub() {
 									href="/publish/found"
 									onClick={() => setOpen(false)}
 								/>
+								{/* Stickers on stand-by until we have a reliable printer/logistics partner
 								<QuickAction
 									icon={ShoppingCart}
 									label="Commander des stickers"
 									href="/stickers/order"
 									onClick={() => setOpen(false)}
 								/>
+								*/}
 							</div>
 						</div>
 					</>

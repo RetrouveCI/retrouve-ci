@@ -1,30 +1,30 @@
 import { Link } from 'react-router'
 import {
-	QrCode,
 	FileText,
-	Package,
+	// QrCode, // stickers on stand-by
+	// Package, // stickers on stand-by
 	Settings,
 	ChevronRight,
 	Plus,
 } from 'lucide-react'
 import { cn } from '@retrouve-ci/ui/utils'
-import type { Sticker } from '@/shared/types/sticker'
+// import type { Sticker } from '@/shared/types/sticker' // stickers on stand-by
 import type { UserLostItem } from '@/shared/types/lost-item'
 
 interface AccountNavProps {
-	stickers: Sticker[]
+	// stickers: Sticker[] // stickers on stand-by
 	listings: UserLostItem[]
-	ordersCount: number
+	// ordersCount: number // stickers on stand-by
 	className?: string
 }
 
 export function AccountNav({
-	stickers,
+	// stickers, // stickers on stand-by
 	listings,
-	ordersCount,
+	// ordersCount, // stickers on stand-by
 	className,
 }: AccountNavProps) {
-	const activeStickers = stickers.filter(s => s.isActive).length
+	// const activeStickers = stickers.filter(s => s.isActive).length // stickers on stand-by
 
 	const navItems: {
 		href: string
@@ -38,18 +38,19 @@ export function AccountNav({
 			label: 'Mes annonces',
 			count: listings.length,
 		},
-		{
-			href: '/account/stickers',
-			icon: QrCode,
-			label: 'Mes stickers QR',
-			count: activeStickers,
-		},
-		{
-			href: '/account/orders',
-			icon: Package,
-			label: 'Mes commandes',
-			count: ordersCount,
-		},
+		// Stickers/orders on stand-by until we have a reliable printer/logistics partner
+		// {
+		// 	href: '/account/stickers',
+		// 	icon: QrCode,
+		// 	label: 'Mes stickers QR',
+		// 	count: activeStickers,
+		// },
+		// {
+		// 	href: '/account/orders',
+		// 	icon: Package,
+		// 	label: 'Mes commandes',
+		// 	count: ordersCount,
+		// },
 		{ href: '/account/settings', icon: Settings, label: 'Paramètres' },
 	]
 
@@ -94,6 +95,7 @@ export function AccountNav({
 						</p>
 					</div>
 				</Link>
+				{/* Stickers on stand-by until we have a reliable printer/logistics partner
 				<Link
 					to="/stickers"
 					className="group border-primary-green/30 bg-primary-green/5 hover:border-primary-green/50 hover:bg-primary-green/10 flex items-center gap-3 rounded-2xl border-2 border-dashed p-4 transition-all"
@@ -106,6 +108,7 @@ export function AccountNav({
 						<p className="text-muted-foreground text-xs">Protégez vos objets</p>
 					</div>
 				</Link>
+				*/}
 			</div>
 		</div>
 	)

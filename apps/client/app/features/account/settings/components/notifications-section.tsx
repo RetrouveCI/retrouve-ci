@@ -16,11 +16,12 @@ const NOTIFICATION_ITEMS: {
 		label: 'Notifications Email',
 		description: 'Recevez un résumé par email',
 	},
-	{
-		key: 'stickerScans',
-		label: 'Scans de stickers',
-		description: "Soyez alerté quand quelqu'un scanne vos stickers",
-	},
+	// Stickers on stand-by until we have a reliable printer/logistics partner
+	// {
+	// 	key: 'stickerScans',
+	// 	label: 'Scans de stickers',
+	// 	description: "Soyez alerté quand quelqu'un scanne vos stickers",
+	// },
 	{
 		key: 'matches',
 		label: 'Correspondances trouvées',

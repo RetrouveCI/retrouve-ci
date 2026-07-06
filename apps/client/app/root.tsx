@@ -30,7 +30,7 @@ export function loader({ request }: Route.LoaderArgs) {
 export function meta() {
 	const title = "RetrouveCI - Perdre un objet n'est plus une fatalité"
 	const description =
-		"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire. Publiez une annonce ou utilisez nos stickers QR pour protéger vos objets."
+		"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire. Publiez une annonce pour signaler un objet perdu ou retrouvé."
 
 	return [
 		{ title },

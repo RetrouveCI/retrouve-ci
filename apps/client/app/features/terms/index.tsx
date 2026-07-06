@@ -41,7 +41,7 @@ const sections = [
 		color: 'text-blue-500',
 		bg: 'bg-blue-500/10',
 		content: [
-			'Pour publier une annonce ou commander des stickers QR, vous devez créer un compte en fournissant un numéro de téléphone valide.',
+			'Pour publier une annonce, vous devez créer un compte en fournissant un numéro de téléphone valide.',
 			"Vous êtes responsable de la confidentialité de votre mot de passe et de l'ensemble des activités effectuées depuis votre compte.",
 			'Toute information fournie doit être exacte, complète et à jour. RetrouveCI se réserve le droit de suspendre tout compte contenant des informations frauduleuses.',
 		],
