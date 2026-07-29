@@ -8,7 +8,6 @@ import {
 import { Link, useLocation } from 'react-router'
 import { Menu, LogIn, Plus, ChevronDown } from 'lucide-react'
 import { MobileNav } from '@/shared/components/mobile-nav'
-import { SearchBar } from '@/shared/components/search-bar'
 import { ThemeToggle } from '@/shared/components/theme-toggle'
 import { UserMenu } from '@/shared/components/user-menu'
 import { NotificationBell } from '@/features/notifications/components/notification-bell'
@@ -53,38 +52,41 @@ export function Header() {
 			)}
 		>
 			<div className="mx-auto flex h-16 w-full max-w-400 items-center justify-between gap-6 px-6 lg:px-10">
-				<Link to="/" className="group flex shrink-0 items-center gap-2.5">
-					<LogoRetrouveCI />
-				</Link>
+				<div className="flex min-w-0 shrink items-center gap-8">
+					<div className="flex shrink-0 items-center gap-2">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-9 w-9 md:hidden"
+							onClick={() => setMobileNavOpen(true)}
+							aria-label="Ouvrir le menu"
+						>
+							<Menu className="h-5 w-5" />
+						</Button>
 
-				<nav className="hidden shrink-0 items-center md:flex">
-					<div className="bg-muted/50 flex items-center gap-1 rounded-full p-1">
-						{navLinks.map(link => (
-							<Link
-								key={link.href}
-								to={link.href}
-								className={cn(
-									'rounded-full px-6 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200',
-									isActivePath(pathname, link.href)
-										? 'bg-background text-foreground shadow-sm'
-										: 'text-muted-foreground hover:text-foreground',
-								)}
-							>
-								{link.label}
-							</Link>
-						))}
+						<Link to="/" className="group flex items-center gap-2.5">
+							<LogoRetrouveCI />
+						</Link>
 					</div>
-				</nav>
 
-				<div className="hidden min-w-0 grow shrink-0 md:flex md:w-md">
-					<SearchBar
-						mode="navigate"
-						action="/posts"
-						size="xs"
-						showSubmit={false}
-						placeholder="Rechercher un objet..."
-						className="w-full max-w-2xl"
-					/>
+					<nav className="hidden min-w-0 items-center md:flex">
+						<div className="bg-muted/50 flex items-center gap-1 rounded-full p-1">
+							{navLinks.map(link => (
+								<Link
+									key={link.href}
+									to={link.href}
+									className={cn(
+										'rounded-full px-6 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200',
+										isActivePath(pathname, link.href)
+											? 'bg-background text-foreground shadow-sm'
+											: 'text-muted-foreground hover:text-foreground',
+									)}
+								>
+									{link.label}
+								</Link>
+							))}
+						</div>
+					</nav>
 				</div>
 
 				<div className="flex shrink-0 items-center gap-1.5">
@@ -134,16 +136,6 @@ export function Header() {
 							</Link>
 						</Button>
 					)}
-
-					<Button
-						variant="ghost"
-						size="icon"
-						className="h-9 w-9 md:hidden"
-						onClick={() => setMobileNavOpen(true)}
-						aria-label="Ouvrir le menu"
-					>
-						<Menu className="h-5 w-5" />
-					</Button>
 				</div>
 			</div>
 

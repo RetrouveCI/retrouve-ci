@@ -7,10 +7,26 @@ import {
 	SheetTitle,
 } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
-import { LogIn, LogOut, Moon, Sun } from 'lucide-react'
-import { SearchBar } from '@/shared/components/search-bar'
+import {
+	LogIn,
+	LogOut,
+	Moon,
+	Sun,
+	Info,
+	MessageCircle,
+	FileText,
+	ShieldCheck,
+	Settings,
+} from 'lucide-react'
 import { useAuth } from '@/shared/auth/auth-context'
 import { useTheme } from '@/shared/theme/theme-context'
+
+const secondaryLinks = [
+	{ href: '/about', label: 'À propos', icon: Info },
+	{ href: '/contact', label: 'Contact', icon: MessageCircle },
+	{ href: '/terms', label: 'Conditions', icon: FileText },
+	{ href: '/privacy', label: 'Confidentialité', icon: ShieldCheck },
+]
 
 interface MobileNavProps {
 	open: boolean
@@ -31,7 +47,7 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="flex w-75 flex-col p-0 sm:w-90">
+			<SheetContent side="left" className="flex w-75 flex-col p-0 sm:w-90">
 				<SheetHeader className="border-b px-5 pt-6 pb-5">
 					<SheetTitle className="flex items-center gap-2.5">
 						<img
@@ -50,16 +66,29 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
 					</SheetDescription>
 				</SheetHeader>
 
-				<div className="flex-1 px-3 pt-4">
-					<SearchBar
-						mode="navigate"
-						action="/posts"
-						size="sm"
-						showSubmit={false}
-						onSubmit={close}
-						placeholder="Rechercher un objet..."
-					/>
-				</div>
+				<nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+					{secondaryLinks.map(({ href, label, icon: Icon }) => (
+						<Link
+							key={href}
+							to={href}
+							onClick={close}
+							className="text-foreground hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all"
+						>
+							<Icon className="h-4.5 w-4.5 shrink-0" />
+							{label}
+						</Link>
+					))}
+					{isAuthenticated && (
+						<Link
+							to="/account/settings"
+							onClick={close}
+							className="text-foreground hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all"
+						>
+							<Settings className="h-4.5 w-4.5 shrink-0" />
+							Paramètres
+						</Link>
+					)}
+				</nav>
 
 				<div className="space-y-2 border-t px-3 pt-3 pb-6">
 					<button
