@@ -9,7 +9,7 @@ ENV PNPM_HOME="/pnpm" \
 	PATH="/pnpm:$PATH" \
 	CI="true" \
 	TURBO_TELEMETRY_DISABLED="1"
-RUN corepack enable && corepack prepare pnpm@11.5.3 --activate
+RUN corepack enable && corepack prepare pnpm@11.18.0 --activate
 WORKDIR /app
 
 # ---- Builder : install, build the client, then bundle ----------------------

@@ -6,7 +6,7 @@ ENV PNPM_HOME="/pnpm" \
 	CI="true" \
 	TURBO_TELEMETRY_DISABLED="1"
 	
-RUN corepack enable && corepack prepare pnpm@11.5.3 --activate
+RUN corepack enable && corepack prepare pnpm@11.18.0 --activate
 WORKDIR /app
 
 FROM base AS builder
