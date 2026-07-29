@@ -116,6 +116,42 @@ encore ce script (le seed tourne au démarrage de l'API, dans
 **Vérifié** : `typecheck` (6/6, `^db:generate` inclus) + `lint` + `test` +
 `format:check`.
 
+### 2.4 Bump Zod 4 + Vitest 4 (E2) — **fait**
+
+| Sujet             | Résultat                                                                                                                                       |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `zod`             | `^3.24.1` → `^4.4.3`. **`apps/api` n'utilise pas Zod** (validation `class-validator`) : le périmètre réel est le front, pas 17 fichiers mais 6 |
+| `vitest`          | `^3.2.4` → `^4.1.9` (résolu en 4.1.10), idem `@vitest/coverage-v8`. Aucun changement de config nécessaire, 188/188 tests verts                 |
+| `react-hook-form` | `^7.54.1` → `7.71.1` et `@hookform/resolvers` `^3.9.1` → `5.2.2` (préparent E7)                                                                |
+| Conform           | les 31 fichiers important `@conform-to/zod` basculent sur l'entrée `@conform-to/zod/v4` — un import par fichier, retiré entièrement en E7      |
+| jsdom             | **inchangé** (`^25.0.1`, compatible Vitest 4) — le browser mode est tranché en E10 (§6)                                                        |
+| Catalog           | `minimumReleaseAgeExclude` de turbo réaligné `2.10.5` → `2.10.7` (dérive laissée par E1)                                                       |
+
+Corrections Zod 4 effectivement nécessaires — 6 fichiers seulement, les motifs
+`errorMap` et `z.record(K, V)` étant absents du dépôt :
+
+| Motif                                  | Remplacement                                    | Fichiers                                                 |
+| -------------------------------------- | ----------------------------------------------- | -------------------------------------------------------- |
+| `z.string({ required_error })`         | `z.string({ error: issue => … })` (supprimé v4) | `admin/administrators`                                   |
+| `z.string().email(m)`                  | `z.email(m)`                                    | `admin/{administrators,auth/login,auth/forgot-password}` |
+| `z.string().trim().email(m)`           | `z.string().trim().pipe(z.email(m))`            | `client/{contact,qr-contact}`                            |
+| `z.coerce.number()` (entrée `unknown`) | `z.coerce.number<string>()`                     | `admin/qr/generate`                                      |
+
+> `.trim().pipe(z.email())` plutôt que `z.email().trim()` : en Zod 4 les checks
+> s'exécutent dans l'ordre où ils sont ajoutés, donc `z.email().trim()`
+> validerait **avant** de trimmer et rejetterait un email collé avec des
+> espaces. Seul effet de bord du `pipe` : `getZodConstraint` n'émet plus
+> l'indice HTML `type=email` — sans objet, Conform disparaît en E7.
+
+Le paramètre `message` (encore supporté en v4) n'a **pas** été converti en
+`error` : ce serait de la churn cosmétique sur des schémas que E5/E6 réécrivent
+dans `@app/contracts`.
+
+**Vérifié** : `typecheck` (6/6) + `lint` (5/5) + `test` (188/188, 30 fichiers) +
+`format:check`. Plus un test de fumée hors dépôt sur les schémas touchés
+(`parseWithZod` / `getZodConstraint`) confirmant que messages requis, messages
+de check, coercition et contraintes HTML sont identiques à Zod 3.
+
 ---
 
 ## 3. État des lieux — écarts restants
@@ -141,23 +177,23 @@ d'architecture, prévues en E12.
 Le catalog est la source de vérité (skill `dependency-management`). Trois
 problèmes :
 
-**a) 27 versions divergentes** de la référence, dont trois structurantes :
+**a) 27 versions divergentes** de la référence, dont quatre traitées en **E2** :
 
-| Package                                   | RetrouveCI | Référence  | Impact                                  |
-| ----------------------------------------- | ---------- | ---------- | --------------------------------------- |
-| `zod`                                     | `^3.24.1`  | `^4.4.3`   | 🔴 bloque le package de contrats        |
-| `vitest` / `@vitest/coverage-v8`          | `^3.2.4`   | `^4.1.9`   | 🔴 bloque les presets de test partagés  |
-| `typescript`                              | `5.9.2`    | `^6.0.3`   | 🟠 à faire après le reste               |
-| `react-hook-form`                         | `^7.54.1`  | `7.71.1`   | requis par la migration des formulaires |
-| `@hookform/resolvers`                     | `^3.9.1`   | `5.2.2`    | idem (API `standardSchemaResolver`)     |
-| `react` / `react-dom`                     | `19.2.4`   | `^19.2.7`  | mineur                                  |
-| `react-router` (+ `dev`, `node`, `serve`) | `^7.9.5`   | `7.12.0`   | mineur                                  |
-| `lucide-react`                            | `^0.564.0` | `^1.21.0`  | 🟠 major — vérifier les noms d'icônes   |
-| `sonner`                                  | `^1.7.1`   | `^2.0.7`   | 🟠 major                                |
-| `recharts`                                | `2.15.0`   | `^3.9.0`   | 🟠 major — dashboard admin              |
-| `react-day-picker`                        | `9.13.2`   | `^10.0.1`  | 🟠 major                                |
-| `tailwindcss` + `@tailwindcss/vite`       | `^4.2.0`   | `^4.3.1`   | mineur                                  |
-| `@types/node`                             | `^22`      | `^24.13.2` | suit le bump Node                       |
+| Package                                   | RetrouveCI | Référence  | Impact                                |
+| ----------------------------------------- | ---------- | ---------- | ------------------------------------- |
+| `zod`                                     | `^4.4.3`   | `^4.4.3`   | ✅ E2                                 |
+| `vitest` / `@vitest/coverage-v8`          | `^4.1.9`   | `^4.1.9`   | ✅ E2                                 |
+| `react-hook-form`                         | `7.71.1`   | `7.71.1`   | ✅ E2 (prépare E7)                    |
+| `@hookform/resolvers`                     | `5.2.2`    | `5.2.2`    | ✅ E2 (API `standardSchemaResolver`)  |
+| `typescript`                              | `5.9.2`    | `^6.0.3`   | 🟠 à faire après le reste             |
+| `react` / `react-dom`                     | `19.2.4`   | `^19.2.7`  | mineur                                |
+| `react-router` (+ `dev`, `node`, `serve`) | `^7.9.5`   | `7.12.0`   | mineur                                |
+| `lucide-react`                            | `^0.564.0` | `^1.21.0`  | 🟠 major — vérifier les noms d'icônes |
+| `sonner`                                  | `^1.7.1`   | `^2.0.7`   | 🟠 major                              |
+| `recharts`                                | `2.15.0`   | `^3.9.0`   | 🟠 major — dashboard admin            |
+| `react-day-picker`                        | `9.13.2`   | `^10.0.1`  | 🟠 major                              |
+| `tailwindcss` + `@tailwindcss/vite`       | `^4.2.0`   | `^4.3.1`   | mineur                                |
+| `@types/node`                             | `^22`      | `^24.13.2` | suit le bump Node                     |
 
 Restent mineurs : `date-fns`, `eslint`, `isbot`, `vite`, `@vitejs/plugin-react`,
 `@types/react`, `@types/react-dom`, `vite-tsconfig-paths`.
@@ -269,7 +305,7 @@ Une ligne = une branche = une PR = une session.
 | ------- | ---------------------------------------- | ---------------------------------- | ----------------------------- | ------ | --------- |
 | **E0**  | ✅ Scope `@app/*` + outillage agents     | (fait)                             | `root/tooling`                | —      | —         |
 | **E1**  | ✅ Socle racine & hygiène                | (fait)                             | `root/core`                   | —      | E0        |
-| **E2**  | Catalog : bump Zod 4 + Vitest 4          | `migration-e2-catalog-zod-vitest`  | `root/deps`                   | 1 j    | E1        |
+| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4       | (fait)                             | `root/deps`                   | —      | E1        |
 | **E3**  | Catalog : reste des versions + nettoyage | `migration-e3-catalog-alignement`  | `root/deps`                   | 1 j    | E2        |
 | **E4**  | Presets partagés (ts / vitest / eslint)  | `migration-e4-presets-partages`    | `packages/config`             | 0,5 j  | E2        |
 | **E5**  | Création de `@app/contracts`             | `migration-e5-contracts-init`      | `packages/contracts`          | 0,5 j  | E2        |
@@ -327,25 +363,21 @@ Ci-dessous, seules celles qui touchent la racine.
    `typecheck`.
 6. Trancher le style Prettier (§6).
 
-### E2 — Bump Zod 4 + Vitest 4
+### E2 — Bump Zod 4 + Vitest 4 — ✅ fait, voir §2.4
 
-Étape à risque, isolée exprès. Elle **doit** précéder E5 (contrats) et E4
+Étape à risque, isolée exprès. Elle **devait** précéder E5 (contrats) et E4
 (presets de test).
 
-1. `zod: ^4.4.3` au catalog. Corriger les schémas existants :
-   `z.string().email()` → `z.email()`, `errorMap` → `error`, `z.record(K, V)` à
-   deux arguments, `.default()` qui n'élargit plus le type d'entrée. 17 fichiers
-   `*.schema.ts` + les DTO API concernés.
-2. `vitest: ^4.1.9` + `@vitest/coverage-v8: ^4.1.9`. Vérifier les 30 fichiers de
-   test API.
-3. `react-hook-form: 7.71.1` + `@hookform/resolvers: 5.2.2` (préparent E7).
-4. Ajouter `jsdom` ou basculer sur le browser mode selon la décision d'E10.
+L'estimation d'origine (17 fichiers `*.schema.ts` + les DTO API) s'est révélée
+haute : `apps/api` valide avec `class-validator` et n'importe pas Zod, et les
+motifs `errorMap`, `z.record(K, V)` et `.default()` sont absents du dépôt. Six
+fichiers front ont suffi — détail dans §2.4.
 
-> `@conform-to/zod` reste installé jusqu'à E7 ; sa v1.19 gère Zod 4 via
-> `@conform-to/zod/v4` — l'import doit être adapté dans les 41 fichiers
-> concernés **ou** E7 doit être menée juste après E2 pour éviter ce travail
-> jetable. **Recommandé : enchaîner E7 directement après E3**, et ne pas payer
-> la double migration Conform.
+`@conform-to/zod` reste installé jusqu'à E7 ; ses 31 imports pointent désormais
+sur `@conform-to/zod/v4`. C'est une ligne par fichier, supprimée entièrement en
+E7 : le coût du travail jetable redouté ici est nul, mais la recommandation
+**d'enchaîner E7 directement après E3** reste valable pour ne pas laisser deux
+bibliothèques de formulaires cohabiter.
 
 ### E3 — Alignement du reste du catalog
 
@@ -372,12 +404,12 @@ DevOps. `docs/README.md` en index.
 
 ## 6. Décisions à arbitrer
 
-| Sujet                    | Options                                                                                                 | Recommandation                                                                                                                                        |
-| ------------------------ | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Style Prettier**       | ✅ **tranché en E1 : (b)** — on garde `useTabs: true` / `printWidth: 80`, divergence documentée en §3.7 | (b) — un reformatage global noie tous les diffs de la migration et casse `git blame`. À refaire après E12 en commit isolé + `.git-blame-ignore-revs`. |
-| **Ordre E7 / E2**        | migrer Conform vers `@conform-to/zod/v4` puis vers RHF, ou enchaîner E7 juste après E3                  | **enchaîner E7** — évite une migration jetable sur 41 fichiers                                                                                        |
-| **Tests front**          | browser mode (`@vitest/browser-playwright`, comme la référence) ou `jsdom`                              | **browser mode** pour rester aligné, mais coût CI plus élevé                                                                                          |
-| **`@app/web-kit` (E11)** | mutualiser client ↔ admin, ou assumer la duplication                                                   | mutualiser — 5 fichiers strictement identiques aujourd'hui                                                                                            |
+| Sujet                    | Options                                                                                                 | Recommandation                                                                                                                                                                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Style Prettier**       | ✅ **tranché en E1 : (b)** — on garde `useTabs: true` / `printWidth: 80`, divergence documentée en §3.7 | (b) — un reformatage global noie tous les diffs de la migration et casse `git blame`. À refaire après E12 en commit isolé + `.git-blame-ignore-revs`.                                                                                                                                                 |
+| **Ordre E7 / E2**        | migrer Conform vers `@conform-to/zod/v4` puis vers RHF, ou enchaîner E7 juste après E3                  | **enchaîner E7** — évite une migration jetable sur 41 fichiers                                                                                                                                                                                                                                        |
+| **Tests front**          | browser mode (`@vitest/browser-playwright`, comme la référence) ou `jsdom`                              | **browser mode** pour rester aligné, mais coût CI plus élevé. E2 laisse `jsdom` en place : la bascule se fait en **E10**, avec les presets E4 et les premiers tests front — installer une chaîne Playwright en CI pour zéro test n'a pas de sens, et l'outillage correspondant relève du catalog d'E3 |
+| **`@app/web-kit` (E11)** | mutualiser client ↔ admin, ou assumer la duplication                                                   | mutualiser — 5 fichiers strictement identiques aujourd'hui                                                                                                                                                                                                                                            |
 
 ---
 
