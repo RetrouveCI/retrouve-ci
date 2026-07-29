@@ -18,7 +18,7 @@ pnpm install          # Install all dependencies
 pnpm dev              # Start all apps in parallel (client :3000, admin :3001, api :3002)
 pnpm build            # Build all packages and apps (packages build first)
 pnpm lint             # Lint all workspaces
-pnpm check-types      # Type-check all workspaces
+pnpm typecheck        # Type-check all workspaces
 pnpm test             # Run unit tests (Vitest — currently the api app only)
 pnpm format           # Format with Prettier (ts, tsx, js, jsx, json, md, css)
 pnpm format:check     # Verify formatting without writing (used by CI)
@@ -292,7 +292,7 @@ GitHub Actions workflows live in `.github/workflows/`:
 
 - **`test-ci.yml`** — on every push to `main` and every pull request. Installs
   with pnpm, builds `@app/database` (so Prisma types resolve), then runs
-  `format:check`, `check-types`, `lint` and `test`.
+  `format:check`, `typecheck`, `lint` and `test`.
 - **`release.yml`** — when a PR is **merged** into `main`. Uses
   `K-Phoen/semver-release-action` to create the next semver tag; the bump is
   derived from the merged PR's labels (defaults to patch). It must push the tag

@@ -28,7 +28,9 @@ packages.
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 18+ (CI and Docker images use Node 22)
+- [Node.js](https://nodejs.org/) 24.x — enforced by `engines` +
+  `engine-strict=true`; `.nvmrc` and `.npmrc` (`use-node-version`) pin the exact
+  version, and CI and the Docker images use Node 24
 - [pnpm](https://pnpm.io/) 11 (pinned via `packageManager`)
 - [Docker](https://www.docker.com/) — for local Postgres and Redis
 
@@ -57,7 +59,7 @@ All commands are run from the repo root.
 pnpm dev           # Start all apps in parallel
 pnpm build         # Build all packages and apps (packages build first)
 pnpm lint          # Lint all workspaces
-pnpm check-types   # Type-check all workspaces
+pnpm typecheck     # Type-check all workspaces
 pnpm test          # Run unit tests (Vitest — currently the api app only)
 pnpm format        # Format with Prettier
 pnpm format:check  # Verify formatting without writing (used by CI)

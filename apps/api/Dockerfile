@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22-bookworm-slim AS base
+FROM node:24-bookworm-slim AS base
 ENV PNPM_HOME="/pnpm" \
 	PATH="/pnpm:$PATH" \
 	CI="true" \
@@ -23,7 +23,7 @@ RUN pnpm --filter @app/api --legacy deploy --prod /prod/api
 RUN pnpm --filter @app/database --legacy deploy /prod/migrator
 
 # ---- Runner : minimal production image -------------------------------------
-FROM node:22-bookworm-slim AS runner
+FROM node:24-bookworm-slim AS runner
 ENV NODE_ENV="production" \
   PORT="3000"
 
