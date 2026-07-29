@@ -8,50 +8,33 @@ import {
 } from '@retrouve-ci/ui/components'
 import { Link } from 'react-router'
 import {
-	Home,
-	Newspaper,
-	PlusCircle,
-	// QrCode, // stickers on stand-by
 	LogIn,
 	LogOut,
-	User,
-	ChevronRight,
-	Plus,
 	Moon,
 	Sun,
+	Info,
+	MessageCircle,
+	FileText,
+	ShieldCheck,
+	Settings,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
-import { NotificationBell } from '@/features/notifications/components/notification-bell'
-import { SearchBar } from '@/shared/components/search-bar'
 import { useAuth } from '@/shared/auth/auth-context'
 import { useTheme } from '@/shared/theme/theme-context'
+
+const secondaryLinks = [
+	{ href: '/about', label: 'À propos', icon: Info },
+	{ href: '/contact', label: 'Contact', icon: MessageCircle },
+	{ href: '/terms', label: 'Conditions', icon: FileText },
+	{ href: '/privacy', label: 'Confidentialité', icon: ShieldCheck },
+]
 
 interface MobileNavProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
-	links: { href: string; label: string }[]
-	currentPath: string
 }
 
-const NAV_ICONS: Record<string, React.ElementType> = {
-	'/': Home,
-	'/posts': Newspaper,
-	'/publish': PlusCircle,
-	// '/stickers': QrCode, // stickers on stand-by
-}
-
-function isActivePath(pathname: string, href: string) {
-	if (href === '/') return pathname === '/'
-	return pathname === href || pathname.startsWith(`${href}/`)
-}
-
-export function MobileNav({
-	open,
-	onOpenChange,
-	links,
-	currentPath,
-}: MobileNavProps) {
-	const { user, isAuthenticated, logout } = useAuth()
+export function MobileNav({ open, onOpenChange }: MobileNavProps) {
+	const { isAuthenticated, logout } = useAuth()
 	const { theme, toggleTheme } = useTheme()
 	const isDark = theme === 'dark'
 
@@ -64,7 +47,7 @@ export function MobileNav({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="flex w-75 flex-col p-0 sm:w-90">
+			<SheetContent side="left" className="flex w-75 flex-col p-0 sm:w-90">
 				<SheetHeader className="border-b px-5 pt-6 pb-5">
 					<SheetTitle className="flex items-center gap-2.5">
 						<img
@@ -83,39 +66,28 @@ export function MobileNav({
 					</SheetDescription>
 				</SheetHeader>
 
-				<div className="px-3 pt-4">
-					<SearchBar
-						mode="navigate"
-						action="/posts"
-						size="sm"
-						showSubmit={false}
-						onSubmit={close}
-						placeholder="Rechercher un objet..."
-					/>
-				</div>
-
 				<nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-					{links.map(link => {
-						const Icon = NAV_ICONS[link.href] ?? Home
-						const isActive = isActivePath(currentPath, link.href)
-						return (
-							<Link
-								key={link.href}
-								to={link.href}
-								onClick={close}
-								className={cn(
-									'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all',
-									isActive
-										? 'bg-primary-green text-white shadow-sm'
-										: 'text-foreground hover:bg-muted',
-								)}
-							>
-								<Icon className="h-4.5 w-4.5 shrink-0" />
-								<span className="flex-1">{link.label}</span>
-								{isActive && <ChevronRight className="h-4 w-4 opacity-70" />}
-							</Link>
-						)
-					})}
+					{secondaryLinks.map(({ href, label, icon: Icon }) => (
+						<Link
+							key={href}
+							to={href}
+							onClick={close}
+							className="text-foreground hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all"
+						>
+							<Icon className="h-4.5 w-4.5 shrink-0" />
+							{label}
+						</Link>
+					))}
+					{isAuthenticated && (
+						<Link
+							to="/account/settings"
+							onClick={close}
+							className="text-foreground hover:bg-muted flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all"
+						>
+							<Settings className="h-4.5 w-4.5 shrink-0" />
+							Paramètres
+						</Link>
+					)}
 				</nav>
 
 				<div className="space-y-2 border-t px-3 pt-3 pb-6">
@@ -133,48 +105,15 @@ export function MobileNav({
 						</span>
 					</button>
 
-					<Button
-						asChild
-						className="bg-primary-green hover:bg-primary-green-dark h-12 w-full gap-2 rounded-xl text-white"
-					>
-						<Link to="/publish" onClick={close}>
-							<Plus className="h-4 w-4" />
-							Publier une annonce
-						</Link>
-					</Button>
-
 					{isAuthenticated ? (
-						<>
-							<div className="flex items-center gap-2">
-								<Link
-									to="/account"
-									onClick={close}
-									className="bg-muted/60 hover:bg-muted flex flex-1 items-center gap-3 rounded-xl px-4 py-3 transition-colors"
-								>
-									<div className="bg-primary-green/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-										<User className="text-primary-green h-4 w-4" />
-									</div>
-									<div className="min-w-0 flex-1">
-										<p className="truncate text-sm font-semibold">
-											{user?.name}
-										</p>
-										<p className="text-muted-foreground truncate text-xs">
-											Voir mon compte
-										</p>
-									</div>
-									<ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />
-								</Link>
-								<NotificationBell />
-							</div>
-							<Button
-								variant="outline"
-								className="text-destructive border-destructive/20 hover:bg-destructive/5 hover:text-destructive h-11 w-full justify-start gap-3"
-								onClick={handleLogout}
-							>
-								<LogOut className="h-4 w-4" />
-								Se déconnecter
-							</Button>
-						</>
+						<Button
+							variant="outline"
+							className="text-destructive border-destructive/20 hover:bg-destructive/5 hover:text-destructive h-11 w-full justify-start gap-3"
+							onClick={handleLogout}
+						>
+							<LogOut className="h-4 w-4" />
+							Se déconnecter
+						</Button>
 					) : (
 						<Button
 							variant="outline"

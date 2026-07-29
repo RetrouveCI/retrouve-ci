@@ -123,7 +123,7 @@ export function ActivityHub() {
 			<PopoverTrigger asChild>
 				<button
 					className={cn(
-						'fixed right-8 bottom-6 z-50',
+						'fixed right-5 bottom-[calc(4rem+1rem+env(safe-area-inset-bottom))] z-50 md:right-8 md:bottom-6',
 						'flex h-12 w-12 items-center justify-center rounded-full',
 						'cursor-pointer transition-all duration-300',
 						open
