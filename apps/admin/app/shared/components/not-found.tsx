@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { SearchX, LayoutDashboard } from 'lucide-react'
 
 export default function NotFound() {

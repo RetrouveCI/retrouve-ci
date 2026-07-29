@@ -1,6 +1,6 @@
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { Inbox, ChevronLeft, ChevronRight } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import type { LostItem } from '@/shared/types/lost-item'
 import { ListingCard } from './listing-card'
 

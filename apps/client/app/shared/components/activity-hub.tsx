@@ -19,8 +19,8 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 	Badge,
-} from '@retrouve-ci/ui/components'
-import { cn } from '@retrouve-ci/ui/utils'
+} from '@app/ui/components'
+import { cn } from '@app/ui/utils'
 import { useAuth } from '@/shared/auth/auth-context'
 import { apiFetch } from '@/shared/lib/api-client'
 

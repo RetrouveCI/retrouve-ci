@@ -1,6 +1,6 @@
-import { Button, InputOTP, InputOTPGroup } from '@retrouve-ci/ui/components'
+import { Button, InputOTP, InputOTPGroup } from '@app/ui/components'
 import { Loader2, CheckCircle2, RefreshCw } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { OtpSlots } from './otp-slots'
 
 interface OtpStepProps {

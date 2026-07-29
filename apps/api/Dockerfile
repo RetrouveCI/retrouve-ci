@@ -16,11 +16,11 @@ COPY . .
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
 	pnpm install --frozen-lockfile
 
-RUN pnpm exec turbo run build --filter=api
+RUN pnpm exec turbo run build --filter=@app/api
 
-RUN pnpm --filter api --legacy deploy --prod /prod/api
+RUN pnpm --filter @app/api --legacy deploy --prod /prod/api
 
-RUN pnpm --filter @retrouve-ci/database --legacy deploy /prod/migrator
+RUN pnpm --filter @app/database --legacy deploy /prod/migrator
 
 # ---- Runner : minimal production image -------------------------------------
 FROM node:22-bookworm-slim AS runner

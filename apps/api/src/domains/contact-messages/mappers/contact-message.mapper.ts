@@ -1,7 +1,7 @@
 import {
 	ContactMessageStatus as PrismaContactMessageStatus,
 	type ContactMessage as PrismaContactMessage,
-} from '@retrouve-ci/database'
+} from '@app/database'
 
 import type { ContactMessage } from '../models/contact-message.model'
 import type { ContactMessageStatus } from '../types/contact-message.types'

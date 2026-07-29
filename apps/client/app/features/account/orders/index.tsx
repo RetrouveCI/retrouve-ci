@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { OrderDetail } from './components/order-detail'
 import { EmptyOrdersState } from './components/empty-orders-state'
 import { OrderCard } from './components/order-card'

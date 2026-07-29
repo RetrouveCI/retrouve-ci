@@ -42,14 +42,14 @@ docker compose up -d  # Start Postgres (:5432) and Redis (:6379)
 To run a single app or package in isolation:
 
 ```bash
-pnpm --filter client dev
-pnpm --filter admin dev
-pnpm --filter api dev
-pnpm --filter @retrouve-ci/ui build
+pnpm --filter @app/client dev
+pnpm --filter @app/admin dev
+pnpm --filter @app/api dev
+pnpm --filter @app/ui build
 ```
 
 Tests are run with **Vitest**. Only the `api` app currently has tests
-(`pnpm --filter api test`); the frontends have no test suite yet.
+(`pnpm --filter @app/api test`); the frontends have no test suite yet.
 
 ## Architecture
 
@@ -61,7 +61,7 @@ apps/
   admin/    # Admin dashboard (React Router v7 / Vite, port 3001)
   api/      # Backend REST API (NestJS / Fastify, port 3002)
 packages/
-  database/            # Prisma schema, migrations & generated client (@retrouve-ci/database)
+  database/            # Prisma schema, migrations & generated client (@app/database)
   ui/                  # Shared component library (source-only, no build step)
   eslint-config/       # Shared ESLint configs (base, next, react-internal)
   typescript-config/   # Shared tsconfig presets
@@ -70,9 +70,9 @@ packages/
 
 ### Shared UI package (`packages/ui`)
 
-`@retrouve-ci/ui` is the **single shared shadcn/ui component library** for the
-entire monorepo. All shadcn components live in `packages/ui/src/components/ui/`
-and are consumed by both apps through the package's barrel exports.
+`@app/ui` is the **single shared shadcn/ui component library** for the entire
+monorepo. All shadcn components live in `packages/ui/src/components/ui/` and are
+consumed by both apps through the package's barrel exports.
 
 **All new components must be added to `packages/ui/src/components/ui/`**, never
 inside an app's local directory. To add a component, run the shadcn CLI from the
@@ -90,10 +90,10 @@ cd apps/client && npx shadcn add <component>
 
 The package exports:
 
-- `@retrouve-ci/ui/styles` — design tokens + Tailwind base (imported by apps)
-- `@retrouve-ci/ui/utils` — the `cn()` helper
-- `@retrouve-ci/ui/components` — all UI components (barrel export)
-- `@retrouve-ci/ui/hooks` — shared hooks
+- `@app/ui/styles` — design tokens + Tailwind base (imported by apps)
+- `@app/ui/utils` — the `cn()` helper
+- `@app/ui/components` — all UI components (barrel export)
+- `@app/ui/hooks` — shared hooks
 
 **This package does not need to be built** for apps to consume it — TypeScript
 paths in each app's `tsconfig.json` resolve imports directly to `src/`.
@@ -102,10 +102,10 @@ script.
 
 ### Database package (`packages/database`)
 
-`@retrouve-ci/database` owns the **Prisma schema, migrations and generated
-client**. It is the single source of truth for the data model and is consumed by
-the `api` app via its barrel export (`prisma`, `createPrismaClientOptions`, and
-all generated types).
+`@app/database` owns the **Prisma schema, migrations and generated client**. It
+is the single source of truth for the data model and is consumed by the `api`
+app via its barrel export (`prisma`, `createPrismaClientOptions`, and all
+generated types).
 
 - The schema lives in `packages/database/prisma/schema.prisma`; the client is
   generated into `src/generated/prisma` (provider `prisma-client`, CJS).
@@ -146,8 +146,10 @@ shared/           # Cross-cutting: errors, exception filters
 - Tests are **Vitest** (`*.spec.ts` colocated with use-cases, validators,
   mappers and controllers).
 
-For where new code belongs (domains vs presentation vs infrastructure), use the
-`retrouveci-architecture` skill.
+For where new code belongs (domains vs presentations vs infrastructures), use
+the `backend-conventions` skill (`.claude/skills/backend-conventions/`). Note
+that the layer names above are the **current** ones — the target layout, and the
+plan to get there, are in [MIGRATION-PLAN.md](MIGRATION-PLAN.md).
 
 ### Frontend apps (React Router v7)
 
@@ -156,12 +158,12 @@ Both apps share the same stack:
 - **React Router v7** (Vite, SSR) with React 19, TypeScript
 - **Tailwind CSS v4** — configured via CSS `@theme` directives, not a JS config
   file
-- **shadcn/ui** — components imported via `@retrouve-ci/ui/components`
+- **shadcn/ui** — components imported via `@app/ui/components`
 - **`@conform-to/react` + `@conform-to/zod`** for all forms in both apps
 
 Both use the same feature-based architecture under `app/features/[feature]/`
 with `servers/*.loader.ts` / `servers/*.action.ts` for all server-side data
-access (see conventions below).
+access (see conventions below, and the `frontend-conventions` skill).
 
 ### Client app (`apps/client`)
 
@@ -275,7 +277,7 @@ configured via CSS `@theme` directives. The design token source of truth is
 variables, animations, utilities). Each app's `app/globals.css` imports it:
 
 ```css
-@import '@retrouve-ci/ui/styles';
+@import '@app/ui/styles';
 @source '../../../packages/ui/src';
 ```
 
@@ -289,7 +291,7 @@ after the import in their own `app/globals.css`.
 GitHub Actions workflows live in `.github/workflows/`:
 
 - **`test-ci.yml`** — on every push to `main` and every pull request. Installs
-  with pnpm, builds `@retrouve-ci/database` (so Prisma types resolve), then runs
+  with pnpm, builds `@app/database` (so Prisma types resolve), then runs
   `format:check`, `check-types`, `lint` and `test`.
 - **`release.yml`** — when a PR is **merged** into `main`. Uses
   `K-Phoen/semver-release-action` to create the next semver tag; the bump is

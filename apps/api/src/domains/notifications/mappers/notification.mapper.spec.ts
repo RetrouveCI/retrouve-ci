@@ -1,4 +1,4 @@
-import { NotificationType as PrismaNotificationType } from '@retrouve-ci/database'
+import { NotificationType as PrismaNotificationType } from '@app/database'
 import { describe, expect, it } from 'vitest'
 import {
 	toDomainNotification,

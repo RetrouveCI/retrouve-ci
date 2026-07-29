@@ -1,4 +1,4 @@
-import { Input, Label } from '@retrouve-ci/ui/components'
+import { Input, Label } from '@app/ui/components'
 import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 

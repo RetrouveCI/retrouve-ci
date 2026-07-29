@@ -19,13 +19,13 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { useEffect, useState } from 'react'
 import { useFetcher } from 'react-router'
 import { QrCode, Edit2, PowerOff, Calendar, Package } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Sticker } from '@/shared/types/sticker'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 
 interface ActionResult {
 	ok: boolean

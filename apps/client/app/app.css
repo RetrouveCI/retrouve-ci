@@ -1,4 +1,4 @@
-@import '@retrouve-ci/ui/styles';
+@import '@app/ui/styles';
 @source '../../../packages/ui/src';
 
 @theme {

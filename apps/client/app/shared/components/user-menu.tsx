@@ -7,7 +7,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { getInitials } from '@/shared/lib/get-initials'
 
 interface UserMenuProps {

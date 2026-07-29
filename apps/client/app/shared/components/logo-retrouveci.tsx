@@ -1,4 +1,4 @@
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 
 interface Props {
 	height?: number

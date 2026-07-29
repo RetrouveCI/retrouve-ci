@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { QrTokenStatus as PrismaQrTokenStatus } from '@retrouve-ci/database'
+import { QrTokenStatus as PrismaQrTokenStatus } from '@app/database'
 import { PrismaService } from '@/infrastructure/database/prisma.service'
 import {
 	toDomainQrToken,

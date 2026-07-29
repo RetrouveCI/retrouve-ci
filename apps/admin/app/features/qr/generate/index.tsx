@@ -6,7 +6,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { ArrowLeft } from 'lucide-react'
 import { GenerateQrForm } from './components/generate-qr-form'
 import { generateQrAction } from './servers/generate.action'

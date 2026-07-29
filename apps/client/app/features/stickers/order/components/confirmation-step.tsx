@@ -1,4 +1,4 @@
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { CheckCircle2, Tag } from 'lucide-react'
 import type { Order } from '../../../account/orders/orders.types'

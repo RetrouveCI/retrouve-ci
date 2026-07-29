@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { requireAdminSession } from '@/shared/auth/auth.server'
 import { Sidebar } from './sidebar'
 import { TopBar } from './topbar'

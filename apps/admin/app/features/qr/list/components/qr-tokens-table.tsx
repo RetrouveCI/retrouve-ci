@@ -7,7 +7,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { DataTable } from '@/shared/components/data-table'
 import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { format } from 'date-fns'

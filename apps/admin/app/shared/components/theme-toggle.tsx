@@ -1,4 +1,4 @@
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from './theme-context'
 

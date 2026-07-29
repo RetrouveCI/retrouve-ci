@@ -4,7 +4,7 @@ import {
 	MessageCircle,
 	// Shield, // stickers on stand-by
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 // import type { Sticker } from '@/shared/types/sticker' // stickers on stand-by
 import type { UserLostItem } from '@/shared/types/lost-item'
 

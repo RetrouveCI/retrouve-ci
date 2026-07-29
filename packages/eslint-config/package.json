@@ -1,5 +1,5 @@
 {
-	"name": "@retrouve-ci/eslint-config",
+	"name": "@app/eslint-config",
 	"version": "0.0.0",
 	"type": "module",
 	"private": true,

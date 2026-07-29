@@ -1,4 +1,4 @@
-import { Badge, Switch } from '@retrouve-ci/ui/components'
+import { Badge, Switch } from '@app/ui/components'
 import { Bell } from 'lucide-react'
 
 const NOTIFICATION_ITEMS: {

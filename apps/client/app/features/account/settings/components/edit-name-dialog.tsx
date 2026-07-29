@@ -11,8 +11,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 	Input,
-} from '@retrouve-ci/ui/components'
-import { InputLabel, FieldError } from '@retrouve-ci/ui/components/form'
+} from '@app/ui/components'
+import { InputLabel, FieldError } from '@app/ui/components/form'
 import { Loader2, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateNameSchema } from '../settings.schema'

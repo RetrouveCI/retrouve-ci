@@ -16,7 +16,7 @@ Part of the [RetrouveCI monorepo](../../README.md).
 | Styling           | Tailwind CSS v4 (CSS `@theme` directives)          |
 | Forms             | react-hook-form + zod                              |
 | Charts            | Recharts                                           |
-| Shared components | `@repo/ui`                                         |
+| Shared components | `@app/ui`                                          |
 
 ## Getting Started
 
@@ -29,16 +29,16 @@ pnpm dev
 Or start this app in isolation:
 
 ```bash
-pnpm --filter admin dev
+pnpm --filter @app/admin dev
 ```
 
 The app will be available at [http://localhost:3001](http://localhost:3001).
 
-> **Note:** `@repo/ui` must be built before this app can start. Turborepo
-> handles this automatically; if running in isolation, build the package first:
+> **Note:** `@app/ui` must be built before this app can start. Turborepo handles
+> this automatically; if running in isolation, build the package first:
 
 ```bash
-pnpm --filter @repo/ui build
+pnpm --filter @app/ui build
 ```
 
 ## Authentication

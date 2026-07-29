@@ -1,9 +1,4 @@
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@retrouve-ci/ui/components'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@app/ui/components'
 import {
 	Smartphone,
 	Key,
@@ -19,7 +14,7 @@ import {
 	List,
 	X,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { PostsHero } from './components/posts-hero'
 import { FilterPanel } from './components/filter-panel'
 import { ListingsContent } from './components/listings-content'

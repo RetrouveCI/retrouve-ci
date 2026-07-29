@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import type { FetcherWithComponents } from 'react-router'
 import { Sparkles } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import type { Notification } from '@/shared/types/notification'
 import type { NotificationType } from '@/features/notifications/notifications.types'
 

@@ -1,7 +1,7 @@
 import {
 	EventStatus as PrismaEventStatus,
 	type Event as PrismaEvent,
-} from '@retrouve-ci/database'
+} from '@app/database'
 import { describe, expect, it } from 'vitest'
 import { toDomainEvent, toDomainStatus, toPrismaStatus } from './event.mapper'
 

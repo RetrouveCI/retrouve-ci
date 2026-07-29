@@ -5,7 +5,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import {
 	getInputProps,
 	useInputControl,
@@ -13,7 +13,7 @@ import {
 } from '@conform-to/react'
 import { MapPin } from 'lucide-react'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants'
-import { InputLabel, FieldError } from '@retrouve-ci/ui/components/form'
+import { InputLabel, FieldError } from '@app/ui/components/form'
 import { SectionHeader } from './section-header'
 
 interface LocationDateSectionProps {

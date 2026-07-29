@@ -4,7 +4,7 @@ import {
 	ModerationStatus as PrismaModerationStatus,
 	ResolutionStatus as PrismaResolutionStatus,
 	type LostItem as PrismaLostItem,
-} from '@retrouve-ci/database'
+} from '@app/database'
 import { describe, expect, it } from 'vitest'
 import {
 	toDomainCategory,

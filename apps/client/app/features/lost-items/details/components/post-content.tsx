@@ -1,4 +1,4 @@
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { MapPin, Calendar, Tag, Flag } from 'lucide-react'
 import { PostGallery } from './post-gallery'
 import { ShareMenu } from './share-menu'

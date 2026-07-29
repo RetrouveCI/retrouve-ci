@@ -1,4 +1,4 @@
-import { StickerOrderStatus as PrismaStickerOrderStatus } from '@retrouve-ci/database'
+import { StickerOrderStatus as PrismaStickerOrderStatus } from '@app/database'
 import { describe, expect, it } from 'vitest'
 import {
 	toDomainStatus,

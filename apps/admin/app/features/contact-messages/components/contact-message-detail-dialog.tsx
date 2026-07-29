@@ -6,7 +6,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { Mail, Phone, Archive, QrCode } from 'lucide-react'
 import { Link } from 'react-router'
 import { format } from 'date-fns'

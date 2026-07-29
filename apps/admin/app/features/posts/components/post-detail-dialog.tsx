@@ -6,7 +6,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import {
@@ -20,7 +20,7 @@ import {
 	EyeOff,
 	Clock,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { PostPhotos } from './post-photos'
 import type { Post, ModerationStatus } from '../posts.types'

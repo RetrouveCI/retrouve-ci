@@ -12,7 +12,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import {
 	type ColumnDef,
 	flexRender,

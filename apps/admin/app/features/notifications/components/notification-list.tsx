@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
-import { Button, Badge } from '@retrouve-ci/ui/components'
-import { cn } from '@retrouve-ci/ui/utils'
+import { Button, Badge } from '@app/ui/components'
+import { cn } from '@app/ui/utils'
 import { BellOff, Check, ArrowRight, Sparkles } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'

@@ -5,20 +5,16 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import {
 	getTextareaProps,
 	useInputControl,
 	type FieldMetadata,
 } from '@conform-to/react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { Package } from 'lucide-react'
 import type { LostItemCategory } from '@/shared/types/lost-item'
-import {
-	InputLabel,
-	InputField,
-	FieldError,
-} from '@retrouve-ci/ui/components/form'
+import { InputLabel, InputField, FieldError } from '@app/ui/components/form'
 import { PhotosUpload } from './photos-upload'
 import { SectionHeader } from './section-header'
 import { OBJECT_TYPES } from '../publish.const'

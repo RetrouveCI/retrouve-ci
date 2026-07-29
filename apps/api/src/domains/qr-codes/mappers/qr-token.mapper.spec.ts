@@ -1,4 +1,4 @@
-import { QrTokenStatus as PrismaQrTokenStatus } from '@retrouve-ci/database'
+import { QrTokenStatus as PrismaQrTokenStatus } from '@app/database'
 import { describe, expect, it } from 'vitest'
 import {
 	toDomainQrToken,

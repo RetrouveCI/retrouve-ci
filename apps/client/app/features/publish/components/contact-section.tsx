@@ -1,11 +1,7 @@
-import { Input } from '@retrouve-ci/ui/components'
+import { Input } from '@app/ui/components'
 import { getInputProps, type FieldMetadata } from '@conform-to/react'
 import { UserRound, Lock } from 'lucide-react'
-import {
-	InputLabel,
-	InputField,
-	FieldError,
-} from '@retrouve-ci/ui/components/form'
+import { InputLabel, InputField, FieldError } from '@app/ui/components/form'
 import { SectionHeader } from './section-header'
 
 interface ContactSectionProps {

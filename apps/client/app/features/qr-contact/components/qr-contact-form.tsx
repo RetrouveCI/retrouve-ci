@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { Send, CheckCircle2 } from 'lucide-react'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { FieldError } from '@retrouve-ci/ui/components/form'
+import { FieldError } from '@app/ui/components/form'
 import { qrContactSchema } from '../qr-contact.schema'
 
 interface ActionResult {

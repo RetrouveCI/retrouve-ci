@@ -1,5 +1,5 @@
 {
-	"extends": "@retrouve-ci/typescript-config/base.json",
+	"extends": "@app/typescript-config/base.json",
 	"compilerOptions": {
 		"module": "nodenext",
 		"moduleResolution": "nodenext",
