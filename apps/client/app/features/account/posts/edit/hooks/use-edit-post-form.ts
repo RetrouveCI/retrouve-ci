@@ -1,6 +1,6 @@
 import { useActionData, useNavigation } from 'react-router'
 import { useForm, type SubmissionResult } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { publishFormSchema } from '@/features/publish/publish.schema'
 import type { LostItemCategory } from '@/shared/types/lost-item'
 

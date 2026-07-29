@@ -7,7 +7,7 @@ import {
 	getFormProps,
 	type SubmissionResult,
 } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { OrderProgressBar } from './components/order-progress-bar'
 import { PackSelectionStep } from './components/pack-selection-step'
 import { DeliveryStep } from './components/delivery-step'

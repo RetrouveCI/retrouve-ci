@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useFetcher } from 'react-router'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import {
 	Button,
 	Dialog,

@@ -13,7 +13,7 @@ import { InputField, InputLabel, FieldError } from '@app/ui/components/form'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { generateQrSchema } from '../generate.schema'
 import type { QrToken } from '../../qr.types'
 

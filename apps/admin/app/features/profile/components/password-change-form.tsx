@@ -5,7 +5,7 @@ import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { BentoCard } from '@/shared/components/bento-card'
 import { toast } from 'sonner'
 import { useForm, getFormProps, getInputProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { changePasswordSchema } from '../profile.schema'
 import { changePassword } from '../lib/profile.client'
 

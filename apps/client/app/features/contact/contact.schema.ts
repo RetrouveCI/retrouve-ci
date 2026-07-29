@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const contactSchema = z.object({
 	name: z.string().trim().min(2, 'Veuillez entrer votre nom complet'),
-	email: z.string().trim().email('Veuillez entrer un email valide'),
+	email: z.string().trim().pipe(z.email('Veuillez entrer un email valide')),
 	subject: z.string().trim().min(2, 'Veuillez entrer un sujet'),
 	message: z
 		.string()
