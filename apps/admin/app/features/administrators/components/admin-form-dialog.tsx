@@ -13,12 +13,8 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@retrouve-ci/ui/components'
-import {
-	InputField,
-	InputLabel,
-	FieldError,
-} from '@retrouve-ci/ui/components/form'
+} from '@app/ui/components'
+import { InputField, InputLabel, FieldError } from '@app/ui/components/form'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { Share2, Link2, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import {

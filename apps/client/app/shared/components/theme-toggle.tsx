@@ -1,5 +1,5 @@
 import { Moon, Sun } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { useTheme } from '@/shared/theme/theme-context'
 
 export function ThemeToggle({ className }: { className?: string }) {

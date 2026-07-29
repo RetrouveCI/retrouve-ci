@@ -1,4 +1,4 @@
-import { Button, RadioGroup, RadioGroupItem } from '@retrouve-ci/ui/components'
+import { Button, RadioGroup, RadioGroupItem } from '@app/ui/components'
 import type { FieldMetadata } from '@conform-to/react'
 import {
 	ArrowLeft,
@@ -8,8 +8,8 @@ import {
 	CreditCard,
 	Loader2,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
-import { InputField, FieldError } from '@retrouve-ci/ui/components/form'
+import { cn } from '@app/ui/utils'
+import { InputField, FieldError } from '@app/ui/components/form'
 import { OrderSummaryCard } from './order-summary-card'
 
 interface Pack {

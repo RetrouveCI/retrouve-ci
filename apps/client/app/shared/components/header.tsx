@@ -4,7 +4,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { Link, useLocation } from 'react-router'
 import { Menu, LogIn, Plus, ChevronDown } from 'lucide-react'
 import { MobileNav } from '@/shared/components/mobile-nav'
@@ -13,7 +13,7 @@ import { UserMenu } from '@/shared/components/user-menu'
 import { NotificationBell } from '@/features/notifications/components/notification-bell'
 import { useAuth } from '@/shared/auth/auth-context'
 import { useState, useEffect } from 'react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { LogoRetrouveCI } from './logo-retrouveci'
 
 const navLinks = [

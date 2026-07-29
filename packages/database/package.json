@@ -1,5 +1,5 @@
 {
-	"name": "@retrouve-ci/database",
+	"name": "@app/database",
 	"version": "0.0.0",
 	"private": true,
 	"type": "commonjs",
@@ -28,7 +28,7 @@
 		"pg": "8.16.3"
 	},
 	"devDependencies": {
-		"@retrouve-ci/typescript-config": "workspace:*",
+		"@app/typescript-config": "workspace:*",
 		"@types/node": "catalog:",
 		"@types/pg": "8.15.5",
 		"dotenv": "17.4.2",

@@ -10,11 +10,11 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from '@retrouve-ci/ui/components'
-import { InputLabel, FieldError } from '@retrouve-ci/ui/components/form'
+} from '@app/ui/components'
+import { InputLabel, FieldError } from '@app/ui/components/form'
 import { Loader2, Check } from 'lucide-react'
 import { toast } from 'sonner'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants'
 import { updateZoneSchema } from '../settings.schema'
 

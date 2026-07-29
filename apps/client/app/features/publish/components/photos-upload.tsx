@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { X, ImageIcon } from 'lucide-react'
-import { FieldError } from '@retrouve-ci/ui/components/form'
+import { FieldError } from '@app/ui/components/form'
 import {
 	ALLOWED_PHOTO_TYPES,
 	MAX_PHOTO_SIZE,

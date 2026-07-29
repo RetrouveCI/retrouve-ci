@@ -7,13 +7,9 @@ import {
 	Loader2,
 	Package,
 } from 'lucide-react'
-import { Button, Textarea } from '@retrouve-ci/ui/components'
-import {
-	InputField,
-	FieldError,
-	InputLabel,
-} from '@retrouve-ci/ui/components/form'
-import { cn } from '@retrouve-ci/ui/utils'
+import { Button, Textarea } from '@app/ui/components'
+import { InputField, FieldError, InputLabel } from '@app/ui/components/form'
+import { cn } from '@app/ui/utils'
 import { SectionHeader } from '@/features/publish/components/section-header'
 import { LocationDateSection } from '@/features/publish/components/location-date-section'
 import { ContactSection } from '@/features/publish/components/contact-section'

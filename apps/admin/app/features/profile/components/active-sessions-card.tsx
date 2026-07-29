@@ -1,4 +1,4 @@
-import { Badge } from '@retrouve-ci/ui/components'
+import { Badge } from '@app/ui/components'
 import { Monitor } from 'lucide-react'
 import { BentoCard } from '@/shared/components/bento-card'
 

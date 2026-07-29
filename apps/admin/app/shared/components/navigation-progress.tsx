@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigation } from 'react-router'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { useDashboard } from './dashboard-context'
 
 /**

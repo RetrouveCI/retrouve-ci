@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
 import { Link, useFetcher } from 'react-router'
 import { Bell, BellOff, ArrowLeft, CheckCheck } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components'
-import { cn } from '@retrouve-ci/ui/utils'
+import { Button } from '@app/ui/components'
+import { cn } from '@app/ui/utils'
 import type { Notification } from '@/shared/types/notification'
 import { NotificationItem } from './notification-item'
 

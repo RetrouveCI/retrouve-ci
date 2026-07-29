@@ -1,5 +1,5 @@
-import { Card } from '@retrouve-ci/ui/components'
-import { cn } from '@retrouve-ci/ui/utils'
+import { Card } from '@app/ui/components'
+import { cn } from '@app/ui/utils'
 import { ArrowDownRight, ArrowUpRight, type LucideIcon } from 'lucide-react'
 
 export type StatTone =

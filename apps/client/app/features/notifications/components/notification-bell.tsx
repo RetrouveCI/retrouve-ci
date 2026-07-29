@@ -8,7 +8,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 	Separator,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import type { Notification } from '@/shared/types/notification'
 import { NotificationItem } from './notification-item'
 

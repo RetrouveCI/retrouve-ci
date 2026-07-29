@@ -1,8 +1,8 @@
 import { useId } from 'react'
 import { Form } from 'react-router'
 import { Search, X } from 'lucide-react'
-import { Button, Input } from '@retrouve-ci/ui/components'
-import { cn } from '@retrouve-ci/ui/utils'
+import { Button, Input } from '@app/ui/components'
+import { cn } from '@app/ui/utils'
 
 type Size = 'xs' | 'sm' | 'md' | 'lg'
 

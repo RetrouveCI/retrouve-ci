@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Badge } from '@retrouve-ci/ui/components'
+import { Badge } from '@app/ui/components'
 import { ChevronLeft, ChevronRight, Package, X } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 
 interface PostGalleryProps {
 	images: string[]

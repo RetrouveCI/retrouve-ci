@@ -1,5 +1,5 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
-import { createPrismaClientOptions, PrismaClient } from '@retrouve-ci/database'
+import { createPrismaClientOptions, PrismaClient } from '@app/database'
 
 @Injectable()
 export class PrismaService

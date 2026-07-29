@@ -1,5 +1,5 @@
 {
-	"name": "admin",
+	"name": "@app/admin",
 	"version": "1.0.0",
 	"type": "module",
 	"private": true,
@@ -14,7 +14,7 @@
 		"check-types": "react-router typegen && tsc --noEmit"
 	},
 	"dependencies": {
-		"@retrouve-ci/ui": "workspace:*",
+		"@app/ui": "workspace:*",
 		"@conform-to/react": "catalog:",
 		"@conform-to/zod": "catalog:",
 		"@react-router/node": "catalog:",
@@ -73,8 +73,8 @@
 	},
 	"devDependencies": {
 		"@react-router/dev": "catalog:",
-		"@retrouve-ci/eslint-config": "workspace:*",
-		"@retrouve-ci/typescript-config": "workspace:*",
+		"@app/eslint-config": "workspace:*",
+		"@app/typescript-config": "workspace:*",
 		"@tailwindcss/vite": "catalog:",
 		"@types/node": "catalog:",
 		"@types/react": "catalog:",

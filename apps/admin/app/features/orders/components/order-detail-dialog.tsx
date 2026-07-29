@@ -6,7 +6,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { Package } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'

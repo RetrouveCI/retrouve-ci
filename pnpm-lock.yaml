@@ -240,6 +240,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@app/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@conform-to/react':
         specifier: 'catalog:'
         version: 1.19.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -339,9 +342,6 @@ importers:
       '@react-router/serve':
         specifier: 'catalog:'
         version: 7.17.0(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.2)
-      '@retrouve-ci/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -409,15 +409,15 @@ importers:
         specifier: 'catalog:'
         version: 3.25.76
     devDependencies:
+      '@app/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@app/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
       '@react-router/dev':
         specifier: 'catalog:'
         version: 7.17.0(@react-router/serve@7.17.0(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.2))(@types/node@22.18.12)(jiti@2.7.0)(lightningcss@1.32.0)(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(terser@5.48.0)(typescript@5.9.2)(vite@7.3.5(@types/node@22.18.12)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(yaml@2.9.0)
-      '@retrouve-ci/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@retrouve-ci/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.3.1(vite@7.3.5(@types/node@22.18.12)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
@@ -451,6 +451,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@app/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@fastify/multipart':
         specifier: ^10.0.0
         version: 10.0.0
@@ -475,15 +478,12 @@ importers:
       '@nestjs/swagger':
         specifier: ^11.4.4
         version: 11.4.4(@fastify/static@8.3.0)(@nestjs/common@11.1.26(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.26)(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)
-      '@retrouve-ci/database':
-        specifier: workspace:*
-        version: link:../../packages/database
       '@thallesp/nestjs-better-auth':
         specifier: 2.6.1
-        version: 2.6.1(@nestjs/common@11.1.26(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.26)(better-auth@1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0)))(express@5.2.1)(qs@6.15.2)(typescript@5.9.2)
+        version: 2.6.1(@nestjs/common@11.1.26(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.26)(better-auth@1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0)))(express@5.2.1)(qs@6.15.2)(typescript@5.9.2)
       better-auth:
         specifier: 1.6.18
-        version: 1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
+        version: 1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
       bullmq:
         specifier: 5.78.0
         version: 5.78.0
@@ -509,6 +509,15 @@ importers:
         specifier: 7.8.2
         version: 7.8.2
     devDependencies:
+      '@app/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@app/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      '@app/vitest-config':
+        specifier: workspace:*
+        version: link:../../packages/vitest-config
       '@nestjs/cli':
         specifier: 11.0.23
         version: 11.0.23(@types/node@22.18.12)(lightningcss@1.32.0)(prettier@3.6.2)
@@ -518,15 +527,6 @@ importers:
       '@nestjs/testing':
         specifier: 11.1.26
         version: 11.1.26(@nestjs/common@11.1.26(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.26)(@nestjs/platform-express@11.1.26)
-      '@retrouve-ci/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@retrouve-ci/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
-      '@retrouve-ci/vitest-config':
-        specifier: workspace:*
-        version: link:../../packages/vitest-config
       '@types/node':
         specifier: 'catalog:'
         version: 22.18.12
@@ -551,6 +551,9 @@ importers:
 
   apps/client:
     dependencies:
+      '@app/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@conform-to/react':
         specifier: 'catalog:'
         version: 1.19.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -650,9 +653,6 @@ importers:
       '@react-router/serve':
         specifier: 'catalog:'
         version: 7.17.0(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.2)
-      '@retrouve-ci/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@vercel/analytics':
         specifier: 'catalog:'
         version: 1.6.1(next@16.2.0(@babel/core@7.29.7)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
@@ -714,15 +714,15 @@ importers:
         specifier: 'catalog:'
         version: 3.25.76
     devDependencies:
+      '@app/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@app/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
       '@react-router/dev':
         specifier: 'catalog:'
         version: 7.17.0(@react-router/serve@7.17.0(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(typescript@5.9.2))(@types/node@22.18.12)(jiti@2.7.0)(lightningcss@1.32.0)(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(terser@5.48.0)(typescript@5.9.2)(vite@7.3.5(@types/node@22.18.12)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))(yaml@2.9.0)
-      '@retrouve-ci/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@retrouve-ci/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.3.1(vite@7.3.5(@types/node@22.18.12)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
@@ -761,12 +761,12 @@ importers:
         version: 7.8.0
       '@prisma/client':
         specifier: 7.8.0
-        version: 7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
+        version: 7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
       pg:
         specifier: 8.16.3
         version: 8.16.3
     devDependencies:
-      '@retrouve-ci/typescript-config':
+      '@app/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@types/node':
@@ -961,10 +961,10 @@ importers:
         specifier: 'catalog:'
         version: 1.1.2(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
     devDependencies:
-      '@retrouve-ci/eslint-config':
+      '@app/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@retrouve-ci/typescript-config':
+      '@app/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@tailwindcss/cli':
@@ -994,7 +994,7 @@ importers:
 
   packages/vitest-config:
     devDependencies:
-      '@retrouve-ci/typescript-config':
+      '@app/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@vitejs/plugin-react':
@@ -7569,12 +7569,12 @@ snapshots:
       '@better-auth/core': 1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0)
       '@better-auth/utils': 0.4.1
 
-  '@better-auth/prisma-adapter@1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))':
+  '@better-auth/prisma-adapter@1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))':
     dependencies:
       '@better-auth/core': 1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0)
       '@better-auth/utils': 0.4.1
     optionalDependencies:
-      '@prisma/client': 7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
+      '@prisma/client': 7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
       prisma: 7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2)
 
   '@better-auth/telemetry@1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)':
@@ -8477,7 +8477,7 @@ snapshots:
 
   '@prisma/client-runtime-utils@7.8.0': {}
 
-  '@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)':
+  '@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)':
     dependencies:
       '@prisma/client-runtime-utils': 7.8.0
     optionalDependencies:
@@ -9583,11 +9583,11 @@ snapshots:
 
   '@tanstack/table-core@8.21.3': {}
 
-  '@thallesp/nestjs-better-auth@2.6.1(@nestjs/common@11.1.26(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.26)(better-auth@1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0)))(express@5.2.1)(qs@6.15.2)(typescript@5.9.2)':
+  '@thallesp/nestjs-better-auth@2.6.1(@nestjs/common@11.1.26(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.26)(better-auth@1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0)))(express@5.2.1)(qs@6.15.2)(typescript@5.9.2)':
     dependencies:
       '@nestjs/common': 11.1.26(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.1.26(@nestjs/common@11.1.26(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.26)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      better-auth: 1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
+      better-auth: 1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0))
       typescript: 5.9.2
     optionalDependencies:
       express: 5.2.1
@@ -10183,7 +10183,7 @@ snapshots:
       '@better-auth/kysely-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(kysely@0.29.2)
       '@better-auth/memory-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)
       '@better-auth/mongo-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)
-      '@better-auth/prisma-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))
+      '@better-auth/prisma-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))
       '@better-auth/telemetry': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)
       '@better-auth/utils': 0.4.1
       '@better-fetch/fetch': 1.3.0
@@ -10196,7 +10196,7 @@ snapshots:
       nanostores: 1.3.0
       zod: 4.4.3
     optionalDependencies:
-      '@prisma/client': 7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
+      '@prisma/client': 7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
       mysql2: 3.15.3
       next: 16.2.0(@babel/core@7.29.7)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       pg: 8.16.3
@@ -10208,14 +10208,14 @@ snapshots:
       - '@cloudflare/workers-types'
       - '@opentelemetry/api'
 
-  better-auth@1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0)):
+  better-auth@1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(next@16.2.0(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vitest@3.2.6(@types/node@22.18.12)(jiti@2.7.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.48.0)(yaml@2.9.0)):
     dependencies:
       '@better-auth/core': 1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0)
       '@better-auth/drizzle-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)
       '@better-auth/kysely-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(kysely@0.29.2)
       '@better-auth/memory-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)
       '@better-auth/mongo-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)
-      '@better-auth/prisma-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(@prisma/client@7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))
+      '@better-auth/prisma-adapter': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2))(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))
       '@better-auth/telemetry': 1.6.18(@better-auth/core@1.6.18(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)(better-call@1.3.6(zod@4.4.3))(jose@6.2.3)(kysely@0.29.2)(nanostores@1.3.0))(@better-auth/utils@0.4.1)(@better-fetch/fetch@1.3.0)
       '@better-auth/utils': 0.4.1
       '@better-fetch/fetch': 1.3.0
@@ -10228,7 +10228,7 @@ snapshots:
       nanostores: 1.3.0
       zod: 4.4.3
     optionalDependencies:
-      '@prisma/client': 7.8.0(prisma@7.8.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
+      '@prisma/client': 7.8.0(prisma@7.8.0(@types/react@19.2.14)(magicast@0.3.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.2))(typescript@5.9.2)
       mysql2: 3.15.3
       next: 16.2.0(@babel/core@7.29.7)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       pg: 8.16.3

@@ -5,7 +5,7 @@ import {
 	Badge,
 	Button,
 	CardContent,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { BentoCard } from '@/shared/components/bento-card'
 import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
 import { format } from 'date-fns'

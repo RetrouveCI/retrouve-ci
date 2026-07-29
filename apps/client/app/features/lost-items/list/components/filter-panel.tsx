@@ -8,13 +8,13 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 	Calendar as CalendarComponent,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { type DateRange } from 'react-day-picker'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { X, MapPin, Calendar, SlidersHorizontal } from 'lucide-react'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 
 interface FilterPanelProps {
 	filterVille: string

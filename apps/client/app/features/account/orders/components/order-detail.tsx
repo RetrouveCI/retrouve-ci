@@ -1,4 +1,4 @@
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import {
 	CheckCircle2,
@@ -9,7 +9,7 @@ import {
 	CreditCard,
 	Calendar,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import type { Order, OrderStatus } from '../orders.types'
 
 const STATUS_CONFIG: Record<

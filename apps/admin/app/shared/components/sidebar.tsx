@@ -11,8 +11,8 @@ import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
-} from '@retrouve-ci/ui/components'
-import { cn } from '@retrouve-ci/ui/utils'
+} from '@app/ui/components'
+import { cn } from '@app/ui/utils'
 import { useAuth } from '@/shared/auth/auth-context'
 import { useDashboard } from './dashboard-context'
 import type { LayoutCounts } from './dashboard-context'

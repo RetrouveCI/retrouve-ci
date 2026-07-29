@@ -3,7 +3,7 @@ import {
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { Lock, MessageCircle, Power, Smartphone, RefreshCw } from 'lucide-react'
 const FAQ_ITEMS = [
 	{

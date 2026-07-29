@@ -9,7 +9,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { useEffect, useState } from 'react'
 import { useFetcher } from 'react-router'
 import { Plus } from 'lucide-react'

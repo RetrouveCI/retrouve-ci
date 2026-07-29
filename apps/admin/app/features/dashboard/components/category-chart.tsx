@@ -1,10 +1,5 @@
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components'
-import { cn } from '@retrouve-ci/ui/utils'
+import { Card, CardContent, CardHeader, CardTitle } from '@app/ui/components'
+import { cn } from '@app/ui/utils'
 import { useTheme } from '@/shared/components/theme-context'
 import {
 	BarChart,

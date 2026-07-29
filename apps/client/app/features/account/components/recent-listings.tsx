@@ -8,8 +8,8 @@ import {
 	Plus,
 	FileText,
 } from 'lucide-react'
-import { Badge } from '@retrouve-ci/ui/components'
-import { cn } from '@retrouve-ci/ui/utils'
+import { Badge } from '@app/ui/components'
+import { cn } from '@app/ui/utils'
 import type { UserLostItem } from '@/shared/types/lost-item'
 
 const STATUS_CONFIG = {

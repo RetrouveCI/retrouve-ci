@@ -1,4 +1,4 @@
-import { Label } from '@retrouve-ci/ui/components'
+import { Label } from '@app/ui/components'
 import { User, Smartphone, MapPin, Calendar, Check } from 'lucide-react'
 import type { UserProfile } from '../mappers/profile.mapper'
 import { EditNameDialog } from './edit-name-dialog'

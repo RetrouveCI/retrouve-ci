@@ -1,9 +1,4 @@
-import {
-	Avatar,
-	AvatarFallback,
-	Badge,
-	Separator,
-} from '@retrouve-ci/ui/components'
+import { Avatar, AvatarFallback, Badge, Separator } from '@app/ui/components'
 import { Mail, Shield, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { BentoCard } from '@/shared/components/bento-card'
 

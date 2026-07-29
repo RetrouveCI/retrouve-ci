@@ -1,4 +1,4 @@
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { Smartphone, LogOut, Settings, CalendarDays } from 'lucide-react'
 import type { User as UserType } from '@/shared/types/user'

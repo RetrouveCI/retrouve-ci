@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router'
 import { Home, Newspaper, Plus, Bell, User, LogIn } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { useAuth } from '@/shared/auth/auth-context'
 
 function isActiveTab(pathname: string, href: string) {

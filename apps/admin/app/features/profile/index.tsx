@@ -1,9 +1,4 @@
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@retrouve-ci/ui/components'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@app/ui/components'
 import { ProfileIdentityCard } from './components/profile-identity-card'
 import { PermissionsCard } from './components/permissions-card'
 import { PasswordChangeForm } from './components/password-change-form'

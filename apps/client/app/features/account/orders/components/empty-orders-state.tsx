@@ -1,4 +1,4 @@
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { Package, Plus } from 'lucide-react'
 

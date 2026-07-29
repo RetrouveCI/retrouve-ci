@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { Clock, ArrowRight } from 'lucide-react'
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 
 export function DownloadCta() {
 	return (

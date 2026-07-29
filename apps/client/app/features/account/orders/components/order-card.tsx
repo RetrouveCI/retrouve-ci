@@ -6,7 +6,7 @@ import {
 	QrCode,
 	ChevronRight,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import type { Order, OrderStatus } from '../orders.types'
 
 const STATUS_CONFIG: Record<

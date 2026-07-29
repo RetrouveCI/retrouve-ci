@@ -10,7 +10,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { Link, useFetcher } from 'react-router'
 import {
 	Eye,
@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { UserLostItem } from '@/shared/types/lost-item'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 
 const STATUS_CONFIG = {
 	pending: {

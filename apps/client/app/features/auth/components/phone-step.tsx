@@ -1,5 +1,5 @@
-import { Button, Input, Label } from '@retrouve-ci/ui/components'
-import { FieldError } from '@retrouve-ci/ui/components/form'
+import { Button, Input, Label } from '@app/ui/components'
+import { FieldError } from '@app/ui/components/form'
 import { Loader2 } from 'lucide-react'
 
 interface PhoneStepProps {

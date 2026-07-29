@@ -1,7 +1,7 @@
 import {
 	StickerOrderStatus as PrismaStickerOrderStatus,
 	type StickerOrder as PrismaStickerOrder,
-} from '@retrouve-ci/database'
+} from '@app/database'
 
 import type { StickerOrder } from '../models/sticker-order.model'
 import type { StickerOrderStatus } from '../types/sticker-order.types'

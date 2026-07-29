@@ -35,7 +35,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build shared packages
-        run: pnpm exec turbo run build --filter=@retrouve-ci/database
+        run: pnpm exec turbo run build --filter=@app/database
 
       - name: Format check
         run: pnpm format:check
@@ -63,7 +63,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build shared packages
-        run: pnpm exec turbo run build --filter=@retrouve-ci/database
+        run: pnpm exec turbo run build --filter=@app/database
 
       - name: Type check
         run: pnpm check-types
@@ -91,7 +91,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build shared packages
-        run: pnpm exec turbo run build --filter=@retrouve-ci/database
+        run: pnpm exec turbo run build --filter=@app/database
 
       - name: Lint
         run: pnpm lint
@@ -119,7 +119,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build shared packages
-        run: pnpm exec turbo run build --filter=@retrouve-ci/database
+        run: pnpm exec turbo run build --filter=@app/database
 
       - name: Unit tests
         run: pnpm test

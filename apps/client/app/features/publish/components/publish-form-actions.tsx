@@ -1,7 +1,7 @@
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { Loader2, Send } from 'lucide-react'
 import { useNavigate } from 'react-router'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 
 interface PublishFormActionsProps {
 	isSubmitting: boolean

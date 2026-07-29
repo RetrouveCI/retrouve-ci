@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 
 const faqs = [
 	{

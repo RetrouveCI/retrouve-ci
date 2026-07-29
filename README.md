@@ -18,13 +18,13 @@ packages.
 
 ## Packages
 
-| Package                          | Description                                        |
-| -------------------------------- | -------------------------------------------------- |
-| `@retrouve-ci/database`          | Prisma schema, migrations & generated client       |
-| `@retrouve-ci/ui`                | Shared shadcn/ui component library (source-only)   |
-| `@retrouve-ci/eslint-config`     | Shared ESLint configs (base, next, react-internal) |
-| `@retrouve-ci/typescript-config` | Shared `tsconfig` presets                          |
-| `@retrouve-ci/vitest-config`     | Shared Vitest presets (base, react)                |
+| Package                  | Description                                        |
+| ------------------------ | -------------------------------------------------- |
+| `@app/database`          | Prisma schema, migrations & generated client       |
+| `@app/ui`                | Shared shadcn/ui component library (source-only)   |
+| `@app/eslint-config`     | Shared ESLint configs (base, next, react-internal) |
+| `@app/typescript-config` | Shared `tsconfig` presets                          |
+| `@app/vitest-config`     | Shared Vitest presets (base, react)                |
 
 ## Prerequisites
 
@@ -75,10 +75,10 @@ pnpm db:studio     # Open Prisma Studio
 To run a single app or package in isolation:
 
 ```bash
-pnpm --filter client dev
-pnpm --filter admin dev
-pnpm --filter api dev
-pnpm --filter @retrouve-ci/ui build
+pnpm --filter @app/client dev
+pnpm --filter @app/admin dev
+pnpm --filter @app/api dev
+pnpm --filter @app/ui build
 ```
 
 ## Tech Stack
@@ -87,7 +87,7 @@ pnpm --filter @retrouve-ci/ui build
 
 - **React Router v7** (Vite, SSR) with React 19 and TypeScript 5.9
 - **Tailwind CSS v4** — configured via CSS `@theme` directives
-- **shadcn/ui** — components from `@retrouve-ci/ui`, Lucide icons
+- **shadcn/ui** — components from `@app/ui`, Lucide icons
 - **`@conform-to/react` + `@conform-to/zod`** for all forms
 - **better-auth** for authentication (phone number on client, email/password on
   admin)
@@ -134,12 +134,12 @@ installed, Renovate will:
 
 ## Architecture Notes
 
-- `@retrouve-ci/ui` is consumed directly from source via TypeScript path aliases
-  — no build step is required before starting the apps. Turborepo's
+- `@app/ui` is consumed directly from source via TypeScript path aliases — no
+  build step is required before starting the apps. Turborepo's
   `"dependsOn": ["^build"]` only applies to packages that have a `build` script.
-- `@retrouve-ci/database` **does** have a build step (`prisma generate` + `tsc`)
-  and is built before the `api` via `^build`.
+- `@app/database` **does** have a build step (`prisma generate` + `tsc`) and is
+  built before the `api` via `^build`.
 - All shadcn/ui components live in `packages/ui/src/components/ui/` and are
-  imported by apps via the `@retrouve-ci/ui/components` barrel export.
+  imported by apps via the `@app/ui/components` barrel export.
 
 See [`CLAUDE.md`](CLAUDE.md) for detailed architecture and conventions.

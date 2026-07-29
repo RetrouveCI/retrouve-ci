@@ -5,7 +5,7 @@ import {
 	CheckCircle2,
 	ArrowRight,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 
 const TYPE_CARDS = [
 	{

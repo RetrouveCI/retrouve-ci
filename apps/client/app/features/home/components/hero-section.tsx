@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { ArrowRight, ShieldCheck, Users, MapPin } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 import { SearchBar } from '@/shared/components/search-bar'
 import { HeroMap } from './hero-map'
 

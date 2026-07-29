@@ -7,7 +7,7 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 
 interface RevokeTokenDialogProps {
 	open: boolean

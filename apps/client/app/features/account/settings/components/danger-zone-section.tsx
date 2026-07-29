@@ -8,7 +8,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { useEffect, useState } from 'react'
 import { useFetcher, useNavigate } from 'react-router'
 import { Trash2 } from 'lucide-react'
@@ -16,7 +16,7 @@ import { toast } from 'sonner'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { PasswordInput } from '@/features/auth/components/password-input'
-import { FieldError } from '@retrouve-ci/ui/components/form'
+import { FieldError } from '@app/ui/components/form'
 import { deleteAccountSchema } from '../settings.schema'
 
 interface ActionResult {

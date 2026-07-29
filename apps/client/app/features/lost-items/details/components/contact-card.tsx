@@ -5,7 +5,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { MessageCircle, Lock } from 'lucide-react'
 
 interface LostItem {

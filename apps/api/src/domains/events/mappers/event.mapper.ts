@@ -1,7 +1,7 @@
 import {
 	EventStatus as PrismaEventStatus,
 	type Event as PrismaEvent,
-} from '@retrouve-ci/database'
+} from '@app/database'
 
 import type { Event } from '../models/event.model'
 import type { EventStatus } from '../types/event.types'

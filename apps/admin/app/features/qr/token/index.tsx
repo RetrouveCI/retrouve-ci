@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useFetcher } from 'react-router'
-import { Button } from '@retrouve-ci/ui/components'
+import { Button } from '@app/ui/components'
 import { AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { TokenDetailsCard } from './components/token-details-card'

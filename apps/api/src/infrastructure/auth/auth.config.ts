@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { admin, phoneNumber } from 'better-auth/plugins'
-import type { PrismaClient } from '@retrouve-ci/database'
+import type { PrismaClient } from '@app/database'
 
 const DEFAULT_TRUSTED_ORIGINS = [
 	'http://localhost:3000',

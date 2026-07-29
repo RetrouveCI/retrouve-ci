@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Button, Input } from '@retrouve-ci/ui/components'
-import { InputLabel, FieldError } from '@retrouve-ci/ui/components/form'
+import { Button, Input } from '@app/ui/components'
+import { InputLabel, FieldError } from '@app/ui/components/form'
 import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { BentoCard } from '@/shared/components/bento-card'
 import { toast } from 'sonner'

@@ -1,4 +1,4 @@
-import { ContactMessageStatus as PrismaContactMessageStatus } from '@retrouve-ci/database'
+import { ContactMessageStatus as PrismaContactMessageStatus } from '@app/database'
 import { describe, expect, it } from 'vitest'
 import {
 	toDomainContactMessage,

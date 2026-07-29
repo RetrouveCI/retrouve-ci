@@ -8,3 +8,12 @@ coverage
 **/generated
 *.tsbuildinfo
 pnpm-lock.yaml
+
+# Tooling & AI agents
+.claude
+.agents
+.cursor
+.windsurf
+.copilot
+skills-lock.json
+.mcp.json

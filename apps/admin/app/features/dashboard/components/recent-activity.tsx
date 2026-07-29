@@ -1,10 +1,5 @@
 import { Link } from 'react-router'
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@retrouve-ci/ui/components'
+import { Card, CardContent, CardHeader, CardTitle } from '@app/ui/components'
 import {
 	Scan,
 	Users,
@@ -13,7 +8,7 @@ import {
 	CheckCircle,
 	ArrowRight,
 } from 'lucide-react'
-import { cn } from '@retrouve-ci/ui/utils'
+import { cn } from '@app/ui/utils'
 
 type ActivityType = 'scan' | 'user' | 'post' | 'contact'
 

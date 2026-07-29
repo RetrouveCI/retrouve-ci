@@ -7,8 +7,8 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '@retrouve-ci/ui/components'
-import { InputField, TextareaField } from '@retrouve-ci/ui/components/form'
+} from '@app/ui/components'
+import { InputField, TextareaField } from '@app/ui/components/form'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useForm, getFormProps } from '@conform-to/react'

@@ -5,7 +5,7 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { Link } from 'react-router'
 import {
 	Copy,

@@ -1,5 +1,5 @@
-import { InputOTPSlot } from '@retrouve-ci/ui/components'
-import { cn } from '@retrouve-ci/ui/utils'
+import { InputOTPSlot } from '@app/ui/components'
+import { cn } from '@app/ui/utils'
 
 export function OtpSlots({ error }: { error: boolean }) {
 	return (

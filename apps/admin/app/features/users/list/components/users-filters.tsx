@@ -5,7 +5,7 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@retrouve-ci/ui/components'
+} from '@app/ui/components'
 import { DateRangePicker } from '@/shared/components/date-range-picker'
 import { Download } from 'lucide-react'
 import type { DateRange } from 'react-day-picker'

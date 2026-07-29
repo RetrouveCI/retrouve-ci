@@ -1,7 +1,7 @@
 import {
 	NotificationType as PrismaNotificationType,
 	type Notification as PrismaNotification,
-} from '@retrouve-ci/database'
+} from '@app/database'
 
 import type { Notification } from '../models/notification.model'
 import type { NotificationType } from '../types/notification.types'
