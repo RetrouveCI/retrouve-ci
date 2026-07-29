@@ -16,10 +16,11 @@
 	},
 	"scripts": {
 		"build": "prisma generate && tsc -p tsconfig.build.json",
-		"check-types": "tsc --noEmit",
+		"typecheck": "tsc --noEmit",
 		"db:generate": "prisma generate",
 		"db:migrate": "prisma migrate dev",
 		"db:deploy": "prisma migrate deploy",
+		"db:push": "prisma db push",
 		"db:studio": "prisma studio"
 	},
 	"dependencies": {

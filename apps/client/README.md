@@ -92,5 +92,5 @@ pnpm dev          # Start dev server on port 3000
 pnpm build        # Production build
 pnpm start        # Start production server
 pnpm lint         # Lint with ESLint
-pnpm check-types  # Type-check with TypeScript
+pnpm typecheck    # Type-check with TypeScript
 ```

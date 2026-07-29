@@ -11,7 +11,7 @@
 		"dev": "concurrently \"tsc-alias -p tsconfig.build.json -w\" \"nest start --watch\"",
 		"start": "node dist/main.js",
 		"lint": "eslint",
-		"check-types": "tsc --noEmit",
+		"typecheck": "tsc --noEmit",
 		"test": "vitest run"
 	},
 	"dependencies": {

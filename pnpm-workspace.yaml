@@ -70,6 +70,7 @@ catalog:
   'next': '16.2.0'
   'next-themes': '^0.4.6'
   'postcss': '^8.5.3'
+  'prettier': '^3.6.0'
   'react': '19.2.4'
   'react-day-picker': '9.13.2'
   'react-dom': '19.2.4'
@@ -80,6 +81,7 @@ catalog:
   'sonner': '^1.7.1'
   'tailwind-merge': '^3.3.1'
   'tailwindcss': '^4.2.0'
+  'turbo': '2.10.5'
   'typescript': '5.9.2'
   'vaul': '^1.1.2'
   'vite': '^7.1.0'
@@ -96,3 +98,10 @@ minimumReleaseAgeExclude:
   - '@better-auth/prisma-adapter@1.6.18'
   - '@better-auth/telemetry@1.6.18'
   - better-auth@1.6.18
+  - turbo@2.10.5
+  - '@turbo/darwin-64@2.10.5'
+  - '@turbo/darwin-arm64@2.10.5'
+  - '@turbo/linux-64@2.10.5'
+  - '@turbo/linux-arm64@2.10.5'
+  - '@turbo/windows-64@2.10.5'
+  - '@turbo/windows-arm64@2.10.5'

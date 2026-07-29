@@ -96,22 +96,45 @@ tests, 30 fichiers)
 
 Le nom du package racine reste `retrouve-ci` (la racine n'est pas scopée).
 
+### 2.3 Socle racine (E1) — **fait**
+
+| Sujet             | Résultat                                                                                                                                                                                            |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tsconfig.json`   | `extends: "@app/typescript-config/base.json"` (le reliquat `expo/tsconfig.base` ne résolvait plus). La racine déclare désormais le package en `devDependencies`, sans quoi le `extends` reste muet. |
+| Script typecheck  | `check-types` → `typecheck` : racine, 5 `package.json`, `turbo.json`, `test-ci.yml`, `.claude/hooks/typecheck.sh`, `CLAUDE.md`, 3 `README.md`                                                       |
+| Runtimes          | `engines.node: ">=24 <25"`, `.nvmrc` (`24`), `.npmrc` (`engine-strict=true`, `use-node-version=24.13.1`), `packageManager: pnpm@11.10.0`                                                            |
+| Conséquence CI/CD | `engine-strict` impose de bumper Node **24** dans les 4 jobs de `test-ci.yml` et dans les 3 `Dockerfile` (`node:22-` → `node:24-bookworm-slim`), sinon `pnpm install` échoue                        |
+| Catalog           | `turbo: 2.10.5` et `prettier: ^3.6.0` catalogués, + `minimumReleaseAgeExclude` sur `turbo@2.10.5` et ses 6 binaires `@turbo/<platform>`                                                             |
+| `turbo.json`      | tâches `db:push`, `db:seed`, `//#format-and-lint` ajoutées ; `outputs: ["coverage/**"]` sur `test` ; `dependsOn: ["^db:generate"]` sur `lint` et `typecheck`                                        |
+| Prettier          | style **inchangé** (tabs / 80) — arbitrage §6                                                                                                                                                       |
+
+`db:push` est implémenté par `@app/database` (`prisma db push`). La tâche
+`db:seed` est **déclarée mais sans implémentation** : aucun workspace n'expose
+encore ce script (le seed tourne au démarrage de l'API, dans
+`infrastructure/seeder`). Elle est là pour la cible.
+
+**Vérifié** : `typecheck` (6/6, `^db:generate` inclus) + `lint` + `test` +
+`format:check`.
+
 ---
 
 ## 3. État des lieux — écarts restants
 
 ### 3.1 Racine du monorepo
 
-| Sujet            | RetrouveCI                               | Référence                                              | Écart                      |
-| ---------------- | ---------------------------------------- | ------------------------------------------------------ | -------------------------- |
-| Script typecheck | `check-types`                            | `typecheck`                                            | 🔸 nommage                 |
-| `tsconfig.json`  | `extends: "expo/tsconfig.base"`          | `extends: "@app/typescript-config/base.json"`          | 🔴 **bug** — reliquat Expo |
-| Node             | `>=18`, pas de `.nvmrc`                  | `>=24 <25`, `.nvmrc`, `use-node-version` dans `.npmrc` | 🔸                         |
-| pnpm             | `11.9.0`                                 | `11.10.0`                                              | 🔸                         |
-| Turbo            | `^2.9.6`, hors catalog                   | `2.10.5`, dans le catalog                              | 🔸                         |
-| `turbo.json`     | `globalEnv` (24 vars), tâches partielles | tâches `test` / `db:*` / `typecheck` complètes         | 🔸                         |
-| Prettier         | `useTabs: true`, `printWidth: 80`        | espaces (2), `printWidth: 85`                          | 🟠 divergence de style     |
-| Docs archi       | aucune                                   | `docs/architecture/*.md` (5 docs)                      | 🔸                         |
+Tout le socle racine a été traité en **E1** (§2.3) ; il ne reste que les docs
+d'architecture, prévues en E12.
+
+| Sujet            | Référence                                              | État                         |
+| ---------------- | ------------------------------------------------------ | ---------------------------- |
+| Script typecheck | `typecheck`                                            | ✅ E1                        |
+| `tsconfig.json`  | `extends: "@app/typescript-config/base.json"`          | ✅ E1                        |
+| Node             | `>=24 <25`, `.nvmrc`, `use-node-version` dans `.npmrc` | ✅ E1                        |
+| pnpm             | `11.10.0`                                              | ✅ E1                        |
+| Turbo            | `2.10.5`, dans le catalog                              | ✅ E1                        |
+| `turbo.json`     | tâches `test` / `db:*` / `typecheck` complètes         | ✅ E1                        |
+| Prettier         | espaces (2), `printWidth: 85`                          | 🟠 divergence assumée (§3.7) |
+| Docs archi       | `docs/architecture/*.md` (5 docs)                      | 🔸 E12                       |
 
 ### 3.2 Dépendances — catalog pnpm
 
@@ -231,7 +254,10 @@ Détails : [MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md) ·
   deux produits.
 - **Prisma driver adapters, Cloudinary, BullMQ** : choix propres à RetrouveCI.
 - **Hooks Claude en scripts** plutôt qu'inline (`jq` absent).
-- **Style Prettier** : à trancher en E1 (voir §6).
+- **Style Prettier** : ✅ tranché en E1 — on **garde** `useTabs: true` /
+  `printWidth: 80`. Un reformatage global noierait tous les diffs de la
+  migration et casserait `git blame`. À reconsidérer après E12, en commit isolé
+  accompagné d'un `.git-blame-ignore-revs`.
 
 ---
 
@@ -242,7 +268,7 @@ Une ligne = une branche = une PR = une session.
 | #       | Étape                                    | Branche                            | Scope commit                  | Charge | Dépend de |
 | ------- | ---------------------------------------- | ---------------------------------- | ----------------------------- | ------ | --------- |
 | **E0**  | ✅ Scope `@app/*` + outillage agents     | (fait)                             | `root/tooling`                | —      | —         |
-| **E1**  | Socle racine & hygiène                   | `migration-e1-socle-racine`        | `root/core`                   | 0,5 j  | E0        |
+| **E1**  | ✅ Socle racine & hygiène                | (fait)                             | `root/core`                   | —      | E0        |
 | **E2**  | Catalog : bump Zod 4 + Vitest 4          | `migration-e2-catalog-zod-vitest`  | `root/deps`                   | 1 j    | E1        |
 | **E3**  | Catalog : reste des versions + nettoyage | `migration-e3-catalog-alignement`  | `root/deps`                   | 1 j    | E2        |
 | **E4**  | Presets partagés (ts / vitest / eslint)  | `migration-e4-presets-partages`    | `packages/config`             | 0,5 j  | E2        |
@@ -346,12 +372,12 @@ DevOps. `docs/README.md` en index.
 
 ## 6. Décisions à arbitrer
 
-| Sujet                    | Options                                                                                                | Recommandation                                                                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Style Prettier**       | (a) aligner sur la référence (espaces, 85 col) → reformatage global ; (b) garder tabs/80 et documenter | **(b)** — un reformatage global noie tous les diffs de la migration et casse `git blame`. À refaire plus tard en commit isolé + `.git-blame-ignore-revs`. |
-| **Ordre E7 / E2**        | migrer Conform vers `@conform-to/zod/v4` puis vers RHF, ou enchaîner E7 juste après E3                 | **enchaîner E7** — évite une migration jetable sur 41 fichiers                                                                                            |
-| **Tests front**          | browser mode (`@vitest/browser-playwright`, comme la référence) ou `jsdom`                             | **browser mode** pour rester aligné, mais coût CI plus élevé                                                                                              |
-| **`@app/web-kit` (E11)** | mutualiser client ↔ admin, ou assumer la duplication                                                  | mutualiser — 5 fichiers strictement identiques aujourd'hui                                                                                                |
+| Sujet                    | Options                                                                                                 | Recommandation                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Style Prettier**       | ✅ **tranché en E1 : (b)** — on garde `useTabs: true` / `printWidth: 80`, divergence documentée en §3.7 | (b) — un reformatage global noie tous les diffs de la migration et casse `git blame`. À refaire après E12 en commit isolé + `.git-blame-ignore-revs`. |
+| **Ordre E7 / E2**        | migrer Conform vers `@conform-to/zod/v4` puis vers RHF, ou enchaîner E7 juste après E3                  | **enchaîner E7** — évite une migration jetable sur 41 fichiers                                                                                        |
+| **Tests front**          | browser mode (`@vitest/browser-playwright`, comme la référence) ou `jsdom`                              | **browser mode** pour rester aligné, mais coût CI plus élevé                                                                                          |
+| **`@app/web-kit` (E11)** | mutualiser client ↔ admin, ou assumer la duplication                                                   | mutualiser — 5 fichiers strictement identiques aujourd'hui                                                                                            |
 
 ---
 

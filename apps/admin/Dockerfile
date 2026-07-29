@@ -4,7 +4,7 @@
 #   docker build -f apps/admin/Dockerfile -t retrouveci-admin .
 
 # ---- Base : Node + pnpm ----------------------------------------------------
-FROM node:22-bookworm-slim AS base
+FROM node:24-bookworm-slim AS base
 ENV PNPM_HOME="/pnpm" \
 	PATH="/pnpm:$PATH" \
 	CI="true" \
@@ -25,7 +25,7 @@ RUN pnpm exec turbo run build --filter=@app/admin
 RUN pnpm --filter @app/admin --legacy deploy --prod /prod/admin
 
 # ---- Runner : minimal production image -------------------------------------
-FROM node:22-bookworm-slim AS runner
+FROM node:24-bookworm-slim AS runner
 ENV NODE_ENV="production" \
 	PORT="3001"
 WORKDIR /app
