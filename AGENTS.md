@@ -230,7 +230,21 @@ Every migration step follows this cycle — no exceptions:
    `pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run format:check`.
 3. **Ask for permission before committing.** Commits are GPG-signed by the
    maintainer — never run `git commit` unprompted.
-4. Open the pull request with `gh pr create --base migration --fill`.
+4. Open the pull request. The title is a conventional commit carrying the step
+   scope; the description **must** follow the Pull Request Message Generation
+   Rule above (`What? / Why? / How? / Testing? / Anything Else?`). Never use
+   `--fill` — it only copies the commit message. Write the body to a file, then:
+
+   ```bash
+   gh pr create --repo RetrouveCI/retrouve-ci --base migration \
+     --head migration-e<n>-<slug> --title "<type>(<scope>): <subject>" \
+     --body-file <file>
+   ```
+
+   `--repo` is required: the git remote still carries the former
+   `JowellDev/retrouve-ci` name, and without it `gh` reports
+   `No commits between …`.
+
 5. Close with a **handoff message**: a self-contained brief (starting branch,
    what was just done, what remains, files involved, verification commands) that
    the maintainer pastes to start the next session.
