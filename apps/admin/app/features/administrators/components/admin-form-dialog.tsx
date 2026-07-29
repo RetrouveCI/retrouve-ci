@@ -23,7 +23,7 @@ import {
 	getFormProps,
 	type Submission,
 } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { type z } from 'zod'
 import {
 	adminCreateSchema,

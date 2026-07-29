@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useFetcher } from 'react-router'
 import { toast } from 'sonner'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { otpSchema } from '../reset-password.schema'
 import { OtpStep } from '../../components/otp-step'
 

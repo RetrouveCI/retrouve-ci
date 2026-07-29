@@ -12,7 +12,7 @@ import { InputField, TextareaField } from '@app/ui/components/form'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useForm, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { eventSchema } from '../events.schema'
 import type { Event } from '../events.types'
 

@@ -1,5 +1,5 @@
 import { data } from 'react-router'
-import { parseWithZod } from '@conform-to/zod'
+import { parseWithZod } from '@conform-to/zod/v4'
 import { requireAdminSession } from '@/shared/auth/auth.server'
 import {
 	adminCreateSchema,

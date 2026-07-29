@@ -3,7 +3,7 @@ import { useFetcher } from 'react-router'
 import { toast } from 'sonner'
 import { Send, CheckCircle2 } from 'lucide-react'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { FieldError } from '@app/ui/components/form'
 import { qrContactSchema } from '../qr-contact.schema'
 

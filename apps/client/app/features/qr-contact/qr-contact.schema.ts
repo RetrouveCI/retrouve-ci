@@ -9,7 +9,7 @@ export const qrContactSchema = z.object({
 	email: z
 		.string()
 		.trim()
-		.email('Veuillez entrer un email valide')
+		.pipe(z.email('Veuillez entrer un email valide'))
 		.optional()
 		.or(z.literal('')),
 	message: z

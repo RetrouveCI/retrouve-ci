@@ -1,5 +1,5 @@
 import { redirect, data } from 'react-router'
-import { parseWithZod } from '@conform-to/zod'
+import { parseWithZod } from '@conform-to/zod/v4'
 import { stickerOrderSchema } from '../order.schema'
 import { PAYMENT_METHODS } from '../stickers-order.const'
 import { createStickerOrder } from './order.service'

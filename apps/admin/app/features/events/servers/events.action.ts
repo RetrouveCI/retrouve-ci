@@ -1,5 +1,5 @@
 import { data } from 'react-router'
-import { parseWithZod } from '@conform-to/zod'
+import { parseWithZod } from '@conform-to/zod/v4'
 import { ApiError } from '@/shared/lib/api-client'
 import { requireAdminSession } from '@/shared/auth/auth.server'
 import { createEvent, updateEvent, deleteEvent } from './events.service'

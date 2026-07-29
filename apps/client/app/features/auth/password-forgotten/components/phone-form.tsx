@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useFetcher, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { phoneNumberSchema } from '../password-forgotten.schema'
 import { PhoneStep } from '../../components/phone-step'
 

@@ -1,5 +1,5 @@
 import { redirect, data } from 'react-router'
-import { parseWithZod } from '@conform-to/zod'
+import { parseWithZod } from '@conform-to/zod/v4'
 import { publishFormSchema } from '@/features/publish/publish.schema'
 import { collectPhotoUrls } from '@/features/publish/servers/upload.service'
 import { patchLostItemContent } from '../../servers/account-posts.service'
