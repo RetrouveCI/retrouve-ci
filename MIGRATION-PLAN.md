@@ -264,12 +264,19 @@ Trois raisons convergentes :
   `@hookform/resolvers/standard-schema`) ;
 - les README des deux apps annoncent **déjà** « react-hook-form + zod » — la doc
   était fausse ;
-- `packages/ui` embarque déjà le composant shadcn `form.tsx` bâti sur
-  `react-hook-form`, inutilisé, **en parallèle** de
+- `packages/ui` embarque déjà de quoi le faire, **en parallèle** de
   `components/form/{input,textarea}-field.tsx` bâtis sur Conform.
 
 Périmètre : **41 fichiers** — 29 dans `client`, 10 dans `admin`, 2 dans
 `packages/ui`.
+
+**Correction apportée en E7.1** : la troisième raison citait le composant shadcn
+`ui/form.tsx` (`FormField`, `FormItem`, `FormControl`, `FormMessage`) comme la
+cible. C'est `ui/field.tsx` — la famille `Field`, plus récente — qui est
+réellement utilisée par l'architecture de référence, combinée à `Controller` de
+`react-hook-form`. Les deux fichiers existent chez nous et sont exportés par le
+barrel ; `ui/form.tsx` **reste inutilisé** après E7. Détail complet dans
+[MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md) §4.1.
 
 ### 3.5 Back-end `apps/api`
 
@@ -331,12 +338,12 @@ Une ligne = une branche = une PR = une session.
 | **E0**  | ✅ Scope `@app/*` + outillage agents        | (fait)                             | `root/tooling`                | —      | —         |
 | **E1**  | ✅ Socle racine & hygiène                   | (fait)                             | `root/core`                   | —      | E0        |
 | **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4          | (fait)                             | `root/deps`                   | —      | E1        |
-| **E3**  | 🟡 Catalog : reste des versions + nettoyage | `migration-e3-catalog-alignement`  | `root/deps`                   | 0,5 j  | E2        |
-| **E3b** | Les 4 majors, une PR chacune                | `migration-e3-major-<paquet>`      | `root/deps`                   | 0,5 j  | E3        |
+| **E3**  | ✅ Catalog : reste des versions + nettoyage | (fait)                             | `root/deps`                   | —      | E2        |
+| **E3b** | ✅ Les 4 majors, une PR chacune             | (fait)                             | `root/deps`                   | —      | E3        |
 | **E4**  | Presets partagés (ts / vitest / eslint)     | `migration-e4-presets-partages`    | `packages/config`             | 0,5 j  | E2        |
 | **E5**  | Création de `@app/contracts`                | `migration-e5-contracts-init`      | `packages/contracts`          | 0,5 j  | E2        |
 | **E6**  | Contrats : domaines API + bascule Zod       | `migration-e6-contracts-<domaine>` | `api/<domaine>`               | 2 j    | E5        |
-| **E7**  | Conform → react-hook-form (`ui` d'abord)    | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`         | 2,5 j  | E3, E5    |
+| **E7**  | 🟡 Conform → react-hook-form (E7.1 faite)   | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`         | 2,5 j  | E3        |
 | **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`               | 3 j    | E6        |
 | **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                   | 1 j    | E4, E8    |
 | **E10** | Tests front : Vitest client + admin         | `migration-e10-tests-front`        | `client/tests`, `admin/tests` | 1,5 j  | E4, E7    |
@@ -357,6 +364,12 @@ E1 → E2 → E5 → E6 → E8 → E9
 
 E4 (presets) et E3 (catalog) peuvent avancer en parallèle de E5/E6 une fois E2
 passée.
+
+**Précision sur la dépendance E7 → E5.** Le tableau ci-dessus donnait E7 comme
+dépendant de E3 **et** de E5. Ce n'est vrai que pour les PR par feature (E7.2 et
+suivantes), dont les schémas Zod doivent basculer vers
+`@app/contracts/<domaine>`. Le socle **E7.1** (`packages/ui`) ne dépend, lui,
+que de E3 : il ne touche à aucun schéma. Il a donc été livré sans attendre E5.
 
 ### Pilote
 

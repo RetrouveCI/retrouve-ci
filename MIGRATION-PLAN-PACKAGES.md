@@ -219,6 +219,22 @@ passer au catalog** (règle : ≥ 2 packages ⇒ catalog).
 aligner `lucide-react`, `sonner`, `react-day-picker`,
 `class-variance-authority`, `tailwind-merge`.
 
+### Dérive de `ui/field.tsx` — repérée en E7.1, non corrigée
+
+`packages/ui/src/components/ui/field.tsx` est une révision shadcn légèrement
+antérieure à celle de l'architecture de référence. Hors formatage (divergence
+§3.7 assumée), un seul écart de comportement, dans `FieldError` :
+
+- la référence **déduplique** les messages par `message` avant de les rendre ;
+- la référence renvoie `null` quand `errors` est un tableau **vide**, alors que
+  la nôtre part sur la branche `<ul>` et rend une `<div role="alert">` vide.
+
+Non corrigé en E7.1 pour ne pas mélanger un resync de composant shadcn avec la
+pose du socle RHF. Les wrappers `FormInputField` / `FormTextareaField`
+contournent le second point comme le fait la référence, par rendu conditionnel
+(`{fieldState.error && <FieldError errors={[fieldState.error]} />}`), donc
+`errors` n'est jamais vide. À resynchroniser via la CLI shadcn — candidat E9.
+
 ---
 
 ## 7. Packages de la référence non repris (et pourquoi)
