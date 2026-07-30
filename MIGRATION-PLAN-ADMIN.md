@@ -107,9 +107,21 @@ Ils correspondent aux DTO `admin-list-*.query.dto.ts` et
 **Branches** `migration-e7-rhf-<feature>` · **scope** `admin/<feature>` ·
 **~0,75 j pour admin**.
 
-Prérequis : **E7.1** (`packages/ui`) doit être passée — voir
+Prérequis : **E7.1** (`packages/ui`) — ✅ **passée**. Voir
 [MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md) §4.1 pour le gabarit de
-conversion.
+conversion (corrigé : `Controller` + famille `Field`, pas `FormField` /
+`FormItem`), §4.2 pour le gabarit de formulaire, et §4.6 pour les dépendances
+`react-hook-form` / `@hookform/resolvers` désormais déclarées dans `apps/admin`.
+
+`FormInputField` et `FormTextareaField` sont disponibles via
+`@app/ui/components/form`, à côté des versions Conform qui restent en place
+jusqu'à la migration de leurs derniers consommateurs — côté admin
+`events/components/event-form-dialog.tsx` (E7.B),
+`qr/generate/components/generate-qr-form.tsx` (E7.C) et
+`administrators/components/admin-form-dialog.tsx` (E7.E).
+
+À écrire au début de la première PR admin : le hook `useActionFetcher` dans
+`shared/hooks/` (voir MIGRATION-PLAN-CLIENT.md §4.2).
 
 ### Découpage des PR
 

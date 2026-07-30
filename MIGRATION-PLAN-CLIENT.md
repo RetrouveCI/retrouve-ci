@@ -109,16 +109,41 @@ bascule simplement vers `@app/contracts/<domaine>`.
 **Branches** `migration-e7-rhf-<feature>` · **scope** `client/<feature>` ·
 **~1,5 j pour client**.
 
-### 4.1 Ordre : `packages/ui` d'abord
+### 4.1 Ordre : `packages/ui` d'abord — ✅ fait (E7.1)
 
 `packages/ui/src/components/form/{input-field,textarea-field}.tsx` sont bâtis
-sur Conform et consommés par les deux apps. Ils doivent être réécrits sur RHF
-**avant** toute feature, dans leur propre PR (`scope: ui/form`).
+sur Conform et consommés par les deux apps. Le socle RHF devait être posé
+**avant** toute feature, dans sa propre PR (`scope: ui/form`).
 
-Bonne nouvelle : `packages/ui/src/components/ui/form.tsx` — le composant shadcn
-officiel bâti sur `react-hook-form` (`FormField`, `FormItem`, `FormControl`,
-`FormMessage`) — **existe déjà et n'est pas utilisé**. La cible est de s'appuyer
-dessus et de supprimer `components/form/`.
+**Correction par rapport à la rédaction initiale de ce plan.** Deux points
+avaient été mal anticipés :
+
+- **On n'a pas pu « réécrire » les deux composants en PR isolée.** Ils ont 8
+  fichiers consommateurs dans les apps qui leur passent des métadonnées Conform
+  (`field: FieldMetadata<string>`) ; changer leur contrat de props aurait mis le
+  typecheck au rouge, et convertir un consommateur oblige à convertir tout son
+  formulaire — donc toute sa feature. Les versions Conform **restent donc en
+  place jusqu'à leur dernier consommateur migré**, et la suppression de
+  `components/form/` se fait en fin d'étape avec les dépendances `@conform-to/*`
+  (§4.5).
+- **La cible n'est pas `ui/form.tsx`.** L'architecture de référence n'utilise
+  pas la famille shadcn `Form*` (`FormField`, `FormItem`, `FormControl`,
+  `FormMessage`) : elle utilise `Controller` de `react-hook-form` directement,
+  combiné à la famille **`Field`** (`Field`, `FieldLabel`, `FieldError`,
+  `FieldGroup`) — le composant shadcn plus récent. Notre
+  `packages/ui/src/components/ui/field.tsx` existe déjà et est déjà exporté par
+  le barrel. `ui/form.tsx` reste donc inutilisé, comme avant l'étape.
+
+Livré par E7.1 : `form-input-field.tsx` et `form-textarea-field.tsx`, exportant
+`FormInputField` / `FormTextareaField`, bâtis sur `Controller` + `Field` et
+reproduisant le balisage par champ de la référence. Ce sont des **wrappers
+ergonomiques** — la référence, elle, réécrit ce balisage à la main dans chaque
+formulaire. Divergence assumée : elle garde les 41 sites d'appel à une ligne
+logique par champ, comme aujourd'hui avec Conform, ce qui rend la conversion
+mécanique plutôt que réécrite — c'est la mitigation directe du risque « la
+migration Conform → RHF régresse silencieusement » (§7 du plan racine). La
+composition custom (ex. le préfixe `+225` de `publish/contact-section.tsx`)
+reste possible avec les primitives `Field` brutes.
 
 ### 4.2 Gabarit de conversion
 
@@ -134,50 +159,70 @@ const [form, fields] = useForm({
 </Form>
 ```
 
-**Après** (react-hook-form, gabarit de la référence) :
+**Après** (react-hook-form). Le gabarit ci-dessous remplace celui de la
+rédaction initiale, qui utilisait `FormField` / `FormItem` / `FormControl` /
+`FormMessage` — ce n'est pas ce que fait la référence (voir §4.1) :
 
 ```tsx
-const form = useForm<LoginInput>({
+const form = useForm<LoginInput, unknown, LoginData>({
   resolver: standardSchemaResolver(loginSchema),
+  mode: 'onSubmit',
+  reValidateMode: 'onChange',
+  errors: fetcher.errors, // erreurs d'action réinjectées dans RHF
   defaultValues: { phone: '' },
 })
-const fetcher = useFetcher<typeof action>()
 
-const onSubmit = form.handleSubmit((values) =>
-  fetcher.submit(values, { method: 'post' }),
-)
+<fetcher.Form onSubmit={form.handleSubmit(onSubmit)}>
+  <FieldGroup>
+    <FormInputField control={form.control} name="phone" label="Téléphone" />
+  </FieldGroup>
+</fetcher.Form>
+```
 
-<Form {...form}>
-  <form onSubmit={onSubmit}>
-    <FormField
-      control={form.control}
-      name="phone"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Téléphone</FormLabel>
-          <FormControl><Input {...field} /></FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  </form>
-</Form>
+`FormInputField` encapsule le balisage par champ de la référence, à savoir :
+
+```tsx
+<Controller
+	control={control}
+	name={name}
+	render={({ field, fieldState }) => (
+		<Field data-invalid={fieldState.invalid}>
+			<FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+			<Input
+				{...field}
+				value={field.value ?? ''}
+				id={field.name}
+				aria-invalid={fieldState.invalid}
+			/>
+			{fieldState.error && <FieldError errors={[fieldState.error]} />}
+		</Field>
+	)}
+/>
 ```
 
 Côté serveur, `servers/*.action.ts` continue de re-valider avec **le même
 schéma** — RHF ne change rien à cette règle.
 
+**Reste à poser en E7.2** : la référence passe par un hook partagé
+`useActionFetcher` (`shared/hooks/`) qui enveloppe `useFetcher` et expose
+`errors` (au format `FieldErrors`), `isOk`, `isSubmitting` et `Form`. C'est ce
+qui alimente l'option `errors:` de `useForm` et referme la boucle erreurs
+serveur → champs. Il n'a pas été livré en E7.1 : sa forme dépend de ce que
+renvoient nos `*.action.ts`, qui n'est pas encore uniformisé. À écrire au début
+de E7.2, dans les deux apps — candidat `@app/web-kit` en E11, les deux copies
+étant identiques.
+
 ### 4.3 Découpage des PR (client)
 
-| PR     | Feature                  | Fichiers | Remarque                                                    |
-| ------ | ------------------------ | -------- | ----------------------------------------------------------- |
-| E7.1   | `packages/ui`            | 2 (+1)   | **prérequis** — réécrit `form/`, s'appuie sur `ui/form.tsx` |
-| E7.2   | `auth` (5 formulaires)   | 6        | login, phone, OTP ×2, create-password, new-password         |
-| E7.3   | `contact`                | 1        | le plus simple — bon second pilote                          |
-| E7.4   | `publish` (multi-étapes) | 7        | le plus délicat : 3 sections + hook `use-publish-form`      |
-| E7.5   | `account/settings`       | 5        | 4 dialogues + danger zone                                   |
-| E7.6   | `account/posts/edit`     | 3        | hook `use-edit-post-form`                                   |
-| (E7.7) | `stickers`, `qr-contact` | 6        | ⏸️ seulement si les features sont réactivées                |
+| PR     | Feature                  | Fichiers | Remarque                                                      |
+| ------ | ------------------------ | -------- | ------------------------------------------------------------- |
+| E7.1   | `packages/ui`            | 3 (+2)   | ✅ **fait** — wrappers RHF sur `ui/field.tsx` + deps des apps |
+| E7.2   | `auth` (5 formulaires)   | 6        | login, phone, OTP ×2, create-password, new-password           |
+| E7.3   | `contact`                | 1        | le plus simple — bon second pilote                            |
+| E7.4   | `publish` (multi-étapes) | 7        | le plus délicat : 3 sections + hook `use-publish-form`        |
+| E7.5   | `account/settings`       | 5        | 4 dialogues + danger zone                                     |
+| E7.6   | `account/posts/edit`     | 3        | hook `use-edit-post-form`                                     |
+| (E7.7) | `stickers`, `qr-contact` | 6        | ⏸️ seulement si les features sont réactivées                  |
 
 ### 4.4 À traiter dans la même étape
 
@@ -192,7 +237,27 @@ schéma** — RHF ne change rien à cette règle.
 ### 4.5 Fin d'étape
 
 Retirer `@conform-to/react` et `@conform-to/zod` de `apps/client/package.json`,
-`apps/admin/package.json`, `packages/ui/package.json` et du catalog.
+`apps/admin/package.json`, `packages/ui/package.json` et du catalog. C'est aussi
+là que `components/form/{input-field,textarea-field}.tsx` disparaissent, une
+fois leurs 8 consommateurs migrés.
+
+### 4.6 Dépendances : blocage levé en E7.1
+
+`react-hook-form` et `@hookform/resolvers` n'étaient déclarés que par
+`packages/ui`. Ni `apps/client` ni `apps/admin` ne les listaient, ce qui rendait
+E7.2 et suivantes impossibles : une feature qui appelle `useForm` ou
+`standardSchemaResolver` ne pouvait pas les résoudre depuis une install propre.
+Localement, la résolution retombait sur des résidus `.pnpm` d'une install
+antérieure — `react-hook-form` 7.74.0 et `@hookform/resolvers` **3.10.0**, qui
+n'expose même pas `standardSchemaResolver`.
+
+Les deux paquets sont désormais déclarés `catalog:` dans les deux apps. Vérifié
+: `apps/client`, `apps/admin` et `packages/ui` résolvent tous les trois le
+**même chemin physique** `.pnpm/react-hook-form@7.71.1_react@19.2.8`. C'est la
+condition qui garantit une instance unique : deux copies de `react-hook-form`
+dans un même bundle donneraient deux contextes React distincts, et `Controller`
+ne verrait pas le `control` du formulaire. Aucune des deux apps n'a de
+`resolve.dedupe` dans sa config Vite pour rattraper ça.
 
 ---
 
