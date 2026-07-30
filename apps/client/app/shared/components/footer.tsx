@@ -1,13 +1,6 @@
 import { Link } from 'react-router'
-import {
-	Mail,
-	MessageSquare,
-	MapPin,
-	Facebook,
-	Instagram,
-	Twitter,
-	Heart,
-} from 'lucide-react'
+import { Mail, MessageSquare, MapPin, Heart } from 'lucide-react'
+import { FacebookIcon, InstagramIcon, XIcon } from '@app/ui/components'
 import { LogoRetrouveCI } from './logo-retrouveci'
 
 const footerLinks = {
@@ -28,9 +21,9 @@ const footerLinks = {
 }
 
 const socials = [
-	{ icon: Facebook, label: 'Facebook', href: '#' },
-	{ icon: Instagram, label: 'Instagram', href: '#' },
-	{ icon: Twitter, label: 'X (Twitter)', href: '#' },
+	{ icon: FacebookIcon, label: 'Facebook', href: '#' },
+	{ icon: InstagramIcon, label: 'Instagram', href: '#' },
+	{ icon: XIcon, label: 'X (Twitter)', href: '#' },
 ]
 
 const contactItems = [
