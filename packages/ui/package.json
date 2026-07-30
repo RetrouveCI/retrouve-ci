@@ -12,8 +12,7 @@
 		"./components/form": "./src/components/form/index.ts",
 		"./utils": "./src/utils/cn.ts",
 		"./styles": "./src/styles/globals.css",
-		"./hooks": "./src/hooks/index.ts",
-		"./postcss": "./postcss.config.js"
+		"./hooks": "./src/hooks/index.ts"
 	},
 	"typesVersions": {
 		"*": {
@@ -94,7 +93,6 @@
 		"@app/eslint-config": "workspace:*",
 		"@app/typescript-config": "workspace:*",
 		"@tailwindcss/cli": "^4.1.5",
-		"@tailwindcss/postcss": "catalog:",
 		"@types/react": "catalog:",
 		"eslint": "catalog:",
 		"react": "catalog:",
