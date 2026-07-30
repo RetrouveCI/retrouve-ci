@@ -436,7 +436,7 @@ paquets cassent l'UI sans lever d'erreur TypeScript.
 | `sonner`           | `^1.7.1`   | `^2.0.7`  | toasts client + admin                 | ✅   |
 | `lucide-react`     | `^0.564.0` | `^1.21.0` | renommages d'icônes, toutes les pages | ✅   |
 | `react-day-picker` | `9.13.2`   | `^10.0.1` | sélecteurs de date (publish, events)  | ✅   |
-| `recharts`         | `2.15.0`   | `^3.9.0`  | dashboard admin (`/`)                 | 🔸   |
+| `recharts`         | `2.15.0`   | `^3.9.0`  | dashboard admin (`/`)                 | ✅   |
 
 L'ordre est celui du risque croissant : `sonner` n'expose que deux méthodes,
 `lucide-react` touche beaucoup de fichiers mais échoue franchement à l'import,
@@ -529,6 +529,78 @@ client), plage `range_start` / `range_middle` / `range_end` rendue,
 `"dimanche"`, semaine démarrant le lundi, libellé de mois « juillet ») et les
 quatre composants surchargés bien en place (`data-slot="calendar"`, chevron
 lucide, `data-day`).
+
+#### `recharts` 2 → 3 — ✅ fait
+
+Le plus risqué des quatre sur le papier, le plus discret en pratique : la v3
+refond ses internes (store Redux, couches `zIndex`) mais la surface consommée
+ici ne bouge presque pas. Trois fichiers seulement touchent `recharts` —
+`activity-chart.tsx` et `category-chart.tsx` du dashboard admin, plus
+`packages/ui/src/components/ui/chart.tsx`. `chart-tooltip.tsx` déclare sa propre
+interface de props et n'importe aucun type de `recharts` : il traverse le bump
+sans y toucher.
+
+Les deux graphiques admin passent tels quels, ce qui a été vérifié dans les
+sources des deux versions plutôt que sur un diff de `.d.ts` :
+
+- `cursor` garde son type (`boolean | ReactElement | SVGProps<SVGElement>`,
+  devenu `CursorDefinition`) — les `cursor={{ stroke, strokeDasharray }}` et
+  `cursor={{ fill }}` restent valides.
+- La couleur des entrées de tooltip est dérivée à l'identique : `Area` prend son
+  `stroke` (sinon son `fill`), `Bar` prend son `fill`. En v2 via
+  `getMainColorOfGraphicItem`, en v3 via `getLegendItemColor` et `color: fill` —
+  même résultat, donc les pastilles gardent leurs couleurs.
+- Le `<defs>` posé en enfant direct de `<AreaChart>` survit : la v2 le
+  récupérait par `filterSvgElements`, la v3 rend désormais `{children}`
+  directement dans le `<svg>`. Les dégradés `url(#colorScans)` et
+  `url(#colorActivations)` restent résolus.
+- `ResponsiveContainer.initialDimension` vaut `{ width: -1, height: -1 }` par
+  défaut dans les deux versions, et les deux renvoient `null` tant que la mesure
+  n'a pas eu lieu : pas de changement de rendu serveur.
+
+Seul `chart.tsx` casse, et franchement — 9 erreurs de typage confirmées en
+rejouant l'ancien fichier contre la v3. La cause est que la v3 sort du type des
+composants les props qui viennent désormais du store : `TooltipProps` fait
+`Omit<…, 'payload' | 'label' | 'active' | …>` et ne réintroduit que `active` ;
+`LegendProps` fait `Omit<…, 'payload' | 'verticalAlign' | …>` et ne réintroduit
+que `verticalAlign`. D'où l'échec du
+`Pick<LegendProps, 'payload' | 'verticalAlign'>` et des déstructurations de
+`payload` / `label`. S'y ajoute `Payload.dataKey`, passé de `string | number` à
+`DataKey<any>` — qui inclut une fonction, donc plus utilisable en clé React.
+
+Ce fichier est exporté par le barrel `@app/ui/components` mais **n'a aucun
+consommateur dans le dépôt**. Il a donc été aligné sur ce que shadcn livre
+aujourd'hui en amont (`new-york-v4`, déjà v3-ready), qui corrige exactement ces
+trois points via `DefaultTooltipContentProps` / `DefaultLegendContentProps` et
+`key={index}`. L'amont apporte au passage un `initialDimension` par défaut, un
+filtre `type !== 'none'` et un `item.value != null` qui affiche enfin les
+valeurs nulles. Aucun risque de rendu puisque rien ne l'importe.
+
+Deux changements de DOM à connaître pour la suite : la classe
+`recharts-rectangle` disparaît en v3 et des couches `recharts-zIndex-layer_*`
+apparaissent. Les graphiques admin passent leur `cursor` en props inline et n'y
+sont pas sensibles ; en revanche le sélecteur
+`[&_.recharts-rectangle.recharts-tooltip-cursor]` de `chart.tsx` devient mort —
+il l'est aussi en amont, et le fichier n'ayant pas de consommateur, il n'a pas
+été dévié de l'amont pour autant.
+
+**Vérifié** : `typecheck` (6/6) + `lint` (5/5) + `test` (188/188) +
+`format:check` + `build` (4/4). S'y ajoute un montage jsdom jetable des deux
+graphiques, avec les props exactes de l'app et `ResponsiveContainer` inclus,
+rendu sous 2.15.0 puis sous 3.10.1 : l'`AreaChart` sort une géométrie
+**identique au caractère près** (courbes, aires, dégradés, grille, textes et
+positions de ticks) et le `BarChart` sort le même nombre de barres, aux mêmes
+`y`, hauteurs et largeurs.
+
+⚠️ **Limite à assumer** : ce substitut est le plus faible des quatre majors.
+jsdom n'a pas de moteur de layout, or l'axe des catégories combine
+`angle={-25}`, `interval={0}` et `textAnchor="end"`, qui dépendent de la mesure
+de texte. Une configuration du harness a montré un décalage horizontal de 19 px
+sur les barres que les probes de suivi n'ont pas reproduit — impossible de
+trancher entre régression réelle et artefact sans navigateur. Là où `sonner` et
+`react-day-picker` exposaient du comportement vérifiable hors navigateur, les
+graphiques sont du rendu pur : **un passage visuel réel sur le dashboard admin
+`/` reste nécessaire**.
 
 ### E12 — Docs d'architecture
 
