@@ -431,12 +431,32 @@ seul ne les couvre pas.
 Une PR par major, chacune avec une capture visuelle avant/après (§7) : ces
 paquets cassent l'UI sans lever d'erreur TypeScript.
 
-| Paquet             | De         | Vers      | Point de contrôle                     |
-| ------------------ | ---------- | --------- | ------------------------------------- |
-| `lucide-react`     | `^0.564.0` | `^1.21.0` | renommages d'icônes, toutes les pages |
-| `sonner`           | `^1.7.1`   | `^2.0.7`  | toasts client + admin                 |
-| `recharts`         | `2.15.0`   | `^3.9.0`  | dashboard admin (`/`)                 |
-| `react-day-picker` | `9.13.2`   | `^10.0.1` | sélecteurs de date (publish, events)  |
+| Paquet             | De         | Vers      | Point de contrôle                     | État |
+| ------------------ | ---------- | --------- | ------------------------------------- | ---- |
+| `sonner`           | `^1.7.1`   | `^2.0.7`  | toasts client + admin                 | ✅   |
+| `lucide-react`     | `^0.564.0` | `^1.21.0` | renommages d'icônes, toutes les pages | 🔸   |
+| `react-day-picker` | `9.13.2`   | `^10.0.1` | sélecteurs de date (publish, events)  | 🔸   |
+| `recharts`         | `2.15.0`   | `^3.9.0`  | dashboard admin (`/`)                 | 🔸   |
+
+L'ordre est celui du risque croissant : `sonner` n'expose que deux méthodes,
+`lucide-react` touche beaucoup de fichiers mais échoue franchement à l'import,
+`react-day-picker` renomme des props, et `recharts` v3 refond son API alors que
+tout le dashboard admin en dépend.
+
+#### `sonner` 1 → 2 — ✅ fait
+
+Surface réellement utilisée dans le dépôt :
+`toast.success(msg, { description })` et `toast.error(msg, { description })` sur
+41 sites d'appel, plus les props `position` / `richColors` / `closeButton` /
+`toastOptions.classNames` du `<Toaster>` des deux `root.tsx`. Toutes inchangées
+en v2, et la feuille de style reste auto-injectée par le paquet — aucun `import`
+CSS à ajouter.
+
+**Vérifié** : `typecheck` (6/6) + `lint` (5/5) + `test` (188/188) +
+`format:check` + `build` (4/4), plus un montage jsdom jetable du `<Toaster>`
+avec les props exactes de `apps/client/app/root.tsx`, confirmant le rendu du
+titre, de la description, de `data-rich-colors`, du bouton de fermeture, de la
+classe `font-sans` et des types `success` / `error`.
 
 ### E12 — Docs d'architecture
 
