@@ -435,7 +435,7 @@ paquets cassent l'UI sans lever d'erreur TypeScript.
 | ------------------ | ---------- | --------- | ------------------------------------- | ---- |
 | `sonner`           | `^1.7.1`   | `^2.0.7`  | toasts client + admin                 | ✅   |
 | `lucide-react`     | `^0.564.0` | `^1.21.0` | renommages d'icônes, toutes les pages | ✅   |
-| `react-day-picker` | `9.13.2`   | `^10.0.1` | sélecteurs de date (publish, events)  | 🔸   |
+| `react-day-picker` | `9.13.2`   | `^10.0.1` | sélecteurs de date (publish, events)  | ✅   |
 | `recharts`         | `2.15.0`   | `^3.9.0`  | dashboard admin (`/`)                 | 🔸   |
 
 L'ordre est celui du risque croissant : `sonner` n'expose que deux méthodes,
@@ -480,6 +480,55 @@ groupes :
 
 **Vérifié** : `typecheck` (6/6) + `lint` (5/5) + `test` (188/188) +
 `format:check` + `build` (4/4).
+
+#### `react-day-picker` 9 → 10 — ✅ fait
+
+La v10 ne fait que retirer les compatibilités héritées de la v8 : l'enum `UI`,
+les exports racine et les clés de `classNames` sont sinon identiques.
+Comparaison des `.d.ts` des deux versions — les props disparues sont `fromDate`
+/ `toDate` / `fromMonth` / `toMonth` / `fromYear` / `toYear`, `initialFocus`,
+`onWeekNumberClick`, les huit handlers `onDay*` (clavier, pointeur, tactile),
+les formatters `formatMonthCaption` / `formatYearCaption`, le label `labelDay`,
+le composant surchargeable `Button` et les types `DeprecatedUI` /
+`V9DeprecatedProps`. Côté entrypoints, `./jalali`, `./persian`, `./buddhist`,
+`./hebrew`, `./ethiopic` et `./examples` sont retirés, avec les locales `am-ET`,
+`en-US-jalali` et `fa-IR-jalali` — aucun n'est importé ici, le `fr` du dépôt
+venant de `date-fns/locale`. Deux ajouts, tous deux additifs : `resetOnSelect`
+(apparu en 9.14, non passé donc comportement de plage inchangé) et un `style`
+optionnel sur `Chevron`.
+
+Deux corrections seulement, pour une v10 qui touche très peu ce dépôt :
+
+- `initialFocus` sur le `<Calendar>` de
+  `apps/admin/app/shared/components/date-range-picker.tsx` — unique occurrence
+  de toute la liste ci-dessus, et déjà sans effet en v9, donc suppression
+  neutre.
+- la clé `table` de `classNames` dans
+  `packages/ui/src/components/ui/calendar.tsx` était une clé `DeprecatedUI`
+  (renommée `month_grid` dès la v9), et la disparition du type en v10 la
+  transforme en erreur de typage. À vérifier dans les sources des deux versions,
+  `MonthGrid` est rendu avec `classNames[UI.MonthGrid]` en v9 **comme** en v10 :
+  `table` n'était jamais lue, et son `w-full border-collapse` n'a donc jamais
+  atteint le DOM. Aligné sur ce que shadcn livre aujourd'hui en amont —
+  `month_grid: cn('w-full border-collapse', defaultClassNames.month_grid)` — ce
+  qui active enfin le style voulu. C'est le seul changement de rendu de la PR,
+  et il reste à confirmer à l'œil.
+
+Les deux seuls consommateurs de `<Calendar>` (celui de l'admin ci-dessus et
+`apps/client/app/features/lost-items/list/components/filter-panel.tsx`)
+n'utilisent que `mode="range"`, `selected`, `onSelect`, `disabled`, `locale`,
+`numberOfMonths` et `defaultMonth`, tous conservés en v10.
+
+**Vérifié** : `typecheck` (6/6) + `lint` (5/5) + `test` (188/188) +
+`format:check` + `build` (4/4), plus un rendu jetable du `<Calendar>`
+reproduisant les props exactes des deux appelants (18 assertions) : présence de
+`w-full border-collapse` **et** de `rdp-month_grid` sur la `<table>`,
+`role="grid"` conservé, `numberOfMonths` respecté (2 grilles côté admin, 1 côté
+client), plage `range_start` / `range_middle` / `range_end` rendue,
+`disabled={{ after }}` appliqué, locale `fr` effective (`aria-label="lundi"` →
+`"dimanche"`, semaine démarrant le lundi, libellé de mois « juillet ») et les
+quatre composants surchargés bien en place (`data-slot="calendar"`, chevron
+lucide, `data-day`).
 
 ### E12 — Docs d'architecture
 
