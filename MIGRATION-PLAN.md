@@ -177,56 +177,81 @@ d'architecture, prévues en E12.
 Le catalog est la source de vérité (skill `dependency-management`). Trois
 problèmes :
 
-**a) 27 versions divergentes** de la référence, dont quatre traitées en **E2** :
+**a) 27 versions divergentes** de la référence — **toutes traitées sauf les
+quatre majors et `typescript`** :
 
-| Package                                   | RetrouveCI | Référence  | Impact                                |
-| ----------------------------------------- | ---------- | ---------- | ------------------------------------- |
-| `zod`                                     | `^4.4.3`   | `^4.4.3`   | ✅ E2                                 |
-| `vitest` / `@vitest/coverage-v8`          | `^4.1.9`   | `^4.1.9`   | ✅ E2                                 |
-| `react-hook-form`                         | `7.71.1`   | `7.71.1`   | ✅ E2 (prépare E7)                    |
-| `@hookform/resolvers`                     | `5.2.2`    | `5.2.2`    | ✅ E2 (API `standardSchemaResolver`)  |
-| `typescript`                              | `5.9.2`    | `^6.0.3`   | 🟠 à faire après le reste             |
-| `react` / `react-dom`                     | `19.2.4`   | `^19.2.7`  | mineur                                |
-| `react-router` (+ `dev`, `node`, `serve`) | `^7.9.5`   | `7.12.0`   | mineur                                |
-| `lucide-react`                            | `^0.564.0` | `^1.21.0`  | 🟠 major — vérifier les noms d'icônes |
-| `sonner`                                  | `^1.7.1`   | `^2.0.7`   | 🟠 major                              |
-| `recharts`                                | `2.15.0`   | `^3.9.0`   | 🟠 major — dashboard admin            |
-| `react-day-picker`                        | `9.13.2`   | `^10.0.1`  | 🟠 major                              |
-| `tailwindcss` + `@tailwindcss/vite`       | `^4.2.0`   | `^4.3.1`   | mineur                                |
-| `@types/node`                             | `^22`      | `^24.13.2` | suit le bump Node                     |
+| Package                                   | RetrouveCI | Référence  | Impact                                 |
+| ----------------------------------------- | ---------- | ---------- | -------------------------------------- |
+| `zod`                                     | `^4.4.3`   | `^4.4.3`   | ✅ E2                                  |
+| `vitest` / `@vitest/coverage-v8`          | `^4.1.9`   | `^4.1.9`   | ✅ E2                                  |
+| `react-hook-form`                         | `7.71.1`   | `7.71.1`   | ✅ E2 (prépare E7)                     |
+| `@hookform/resolvers`                     | `5.2.2`    | `5.2.2`    | ✅ E2 (API `standardSchemaResolver`)   |
+| `react` / `react-dom`                     | `^19.2.7`  | `^19.2.7`  | ✅ E3                                  |
+| `react-router` (+ `dev`, `node`, `serve`) | `7.18.2`   | `7.12.0`   | ✅ E3 — **en avance**, voir ci-dessous |
+| `tailwindcss` + `@tailwindcss/vite`       | `^4.3.1`   | `^4.3.1`   | ✅ E3                                  |
+| `@types/node`                             | `^24.13.2` | `^24.13.2` | ✅ E3 (suit le bump Node d'E1)         |
+| `typescript`                              | `5.9.2`    | `^6.0.3`   | 🟠 à faire après le reste              |
+| `lucide-react`                            | `^0.564.0` | `^1.21.0`  | 🟠 major — vérifier les noms d'icônes  |
+| `sonner`                                  | `^1.7.1`   | `^2.0.7`   | 🟠 major                               |
+| `recharts`                                | `2.15.0`   | `^3.9.0`   | 🟠 major — dashboard admin             |
+| `react-day-picker`                        | `9.13.2`   | `^10.0.1`  | 🟠 major                               |
 
-Restent mineurs : `date-fns`, `eslint`, `isbot`, `vite`, `@vitejs/plugin-react`,
-`@types/react`, `@types/react-dom`, `vite-tsconfig-paths`.
+Mineurs alignés en E3 : `date-fns` `4.4.0`, `eslint` `^9.39.5`, `isbot`
+`^5.2.1`, `vite` `^7.3.6`, `@vitejs/plugin-react` `^5.2.0`, `@types/react`
+`19.2.17` (override compris), `@types/react-dom`, `vite-tsconfig-paths`.
 
-**b) Dépendances hors catalog** — `apps/api` épingle en dur `@nestjs/*`,
-`prisma`, `@prisma/client`, `pg`, `bullmq`, `class-validator`,
-`class-transformer`, `better-auth`, `dotenv`… alors que la référence les a
-toutes au catalog. Idem `packages/database`.
+> `react-router` est monté en **7.18.2**, au-delà du `7.12.0` de la référence.
+> Même arbitrage que Prisma (§3.7) : on ne rétrograde pas pour s'aligner.
 
-**c) Dépendances à retirer** : `next`, `@next/eslint-plugin-next`,
-`@tailwindcss/postcss`, `postcss` (plus aucune app Next), et
-`@conform-to/react` + `@conform-to/zod` (voir §3.4).
+**b) Dépendances hors catalog** — ✅ **E3**. Les 24 dépendances épinglées en dur
+de `apps/api` (`@nestjs/*`, `fastify`, `bullmq`, `class-validator`,
+`class-transformer`, `better-auth`, `cloudinary`, `dotenv`, `rxjs`,
+`reflect-metadata`, `tsc-alias`, `concurrently`…) et les 6 de
+`packages/database` (`prisma`, `@prisma/client`, `@prisma/adapter-pg`, `pg`,
+`@types/pg`, `dotenv`) sont passées au catalog.
+
+Restent épinglées en dur, **volontairement** : les dépendances mono-consommateur
+(`@tailwindcss/cli` et `tw-animate-css` dans `ui`, les 8 plugins ESLint dans
+`eslint-config`, `@tanstack/react-table` et `qrcode.react` dans `admin`,
+`prettier-plugin-tailwindcss` à la racine). La règle est « toute dep utilisée
+par ≥ 2 packages va au catalog » — aucune de celles-ci ne l'est.
+
+**c) Dépendances à retirer** — ✅ **E3** pour `next`,
+`@next/eslint-plugin-next`, `@tailwindcss/postcss` et `postcss`. Ce n'était pas
+qu'une suppression de lignes du catalog :
+
+- `packages/eslint-config` perd son preset `next.js` et l'export `./next-js` ;
+- `packages/ui` perd `postcss.config.js` et l'export `./postcss`.
+
+Aucun workspace ne les référençait — vérifié avant suppression.
+
+`@conform-to/react` + `@conform-to/zod` restent jusqu'à **E7** (voir §3.4).
 
 > `prisma` / `@prisma/client` sont en **7.8.0** ici contre **7.4.0** dans la
 > référence : RetrouveCI est en avance, on **ne rétrograde pas**.
 
-**Absents du catalog RetrouveCI et utiles à la cible** : `@faker-js/faker`
-(seeds/fixtures), `tiny-invariant`, `remix-utils`, `react-router-devtools`,
-`@vitest/browser-playwright`, `playwright`, `vitest-browser-react`,
-`vitest-mock-extended` (tests front), `prettier` et `turbo` (à catalogueriser).
+**Absents du catalog** — ✅ **E3** pour `@faker-js/faker`, `tiny-invariant`,
+`remix-utils`, `react-router-devtools` et `vitest-mock-extended`. Ces cinq
+entrées n'ont **encore aucun consommateur** : elles sont posées pour E5 / E9 /
+E10 et restent inertes d'ici là. `prettier` et `turbo` avaient été catalogués en
+E1.
+
+L'outillage de test front (`@vitest/browser-playwright`, `playwright`,
+`vitest-browser-react`) est **volontairement laissé de côté** : il arrive en E10
+avec les premiers tests front (§6).
 
 ### 3.3 Packages
 
-| Package de référence                                            | Équivalent RetrouveCI | Écart                                            |
-| --------------------------------------------------------------- | --------------------- | ------------------------------------------------ |
-| `<produit>-database`                                            | `@app/database`       | ✅ équivalent                                    |
-| `@app/ui`                                                       | `@app/ui`             | 🔸 dépend de Conform (`components/form/`)        |
-| `@app/eslint-config`                                            | idem                  | 🔸 preset `next-js` obsolète, manque `nest`      |
-| `@app/typescript-config`                                        | idem                  | 🔸 manque `react-router.json` et `nest.json`     |
-| `@app/vitest-config`                                            | idem                  | 🔸 manque le preset `node` (SWC/decorators Nest) |
-| **`<produit>-contracts`**                                       | **absent**            | 🔴 **manquant** — pas de source de vérité Zod    |
-| `@app/auth`, `@app/permissions`, `@app/transactional`           | absents               | 🔸 selon besoin (voir plan packages)             |
-| `@app/encryption`, `branding`, `business-calendar`, `ldap-auth` | absents               | ⚪ non pertinents                                |
+| Package de référence                                            | Équivalent RetrouveCI | Écart                                             |
+| --------------------------------------------------------------- | --------------------- | ------------------------------------------------- |
+| `<produit>-database`                                            | `@app/database`       | ✅ équivalent                                     |
+| `@app/ui`                                                       | `@app/ui`             | 🔸 dépend de Conform (`components/form/`)         |
+| `@app/eslint-config`                                            | idem                  | ✅ preset `next-js` supprimé (E3) ; manque `nest` |
+| `@app/typescript-config`                                        | idem                  | 🔸 manque `react-router.json` et `nest.json`      |
+| `@app/vitest-config`                                            | idem                  | 🔸 manque le preset `node` (SWC/decorators Nest)  |
+| **`<produit>-contracts`**                                       | **absent**            | 🔴 **manquant** — pas de source de vérité Zod     |
+| `@app/auth`, `@app/permissions`, `@app/transactional`           | absents               | 🔸 selon besoin (voir plan packages)              |
+| `@app/encryption`, `branding`, `business-calendar`, `ldap-auth` | absents               | ⚪ non pertinents                                 |
 
 ### 3.4 Formulaires : Conform → react-hook-form
 
@@ -301,21 +326,22 @@ Détails : [MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md) ·
 
 Une ligne = une branche = une PR = une session.
 
-| #       | Étape                                    | Branche                            | Scope commit                  | Charge | Dépend de |
-| ------- | ---------------------------------------- | ---------------------------------- | ----------------------------- | ------ | --------- |
-| **E0**  | ✅ Scope `@app/*` + outillage agents     | (fait)                             | `root/tooling`                | —      | —         |
-| **E1**  | ✅ Socle racine & hygiène                | (fait)                             | `root/core`                   | —      | E0        |
-| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4       | (fait)                             | `root/deps`                   | —      | E1        |
-| **E3**  | Catalog : reste des versions + nettoyage | `migration-e3-catalog-alignement`  | `root/deps`                   | 1 j    | E2        |
-| **E4**  | Presets partagés (ts / vitest / eslint)  | `migration-e4-presets-partages`    | `packages/config`             | 0,5 j  | E2        |
-| **E5**  | Création de `@app/contracts`             | `migration-e5-contracts-init`      | `packages/contracts`          | 0,5 j  | E2        |
-| **E6**  | Contrats : domaines API + bascule Zod    | `migration-e6-contracts-<domaine>` | `api/<domaine>`               | 2 j    | E5        |
-| **E7**  | Conform → react-hook-form (`ui` d'abord) | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`         | 2,5 j  | E3, E5    |
-| **E8**  | Refonte structurelle `apps/api`          | `migration-e8-api-<domaine>`       | `api/<domaine>`               | 3 j    | E6        |
-| **E9**  | Tests back : `__tests__` + couverture    | `migration-e9-tests-api`           | `api/tests`                   | 1 j    | E4, E8    |
-| **E10** | Tests front : Vitest client + admin      | `migration-e10-tests-front`        | `client/tests`, `admin/tests` | 1,5 j  | E4, E7    |
-| **E11** | Mutualisation front (`@app/web-kit`)     | `migration-e11-web-kit`            | `packages/web-kit`            | 1,5 j  | E7        |
-| **E12** | Docs d'architecture                      | `migration-e12-docs-architecture`  | `root/docs`                   | 0,5 j  | E8        |
+| #       | Étape                                       | Branche                            | Scope commit                  | Charge | Dépend de |
+| ------- | ------------------------------------------- | ---------------------------------- | ----------------------------- | ------ | --------- |
+| **E0**  | ✅ Scope `@app/*` + outillage agents        | (fait)                             | `root/tooling`                | —      | —         |
+| **E1**  | ✅ Socle racine & hygiène                   | (fait)                             | `root/core`                   | —      | E0        |
+| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4          | (fait)                             | `root/deps`                   | —      | E1        |
+| **E3**  | 🟡 Catalog : reste des versions + nettoyage | `migration-e3-catalog-alignement`  | `root/deps`                   | 0,5 j  | E2        |
+| **E3b** | Les 4 majors, une PR chacune                | `migration-e3-major-<paquet>`      | `root/deps`                   | 0,5 j  | E3        |
+| **E4**  | Presets partagés (ts / vitest / eslint)     | `migration-e4-presets-partages`    | `packages/config`             | 0,5 j  | E2        |
+| **E5**  | Création de `@app/contracts`                | `migration-e5-contracts-init`      | `packages/contracts`          | 0,5 j  | E2        |
+| **E6**  | Contrats : domaines API + bascule Zod       | `migration-e6-contracts-<domaine>` | `api/<domaine>`               | 2 j    | E5        |
+| **E7**  | Conform → react-hook-form (`ui` d'abord)    | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`         | 2,5 j  | E3, E5    |
+| **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`               | 3 j    | E6        |
+| **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                   | 1 j    | E4, E8    |
+| **E10** | Tests front : Vitest client + admin         | `migration-e10-tests-front`        | `client/tests`, `admin/tests` | 1,5 j  | E4, E7    |
+| **E11** | Mutualisation front (`@app/web-kit`)        | `migration-e11-web-kit`            | `packages/web-kit`            | 1,5 j  | E7        |
+| **E12** | Docs d'architecture                         | `migration-e12-docs-architecture`  | `root/docs`                   | 0,5 j  | E8        |
 
 **Total ≈ 15,5 j** en séquentiel. E6, E7 et E8 se découpent eux-mêmes **par
 domaine / par feature** — soit une PR par domaine, ce qui est le mode recommandé
@@ -379,20 +405,38 @@ E7 : le coût du travail jetable redouté ici est nul, mais la recommandation
 **d'enchaîner E7 directement après E3** reste valable pour ne pas laisser deux
 bibliothèques de formulaires cohabiter.
 
-### E3 — Alignement du reste du catalog
+### E3 — Alignement du reste du catalog — 🟡 partiellement fait
 
-1. Les versions mineures restantes de §3.2.a.
-2. Les majors à vérifier une par une, chacune avec un passage visuel :
-   `lucide-react` 0.x → 1.x (renommages d'icônes), `sonner` 1 → 2, `recharts` 2
-   → 3 (dashboard admin), `react-day-picker` 9 → 10.
-3. **Catalogueriser** toutes les dépendances de `apps/api` et
-   `packages/database` aujourd'hui épinglées en dur (règle : toute dep utilisée
-   par ≥ 2 packages va au catalog).
-4. Retirer `next`, `@next/eslint-plugin-next`, `@tailwindcss/postcss`,
-   `postcss`.
-5. Ajouter au catalog ce qui manque pour la cible (`@faker-js/faker`,
-   `tiny-invariant`, `remix-utils`, `react-router-devtools`, outillage de test
-   front).
+1. ✅ Les versions mineures restantes de §3.2.a.
+2. 🔸 **Reporté en E3b.** Les majors se vérifient une par une, chacune avec un
+   passage visuel : `lucide-react` 0.x → 1.x (renommages d'icônes), `sonner` 1 →
+   2, `recharts` 2 → 3 (dashboard admin), `react-day-picker` 9 → 10.
+3. ✅ **Catalogueriser** les dépendances de `apps/api` (24) et
+   `packages/database` (6) épinglées en dur. Les mono-consommateur restent
+   locales : la règle est « toute dep utilisée par ≥ 2 packages ».
+4. ✅ Retirer `next`, `@next/eslint-plugin-next`, `@tailwindcss/postcss`,
+   `postcss` — y compris le preset `eslint-config/next.js` et le
+   `ui/postcss.config.js` qui les portaient.
+5. ✅ Ajouter au catalog `@faker-js/faker`, `tiny-invariant`, `remix-utils`,
+   `react-router-devtools`, `vitest-mock-extended`. L'outillage de test front
+   attend E10 (§6).
+
+**Vérifié** : `typecheck` (6/6) + `lint` (5/5) + `test` (188/188) +
+`format:check` + **`build` (4/4)**. Le build est indispensable ici : `vite`,
+`tailwindcss` et surtout `react-router` (7.9 → 7.18) bougent, et le typecheck
+seul ne les couvre pas.
+
+### E3b — Les quatre majors
+
+Une PR par major, chacune avec une capture visuelle avant/après (§7) : ces
+paquets cassent l'UI sans lever d'erreur TypeScript.
+
+| Paquet             | De         | Vers      | Point de contrôle                     |
+| ------------------ | ---------- | --------- | ------------------------------------- |
+| `lucide-react`     | `^0.564.0` | `^1.21.0` | renommages d'icônes, toutes les pages |
+| `sonner`           | `^1.7.1`   | `^2.0.7`  | toasts client + admin                 |
+| `recharts`         | `2.15.0`   | `^3.9.0`  | dashboard admin (`/`)                 |
+| `react-day-picker` | `9.13.2`   | `^10.0.1` | sélecteurs de date (publish, events)  |
 
 ### E12 — Docs d'architecture
 
