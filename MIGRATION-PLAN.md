@@ -434,7 +434,7 @@ paquets cassent l'UI sans lever d'erreur TypeScript.
 | Paquet             | De         | Vers      | Point de contrôle                     | État |
 | ------------------ | ---------- | --------- | ------------------------------------- | ---- |
 | `sonner`           | `^1.7.1`   | `^2.0.7`  | toasts client + admin                 | ✅   |
-| `lucide-react`     | `^0.564.0` | `^1.21.0` | renommages d'icônes, toutes les pages | 🔸   |
+| `lucide-react`     | `^0.564.0` | `^1.21.0` | renommages d'icônes, toutes les pages | ✅   |
 | `react-day-picker` | `9.13.2`   | `^10.0.1` | sélecteurs de date (publish, events)  | 🔸   |
 | `recharts`         | `2.15.0`   | `^3.9.0`  | dashboard admin (`/`)                 | 🔸   |
 
@@ -457,6 +457,29 @@ CSS à ajouter.
 avec les props exactes de `apps/client/app/root.tsx`, confirmant le rendu du
 titre, de la description, de `data-rich-colors`, du bouton de fermeture, de la
 classe `font-sans` et des types `success` / `error`.
+
+#### `lucide-react` 0.x → 1.x — ✅ fait
+
+127 icônes distinctes sur 582 imports. Plutôt que de parcourir les écrans à
+l'œil, les données SVG (`__iconNode`) des deux versions ont été comparées icône
+par icône pour les 127 noms réellement importés. Le résultat tient en trois
+groupes :
+
+- **3 supprimées** — `Facebook`, `Instagram`, `Twitter`, toutes dans
+  `apps/client/app/shared/components/footer.tsx`. La v1 retire l'intégralité des
+  logos de marque pour raisons de marques déposées. Remplacées par
+  `packages/ui/src/components/ui/brand-icons.tsx`, trois SVG inline sur le même
+  `viewBox` 24×24 que lucide pour que le `className="h-4 w-4"` existant continue
+  de fonctionner. L'occasion de passer l'ancien oiseau Twitter au vrai logo X.
+- **7 au dessin modifié**, silencieuses car le nom reste valide :
+  - `Ban` et `Clock` — seul l'ordre des éléments SVG change, rendu identique ;
+  - `Calendar` et `CalendarDays` — géométrie décalée d'un pixel (cadre `y` 4→3,
+    barre d'en-tête 10→9), imperceptible ;
+  - `Gift`, `PackageCheck` et `Zap` — réellement redessinées, à regarder.
+- **117 inchangées**.
+
+**Vérifié** : `typecheck` (6/6) + `lint` (5/5) + `test` (188/188) +
+`format:check` + `build` (4/4).
 
 ### E12 — Docs d'architecture
 
