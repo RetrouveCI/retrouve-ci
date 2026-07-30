@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { Mail, MessageSquare, MapPin, Heart } from 'lucide-react'
+import { Mail, MessageSquare, MapPin } from 'lucide-react'
 import { FacebookIcon, InstagramIcon, XIcon } from '@app/ui/components'
 import { LogoRetrouveCI } from './logo-retrouveci'
 
@@ -148,11 +148,6 @@ export function Footer() {
 				<div className="mt-12 flex flex-col items-center justify-between gap-3 border-t pt-8 sm:flex-row">
 					<p className="text-muted-foreground text-sm">
 						&copy; {currentYear} RetrouveCI. Tous droits réservés.
-					</p>
-					<p className="text-muted-foreground flex items-center gap-1.5 text-sm">
-						Fait avec{' '}
-						<Heart className="text-accent-orange h-4 w-4 fill-current" /> en
-						Côte d&apos;Ivoire
 					</p>
 				</div>
 			</div>
