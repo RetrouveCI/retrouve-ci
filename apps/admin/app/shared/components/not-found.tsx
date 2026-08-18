@@ -1,7 +1,9 @@
 import { Link } from 'react-router'
 import { Button } from '@app/ui/components'
 import { SearchX, LayoutDashboard } from 'lucide-react'
+import type { RouteHandle } from '@/shared/lib/page-meta'
 
+export const handle: RouteHandle = { title: 'Page introuvable' }
 export default function NotFound() {
 	return (
 		<div className="bg-background flex min-h-screen flex-col items-center justify-center px-4 text-center">
