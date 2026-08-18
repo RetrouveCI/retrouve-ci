@@ -275,16 +275,23 @@ Route structure (defined in `app/routes.ts`):
 
 All dashboard routes are nested under `shared/components/dashboard-layout.tsx`.
 Every dashboard loader calls `requireAdminSession(request)` (from
-`shared/auth/auth.server.ts`), which forwards the `Cookie` header to
+`shared/helpers/session.server.ts`), which forwards the `Cookie` header to
 `/api/auth/get-session` and throws `redirect('/auth/login')` if no valid admin
 session is found.
 
 #### Admin app conventions
 
+> **`apps/admin` is mid-restructure** (E13). `app/shared/` has moved to the
+> target layout — `app/components/`, `app/context/`, and
+> `app/shared/{constants,helpers,utils}/`. `app/features/` has **not** moved
+> yet; it becomes `app/routes/dashboard/<page>/` in E13.5, and
+> `dashboard-layout.tsx` and `not-found.tsx` stay in `shared/components/` until
+> then because `routes.ts` resolves them by path.
+
 Identical to the client app conventions above, with these admin-specific notes:
 
-- `shared/auth/auth-client.ts` uses better-auth's `adminClient()` plugin for
-  admin-only operations. `shared/auth/auth.server.ts` provides
+- `shared/helpers/auth-client.ts` uses better-auth's `adminClient()` plugin for
+  admin-only operations. `shared/helpers/session.server.ts` provides
   `getServerSession` / `requireAdminSession` — these replace the old `AuthGuard`
   client component.
 - Password change (`features/profile`) is the only client-side auth exception:
@@ -295,10 +302,10 @@ Identical to the client app conventions above, with these admin-specific notes:
   inlined in `servers/*.loader.ts` with `id: string` (forward-compatible).
   Actions return mock mutation results; real persistence deferred until API
   domains exist.
-- The `shared/components/topbar.tsx` fetches the unread notification count on
-  mount via `apiFetch('/notifications/unread-count')` with
-  `credentials: 'include'` (client-side, since the topbar is part of the
-  dashboard layout and not owned by the notifications feature).
+- The `components/topbar.tsx` fetches the unread notification count on mount via
+  `apiFetch('/notifications/unread-count')` with `credentials: 'include'`
+  (client-side, since the topbar is part of the dashboard layout and not owned
+  by the notifications feature).
 
 ### Styling
 

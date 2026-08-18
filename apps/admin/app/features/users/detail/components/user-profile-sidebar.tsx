@@ -6,8 +6,8 @@ import {
 	Button,
 	CardContent,
 } from '@app/ui/components'
-import { BentoCard } from '@/shared/components/bento-card'
-import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
+import { BentoCard } from '@/components/bento-card'
+import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import {

@@ -1,5 +1,5 @@
 import { CheckCircle2, XCircle } from 'lucide-react'
-import { BentoCard } from '@/shared/components/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { cn } from '@app/ui/utils'
 
 interface Permission {

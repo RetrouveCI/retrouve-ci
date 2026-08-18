@@ -1,4 +1,4 @@
-import { StatCard } from '@/shared/components/stat-card'
+import { StatCard } from '@/components/stat-card'
 import { FileText, CheckCircle2, Clock, EyeOff } from 'lucide-react'
 
 interface PostsStatsGridProps {

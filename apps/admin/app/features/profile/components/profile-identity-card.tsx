@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, Badge, Separator } from '@app/ui/components'
 import { Mail, Shield, ShieldCheck, ShieldAlert } from 'lucide-react'
-import { BentoCard } from '@/shared/components/bento-card'
+import { BentoCard } from '@/components/bento-card'
 
 const ROLE_CONFIG: Record<string, { label: string; icon: React.ElementType }> =
 	{

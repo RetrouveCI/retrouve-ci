@@ -5,7 +5,7 @@ import {
 	useEffect,
 	useState,
 } from 'react'
-import { apiFetch } from '@/shared/lib/api-client'
+import { apiFetch } from '@/shared/utils/api-fetch'
 
 /**
  * Live counters surfaced as badges across the dashboard shell (sidebar +

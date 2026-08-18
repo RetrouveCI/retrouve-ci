@@ -1,7 +1,7 @@
 import { data } from 'react-router'
 import { parseWithZod } from '@conform-to/zod/v4'
-import { ApiError } from '@/shared/lib/api-client'
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { ApiError } from '@/shared/utils/api-fetch'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { generateQrTokens } from '../../servers/qr.service'
 import { generateQrSchema } from '../generate.schema'
 

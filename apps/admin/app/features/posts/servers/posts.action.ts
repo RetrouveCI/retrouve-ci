@@ -1,6 +1,6 @@
 import { data } from 'react-router'
-import { ApiError } from '@/shared/lib/api-client'
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { ApiError } from '@/shared/utils/api-fetch'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { moderatePost } from './posts.service'
 import type { ModerationStatus } from '../posts.types'
 

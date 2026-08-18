@@ -7,7 +7,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@app/ui/components'
-import { DateRangePicker } from '@/shared/components/date-range-picker'
+import { DateRangePicker } from '@/components/date-range-picker'
 import { Download, Plus } from 'lucide-react'
 import type { DateRange } from 'react-day-picker'
 

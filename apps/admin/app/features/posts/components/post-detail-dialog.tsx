@@ -21,7 +21,7 @@ import {
 	Clock,
 } from 'lucide-react'
 import { cn } from '@app/ui/utils'
-import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
+import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { PostPhotos } from './post-photos'
 import type { Post, ModerationStatus } from '../posts.types'
 

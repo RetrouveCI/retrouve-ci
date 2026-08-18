@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useFetcher } from 'react-router'
 import { Badge, Button } from '@app/ui/components'
-import { BentoCard } from '@/shared/components/bento-card'
-import { DataTable } from '@/shared/components/data-table'
-import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
+import { BentoCard } from '@/components/bento-card'
+import { DataTable } from '@/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { cn } from '@app/ui/utils'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -17,7 +17,7 @@ import type {
 import { ContactMessageDetailDialog } from './components/contact-message-detail-dialog'
 import { contactMessagesLoader } from './servers/contact-messages.loader'
 import { contactMessagesAction } from './servers/contact-messages.action'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = contactMessagesLoader

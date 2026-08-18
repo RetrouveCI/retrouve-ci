@@ -1,4 +1,4 @@
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { listContactMessages } from './contact-messages.service'
 import type { ContactMessageStatus } from '../contact-messages.types'
 

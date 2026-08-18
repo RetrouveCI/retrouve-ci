@@ -6,7 +6,7 @@ import { useForm, getFormProps, getInputProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { Loader2, Lock, Mail } from 'lucide-react'
 import { toast } from 'sonner'
-import { useAuth } from '@/shared/auth/auth-context'
+import { useAuth } from '@/context/auth'
 import { loginSchema } from '../login.schema'
 
 export function LoginForm() {

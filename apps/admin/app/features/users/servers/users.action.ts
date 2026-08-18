@@ -1,5 +1,5 @@
 import { data } from 'react-router'
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { banUser, unbanUser } from './users.service'
 
 export async function usersAction({ request }: { request: Request }) {

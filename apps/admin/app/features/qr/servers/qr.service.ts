@@ -1,4 +1,4 @@
-import { apiFetch } from '@/shared/lib/api-client'
+import { apiFetch } from '@/shared/utils/api-fetch'
 import type { QrToken, QrTokenListResponse, QrTokenStatus } from '../qr.types'
 
 export async function listQrTokens(

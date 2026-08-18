@@ -1,4 +1,4 @@
-import { authClient } from '@/shared/auth/auth-client'
+import { authClient } from '@/shared/helpers/auth-client'
 
 export async function changePassword(
 	currentPassword: string,

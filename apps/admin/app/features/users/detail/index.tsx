@@ -4,7 +4,7 @@ import { UserProfileSidebar } from './components/user-profile-sidebar'
 import { userLoader } from './servers/user.loader'
 import { usersAction } from '../servers/users.action'
 import { toast } from 'sonner'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = userLoader

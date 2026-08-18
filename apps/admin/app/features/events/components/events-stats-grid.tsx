@@ -1,4 +1,4 @@
-import { StatCard } from '@/shared/components/stat-card'
+import { StatCard } from '@/components/stat-card'
 import { CalendarDays, CheckCircle2, FileEdit, XCircle } from 'lucide-react'
 import type { Event } from '../events.types'
 

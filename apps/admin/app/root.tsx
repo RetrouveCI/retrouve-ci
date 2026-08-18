@@ -9,9 +9,9 @@ import {
 	useRouteLoaderData,
 } from 'react-router'
 import { Toaster } from 'sonner'
-import { AuthProvider } from '@/shared/auth/auth-context'
-import { ThemeProvider } from '@/shared/components/theme-context'
-import { resolveRouteMeta } from '@/shared/lib/page-meta'
+import { AuthProvider } from '@/context/auth'
+import { ThemeProvider } from '@/context/theme'
+import { resolveRouteMeta } from '@/shared/helpers/page-meta'
 
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'

@@ -1,6 +1,6 @@
 import { data } from 'react-router'
-import { ApiError } from '@/shared/lib/api-client'
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { ApiError } from '@/shared/utils/api-fetch'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { markAsRead, markAllAsRead } from './notifications.service'
 
 export async function notificationsAction({ request }: { request: Request }) {
