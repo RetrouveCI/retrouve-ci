@@ -1,4 +1,4 @@
-import { requireServerSession } from '@/shared/auth/auth.server'
+import { requireServerSession } from '@/shared/helpers/session.server'
 import { toUserLostItem } from '@/features/lost-items/mappers/lost-item.mapper'
 import { getMyLostItems } from './account-posts.service'
 

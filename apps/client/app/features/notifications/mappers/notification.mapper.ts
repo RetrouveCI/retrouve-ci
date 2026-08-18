@@ -1,4 +1,4 @@
-import { formatRelativeDate } from '@/shared/lib/format-relative-date'
+import { formatRelativeDate } from '@/shared/utils/date'
 import type { Notification } from '@/shared/types/notification'
 import type { NotificationApiDto } from '../notifications.types'
 

@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { User, LogIn } from 'lucide-react'
 import type { UserLostItem } from '@/shared/types/lost-item'
 // import type { Sticker } from '@/shared/types/sticker' // stickers on stand-by
-import { getServerSession } from '@/shared/auth/auth.server'
+import { getServerSession } from '@/shared/helpers/session.server'
 import { toUserLostItem } from '@/features/lost-items/mappers/lost-item.mapper'
 import { getMyLostItems } from '@/features/account/posts/servers/account-posts.service'
 // import { toSticker } from '@/features/account/stickers/mappers/sticker.mapper' // stickers on stand-by
@@ -13,9 +13,9 @@ import { ProfileHeader } from './components/profile-header'
 import { AccountStats } from './components/account-stats'
 import { RecentListings } from './components/recent-listings'
 import { AccountNav } from './components/account-nav'
-import { useAuth } from '@/shared/auth/auth-context'
+import { useAuth } from '@/context/auth'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

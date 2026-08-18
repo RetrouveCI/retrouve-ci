@@ -1,6 +1,6 @@
 import { NotificationsPage } from './components/notifications-page'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

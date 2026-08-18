@@ -1,5 +1,5 @@
 import { redirect } from 'react-router'
-import { requireServerSession } from '@/shared/auth/auth.server'
+import { requireServerSession } from '@/shared/helpers/session.server'
 import { getMyLostItems } from '../../servers/account-posts.service'
 
 export async function editPostLoader(request: Request, id: string) {

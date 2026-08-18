@@ -1,6 +1,6 @@
 import { data } from 'react-router'
-import { requireServerSession } from '@/shared/auth/auth.server'
-import { ApiError } from '@/shared/lib/api-client'
+import { requireServerSession } from '@/shared/helpers/session.server'
+import { ApiError } from '@/shared/utils/api-fetch'
 import {
 	sendOtpActionSchema,
 	setInitialPasswordActionSchema,

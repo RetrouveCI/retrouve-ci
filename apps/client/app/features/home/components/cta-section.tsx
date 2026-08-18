@@ -4,7 +4,7 @@ import {
 	ArrowRight,
 	// QrCode, // stickers on stand-by
 } from 'lucide-react'
-import { useAuth } from '@/shared/auth/auth-context'
+import { useAuth } from '@/context/auth'
 
 export function CtaSection() {
 	const { isAuthenticated } = useAuth()

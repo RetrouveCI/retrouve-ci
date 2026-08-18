@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
-import { redirectIfAuthenticated } from '@/shared/auth/auth.server'
+import { redirectIfAuthenticated } from '@/shared/helpers/session.server'
 import { OtpStepSection } from './components/otp-step-section'
 import { NewPasswordStepSection } from './components/new-password-step-section'
 import { resetPasswordAction } from './servers/reset-password.action'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

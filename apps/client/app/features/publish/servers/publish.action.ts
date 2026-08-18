@@ -3,8 +3,8 @@ import { parseWithZod } from '@conform-to/zod/v4'
 import { publishFormSchema } from '../publish.schema'
 import { createLostItem } from './publish.service'
 import { collectPhotoUrls } from './upload.service'
-import { getServerSession } from '@/shared/auth/auth.server'
-import { ApiError } from '@/shared/lib/api-client'
+import { getServerSession } from '@/shared/helpers/session.server'
+import { ApiError } from '@/shared/utils/api-fetch'
 import type { LostItemType } from '@/shared/types/lost-item'
 
 export async function publishAction(request: Request, type: LostItemType) {

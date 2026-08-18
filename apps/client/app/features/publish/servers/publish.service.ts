@@ -1,4 +1,4 @@
-import { apiFetch } from '@/shared/lib/api-client'
+import { apiFetch } from '@/shared/utils/api-fetch'
 import type { LostItemApiDto } from '../../lost-items/lost-items.types'
 import type { CreateLostItemPayload } from '../publish.types'
 

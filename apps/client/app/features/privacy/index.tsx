@@ -10,7 +10,7 @@ import {
 	Mail,
 	ArrowRight,
 } from 'lucide-react'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

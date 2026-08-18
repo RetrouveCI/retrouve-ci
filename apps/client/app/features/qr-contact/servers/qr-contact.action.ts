@@ -1,6 +1,6 @@
 import { data } from 'react-router'
 import type { Route } from '../+types/index'
-import { ApiError } from '@/shared/lib/api-client'
+import { ApiError } from '@/shared/utils/api-fetch'
 import { parseWithZod } from '@conform-to/zod/v4'
 import { qrContactSchema } from '../qr-contact.schema'
 import { contactQrOwner } from './qr-contact.service'

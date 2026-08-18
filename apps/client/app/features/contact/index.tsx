@@ -4,7 +4,7 @@ import { AvailabilityCard } from './components/availability-card'
 import { ContactChannels } from './components/contact-channels'
 import { ContactFaq } from './components/contact-faq'
 import { contactAction } from './servers/contact.action'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export const action = contactAction
 

@@ -4,8 +4,8 @@ import { stickerOrderSchema } from '../order.schema'
 import { PAYMENT_METHODS } from '../stickers-order.const'
 import { createStickerOrder } from './order.service'
 import { toOrder } from '../../../account/orders/mappers/order.mapper'
-import { requireServerSession } from '@/shared/auth/auth.server'
-import { ApiError } from '@/shared/lib/api-client'
+import { requireServerSession } from '@/shared/helpers/session.server'
+import { ApiError } from '@/shared/utils/api-fetch'
 
 export async function orderAction(request: Request) {
 	await requireServerSession(request)

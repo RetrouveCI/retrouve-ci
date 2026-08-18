@@ -9,13 +9,13 @@ import {
 	useRouteLoaderData,
 } from 'react-router'
 import { Toaster } from 'sonner'
-import { AuthProvider } from '@/shared/auth/auth-context'
-import { ActivityHub } from '@/shared/components/activity-hub'
-import { ThemeProvider } from '@/shared/theme/theme-context'
-import { getThemeFromRequest } from '@/shared/theme/theme.server'
-import { Header } from '@/shared/components/header'
-import { Footer } from '@/shared/components/footer'
-import { NotFoundContent } from '@/shared/components/not-found-content'
+import { AuthProvider } from '@/context/auth'
+import { ActivityHub } from '@/components/activity-hub'
+import { ThemeProvider } from '@/context/theme'
+import { getThemeFromRequest } from '@/shared/helpers/theme.server'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+import { NotFoundContent } from '@/components/not-found-content'
 
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
@@ -27,7 +27,7 @@ import {
 	OG_IMAGE,
 	OG_LOCALE,
 	SITE_NAME,
-} from '@/shared/lib/page-meta'
+} from '@/shared/helpers/page-meta'
 
 export function loader({ request }: Route.LoaderArgs) {
 	return { theme: getThemeFromRequest(request) }

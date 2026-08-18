@@ -1,4 +1,4 @@
-import { ApiError } from '@/shared/lib/api-client'
+import { ApiError } from '@/shared/utils/api-fetch'
 import { MAX_PHOTOS } from '../publish.const'
 
 interface UploadPhotoResponse {

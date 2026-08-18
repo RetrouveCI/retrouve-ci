@@ -21,8 +21,8 @@ import {
 	Badge,
 } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
-import { useAuth } from '@/shared/auth/auth-context'
-import { apiFetch } from '@/shared/lib/api-client'
+import { useAuth } from '@/context/auth'
+import { apiFetch } from '@/shared/utils/api-fetch'
 
 interface ActivitySummary {
 	posts: { total: number; active: number; pending: number }

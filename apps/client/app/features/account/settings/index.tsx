@@ -7,7 +7,7 @@ import { DangerZoneSection } from './components/danger-zone-section'
 import { settingsAction } from './servers/settings.action'
 import { settingsLoader } from './servers/settings.loader'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

@@ -1,4 +1,4 @@
-import { requireServerSession } from '@/shared/auth/auth.server'
+import { requireServerSession } from '@/shared/helpers/session.server'
 import { toOrder } from '../mappers/order.mapper'
 import { getMyStickerOrders } from './orders.service'
 

@@ -2,7 +2,7 @@ import { PublishHero } from './components/publish-hero'
 import { PublishTypeCards } from './components/publish-type-cards'
 import { PublishSteps } from './components/publish-steps'
 import { TrustBadges } from './components/trust-badges'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

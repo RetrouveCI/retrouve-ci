@@ -1,5 +1,5 @@
 import { TrendingUp } from 'lucide-react'
-import { SearchBar } from '@/shared/components/search-bar'
+import { SearchBar } from '@/components/search-bar'
 
 interface PostsHeroProps {
 	searchQuery: string

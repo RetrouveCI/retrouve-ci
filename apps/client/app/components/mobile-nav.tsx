@@ -18,8 +18,8 @@ import {
 	ShieldCheck,
 	Settings,
 } from 'lucide-react'
-import { useAuth } from '@/shared/auth/auth-context'
-import { useTheme } from '@/shared/theme/theme-context'
+import { useAuth } from '@/context/auth'
+import { useTheme } from '@/context/theme'
 
 const secondaryLinks = [
 	{ href: '/about', label: 'À propos', icon: Info },

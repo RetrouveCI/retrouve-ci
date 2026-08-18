@@ -1,6 +1,6 @@
 import { data } from 'react-router'
 import type { Route } from '../+types/index'
-import { ApiError } from '@/shared/lib/api-client'
+import { ApiError } from '@/shared/utils/api-fetch'
 import { getLostItemById } from '../../list/servers/lost-items.service'
 import { toLostItemDetail } from '../../mappers/lost-item.mapper'
 

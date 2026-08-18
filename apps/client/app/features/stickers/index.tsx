@@ -3,7 +3,7 @@ import { ProcessStepsSection } from './components/process-steps-section'
 import { StickerInfoSection } from './components/sticker-info-section'
 import { FaqSection } from './components/faq-section'
 import { StickersCta } from './components/stickers-cta'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

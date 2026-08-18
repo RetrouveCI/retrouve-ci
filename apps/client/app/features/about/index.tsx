@@ -4,7 +4,7 @@ import { MissionBento } from './components/mission-bento'
 import { ValuesSection } from './components/values-section'
 import { TeamSection } from './components/team-section'
 import { AboutCta } from './components/about-cta'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

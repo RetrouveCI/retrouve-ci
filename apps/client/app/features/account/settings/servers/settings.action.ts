@@ -1,6 +1,6 @@
 import { data, redirect } from 'react-router'
-import { getServerSession } from '@/shared/auth/auth.server'
-import { ApiError } from '@/shared/lib/api-client'
+import { getServerSession } from '@/shared/helpers/session.server'
+import { ApiError } from '@/shared/utils/api-fetch'
 import { settingsActionSchema } from '../settings.schema'
 import {
 	deleteAccount,

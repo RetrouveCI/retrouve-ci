@@ -5,7 +5,7 @@ import {
 	useState,
 	type ReactNode,
 } from 'react'
-import { THEME_COOKIE, type Theme } from './theme'
+import { THEME_COOKIE, type Theme } from '@/shared/helpers/theme'
 
 interface ThemeContextValue {
 	theme: Theme

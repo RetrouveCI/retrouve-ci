@@ -20,7 +20,7 @@ import { useEditPostForm } from './hooks/use-edit-post-form'
 import { editPostLoader } from './servers/edit-post.loader'
 import { editPostAction } from './servers/edit-post.action'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export const loader = ({ request, params }: Route.LoaderArgs) =>
 	editPostLoader(request, params.id)

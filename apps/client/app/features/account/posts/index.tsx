@@ -7,7 +7,7 @@ import { ListingCard } from './components/listing-card'
 import { accountPostsLoader } from './servers/account-posts.loader'
 import { accountPostsAction } from './servers/account-posts.action'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

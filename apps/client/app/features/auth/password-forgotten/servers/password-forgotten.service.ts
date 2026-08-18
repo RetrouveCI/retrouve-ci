@@ -1,5 +1,5 @@
-import { apiFetch } from '@/shared/lib/api-client'
-import { toE164 } from '@/shared/auth/phone'
+import { apiFetch } from '@/shared/utils/api-fetch'
+import { toE164 } from '@/shared/utils/phone'
 
 export async function requestPasswordReset(
 	phoneNumber: string,

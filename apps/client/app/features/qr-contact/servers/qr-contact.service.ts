@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import { apiFetch } from '@/shared/lib/api-client'
+import { apiFetch } from '@/shared/utils/api-fetch'
 import type { qrContactSchema } from '../qr-contact.schema'
 
 export interface QrTokenPublicView {
