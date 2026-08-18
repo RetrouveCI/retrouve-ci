@@ -343,7 +343,7 @@ Une ligne = une branche = une PR = une session.
 | **E4**  | Presets partagés (ts / vitest / eslint)     | `migration-e4-presets-partages`    | `packages/config`             | 0,5 j  | E2        |
 | **E5**  | Création de `@app/contracts`                | `migration-e5-contracts-init`      | `packages/contracts`          | 0,5 j  | E2        |
 | **E6**  | Contrats : domaines API + bascule Zod       | `migration-e6-contracts-<domaine>` | `api/<domaine>`               | 2 j    | E5        |
-| **E7**  | 🟡 Conform → react-hook-form (E7.1 faite)   | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`         | 2,5 j  | E3        |
+| **E7**  | 🟡 Conform → RHF (E7.1 et E7.2 faites)      | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`         | 2,5 j  | E3        |
 | **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`               | 3 j    | E6        |
 | **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                   | 1 j    | E4, E8    |
 | **E10** | Tests front : Vitest client + admin         | `migration-e10-tests-front`        | `client/tests`, `admin/tests` | 1,5 j  | E4, E7    |

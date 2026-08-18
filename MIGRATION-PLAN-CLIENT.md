@@ -203,26 +203,84 @@ const form = useForm<LoginInput, unknown, LoginData>({
 Côté serveur, `servers/*.action.ts` continue de re-valider avec **le même
 schéma** — RHF ne change rien à cette règle.
 
-**Reste à poser en E7.2** : la référence passe par un hook partagé
+**Posé en E7.2, mais réduit** : la référence passe par un hook partagé
 `useActionFetcher` (`shared/hooks/`) qui enveloppe `useFetcher` et expose
-`errors` (au format `FieldErrors`), `isOk`, `isSubmitting` et `Form`. C'est ce
-qui alimente l'option `errors:` de `useForm` et referme la boucle erreurs
-serveur → champs. Il n'a pas été livré en E7.1 : sa forme dépend de ce que
-renvoient nos `*.action.ts`, qui n'est pas encore uniformisé. À écrire au début
-de E7.2, dans les deux apps — candidat `@app/web-kit` en E11, les deux copies
-étant identiques.
+`errors` (au format `FieldErrors`), `isOk`, `isSubmitting` et `Form` — l'option
+`errors:` de `useForm` refermant la boucle erreurs serveur → champs.
+
+La moitié `errors` **n'a pas été livrée**, faute de consommateur : l'inventaire
+des `*.action.ts` montre que seules deux actions renvoient des erreurs par
+champ, `publish` et `account/posts/edit`, toutes deux via `submission.reply()`
+de Conform. Les treize autres — dont les cinq de `auth` — renvoient
+`{ ok, error }` et affichent des toasts. Le pont `errors` → champs sera donc
+écrit en **E7.4**, avec la première action qui en a besoin, plutôt que deviné en
+E7.2.
+
+Ce qui est livré, dans `apps/client` seulement : `useActionFetcher` expose
+`submit`, `data` et `isSubmitting`, et déclenche `onOk` / `onError` **une seule
+fois par réponse**. C'est ce dernier point qui justifie le hook : `fetcher.data`
+survit à sa propre soumission, et les cinq `useEffect` qu'il remplace devaient
+chacun s'en prémunir — avec un état supplémentaire (`submittedPhone`) et, dans
+quatre cas sur cinq, un
+`// eslint-disable-next-line react-hooks/exhaustive-deps`. Comparer l'identité
+de la réponse supprime les deux. La copie `apps/admin` viendra avec la première
+feature admin migrée, pas avant — candidat `@app/web-kit` en E11, les deux
+copies étant alors identiques.
 
 ### 4.3 Découpage des PR (client)
 
 | PR     | Feature                  | Fichiers | Remarque                                                      |
 | ------ | ------------------------ | -------- | ------------------------------------------------------------- |
 | E7.1   | `packages/ui`            | 3 (+2)   | ✅ **fait** — wrappers RHF sur `ui/field.tsx` + deps des apps |
-| E7.2   | `auth` (5 formulaires)   | 6        | login, phone, OTP ×2, create-password, new-password           |
+| E7.2   | `auth` (7 formulaires)   | 12       | ✅ **fait** — voir §4.3.1                                     |
 | E7.3   | `contact`                | 1        | le plus simple — bon second pilote                            |
 | E7.4   | `publish` (multi-étapes) | 7        | le plus délicat : 3 sections + hook `use-publish-form`        |
 | E7.5   | `account/settings`       | 5        | 4 dialogues + danger zone                                     |
 | E7.6   | `account/posts/edit`     | 3        | hook `use-edit-post-form`                                     |
 | (E7.7) | `stickers`, `qr-contact` | 6        | ⏸️ seulement si les features sont réactivées                  |
+
+#### 4.3.1 E7.2 — `auth` : ce qui a été fait
+
+**Sept formulaires, pas cinq.** Le décompte initial comptait « phone » une fois
+alors que `password-forgotten/components/phone-form.tsx` et
+`register/components/phone-step-section.tsx` sont deux formulaires distincts,
+sur deux schémas distincts. Les 12 fichiers : 7 composants, 4 `*.schema.ts` (des
+types `…Input` / `…Data` exportés, que `useForm<Input, unknown, Output>`
+réclame) et le hook `shared/hooks/use-action-fetcher.ts`.
+
+**Les wrappers de E7.1 ne servent pas ici.** Aucun des sept formulaires
+n'utilisait `InputField` / `TextareaField` : tous ont un balisage sur mesure —
+le bloc préfixe `+225`, le `PasswordInput` avec son œil, les slots `InputOTP`.
+Ils passent donc par `Controller` nu, et par `useController` pour les deux
+formulaires de mot de passe, dont `PasswordStep` prend les deux champs dans un
+contrat de props plat qu'un render prop par champ ne peut alimenter sans
+imbriquer l'un dans l'autre. C'est le cas de figure que §4.1 annonçait comme
+possible ; il s'avère être la totalité de `auth`.
+
+**Rendu inchangé, à l'octet près.** Le `FieldError` de `@app/ui/components/form`
+n'importe rien de Conform — c'est un `<p class="text-destructive text-xs">`
+purement présentationnel, et §4.5 ne le retire pas. Les composants d'étape
+gardent donc leur contrat `errors?: string[]`, alimenté par
+`fieldState.error?.message`, et le DOM produit est identique. Le passage à la
+famille `Field` (`<div role="alert" class="… text-sm">`, espacements
+`flex-col gap-3` au lieu de `space-y-2`) est un sujet UI à part, à trancher avec
+une vérification visuelle — pas un sujet de bibliothèque de formulaires.
+
+**Un seul changement de comportement, assumé.** Le gabarit §4.2 impose
+`reValidateMode: 'onChange'`. Cinq des sept formulaires ne déclaraient pas de
+`shouldRevalidate` côté Conform et revalidaient donc à la soumission suivante ;
+leurs erreurs s'effacent désormais à la frappe. Les deux formulaires de mot de
+passe étaient déjà en `shouldRevalidate: 'onInput'`, soit l'équivalent exact.
+
+**Vérification.** `format:check`, `typecheck`, `lint`, `test` (188) et `build`
+verts. Faute d'accès navigateur, le contrôle réel est un harness jsdom jetable
+(esbuild en CJS, `react-router` / `sonner` / le client auth stubés) montant les
+sept vrais composants : **22 assertions**, toutes vertes — blocage à la
+validation, valeur _parsée_ et non brute transmise au handler (la parité avec
+`submission.value` de Conform), charge utile et `intent` de chaque soumission,
+`confirmPassword` non envoyé, erreur d'auth rendue, toasts et navigations,
+expiration puis renvoi du code OTP, code refusé qui vide le champ. Reste à voir
+à l'œil : les 5 pages sous `/auth`.
 
 ### 4.4 À traiter dans la même étape
 

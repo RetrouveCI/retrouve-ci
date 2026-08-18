@@ -90,7 +90,8 @@ pnpm --filter @app/ui build
 - **React Router v7** (Vite, SSR) with React 19 and TypeScript 5.9
 - **Tailwind CSS v4** — configured via CSS `@theme` directives
 - **shadcn/ui** — components from `@app/ui`, Lucide icons
-- **`@conform-to/react` + `@conform-to/zod`** for all forms
+- **react-hook-form + zod** for forms — `@conform-to/*` is being retired feature
+  by feature (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md))
 - **better-auth** for authentication (phone number on client, email/password on
   admin)
 
