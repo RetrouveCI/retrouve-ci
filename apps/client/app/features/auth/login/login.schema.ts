@@ -8,3 +8,6 @@ export const loginSchema = z.object({
 		.regex(/^\d[\d\s]*$/, 'Numéro invalide'),
 	password: z.string().min(4, 'Mot de passe trop court.'),
 })
+
+export type LoginInput = z.input<typeof loginSchema>
+export type LoginData = z.output<typeof loginSchema>

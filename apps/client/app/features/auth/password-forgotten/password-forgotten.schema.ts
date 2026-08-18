@@ -7,3 +7,6 @@ export const phoneNumberSchema = z.object({
 		.min(8, 'Veuillez entrer un numéro valide')
 		.regex(/^\d[\d\s]*$/, 'Numéro invalide'),
 })
+
+export type PhoneNumberInput = z.input<typeof phoneNumberSchema>
+export type PhoneNumberData = z.output<typeof phoneNumberSchema>

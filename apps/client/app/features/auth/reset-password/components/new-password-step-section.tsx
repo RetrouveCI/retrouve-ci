@@ -1,15 +1,14 @@
-import { useEffect } from 'react'
-import { useFetcher } from 'react-router'
 import { toast } from 'sonner'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
-import { newPasswordSchema } from '../reset-password.schema'
+import { useController, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { toErrorList } from '../../lib/field-errors'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import {
+	newPasswordSchema,
+	type NewPasswordData,
+	type NewPasswordInput,
+} from '../reset-password.schema'
 import { PasswordStep } from '../../components/password-step'
-
-interface ActionResult {
-	ok: boolean
-	error?: string
-}
 
 interface NewPasswordStepSectionProps {
 	phoneNumber: string
@@ -24,61 +23,63 @@ export function NewPasswordStepSection({
 	onSuccess,
 	onFail,
 }: NewPasswordStepSectionProps) {
-	const fetcher = useFetcher<ActionResult>()
-
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-
-		if (fetcher.data.ok) {
+	const { submit, isSubmitting } = useActionFetcher({
+		onOk: () => {
 			toast.success('Mot de passe réinitialisé !', {
 				description: 'Vous pouvez maintenant vous connecter.',
 			})
 			onSuccess()
-		} else {
+		},
+		onError: () => {
 			toast.error('Code incorrect ou expiré', {
 				description: 'Veuillez resaisir le code reçu par SMS.',
 			})
 			onFail()
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [fetcher.state, fetcher.data])
-
-	const [form, fields] = useForm({
-		id: 'reset-password-new-password-form',
-		constraint: getZodConstraint(newPasswordSchema),
-		shouldValidate: 'onSubmit',
-		shouldRevalidate: 'onInput',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: newPasswordSchema })
-		},
-		onSubmit(event, { submission }) {
-			event.preventDefault()
-			if (submission?.status !== 'success') return
-			void fetcher.submit(
-				{
-					intent: 'reset-password',
-					phoneNumber,
-					otp,
-					newPassword: submission.value.newPassword,
-				},
-				{ method: 'post' },
-			)
 		},
 	})
-	const newPasswordControl = useInputControl(fields.newPassword)
-	const confirmPasswordControl = useInputControl(fields.confirmPassword)
+
+	const form = useForm<NewPasswordInput, unknown, NewPasswordData>({
+		resolver: standardSchemaResolver(newPasswordSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: { newPassword: '', confirmPassword: '' },
+	})
+
+	// `useController` rather than `Controller`: `PasswordStep` takes both fields
+	// as a flat prop contract, which a render prop per field cannot feed without
+	// nesting one inside the other.
+	const newPassword = useController({
+		control: form.control,
+		name: 'newPassword',
+	})
+	const confirmPassword = useController({
+		control: form.control,
+		name: 'confirmPassword',
+	})
+
+	const onSubmit = (values: NewPasswordData) => {
+		void submit(
+			{
+				intent: 'reset-password',
+				phoneNumber,
+				otp,
+				newPassword: values.newPassword,
+			},
+			{ method: 'post' },
+		)
+	}
 
 	return (
-		<form {...getFormProps(form)}>
+		<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
 			<PasswordStep
 				step="new-password"
-				newPassword={newPasswordControl.value ?? ''}
-				setNewPassword={newPasswordControl.change}
-				confirmPassword={confirmPasswordControl.value ?? ''}
-				setConfirmPassword={confirmPasswordControl.change}
-				newPasswordErrors={fields.newPassword.errors}
-				confirmPasswordErrors={fields.confirmPassword.errors}
-				isSubmitting={fetcher.state !== 'idle'}
+				newPassword={newPassword.field.value}
+				setNewPassword={newPassword.field.onChange}
+				confirmPassword={confirmPassword.field.value}
+				setConfirmPassword={confirmPassword.field.onChange}
+				newPasswordErrors={toErrorList(newPassword.fieldState.error)}
+				confirmPasswordErrors={toErrorList(confirmPassword.fieldState.error)}
+				isSubmitting={isSubmitting}
 			/>
 		</form>
 	)

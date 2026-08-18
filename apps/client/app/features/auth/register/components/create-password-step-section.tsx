@@ -1,9 +1,14 @@
-import { useEffect } from 'react'
-import { useFetcher, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
-import { newPasswordSchema } from '../register.schema'
+import { useController, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { toErrorList } from '../../lib/field-errors'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import {
+	newPasswordSchema,
+	type NewPasswordData,
+	type NewPasswordInput,
+} from '../register.schema'
 import { PasswordStep } from '../../components/password-step'
 
 export function CreatePasswordStepSection({
@@ -12,48 +17,59 @@ export function CreatePasswordStepSection({
 	redirectTo: string
 }) {
 	const navigate = useNavigate()
-	const fetcher = useFetcher<{ ok: boolean; error?: string }>()
 
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-
-		if (fetcher.data.ok) {
+	const { submit, isSubmitting } = useActionFetcher({
+		onOk: () => {
 			toast.success('Compte créé !', {
 				description: 'Bienvenue sur RetrouveCI.',
 			})
 			navigate(redirectTo, { replace: true })
-		} else {
+		},
+		onError: result => {
 			toast.error(
-				fetcher.data.error ?? 'Une erreur est survenue. Veuillez réessayer.',
+				result.error ?? 'Une erreur est survenue. Veuillez réessayer.',
 			)
-		}
-	}, [fetcher.state, fetcher.data, navigate, redirectTo])
-
-	const [form, fields] = useForm({
-		id: 'register-password-form',
-		constraint: getZodConstraint(newPasswordSchema),
-		shouldValidate: 'onSubmit',
-		shouldRevalidate: 'onInput',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: newPasswordSchema })
 		},
 	})
-	const newPasswordControl = useInputControl(fields.newPassword)
-	const confirmPasswordControl = useInputControl(fields.confirmPassword)
+
+	const form = useForm<NewPasswordInput, unknown, NewPasswordData>({
+		resolver: standardSchemaResolver(newPasswordSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: { newPassword: '', confirmPassword: '' },
+	})
+
+	// `useController` rather than `Controller`: `PasswordStep` takes both fields
+	// as a flat prop contract, which a render prop per field cannot feed without
+	// nesting one inside the other.
+	const newPassword = useController({
+		control: form.control,
+		name: 'newPassword',
+	})
+	const confirmPassword = useController({
+		control: form.control,
+		name: 'confirmPassword',
+	})
+
+	const onSubmit = (values: NewPasswordData) => {
+		void submit(
+			{ intent: 'set-initial-password', newPassword: values.newPassword },
+			{ method: 'post' },
+		)
+	}
 
 	return (
-		<fetcher.Form method="post" {...getFormProps(form)}>
-			<input type="hidden" name="intent" value="set-initial-password" />
+		<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
 			<PasswordStep
 				step="create-password"
-				newPassword={newPasswordControl.value ?? ''}
-				setNewPassword={newPasswordControl.change}
-				confirmPassword={confirmPasswordControl.value ?? ''}
-				setConfirmPassword={confirmPasswordControl.change}
-				newPasswordErrors={fields.newPassword.errors}
-				confirmPasswordErrors={fields.confirmPassword.errors}
-				isSubmitting={fetcher.state !== 'idle'}
+				newPassword={newPassword.field.value}
+				setNewPassword={newPassword.field.onChange}
+				confirmPassword={confirmPassword.field.value}
+				setConfirmPassword={confirmPassword.field.onChange}
+				newPasswordErrors={toErrorList(newPassword.fieldState.error)}
+				confirmPasswordErrors={toErrorList(confirmPassword.fieldState.error)}
+				isSubmitting={isSubmitting}
 			/>
-		</fetcher.Form>
+		</form>
 	)
 }

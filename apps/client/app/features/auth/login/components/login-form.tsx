@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Loader2 } from 'lucide-react'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
+import { Controller, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { toErrorList } from '../../lib/field-errors'
 import { useAuth } from '@/shared/auth/auth-context'
 import { withRedirect } from '@/shared/auth/redirect'
 import { Button, Input, Label } from '@app/ui/components'
 import { FieldError } from '@app/ui/components/form'
-import { loginSchema } from '../login.schema'
+import { loginSchema, type LoginData, type LoginInput } from '../login.schema'
 import { PasswordInput } from '../../components/password-input'
 
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
@@ -17,13 +18,17 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 	const [authError, setAuthError] = useState('')
 	const [isSubmitting, setIsSubmitting] = useState(false)
 
-	const handleLogin = async (value: {
-		phoneNumber: string
-		password: string
-	}) => {
+	const form = useForm<LoginInput, unknown, LoginData>({
+		resolver: standardSchemaResolver(loginSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: { phoneNumber: '', password: '' },
+	})
+
+	const onSubmit = async (values: LoginData) => {
 		setAuthError('')
 		setIsSubmitting(true)
-		const result = await login(value.phoneNumber, value.password)
+		const result = await login(values.phoneNumber, values.password)
 		if (!result.success) {
 			setAuthError(result.error ?? 'Mot de passe incorrect.')
 			setIsSubmitting(false)
@@ -32,65 +37,65 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 		navigate(redirectTo, { replace: true })
 	}
 
-	const [form, fields] = useForm({
-		id: 'login-form',
-		constraint: getZodConstraint(loginSchema),
-		shouldValidate: 'onSubmit',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: loginSchema })
-		},
-		onSubmit(event, { submission }) {
-			event.preventDefault()
-			if (submission?.status !== 'success') return
-			void handleLogin(submission.value)
-		},
-	})
-	const phoneControl = useInputControl(fields.phoneNumber)
-	const passwordControl = useInputControl(fields.password)
-
 	return (
-		<form {...getFormProps(form)} className="space-y-5">
-			<div className="space-y-2">
-				<Label htmlFor="phone" className="text-sm font-medium">
-					Numéro de téléphone
-				</Label>
-				<div className="flex gap-2">
-					<div className="bg-muted/50 text-muted-foreground flex h-12 shrink-0 items-center rounded-xl border-2 px-4 text-sm font-medium">
-						<img
-							src="/logo.png"
-							alt=""
-							width={18}
-							height={18}
-							className="mr-2 rounded-sm"
-						/>
-						+225
+		<form
+			onSubmit={form.handleSubmit(onSubmit)}
+			noValidate
+			className="space-y-5"
+		>
+			<Controller
+				control={form.control}
+				name="phoneNumber"
+				render={({ field, fieldState }) => (
+					<div className="space-y-2">
+						<Label htmlFor="phone" className="text-sm font-medium">
+							Numéro de téléphone
+						</Label>
+						<div className="flex gap-2">
+							<div className="bg-muted/50 text-muted-foreground flex h-12 shrink-0 items-center rounded-xl border-2 px-4 text-sm font-medium">
+								<img
+									src="/logo.png"
+									alt=""
+									width={18}
+									height={18}
+									className="mr-2 rounded-sm"
+								/>
+								+225
+							</div>
+							<Input
+								{...field}
+								id="phone"
+								type="tel"
+								placeholder="07 XX XX XX XX"
+								className="border-border bg-background focus:border-primary-green focus:ring-primary-green/20 h-12 flex-1 rounded-xl border-2 transition-all focus:ring-2"
+								autoComplete="tel"
+								autoFocus
+							/>
+						</div>
+						<FieldError errors={toErrorList(fieldState.error)} />
 					</div>
-					<Input
-						id="phone"
-						name="phoneNumber"
-						type="tel"
-						placeholder="07 XX XX XX XX"
-						value={phoneControl.value ?? ''}
-						onChange={e => phoneControl.change(e.target.value)}
-						className="border-border bg-background focus:border-primary-green focus:ring-primary-green/20 h-12 flex-1 rounded-xl border-2 transition-all focus:ring-2"
-						autoComplete="tel"
-						autoFocus
-					/>
-				</div>
-				<FieldError errors={fields.phoneNumber.errors} />
-			</div>
+				)}
+			/>
 
 			<div className="space-y-1">
-				<PasswordInput
-					id="password"
+				<Controller
+					control={form.control}
 					name="password"
-					label="Mot de passe"
-					value={passwordControl.value ?? ''}
-					onChange={passwordControl.change}
-					placeholder="••••••••"
-					disabled={isSubmitting}
+					render={({ field, fieldState }) => (
+						<>
+							<PasswordInput
+								id="password"
+								name={field.name}
+								label="Mot de passe"
+								value={field.value}
+								onChange={field.onChange}
+								placeholder="••••••••"
+								disabled={isSubmitting}
+							/>
+							<FieldError errors={toErrorList(fieldState.error)} />
+						</>
+					)}
 				/>
-				<FieldError errors={fields.password.errors} />
 				{authError && <p className="text-destructive text-xs">{authError}</p>}
 				<div className="flex justify-end pt-1">
 					<Link
