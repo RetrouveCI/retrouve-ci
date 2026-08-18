@@ -371,23 +371,23 @@ Détails et inventaire chiffré : **§5, étape E13** ci-dessous. Par app :
 
 Une ligne = une branche = une PR = une session.
 
-| #       | Étape                                          | Branche                            | Scope commit                          | Charge | Dépend de |
-| ------- | ---------------------------------------------- | ---------------------------------- | ------------------------------------- | ------ | --------- |
-| **E0**  | ✅ Scope `@app/*` + outillage agents           | (fait)                             | `root/tooling`                        | —      | —         |
-| **E1**  | ✅ Socle racine & hygiène                      | (fait)                             | `root/core`                           | —      | E0        |
-| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4             | (fait)                             | `root/deps`                           | —      | E1        |
-| **E3**  | ✅ Catalog : reste des versions + nettoyage    | (fait)                             | `root/deps`                           | —      | E2        |
-| **E3b** | ✅ Les 4 majors, une PR chacune                | (fait)                             | `root/deps`                           | —      | E3        |
-| **E4**  | Presets partagés (ts / vitest / eslint)        | `migration-e4-presets-partages`    | `packages/config`                     | 0,5 j  | E2        |
-| **E5**  | Création de `@app/contracts`                   | `migration-e5-contracts-init`      | `packages/contracts`                  | 0,5 j  | E2        |
-| **E6**  | Contrats : domaines API + bascule Zod          | `migration-e6-contracts-<domaine>` | `api/<domaine>`                       | 2 j    | E5        |
-| **E7**  | 🟡 Conform → react-hook-form (E7.1 faite)      | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`                 | 2,5 j  | E3        |
-| **E8**  | Refonte structurelle `apps/api`                | `migration-e8-api-<domaine>`       | `api/<domaine>`                       | 3 j    | E6        |
-| **E9**  | Tests back : `__tests__` + couverture          | `migration-e9-tests-api`           | `api/tests`                           | 1 j    | E4, E8    |
-| **E10** | Tests front : Vitest client + admin            | `migration-e10-tests-front`        | `client/tests`, `admin/tests`         | 1,5 j  | E4, E7    |
-| **E11** | Mutualisation front (`@app/web-kit`)           | `migration-e11-web-kit`            | `packages/web-kit`                    | 1,5 j  | E7        |
-| **E12** | Docs d'architecture                            | `migration-e12-docs-architecture`  | `root/docs`                           | 0,5 j  | E8        |
-| **E13** | 🟡 Structure front → `app/routes/` (doc faite) | `migration-e13-front-structure`    | `client/structure`, `admin/structure` | 3 j    | E3b       |
+| #       | Étape                                       | Branche                            | Scope commit                          | Charge | Dépend de |
+| ------- | ------------------------------------------- | ---------------------------------- | ------------------------------------- | ------ | --------- |
+| **E0**  | ✅ Scope `@app/*` + outillage agents        | (fait)                             | `root/tooling`                        | —      | —         |
+| **E1**  | ✅ Socle racine & hygiène                   | (fait)                             | `root/core`                           | —      | E0        |
+| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4          | (fait)                             | `root/deps`                           | —      | E1        |
+| **E3**  | ✅ Catalog : reste des versions + nettoyage | (fait)                             | `root/deps`                           | —      | E2        |
+| **E3b** | ✅ Les 4 majors, une PR chacune             | (fait)                             | `root/deps`                           | —      | E3        |
+| **E4**  | Presets partagés (ts / vitest / eslint)     | `migration-e4-presets-partages`    | `packages/config`                     | 0,5 j  | E2        |
+| **E5**  | Création de `@app/contracts`                | `migration-e5-contracts-init`      | `packages/contracts`                  | 0,5 j  | E2        |
+| **E6**  | Contrats : domaines API + bascule Zod       | `migration-e6-contracts-<domaine>` | `api/<domaine>`                       | 2 j    | E5        |
+| **E7**  | 🟡 Conform → react-hook-form (E7.1 faite)   | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`                 | 2,5 j  | E3        |
+| **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`                       | 3 j    | E6        |
+| **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                           | 1 j    | E4, E8    |
+| **E10** | Tests front : Vitest client + admin         | `migration-e10-tests-front`        | `client/tests`, `admin/tests`         | 1,5 j  | E4, E7    |
+| **E11** | Mutualisation front (`@app/web-kit`)        | `migration-e11-web-kit`            | `packages/web-kit`                    | 1,5 j  | E7        |
+| **E12** | Docs d'architecture                         | `migration-e12-docs-architecture`  | `root/docs`                           | 0,5 j  | E8        |
+| **E13** | ✅ Structure front → `app/routes/`          | (fait)                             | `client/structure`, `admin/structure` | —      | E3b       |
 
 **Total ≈ 15,5 j** en séquentiel. E6, E7 et E8 se découpent eux-mêmes **par
 domaine / par feature** — soit une PR par domaine, ce qui est le mode recommandé
@@ -702,14 +702,30 @@ vérifiable par `typecheck`.
 
 #### Découpage des PR
 
-| PR    | Périmètre                                                             | Remarque                 |
-| ----- | --------------------------------------------------------------------- | ------------------------ |
-| E13.1 | 🟡 doc — §3.6 réécrit, cible actée                                    | (cette PR)               |
-| E13.2 | `apps/client` — `shared/` → les six dossiers                          | sans toucher aux routes  |
-| E13.3 | `apps/client` — `features/` → `routes/<zone>/`                        | + `_index.tsx`, `types/` |
-| E13.4 | `apps/admin` — `shared/` → les six dossiers                           | idem E13.2               |
-| E13.5 | `apps/admin` — `features/` → `routes/<zone>/`                         | idem E13.3               |
-| E13.6 | `CLAUDE.md`, `README.md`, skill `frontend-conventions`, plans par app | la doc suit le code      |
+| PR    | Périmètre                                                    | État          |
+| ----- | ------------------------------------------------------------ | ------------- |
+| E13.1 | doc — §3.6 réécrit, cible actée                              | ✅ #45        |
+| E13.2 | `apps/client` — `shared/` → les six dossiers                 | ✅ #46        |
+| E13.3 | `apps/client` — `features/` → `routes/<zone>/`               | ✅ #47        |
+| E13.4 | `apps/admin` — `shared/` → les six dossiers                  | ✅ #48        |
+| E13.5 | `apps/admin` — `features/` → `routes/<zone>/`                | ✅ #49        |
+| E13.6 | skills `frontend-conventions` / `code-quality-review`, plans | ✅ (cette PR) |
+| E13.7 | contrat action / formulaire — `{ success, errors }`          | ⬜ à faire    |
+
+**Ce que les déplacements ont appris**, à garder si un autre front bouge un jour
+:
+
+- `routes.ts` résout les modules **par chemin** : une erreur y est invisible au
+  `typecheck` et n'apparaît qu'au `build`. C'est ce qui a rattrapé
+  `app-layout.tsx` laissé dans `components/` en E13.3.
+- Le typegen suit le **nom du fichier** de route : `index.tsx` → `_index.tsx`
+  déplace aussi `./+types/index` → `./+types/_index`, et `dashboard-layout.tsx`
+  → `layout.tsx` donne `./+types/layout`.
+- Une sous-route promue racine de zone (`qr/list` → `qr`) perd un niveau : ses
+  chemins relatifs remontant au-dessus gardent un `../` de trop.
+- Un éditeur avec « update imports on file move » actif renomme des fichiers
+  derrière le `git mv`. Deux incidents en E13.3, sans perte, mais à désactiver
+  avant ce genre d'opération.
 
 Une app par PR, et le `shared/` avant les routes : les deux mouvements se
 relisent séparément, et une bascule de `shared/` cassée se voit immédiatement au
