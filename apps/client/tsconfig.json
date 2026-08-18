@@ -34,8 +34,8 @@
 	"exclude": [
 		"node_modules",
 		"build",
-		"app/features/account/stickers/**",
-		"app/features/account/orders/**",
-		"app/features/qr-contact/**"
+		"app/routes/account/stickers/**",
+		"app/routes/account/orders/**",
+		"app/routes/q/**"
 	]
 }
