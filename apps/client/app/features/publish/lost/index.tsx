@@ -13,6 +13,7 @@ import { LOST_TIPS } from '../publish.const'
 import { publishLoader } from '../servers/publish.loader'
 import { publishAction } from '../servers/publish.action'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 const ACCENT = 'var(--accent-orange)'
 
@@ -22,14 +23,11 @@ export const action = ({ request }: Route.ActionArgs) =>
 	publishAction(request, 'lost')
 
 export function meta() {
-	return [
-		{ title: 'Publier un objet perdu — RetrouveCI' },
-		{
-			name: 'description',
-			content:
-				"Décrivez l'objet que vous avez perdu pour que quelqu'un puisse vous aider.",
-		},
-	]
+	return pageMeta({
+		title: 'Publier un objet perdu',
+		description:
+			"Décrivez l'objet que vous avez perdu pour que quelqu'un puisse vous aider.",
+	})
 }
 
 const progressItems = (fields: ReturnType<typeof usePublishForm>['fields']) => [

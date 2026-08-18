@@ -2,16 +2,14 @@ import { PublishHero } from './components/publish-hero'
 import { PublishTypeCards } from './components/publish-type-cards'
 import { PublishSteps } from './components/publish-steps'
 import { TrustBadges } from './components/trust-badges'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export function meta() {
-	return [
-		{ title: 'Publier une annonce' },
-		{
-			name: 'description',
-			content:
-				"Publiez une annonce pour un objet perdu ou retrouvé en Côte d'Ivoire.",
-		},
-	]
+	return pageMeta({
+		title: 'Publier une annonce',
+		description:
+			"Publiez une annonce pour un objet perdu ou retrouvé en Côte d'Ivoire.",
+	})
 }
 
 export default function PublierPage() {

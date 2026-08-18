@@ -9,6 +9,14 @@ import { OtpStepSection } from './components/otp-step-section'
 import { CreatePasswordStepSection } from './components/create-password-step-section'
 import { registerAction } from './servers/register.action'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
+
+export function meta() {
+	return pageMeta({
+		title: 'Créer un compte',
+		description: 'Rejoignez RetrouveCI pour publier et retrouver des objets.',
+	})
+}
 
 export const action = registerAction
 

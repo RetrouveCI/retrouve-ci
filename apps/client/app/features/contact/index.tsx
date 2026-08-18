@@ -4,18 +4,16 @@ import { AvailabilityCard } from './components/availability-card'
 import { ContactChannels } from './components/contact-channels'
 import { ContactFaq } from './components/contact-faq'
 import { contactAction } from './servers/contact.action'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export const action = contactAction
 
 export function meta() {
-	return [
-		{ title: 'Contact — RetrouveCI' },
-		{
-			name: 'description',
-			content:
-				"Une question, un signalement ou une suggestion ? Contactez l'équipe RetrouveCI, la plateforme d'objets perdus et retrouvés en Côte d'Ivoire.",
-		},
-	]
+	return pageMeta({
+		title: 'Contact',
+		description:
+			"Une question, un signalement ou une suggestion ? Contactez l'équipe RetrouveCI, la plateforme d'objets perdus et retrouvés en Côte d'Ivoire.",
+	})
 }
 
 export default function Contact() {

@@ -6,6 +6,14 @@ import { redirectIfAuthenticated } from '@/shared/auth/auth.server'
 import { sanitizeRedirect } from '@/shared/auth/redirect'
 import { LoginForm } from './components/login-form'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
+
+export function meta() {
+	return pageMeta({
+		title: 'Connexion',
+		description: 'Connectez-vous à votre compte RetrouveCI.',
+	})
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
 	await redirectIfAuthenticated(request)
