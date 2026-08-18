@@ -160,13 +160,14 @@ Both apps share the same stack:
   file
 - **shadcn/ui** — components imported via `@app/ui/components`
 - **Forms are mid-migration** from `@conform-to/*` to **react-hook-form + zod**
-  (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). `client`'s `features/auth` is
-  on react-hook-form; every other form in both apps is still on Conform. New
-  forms use react-hook-form.
+  (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). `client`'s `routes/auth` is on
+  react-hook-form; every other form in both apps is still on Conform. New forms
+  use react-hook-form.
 
-Both use the same feature-based architecture under `app/features/[feature]/`
-with `servers/*.loader.ts` / `servers/*.action.ts` for all server-side data
-access (see conventions below, and the `frontend-conventions` skill).
+The two apps are **not** on the same layout right now. `apps/client` has moved
+to the target one, `app/routes/<area>/<page>/`; `apps/admin` is still on
+`app/features/[feature]/` until E13.5. Both keep `servers/*.loader.ts` /
+`servers/*.action.ts` for all server-side data access (see conventions below).
 
 ### Client app (`apps/client`)
 
@@ -183,12 +184,24 @@ Route structure (all under `app/`):
     `/auth/reset-password` — individual auth pages
 - `/about`, `/contact`, `/download`, `/privacy`, `/terms`
 
-> **`apps/client` is mid-restructure** (E13 of
-> [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). `app/shared/` has moved to the target
-> layout — `app/components/`, `app/context/`, and
-> `app/shared/{constants,helpers,hooks,types,utils}/`. `app/features/` has
-> **not** moved yet; it becomes `app/routes/<area>/<page>/` in E13.3. The
-> `frontend-conventions` skill still describes the old layout until E13.6.
+> **`apps/client` now uses the target layout** (E13 of
+> [MIGRATION-PLAN.md](MIGRATION-PLAN.md)):
+>
+> ```text
+> app/routes/<area>/<page>/   _index.tsx, servers/, components/, hooks/,
+>                             helpers/, mappers/, types/
+> app/components/             components used across routes
+> app/context/                auth.tsx, theme.tsx
+> app/shared/                 constants/, helpers/, hooks/, mappers/, types/,
+>                             utils/
+> ```
+>
+> A page is `_index.tsx`; `routes.ts` resolves route modules **by path**, so a
+> move there is only caught by `pnpm build`, never by `typecheck` alone. An area
+> folder may hold the `components/`, `servers/` and `types/` its sub-routes
+> share (see `routes/publish/`, `routes/auth/`). `apps/admin` still uses
+> `app/features/`, and the `frontend-conventions` skill still describes that
+> older layout until E13.6.
 
 Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
 `AuthContext` (`app/context/auth.tsx`) wraps `authClient.useSession()` for
@@ -201,18 +214,19 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
 
 - UI components never call `apiFetch` or `authClient` directly — all API access
   goes through a feature's `servers/*.loader.ts` / `servers/*.action.ts`
-  (server-side) or a dedicated `lib/*.client.ts` wrapper (client-side calls that
-  manage cookies/sessions, e.g. `features/auth/lib/phone-auth.client.ts`). In
-  `features/auth`, the two endpoints that create/refresh the better-auth session
-  cookie (`sign-in/phone-number` via `AuthContext.login`, and
-  `phone-number/verify` via `lib/phone-auth.client.ts`) are the only auth calls
-  made client-side — the browser needs the `Set-Cookie` response directly, and
-  this repo has no server-side mechanism to forward `Set-Cookie` from an API
-  response back through a React Router action. Every other auth mutation
-  (`send-otp`, `request-password-reset`, `reset-password`) goes through
+  (server-side) or a dedicated `helpers/*.client.ts` wrapper (client-side calls
+  that manage cookies/sessions, e.g.
+  `routes/auth/helpers/phone-auth.client.ts`). In `routes/auth`, the two
+  endpoints that create/refresh the better-auth session cookie
+  (`sign-in/phone-number` via `AuthContext.login`, and `phone-number/verify` via
+  `lib/phone-auth.client.ts`) are the only auth calls made client-side — the
+  browser needs the `Set-Cookie` response directly, and this repo has no
+  server-side mechanism to forward `Set-Cookie` from an API response back
+  through a React Router action. Every other auth mutation (`send-otp`,
+  `request-password-reset`, `reset-password`) goes through
   `servers/*.action.ts`, using the `intent` field pattern when a route has more
   than one action (e.g.
-  `features/auth/reset-password/servers/reset-password.action.ts`).
+  `routes/auth/reset-password/servers/reset-password.action.ts`).
 - Every form is schema-driven — no hand-rolled `useState` validation. New and
   migrated forms use **react-hook-form**: `useForm` with
   `standardSchemaResolver(schema)` from `@hookform/resolvers/standard-schema`,
@@ -226,16 +240,15 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   `shared/hooks/use-action-fetcher.ts`, which fires `onOk` / `onError` once per
   response — not through a hand-rolled `useEffect` on `fetcher.data`.
 - Each route feature owns its own Zod schema as a sibling `*.schema.ts` file
-  (e.g. `features/auth/login/login.schema.ts`,
-  `features/account/settings/settings.schema.ts`). Small schemas may be
-  duplicated across features rather than shared, to keep each feature
-  self-contained.
+  (e.g. `routes/auth/login/login.schema.ts`,
+  `routes/account/settings/settings.schema.ts`). Small schemas may be duplicated
+  across features rather than shared, to keep each feature self-contained.
 - Route `index.tsx` files stay thin: page-level state (current step, layout,
   redirects) only. Per-section/per-step form logic is extracted into components
   under that feature's own `components/` folder (e.g.
-  `features/auth/register/components/otp-step-section.tsx`,
-  `features/account/settings/components/security-section.tsx`). Cross-feature UI
-  primitives (e.g. `features/auth/components/`) stay separate from these
+  `routes/auth/register/components/otp-step-section.tsx`,
+  `routes/account/settings/components/security-section.tsx`). Area-level UI
+  primitives (e.g. `routes/auth/components/`) stay separate from these
   feature-owned section components.
 
 ### Admin app (`apps/admin`)

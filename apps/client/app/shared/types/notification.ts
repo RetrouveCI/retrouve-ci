@@ -1,4 +1,4 @@
-import type { NotificationType } from '@/features/notifications/notifications.types'
+import type { NotificationType } from '@/routes/notifications/types/notifications.types'
 
 export interface Notification {
 	id: string
