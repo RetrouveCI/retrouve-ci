@@ -33,11 +33,6 @@ export function loader({ request }: Route.LoaderArgs) {
 	return { theme: getThemeFromRequest(request) }
 }
 
-/**
- * Head for the home page, and the fallback for any route that does not export
- * its own `meta`. Deliberately not built with `pageMeta`: a home page is better
- * titled with the brand and its tagline than with `Accueil | RetrouveCI`.
- */
 export function meta() {
 	const title = `${SITE_NAME} - Perdre un objet n'est plus une fatalité`
 	const description =

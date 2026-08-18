@@ -4,23 +4,13 @@ export const OG_LOCALE = 'fr_CI'
 export const OG_IMAGE = '/logo.png'
 
 export interface PageMetaOptions {
-	/** Page name alone — the site name is appended: `Annonces | RetrouveCI`. */
+	/** Page name alone — the site name is appended. */
 	title: string
 	description?: string
-	/** Defaults to the brand logo. */
 	image?: string
-	/** `article` for a single listing, `website` everywhere else. */
 	type?: 'website' | 'article'
 }
 
-/**
- * Builds the whole document head for a page.
- *
- * React Router replaces a parent's `meta` with the child's rather than merging
- * the two, so a route returning only a title silently drops every `og:` and
- * `twitter:` tag declared in `root.tsx`. Going through this helper is what stops
- * that happening again — it is the reason pages do not hand-roll their `meta`.
- */
 export function pageMeta({
 	title,
 	description,
