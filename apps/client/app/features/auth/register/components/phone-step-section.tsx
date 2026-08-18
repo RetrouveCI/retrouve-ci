@@ -1,68 +1,67 @@
-import { useEffect, useState } from 'react'
-import { Link, useFetcher } from 'react-router'
+import { useRef } from 'react'
+import { Link } from 'react-router'
 import { toast } from 'sonner'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
-import { phoneNumberSchema } from '../register.schema'
+import { Controller, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { toErrorList } from '../../lib/field-errors'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import {
+	phoneNumberSchema,
+	type PhoneNumberData,
+	type PhoneNumberInput,
+} from '../register.schema'
 import { PhoneStep } from '../../components/phone-step'
-
-interface ActionResult {
-	ok: boolean
-	error?: string
-}
 
 interface PhoneStepSectionProps {
 	onVerified: (phoneNumber: string) => void
 }
 
 export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
-	const fetcher = useFetcher<ActionResult>()
-	const [submittedPhone, setSubmittedPhone] = useState<string | null>(null)
+	const submittedPhoneRef = useRef('')
 
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data || !submittedPhone) return
-
-		if (fetcher.data.ok) {
+	const { submit, isSubmitting } = useActionFetcher({
+		onOk: () => {
 			toast.success('Code envoyé !', {
 				description: 'Vérifiez vos SMS ou WhatsApp.',
 			})
-			onVerified(submittedPhone)
-		} else {
+			onVerified(submittedPhoneRef.current)
+		},
+		onError: () => {
 			toast.error('Impossible d’envoyer le code', {
 				description: 'Vérifiez le numéro et réessayez.',
 			})
-		}
-		setSubmittedPhone(null)
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [fetcher.state, fetcher.data, submittedPhone])
-
-	const [form, fields] = useForm({
-		id: 'register-phone-form',
-		constraint: getZodConstraint(phoneNumberSchema),
-		shouldValidate: 'onSubmit',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: phoneNumberSchema })
-		},
-		onSubmit(event, { submission }) {
-			event.preventDefault()
-			if (submission?.status !== 'success') return
-			setSubmittedPhone(submission.value.phoneNumber)
-			void fetcher.submit(
-				{ intent: 'send-otp', phoneNumber: submission.value.phoneNumber },
-				{ method: 'post' },
-			)
 		},
 	})
-	const phoneControl = useInputControl(fields.phoneNumber)
+
+	const form = useForm<PhoneNumberInput, unknown, PhoneNumberData>({
+		resolver: standardSchemaResolver(phoneNumberSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: { phoneNumber: '' },
+	})
+
+	const onSubmit = (values: PhoneNumberData) => {
+		submittedPhoneRef.current = values.phoneNumber
+		void submit(
+			{ intent: 'send-otp', phoneNumber: values.phoneNumber },
+			{ method: 'post' },
+		)
+	}
 
 	return (
 		<>
-			<form {...getFormProps(form)}>
-				<PhoneStep
-					phoneNumber={phoneControl.value ?? ''}
-					setPhoneNumber={phoneControl.change}
-					errors={fields.phoneNumber.errors}
-					isSubmitting={fetcher.state !== 'idle'}
+			<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+				<Controller
+					control={form.control}
+					name="phoneNumber"
+					render={({ field, fieldState }) => (
+						<PhoneStep
+							phoneNumber={field.value}
+							setPhoneNumber={field.onChange}
+							errors={toErrorList(fieldState.error)}
+							isSubmitting={isSubmitting}
+						/>
+					)}
 				/>
 			</form>
 			<p className="text-muted-foreground mt-6 text-center text-sm">

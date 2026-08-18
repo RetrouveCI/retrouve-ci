@@ -1,18 +1,13 @@
 import { useState, useEffect } from 'react'
-import { useFetcher } from 'react-router'
 import { toast } from 'sonner'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
-import { otpSchema } from '../register.schema'
+import { Controller, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { otpSchema, type OtpData, type OtpInput } from '../register.schema'
 import { verifyPhoneOtp } from '../../lib/phone-auth.client'
 import { OtpStep } from '../../components/otp-step'
 
 const OTP_EXPIRY_SECONDS = 120
-
-interface ResendActionResult {
-	ok: boolean
-	error?: string
-}
 
 interface OtpStepSectionProps {
 	phoneNumber: string
@@ -23,11 +18,31 @@ export function OtpStepSection({
 	phoneNumber,
 	onVerified,
 }: OtpStepSectionProps) {
-	const resendFetcher = useFetcher<ResendActionResult>()
 	const [otpError, setOtpError] = useState(false)
-	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [isVerifying, setIsVerifying] = useState(false)
 	const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS)
 	const [resendKey, setResendKey] = useState(0)
+
+	const form = useForm<OtpInput, unknown, OtpData>({
+		resolver: standardSchemaResolver(otpSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: { otp: '' },
+	})
+
+	const { submit: resend, isSubmitting: isResending } = useActionFetcher({
+		onOk: () => {
+			toast.success('Nouveau code envoyé !')
+			form.setValue('otp', '')
+			setOtpError(false)
+			setResendKey(k => k + 1)
+		},
+		onError: result => {
+			toast.error('Impossible d’envoyer le code', {
+				description: result.error,
+			})
+		},
+	})
 
 	useEffect(() => {
 		setTimeLeft(OTP_EXPIRY_SECONDS)
@@ -43,75 +58,47 @@ export function OtpStepSection({
 		return () => clearInterval(interval)
 	}, [resendKey])
 
-	useEffect(() => {
-		if (resendFetcher.state !== 'idle' || !resendFetcher.data) return
-
-		if (resendFetcher.data.ok) {
-			toast.success('Nouveau code envoyé !')
-			otpControl.change('')
-			setOtpError(false)
-			setResendKey(k => k + 1)
-		} else {
-			toast.error('Impossible d’envoyer le code', {
-				description: resendFetcher.data.error,
-			})
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [resendFetcher.state, resendFetcher.data])
-
 	const formatTime = (s: number) =>
 		`${Math.floor(s / 60)
 			.toString()
 			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
-	const handleOtpSubmit = async (value: string) => {
-		setIsSubmitting(true)
-		const ok = await verifyPhoneOtp(phoneNumber, value)
-		setIsSubmitting(false)
+	const onSubmit = async (values: OtpData) => {
+		setIsVerifying(true)
+		const ok = await verifyPhoneOtp(phoneNumber, values.otp)
+		setIsVerifying(false)
 		if (!ok) {
 			setOtpError(true)
 			toast.error('Code incorrect', {
 				description: 'Vérifiez le code reçu et réessayez.',
 			})
-			otpControl.change('')
+			form.setValue('otp', '')
 			return
 		}
 		onVerified()
 	}
 
-	const [form, fields] = useForm({
-		id: 'register-otp-form',
-		constraint: getZodConstraint(otpSchema),
-		shouldValidate: 'onSubmit',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: otpSchema })
-		},
-		onSubmit(event, { submission }) {
-			event.preventDefault()
-			if (submission?.status !== 'success') return
-			void handleOtpSubmit(submission.value.otp)
-		},
-	})
-	const otpControl = useInputControl(fields.otp)
-
 	const handleResend = () => {
-		void resendFetcher.submit(
-			{ intent: 'send-otp', phoneNumber },
-			{ method: 'post' },
-		)
+		void resend({ intent: 'send-otp', phoneNumber }, { method: 'post' })
 	}
 
 	return (
-		<form {...getFormProps(form)}>
-			<OtpStep
-				otp={otpControl.value ?? ''}
-				setOtp={otpControl.change}
-				otpError={otpError}
-				setOtpError={setOtpError}
-				timeLeft={timeLeft}
-				isSubmitting={isSubmitting || resendFetcher.state !== 'idle'}
-				formatTime={formatTime}
-				onResend={handleResend}
+		<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+			<Controller
+				control={form.control}
+				name="otp"
+				render={({ field }) => (
+					<OtpStep
+						otp={field.value}
+						setOtp={field.onChange}
+						otpError={otpError}
+						setOtpError={setOtpError}
+						timeLeft={timeLeft}
+						isSubmitting={isVerifying || isResending}
+						formatTime={formatTime}
+						onResend={handleResend}
+					/>
+				)}
 			/>
 		</form>
 	)

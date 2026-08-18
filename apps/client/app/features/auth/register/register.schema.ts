@@ -37,3 +37,12 @@ export const setInitialPasswordActionSchema = z.object({
 		.min(6, 'Le mot de passe doit contenir au moins 6 caractères.')
 		.max(128),
 })
+
+export type PhoneNumberInput = z.input<typeof phoneNumberSchema>
+export type PhoneNumberData = z.output<typeof phoneNumberSchema>
+
+export type OtpInput = z.input<typeof otpSchema>
+export type OtpData = z.output<typeof otpSchema>
+
+export type NewPasswordInput = z.input<typeof newPasswordSchema>
+export type NewPasswordData = z.output<typeof newPasswordSchema>

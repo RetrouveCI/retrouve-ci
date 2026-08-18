@@ -1,69 +1,66 @@
-import { useEffect, useState } from 'react'
-import { useFetcher, useNavigate } from 'react-router'
+import { useRef } from 'react'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
-import { phoneNumberSchema } from '../password-forgotten.schema'
+import { Controller, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { toErrorList } from '../../lib/field-errors'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import {
+	phoneNumberSchema,
+	type PhoneNumberData,
+	type PhoneNumberInput,
+} from '../password-forgotten.schema'
 import { PhoneStep } from '../../components/phone-step'
-
-interface ActionResult {
-	ok: boolean
-	error?: string
-}
 
 export function PhoneForm() {
 	const navigate = useNavigate()
-	const fetcher = useFetcher<ActionResult>()
-	const [submittedPhone, setSubmittedPhone] = useState<string | null>(null)
 
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data || !submittedPhone) return
+	const submittedPhoneRef = useRef('')
 
-		if (fetcher.data.ok) {
+	const { submit, isSubmitting } = useActionFetcher({
+		onOk: () => {
 			toast.success('Code envoyé !', {
 				description: 'Vérifiez vos SMS ou WhatsApp.',
 			})
 
 			navigate(
-				`/auth/reset-password?phone=${encodeURIComponent(submittedPhone)}`,
+				`/auth/reset-password?phone=${encodeURIComponent(submittedPhoneRef.current)}`,
 			)
-		} else {
-			toast.error('Impossible d’envoyer le code', {
-				description: fetcher.data.error,
-			})
-		}
-		setSubmittedPhone(null)
-	}, [fetcher.state, fetcher.data, submittedPhone, navigate])
-
-	const [form, fields] = useForm({
-		id: 'password-forgotten-form',
-		constraint: getZodConstraint(phoneNumberSchema),
-		shouldValidate: 'onSubmit',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: phoneNumberSchema })
 		},
-		onSubmit(event, { submission, formData }) {
-			event.preventDefault()
-
-			if (submission?.status !== 'success') return
-
-			setSubmittedPhone(submission.value.phoneNumber)
-			void fetcher.submit(formData, { method: 'post' })
+		onError: result => {
+			toast.error('Impossible d’envoyer le code', {
+				description: result.error,
+			})
 		},
 	})
 
-	const phoneControl = useInputControl(fields.phoneNumber)
-	const isSubmitting = fetcher.state !== 'idle'
+	const form = useForm<PhoneNumberInput, unknown, PhoneNumberData>({
+		resolver: standardSchemaResolver(phoneNumberSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: { phoneNumber: '' },
+	})
+
+	const onSubmit = (values: PhoneNumberData) => {
+		submittedPhoneRef.current = values.phoneNumber
+		void submit({ phoneNumber: values.phoneNumber }, { method: 'post' })
+	}
 
 	return (
-		<form {...getFormProps(form)}>
-			<PhoneStep
-				phoneNumber={phoneControl.value ?? ''}
-				setPhoneNumber={phoneControl.change}
-				errors={fields.phoneNumber.errors}
-				isSubmitting={isSubmitting}
-				hint="Entrez votre numéro pour recevoir un code de vérification."
-				submitLabel="Envoyer le code"
+		<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+			<Controller
+				control={form.control}
+				name="phoneNumber"
+				render={({ field, fieldState }) => (
+					<PhoneStep
+						phoneNumber={field.value}
+						setPhoneNumber={field.onChange}
+						errors={toErrorList(fieldState.error)}
+						isSubmitting={isSubmitting}
+						hint="Entrez votre numéro pour recevoir un code de vérification."
+						submitLabel="Envoyer le code"
+					/>
+				)}
 			/>
 		</form>
 	)

@@ -28,3 +28,9 @@ export const resetPasswordActionSchema = z.object({
 	otp: z.string().length(6),
 	newPassword: z.string().min(6).max(128),
 })
+
+export type OtpInput = z.input<typeof otpSchema>
+export type OtpData = z.output<typeof otpSchema>
+
+export type NewPasswordInput = z.input<typeof newPasswordSchema>
+export type NewPasswordData = z.output<typeof newPasswordSchema>

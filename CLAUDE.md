@@ -159,7 +159,10 @@ Both apps share the same stack:
 - **Tailwind CSS v4** — configured via CSS `@theme` directives, not a JS config
   file
 - **shadcn/ui** — components imported via `@app/ui/components`
-- **`@conform-to/react` + `@conform-to/zod`** for all forms in both apps
+- **Forms are mid-migration** from `@conform-to/*` to **react-hook-form + zod**
+  (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). `client`'s `features/auth` is
+  on react-hook-form; every other form in both apps is still on Conform. New
+  forms use react-hook-form.
 
 Both use the same feature-based architecture under `app/features/[feature]/`
 with `servers/*.loader.ts` / `servers/*.action.ts` for all server-side data
@@ -188,7 +191,7 @@ Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
 `requireServerSession`, which forward the request's `Cookie` header to
 `/api/auth/get-session` — used by route loaders to gate server data fetches.
 
-#### Client app conventions (loader/action + Conform/Zod)
+#### Client app conventions (loader/action + Zod)
 
 - UI components never call `apiFetch` or `authClient` directly — all API access
   goes through a feature's `servers/*.loader.ts` / `servers/*.action.ts`
@@ -204,9 +207,18 @@ Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
   `servers/*.action.ts`, using the `intent` field pattern when a route has more
   than one action (e.g.
   `features/auth/reset-password/servers/reset-password.action.ts`).
-- Every form uses `@conform-to/react` + `@conform-to/zod` (`useForm`,
-  `useInputControl`, `getFormProps`, `getZodConstraint`, `parseWithZod`) — no
-  hand-rolled `useState` validation.
+- Every form is schema-driven — no hand-rolled `useState` validation. New and
+  migrated forms use **react-hook-form**: `useForm` with
+  `standardSchemaResolver(schema)` from `@hookform/resolvers/standard-schema`,
+  plus `Controller` (or `useController`, when one component takes several fields
+  as a flat prop contract). `FormInputField` / `FormTextareaField` from
+  `@app/ui/components/form` wrap the common single-input case. Forms not yet
+  migrated still use `@conform-to/react` + `@conform-to/zod` (`useForm`,
+  `useInputControl`, `getFormProps`, `getZodConstraint`, `parseWithZod`); do not
+  add new ones.
+- Actions returning `{ ok, error }` are consumed through
+  `shared/hooks/use-action-fetcher.ts`, which fires `onOk` / `onError` once per
+  response — not through a hand-rolled `useEffect` on `fetcher.data`.
 - Each route feature owns its own Zod schema as a sibling `*.schema.ts` file
   (e.g. `features/auth/login/login.schema.ts`,
   `features/account/settings/settings.schema.ts`). Small schemas may be
