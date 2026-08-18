@@ -20,6 +20,7 @@ import { useEditPostForm } from './hooks/use-edit-post-form'
 import { editPostLoader } from './servers/edit-post.loader'
 import { editPostAction } from './servers/edit-post.action'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export const loader = ({ request, params }: Route.LoaderArgs) =>
 	editPostLoader(request, params.id)
@@ -28,7 +29,10 @@ export const action = ({ request, params }: Route.ActionArgs) =>
 	editPostAction(request, params.id)
 
 export function meta() {
-	return [{ title: "Modifier l'annonce — RetrouveCI" }]
+	return pageMeta({
+		title: "Modifier l'annonce",
+		description: 'Mettez à jour les informations de votre annonce.',
+	})
 }
 
 export default function EditPostPage({ loaderData }: Route.ComponentProps) {

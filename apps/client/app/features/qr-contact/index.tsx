@@ -5,19 +5,17 @@ import { qrContactAction } from './servers/qr-contact.action'
 import { QrOwnerCard } from './components/qr-owner-card'
 import { QrContactForm } from './components/qr-contact-form'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export const loader = qrContactLoader
 export const action = qrContactAction
 
 export function meta() {
-	return [
-		{ title: 'Objet perdu — RetrouveCI' },
-		{
-			name: 'description',
-			content:
-				'Vous avez trouvé cet objet ? Contactez son propriétaire via RetrouveCI.',
-		},
-	]
+	return pageMeta({
+		title: 'Objet perdu',
+		description:
+			'Vous avez trouvé cet objet ? Contactez son propriétaire via RetrouveCI.',
+	})
 }
 
 export default function QrContactPage({ loaderData }: Route.ComponentProps) {

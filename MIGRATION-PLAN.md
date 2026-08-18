@@ -304,13 +304,51 @@ src/                                    src/
 
 ### 3.6 Front `apps/client` et `apps/admin`
 
-`app/features/<f>/{components,hooks,mappers,servers,lib}` est **déjà** la
-structure décrite par `frontend-conventions` — plus conforme que la référence
-elle-même, qui a gardé `app/routes/`. Le travail front est du raffinement, pas
-une refonte : contrats partagés, RHF, `types/` en sous-dossier, tests
-(aujourd'hui **zéro** côté front), mutualisation client ↔ admin.
+> **Révision du 2026-08-18.** Ce paragraphe affirmait l'inverse : que
+> `app/features/<f>/` était « plus conforme que la référence elle-même, qui a
+> gardé `app/routes/` », et que le front ne demandait « du raffinement, pas une
+> refonte ». C'était fondé sur une lecture de la référence sur sa branche
+> principale. Sur sa **branche de migration** — la seule à considérer — le front
+> et l'API y sont scindés en apps distinctes et l'arborescence front a été
+> revue. Décision prise : **on adopte sa structure**, en étape dédiée (E13).
 
-Détails : [MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md) ·
+Le constat qui rend l'opération abordable : **à l'intérieur d'un dossier de
+route, ses conventions sont déjà les nôtres**.
+
+```
+Référence                                   RetrouveCI aujourd'hui
+routes/<zone>/<page>/                       features/<f>/
+├── _index.tsx                              ├── index.tsx
+├── servers/<f>.{loader,action,service}.ts   ├── servers/<f>.{loader,action,service}.ts  ✅
+├── types/<f>.types.ts                      ├── <f>.types.ts        🔴 Écart 4
+├── components/                             ├── components/          ✅
+├── hooks/                                  ├── hooks/               ✅
+└── __tests__/                              └── (aucun)              🔴 E10
+```
+
+L'écart porte donc sur le **conteneur**, pas sur le contenu :
+
+```
+Cible                                       Aujourd'hui
+app/routes/<zone>/<page>/_index.tsx         app/features/<f>/index.tsx
+app/components/                             app/shared/components/
+app/context/                                app/shared/auth/*-context.tsx, shared/theme/
+app/middleware/                             (absent)
+app/shared/constants/                       app/shared/constants.ts
+app/shared/errors/                          (absent)
+app/shared/helpers/                         (absent)
+app/shared/hooks/                           app/shared/hooks/            ✅
+app/shared/types/                           app/shared/types/            ✅
+app/shared/utils/                           app/shared/lib/
+```
+
+Trois divergences de la référence à **ne pas** reprendre : son alias `~/` (nous
+gardons `@/`), ses imports UI par composant (`@app/ui/components/field`) là où
+nous avons un barrel unique, et son indentation à 2 espaces (nous sommes en
+tabulations). Ce sont des choix d'échelle dépôt, pas de la structure.
+
+Détails et inventaire chiffré : **§5, étape E13** ci-dessous. Par app :
+[MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md) ·
 [MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md).
 
 ### 3.7 Divergences assumées (à ne PAS migrer)
@@ -333,22 +371,23 @@ Détails : [MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md) ·
 
 Une ligne = une branche = une PR = une session.
 
-| #       | Étape                                       | Branche                            | Scope commit                  | Charge | Dépend de |
-| ------- | ------------------------------------------- | ---------------------------------- | ----------------------------- | ------ | --------- |
-| **E0**  | ✅ Scope `@app/*` + outillage agents        | (fait)                             | `root/tooling`                | —      | —         |
-| **E1**  | ✅ Socle racine & hygiène                   | (fait)                             | `root/core`                   | —      | E0        |
-| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4          | (fait)                             | `root/deps`                   | —      | E1        |
-| **E3**  | ✅ Catalog : reste des versions + nettoyage | (fait)                             | `root/deps`                   | —      | E2        |
-| **E3b** | ✅ Les 4 majors, une PR chacune             | (fait)                             | `root/deps`                   | —      | E3        |
-| **E4**  | Presets partagés (ts / vitest / eslint)     | `migration-e4-presets-partages`    | `packages/config`             | 0,5 j  | E2        |
-| **E5**  | Création de `@app/contracts`                | `migration-e5-contracts-init`      | `packages/contracts`          | 0,5 j  | E2        |
-| **E6**  | Contrats : domaines API + bascule Zod       | `migration-e6-contracts-<domaine>` | `api/<domaine>`               | 2 j    | E5        |
-| **E7**  | 🟡 Conform → RHF (E7.1 et E7.2 faites)      | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`         | 2,5 j  | E3        |
-| **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`               | 3 j    | E6        |
-| **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                   | 1 j    | E4, E8    |
-| **E10** | Tests front : Vitest client + admin         | `migration-e10-tests-front`        | `client/tests`, `admin/tests` | 1,5 j  | E4, E7    |
-| **E11** | Mutualisation front (`@app/web-kit`)        | `migration-e11-web-kit`            | `packages/web-kit`            | 1,5 j  | E7        |
-| **E12** | Docs d'architecture                         | `migration-e12-docs-architecture`  | `root/docs`                   | 0,5 j  | E8        |
+| #       | Étape                                          | Branche                            | Scope commit                          | Charge | Dépend de |
+| ------- | ---------------------------------------------- | ---------------------------------- | ------------------------------------- | ------ | --------- |
+| **E0**  | ✅ Scope `@app/*` + outillage agents           | (fait)                             | `root/tooling`                        | —      | —         |
+| **E1**  | ✅ Socle racine & hygiène                      | (fait)                             | `root/core`                           | —      | E0        |
+| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4             | (fait)                             | `root/deps`                           | —      | E1        |
+| **E3**  | ✅ Catalog : reste des versions + nettoyage    | (fait)                             | `root/deps`                           | —      | E2        |
+| **E3b** | ✅ Les 4 majors, une PR chacune                | (fait)                             | `root/deps`                           | —      | E3        |
+| **E4**  | Presets partagés (ts / vitest / eslint)        | `migration-e4-presets-partages`    | `packages/config`                     | 0,5 j  | E2        |
+| **E5**  | Création de `@app/contracts`                   | `migration-e5-contracts-init`      | `packages/contracts`                  | 0,5 j  | E2        |
+| **E6**  | Contrats : domaines API + bascule Zod          | `migration-e6-contracts-<domaine>` | `api/<domaine>`                       | 2 j    | E5        |
+| **E7**  | 🟡 Conform → react-hook-form (E7.1 faite)      | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`                 | 2,5 j  | E3        |
+| **E8**  | Refonte structurelle `apps/api`                | `migration-e8-api-<domaine>`       | `api/<domaine>`                       | 3 j    | E6        |
+| **E9**  | Tests back : `__tests__` + couverture          | `migration-e9-tests-api`           | `api/tests`                           | 1 j    | E4, E8    |
+| **E10** | Tests front : Vitest client + admin            | `migration-e10-tests-front`        | `client/tests`, `admin/tests`         | 1,5 j  | E4, E7    |
+| **E11** | Mutualisation front (`@app/web-kit`)           | `migration-e11-web-kit`            | `packages/web-kit`                    | 1,5 j  | E7        |
+| **E12** | Docs d'architecture                            | `migration-e12-docs-architecture`  | `root/docs`                           | 0,5 j  | E8        |
+| **E13** | 🟡 Structure front → `app/routes/` (doc faite) | `migration-e13-front-structure`    | `client/structure`, `admin/structure` | 3 j    | E3b       |
 
 **Total ≈ 15,5 j** en séquentiel. E6, E7 et E8 se découpent eux-mêmes **par
 domaine / par feature** — soit une PR par domaine, ce qui est le mode recommandé
@@ -620,6 +659,130 @@ graphiques sont du rendu pur : **un passage visuel réel sur le dashboard admin
 Créer `docs/architecture/` sur le modèle de la référence : vue d'ensemble,
 architecture applicative, flux métier (annonces / matching / QR), exploitation &
 DevOps. `docs/README.md` en index.
+
+### E13 — Structure front → `app/routes/`
+
+Étape décidée le 2026-08-18, qui renverse le §3.6 initial. Cible et divergences
+à ne pas reprendre : voir [§3.6](#36-front-appsclient-et-appsadmin).
+
+#### Ordonnancement — contrainte forte
+
+E13 passe **avant E7.3**. Les tranches E7 restantes (`contact`, `publish`,
+`account/settings`, `account/posts/edit`) déplaceraient sinon des formulaires
+dans des dossiers qui bougent juste après, et chaque PR de formulaire porterait
+un renommage parasite. E7.1 et E7.2 sont déjà livrées : elles seront simplement
+transportées par E13 comme le reste.
+
+Conséquences sur les autres étapes :
+
+- **E10 (tests front)** — la référence colocalise ses tests en `__tests__/` dans
+  le dossier de route. E13 crée ces dossiers ; E10 les remplit. Faire E13 avant
+  évite d'écrire des tests à déplacer ensuite.
+- **E11 (`@app/web-kit`)** — inchangée, mais les chemins sources de la
+  mutualisation seront les nouveaux. Sans effet sur son périmètre.
+- **Écart 4** (`features/<f>/<f>.types.ts` → `types/<f>.types.ts`) est **absorbé
+  par E13** : les 13 fichiers concernés (5 client, 8 admin) sont déplacés au
+  moment où leur dossier bouge, plus « au moment où l'on touche la feature ».
+
+#### Inventaire
+
+|                                      | `client` | `admin` |
+| ------------------------------------ | -------- | ------- |
+| fichiers `.ts`/`.tsx` sous `app/`    | 220      | 125     |
+| dont `app/features/`                 | 186      | 102     |
+| dont `app/shared/`                   | 30       | 19      |
+| imports `@/…` à revalider            | 157      | 114     |
+| entrées de route dans `routes.ts`    | 29       | 18      |
+| dossiers `servers/` (inchangés)      | 15       | 17      |
+| `*.types.ts` à replier dans `types/` | 5        | 8       |
+
+**345 fichiers, 271 imports `@/`.** L'alias `@/*` → `./app/*` est conservé :
+seuls les segments après `@/` changent, ce qui rend la reprise mécanique et
+vérifiable par `typecheck`.
+
+#### Découpage des PR
+
+| PR    | Périmètre                                                             | Remarque                 |
+| ----- | --------------------------------------------------------------------- | ------------------------ |
+| E13.1 | 🟡 doc — §3.6 réécrit, cible actée                                    | (cette PR)               |
+| E13.2 | `apps/client` — `shared/` → les six dossiers                          | sans toucher aux routes  |
+| E13.3 | `apps/client` — `features/` → `routes/<zone>/`                        | + `_index.tsx`, `types/` |
+| E13.4 | `apps/admin` — `shared/` → les six dossiers                           | idem E13.2               |
+| E13.5 | `apps/admin` — `features/` → `routes/<zone>/`                         | idem E13.3               |
+| E13.6 | `CLAUDE.md`, `README.md`, skill `frontend-conventions`, plans par app | la doc suit le code      |
+
+Une app par PR, et le `shared/` avant les routes : les deux mouvements se
+relisent séparément, et une bascule de `shared/` cassée se voit immédiatement au
+`typecheck` sans être noyée dans 186 renommages.
+
+#### Correspondance `features/` → `routes/<zone>/`
+
+`client` — trois zones. Les pages publiques n'ont pas d'équivalent `dashboard/`
+dans la référence : elles vont à la racine de `routes/`.
+
+```
+features/home            → routes/home/
+features/{about,contact,terms,privacy,download}
+                         → routes/<f>/
+features/lost-items/list → routes/posts/
+features/lost-items/details → routes/posts/details/
+features/publish{,/lost,/found} → routes/publish{,/lost,/found}/
+features/stickers{,/order}      → routes/stickers{,/order}/
+features/qr-contact      → routes/q/
+features/notifications   → routes/notifications/
+features/account/*       → routes/account/*/
+features/auth/*          → routes/auth/*/          (+ layout.tsx déjà en place)
+```
+
+`admin` — la zone `dashboard/` de la référence correspond exactement à notre
+layout `dashboard-layout.tsx` :
+
+```
+features/dashboard       → routes/dashboard/home/
+features/{orders,posts,events,notifications,users,administrators,profile,contact-messages}
+                         → routes/dashboard/<f>/
+features/qr/{list,generate,token} → routes/dashboard/qr/{list,generate,token}/
+features/auth/*          → routes/auth/*/
+```
+
+#### Contrat action / formulaire — à converger dans E13
+
+La référence ne renvoie pas `{ ok, error }` depuis ses actions mais un résultat
+discriminé `{ success, errors }`, où `errors` est directement un `FieldErrors`
+de react-hook-form, réinjecté dans le formulaire par l'option `errors:` de
+`useForm`. Quatre helpers portent cette boucle et sont à reprendre :
+
+- `shared/helpers/form.ts` — `zodErrorToFieldErrors(error)` : `z.flattenError` →
+  `{ [champ]: { type: 'custom', message } }`, les erreurs de formulaire
+  atterrissant sur `root` ;
+- `shared/utils/form.ts` — `stringToFormError(message)` ;
+- `shared/utils/api-operation.ts` — `ApiError`, `withApiOperationError`,
+  `getApiErrorMessage` ;
+- `shared/hooks/use-action-fetcher.ts` — expose
+  `{ data, isOk, errors, isSubmitting, submit, Form, state }`, avec une `key` de
+  fetcher nommée pour que deux dialogues concurrents restent indépendants.
+
+C'est le pont « erreurs serveur → champs » que §4.2 du plan client reportait en
+E7.4 : il arrive ici, avec l'implémentation de référence sous les yeux.
+
+⚠️ **Ce n'est pas gratuit** : nos **15 actions** renvoient `{ ok, error }` et
+nos formulaires affichent des toasts au lieu d'alimenter les champs. Le
+`useActionFetcher` livré en E7.2 est bâti sur la forme actuelle — callbacks
+`onOk`/`onError` déclenchés une fois par réponse, pas de pont `errors`.
+Converger réécrit les 15 actions **et** tous les formulaires déjà migrés. À
+faire dans une PR distincte au sein de E13 (E13.7), après les déplacements :
+mélanger un renommage de masse et un changement de contrat rendrait la relecture
+impossible.
+
+#### Risques
+
+| Risque                                                                                                             | Parade                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `routes.ts` et les types générés `.react-router/types/` désynchronisés                                             | `react-router typegen` fait partie du `typecheck` : il tourne à chaque vérification                  |
+| Les `exclude` du `tsconfig` client visent des chemins `features/…` (features en stand-by)                          | les réécrire dans la même PR que le déplacement, sinon les fichiers gelés rentrent dans le typecheck |
+| Renommages massifs illisibles dans `git log`                                                                       | une app par PR, `shared/` avant les routes, et `git mv` pour que Git détecte les renommages          |
+| Les features en stand-by (`stickers`, `download`, `qr-contact`, `account/{orders,stickers}`) sont du code commenté | elles se déplacent comme les autres — [voir la règle : commenter, ne pas supprimer]                  |
+| `frontend-conventions` continue de prescrire `features/` pendant la bascule                                        | E13.6 le réécrit ; d'ici là le skill est faux et il faut le savoir                                   |
 
 ---
 

@@ -6,18 +6,18 @@ import { PostContent } from './components/post-content'
 import { ContactCard } from './components/contact-card'
 import { postDetailLoader } from './servers/lost-items.loader'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export const loader = postDetailLoader
 
 export function meta({ data }: Route.MetaArgs) {
-	if (!data) return [{ title: 'Annonce non trouvée' }]
-	return [
-		{ title: data.listing.title },
-		{
-			name: 'description',
-			content: data.listing.description.substring(0, 160),
-		},
-	]
+	if (!data) return pageMeta({ title: 'Annonce non trouvée' })
+
+	return pageMeta({
+		title: data.listing.title,
+		description: data.listing.description.substring(0, 160),
+		type: 'article',
+	})
 }
 
 export default function ListingDetailPage({

@@ -4,6 +4,14 @@ import { redirectIfAuthenticated } from '@/shared/auth/auth.server'
 import { PhoneForm } from './components/phone-form'
 import { passwordForgottenAction } from './servers/password-forgotten.action'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
+
+export function meta() {
+	return pageMeta({
+		title: 'Mot de passe oublié',
+		description: 'Réinitialisez le mot de passe de votre compte RetrouveCI.',
+	})
+}
 
 export const action = passwordForgottenAction
 

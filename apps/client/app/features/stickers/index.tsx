@@ -3,16 +3,14 @@ import { ProcessStepsSection } from './components/process-steps-section'
 import { StickerInfoSection } from './components/sticker-info-section'
 import { FaqSection } from './components/faq-section'
 import { StickersCta } from './components/stickers-cta'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export function meta() {
-	return [
-		{ title: 'Stickers QR' },
-		{
-			name: 'description',
-			content:
-				'Protégez vos objets avec nos stickers QR intelligents. Activation simple, récupération rapide.',
-		},
-	]
+	return pageMeta({
+		title: 'Stickers QR',
+		description:
+			'Protégez vos objets avec nos stickers QR intelligents. Activation simple, récupération rapide.',
+	})
 }
 
 export default function Stickers() {

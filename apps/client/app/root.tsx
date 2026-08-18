@@ -22,13 +22,19 @@ import '@fontsource-variable/geist-mono'
 import './app.css'
 
 import type { Route } from './+types/root'
+import {
+	BRAND_COLOR,
+	OG_IMAGE,
+	OG_LOCALE,
+	SITE_NAME,
+} from '@/shared/lib/page-meta'
 
 export function loader({ request }: Route.LoaderArgs) {
 	return { theme: getThemeFromRequest(request) }
 }
 
 export function meta() {
-	const title = "RetrouveCI - Perdre un objet n'est plus une fatalité"
+	const title = `${SITE_NAME} - Perdre un objet n'est plus une fatalité`
 	const description =
 		"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire. Publiez une annonce pour signaler un objet perdu ou retrouvé."
 
@@ -40,17 +46,17 @@ export function meta() {
 			content:
 				"objets perdus, objets retrouvés, Côte d'Ivoire, QR code, RetrouveCI, lost and found",
 		},
-		{ name: 'theme-color', content: '#1E7F43' },
+		{ name: 'theme-color', content: BRAND_COLOR },
 		{ property: 'og:type', content: 'website' },
-		{ property: 'og:locale', content: 'fr_CI' },
-		{ property: 'og:site_name', content: 'RetrouveCI' },
+		{ property: 'og:locale', content: OG_LOCALE },
+		{ property: 'og:site_name', content: SITE_NAME },
 		{ property: 'og:title', content: title },
 		{
 			property: 'og:description',
 			content:
 				"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
 		},
-		{ property: 'og:image', content: '/logo.png' },
+		{ property: 'og:image', content: OG_IMAGE },
 		{ name: 'twitter:card', content: 'summary_large_image' },
 		{ name: 'twitter:title', content: title },
 		{
@@ -58,7 +64,7 @@ export function meta() {
 			content:
 				"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
 		},
-		{ name: 'twitter:image', content: '/logo.png' },
+		{ name: 'twitter:image', content: OG_IMAGE },
 	]
 }
 

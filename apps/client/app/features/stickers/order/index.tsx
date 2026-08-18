@@ -22,18 +22,16 @@ import {
 	PAYMENT_METHODS,
 } from './stickers-order.const'
 import type { Order } from '../../account/orders/orders.types'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export const action = ({ request }: { request: Request }) =>
 	orderAction(request)
 
 export function meta() {
-	return [
-		{ title: 'Commander des stickers — RetrouveCI' },
-		{
-			name: 'description',
-			content: 'Commandez vos stickers QR RetrouveCI en quelques étapes.',
-		},
-	]
+	return pageMeta({
+		title: 'Commander des stickers',
+		description: 'Commandez vos stickers QR RetrouveCI en quelques étapes.',
+	})
 }
 
 type Step = 'select' | 'delivery' | 'payment' | 'confirmation'

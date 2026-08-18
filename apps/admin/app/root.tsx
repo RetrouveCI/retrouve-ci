@@ -11,6 +11,7 @@ import {
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/shared/auth/auth-context'
 import { ThemeProvider } from '@/shared/components/theme-context'
+import { resolveRouteMeta } from '@/shared/lib/page-meta'
 
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
@@ -25,15 +26,20 @@ export function loader({ request }: Route.LoaderArgs) {
 	return { theme: theme as 'light' | 'dark' }
 }
 
-export function meta() {
-	const title = 'RetrouveCI Admin - Backoffice'
+const SITE_NAME = 'RetrouveCI Admin'
+
+export function meta({ matches }: Route.MetaArgs) {
+	const { title: pageTitle } = resolveRouteMeta(matches)
+	const title = pageTitle
+		? `${pageTitle} | ${SITE_NAME}`
+		: `${SITE_NAME} - Backoffice`
 	const description =
 		'Administration de la plateforme RetrouveCI - Gestion des QR codes, utilisateurs et posts'
 
 	return [
 		{ title },
 		{ name: 'description', content: description },
-		{ property: 'og:title', content: 'RetrouveCI Admin' },
+		{ property: 'og:title', content: title },
 		{ property: 'og:description', content: description },
 		{ property: 'og:image', content: '/logo.png' },
 	]
