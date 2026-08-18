@@ -1,0 +1,43 @@
+import { Outlet } from 'react-router'
+import { cn } from '@app/ui/utils'
+import { requireAdminSession } from '@/shared/helpers/session.server'
+import { Sidebar } from '@/components/sidebar'
+import { TopBar } from '@/components/topbar'
+import { NavigationProgress } from '@/components/navigation-progress'
+import { DashboardProvider, useDashboard } from '@/context/dashboard'
+import type { Route } from './+types/layout'
+
+export async function loader({ request }: Route.LoaderArgs) {
+	await requireAdminSession(request)
+	const cookie = request.headers.get('cookie') ?? ''
+	const sidebarCollapsed = /(?:^|;\s*)sidebar_collapsed=1(?:;|$)/.test(cookie)
+	return { sidebarCollapsed }
+}
+
+function DashboardShell() {
+	const { collapsed } = useDashboard()
+
+	return (
+		<div className="bg-surface-muted min-h-screen">
+			<Sidebar />
+			<NavigationProgress />
+			<TopBar />
+			<main
+				className={cn(
+					'bg-surface-muted min-h-screen pt-16 transition-[padding] duration-200',
+					collapsed ? 'lg:pl-20' : 'lg:pl-64',
+				)}
+			>
+				<Outlet />
+			</main>
+		</div>
+	)
+}
+
+export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
+	return (
+		<DashboardProvider initialCollapsed={loaderData.sidebarCollapsed}>
+			<DashboardShell />
+		</DashboardProvider>
+	)
+}
