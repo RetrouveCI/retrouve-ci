@@ -24,18 +24,14 @@ export interface PageMeta {
 	breadcrumb: BreadcrumbItem[]
 }
 
-/** The subset of a route match this module reads. */
 interface RouteMatchLike {
 	handle?: unknown
 	data?: unknown
 }
 
 /**
- * Walks the matched routes from the deepest up and resolves the title +
+ * Walks the matched routes from the deepest up and returns the title +
  * breadcrumb declared by the closest route exposing a `handle.title`.
- *
- * Shared by the dashboard top bar and by the document title built in
- * `root.tsx`, so a route declares its name exactly once.
  */
 export function resolveRouteMeta(
 	matches: ReadonlyArray<RouteMatchLike | undefined>,

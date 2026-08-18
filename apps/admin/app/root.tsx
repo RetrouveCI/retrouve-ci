@@ -28,13 +28,6 @@ export function loader({ request }: Route.LoaderArgs) {
 
 const SITE_NAME = 'RetrouveCI Admin'
 
-/**
- * Document title for every admin page, derived from the `handle.title` each
- * route already declares for the top bar — see `shared/lib/page-meta.ts`. Only
- * `root` exports `meta` here: React Router replaces a parent's `meta` with the
- * child's instead of merging them, so a per-route `meta` would have to restate
- * the whole head.
- */
 export function meta({ matches }: Route.MetaArgs) {
 	const { title: pageTitle } = resolveRouteMeta(matches)
 	const title = pageTitle
