@@ -17,8 +17,6 @@ interface PhoneStepSectionProps {
 }
 
 export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
-	// Held in a ref rather than state: the parent step only needs the number once
-	// the action has answered, and it must not trigger a re-render on submit.
 	const submittedPhoneRef = useRef('')
 
 	const { submit, isSubmitting } = useActionFetcher({

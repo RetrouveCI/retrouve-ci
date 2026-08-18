@@ -15,8 +15,6 @@ import { PhoneStep } from '../../components/phone-step'
 export function PhoneForm() {
 	const navigate = useNavigate()
 
-	// Held in a ref rather than state: the redirect target is only read once the
-	// action has answered, and it must not trigger a re-render on submit.
 	const submittedPhoneRef = useRef('')
 
 	const { submit, isSubmitting } = useActionFetcher({

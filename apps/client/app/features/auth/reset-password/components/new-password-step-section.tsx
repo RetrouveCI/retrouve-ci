@@ -45,9 +45,6 @@ export function NewPasswordStepSection({
 		defaultValues: { newPassword: '', confirmPassword: '' },
 	})
 
-	// `useController` rather than `Controller`: `PasswordStep` takes both fields
-	// as a flat prop contract, which a render prop per field cannot feed without
-	// nesting one inside the other.
 	const newPassword = useController({
 		control: form.control,
 		name: 'newPassword',
