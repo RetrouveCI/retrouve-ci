@@ -10,16 +10,14 @@ import {
 	Mail,
 	ArrowRight,
 } from 'lucide-react'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export function meta() {
-	return [
-		{ title: 'Politique de confidentialité — RetrouveCI' },
-		{
-			name: 'description',
-			content:
-				'Découvrez comment RetrouveCI collecte, utilise et protège vos données personnelles.',
-		},
-	]
+	return pageMeta({
+		title: 'Politique de confidentialité',
+		description:
+			'Découvrez comment RetrouveCI collecte, utilise et protège vos données personnelles.',
+	})
 }
 
 const sections = [

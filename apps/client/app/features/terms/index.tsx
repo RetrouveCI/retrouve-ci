@@ -9,16 +9,14 @@ import {
 	Mail,
 	ArrowRight,
 } from 'lucide-react'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export function meta() {
-	return [
-		{ title: "Conditions d'utilisation — RetrouveCI" },
-		{
-			name: 'description',
-			content:
-				"Consultez les conditions générales d'utilisation de la plateforme RetrouveCI.",
-		},
-	]
+	return pageMeta({
+		title: "Conditions d'utilisation",
+		description:
+			"Consultez les conditions générales d'utilisation de la plateforme RetrouveCI.",
+	})
 }
 
 const sections = [

@@ -7,6 +7,15 @@ import { DangerZoneSection } from './components/danger-zone-section'
 import { settingsAction } from './servers/settings.action'
 import { settingsLoader } from './servers/settings.loader'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
+
+export function meta() {
+	return pageMeta({
+		title: 'Paramètres',
+		description:
+			'Modifiez vos informations personnelles et votre mot de passe.',
+	})
+}
 
 export const action = settingsAction
 export const loader = settingsLoader

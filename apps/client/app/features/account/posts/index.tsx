@@ -7,6 +7,14 @@ import { ListingCard } from './components/listing-card'
 import { accountPostsLoader } from './servers/account-posts.loader'
 import { accountPostsAction } from './servers/account-posts.action'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
+
+export function meta() {
+	return pageMeta({
+		title: 'Mes annonces',
+		description: 'Retrouvez et gérez les annonces que vous avez publiées.',
+	})
+}
 
 export const loader = accountPostsLoader
 

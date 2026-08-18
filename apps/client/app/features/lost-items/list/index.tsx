@@ -22,17 +22,15 @@ import { usePostsFilters } from './hooks/use-posts-filters'
 import { postsLoader } from './servers/lost-items.loader'
 import type { Route } from './+types/index'
 import type { LostItemCategory, LostItemType } from '@/shared/types/lost-item'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export const loader = postsLoader
 
 export function meta() {
-	return [
-		{ title: 'Annonces — RetrouveCI' },
-		{
-			name: 'description',
-			content: 'Parcourez les objets perdus et retrouvés sur RetrouveCI.',
-		},
-	]
+	return pageMeta({
+		title: 'Annonces',
+		description: 'Parcourez les objets perdus et retrouvés sur RetrouveCI.',
+	})
 }
 
 const CATEGORIES: {

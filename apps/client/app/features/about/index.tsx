@@ -4,16 +4,14 @@ import { MissionBento } from './components/mission-bento'
 import { ValuesSection } from './components/values-section'
 import { TeamSection } from './components/team-section'
 import { AboutCta } from './components/about-cta'
+import { pageMeta } from '@/shared/lib/page-meta'
 
 export function meta() {
-	return [
-		{ title: 'À propos — RetrouveCI' },
-		{
-			name: 'description',
-			content:
-				"Découvrez la mission, les valeurs et l'équipe derrière RetrouveCI, la plateforme des objets perdus et retrouvés en Côte d'Ivoire.",
-		},
-	]
+	return pageMeta({
+		title: 'À propos',
+		description:
+			"Découvrez la mission, les valeurs et l'équipe derrière RetrouveCI, la plateforme des objets perdus et retrouvés en Côte d'Ivoire.",
+	})
 }
 
 export default function AboutPage() {

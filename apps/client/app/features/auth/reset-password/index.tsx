@@ -6,6 +6,15 @@ import { OtpStepSection } from './components/otp-step-section'
 import { NewPasswordStepSection } from './components/new-password-step-section'
 import { resetPasswordAction } from './servers/reset-password.action'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
+
+export function meta() {
+	return pageMeta({
+		title: 'Nouveau mot de passe',
+		description:
+			'Choisissez un nouveau mot de passe pour votre compte RetrouveCI.',
+	})
+}
 
 export const action = resetPasswordAction
 

@@ -15,6 +15,14 @@ import { RecentListings } from './components/recent-listings'
 import { AccountNav } from './components/account-nav'
 import { useAuth } from '@/shared/auth/auth-context'
 import type { Route } from './+types/index'
+import { pageMeta } from '@/shared/lib/page-meta'
+
+export function meta() {
+	return pageMeta({
+		title: 'Mon compte',
+		description: 'Gérez vos annonces, vos informations et vos préférences.',
+	})
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
 	const session = await getServerSession(request)
