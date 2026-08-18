@@ -2,7 +2,13 @@
 
 > Décliné de [MIGRATION-PLAN.md](MIGRATION-PLAN.md). Couvre la part admin des
 > étapes **E6**, **E7**, **E10**, **E11**. Convention cible : skill
-> `frontend-conventions` (React Router v7 · feature-based).
+> `frontend-conventions` (React Router v7 · `app/routes/`).
+>
+> ⚠️ **Les sections d'inventaire et d'écarts ci-dessous décrivent la structure
+> d'avant E13** (`app/features/<f>/`). Elles sont conservées telles quelles : ce
+> sont les constats qui ont motivé les étapes, pas une description de l'état
+> courant. Depuis #48 et #49, l'app est sur `app/routes/<zone>/<page>/` — voir
+> §3.6 et §5/E13 du plan racine, et le skill `frontend-conventions`.
 >
 > Rappel méthode : une étape = une branche = une PR `gh` = une session, et **on
 > demande la permission avant tout commit** (signatures GPG).

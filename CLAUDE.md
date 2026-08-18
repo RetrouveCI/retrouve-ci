@@ -166,8 +166,7 @@ Both apps share the same stack:
 
 Both apps use the same layout, `app/routes/<area>/<page>/`, with
 `servers/*.loader.ts` / `servers/*.action.ts` for all server-side data access
-(see conventions below). Note the `frontend-conventions` skill still describes
-the older `app/features/` layout until E13.6.
+(see conventions below, and the `frontend-conventions` skill).
 
 ### Client app (`apps/client`)
 
