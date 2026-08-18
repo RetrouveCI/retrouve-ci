@@ -1,7 +1,7 @@
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { requireAdminSession } from '@/shared/auth/auth.server'
-import { apiFetch } from '@/shared/lib/api-client'
+import { requireAdminSession } from '@/shared/helpers/session.server'
+import { apiFetch } from '@/shared/utils/api-fetch'
 
 const CATEGORY_LABELS: Record<string, string> = {
 	PHONE: 'Téléphones',

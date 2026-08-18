@@ -1,6 +1,6 @@
 import { Outlet, redirect } from 'react-router'
 import { ShieldCheck, ScanLine, BellRing } from 'lucide-react'
-import { getServerSession } from '@/shared/auth/auth.server'
+import { getServerSession } from '@/shared/helpers/session.server'
 import type { Route } from './+types/layout'
 
 export async function loader({ request }: Route.LoaderArgs) {

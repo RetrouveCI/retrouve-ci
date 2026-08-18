@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useFetcher, useRevalidator, useSearchParams } from 'react-router'
-import { BentoCard } from '@/shared/components/bento-card'
+import { BentoCard } from '@/components/bento-card'
 import { UsersStatsGrid } from './components/users-stats-grid'
 import { UsersFilters } from './components/users-filters'
 import { UsersTable } from './components/users-table'
@@ -11,7 +11,7 @@ import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
 import type { DateRange } from 'react-day-picker'
 import type { User } from '../users.types'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = usersLoader

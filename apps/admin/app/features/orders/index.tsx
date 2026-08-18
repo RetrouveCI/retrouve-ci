@@ -14,10 +14,10 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@app/ui/components'
-import { BentoCard } from '@/shared/components/bento-card'
-import { DataTable } from '@/shared/components/data-table'
-import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
-import { DateRangePicker } from '@/shared/components/date-range-picker'
+import { BentoCard } from '@/components/bento-card'
+import { DataTable } from '@/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
+import { DateRangePicker } from '@/components/date-range-picker'
 import { OrderDetailDialog } from './components/order-detail-dialog'
 import { OrderStatsGrid } from './components/order-stats-grid'
 import { ordersLoader } from './servers/orders.loader'
@@ -28,7 +28,7 @@ import { toast } from 'sonner'
 import type { DateRange } from 'react-day-picker'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { StickerOrder, OrderStatus } from './orders.types'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/index'
 import {
 	MoreHorizontal,

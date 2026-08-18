@@ -20,7 +20,7 @@ import {
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { QRCodeSVG } from 'qrcode.react'
-import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
+import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import type { QrToken } from '../../qr.types'
 
 const STATUS_LABEL: Record<string, string> = {

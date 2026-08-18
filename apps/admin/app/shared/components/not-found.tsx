@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { Button } from '@app/ui/components'
 import { SearchX, LayoutDashboard } from 'lucide-react'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 
 export const handle: RouteHandle = { title: 'Page introuvable' }
 export default function NotFound() {

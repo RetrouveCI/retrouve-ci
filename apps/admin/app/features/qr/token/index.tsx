@@ -10,7 +10,7 @@ import { RevokeTokenDialog } from './components/revoke-token-dialog'
 import { qrTokenLoader } from './servers/qr-token.loader'
 import { qrTokenAction } from './servers/qr-token.action'
 import type { QrToken } from '../qr.types'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = qrTokenLoader

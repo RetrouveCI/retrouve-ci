@@ -1,4 +1,4 @@
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { listNotifications } from './notifications.service'
 
 export async function notificationsLoader({ request }: { request: Request }) {

@@ -1,4 +1,4 @@
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { listQrTokens } from '../../servers/qr.service'
 import type { QrTokenStatus } from '../../qr.types'
 

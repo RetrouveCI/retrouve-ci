@@ -1,4 +1,4 @@
-import { StatCard } from '@/shared/components/stat-card'
+import { StatCard } from '@/components/stat-card'
 import { Users, UserCheck, UserX } from 'lucide-react'
 
 interface UsersStatsGridProps {

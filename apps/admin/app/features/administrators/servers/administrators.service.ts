@@ -1,4 +1,4 @@
-import { apiFetch } from '@/shared/lib/api-client'
+import { apiFetch } from '@/shared/utils/api-fetch'
 import type { Admin, AdminRole } from '../administrators.types'
 
 interface BetterAuthUser {

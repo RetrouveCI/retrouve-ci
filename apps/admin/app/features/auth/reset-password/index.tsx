@@ -4,7 +4,7 @@ import { AuthCard } from '../components/auth-card'
 import { ResetPasswordForm } from './components/reset-password-form'
 import { resetPasswordAction } from './servers/reset-password.action'
 import type { Route } from './+types/index'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 
 export const handle: RouteHandle = { title: 'Réinitialiser le mot de passe' }
 export const action = resetPasswordAction

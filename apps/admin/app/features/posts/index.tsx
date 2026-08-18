@@ -18,9 +18,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@app/ui/components'
-import { BentoCard } from '@/shared/components/bento-card'
-import { DataTable } from '@/shared/components/data-table'
-import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
+import { BentoCard } from '@/components/bento-card'
+import { DataTable } from '@/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { PostsStatsGrid } from './components/posts-stats-grid'
 import { PostDetailDialog } from './components/post-detail-dialog'
 import { postsLoader } from './servers/posts.loader'
@@ -38,7 +38,7 @@ import {
 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Post, ModerationStatus } from './posts.types'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = postsLoader

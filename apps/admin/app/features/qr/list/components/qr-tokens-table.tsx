@@ -8,8 +8,8 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@app/ui/components'
-import { DataTable } from '@/shared/components/data-table'
-import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
+import { DataTable } from '@/components/data-table'
+import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { MoreHorizontal, Eye, Copy, Link as LinkIcon, Ban } from 'lucide-react'

@@ -1,5 +1,5 @@
 import { data } from 'react-router'
-import { ApiError } from '@/shared/lib/api-client'
+import { ApiError } from '@/shared/utils/api-fetch'
 import { forgotPasswordSchema } from '../forgot-password.schema'
 import { requestPasswordReset } from './forgot-password.service'
 

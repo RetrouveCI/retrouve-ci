@@ -13,9 +13,9 @@ import {
 	TooltipTrigger,
 } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
-import { useAuth } from '@/shared/auth/auth-context'
-import { useDashboard } from './dashboard-context'
-import type { LayoutCounts } from './dashboard-context'
+import { useAuth } from '@/context/auth'
+import { useDashboard } from '@/context/dashboard'
+import type { LayoutCounts } from '@/context/dashboard'
 import {
 	LayoutDashboard,
 	Users,

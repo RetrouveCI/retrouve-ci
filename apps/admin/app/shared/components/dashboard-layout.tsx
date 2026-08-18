@@ -1,10 +1,10 @@
 import { Outlet } from 'react-router'
 import { cn } from '@app/ui/utils'
-import { requireAdminSession } from '@/shared/auth/auth.server'
-import { Sidebar } from './sidebar'
-import { TopBar } from './topbar'
-import { NavigationProgress } from './navigation-progress'
-import { DashboardProvider, useDashboard } from './dashboard-context'
+import { requireAdminSession } from '@/shared/helpers/session.server'
+import { Sidebar } from '@/components/sidebar'
+import { TopBar } from '@/components/topbar'
+import { NavigationProgress } from '@/components/navigation-progress'
+import { DashboardProvider, useDashboard } from '@/context/dashboard'
 import type { Route } from './+types/dashboard-layout'
 
 export async function loader({ request }: Route.LoaderArgs) {

@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { AuthCard } from '../components/auth-card'
 import { ForgotPasswordForm } from './components/forgot-password-form'
 import { forgotPasswordAction } from './servers/forgot-password.action'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 
 export const handle: RouteHandle = { title: 'Mot de passe oublié' }
 export const action = forgotPasswordAction

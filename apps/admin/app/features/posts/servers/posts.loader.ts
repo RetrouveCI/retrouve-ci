@@ -1,4 +1,4 @@
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { listPosts } from './posts.service'
 import type { ModerationStatus, LostItemType } from '../posts.types'
 

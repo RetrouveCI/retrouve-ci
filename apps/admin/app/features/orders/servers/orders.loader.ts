@@ -1,4 +1,4 @@
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { listOrders } from './orders.service'
 import type { OrderStatus } from '../orders.types'
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigation } from 'react-router'
 import { cn } from '@app/ui/utils'
-import { useDashboard } from './dashboard-context'
+import { useDashboard } from '@/context/dashboard'
 
 /**
  * Thin top progress bar that animates while React Router resolves a

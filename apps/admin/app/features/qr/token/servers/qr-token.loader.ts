@@ -1,4 +1,4 @@
-import { requireAdminSession } from '@/shared/auth/auth.server'
+import { requireAdminSession } from '@/shared/helpers/session.server'
 import { getQrTokenByCode } from '../../servers/qr.service'
 
 export async function qrTokenLoader({

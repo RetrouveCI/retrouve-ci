@@ -10,7 +10,7 @@ import {
 import { ArrowLeft } from 'lucide-react'
 import { GenerateQrForm } from './components/generate-qr-form'
 import { generateQrAction } from './servers/generate.action'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 
 export const action = generateQrAction
 

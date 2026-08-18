@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
-import { useTheme } from '@/shared/components/theme-context'
+import { useTheme } from '@/context/theme'
 import {
 	BarChart,
 	Bar,

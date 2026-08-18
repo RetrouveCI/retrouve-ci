@@ -4,7 +4,7 @@ import { PermissionsCard } from './components/permissions-card'
 import { PasswordChangeForm } from './components/password-change-form'
 import { ActiveSessionsCard } from './components/active-sessions-card'
 import { profileLoader } from './servers/profile.loader'
-import type { RouteHandle } from '@/shared/lib/page-meta'
+import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/index'
 
 export const loader = profileLoader

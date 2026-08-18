@@ -11,7 +11,7 @@ import { Mail, Phone, Archive, QrCode } from 'lucide-react'
 import { Link } from 'react-router'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { STATUS_TONE_CLASSES } from '@/shared/lib/status-tone'
+import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import type {
 	ContactMessage,
 	ContactMessageStatus,

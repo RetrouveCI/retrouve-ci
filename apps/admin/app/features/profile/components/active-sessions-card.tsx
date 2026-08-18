@@ -1,6 +1,6 @@
 import { Badge } from '@app/ui/components'
 import { Monitor } from 'lucide-react'
-import { BentoCard } from '@/shared/components/bento-card'
+import { BentoCard } from '@/components/bento-card'
 
 export function ActiveSessionsCard() {
 	return (

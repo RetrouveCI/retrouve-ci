@@ -1,5 +1,5 @@
 import { redirect } from 'react-router'
-import { apiFetch } from '@/shared/lib/api-client'
+import { apiFetch } from '@/shared/utils/api-fetch'
 
 interface ServerSession {
 	session: { id: string; userId: string }
