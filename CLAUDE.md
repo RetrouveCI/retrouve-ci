@@ -164,10 +164,10 @@ Both apps share the same stack:
   react-hook-form; every other form in both apps is still on Conform. New forms
   use react-hook-form.
 
-The two apps are **not** on the same layout right now. `apps/client` has moved
-to the target one, `app/routes/<area>/<page>/`; `apps/admin` is still on
-`app/features/[feature]/` until E13.5. Both keep `servers/*.loader.ts` /
-`servers/*.action.ts` for all server-side data access (see conventions below).
+Both apps use the same layout, `app/routes/<area>/<page>/`, with
+`servers/*.loader.ts` / `servers/*.action.ts` for all server-side data access
+(see conventions below). Note the `frontend-conventions` skill still describes
+the older `app/features/` layout until E13.6.
 
 ### Client app (`apps/client`)
 
@@ -199,9 +199,7 @@ Route structure (all under `app/`):
 > A page is `_index.tsx`; `routes.ts` resolves route modules **by path**, so a
 > move there is only caught by `pnpm build`, never by `typecheck` alone. An area
 > folder may hold the `components/`, `servers/` and `types/` its sub-routes
-> share (see `routes/publish/`, `routes/auth/`). `apps/admin` still uses
-> `app/features/`, and the `frontend-conventions` skill still describes that
-> older layout until E13.6.
+> share (see `routes/publish/`, `routes/auth/`).
 
 Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
 `AuthContext` (`app/context/auth.tsx`) wraps `authClient.useSession()` for
@@ -273,20 +271,20 @@ Route structure (defined in `app/routes.ts`):
   `authClient.changePassword`)
 - `/auth/login`, `/auth/forgot-password`, `/auth/reset-password` — auth pages
 
-All dashboard routes are nested under `shared/components/dashboard-layout.tsx`.
-Every dashboard loader calls `requireAdminSession(request)` (from
+All dashboard routes are nested under `routes/dashboard/layout.tsx`. Every
+dashboard loader calls `requireAdminSession(request)` (from
 `shared/helpers/session.server.ts`), which forwards the `Cookie` header to
 `/api/auth/get-session` and throws `redirect('/auth/login')` if no valid admin
 session is found.
 
 #### Admin app conventions
 
-> **`apps/admin` is mid-restructure** (E13). `app/shared/` has moved to the
-> target layout — `app/components/`, `app/context/`, and
-> `app/shared/{constants,helpers,utils}/`. `app/features/` has **not** moved
-> yet; it becomes `app/routes/dashboard/<page>/` in E13.5, and
-> `dashboard-layout.tsx` and `not-found.tsx` stay in `shared/components/` until
-> then because `routes.ts` resolves them by path.
+> **`apps/admin` uses the target layout** (E13): `app/routes/dashboard/<page>/`
+> for the dashboard pages, `app/routes/auth/<page>/` outside the shell,
+> `app/components/`, `app/context/`, and
+> `app/shared/{constants,helpers,utils}/`. Each dashboard page declares its own
+> name once, as `handle.title` — the top bar and the browser tab title both read
+> it through `shared/helpers/page-meta.ts`.
 
 Identical to the client app conventions above, with these admin-specific notes:
 
@@ -294,10 +292,10 @@ Identical to the client app conventions above, with these admin-specific notes:
   admin-only operations. `shared/helpers/session.server.ts` provides
   `getServerSession` / `requireAdminSession` — these replace the old `AuthGuard`
   client component.
-- Password change (`features/profile`) is the only client-side auth exception:
-  `lib/profile.client.ts` calls `authClient.changePassword` directly (browser
-  needs the `Set-Cookie` response). Login (`features/auth/login`) similarly
-  calls `authClient.signIn.email` client-side via `lib/login.client.ts`.
+- Two auth calls stay client-side, because the browser needs the `Set-Cookie`
+  response directly: `routes/dashboard/profile/helpers/profile.client.ts` calls
+  `authClient.changePassword`, and `context/auth.tsx` calls
+  `authClient.signIn.email` from the provider's `login`.
 - For sections with no API domain (`users`, `administrators`), mock data is
   inlined in `servers/*.loader.ts` with `id: string` (forward-compatible).
   Actions return mock mutation results; real persistence deferred until API
