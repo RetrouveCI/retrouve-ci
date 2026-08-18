@@ -183,11 +183,17 @@ Route structure (all under `app/`):
     `/auth/reset-password` — individual auth pages
 - `/about`, `/contact`, `/download`, `/privacy`, `/terms`
 
+> **`apps/client` is mid-restructure** (E13 of
+> [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). `app/shared/` has moved to the target
+> layout — `app/components/`, `app/context/`, and
+> `app/shared/{constants,helpers,hooks,types,utils}/`. `app/features/` has
+> **not** moved yet; it becomes `app/routes/<area>/<page>/` in E13.3. The
+> `frontend-conventions` skill still describes the old layout until E13.6.
+
 Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
-`AuthContext` (`app/shared/auth/auth-context.tsx`) wraps
-`authClient.useSession()` for client-side session state (`user`,
-`isAuthenticated`, `login`, `logout`). Server-side,
-`app/shared/auth/auth.server.ts` exposes `getServerSession` /
+`AuthContext` (`app/context/auth.tsx`) wraps `authClient.useSession()` for
+client-side session state (`user`, `isAuthenticated`, `login`, `logout`).
+Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
 `requireServerSession`, which forward the request's `Cookie` header to
 `/api/auth/get-session` — used by route loaders to gate server data fetches.
 

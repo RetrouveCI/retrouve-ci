@@ -1,7 +1,7 @@
 import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { ArrowRight, Shield } from 'lucide-react'
-import { useAuth } from '@/shared/auth/auth-context'
+import { useAuth } from '@/context/auth'
 export function StickersCta() {
 	const { isAuthenticated } = useAuth()
 

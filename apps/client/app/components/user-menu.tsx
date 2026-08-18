@@ -8,7 +8,7 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 } from '@app/ui/components'
-import { getInitials } from '@/shared/lib/get-initials'
+import { getInitials } from '@/shared/utils/initials'
 
 interface UserMenuProps {
 	name: string

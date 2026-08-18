@@ -1,4 +1,4 @@
-import { formatRelativeDate } from '@/shared/lib/format-relative-date'
+import { formatRelativeDate } from '@/shared/utils/date'
 import type { LostItem, UserLostItem } from '@/shared/types/lost-item'
 import type { LostItemApiDto, LostItemDetail } from '../lost-items.types'
 

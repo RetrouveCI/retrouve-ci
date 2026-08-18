@@ -1,8 +1,8 @@
 import { data } from 'react-router'
-import { Header } from '@/shared/components/header'
-import { Footer } from '@/shared/components/footer'
-import { NotFoundContent } from '@/shared/components/not-found-content'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+import { NotFoundContent } from '@/components/not-found-content'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

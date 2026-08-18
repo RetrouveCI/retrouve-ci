@@ -12,7 +12,7 @@ import {
 	type FieldMetadata,
 } from '@conform-to/react'
 import { MapPin } from 'lucide-react'
-import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants'
+import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants/locations'
 import { InputLabel, FieldError } from '@app/ui/components/form'
 import { SectionHeader } from './section-header'
 

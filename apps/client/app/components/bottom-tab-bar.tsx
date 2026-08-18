@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router'
 import { Home, Newspaper, Plus, Bell, User, LogIn } from 'lucide-react'
 import { cn } from '@app/ui/utils'
-import { useAuth } from '@/shared/auth/auth-context'
+import { useAuth } from '@/context/auth'
 
 function isActiveTab(pathname: string, href: string) {
 	if (href === '/') return pathname === '/'

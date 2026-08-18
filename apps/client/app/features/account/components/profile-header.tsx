@@ -2,7 +2,7 @@ import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { Smartphone, LogOut, Settings, CalendarDays } from 'lucide-react'
 import type { User as UserType } from '@/shared/types/user'
-import { getInitials } from '@/shared/lib/get-initials'
+import { getInitials } from '@/shared/utils/initials'
 
 interface ProfileHeaderProps {
 	user: UserType

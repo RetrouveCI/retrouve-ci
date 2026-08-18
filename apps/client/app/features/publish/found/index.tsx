@@ -13,7 +13,7 @@ import { FOUND_TIPS } from '../publish.const'
 import { publishLoader } from '../servers/publish.loader'
 import { publishAction } from '../servers/publish.action'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 const ACCENT = 'var(--primary-green)'
 

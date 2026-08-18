@@ -2,7 +2,7 @@ import { DownloadHero } from './components/download-hero'
 import { BentoFeatures } from './components/bento-features'
 import { HowItWorksSteps } from './components/how-it-works-steps'
 import { DownloadCta } from './components/download-cta'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({

@@ -3,8 +3,8 @@ import { parseWithZod } from '@conform-to/zod/v4'
 import { publishFormSchema } from '@/features/publish/publish.schema'
 import { collectPhotoUrls } from '@/features/publish/servers/upload.service'
 import { patchLostItemContent } from '../../servers/account-posts.service'
-import { requireServerSession } from '@/shared/auth/auth.server'
-import { ApiError } from '@/shared/lib/api-client'
+import { requireServerSession } from '@/shared/helpers/session.server'
+import { ApiError } from '@/shared/utils/api-fetch'
 
 export async function editPostAction(request: Request, id: string) {
 	await requireServerSession(request)

@@ -1,5 +1,5 @@
-import { authClient } from '@/shared/auth/auth-client'
-import { toE164 } from '@/shared/auth/phone'
+import { authClient } from '@/shared/helpers/auth-client'
+import { toE164 } from '@/shared/utils/phone'
 
 export async function verifyPhoneOtp(
 	phoneNumber: string,

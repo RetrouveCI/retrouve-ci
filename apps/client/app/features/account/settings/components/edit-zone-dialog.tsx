@@ -15,7 +15,7 @@ import { InputLabel, FieldError } from '@app/ui/components/form'
 import { Loader2, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@app/ui/utils'
-import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants'
+import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants/locations'
 import { updateZoneSchema } from '../settings.schema'
 
 interface ActionResult {

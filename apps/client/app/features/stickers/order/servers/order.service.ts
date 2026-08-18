@@ -1,4 +1,4 @@
-import { apiFetch } from '@/shared/lib/api-client'
+import { apiFetch } from '@/shared/utils/api-fetch'
 import type { StickerOrderApiDto } from '../../../account/orders/orders.types'
 
 export interface CreateStickerOrderPayload {

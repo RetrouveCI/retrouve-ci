@@ -22,7 +22,7 @@ import {
 	PAYMENT_METHODS,
 } from './stickers-order.const'
 import type { Order } from '../../account/orders/orders.types'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export const action = ({ request }: { request: Request }) =>
 	orderAction(request)

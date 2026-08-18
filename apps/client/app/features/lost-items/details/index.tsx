@@ -6,7 +6,7 @@ import { PostContent } from './components/post-content'
 import { ContactCard } from './components/contact-card'
 import { postDetailLoader } from './servers/lost-items.loader'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export const loader = postDetailLoader
 

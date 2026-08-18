@@ -5,7 +5,7 @@ import { qrContactAction } from './servers/qr-contact.action'
 import { QrOwnerCard } from './components/qr-owner-card'
 import { QrContactForm } from './components/qr-contact-form'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export const loader = qrContactLoader
 export const action = qrContactAction

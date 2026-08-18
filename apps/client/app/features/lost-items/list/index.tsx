@@ -22,7 +22,7 @@ import { usePostsFilters } from './hooks/use-posts-filters'
 import { postsLoader } from './servers/lost-items.loader'
 import type { Route } from './+types/index'
 import type { LostItemCategory, LostItemType } from '@/shared/types/lost-item'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export const loader = postsLoader
 

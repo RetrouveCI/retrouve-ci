@@ -1,6 +1,6 @@
-import { requireServerSession } from '@/shared/auth/auth.server'
+import { requireServerSession } from '@/shared/helpers/session.server'
 import type { Notification } from '@/shared/types/notification'
-import { formatRelativeDate } from '@/shared/lib/format-relative-date'
+import { formatRelativeDate } from '@/shared/utils/date'
 import { toNotification } from '../mappers/notification.mapper'
 import {
 	getMyNotifications,

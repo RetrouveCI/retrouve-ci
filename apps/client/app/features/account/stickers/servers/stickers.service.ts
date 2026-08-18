@@ -1,4 +1,4 @@
-import { apiFetch } from '@/shared/lib/api-client'
+import { apiFetch } from '@/shared/utils/api-fetch'
 import type { QrTokenApiDto, QrTokenListApiResponse } from '../stickers.types'
 
 export async function getMyStickers(

@@ -7,8 +7,8 @@ import {
 } from 'react'
 import { useNavigate } from 'react-router'
 import type { User } from '@/shared/types/user'
-import { authClient } from './auth-client'
-import { toE164 } from './phone'
+import { authClient } from '@/shared/helpers/auth-client'
+import { toE164 } from '@/shared/utils/phone'
 
 const TEMP_EMAIL_SUFFIX = '@phone.retrouveci.local'
 

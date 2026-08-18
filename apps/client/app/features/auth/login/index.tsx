@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { ArrowLeft } from 'lucide-react'
-import { useAuth } from '@/shared/auth/auth-context'
-import { redirectIfAuthenticated } from '@/shared/auth/auth.server'
-import { sanitizeRedirect } from '@/shared/auth/redirect'
+import { useAuth } from '@/context/auth'
+import { redirectIfAuthenticated } from '@/shared/helpers/session.server'
+import { sanitizeRedirect } from '@/shared/helpers/redirect'
 import { LoginForm } from './components/login-form'
 import type { Route } from './+types/index'
-import { pageMeta } from '@/shared/lib/page-meta'
+import { pageMeta } from '@/shared/helpers/page-meta'
 
 export function meta() {
 	return pageMeta({
