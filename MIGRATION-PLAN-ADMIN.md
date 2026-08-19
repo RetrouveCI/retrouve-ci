@@ -52,7 +52,7 @@ v7 — quelques reliquats subsistent.
 | --- | ------------------------------------------------------------------------------- | ----- |
 | 1   | Schémas Zod locaux au lieu de `@app/contracts/<domaine>`                        | E6    |
 | 2   | Types d'API redéclarés à la main (8 fichiers `*.types.ts`)                      | E6    |
-| 3   | Formulaires en Conform au lieu de react-hook-form                               | E7    |
+| 3   | 🟡 Conform restant sur 5 pages du dashboard (`auth` migré par E7.A)             | E7    |
 | 4   | `features/<f>/<f>.types.ts` au lieu de `features/<f>/types/<f>.types.ts`        | E7    |
 | 5   | `shared/lib/api-client.ts` : le fichier devrait s'appeler `api-fetch.ts`        | E11   |
 | 6   | `fetch` hors `servers/` : `shared/components/dashboard-context.tsx`             | E7    |
@@ -156,24 +156,21 @@ même classe `ApiError` que le client : la recopie n'a demandé aucune adaptatio
 
 **E7.0 n'a aucun consommateur, c'est assumé** : la tranche existe pour que E7.A
 → E7.E soient de petites PR. Le socle a donc été vérifié par un harness jetable
-(27 assertions) plutôt que par un écran — `zodErrorToFieldErrors` (erreur de
-champ sur son champ, `refine` de formulaire sur `root`, les deux ensemble, un
-seul message par champ), `withApiOperationError` (succès, `ApiError` → `root`
-seul, 401 sans l'option → erreur de formulaire, 401 avec l'option → `redirect`
-vers `/auth/login`, 403 non redirigé, non-`ApiError` re-levée, `redirect`
-interne non avalé) et `getApiErrorMessage`. `useActionFetcher` n'est pas couvert
-: sans consommateur il n'y a rien à monter, et E7.A l'exercera.
+(27 assertions) plutôt que par un écran. **Ce harness a depuis été remplacé par
+de vrais tests** (E10, §5) : les mêmes cas vivent en
+`shared/{helpers,utils}/ __tests__/`, et `useActionFetcher` est couvert en
+browser mode.
 
 ### Découpage des PR
 
-| PR   | Feature          | Fichiers | Remarque                                         |
-| ---- | ---------------- | -------- | ------------------------------------------------ |
-| E7.0 | `shared/`        | 4        | ✅ **fait** — socle recopié depuis `apps/client` |
-| E7.A | `auth`           | 3        | login, forgot-password, reset-password           |
-| E7.B | `events`         | 2        | dialogue de création/édition + action            |
-| E7.C | `qr/generate`    | 2        | génération de lots — **étend `ActionResult`**    |
-| E7.D | `profile`        | 1        | changement de mot de passe                       |
-| E7.E | `administrators` | 2        | 🟡 mock — convertir quand même                   |
+| PR   | Feature          | Fichiers | Remarque                                             |
+| ---- | ---------------- | -------- | ---------------------------------------------------- |
+| E7.0 | `shared/`        | 4        | ✅ **fait** — socle recopié depuis `apps/client`     |
+| E7.A | `auth`           | 3        | ✅ **fait** — login, forgot-password, reset-password |
+| E7.B | `events`         | 2        | dialogue de création/édition + action                |
+| E7.C | `qr/generate`    | 2        | génération de lots — **étend `ActionResult`**        |
+| E7.D | `profile`        | 1        | changement de mot de passe                           |
+| E7.E | `administrators` | 2        | 🟡 mock — convertir quand même                       |
 
 **E7.C porte une décision de contrat.** Son action renvoie les jetons générés,
 et la page les affiche : c'est l'un des deux seuls écrans du dépôt qui montre le

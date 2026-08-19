@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const resetPasswordSchema = z
 	.object({
-		token: z.string().min(1),
+		token: z.string().min(1, 'Lien de réinitialisation invalide ou expiré'),
 		newPassword: z
 			.string()
 			.min(8, 'Au moins 8 caractères')
@@ -15,3 +15,6 @@ export const resetPasswordSchema = z
 		message: 'Les mots de passe ne correspondent pas',
 		path: ['confirmPassword'],
 	})
+
+export type ResetPasswordInput = z.input<typeof resetPasswordSchema>
+export type ResetPasswordData = z.output<typeof resetPasswordSchema>

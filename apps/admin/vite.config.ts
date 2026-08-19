@@ -15,6 +15,11 @@ export default defineConfig({
 		tsconfigPaths(),
 	],
 	server: { port: 3001 },
+	// Let Vite pre-bundle from the test files rather than discover dependencies
+	// mid-run: the `@app/ui/components` barrel pulls in every Radix package, and
+	// a discovery pass triggers a reload that can fail the run outright. Scanning
+	// the entries up front keeps this self-maintaining as the barrel grows.
+	optimizeDeps: { entries: ['app/**/*.test.tsx'] },
 	test: {
 		globals: true,
 		projects: [

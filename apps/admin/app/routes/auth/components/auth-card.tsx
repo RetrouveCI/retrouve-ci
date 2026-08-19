@@ -7,6 +7,11 @@ interface AuthCardProps {
 	footer?: ReactNode
 }
 
+/**
+ * Heading block shared by the auth pages. The branding and the page frame belong
+ * to `routes/auth/layout.tsx`, so this only owns the title, the description and
+ * the trailing link — the same shape the client app's auth pages use.
+ */
 export function AuthCard({
 	title,
 	description,
@@ -14,26 +19,15 @@ export function AuthCard({
 	footer,
 }: AuthCardProps) {
 	return (
-		<div className="bg-card w-full max-w-md rounded-xl border p-6 shadow-sm sm:p-8">
-			<div className="mb-6 space-y-4">
-				<img
-					src="/logo.png"
-					alt="RetrouveCI"
-					width={40}
-					height={40}
-					className="h-10 w-10 rounded-xl lg:hidden"
-				/>
-				<div className="space-y-1.5">
-					<h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-					{description && (
-						<p className="text-muted-foreground text-sm">{description}</p>
-					)}
-				</div>
+		<>
+			<div className="mb-8 space-y-2">
+				<h2 className="text-2xl font-bold lg:text-3xl">{title}</h2>
+				{description && <p className="text-muted-foreground">{description}</p>}
 			</div>
 
 			{children}
 
-			{footer && <div className="mt-6">{footer}</div>}
-		</div>
+			{footer && <div className="mt-8 border-t pt-6">{footer}</div>}
+		</>
 	)
 }

@@ -1,5 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react'
 import { authClient } from '@/shared/helpers/auth-client'
+import { getAuthErrorMessage } from '@/shared/helpers/error-messages'
 
 export interface AdminUser {
 	email: string
@@ -39,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const result = await authClient.signIn.email({ email, password })
 
 		if (result.error) {
-			return { success: false, error: 'Email ou mot de passe incorrect' }
+			return { success: false, error: getAuthErrorMessage(result.error.code) }
 		}
 
 		if (result.data.user.role !== 'admin') {
