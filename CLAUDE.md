@@ -70,6 +70,7 @@ apps/
   admin/    # Admin dashboard (React Router v7 / Vite, port 3001)
   api/      # Backend REST API (NestJS / Fastify, port 3002)
 packages/
+  auth/                # Shared better-auth core, framework-agnostic (@app/auth)
   database/            # Prisma schema, migrations & generated client (@app/database)
   ui/                  # Shared component library (source-only, no build step)
   eslint-config/       # Shared ESLint configs (base, next, react-internal)
@@ -108,6 +109,34 @@ The package exports:
 paths in each app's `tsconfig.json` resolve imports directly to `src/`.
 Turborepo's `"dependsOn": ["^build"]` applies only when the package has a build
 script.
+
+### Auth package (`packages/auth`)
+
+`@app/auth` owns the **shared better-auth core** as a framework-agnostic
+factory: `createAuth(prisma, { appName, basePath, plugins, trustedOrigins })`.
+It holds no NestJS glue — wiring it into a composition root is the app's job
+(`apps/api/src/infrastructure/auth/`).
+
+The split follows the data model: because one database backs every instance, the
+package owns the Prisma adapter, the extra user fields (`city`, `commune`),
+email/password sign-in, user deletion and the `admin()` plugin that defines the
+roles. An instance decides only its own identity — `appName` (which better-auth
+turns into the session cookie prefix), `basePath`, and the plugins its audience
+needs. `apps/api` adds `phoneNumber()` for the public app.
+
+That parameterisation is what makes two instances possible later: two `appName`s
+mean two independent cookies. See
+[packages/auth/README.md](packages/auth/README.md).
+
+Like `database`, this package **has a build step** and the api resolves it
+through `dist`, so it builds first via Turborepo's `^build`. Its `exports` point
+`types` at `src` and `require` at `dist`, so type-checking a consumer needs no
+build.
+
+It is **server-side only**: `Session` describes the shared core and so carries
+no `phoneNumber` (those columns come from the app-supplied plugin), and the
+front-ends read `/api/auth/get-session` over JSON where dates are strings. Each
+front keeps its own interface for that response.
 
 ### Database package (`packages/database`)
 
