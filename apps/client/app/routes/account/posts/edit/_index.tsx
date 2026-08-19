@@ -1,5 +1,5 @@
-import { Form, Link } from 'react-router'
-import { getFormProps, getTextareaProps } from '@conform-to/react'
+import { Link } from 'react-router'
+import { Controller } from 'react-hook-form'
 import {
 	AlertCircle,
 	CheckCircle,
@@ -7,20 +7,22 @@ import {
 	Loader2,
 	Package,
 } from 'lucide-react'
-import { Button, Textarea } from '@app/ui/components'
-import { InputField, FieldError, InputLabel } from '@app/ui/components/form'
+import { Button, FieldError, Input, Textarea } from '@app/ui/components'
+import { FormRootError, InputLabel } from '@app/ui/components/form'
 import { cn } from '@app/ui/utils'
 import { SectionHeader } from '@/routes/publish/components/section-header'
 import { LocationDateSection } from '@/routes/publish/components/location-date-section'
 import { ContactSection } from '@/routes/publish/components/contact-section'
 import { PublishPageHeader } from '@/routes/publish/components/publish-page-header'
 import { PhotosUpload } from '@/routes/publish/components/photos-upload'
+import { usePublishForm } from '@/routes/publish/hooks/use-publish-form'
 import { OBJECT_TYPES } from '@/routes/publish/publish.const'
-import { useEditPostForm } from './hooks/use-edit-post-form'
 import { editPostLoader } from './servers/edit-post.loader'
 import { editPostAction } from './servers/edit-post.action'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
+
+const MIN_DESCRIPTION_LENGTH = 20
 
 export const loader = ({ request, params }: Route.LoaderArgs) =>
 	editPostLoader(request, params.id)
@@ -38,15 +40,17 @@ export function meta() {
 export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 	const { item } = loaderData
 	const isLost = item.type === 'lost'
+	const accentColor = isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
 	const categoryLabel =
-		OBJECT_TYPES.find(t => t.value === item.category)?.label ?? item.category
+		OBJECT_TYPES.find(type => type.value === item.category)?.label ??
+		item.category
 
-	const { form, fields, isSubmitting } = useEditPostForm({
+	const { form, onSubmit, isSubmitting } = usePublishForm({
 		title: item.title,
 		objectType: item.category,
 		description: item.description,
 		ville: item.ville,
-		commune: item.commune ?? undefined,
+		commune: item.commune ?? '',
 		date: item.eventDate.slice(0, 10),
 		name: item.contactName,
 		whatsapp: item.contactWhatsapp.replace(/^\+225/, ''),
@@ -74,32 +78,38 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 						description="Corrigez les informations avant validation par l'administrateur."
 					/>
 
-					<Form
-						method="post"
-						{...getFormProps(form)}
-						encType="multipart/form-data"
-						className="space-y-5"
-					>
-						<input
-							type="hidden"
-							name={fields.objectType.name}
-							value={item.category}
-						/>
-
+					<form onSubmit={onSubmit} noValidate className="space-y-5">
 						<div className="bg-background space-y-5 rounded-2xl border p-6">
 							<SectionHeader
 								icon={Package}
 								title="Informations sur l'objet"
-								accentColor={
-									isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
-								}
+								accentColor={accentColor}
 							/>
 
-							<InputField
-								field={fields.title}
-								label="Titre"
-								required
-								placeholder="Ex : iPhone 14 Pro noir"
+							<Controller
+								control={form.control}
+								name="title"
+								render={({ field, fieldState }) => (
+									<div className="space-y-2">
+										<InputLabel htmlFor={field.name} required>
+											Titre
+										</InputLabel>
+										<Input
+											{...field}
+											id={field.name}
+											value={field.value ?? ''}
+											placeholder="Ex : iPhone 14 Pro noir"
+											className="h-11"
+											aria-invalid={fieldState.invalid || undefined}
+										/>
+										{fieldState.error && (
+											<FieldError
+												errors={[fieldState.error]}
+												className="text-xs"
+											/>
+										)}
+									</div>
+								)}
 							/>
 
 							<div className="space-y-2">
@@ -109,36 +119,54 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 								</div>
 							</div>
 
-							<div className="space-y-2">
-								<InputLabel htmlFor={fields.description.id} required>
-									Description
-								</InputLabel>
-								<Textarea
-									{...getTextareaProps(fields.description)}
-									key={fields.description.key}
-									placeholder={
-										isLost
-											? 'Couleur, marque, signes distinctifs, contenu...'
-											: "Couleur, marque, signes distinctifs, état de l'objet..."
-									}
-									className="min-h-27.5 resize-none"
-								/>
-								<p
-									className={cn(
-										'text-xs',
-										(fields.description.value?.length ?? 0) >= 20
-											? isLost
-												? 'text-accent-orange'
-												: 'text-primary-green'
-											: 'text-muted-foreground',
-									)}
-								>
-									{(fields.description.value?.length ?? 0) >= 20
-										? '✓ Suffisant'
-										: `Minimum 20 caractères (${fields.description.value?.length ?? 0}/20)`}
-								</p>
-								<FieldError errors={fields.description.errors} />
-							</div>
+							<Controller
+								control={form.control}
+								name="description"
+								render={({ field, fieldState }) => {
+									const length = field.value?.length ?? 0
+									const isLongEnough = length >= MIN_DESCRIPTION_LENGTH
+
+									return (
+										<div className="space-y-2">
+											<InputLabel htmlFor={field.name} required>
+												Description
+											</InputLabel>
+											<Textarea
+												{...field}
+												id={field.name}
+												value={field.value ?? ''}
+												placeholder={
+													isLost
+														? 'Couleur, marque, signes distinctifs, contenu...'
+														: "Couleur, marque, signes distinctifs, état de l'objet..."
+												}
+												className="min-h-27.5 resize-none"
+												aria-invalid={fieldState.invalid || undefined}
+											/>
+											<p
+												className={cn(
+													'text-xs',
+													isLongEnough
+														? isLost
+															? 'text-accent-orange'
+															: 'text-primary-green'
+														: 'text-muted-foreground',
+												)}
+											>
+												{isLongEnough
+													? '✓ Suffisant'
+													: `Minimum ${MIN_DESCRIPTION_LENGTH} caractères (${length}/${MIN_DESCRIPTION_LENGTH})`}
+											</p>
+											{fieldState.error && (
+												<FieldError
+													errors={[fieldState.error]}
+													className="text-xs"
+												/>
+											)}
+										</div>
+									)
+								}}
+							/>
 
 							<div className="space-y-2">
 								<InputLabel>
@@ -156,38 +184,27 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 								<PhotosUpload
 									initialPhotos={item.photos}
 									variant={isLost ? 'optional' : 'recommended'}
-									accentColor={
-										isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
-									}
+									accentColor={accentColor}
 								/>
 							</div>
 						</div>
 
 						<LocationDateSection
-							ville={fields.ville}
-							commune={fields.commune}
-							date={fields.date}
+							control={form.control}
 							dateLabel={isLost ? 'Date de perte' : 'Date de la trouvaille'}
 							sectionTitle={
 								isLost ? 'Lieu & date de perte' : 'Lieu & date de la trouvaille'
 							}
-							accentColor={
-								isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
-							}
+							accentColor={accentColor}
 						/>
 
 						<ContactSection
-							name={fields.name}
-							whatsapp={fields.whatsapp}
-							accentColor={
-								isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
-							}
+							control={form.control}
+							accentColor={accentColor}
 							showPrivacyNote={!isLost}
 						/>
 
-						{form.errors && form.errors.length > 0 && (
-							<p className="text-destructive text-sm">{form.errors[0]}</p>
-						)}
+						<FormRootError message={form.formState.errors.root?.message} />
 
 						<div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
 							<Button type="button" variant="outline" asChild>
@@ -213,7 +230,7 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 								)}
 							</Button>
 						</div>
-					</Form>
+					</form>
 				</div>
 			</div>
 		</main>

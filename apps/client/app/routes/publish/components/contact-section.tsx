@@ -1,20 +1,20 @@
-import { Input } from '@app/ui/components'
-import { getInputProps, type FieldMetadata } from '@conform-to/react'
+import type { Control } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
+import { FieldError, Input } from '@app/ui/components'
+import { InputLabel } from '@app/ui/components/form'
 import { UserRound, Lock } from 'lucide-react'
-import { InputLabel, InputField, FieldError } from '@app/ui/components/form'
 import { SectionHeader } from './section-header'
+import type { PublishFormInput } from '../publish.schema'
 
 interface ContactSectionProps {
-	name: FieldMetadata<string>
-	whatsapp: FieldMetadata<string>
+	control: Control<PublishFormInput>
 	accentColor: string
 	showPrivacyNote?: boolean
 	step?: number
 }
 
 export function ContactSection({
-	name,
-	whatsapp,
+	control,
 	accentColor,
 	showPrivacyNote = false,
 	step,
@@ -29,23 +29,53 @@ export function ContactSection({
 				accentColor={accentColor}
 			/>
 
-			<InputField field={name} label="Nom / Prénom" placeholder="Votre nom" />
-
-			<div className="space-y-2">
-				<InputLabel htmlFor={whatsapp.id}>Numéro WhatsApp</InputLabel>
-				<div className="flex gap-2">
-					<div className="bg-muted text-muted-foreground flex h-11 shrink-0 items-center rounded-md border px-3 text-sm">
-						+225
+			<Controller
+				control={control}
+				name="name"
+				render={({ field, fieldState }) => (
+					<div className="space-y-2">
+						<InputLabel htmlFor={field.name}>Nom / Prénom</InputLabel>
+						<Input
+							{...field}
+							id={field.name}
+							value={field.value ?? ''}
+							placeholder="Votre nom"
+							className="h-11"
+							aria-invalid={fieldState.invalid || undefined}
+						/>
+						{fieldState.error && (
+							<FieldError errors={[fieldState.error]} className="text-xs" />
+						)}
 					</div>
-					<Input
-						{...getInputProps(whatsapp, { type: 'tel' })}
-						key={whatsapp.key}
-						placeholder="07 XX XX XX XX"
-						className="h-11 flex-1"
-					/>
-				</div>
-				<FieldError errors={whatsapp.errors} />
-			</div>
+				)}
+			/>
+
+			<Controller
+				control={control}
+				name="whatsapp"
+				render={({ field, fieldState }) => (
+					<div className="space-y-2">
+						<InputLabel htmlFor={field.name}>Numéro WhatsApp</InputLabel>
+						<div className="flex gap-2">
+							<div className="bg-muted text-muted-foreground flex h-11 shrink-0 items-center rounded-md border px-3 text-sm">
+								+225
+							</div>
+							<Input
+								{...field}
+								id={field.name}
+								type="tel"
+								value={field.value ?? ''}
+								placeholder="07 XX XX XX XX"
+								className="h-11 flex-1"
+								aria-invalid={fieldState.invalid || undefined}
+							/>
+						</div>
+						{fieldState.error && (
+							<FieldError errors={[fieldState.error]} className="text-xs" />
+						)}
+					</div>
+				)}
+			/>
 
 			{showPrivacyNote && (
 				<div className="bg-muted/50 text-muted-foreground flex items-start gap-2 rounded-xl border p-3 text-xs">

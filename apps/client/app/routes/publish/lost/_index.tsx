@@ -1,7 +1,6 @@
-import { Link, Form } from 'react-router'
-import { AlertCircle } from 'lucide-react'
-import { getFormProps } from '@conform-to/react'
-import { ArrowLeft } from 'lucide-react'
+import { Link } from 'react-router'
+import { AlertCircle, ArrowLeft } from 'lucide-react'
+import { FormRootError } from '@app/ui/components/form'
 import { LocationDateSection } from '../components/location-date-section'
 import { ContactSection } from '../components/contact-section'
 import { ObjectInfoSection } from '../components/object-info-section'
@@ -30,20 +29,20 @@ export function meta() {
 	})
 }
 
-const progressItems = (fields: ReturnType<typeof usePublishForm>['fields']) => [
-	{ label: 'Titre', done: !!fields.title.value },
-	{ label: "Type d'objet", done: !!fields.objectType.value },
-	{
-		label: 'Description (20 car. min)',
-		done: (fields.description.value?.length ?? 0) >= 20,
-	},
-	{ label: 'Lieu de perte', done: !!fields.ville.value },
-	{ label: 'Votre nom', done: !!fields.name.value },
-	{ label: 'WhatsApp', done: !!fields.whatsapp.value },
-]
-
 export default function PublishLostPage() {
-	const { form, fields, progress, isSubmitting } = usePublishForm()
+	const { form, values, onSubmit, progress, isSubmitting } = usePublishForm()
+
+	const progressItems = [
+		{ label: 'Titre', done: !!values.title },
+		{ label: "Type d'objet", done: !!values.objectType },
+		{
+			label: 'Description (20 car. min)',
+			done: (values.description?.length ?? 0) >= 20,
+		},
+		{ label: 'Lieu de perte', done: !!values.ville },
+		{ label: 'Votre nom', done: !!values.name },
+		{ label: 'WhatsApp', done: !!values.whatsapp },
+	]
 
 	return (
 		<main className="bg-muted/20 flex-1">
@@ -66,17 +65,12 @@ export default function PublishLostPage() {
 							description="Décrivez votre objet pour que quelqu'un puisse vous aider."
 						/>
 
-						<Form
-							method="post"
-							{...getFormProps(form)}
-							encType="multipart/form-data"
-							className="space-y-5"
-						>
+						<form onSubmit={onSubmit} noValidate className="space-y-5">
+							<FormRootError message={form.formState.errors.root?.message} />
+
 							<ObjectInfoSection
 								step={1}
-								title={fields.title}
-								objectType={fields.objectType}
-								description={fields.description}
+								control={form.control}
 								accentColor={ACCENT}
 								counterAccentClass="text-accent-orange"
 								descriptionPlaceholder="Couleur, marque, signes distinctifs, contenu..."
@@ -85,9 +79,7 @@ export default function PublishLostPage() {
 
 							<LocationDateSection
 								step={2}
-								ville={fields.ville}
-								commune={fields.commune}
-								date={fields.date}
+								control={form.control}
 								dateLabel="Date de perte"
 								sectionTitle="Lieu & date de perte"
 								accentColor={ACCENT}
@@ -95,8 +87,7 @@ export default function PublishLostPage() {
 
 							<ContactSection
 								step={3}
-								name={fields.name}
-								whatsapp={fields.whatsapp}
+								control={form.control}
 								accentColor={ACCENT}
 							/>
 
@@ -104,15 +95,15 @@ export default function PublishLostPage() {
 								isSubmitting={isSubmitting}
 								submitClassName="bg-accent-orange hover:bg-accent-orange-dark"
 							/>
-						</Form>
+						</form>
 					</div>
 
 					<PublishSidebar
 						progress={progress}
-						items={progressItems(fields)}
+						items={progressItems}
 						accentColor={ACCENT}
-						objectType={fields.objectType.value ?? ''}
-						ville={fields.ville.value ?? ''}
+						objectType={values.objectType ?? ''}
+						ville={values.ville ?? ''}
 						formType="perdu"
 						tips={LOST_TIPS}
 						hint="Remplissez le type d'objet et la ville pour voir les correspondances."
