@@ -1,22 +1,23 @@
-import { data } from 'react-router'
-import { ApiError } from '@/shared/utils/api-fetch'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import { forgotPasswordSchema } from '../forgot-password.schema'
 import { requestPasswordReset } from './forgot-password.service'
 
-export async function forgotPasswordAction({ request }: { request: Request }) {
+export async function forgotPasswordAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	const submission = forgotPasswordSchema.safeParse(
 		Object.fromEntries(await request.formData()),
 	)
 
-	if (!submission.success) return data({ ok: false }, { status: 400 })
-
-	try {
-		await requestPasswordReset(submission.data.email, request)
-		return { ok: true }
-	} catch (err) {
-		if (err instanceof ApiError) {
-			return data({ ok: false, error: err.message }, { status: err.status })
-		}
-		return data({ ok: false }, { status: 400 })
+	if (!submission.success) {
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
+
+	return withApiOperationError(() =>
+		requestPasswordReset(submission.data.email, request),
+	)
 }

@@ -1,80 +1,102 @@
-import { useEffect, useRef } from 'react'
-import { useFetcher } from 'react-router'
-import { Button, Input } from '@app/ui/components'
-import { InputLabel, FieldError } from '@app/ui/components/form'
-import { useForm, getFormProps, getInputProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
-import { Loader2, Mail } from 'lucide-react'
-import { toast } from 'sonner'
-import { forgotPasswordSchema } from '../forgot-password.schema'
-
-interface ActionResult {
-	ok: boolean
-	error?: string
-}
+import { Controller, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { CheckCircle2, Loader2, Mail } from 'lucide-react'
+import {
+	Alert,
+	AlertDescription,
+	AlertTitle,
+	Button,
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+	Input,
+} from '@app/ui/components'
+import { FormRootError } from '@app/ui/components/form'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import {
+	forgotPasswordSchema,
+	type ForgotPasswordData,
+	type ForgotPasswordInput,
+} from '../forgot-password.schema'
+import type { action } from '../_index'
 
 export function ForgotPasswordForm() {
-	const fetcher = useFetcher<ActionResult>()
-	const isSubmitting = fetcher.state !== 'idle'
-	const processedRef = useRef<ActionResult | undefined>(undefined)
+	const fetcher = useActionFetcher<typeof action, ForgotPasswordInput>()
 
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-		if (fetcher.data === processedRef.current) return
-		processedRef.current = fetcher.data
-
-		if (fetcher.data.ok) {
-			toast.success('Instructions envoyées', {
-				description:
-					'Si cet email est enregistré, vous recevrez les instructions de réinitialisation.',
-			})
-		} else {
-			toast.error('Impossible d’envoyer les instructions', {
-				description: fetcher.data.error,
-			})
-		}
-	}, [fetcher.state, fetcher.data])
-
-	const [form, fields] = useForm({
-		id: 'forgot-password-form',
-		constraint: getZodConstraint(forgotPasswordSchema),
-		shouldValidate: 'onSubmit',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: forgotPasswordSchema })
-		},
-		onSubmit(event, { submission, formData }) {
-			event.preventDefault()
-			if (submission?.status !== 'success') return
-			void fetcher.submit(formData, { method: 'post' })
-		},
+	const form = useForm<ForgotPasswordInput, unknown, ForgotPasswordData>({
+		resolver: standardSchemaResolver(forgotPasswordSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: { email: '' },
+		errors: fetcher.errors,
 	})
 
+	const onSubmit = (values: ForgotPasswordData) => {
+		void fetcher.submit({ email: values.email }, { method: 'post' })
+	}
+
+	// Success replaces the form rather than firing a toast: the instructions stay
+	// on screen, and there is nothing left to submit on this page.
+	if (fetcher.isOk) {
+		return (
+			<Alert>
+				<CheckCircle2 />
+				<AlertTitle>Instructions envoyées</AlertTitle>
+				<AlertDescription>
+					Si cet email est enregistré, vous recevrez les instructions de
+					réinitialisation.
+				</AlertDescription>
+			</Alert>
+		)
+	}
+
 	return (
-		<form {...getFormProps(form)} className="space-y-5">
-			<div className="space-y-2">
-				<InputLabel htmlFor={fields.email.id} className="text-sm font-medium">
-					Email
-				</InputLabel>
-				<div className="relative">
-					<Mail className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-					<Input
-						{...getInputProps(fields.email, { type: 'email' })}
-						key={fields.email.key}
-						placeholder="admin@retrouveci.com"
-						className="h-10 rounded-lg pl-9"
-						disabled={isSubmitting}
-						autoFocus
-					/>
-				</div>
-				<FieldError errors={fields.email.errors} />
-			</div>
+		<form
+			onSubmit={form.handleSubmit(onSubmit)}
+			noValidate
+			className="space-y-5"
+		>
+			<FormRootError
+				title="Impossible d’envoyer les instructions"
+				message={form.formState.errors.root?.message}
+			/>
+
+			<FieldGroup className="gap-4">
+				<Controller
+					control={form.control}
+					name="email"
+					render={({ field, fieldState }) => (
+						<Field className="gap-2" data-invalid={fieldState.invalid}>
+							<FieldLabel htmlFor={field.name} className="text-sm font-medium">
+								Email
+							</FieldLabel>
+							<div className="relative">
+								<Mail className="text-muted-foreground/70 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+								<Input
+									{...field}
+									id={field.name}
+									type="email"
+									placeholder="admin@retrouveci.com"
+									className="h-10 rounded-lg pl-9"
+									aria-invalid={fieldState.invalid}
+									disabled={fetcher.isSubmitting}
+									autoComplete="email"
+									autoFocus
+								/>
+							</div>
+							{fieldState.error && <FieldError errors={[fieldState.error]} />}
+						</Field>
+					)}
+				/>
+			</FieldGroup>
 
 			<Button
 				type="submit"
 				className="h-10 w-full rounded-lg text-sm font-medium"
-				disabled={isSubmitting}
+				disabled={fetcher.isSubmitting}
 			>
-				{isSubmitting ? (
+				{fetcher.isSubmitting ? (
 					<>
 						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						Envoi en cours...

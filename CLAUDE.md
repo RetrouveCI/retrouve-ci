@@ -168,10 +168,11 @@ Both apps share the same stack:
 - **shadcn/ui** — components imported via `@app/ui/components`
 - **Forms are mid-migration** from `@conform-to/*` to **react-hook-form + zod**
   (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). Every form on a mounted
-  `client` route is on react-hook-form. What is left on Conform: the whole
-  `admin` app, the `client`'s stand-by features (`stickers/order`, `q` — their
-  routes are commented out of `routes.ts`), and the two legacy wrappers in
-  `packages/ui`. New forms use react-hook-form.
+  `client` route is on react-hook-form, as is the whole of `admin/auth`. What is
+  left on Conform: five `admin` dashboard pages (`events`, `qr/generate`,
+  `profile`, `administrators`), the `client`'s stand-by features
+  (`stickers/order`, `q` — their routes are commented out of `routes.ts`), and
+  the two legacy wrappers in `packages/ui`. New forms use react-hook-form.
 
 Both apps use the same layout, `app/routes/<area>/<page>/`, with
 `servers/*.loader.ts` / `servers/*.action.ts` for all server-side data access
@@ -299,13 +300,20 @@ Route structure (defined in `app/routes.ts`):
 - `/administrators` — admin account management (mock — no API domain yet)
 - `/profile` — admin profile (better-auth session data; password change via
   `authClient.changePassword`)
-- `/auth/login`, `/auth/forgot-password`, `/auth/reset-password` — auth pages
+- `/auth/login`, `/auth/forgot-password`, `/auth/reset-password` — auth pages,
+  sharing `routes/auth/layout.tsx` (the client app's auth layout: green branding
+  panel on the left, form column on the right)
 
 All dashboard routes are nested under `routes/dashboard/layout.tsx`. Every
 dashboard loader calls `requireAdminSession(request)` (from
 `shared/helpers/session.server.ts`), which forwards the `Cookie` header to
-`/api/auth/get-session` and throws `redirect('/auth/login')` if no valid admin
-session is found.
+`/api/auth/get-session` and, when no valid admin session is found, redirects to
+`/auth/login?redirectTo=<where they were headed>`. The auth pages are guarded
+the other way round, once, by `routes/auth/layout.tsx`'s loader calling
+`redirectIfAdminAuthenticated` — no individual auth page repeats the check.
+`shared/helpers/redirect.ts` owns `redirectTo`: `sanitizeRedirect` keeps only
+internal, non-auth paths, so the param can be neither an open redirect nor a
+login loop.
 
 #### Admin app conventions
 

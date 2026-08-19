@@ -183,9 +183,8 @@ function SidebarContent({
 					<img
 						src="/logo.png"
 						alt="RetrouveCI"
-						width={32}
 						height={32}
-						className="h-8 w-8 shrink-0 rounded-lg"
+						className="h-8 w-auto shrink-0"
 					/>
 					{!collapsed && (
 						<div className="leading-tight">
