@@ -12,3 +12,6 @@ export const eventSchema = z.object({
 export const updateStatusSchema = z.object({
 	status: z.enum(['draft', 'published', 'cancelled']),
 })
+
+export type EventInput = z.input<typeof eventSchema>
+export type EventData = z.output<typeof eventSchema>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams, useFetcher } from 'react-router'
+import { useSearchParams } from 'react-router'
 import {
 	Button,
 	Badge,
@@ -27,6 +27,7 @@ import { DataTable } from '@/components/data-table'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { EventsStatsGrid } from './components/events-stats-grid'
 import { EventFormDialog } from './components/event-form-dialog'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { eventsLoader } from './servers/events.loader'
 import { eventsAction } from './servers/events.action'
 import { format } from 'date-fns'
@@ -73,13 +74,6 @@ const STATUS_CONFIG: Record<
 	},
 }
 
-interface ActionResult {
-	ok: boolean
-	event?: Event
-	intent?: string
-	error?: string
-}
-
 export default function EventsPage({ loaderData }: Route.ComponentProps) {
 	const { events, total, statusFilter } = loaderData
 	const [searchParams, setSearchParams] = useSearchParams()
@@ -88,35 +82,55 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 	const [editingEvent, setEditingEvent] = useState<Event | null>(null)
 	const [deleteTarget, setDeleteTarget] = useState<Event | null>(null)
 
-	const statusFetcher = useFetcher<ActionResult>()
-	const deleteFetcher = useFetcher<ActionResult>()
+	// The status change and the deletion are not forms — no fields, so nothing to
+	// put an error on but `root`. They keep their toasts, and read them off the
+	// same `{ success, errors }` contract as every action in the app.
+	const statusFetcher = useActionFetcher<typeof action>()
+	const deleteFetcher = useActionFetcher<typeof action>()
+
+	// The action answers `{ success }` and the loader revalidates on its own, so
+	// the new status is not sent back — the requested one is what the toast names.
+	const [requestedStatus, setRequestedStatus] = useState<EventStatus | null>(
+		null,
+	)
 
 	useEffect(() => {
-		if (statusFetcher.state !== 'idle' || !statusFetcher.data) return
-		if (statusFetcher.data.ok) {
-			const ev = statusFetcher.data.event
-			if (ev) {
-				const label = STATUS_CONFIG[ev.status].label
-				toast.success(`Événement mis à jour — ${label}`)
-			}
-		} else {
+		if (!requestedStatus) return
+
+		if (statusFetcher.isOk) {
+			setRequestedStatus(null)
+			toast.success(
+				`Événement mis à jour — ${STATUS_CONFIG[requestedStatus].label}`,
+			)
+			return
+		}
+
+		if (statusFetcher.errors?.root) {
+			setRequestedStatus(null)
 			toast.error(
-				statusFetcher.data.error ?? 'Impossible de mettre à jour le statut',
+				statusFetcher.errors.root.message ??
+					'Impossible de mettre à jour le statut',
 			)
 		}
-	}, [statusFetcher.state, statusFetcher.data])
+	}, [requestedStatus, statusFetcher.isOk, statusFetcher.errors])
 
 	useEffect(() => {
-		if (deleteFetcher.state !== 'idle' || !deleteFetcher.data) return
-		if (deleteFetcher.data.ok) {
+		if (!deleteTarget) return
+
+		if (deleteFetcher.isOk) {
 			toast.success('Événement supprimé')
 			setDeleteTarget(null)
-		} else {
-			toast.error(
-				deleteFetcher.data.error ?? "Impossible de supprimer l'événement",
-			)
+			return
 		}
-	}, [deleteFetcher.state, deleteFetcher.data])
+
+		if (deleteFetcher.errors?.root) {
+			toast.error(
+				deleteFetcher.errors.root.message ??
+					"Impossible de supprimer l'événement",
+			)
+			setDeleteTarget(null)
+		}
+	}, [deleteTarget, deleteFetcher.isOk, deleteFetcher.errors])
 
 	const handleFilterChange = (value: string) => {
 		const next = new URLSearchParams(searchParams)
@@ -129,7 +143,8 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 	}
 
 	const handleStatusUpdate = (id: string, status: EventStatus) => {
-		statusFetcher.submit(
+		setRequestedStatus(status)
+		void statusFetcher.submit(
 			{ intent: 'update-status', id, status },
 			{ method: 'post' },
 		)
@@ -137,7 +152,7 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 
 	const handleDelete = () => {
 		if (!deleteTarget) return
-		deleteFetcher.submit(
+		void deleteFetcher.submit(
 			{ intent: 'delete', id: deleteTarget.id },
 			{ method: 'post' },
 		)
