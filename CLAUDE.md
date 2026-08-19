@@ -169,10 +169,15 @@ Both apps share the same stack:
 - **Forms are mid-migration** from `@conform-to/*` to **react-hook-form + zod**
   (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). Every form on a mounted
   `client` route is on react-hook-form, as is the whole of `admin/auth`. What is
-  left on Conform: five `admin` dashboard pages (`events`, `qr/generate`,
-  `profile`, `administrators`), the `client`'s stand-by features
+  left on Conform: three `admin` dashboard features (`qr/generate`, `profile`,
+  `administrators` — five files), the `client`'s stand-by features
   (`stickers/order`, `q` — their routes are commented out of `routes.ts`), and
   the two legacy wrappers in `packages/ui`. New forms use react-hook-form.
+- The admin dialogs use `FormInputField` / `FormTextareaField` from
+  `@app/ui/components/form` — `Controller` + the shadcn `Field` family,
+  factored, since their fields are uniform. Bespoke fields (an icon inside the
+  input, a visibility toggle) inline `Controller` + `Field` instead, as
+  `routes/auth` does.
 
 Both apps use the same layout, `app/routes/<area>/<page>/`, with
 `servers/*.loader.ts` / `servers/*.action.ts` for all server-side data access
@@ -338,10 +343,12 @@ Identical to the client app conventions above, with these admin-specific notes:
   inlined in `servers/*.loader.ts` with `id: string` (forward-compatible).
   Actions return mock mutation results; real persistence deferred until API
   domains exist.
-- The `components/topbar.tsx` fetches the unread notification count on mount via
-  `apiFetch('/notifications/unread-count')` with `credentials: 'include'`
-  (client-side, since the topbar is part of the dashboard layout and not owned
-  by the notifications feature).
+- `context/dashboard.tsx` fetches the unread notification count on mount via
+  `apiFetch('/notifications/unread-count')` and exposes it through
+  `useDashboard().counts`; the sidebar and `components/topbar.tsx` only read it.
+  This is the admin app's one `fetch` outside a `servers/` folder (gap 6 of
+  [MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md)) — the dashboard layout's
+  loader is where it belongs, and moving it there is a lot of its own.
 
 #### Admin tests
 

@@ -1,75 +1,74 @@
-import { data } from 'react-router'
-import { parseWithZod } from '@conform-to/zod/v4'
-import { ApiError } from '@/shared/utils/api-fetch'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { requireAdminSession } from '@/shared/helpers/session.server'
-import { createEvent, updateEvent, deleteEvent } from './events.service'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import { eventSchema, updateStatusSchema } from '../events.schema'
-import type { EventStatus } from '../types/events.types'
+import { createEvent, deleteEvent, updateEvent } from './events.service'
 
-export async function eventsAction({ request }: { request: Request }) {
+const API_OPTIONS = { redirectOnUnauthorized: '/auth/login' }
+
+/**
+ * Failures that belong to no field — an unknown intent, a missing id, a status
+ * that is not a form input — are reported on `root`, which is where the page and
+ * the dialog render them.
+ */
+function rootError(message: string): ActionResult {
+	return { success: false, errors: { root: { type: 'custom', message } } }
+}
+
+export async function eventsAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	await requireAdminSession(request)
+
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 	const id = String(formData.get('id') ?? '')
 
-	try {
-		if (intent === 'create') {
-			const submission = parseWithZod(formData, { schema: eventSchema })
-			if (submission.status !== 'success') {
-				return data(
-					{ ok: false, submission: submission.reply() },
-					{ status: 400 },
-				)
-			}
-			const { commune, ...rest } = submission.value
-			const event = await createEvent(
-				{ ...rest, ...(commune ? { commune } : {}) },
-				request,
+	if (intent === 'create' || intent === 'update') {
+		const submission = eventSchema.safeParse(Object.fromEntries(formData))
+
+		if (!submission.success) {
+			return { success: false, errors: zodErrorToFieldErrors(submission.error) }
+		}
+
+		const { commune, ...rest } = submission.data
+		const payload = { ...rest, ...(commune ? { commune } : {}) }
+
+		if (intent === 'update') {
+			if (!id) return rootError("L'événement à modifier est introuvable")
+			return withApiOperationError(
+				() => updateEvent(id, payload, request),
+				API_OPTIONS,
 			)
-			return { ok: true, event, intent }
 		}
 
-		if (intent === 'update' && id) {
-			const submission = parseWithZod(formData, { schema: eventSchema })
-			if (submission.status !== 'success') {
-				return data(
-					{ ok: false, submission: submission.reply() },
-					{ status: 400 },
-				)
-			}
-			const { commune, ...rest } = submission.value
-			const event = await updateEvent(
-				id,
-				{ ...rest, ...(commune ? { commune } : {}) },
-				request,
-			)
-			return { ok: true, event, intent }
-		}
-
-		if (intent === 'update-status' && id) {
-			const statusRaw = String(formData.get('status') ?? '')
-			const parsed = updateStatusSchema.safeParse({ status: statusRaw })
-			if (!parsed.success) {
-				return data({ ok: false, error: 'Statut invalide' }, { status: 400 })
-			}
-			const event = await updateEvent(
-				id,
-				{ status: parsed.data.status as EventStatus },
-				request,
-			)
-			return { ok: true, event, intent }
-		}
-
-		if (intent === 'delete' && id) {
-			await deleteEvent(id, request)
-			return { ok: true, intent }
-		}
-
-		return data({ ok: false, error: 'Intent inconnu' }, { status: 400 })
-	} catch (err) {
-		if (err instanceof ApiError) {
-			return data({ ok: false, error: err.message }, { status: err.status })
-		}
-		return data({ ok: false, error: 'Erreur serveur' }, { status: 500 })
+		return withApiOperationError(
+			() => createEvent(payload, request),
+			API_OPTIONS,
+		)
 	}
+
+	if (intent === 'update-status') {
+		if (!id) return rootError("L'événement à mettre à jour est introuvable")
+
+		const parsed = updateStatusSchema.safeParse({
+			status: formData.get('status'),
+		})
+		if (!parsed.success) return rootError('Statut invalide')
+
+		return withApiOperationError(
+			() => updateEvent(id, { status: parsed.data.status }, request),
+			API_OPTIONS,
+		)
+	}
+
+	if (intent === 'delete') {
+		if (!id) return rootError("L'événement à supprimer est introuvable")
+		return withApiOperationError(() => deleteEvent(id, request), API_OPTIONS)
+	}
+
+	return rootError('Action inconnue')
 }

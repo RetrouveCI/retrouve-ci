@@ -52,10 +52,10 @@ v7 — quelques reliquats subsistent.
 | --- | ------------------------------------------------------------------------------- | ----- |
 | 1   | Schémas Zod locaux au lieu de `@app/contracts/<domaine>`                        | E6    |
 | 2   | Types d'API redéclarés à la main (8 fichiers `*.types.ts`)                      | E6    |
-| 3   | 🟡 Conform restant sur 5 pages du dashboard (`auth` migré par E7.A)             | E7    |
+| 3   | 🟡 Conform restant sur 3 features du dashboard (`auth` + `events` migrés)       | E7    |
 | 4   | `features/<f>/<f>.types.ts` au lieu de `features/<f>/types/<f>.types.ts`        | E7    |
 | 5   | `shared/lib/api-client.ts` : le fichier devrait s'appeler `api-fetch.ts`        | E11   |
-| 6   | `fetch` hors `servers/` : `shared/components/dashboard-context.tsx`             | E7    |
+| 6   | `fetch` hors `servers/` : `context/dashboard.tsx` — **lot dédié**, pas E7       | —     |
 | 7   | 🟡 Socle de test posé, 23 cas sur `shared/` — les features restent à couvrir    | E10   |
 | 8   | `tsconfig.json` autonome (ne dérive pas de `@app/typescript-config`)            | E4    |
 | 9   | Reliquats Next dans les deps (`next-themes`, `@tailwindcss/postcss`, `postcss`) | E3    |
@@ -167,7 +167,7 @@ browser mode.
 | ---- | ---------------- | -------- | ---------------------------------------------------- |
 | E7.0 | `shared/`        | 4        | ✅ **fait** — socle recopié depuis `apps/client`     |
 | E7.A | `auth`           | 3        | ✅ **fait** — login, forgot-password, reset-password |
-| E7.B | `events`         | 2        | dialogue de création/édition + action                |
+| E7.B | `events`         | 3        | ✅ **fait** — + les 2 fetchers de `_index`           |
 | E7.C | `qr/generate`    | 2        | génération de lots — **étend `ActionResult`**        |
 | E7.D | `profile`        | 1        | changement de mot de passe                           |
 | E7.E | `administrators` | 2        | 🟡 mock — convertir quand même                       |
@@ -176,10 +176,12 @@ browser mode.
 et la page les affiche : c'est l'un des deux seuls écrans du dépôt qui montre le
 résultat de sa propre mutation. `ActionResult` n'a pas de canal pour ça et y
 passe donc à `{ success: true; data?: T }`, dans le type partagé et en une fois.
-E7.B et E7.E n'en ont pas besoin : leurs dialogues de liste renvoient l'entité
-et l'`intent` par habitude, alors que la revalidation du loader par la
-soumission du fetcher suffit — c'est ce que fait l'architecture de référence,
-qui n'a aucun canal de retour.
+E7.E n'en a pas besoin : son dialogue de liste renvoie l'entité et l'`intent`
+par habitude, alors que la revalidation du loader par la soumission du fetcher
+suffit — c'est ce que fait l'architecture de référence, qui n'a aucun canal de
+retour. **E7.B l'a confirmé** : son action ne renvoyait `event` que pour que le
+toast de changement de statut nomme le nouveau statut, or l'appelant connaît
+déjà celui qu'il a demandé.
 
 ### À traiter dans la même étape
 
