@@ -1,4 +1,8 @@
+import type { Control } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import {
+	FieldError,
+	Input,
 	Textarea,
 	Select,
 	SelectContent,
@@ -6,23 +10,18 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@app/ui/components'
-import {
-	getTextareaProps,
-	useInputControl,
-	type FieldMetadata,
-} from '@conform-to/react'
+import { InputLabel } from '@app/ui/components/form'
 import { cn } from '@app/ui/utils'
 import { Package } from 'lucide-react'
-import type { LostItemCategory } from '@/shared/types/lost-item'
-import { InputLabel, InputField, FieldError } from '@app/ui/components/form'
 import { PhotosUpload } from './photos-upload'
 import { SectionHeader } from './section-header'
 import { OBJECT_TYPES } from '../publish.const'
+import type { PublishFormInput } from '../publish.schema'
+
+const MIN_DESCRIPTION_LENGTH = 20
 
 interface ObjectInfoSectionProps {
-	title: FieldMetadata<string>
-	objectType: FieldMetadata<LostItemCategory>
-	description: FieldMetadata<string>
+	control: Control<PublishFormInput>
 	accentColor: string
 	counterAccentClass: string
 	descriptionPlaceholder: string
@@ -33,9 +32,7 @@ interface ObjectInfoSectionProps {
 }
 
 export function ObjectInfoSection({
-	title,
-	objectType,
-	description,
+	control,
 	accentColor,
 	counterAccentClass,
 	descriptionPlaceholder,
@@ -44,8 +41,6 @@ export function ObjectInfoSection({
 	photoBadgeClassName,
 	step,
 }: ObjectInfoSectionProps) {
-	const objectTypeControl = useInputControl(objectType)
-
 	return (
 		<div className="bg-background space-y-5 rounded-2xl border p-6">
 			<SectionHeader
@@ -56,60 +51,101 @@ export function ObjectInfoSection({
 				accentColor={accentColor}
 			/>
 
-			<InputField
-				field={title}
-				label="Titre"
-				required
-				placeholder="Ex : iPhone 14 Pro noir"
+			<Controller
+				control={control}
+				name="title"
+				render={({ field, fieldState }) => (
+					<div className="space-y-2">
+						<InputLabel htmlFor={field.name} required>
+							Titre
+						</InputLabel>
+						<Input
+							{...field}
+							id={field.name}
+							value={field.value ?? ''}
+							placeholder="Ex : iPhone 14 Pro noir"
+							className="h-11"
+							aria-invalid={fieldState.invalid || undefined}
+						/>
+						{fieldState.error && (
+							<FieldError errors={[fieldState.error]} className="text-xs" />
+						)}
+					</div>
+				)}
 			/>
 
-			<div className="space-y-2">
-				<InputLabel htmlFor={objectType.id} required>
-					Type d&apos;objet
-				</InputLabel>
-				<Select
-					value={objectTypeControl.value ?? ''}
-					onValueChange={objectTypeControl.change}
-					onOpenChange={open => !open && objectTypeControl.blur()}
-				>
-					<SelectTrigger id={objectType.id} className="h-11">
-						<SelectValue placeholder="Sélectionnez un type" />
-					</SelectTrigger>
-					<SelectContent>
-						{OBJECT_TYPES.map(t => (
-							<SelectItem key={t.value} value={t.value}>
-								{t.label}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				<FieldError errors={objectType.errors} />
-			</div>
+			<Controller
+				control={control}
+				name="objectType"
+				render={({ field, fieldState }) => (
+					<div className="space-y-2">
+						<InputLabel htmlFor={field.name} required>
+							Type d&apos;objet
+						</InputLabel>
+						<Select
+							value={field.value ?? ''}
+							onValueChange={field.onChange}
+							onOpenChange={open => !open && field.onBlur()}
+						>
+							<SelectTrigger
+								id={field.name}
+								className="h-11"
+								aria-invalid={fieldState.invalid || undefined}
+							>
+								<SelectValue placeholder="Sélectionnez un type" />
+							</SelectTrigger>
+							<SelectContent>
+								{OBJECT_TYPES.map(type => (
+									<SelectItem key={type.value} value={type.value}>
+										{type.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						{fieldState.error && (
+							<FieldError errors={[fieldState.error]} className="text-xs" />
+						)}
+					</div>
+				)}
+			/>
 
-			<div className="space-y-2">
-				<InputLabel htmlFor={description.id} required>
-					Description
-				</InputLabel>
-				<Textarea
-					{...getTextareaProps(description)}
-					key={description.key}
-					placeholder={descriptionPlaceholder}
-					className="min-h-27.5 resize-none"
-				/>
-				<p
-					className={cn(
-						'text-xs',
-						(description.value?.length ?? 0) >= 20
-							? counterAccentClass
-							: 'text-muted-foreground',
-					)}
-				>
-					{(description.value?.length ?? 0) >= 20
-						? '✓ Suffisant'
-						: `Minimum 20 caractères (${description.value?.length ?? 0}/20)`}
-				</p>
-				<FieldError errors={description.errors} />
-			</div>
+			<Controller
+				control={control}
+				name="description"
+				render={({ field, fieldState }) => {
+					const length = field.value?.length ?? 0
+					const isLongEnough = length >= MIN_DESCRIPTION_LENGTH
+
+					return (
+						<div className="space-y-2">
+							<InputLabel htmlFor={field.name} required>
+								Description
+							</InputLabel>
+							<Textarea
+								{...field}
+								id={field.name}
+								value={field.value ?? ''}
+								placeholder={descriptionPlaceholder}
+								className="min-h-27.5 resize-none"
+								aria-invalid={fieldState.invalid || undefined}
+							/>
+							<p
+								className={cn(
+									'text-xs',
+									isLongEnough ? counterAccentClass : 'text-muted-foreground',
+								)}
+							>
+								{isLongEnough
+									? '✓ Suffisant'
+									: `Minimum ${MIN_DESCRIPTION_LENGTH} caractères (${length}/${MIN_DESCRIPTION_LENGTH})`}
+							</p>
+							{fieldState.error && (
+								<FieldError errors={[fieldState.error]} className="text-xs" />
+							)}
+						</div>
+					)
+				}}
+			/>
 
 			<div className="space-y-2">
 				{photoBadge ? (

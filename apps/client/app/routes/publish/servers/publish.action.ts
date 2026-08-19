@@ -1,52 +1,56 @@
-import { redirect, data } from 'react-router'
-import { parseWithZod } from '@conform-to/zod/v4'
+import { redirect } from 'react-router'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
+import { getServerSession } from '@/shared/helpers/session.server'
+import type { LostItemType } from '@/shared/types/lost-item'
 import { publishFormSchema } from '../publish.schema'
 import { createLostItem } from './publish.service'
 import { collectPhotoUrls } from './upload.service'
-import { getServerSession } from '@/shared/helpers/session.server'
-import { ApiError } from '@/shared/utils/api-fetch'
-import type { LostItemType } from '@/shared/types/lost-item'
 
-export async function publishAction(request: Request, type: LostItemType) {
+export async function publishAction(
+	request: Request,
+	type: LostItemType,
+): Promise<ActionResult> {
 	const session = await getServerSession(request)
 	if (!session) throw redirect('/auth/login')
 
 	const formData = await request.formData()
-	const submission = parseWithZod(formData, { schema: publishFormSchema })
+	const submission = publishFormSchema.safeParse(Object.fromEntries(formData))
 
-	if (submission.status !== 'success') {
-		return data(submission.reply(), { status: 400 })
+	if (!submission.success) {
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
 
-	const v = submission.value
+	const values = submission.data
 
-	try {
-		const photos = await collectPhotoUrls(formData, request)
+	// The success path redirects, so it throws from inside the wrapper:
+	// `withApiOperationError` only converts an `ApiError` into a form error and
+	// rethrows everything else, the `redirect()` response included.
+	return withApiOperationError(
+		async () => {
+			const photos = await collectPhotoUrls(formData, request)
 
-		const created = await createLostItem(
-			{
-				type,
-				category: v.objectType,
-				title: v.title,
-				description: v.description,
-				ville: v.ville,
-				commune: v.commune || undefined,
-				eventDate: v.date
-					? new Date(v.date).toISOString()
-					: new Date().toISOString(),
-				contactName: v.name,
-				contactWhatsapp: `+225${v.whatsapp}`,
-				photos: photos.length ? photos : undefined,
-			},
-			request,
-		)
+			const created = await createLostItem(
+				{
+					type,
+					category: values.objectType,
+					title: values.title,
+					description: values.description,
+					ville: values.ville,
+					commune: values.commune || undefined,
+					eventDate: values.date
+						? new Date(values.date).toISOString()
+						: new Date().toISOString(),
+					contactName: values.name,
+					contactWhatsapp: `+225${values.whatsapp}`,
+					photos: photos.length ? photos : undefined,
+				},
+				request,
+			)
 
-		return redirect(`/posts/${created.id}`)
-	} catch (err) {
-		if (err instanceof ApiError && err.status === 401)
-			throw redirect('/auth/login')
-		const message =
-			err instanceof ApiError ? err.message : 'Une erreur est survenue.'
-		return data(submission.reply({ formErrors: [message] }), { status: 400 })
-	}
+			throw redirect(`/posts/${created.id}`)
+		},
+		{ redirectOnUnauthorized: '/auth/login' },
+	)
 }

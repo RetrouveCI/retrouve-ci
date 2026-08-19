@@ -1,47 +1,52 @@
-import { redirect, data } from 'react-router'
-import { parseWithZod } from '@conform-to/zod/v4'
+import { redirect } from 'react-router'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
+import { requireServerSession } from '@/shared/helpers/session.server'
 import { publishFormSchema } from '@/routes/publish/publish.schema'
 import { collectPhotoUrls } from '@/routes/publish/servers/upload.service'
 import { patchLostItemContent } from '../../servers/account-posts.service'
-import { requireServerSession } from '@/shared/helpers/session.server'
-import { ApiError } from '@/shared/utils/api-fetch'
 
-export async function editPostAction(request: Request, id: string) {
+export async function editPostAction(
+	request: Request,
+	id: string,
+): Promise<ActionResult> {
 	await requireServerSession(request)
 
 	const formData = await request.formData()
-	const submission = parseWithZod(formData, { schema: publishFormSchema })
+	const submission = publishFormSchema.safeParse(Object.fromEntries(formData))
 
-	if (submission.status !== 'success') {
-		return data(submission.reply(), { status: 400 })
+	if (!submission.success) {
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
 
-	const v = submission.value
+	const values = submission.data
 
-	try {
-		const photos = await collectPhotoUrls(formData, request)
+	// The success path redirects from inside the wrapper — see
+	// `routes/publish/servers/publish.action.ts` for why that works.
+	return withApiOperationError(
+		async () => {
+			const photos = await collectPhotoUrls(formData, request)
 
-		await patchLostItemContent(
-			id,
-			{
-				title: v.title,
-				description: v.description,
-				ville: v.ville,
-				commune: v.commune || undefined,
-				eventDate: v.date ? new Date(v.date).toISOString() : undefined,
-				contactName: v.name,
-				contactWhatsapp: `+225${v.whatsapp}`,
-				photos,
-			},
-			request,
-		)
+			await patchLostItemContent(
+				id,
+				{
+					title: values.title,
+					description: values.description,
+					ville: values.ville,
+					commune: values.commune || undefined,
+					eventDate: values.date
+						? new Date(values.date).toISOString()
+						: undefined,
+					contactName: values.name,
+					contactWhatsapp: `+225${values.whatsapp}`,
+					photos,
+				},
+				request,
+			)
 
-		return redirect('/account/posts')
-	} catch (err) {
-		if (err instanceof ApiError && err.status === 401)
-			throw redirect('/auth/login')
-		const message =
-			err instanceof ApiError ? err.message : 'Une erreur est survenue.'
-		return data(submission.reply({ formErrors: [message] }), { status: 400 })
-	}
+			throw redirect('/account/posts')
+		},
+		{ redirectOnUnauthorized: '/auth/login' },
+	)
 }

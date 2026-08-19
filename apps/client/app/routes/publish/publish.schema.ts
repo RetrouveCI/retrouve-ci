@@ -12,9 +12,12 @@ export const publishFormSchema = z.object({
 		.string({ message: 'Le titre est requis' })
 		.min(3, 'Le titre doit contenir au moins 3 caractères')
 		.max(120),
-	objectType: z.enum(CATEGORY_VALUES, {
-		message: "Sélectionnez un type d'objet",
-	}),
+	// A `string` input piped into the enum, so the form can start out with no
+	// selection: `z.enum` alone would type the empty initial value as invalid.
+	objectType: z
+		.string({ message: "Sélectionnez un type d'objet" })
+		.min(1, "Sélectionnez un type d'objet")
+		.pipe(z.enum(CATEGORY_VALUES, { message: "Sélectionnez un type d'objet" })),
 	description: z
 		.string({ message: 'La description est requise' })
 		.min(20, 'La description doit contenir au moins 20 caractères')
@@ -32,3 +35,6 @@ export const publishFormSchema = z.object({
 		.string({ message: 'Votre numéro WhatsApp est requis' })
 		.regex(/^\d{8,16}$/, 'Numéro WhatsApp invalide (8 à 16 chiffres)'),
 })
+
+export type PublishFormInput = z.input<typeof publishFormSchema>
+export type PublishFormData = z.output<typeof publishFormSchema>

@@ -1,7 +1,6 @@
-import { Link, Form } from 'react-router'
-import { CheckCircle } from 'lucide-react'
-import { getFormProps } from '@conform-to/react'
-import { ArrowLeft } from 'lucide-react'
+import { Link } from 'react-router'
+import { CheckCircle, ArrowLeft } from 'lucide-react'
+import { FormRootError } from '@app/ui/components/form'
 import { LocationDateSection } from '../components/location-date-section'
 import { ContactSection } from '../components/contact-section'
 import { ObjectInfoSection } from '../components/object-info-section'
@@ -30,20 +29,20 @@ export function meta() {
 	})
 }
 
-const progressItems = (fields: ReturnType<typeof usePublishForm>['fields']) => [
-	{ label: 'Titre', done: !!fields.title.value },
-	{ label: "Type d'objet", done: !!fields.objectType.value },
-	{
-		label: 'Description (20 car. min)',
-		done: (fields.description.value?.length ?? 0) >= 20,
-	},
-	{ label: 'Lieu de la trouvaille', done: !!fields.ville.value },
-	{ label: 'Votre nom', done: !!fields.name.value },
-	{ label: 'WhatsApp', done: !!fields.whatsapp.value },
-]
-
 export default function PublishFoundPage() {
-	const { form, fields, progress, isSubmitting } = usePublishForm()
+	const { form, values, onSubmit, progress, isSubmitting } = usePublishForm()
+
+	const progressItems = [
+		{ label: 'Titre', done: !!values.title },
+		{ label: "Type d'objet", done: !!values.objectType },
+		{
+			label: 'Description (20 car. min)',
+			done: (values.description?.length ?? 0) >= 20,
+		},
+		{ label: 'Lieu de la trouvaille', done: !!values.ville },
+		{ label: 'Votre nom', done: !!values.name },
+		{ label: 'WhatsApp', done: !!values.whatsapp },
+	]
 
 	return (
 		<main className="bg-muted/20 flex-1">
@@ -66,17 +65,12 @@ export default function PublishFoundPage() {
 							description="Aidez le propriétaire à récupérer son bien."
 						/>
 
-						<Form
-							method="post"
-							{...getFormProps(form)}
-							encType="multipart/form-data"
-							className="space-y-5"
-						>
+						<form onSubmit={onSubmit} noValidate className="space-y-5">
+							<FormRootError message={form.formState.errors.root?.message} />
+
 							<ObjectInfoSection
 								step={1}
-								title={fields.title}
-								objectType={fields.objectType}
-								description={fields.description}
+								control={form.control}
 								accentColor={ACCENT}
 								counterAccentClass="text-primary-green"
 								descriptionPlaceholder="Couleur, marque, signes distinctifs, état de l'objet..."
@@ -87,9 +81,7 @@ export default function PublishFoundPage() {
 
 							<LocationDateSection
 								step={2}
-								ville={fields.ville}
-								commune={fields.commune}
-								date={fields.date}
+								control={form.control}
 								dateLabel="Date de la trouvaille"
 								sectionTitle="Lieu & date de la trouvaille"
 								accentColor={ACCENT}
@@ -97,8 +89,7 @@ export default function PublishFoundPage() {
 
 							<ContactSection
 								step={3}
-								name={fields.name}
-								whatsapp={fields.whatsapp}
+								control={form.control}
 								accentColor={ACCENT}
 								showPrivacyNote
 							/>
@@ -107,15 +98,15 @@ export default function PublishFoundPage() {
 								isSubmitting={isSubmitting}
 								submitClassName="bg-primary-green hover:bg-primary-green-dark"
 							/>
-						</Form>
+						</form>
 					</div>
 
 					<PublishSidebar
 						progress={progress}
-						items={progressItems(fields)}
+						items={progressItems}
 						accentColor={ACCENT}
-						objectType={fields.objectType.value ?? ''}
-						ville={fields.ville.value ?? ''}
+						objectType={values.objectType ?? ''}
+						ville={values.ville ?? ''}
 						formType="retrouve"
 						tips={FOUND_TIPS}
 						hint="Remplissez le type d'objet et la ville pour voir les correspondances."

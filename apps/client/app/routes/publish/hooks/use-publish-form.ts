@@ -1,38 +1,83 @@
-import { useActionData, useNavigation } from 'react-router'
-import { useForm, type SubmissionResult } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
-import { publishFormSchema } from '../publish.schema'
+import { useActionData, useNavigation, useSubmit } from 'react-router'
+import type { FieldErrors } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import type { ActionResult } from '@/shared/types/action'
+import {
+	publishFormSchema,
+	type PublishFormData,
+	type PublishFormInput,
+} from '../publish.schema'
 
-export function usePublishForm() {
-	const lastResult = useActionData() as SubmissionResult | null | undefined
+const EMPTY_VALUES: PublishFormInput = {
+	title: '',
+	objectType: '',
+	description: '',
+	ville: '',
+	commune: '',
+	date: '',
+	name: '',
+	whatsapp: '',
+}
+
+const REQUIRED_FIELD_COUNT = 6
+
+/**
+ * The publish form, shared by `/publish/lost`, `/publish/found` and
+ * `/account/posts/edit` — all three drive the same schema and the same sections.
+ *
+ * The submission goes through `useSubmit` with the form element's own
+ * `FormData`, not through the parsed values alone: the photo picker keeps its
+ * files in real `<input type="file">` elements (see `photos-upload.tsx`), and
+ * only the DOM can carry them. The validated values are written over that
+ * `FormData` afterwards, so fields rendered through a `Select` — which have no
+ * native input at all — reach the action too.
+ */
+export function usePublishForm(defaultValues?: Partial<PublishFormInput>) {
+	const actionData = useActionData<ActionResult>()
 	const navigation = useNavigation()
+	const submit = useSubmit()
 
-	const [form, fields] = useForm({
-		lastResult,
-		constraint: getZodConstraint(publishFormSchema),
-		shouldValidate: 'onBlur',
-		shouldRevalidate: 'onInput',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: publishFormSchema })
-		},
+	const serverErrors =
+		actionData && !actionData.success
+			? (actionData.errors as FieldErrors<PublishFormInput> | undefined)
+			: undefined
+
+	const form = useForm<PublishFormInput, unknown, PublishFormData>({
+		resolver: standardSchemaResolver(publishFormSchema),
+		mode: 'onBlur',
+		reValidateMode: 'onChange',
+		errors: serverErrors,
+		defaultValues: { ...EMPTY_VALUES, ...defaultValues },
 	})
 
+	const values = useWatch({ control: form.control })
+
 	const completedFieldCount = [
-		fields.title.value,
-		fields.objectType.value,
-		(fields.description.value?.length ?? 0) >= 20,
-		fields.ville.value,
-		fields.name.value,
-		fields.whatsapp.value,
+		values.title,
+		values.objectType,
+		(values.description?.length ?? 0) >= 20,
+		values.ville,
+		values.name,
+		values.whatsapp,
 	].filter(Boolean).length
 
-	const progress = Math.round((completedFieldCount / 6) * 100)
-	const isSubmitting = navigation.state === 'submitting'
+	const onSubmit = form.handleSubmit((data, event) => {
+		const formElement = event?.target as HTMLFormElement
+		const formData = new FormData(formElement)
+
+		for (const [name, value] of Object.entries(data)) {
+			formData.set(name, value ?? '')
+		}
+
+		void submit(formData, { method: 'post', encType: 'multipart/form-data' })
+	})
 
 	return {
 		form,
-		fields,
-		progress,
-		isSubmitting,
+		values,
+		onSubmit,
+		progress: Math.round((completedFieldCount / REQUIRED_FIELD_COUNT) * 100),
+		isSubmitting: navigation.state === 'submitting',
 	}
 }
