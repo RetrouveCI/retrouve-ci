@@ -18,33 +18,22 @@ interface ServerSession {
 }
 
 /**
- * Backoffice accounts have no place on the public app.
+ * An admin is also a person who can lose their phone, so a backoffice role is
+ * **not** a reason to refuse a session here: the role says who the user is, not
+ * what the session was created for.
  *
- * The API runs a single better-auth instance, so the admin app and this one
- * share one session cookie: signing in on the backoffice would otherwise make
- * that admin a signed-in *user* here, able to publish listings and message
- * people as themselves. This is the single choke point that refuses it — every
- * loader and action goes through `getServerSession`, so none of them has to
- * remember the rule.
- *
- * It does not make the two sessions independent: the cookie is still shared, so
- * signing in here still replaces the backoffice session. Separating them for
- * real means two better-auth instances with distinct cookie namespaces.
+ * Telling the two apart needs the audience to be carried by the session itself,
+ * which is what the two-instance work does. Until then the two apps share one
+ * better-auth cookie, so an admin signed in on the backoffice does appear signed
+ * in here — see the note in CLAUDE.md.
  */
-function belongsToThisApp(session: ServerSession | null): boolean {
-	return session?.user.role !== 'admin'
-}
-
 export async function getServerSession(
 	request: Request,
 ): Promise<ServerSession | null> {
 	try {
-		const session = await apiFetch<ServerSession | null>(
-			'/api/auth/get-session',
-			{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
-		)
-
-		return belongsToThisApp(session) ? session : null
+		return await apiFetch<ServerSession | null>('/api/auth/get-session', {
+			headers: { Cookie: request.headers.get('cookie') ?? '' },
+		})
 	} catch {
 		return null
 	}

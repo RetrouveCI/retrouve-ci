@@ -41,10 +41,12 @@ describe('getServerSession', () => {
 		expect(session?.user.id).toBe('user-1')
 	})
 
-	it('reports no session for a backoffice account', async () => {
+	it('accepts a backoffice account: an admin is a user of this app too', async () => {
 		mockedApiFetch.mockResolvedValue(sessionFor('admin'))
 
-		expect(await getServerSession(request)).toBeNull()
+		const session = await getServerSession(request)
+
+		expect(session?.user.id).toBe('user-1')
 	})
 
 	it('reports no session when the API has none', async () => {
@@ -73,8 +75,16 @@ describe('requireServerSession', () => {
 		expect(session.user.id).toBe('user-1')
 	})
 
-	it('redirects a backoffice account to the login page, remembering the page', async () => {
+	it('lets a backoffice account through', async () => {
 		mockedApiFetch.mockResolvedValue(sessionFor('admin'))
+
+		await expect(requireServerSession(request)).resolves.toMatchObject({
+			user: { role: 'admin' },
+		})
+	})
+
+	it('redirects to the login page, remembering the page, when there is no session', async () => {
+		mockedApiFetch.mockResolvedValue(null)
 
 		const thrown = await requireServerSession(request).catch(
 			(error: unknown) => error,
@@ -92,8 +102,18 @@ describe('redirectIfAuthenticated', () => {
 		mockedApiFetch.mockReset()
 	})
 
-	it('lets a backoffice account reach the auth pages', async () => {
+	it('sends a signed-in admin away from the auth pages, like any other user', async () => {
 		mockedApiFetch.mockResolvedValue(sessionFor('admin'))
+
+		const thrown = await redirectIfAuthenticated(
+			new Request('https://retrouve.ci/auth/login'),
+		).catch((error: unknown) => error)
+
+		expect(thrown).toBeInstanceOf(Response)
+	})
+
+	it('lets an anonymous visitor reach the auth pages', async () => {
+		mockedApiFetch.mockResolvedValue(null)
 
 		await expect(
 			redirectIfAuthenticated(new Request('https://retrouve.ci/auth/login')),
