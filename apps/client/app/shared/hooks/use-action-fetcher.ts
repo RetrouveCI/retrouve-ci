@@ -7,9 +7,11 @@ import { useFetcher } from 'react-router'
  * `FieldErrors`, so a form hands it straight to `useForm`'s `errors:` option and
  * server-side messages land on the fields they belong to.
  *
- * Pass a `key` when two instances of the same form can be mounted at once (a
- * create dialog and a row-level edit dialog, say): without one they would share
- * a single fetcher and each other's errors.
+ * A `key` is **not** needed to keep two forms apart: `useFetcher` falls back to
+ * `useId()`, so every call already owns its own fetcher — verified against the
+ * five settings dialogs, which post to one action and stay independent without
+ * one. Pass a key only to share a single fetcher's state between components, or
+ * to keep it alive across an unmount.
  */
 export function useActionFetcher<
 	TAction,

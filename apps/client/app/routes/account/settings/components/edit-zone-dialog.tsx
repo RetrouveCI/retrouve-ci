@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useFetcher } from 'react-router'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
+import { useController, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
 import {
 	Button,
 	Dialog,
@@ -10,18 +9,22 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
+	FieldError,
 } from '@app/ui/components'
-import { InputLabel, FieldError } from '@app/ui/components/form'
+import { FormRootError, InputLabel } from '@app/ui/components/form'
 import { Loader2, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@app/ui/utils'
 import { CI_VILLES, ABIDJAN_COMMUNES } from '@/shared/constants/locations'
-import { updateZoneSchema } from '../settings.schema'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import {
+	updateZoneSchema,
+	type UpdateZoneData,
+	type UpdateZoneInput,
+} from '../settings.schema'
+import type { action } from '../_index'
 
-interface ActionResult {
-	ok: boolean
-	error?: string
-}
+const COMMUNE_CITY = 'Abidjan'
 
 interface EditZoneDialogProps {
 	currentCity: string | null
@@ -32,31 +35,40 @@ export function EditZoneDialog({
 	currentCity,
 	currentCommune,
 }: EditZoneDialogProps) {
-	const fetcher = useFetcher<ActionResult>()
 	const [open, setOpen] = useState(false)
-	const isSaving = fetcher.state !== 'idle'
+	const [hasSubmitted, setHasSubmitted] = useState(false)
 
-	const [form, fields] = useForm({
-		id: 'update-zone-form',
-		constraint: getZodConstraint(updateZoneSchema),
-		defaultValue: { city: currentCity ?? '', commune: currentCommune ?? '' },
-		shouldValidate: 'onSubmit',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: updateZoneSchema })
+	const fetcher = useActionFetcher<typeof action, UpdateZoneInput>()
+
+	const form = useForm<UpdateZoneInput, unknown, UpdateZoneData>({
+		resolver: standardSchemaResolver(updateZoneSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		errors: fetcher.errors,
+		defaultValues: {
+			intent: 'update-zone',
+			city: currentCity ?? '',
+			commune: currentCommune ?? '',
 		},
 	})
-	const cityControl = useInputControl(fields.city)
-	const communeControl = useInputControl(fields.commune)
+
+	// `useController` rather than a render prop per field: picking a city outside
+	// Abidjan has to clear the commune, so one field's handler reaches the other.
+	const city = useController({ control: form.control, name: 'city' })
+	const commune = useController({ control: form.control, name: 'commune' })
+
+	const onSubmit = (values: UpdateZoneData) => {
+		setHasSubmitted(true)
+		void fetcher.submit(values, { method: 'post' })
+	}
 
 	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-		if (fetcher.data.ok) {
-			toast.success('Zone mise à jour')
-			setOpen(false)
-		} else {
-			toast.error(fetcher.data.error ?? 'Une erreur est survenue')
-		}
-	}, [fetcher.state, fetcher.data])
+		if (!hasSubmitted || !fetcher.isOk) return
+
+		setHasSubmitted(false)
+		toast.success('Zone mise à jour')
+		setOpen(false)
+	}, [hasSubmitted, fetcher.isOk])
 
 	const chipClass = (active: boolean) =>
 		cn(
@@ -67,7 +79,19 @@ export function EditZoneDialog({
 		)
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog
+			open={open}
+			onOpenChange={next => {
+				setOpen(next)
+				// Reset on open — see `edit-name-dialog.tsx`.
+				if (next)
+					form.reset({
+						intent: 'update-zone',
+						city: currentCity ?? '',
+						commune: currentCommune ?? '',
+					})
+			}}
+		>
 			<DialogTrigger asChild>
 				<Button variant="ghost" size="sm" className="rounded-lg text-xs">
 					Modifier
@@ -80,45 +104,50 @@ export function EditZoneDialog({
 						Modifier votre lieu d&apos;habitation
 					</DialogDescription>
 				</DialogHeader>
-				<fetcher.Form
-					method="post"
-					{...getFormProps(form)}
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					noValidate
 					className="space-y-5"
 				>
-					<input type="hidden" name="intent" value="update-zone" />
+					<FormRootError message={form.formState.errors.root?.message} />
 
 					<div className="space-y-2">
 						<InputLabel>Ville</InputLabel>
 						<div className="flex flex-wrap gap-2">
-							{CI_VILLES.map(city => (
+							{CI_VILLES.map(name => (
 								<button
-									key={city}
+									key={name}
 									type="button"
 									onClick={() => {
-										cityControl.change(city)
-										if (city !== 'Abidjan') communeControl.change('')
+										city.field.onChange(name)
+										if (name !== COMMUNE_CITY) commune.field.onChange('')
 									}}
-									className={chipClass(cityControl.value === city)}
+									className={chipClass(city.field.value === name)}
 								>
-									{city}
+									{name}
 								</button>
 							))}
 						</div>
-						<FieldError errors={fields.city.errors} />
+						{city.fieldState.error && (
+							<FieldError
+								errors={[city.fieldState.error]}
+								className="text-xs"
+							/>
+						)}
 					</div>
 
-					{cityControl.value === 'Abidjan' && (
+					{city.field.value === COMMUNE_CITY && (
 						<div className="space-y-2">
 							<InputLabel>Commune</InputLabel>
 							<div className="flex flex-wrap gap-2">
-								{ABIDJAN_COMMUNES.map(commune => (
+								{ABIDJAN_COMMUNES.map(name => (
 									<button
-										key={commune}
+										key={name}
 										type="button"
-										onClick={() => communeControl.change(commune)}
-										className={chipClass(communeControl.value === commune)}
+										onClick={() => commune.field.onChange(name)}
+										className={chipClass(commune.field.value === name)}
 									>
-										{commune}
+										{name}
 									</button>
 								))}
 							</div>
@@ -127,10 +156,10 @@ export function EditZoneDialog({
 
 					<Button
 						type="submit"
-						disabled={isSaving}
+						disabled={fetcher.isSubmitting}
 						className="bg-primary-green hover:bg-primary-green-dark h-11 w-full gap-2 rounded-xl text-white"
 					>
-						{isSaving ? (
+						{fetcher.isSubmitting ? (
 							<>
 								<Loader2 className="h-4 w-4 animate-spin" />
 								Enregistrement...
@@ -142,7 +171,7 @@ export function EditZoneDialog({
 							</>
 						)}
 					</Button>
-				</fetcher.Form>
+				</form>
 			</DialogContent>
 		</Dialog>
 	)

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
+import { useController, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
 import {
 	Button,
 	Dialog,
@@ -9,62 +9,73 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
+	FieldError,
 } from '@app/ui/components'
-import { FieldError } from '@app/ui/components/form'
+import { FormRootError } from '@app/ui/components/form'
 import { Loader2, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { PasswordInput } from '@/routes/auth/components/password-input'
-import { changePasswordSchema } from '../settings.schema'
+import {
+	changePasswordSchema,
+	type ChangePasswordData,
+	type ChangePasswordInput,
+} from '../settings.schema'
 import { changePassword } from '../helpers/settings.client'
 
 export function ChangePasswordDialog() {
 	const [open, setOpen] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
-	const [error, setError] = useState('')
 
-	const [form, fields] = useForm({
-		id: 'change-password-form',
-		constraint: getZodConstraint(changePasswordSchema),
-		shouldValidate: 'onSubmit',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: changePasswordSchema })
-		},
-		onSubmit(event, { submission }) {
-			event.preventDefault()
-			if (submission?.status !== 'success') return
-			void handleSave(
-				submission.value.currentPassword,
-				submission.value.newPassword,
-			)
+	// No fetcher here: `authClient.changePassword` is a browser call, so the
+	// failure message comes back in hand and lands on `root` through `setError`.
+	const form = useForm<ChangePasswordInput, unknown, ChangePasswordData>({
+		resolver: standardSchemaResolver(changePasswordSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: {
+			currentPassword: '',
+			newPassword: '',
+			confirmPassword: '',
 		},
 	})
-	const current = useInputControl(fields.currentPassword)
-	const next = useInputControl(fields.newPassword)
-	const confirm = useInputControl(fields.confirmPassword)
 
-	const handleSave = async (currentPassword: string, newPassword: string) => {
-		setError('')
+	const current = useController({
+		control: form.control,
+		name: 'currentPassword',
+	})
+	const next = useController({ control: form.control, name: 'newPassword' })
+	const confirm = useController({
+		control: form.control,
+		name: 'confirmPassword',
+	})
+
+	const onSubmit = async (values: ChangePasswordData) => {
 		setIsSaving(true)
-		const res = await changePassword(currentPassword, newPassword)
+		const result = await changePassword(
+			values.currentPassword,
+			values.newPassword,
+		)
 		setIsSaving(false)
-		if (res.ok) {
-			toast.success('Mot de passe modifié')
-			setOpen(false)
-			form.reset()
-		} else {
-			setError(res.error ?? 'Une erreur est survenue')
+
+		if (!result.ok) {
+			form.setError('root', {
+				type: 'custom',
+				message: result.error ?? 'Une erreur est survenue',
+			})
+			return
 		}
+
+		toast.success('Mot de passe modifié')
+		setOpen(false)
+		form.reset()
 	}
 
 	return (
 		<Dialog
 			open={open}
-			onOpenChange={next => {
-				setOpen(next)
-				if (!next) {
-					form.reset()
-					setError('')
-				}
+			onOpenChange={isOpen => {
+				setOpen(isOpen)
+				if (!isOpen) form.reset()
 			}}
 		>
 			<DialogTrigger asChild>
@@ -79,42 +90,63 @@ export function ChangePasswordDialog() {
 						Changer votre mot de passe
 					</DialogDescription>
 				</DialogHeader>
-				<form {...getFormProps(form)} className="space-y-4">
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					noValidate
+					className="space-y-4"
+				>
+					<FormRootError message={form.formState.errors.root?.message} />
+
 					<div className="space-y-1">
 						<PasswordInput
 							id="current-password"
-							name="currentPassword"
+							name={current.field.name}
 							label="Mot de passe actuel"
-							value={current.value ?? ''}
-							onChange={current.change}
+							value={current.field.value ?? ''}
+							onChange={current.field.onChange}
 							disabled={isSaving}
 						/>
-						<FieldError errors={fields.currentPassword.errors} />
+						{current.fieldState.error && (
+							<FieldError
+								errors={[current.fieldState.error]}
+								className="text-xs"
+							/>
+						)}
 					</div>
 					<div className="space-y-1">
 						<PasswordInput
 							id="new-password"
-							name="newPassword"
+							name={next.field.name}
 							label="Nouveau mot de passe"
-							value={next.value ?? ''}
-							onChange={next.change}
+							value={next.field.value ?? ''}
+							onChange={next.field.onChange}
 							placeholder="6 caractères minimum"
 							disabled={isSaving}
 						/>
-						<FieldError errors={fields.newPassword.errors} />
+						{next.fieldState.error && (
+							<FieldError
+								errors={[next.fieldState.error]}
+								className="text-xs"
+							/>
+						)}
 					</div>
 					<div className="space-y-1">
 						<PasswordInput
 							id="confirm-password"
-							name="confirmPassword"
+							name={confirm.field.name}
 							label="Confirmer le mot de passe"
-							value={confirm.value ?? ''}
-							onChange={confirm.change}
+							value={confirm.field.value ?? ''}
+							onChange={confirm.field.onChange}
 							disabled={isSaving}
 						/>
-						<FieldError errors={fields.confirmPassword.errors} />
+						{confirm.fieldState.error && (
+							<FieldError
+								errors={[confirm.fieldState.error]}
+								className="text-xs"
+							/>
+						)}
 					</div>
-					{error && <p className="text-destructive text-sm">{error}</p>}
+
 					<Button
 						type="submit"
 						disabled={isSaving}
