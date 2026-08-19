@@ -34,7 +34,7 @@
 	"exclude": [
 		"node_modules",
 		"build",
-		"app/routes/account/stickers/**",
+		"app/routes/account/stickers/_index.tsx",
 		"app/routes/account/orders/**",
 		"app/routes/q/**"
 	]

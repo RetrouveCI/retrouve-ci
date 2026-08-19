@@ -709,8 +709,8 @@ vérifiable par `typecheck`.
 | E13.3 | `apps/client` — `features/` → `routes/<zone>/`               | ✅ #47        |
 | E13.4 | `apps/admin` — `shared/` → les six dossiers                  | ✅ #48        |
 | E13.5 | `apps/admin` — `features/` → `routes/<zone>/`                | ✅ #49        |
-| E13.6 | skills `frontend-conventions` / `code-quality-review`, plans | ✅ (cette PR) |
-| E13.7 | contrat action / formulaire — `{ success, errors }`          | ⬜ à faire    |
+| E13.6 | skills `frontend-conventions` / `code-quality-review`, plans | ✅ #50 + #52  |
+| E13.7 | contrat action / formulaire — `{ success, errors }`          | ✅ (cette PR) |
 
 **Ce que les déplacements ont appris**, à garder si un autre front bouge un jour
 :
@@ -761,34 +761,45 @@ features/qr/{list,generate,token} → routes/dashboard/qr/{list,generate,token}/
 features/auth/*          → routes/auth/*/
 ```
 
-#### Contrat action / formulaire — à converger dans E13
+#### Contrat action / formulaire — E13.7 ✅
 
-La référence ne renvoie pas `{ ok, error }` depuis ses actions mais un résultat
-discriminé `{ success, errors }`, où `errors` est directement un `FieldErrors`
-de react-hook-form, réinjecté dans le formulaire par l'option `errors:` de
-`useForm`. Quatre helpers portent cette boucle et sont à reprendre :
+Les actions ne renvoient plus `{ ok, error }` mais l'`ActionResult` discriminé
+de la référence, `{ success: true } | { success: false, errors? }`, où `errors`
+est directement un `FieldErrors` de react-hook-form réinjecté par l'option
+`errors:` de `useForm`. Trois helpers portent la boucle :
 
+- `shared/types/action.ts` — `ActionResult`, `FormErrors` ;
 - `shared/helpers/form.ts` — `zodErrorToFieldErrors(error)` : `z.flattenError` →
   `{ [champ]: { type: 'custom', message } }`, les erreurs de formulaire
   atterrissant sur `root` ;
-- `shared/utils/form.ts` — `stringToFormError(message)` ;
-- `shared/utils/api-operation.ts` — `ApiError`, `withApiOperationError`,
-  `getApiErrorMessage` ;
-- `shared/hooks/use-action-fetcher.ts` — expose
+- `shared/utils/api-operation.ts` — `withApiOperationError`,
+  `getApiErrorMessage` (l'`ApiError` reste dans `shared/utils/api-fetch.ts`, où
+  elle est levée) ;
+- `shared/hooks/use-action-fetcher.ts` — expose désormais
   `{ data, isOk, errors, isSubmitting, submit, Form, state }`, avec une `key` de
   fetcher nommée pour que deux dialogues concurrents restent indépendants.
+
+`FormRootError` (`packages/ui/src/components/form/`) affiche l'entrée `root` en
+tête de formulaire ; c'est la seule addition au paquet `ui`, factorisée parce
+que la même `Alert` destructive se répétait dans chaque formulaire migré.
 
 C'est le pont « erreurs serveur → champs » que §4.2 du plan client reportait en
 E7.4 : il arrive ici, avec l'implémentation de référence sous les yeux.
 
-⚠️ **Ce n'est pas gratuit** : nos **15 actions** renvoient `{ ok, error }` et
-nos formulaires affichent des toasts au lieu d'alimenter les champs. Le
-`useActionFetcher` livré en E7.2 est bâti sur la forme actuelle — callbacks
-`onOk`/`onError` déclenchés une fois par réponse, pas de pont `errors`.
-Converger réécrit les 15 actions **et** tous les formulaires déjà migrés. À
-faire dans une PR distincte au sein de E13 (E13.7), après les déplacements :
-mélanger un renommage de masse et un changement de contrat rendrait la relecture
-impossible.
+Deux écarts assumés par rapport à la liste de départ :
+
+- `shared/utils/form.ts` — `stringToFormError` n'est pas porté : la fonction est
+  du code mort dans la référence (zéro consommateur), et nos formulaires
+  construisent leur `root` via `withApiOperationError`. À porter le jour où un
+  appel navigateur (`helpers/*.client.ts`) devra transformer un message en
+  erreur de formulaire.
+- Les **six routes encore sur Conform** — `contact`, `publish`,
+  `account/settings`, `account/posts/edit`, `stickers/order` et `q` — gardent
+  `{ ok, error }` ou `submission.reply()`. Leur action ne peut pas changer de
+  forme sans réécrire le formulaire qui la consomme : le `submission.reply()` de
+  Conform _est_ son canal d'erreurs. Elles convergent donc dans leur étape E7.x
+  respective, et E13.7 se limite aux routes déjà sur react-hook-form (les trois
+  actions `auth`, `notifications`, `account/posts`, `account/stickers`).
 
 #### Risques
 

@@ -6,6 +6,7 @@ import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { otpSchema, type OtpData, type OtpInput } from '../register.schema'
 import { verifyPhoneOtp } from '../../helpers/phone-auth.client'
 import { OtpStep } from '../../components/otp-step'
+import type { action } from '../_index'
 
 const OTP_EXPIRY_SECONDS = 120
 
@@ -22,6 +23,7 @@ export function OtpStepSection({
 	const [isVerifying, setIsVerifying] = useState(false)
 	const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS)
 	const [resendKey, setResendKey] = useState(0)
+	const [hasRequestedResend, setHasRequestedResend] = useState(false)
 
 	const form = useForm<OtpInput, unknown, OtpData>({
 		resolver: standardSchemaResolver(otpSchema),
@@ -30,19 +32,32 @@ export function OtpStepSection({
 		defaultValues: { otp: '' },
 	})
 
-	const { submit: resend, isSubmitting: isResending } = useActionFetcher({
-		onOk: () => {
+	// The resend is a side mutation, not this form's submission: its outcome is
+	// reported with a toast rather than through the form's own errors.
+	const resendFetcher = useActionFetcher<typeof action>()
+
+	useEffect(() => {
+		if (!hasRequestedResend || resendFetcher.state !== 'idle') return
+
+		if (resendFetcher.isOk) {
 			toast.success('Nouveau code envoyé !')
 			form.setValue('otp', '')
 			setOtpError(false)
 			setResendKey(k => k + 1)
-		},
-		onError: result => {
+		} else {
 			toast.error('Impossible d’envoyer le code', {
-				description: result.error,
+				description: resendFetcher.errors?.root?.message,
 			})
-		},
-	})
+		}
+
+		setHasRequestedResend(false)
+	}, [
+		hasRequestedResend,
+		resendFetcher.state,
+		resendFetcher.isOk,
+		resendFetcher.errors,
+		form,
+	])
 
 	useEffect(() => {
 		setTimeLeft(OTP_EXPIRY_SECONDS)
@@ -79,7 +94,11 @@ export function OtpStepSection({
 	}
 
 	const handleResend = () => {
-		void resend({ intent: 'send-otp', phoneNumber }, { method: 'post' })
+		setHasRequestedResend(true)
+		void resendFetcher.submit(
+			{ intent: 'send-otp', phoneNumber },
+			{ method: 'post' },
+		)
 	}
 
 	return (
@@ -94,7 +113,7 @@ export function OtpStepSection({
 						otpError={otpError}
 						setOtpError={setOtpError}
 						timeLeft={timeLeft}
-						isSubmitting={isVerifying || isResending}
+						isSubmitting={isVerifying || resendFetcher.isSubmitting}
 						formatTime={formatTime}
 						onResend={handleResend}
 					/>

@@ -1,8 +1,9 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { Controller, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { FormRootError } from '@app/ui/components/form'
 import { toErrorList } from '../../helpers/field-errors'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import {
@@ -11,6 +12,7 @@ import {
 	type PhoneNumberInput,
 } from '../register.schema'
 import { PhoneStep } from '../../components/phone-step'
+import type { action } from '../_index'
 
 interface PhoneStepSectionProps {
 	onVerified: (phoneNumber: string) => void
@@ -18,39 +20,45 @@ interface PhoneStepSectionProps {
 
 export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
 	const submittedPhoneRef = useRef('')
+	const [hasSubmitted, setHasSubmitted] = useState(false)
 
-	const { submit, isSubmitting } = useActionFetcher({
-		onOk: () => {
-			toast.success('Code envoyé !', {
-				description: 'Vérifiez vos SMS ou WhatsApp.',
-			})
-			onVerified(submittedPhoneRef.current)
-		},
-		onError: () => {
-			toast.error('Impossible d’envoyer le code', {
-				description: 'Vérifiez le numéro et réessayez.',
-			})
-		},
-	})
+	const fetcher = useActionFetcher<typeof action, PhoneNumberInput>()
 
 	const form = useForm<PhoneNumberInput, unknown, PhoneNumberData>({
 		resolver: standardSchemaResolver(phoneNumberSchema),
 		mode: 'onSubmit',
+		errors: fetcher.errors,
 		reValidateMode: 'onChange',
 		defaultValues: { phoneNumber: '' },
 	})
 
 	const onSubmit = (values: PhoneNumberData) => {
 		submittedPhoneRef.current = values.phoneNumber
-		void submit(
+		setHasSubmitted(true)
+		void fetcher.submit(
 			{ intent: 'send-otp', phoneNumber: values.phoneNumber },
 			{ method: 'post' },
 		)
 	}
 
+	useEffect(() => {
+		if (!hasSubmitted || !fetcher.isOk) return
+
+		setHasSubmitted(false)
+		toast.success('Code envoyé !', {
+			description: 'Vérifiez vos SMS ou WhatsApp.',
+		})
+		onVerified(submittedPhoneRef.current)
+	}, [hasSubmitted, fetcher.isOk, onVerified])
+
 	return (
 		<>
 			<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+				<FormRootError
+					message={form.formState.errors.root?.message}
+					className="mb-5"
+				/>
+
 				<Controller
 					control={form.control}
 					name="phoneNumber"
@@ -59,7 +67,7 @@ export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
 							phoneNumber={field.value}
 							setPhoneNumber={field.onChange}
 							errors={toErrorList(fieldState.error)}
-							isSubmitting={isSubmitting}
+							isSubmitting={fetcher.isSubmitting}
 						/>
 					)}
 				/>

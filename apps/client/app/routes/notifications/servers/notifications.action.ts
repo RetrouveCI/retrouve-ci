@@ -1,34 +1,36 @@
-import { data, redirect } from 'react-router'
+import { redirect } from 'react-router'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { getServerSession } from '@/shared/helpers/session.server'
-import { ApiError } from '@/shared/utils/api-fetch'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import { notificationActionSchema } from '../notifications.schema'
 import {
 	markAllNotificationsAsRead,
 	markNotificationAsRead,
 } from './notifications.service'
 
-export async function action({ request }: { request: Request }) {
+export async function action({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	const session = await getServerSession(request)
 	if (!session) throw redirect('/auth/login')
 
 	const submission = notificationActionSchema.safeParse(
 		Object.fromEntries(await request.formData()),
 	)
-	if (!submission.success) return data({ ok: false }, { status: 400 })
-
-	try {
-		if (submission.data.intent === 'mark-read') {
-			await markNotificationAsRead(submission.data.id, request)
-		} else {
-			await markAllNotificationsAsRead(request)
-		}
-		return { ok: true }
-	} catch (err) {
-		if (err instanceof ApiError && err.status === 401)
-			throw redirect('/auth/login')
-		return data(
-			{ ok: false },
-			{ status: err instanceof ApiError ? err.status : 400 },
-		)
+	if (!submission.success) {
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
+
+	const { data } = submission
+
+	return withApiOperationError(
+		() =>
+			data.intent === 'mark-read'
+				? markNotificationAsRead(data.id, request)
+				: markAllNotificationsAsRead(request),
+		{ redirectOnUnauthorized: '/auth/login' },
+	)
 }

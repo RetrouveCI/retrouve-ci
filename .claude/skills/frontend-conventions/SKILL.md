@@ -73,6 +73,77 @@ chaque exception est documentée dans `CLAUDE.md`.
 Un hook ne fait jamais d'appel HTTP directement — il utilise les fonctions de
 `servers/`.
 
+## Contrat action / formulaire
+
+Une action ne renvoie jamais une forme ad hoc. Elle renvoie l'`ActionResult` de
+`shared/types/action.ts` :
+
+```ts
+type ActionResult = { success: true } | { success: false; errors?: FormErrors }
+```
+
+`errors` est déjà au format `FieldErrors` de react-hook-form : une entrée par
+champ, plus `root` pour ce qui n'appartient à aucun champ. Deux helpers la
+construisent, jamais du code à la main :
+
+- `zodErrorToFieldErrors` (`shared/helpers/form.ts`) — transforme l'erreur d'un
+  `safeParse` en cette map ; les issues de niveau formulaire atterrissent sur
+  `root`.
+- `withApiOperationError` (`shared/utils/api-operation.ts`) — enveloppe l'appel
+  service : `{ success: true }` si tout passe, `root` si c'est une `ApiError`,
+  re-`throw` pour le reste. L'option `redirectOnUnauthorized` convertit un 401
+  en `redirect()` au lieu d'une erreur de formulaire.
+
+```ts
+export async function contactAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
+	const submission = contactSchema.safeParse(
+		Object.fromEntries(await request.formData()),
+	)
+	if (!submission.success) {
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
+	}
+
+	return withApiOperationError(() =>
+		submitContactMessage(submission.data, request),
+	)
+}
+```
+
+Côté formulaire, `useActionFetcher` (`shared/hooks/use-action-fetcher.ts`) expose
+`{ data, isOk, errors, isSubmitting, submit, Form, state }`, et `errors` est
+passé tel quel à l'option `errors:` de `useForm` : les messages du serveur se
+posent sur les champs auxquels ils appartiennent, sans code de recopie.
+
+```tsx
+const fetcher = useActionFetcher<typeof action, ContactInput>()
+
+const form = useForm<ContactInput, unknown, ContactData>({
+	resolver: standardSchemaResolver(contactSchema),
+	mode: 'onSubmit',
+	errors: fetcher.errors,
+	reValidateMode: 'onChange',
+	defaultValues: INITIAL_VALUES,
+})
+
+useEffect(() => {
+	if (!fetcher.isOk) return
+	toast.success('Message envoyé.')
+}, [fetcher.isOk])
+```
+
+- `root` s'affiche avec `FormRootError` de `@app/ui/components/form`, en tête de
+  formulaire.
+- Les effets de succès (toast, navigation, fermeture d'un dialogue) vivent dans
+  un `useEffect` gardé sur `fetcher.isOk` — pas de callback passé au hook.
+- Deux instances du même formulaire montées en même temps (un dialogue de
+  création et un dialogue d'édition de ligne) doivent recevoir une **clé**
+  nommée, p. ex. `useActionFetcher('update-sticker-' + id)`. Sans elle, elles
+  partagent un fetcher, donc leurs erreurs.
+
 ## `mappers/`
 
 Transforment les réponses API (DTO) en ViewModels prêts pour l'affichage. Un
@@ -114,6 +185,10 @@ zones vont dans `app/shared/types/`.
   dossier de zone, ou dans `app/shared/` s'il traverse les zones.
 - ❌ Pas de module de route en dehors de `routes/`.
 - ✅ Le formulaire et l'action valident avec le **même** schéma.
+- ✅ Une action renvoie `ActionResult` — jamais une forme ad hoc, jamais un
+  message d'erreur nu.
+- ❌ Pas de toast comme seul canal d'erreur d'un formulaire : une erreur de
+  champ se pose sur le champ, le reste sur `root`.
 
 ## Conventions de nommage
 

@@ -1,7 +1,9 @@
-import { data, redirect } from 'react-router'
+import { redirect } from 'react-router'
 import { z } from 'zod'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { getServerSession } from '@/shared/helpers/session.server'
-import { ApiError } from '@/shared/utils/api-fetch'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import {
 	activateSticker,
 	revokeSticker,
@@ -29,7 +31,13 @@ const actionSchema = z.discriminatedUnion('intent', [
 	z.object({ intent: z.literal('revoke'), code: z.string() }),
 ])
 
-export async function stickersAction({ request }: { request: Request }) {
+const UNAUTHORIZED = { redirectOnUnauthorized: '/auth/login' }
+
+export async function stickersAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	const session = await getServerSession(request)
 	if (!session) throw redirect('/auth/login')
 
@@ -37,42 +45,26 @@ export async function stickersAction({ request }: { request: Request }) {
 		Object.fromEntries(await request.formData()),
 	)
 	if (!submission.success) {
-		return data({ ok: false }, { status: 400 })
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
 
-	try {
-		switch (submission.data.intent) {
-			case 'activate':
-				await activateSticker(
-					submission.data.code,
-					{
-						label: submission.data.label,
-						linkedObject: submission.data.linkedObject,
-					},
-					request,
-				)
-				break
-			case 'update':
-				await updateSticker(
-					submission.data.code,
-					{
-						label: submission.data.label,
-						linkedObject: submission.data.linkedObject,
-					},
-					request,
-				)
-				break
-			case 'revoke':
-				await revokeSticker(submission.data.code, request)
-				break
-		}
-		return { ok: true }
-	} catch (err) {
-		if (err instanceof ApiError && err.status === 401)
-			throw redirect('/auth/login')
-		if (err instanceof ApiError) {
-			return data({ ok: false, error: err.message }, { status: err.status })
-		}
-		return data({ ok: false }, { status: 400 })
+	if (submission.data.intent === 'revoke') {
+		const { code } = submission.data
+
+		return withApiOperationError(
+			() => revokeSticker(code, request),
+			UNAUTHORIZED,
+		)
 	}
+
+	const { intent, code, label, linkedObject } = submission.data
+	const content = { label, linkedObject }
+
+	return withApiOperationError(
+		() =>
+			intent === 'activate'
+				? activateSticker(code, content, request)
+				: updateSticker(code, content, request),
+		UNAUTHORIZED,
+	)
 }

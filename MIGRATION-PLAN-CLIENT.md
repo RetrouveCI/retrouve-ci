@@ -214,13 +214,19 @@ schéma** — RHF ne change rien à cette règle.
 `errors` (au format `FieldErrors`), `isOk`, `isSubmitting` et `Form` — l'option
 `errors:` de `useForm` refermant la boucle erreurs serveur → champs.
 
-La moitié `errors` **n'a pas été livrée**, faute de consommateur : l'inventaire
-des `*.action.ts` montre que seules deux actions renvoient des erreurs par
-champ, `publish` et `account/posts/edit`, toutes deux via `submission.reply()`
-de Conform. Les treize autres — dont les cinq de `auth` — renvoient
-`{ ok, error }` et affichent des toasts. Le pont `errors` → champs sera donc
-écrit en **E7.4**, avec la première action qui en a besoin, plutôt que deviné en
-E7.2.
+La moitié `errors` **n'a pas été livrée en E7.2**, faute de consommateur :
+l'inventaire des `*.action.ts` montrait alors que seules deux actions
+renvoyaient des erreurs par champ, `publish` et `account/posts/edit`, toutes
+deux via `submission.reply()` de Conform. Les treize autres — dont les cinq de
+`auth` — renvoyaient `{ ok, error }` et affichaient des toasts.
+
+> **Livré depuis, en E13.7** : le pont `errors` → champs existe. Les actions
+> renvoient `ActionResult` (`{ success, errors }`), `useActionFetcher` expose
+> `errors` au format `FieldErrors`, et les formulaires le passent à l'option
+> `errors:` de `useForm`. Voir §E13.7 de [MIGRATION-PLAN.md](MIGRATION-PLAN.md)
+> pour le détail, dont les six routes encore sur Conform qui gardent l'ancienne
+> forme jusqu'à leur étape E7.x. Le paragraphe ci-dessous décrit donc l'état
+> E7.2, conservé pour la trace.
 
 Ce qui est livré, dans `apps/client` seulement : `useActionFetcher` expose
 `submit`, `data` et `isSubmitting`, et déclenche `onOk` / `onError` **une seule
