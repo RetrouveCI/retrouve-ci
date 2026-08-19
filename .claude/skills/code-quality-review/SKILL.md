@@ -27,7 +27,7 @@ Approuver un changement dès qu'il **améliore nettement la santé globale du co
    Sinon, revoir les fichiers/PR indiqués par l'utilisateur.
 2. **Comprendre l'intention** avant de lire le code : que vise ce changement, quelle spec/tâche, quel comportement attendu.
 3. **Relire les tests d'abord** — ils révèlent l'intention et la couverture (comportement testé, pas l'implémentation ; cases + edge cases ; noms parlants ; attraperaient-ils une régression).
-4. **Classer chaque fichier** par couche (back `domains/infrastructures/presentations/shared`, front `features/.../servers/...`, config, docker).
+4. **Classer chaque fichier** par couche (back `domains/infrastructures/presentations/shared`, front `routes/<zone>/<page>/{servers,components,types}`, config, docker).
 5. **Dérouler les cinq axes** et les checklists ci-dessous.
 6. **Restituer** un rapport groupé par sévérité (voir plus bas). Pour chaque point : `fichier:ligne`, la règle enfreinte, et la correction attendue.
 
@@ -76,16 +76,16 @@ Architecture en 4 zones : `domains/` · `infrastructures/` · `presentations/` �
 
 ## Checklist Front-end (`frontend-conventions`)
 
-Architecture Feature-based : `features/[feature]/` + `shared/`.
+Arborescence `app/routes/<zone>/<page>/` + `app/components/`, `app/context/`, `app/shared/`.
 
 - [ ] Aucun `fetch` hors `servers/` — composants et hooks passent par `servers/*.service.ts`.
 - [ ] Un composant reçoit un **ViewModel** (via `mapper`), jamais un DTO brut.
 - [ ] Aucune logique de transformation dans un composant → `mapper`.
-- [ ] `*.actions.ts` valident l'input avec le schéma `zod` de la feature avant l'appel service.
-- [ ] Validation `zod` partagée entre formulaire client et `*.actions.ts`.
-- [ ] Type/composant/constante réutilisé entre features → `shared/types` · `shared/components` · `shared/constants`, pas dans une feature.
-- [ ] Loaders/actions conformes React Router v7 ; `index.tsx` expose la page/routeur de la feature.
-- [ ] Nommage : composants `kebab-case.tsx`, hooks préfixés `use`, `[feature].service|loader|actions|validators|types|const.ts`.
+- [ ] `*.action.ts` valident l'input avec le schéma `zod` de la route avant l'appel service.
+- [ ] Validation `zod` partagée entre formulaire client et `*.action.ts`.
+- [ ] Type/composant/mapper partagé → remonté au dossier de zone, ou dans `app/shared/` s'il traverse les zones — jamais laissé dans une route.
+- [ ] Loaders/actions conformes React Router v7 ; la page est un `_index.tsx`, et toute route ajoutée ou déplacée a son entrée à jour dans `app/routes.ts` (résolu par chemin — invisible au `typecheck`, vérifier au `build`).
+- [ ] Nommage : composants `kebab-case.tsx`, hooks `use-kebab-case.ts`, `[page].service|loader|action|schema|const.ts`, types dans `types/[page].types.ts`.
 
 ## Checklist SOLID
 

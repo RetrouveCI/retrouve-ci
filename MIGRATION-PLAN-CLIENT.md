@@ -2,7 +2,13 @@
 
 > Décliné de [MIGRATION-PLAN.md](MIGRATION-PLAN.md). Couvre la part client des
 > étapes **E6**, **E7**, **E10**, **E11**. Convention cible : skill
-> `frontend-conventions` (React Router v7 · feature-based).
+> `frontend-conventions` (React Router v7 · `app/routes/`).
+>
+> ⚠️ **Les sections d'inventaire et d'écarts ci-dessous décrivent la structure
+> d'avant E13** (`app/features/<f>/`). Elles sont conservées telles quelles : ce
+> sont les constats qui ont motivé les étapes, pas une description de l'état
+> courant. Depuis #46 et #47, l'app est sur `app/routes/<zone>/<page>/` — voir
+> §3.6 et §5/E13 du plan racine, et le skill `frontend-conventions`.
 >
 > Rappel méthode : une étape = une branche = une PR `gh` = une session, et **on
 > demande la permission avant tout commit** (signatures GPG).
@@ -284,9 +290,9 @@ expiration puis renvoi du code OTP, code refusé qui vide le champ. Reste à voi
 
 ### 4.4 À traiter dans la même étape
 
-- **Écart 4** : déplacer `features/<f>/<f>.types.ts` →
-  `features/<f>/types/<f>.types.ts` (5 fichiers), au moment où l'on touche la
-  feature.
+- **Écart 4** : ✅ **absorbé par E13.3** — les 5 fichiers `<f>.types.ts` ont été
+  repliés dans `types/` au moment où leur dossier a bougé, plutôt que feature
+  par feature.
 - **Écart 6** : `shared/components/activity-hub.tsx` fait un `fetch` hors
   `servers/`. Soit le déplacer dans un loader, soit documenter l'exception dans
   `CLAUDE.md` comme les deux appels d'auth qui ont besoin du `Set-Cookie` en
