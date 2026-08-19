@@ -160,9 +160,11 @@ Both apps share the same stack:
   file
 - **shadcn/ui** — components imported via `@app/ui/components`
 - **Forms are mid-migration** from `@conform-to/*` to **react-hook-form + zod**
-  (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). `client`'s `routes/auth` is on
-  react-hook-form; every other form in both apps is still on Conform. New forms
-  use react-hook-form.
+  (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). Every form on a mounted
+  `client` route is on react-hook-form. What is left on Conform: the whole
+  `admin` app, the `client`'s stand-by features (`stickers/order`, `q` — their
+  routes are commented out of `routes.ts`), and the two legacy wrappers in
+  `packages/ui`. New forms use react-hook-form.
 
 Both apps use the same layout, `app/routes/<area>/<page>/`, with
 `servers/*.loader.ts` / `servers/*.action.ts` for all server-side data access
@@ -247,14 +249,17 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   (`{ data, isOk, errors, isSubmitting, submit, Form, state }`) and hand
   `fetcher.errors` straight to `useForm`'s `errors:` option, so server-side
   messages land on the fields they belong to. Render `root` with `FormRootError`
-  from `@app/ui/components/form`. Pass `useActionFetcher` a key when two
-  instances of the same form can be mounted at once (a create dialog and a
-  row-level edit dialog, say) — without one they share a fetcher and each
-  other's errors. Success side effects (a toast, a navigation, closing a dialog)
-  go in a `useEffect` guarded on `fetcher.isOk`.
+  from `@app/ui/components/form`. Success side effects (a toast, a navigation,
+  closing a dialog) go in a `useEffect` guarded on `fetcher.isOk` — plus a
+  `hasSubmitted` flag whenever the effect does something that must not be
+  replayed, since `isOk` stays true afterwards. `useActionFetcher` takes an
+  optional fetcher key, but it is **not** needed to keep two forms apart:
+  `useFetcher` falls back to `useId()`, so every call already owns its own
+  fetcher. Pass a key only to share one fetcher's state between components, or
+  to keep it alive across an unmount.
 - Forms still on Conform keep the older `{ ok, error }` / `submission.reply()`
-  shapes until their E7 migration: `contact`, `publish`, `account/settings`,
-  `account/posts/edit`, `stickers/order` and `q`. Do not add new ones.
+  shapes until their E7 migration: `stickers/order` and `q` on the client (both
+  stand-by), and every form in `admin`. Do not add new ones.
 - Each route feature owns its own Zod schema as a sibling `*.schema.ts` file
   (e.g. `routes/auth/login/login.schema.ts`,
   `routes/account/settings/settings.schema.ts`). Small schemas may be duplicated

@@ -786,8 +786,18 @@ est directement un `FieldErrors` de react-hook-form réinjecté par l'option
   `getApiErrorMessage` (l'`ApiError` reste dans `shared/utils/api-fetch.ts`, où
   elle est levée) ;
 - `shared/hooks/use-action-fetcher.ts` — expose désormais
-  `{ data, isOk, errors, isSubmitting, submit, Form, state }`, avec une `key` de
-  fetcher nommée pour que deux dialogues concurrents restent indépendants.
+  `{ data, isOk, errors, isSubmitting, submit, Form, state }`, plus une `key` de
+  fetcher optionnelle.
+
+> **Correction, relevée en E7.5.** Cette `key` était présentée comme la
+> condition pour que deux dialogues concurrents restent indépendants. C'est faux
+> : `useFetcher` fait `useState(key || useId())`, donc chaque appel possède déjà
+> son fetcher — deux instances du même composant comprises, chacune étant un
+> appel de hook distinct. Vérifié dans les deux sens sur les cinq dialogues de
+> `account/settings`, qui postent tous vers la même action : le harness passe
+> avec les clés **et** sans, y compris un cas qui en monte deux et fait échouer
+> l'un. Une clé ne sert qu'à **partager** l'état d'un fetcher entre composants,
+> ou à le garder vivant à travers un démontage.
 
 `FormRootError` (`packages/ui/src/components/form/`) affiche l'entrée `root` en
 tête de formulaire ; c'est la seule addition au paquet `ui`, factorisée parce

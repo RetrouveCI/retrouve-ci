@@ -138,11 +138,18 @@ useEffect(() => {
 - `root` s'affiche avec `FormRootError` de `@app/ui/components/form`, en tête de
   formulaire.
 - Les effets de succès (toast, navigation, fermeture d'un dialogue) vivent dans
-  un `useEffect` gardé sur `fetcher.isOk` — pas de callback passé au hook.
-- Deux instances du même formulaire montées en même temps (un dialogue de
-  création et un dialogue d'édition de ligne) doivent recevoir une **clé**
-  nommée, p. ex. `useActionFetcher('update-sticker-' + id)`. Sans elle, elles
-  partagent un fetcher, donc leurs erreurs.
+  un `useEffect` gardé sur `fetcher.isOk` — pas de callback passé au hook. Y
+  ajouter un drapeau `hasSubmitted` dès que l'effet fait quelque chose qui ne
+  doit pas être rejoué : `isOk` reste vrai après coup, donc un changement de
+  dépendance relancerait la navigation ou refermerait le dialogue.
+- La **clé** de fetcher de `useActionFetcher` n'est **pas** nécessaire pour
+  isoler deux formulaires. `useFetcher` fait `useState(key || useId())` : chaque
+  appel possède déjà son propre fetcher, y compris deux instances du même
+  composant, puisque chacune est un appel de hook distinct. Vérifié sur les cinq
+  dialogues de `account/settings`, qui postent tous vers la même action et
+  restent indépendants sans clé. N'en passer une que pour **partager** l'état
+  d'un fetcher entre composants, ou pour le garder vivant à travers un
+  démontage.
 
 ## `mappers/`
 
