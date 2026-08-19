@@ -19,7 +19,7 @@ pnpm dev              # Start all apps in parallel (client :3000, admin :3001, a
 pnpm build            # Build all packages and apps (packages build first)
 pnpm lint             # Lint all workspaces
 pnpm typecheck        # Type-check all workspaces
-pnpm test             # Run unit tests (Vitest — currently the api app only)
+pnpm test             # Run unit tests (Vitest — api and admin)
 pnpm format           # Format with Prettier (ts, tsx, js, jsx, json, md, css)
 pnpm format:check     # Verify formatting without writing (used by CI)
 ```
@@ -48,8 +48,15 @@ pnpm --filter @app/api dev
 pnpm --filter @app/ui build
 ```
 
-Tests are run with **Vitest**. Only the `api` app currently has tests
-(`pnpm --filter @app/api test`); the frontends have no test suite yet.
+Tests are run with **Vitest**. The `api` app (`*.spec.ts`, node) and the `admin`
+app (`__tests__/*.test.ts` for pure modules, `__tests__/*.test.tsx` in browser
+mode) have suites; `apps/client` has none yet.
+
+```bash
+pnpm --filter @app/api test      # api only
+pnpm --filter @app/admin test    # both admin projects
+pnpm --filter @app/admin test:ui # browser-mode components/hooks only
+```
 
 ## Architecture
 
@@ -327,6 +334,25 @@ Identical to the client app conventions above, with these admin-specific notes:
   `apiFetch('/notifications/unread-count')` with `credentials: 'include'`
   (client-side, since the topbar is part of the dashboard layout and not owned
   by the notifications feature).
+
+#### Admin tests
+
+`apps/admin/vite.config.ts` declares two Vitest **projects**, both discovered
+under `app/`:
+
+- **`ui`** — `app/**/*.test.tsx`, run in a real Chromium through Vitest's
+  browser mode (`@vitest/browser-playwright`). Components and hooks are mounted
+  with `createRoutesStub` from react-router and driven through `page` /
+  `userEvent`, all imported from `app/shared/helpers/testing.ts` — no test
+  imports the runner's packages directly. A real browser is what removes the
+  jsdom shims Radix and native form submission would otherwise need.
+- **`node`** — `app/**/*.test.ts`, for pure modules (helpers, mappers, schemas).
+
+Tests live in a `__tests__/` folder next to the file under test, named after it
+(`shared/helpers/form.ts` → `shared/helpers/__tests__/form.test.ts`). The
+`reactRouter()` Vite plugin is **disabled under Vitest** (`process.env.VITEST`):
+it owns the route-module graph and an SSR entry the browser runner cannot mount.
+CI installs the Chromium build before `pnpm test`.
 
 ### Styling
 
