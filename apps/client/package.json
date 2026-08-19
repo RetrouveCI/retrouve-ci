@@ -11,7 +11,11 @@
 		"build": "react-router build",
 		"start": "react-router-serve ./build/server/index.js",
 		"lint": "eslint",
-		"typecheck": "react-router typegen && tsc --noEmit"
+		"typecheck": "react-router typegen && tsc --noEmit",
+		"test": "vitest run",
+		"test:ui": "vitest run --project ui",
+		"test:node": "vitest run --project node",
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@app/ui": "workspace:*",
@@ -80,10 +84,14 @@
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
 		"@vitejs/plugin-react": "catalog:",
+		"@vitest/browser-playwright": "catalog:",
+		"playwright": "catalog:",
 		"tailwindcss": "catalog:",
 		"eslint": "catalog:",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"vite-tsconfig-paths": "catalog:"
+		"vite-tsconfig-paths": "catalog:",
+		"vitest": "catalog:",
+		"vitest-browser-react": "catalog:"
 	}
 }

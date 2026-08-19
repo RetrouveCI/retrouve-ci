@@ -48,14 +48,16 @@ pnpm --filter @app/api dev
 pnpm --filter @app/ui build
 ```
 
-Tests are run with **Vitest**. The `api` app (`*.spec.ts`, node) and the `admin`
-app (`__tests__/*.test.ts` for pure modules, `__tests__/*.test.tsx` in browser
-mode) have suites; `apps/client` has none yet.
+Tests are run with **Vitest**. The `api` app uses `*.spec.ts` (node). Both
+front-ends declare two Vitest **projects**: `node` for `__tests__/*.test.ts`
+(pure modules) and `ui` for `__tests__/*.test.tsx`, run in a real Chromium
+through browser mode. `apps/admin` has suites for both; `apps/client` currently
+only has `node` ones.
 
 ```bash
-pnpm --filter @app/api test      # api only
-pnpm --filter @app/admin test    # both admin projects
-pnpm --filter @app/admin test:ui # browser-mode components/hooks only
+pnpm --filter @app/api test        # api only
+pnpm --filter @app/admin test      # both projects
+pnpm --filter @app/admin test:ui   # browser-mode components/hooks only
 ```
 
 ## Architecture
@@ -222,6 +224,17 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
 `requireServerSession`, which forward the request's `Cookie` header to
 `/api/auth/get-session` — used by route loaders to gate server data fetches.
 
+> **The two apps share one session cookie.** The API runs a **single**
+> better-auth instance (`apps/api/src/infrastructure/auth/auth.config.ts`), so
+> the admin app and the client app read the same cookie. Both sides therefore
+> filter by audience: `requireAdminSession` requires `role === 'admin'`, and the
+> client's `getServerSession` returns `null` for an admin session — a backoffice
+> account is not a user of the public app. `AuthContext` applies the same rule.
+> This stops cross-context _use_, but the sessions are still not independent:
+> signing in on one app replaces the other's cookie. Separating them for real
+> needs two better-auth instances with distinct cookie namespaces
+> (`advanced.cookiePrefix` + `basePath`), which is a lot of its own.
+
 #### Client app conventions (loader/action + Zod)
 
 - UI components never call `apiFetch` or `authClient` directly — all API access
@@ -350,10 +363,10 @@ Identical to the client app conventions above, with these admin-specific notes:
   [MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md)) — the dashboard layout's
   loader is where it belongs, and moving it there is a lot of its own.
 
-#### Admin tests
+#### Front-end tests
 
-`apps/admin/vite.config.ts` declares two Vitest **projects**, both discovered
-under `app/`:
+Both `apps/admin/vite.config.ts` and `apps/client/vite.config.ts` declare two
+Vitest **projects**, discovered under `app/`:
 
 - **`ui`** — `app/**/*.test.tsx`, run in a real Chromium through Vitest's
   browser mode (`@vitest/browser-playwright`). Components and hooks are mounted
@@ -364,10 +377,13 @@ under `app/`:
 - **`node`** — `app/**/*.test.ts`, for pure modules (helpers, mappers, schemas).
 
 Tests live in a `__tests__/` folder next to the file under test, named after it
-(`shared/helpers/form.ts` → `shared/helpers/__tests__/form.test.ts`). The
-`reactRouter()` Vite plugin is **disabled under Vitest** (`process.env.VITEST`):
-it owns the route-module graph and an SSR entry the browser runner cannot mount.
-CI installs the Chromium build before `pnpm test`.
+(`shared/helpers/form.ts` → `shared/helpers/__tests__/form.test.ts`). Two traps
+the config works around: the `reactRouter()` Vite plugin is **disabled under
+Vitest** (`process.env.VITEST`), because it owns the route-module graph and an
+SSR entry the browser runner cannot mount; and `optimizeDeps.entries` points at
+the test files, so Vite pre-bundles up front instead of discovering the
+`@app/ui/components` barrel's Radix packages mid-run and reloading. CI installs
+the Chromium build once before `pnpm test`.
 
 ### Styling
 
