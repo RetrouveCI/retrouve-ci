@@ -270,6 +270,16 @@ Trois raisons convergentes :
 Périmètre : **41 fichiers** — 29 dans `client`, 10 dans `admin`, 2 dans
 `packages/ui`.
 
+**E7 ne se termine pas au client.** Le retrait de `@conform-to/*` du catalog est
+la dernière tâche de l'étape, et il est conditionné par les **deux** apps : les
+tranches client (E7.3 → E7.6, voir
+[MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md) §4.3) **et** les tranches
+admin (E7.0 → E7.E, voir [MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md) §4).
+Deux contraintes découvertes après E13.7 pèsent sur cette fin d'étape — le socle
+du contrat action/formulaire n'existe que dans `apps/client`, et `ActionResult`
+n'a pas de canal de charge utile. Toutes deux sont décrites au §E13.7
+ci-dessous.
+
 **Correction apportée en E7.1** : la troisième raison citait le composant shadcn
 `ui/form.tsx` (`FormField`, `FormItem`, `FormControl`, `FormMessage`) comme la
 cible. C'est `ui/field.tsx` — la famille `Field`, plus récente — qui est
@@ -381,7 +391,7 @@ Une ligne = une branche = une PR = une session.
 | **E4**  | Presets partagés (ts / vitest / eslint)     | `migration-e4-presets-partages`    | `packages/config`                     | 0,5 j  | E2        |
 | **E5**  | Création de `@app/contracts`                | `migration-e5-contracts-init`      | `packages/contracts`                  | 0,5 j  | E2        |
 | **E6**  | Contrats : domaines API + bascule Zod       | `migration-e6-contracts-<domaine>` | `api/<domaine>`                       | 2 j    | E5        |
-| **E7**  | 🟡 Conform → react-hook-form (E7.1 faite)   | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`                 | 2,5 j  | E3        |
+| **E7**  | 🟡 Conform → RHF (E7.1 → E7.3 faites)       | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`, `admin/…`      | 2,75 j | E3        |
 | **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`                       | 3 j    | E6        |
 | **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                           | 1 j    | E4, E8    |
 | **E10** | Tests front : Vitest client + admin         | `migration-e10-tests-front`        | `client/tests`, `admin/tests`         | 1,5 j  | E4, E7    |
@@ -389,7 +399,7 @@ Une ligne = une branche = une PR = une session.
 | **E12** | Docs d'architecture                         | `migration-e12-docs-architecture`  | `root/docs`                           | 0,5 j  | E8        |
 | **E13** | ✅ Structure front → `app/routes/`          | (fait)                             | `client/structure`, `admin/structure` | —      | E3b       |
 
-**Total ≈ 15,5 j** en séquentiel. E6, E7 et E8 se découpent eux-mêmes **par
+**Total ≈ 15,75 j** en séquentiel. E6, E7 et E8 se découpent eux-mêmes **par
 domaine / par feature** — soit une PR par domaine, ce qui est le mode recommandé
 (voir plans détaillés).
 
@@ -800,6 +810,46 @@ Deux écarts assumés par rapport à la liste de départ :
   Conform _est_ son canal d'erreurs. Elles convergent donc dans leur étape E7.x
   respective, et E13.7 se limite aux routes déjà sur react-hook-form (les trois
   actions `auth`, `notifications`, `account/posts`, `account/stickers`).
+
+##### Deux points ouverts, relevés en E7.3
+
+**1. Le socle du contrat n'existe que dans `apps/client`.** Les quatre fichiers
+livrés par E13.7 — `shared/types/action.ts`, `shared/helpers/form.ts`,
+`shared/utils/api-operation.ts` et `shared/hooks/use-action-fetcher.ts` — vivent
+uniquement côté client. `apps/admin/app/shared/` n'a que `constants/`,
+`helpers/` et `utils/` : pas de `hooks/`, donc pas de `useActionFetcher`, et
+aucun des trois autres fichiers. Les cinq tranches admin (E7.A → E7.E) en
+dépendent toutes, et le retrait de `@conform-to/*` du catalog dépend d'elles. Le
+plan admin ne demandait jusqu'ici que le hook — ce paragraphe datait d'avant
+E13.7, il en faut quatre.
+
+Deux options, et la première est retenue : **recopier** le socle dans
+`apps/admin/app/shared/` en tête d'étape (tranche **E7.0**), puis le remonter
+dans un paquet partagé en **E11** (`@app/web-kit`) une fois les deux copies
+stabilisées. Remonter d'abord obligerait à créer le paquet, à y déplacer le
+socle client et à migrer l'admin dans la même PR — trois choses non liées dans
+un seul diff, alors que E11 est déjà l'étape prévue pour ça.
+
+**2. `ActionResult` n'a pas de canal de charge utile.** Le type dit
+`{ success: true }` et rien d'autre, alors que trois familles d'actions
+renvoient aujourd'hui une donnée : `stickers/order` la commande créée, l'admin
+`qr/generate` les jetons générés, l'admin `events` / `administrators` l'entité
+plus l'`intent`.
+
+L'architecture de référence **n'a pas** de canal de retour : ses mutations ne
+renvoient rien, et la page se remet à jour parce que la soumission du fetcher
+revalide le loader. C'est la bonne réponse pour les dialogues de liste de
+l'admin (`events`, `administrators` — E7.B et E7.E) : leur `intent` et leur
+entité sont du bruit, la revalidation suffit.
+
+Restent deux écrans qui affichent le résultat de leur propre mutation, et qui
+ont donc réellement besoin de la donnée : la confirmation de commande
+(`stickers/order`, client) et la liste des QR fraîchement générés
+(`qr/generate`, admin). Pour eux, étendre le type à
+`{ success: true; data?: T }` — **au moment d'attaquer ces routes, pas avant**,
+mais en une fois et dans le type partagé, plutôt que de laisser chaque route
+réinventer sa forme. Le premier des deux à arriver est **E7.C** ; côté client,
+`stickers/order` est en stand-by (E7.7, ⏸️).
 
 #### Risques
 

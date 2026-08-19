@@ -110,8 +110,8 @@ Ils correspondent aux DTO `admin-list-*.query.dto.ts` et
 
 ## 4. E7 — Conform → react-hook-form
 
-**Branches** `migration-e7-rhf-<feature>` · **scope** `admin/<feature>` ·
-**~0,75 j pour admin**.
+**Branches** `migration-e7-rhf-<feature>` · **scope** `admin/<feature>` · **~1 j
+pour admin**, dont ~0,25 j pour la tranche E7.0 ci-dessous.
 
 Prérequis : **E7.1** (`packages/ui`) — ✅ **passée**. Voir
 [MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md) §4.1 pour le gabarit de
@@ -126,18 +126,45 @@ jusqu'à la migration de leurs derniers consommateurs — côté admin
 `qr/generate/components/generate-qr-form.tsx` (E7.C) et
 `administrators/components/admin-form-dialog.tsx` (E7.E).
 
-À écrire au début de la première PR admin : le hook `useActionFetcher` dans
-`shared/hooks/` (voir MIGRATION-PLAN-CLIENT.md §4.2).
+**Prérequis bloquant : le socle du contrat action/formulaire, absent de
+`apps/admin`.** Ce paragraphe ne demandait que le hook `useActionFetcher` ; il
+datait d'avant E13.7, qui a livré le contrat complet — et côté client seulement.
+`apps/admin/app/shared/` n'a aujourd'hui que `constants/`, `helpers/` et
+`utils/`. Il manque **quatre** fichiers, à recopier depuis `apps/client` dans
+une tranche **E7.0** avant E7.A :
+
+| Fichier                              | Rôle                                                         |
+| ------------------------------------ | ------------------------------------------------------------ |
+| `shared/types/action.ts`             | `ActionResult`, `FormErrors`                                 |
+| `shared/helpers/form.ts`             | `zodErrorToFieldErrors` — `ZodError` → erreurs par champ     |
+| `shared/utils/api-operation.ts`      | `withApiOperationError`, `getApiErrorMessage`                |
+| `shared/hooks/use-action-fetcher.ts` | `useActionFetcher` — le dossier `hooks/` n'existe pas encore |
+
+Recopier, pas mutualiser : le socle remonte dans `@app/web-kit` en **E11**, une
+fois les deux copies stabilisées. Voir [MIGRATION-PLAN.md](MIGRATION-PLAN.md)
+§E13.7, « Deux points ouverts ». `withApiOperationError` accepte
+`redirectOnUnauthorized` — côté admin, c'est `/auth/login`, et il complète
+`requireAdminSession` que chaque loader appelle déjà.
 
 ### Découpage des PR
 
-| PR   | Feature          | Fichiers | Remarque                               |
-| ---- | ---------------- | -------- | -------------------------------------- |
-| E7.A | `auth`           | 3        | login, forgot-password, reset-password |
-| E7.B | `events`         | 2        | dialogue de création/édition + action  |
-| E7.C | `qr/generate`    | 2        | génération de lots                     |
-| E7.D | `profile`        | 1        | changement de mot de passe             |
-| E7.E | `administrators` | 2        | 🟡 mock — convertir quand même         |
+| PR   | Feature          | Fichiers | Remarque                                      |
+| ---- | ---------------- | -------- | --------------------------------------------- |
+| E7.0 | `shared/`        | 4        | socle du contrat recopié depuis `apps/client` |
+| E7.A | `auth`           | 3        | login, forgot-password, reset-password        |
+| E7.B | `events`         | 2        | dialogue de création/édition + action         |
+| E7.C | `qr/generate`    | 2        | génération de lots — **étend `ActionResult`** |
+| E7.D | `profile`        | 1        | changement de mot de passe                    |
+| E7.E | `administrators` | 2        | 🟡 mock — convertir quand même                |
+
+**E7.C porte une décision de contrat.** Son action renvoie les jetons générés,
+et la page les affiche : c'est l'un des deux seuls écrans du dépôt qui montre le
+résultat de sa propre mutation. `ActionResult` n'a pas de canal pour ça et y
+passe donc à `{ success: true; data?: T }`, dans le type partagé et en une fois.
+E7.B et E7.E n'en ont pas besoin : leurs dialogues de liste renvoient l'entité
+et l'`intent` par habitude, alors que la revalidation du loader par la
+soumission du fetcher suffit — c'est ce que fait l'architecture de référence,
+qui n'a aucun canal de retour.
 
 ### À traiter dans la même étape
 
