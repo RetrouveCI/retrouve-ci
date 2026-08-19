@@ -1,21 +1,22 @@
-import { data } from 'react-router'
-import { ApiError } from '@/shared/utils/api-fetch'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import { contactSchema } from '../contact.schema'
 import { submitContactMessage } from './contact.service'
 
-export async function contactAction({ request }: { request: Request }) {
+export async function contactAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	const submission = contactSchema.safeParse(
 		Object.fromEntries(await request.formData()),
 	)
-	if (!submission.success) return data({ ok: false }, { status: 400 })
-
-	try {
-		await submitContactMessage(submission.data, request)
-		return { ok: true }
-	} catch (err) {
-		if (err instanceof ApiError) {
-			return data({ ok: false, error: err.message }, { status: err.status })
-		}
-		return data({ ok: false }, { status: 400 })
+	if (!submission.success) {
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
+
+	return withApiOperationError(() =>
+		submitContactMessage(submission.data, request),
+	)
 }

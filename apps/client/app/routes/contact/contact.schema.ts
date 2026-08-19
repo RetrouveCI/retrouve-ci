@@ -10,3 +10,6 @@ export const contactSchema = z.object({
 		.min(10, 'Votre message doit contenir au moins 10 caractères')
 		.max(2000),
 })
+
+export type ContactInput = z.input<typeof contactSchema>
+export type ContactData = z.output<typeof contactSchema>
