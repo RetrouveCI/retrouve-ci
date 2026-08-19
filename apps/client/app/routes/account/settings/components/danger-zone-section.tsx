@@ -1,3 +1,7 @@
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { useController, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
 import {
 	Button,
 	AlertDialog,
@@ -8,56 +12,51 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
+	FieldError,
 } from '@app/ui/components'
-import { useEffect, useState } from 'react'
-import { useFetcher, useNavigate } from 'react-router'
+import { FormRootError } from '@app/ui/components/form'
 import { Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { PasswordInput } from '@/routes/auth/components/password-input'
-import { FieldError } from '@app/ui/components/form'
-import { deleteAccountSchema } from '../settings.schema'
-
-interface ActionResult {
-	ok: boolean
-	error?: string
-}
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import {
+	deleteAccountSchema,
+	type DeleteAccountData,
+	type DeleteAccountInput,
+} from '../settings.schema'
+import type { action } from '../_index'
 
 export function DangerZoneSection() {
-	const fetcher = useFetcher<ActionResult>()
 	const navigate = useNavigate()
 	const [open, setOpen] = useState(false)
+	const [hasSubmitted, setHasSubmitted] = useState(false)
 
-	const [form, fields] = useForm({
-		id: 'delete-account-form',
-		constraint: getZodConstraint(deleteAccountSchema),
-		shouldValidate: 'onSubmit',
-		shouldRevalidate: 'onInput',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: deleteAccountSchema })
-		},
+	const fetcher = useActionFetcher<typeof action, DeleteAccountInput>()
+
+	const form = useForm<DeleteAccountInput, unknown, DeleteAccountData>({
+		resolver: standardSchemaResolver(deleteAccountSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		errors: fetcher.errors,
+		defaultValues: { intent: 'delete-account', password: '' },
 	})
 
-	const passwordControl = useInputControl(fields.password)
+	// `PasswordInput` takes its value and its handler as flat props, which a
+	// render prop cannot feed without nesting one inside the other.
+	const password = useController({ control: form.control, name: 'password' })
 
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-
-		if (fetcher.data.ok) {
-			toast.success('Votre compte a été supprimé')
-			navigate('/')
-		} else {
-			toast.error(fetcher.data.error ?? 'Mot de passe incorrect')
-		}
-	}, [fetcher.state, fetcher.data, navigate])
-
-	const handleOpenChange = (next: boolean) => {
-		setOpen(next)
-		if (!next) form.reset()
+	const onSubmit = (values: DeleteAccountData) => {
+		setHasSubmitted(true)
+		void fetcher.submit(values, { method: 'post' })
 	}
 
-	const isDeleting = fetcher.state !== 'idle'
+	useEffect(() => {
+		if (!hasSubmitted || !fetcher.isOk) return
+
+		setHasSubmitted(false)
+		toast.success('Votre compte a été supprimé')
+		void navigate('/')
+	}, [hasSubmitted, fetcher.isOk, navigate])
 
 	return (
 		<div className="border-destructive/20 bg-destructive/5 overflow-hidden rounded-2xl border">
@@ -75,7 +74,14 @@ export function DangerZoneSection() {
 							Cette action est irréversible et supprimera toutes vos données.
 						</p>
 					</div>
-					<AlertDialog open={open} onOpenChange={handleOpenChange}>
+					<AlertDialog
+						open={open}
+						onOpenChange={next => {
+							setOpen(next)
+							// Reset on open — see `edit-name-dialog.tsx`.
+							if (next) form.reset({ intent: 'delete-account', password: '' })
+						}}
+					>
 						<AlertDialogTrigger asChild>
 							<Button variant="destructive" size="sm" className="rounded-xl">
 								Supprimer
@@ -89,20 +95,31 @@ export function DangerZoneSection() {
 									annonces. Cette action est irréversible.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
-							<fetcher.Form
-								method="post"
-								{...getFormProps(form)}
+							<form
+								onSubmit={form.handleSubmit(onSubmit)}
+								noValidate
 								className="py-2"
 							>
-								<input type="hidden" name="intent" value="delete-account" />
+								<FormRootError
+									message={form.formState.errors.root?.message}
+									className="mb-4"
+								/>
+
 								<PasswordInput
 									id="delete-account-password"
+									name={password.field.name}
 									label="Confirmez avec votre mot de passe"
-									value={passwordControl.value ?? ''}
-									onChange={passwordControl.change}
-									disabled={isDeleting}
+									value={password.field.value ?? ''}
+									onChange={password.field.onChange}
+									disabled={fetcher.isSubmitting}
 								/>
-								<FieldError errors={fields.password.errors} />
+								{password.fieldState.error && (
+									<FieldError
+										errors={[password.fieldState.error]}
+										className="text-xs"
+									/>
+								)}
+
 								<AlertDialogFooter>
 									<AlertDialogCancel className="rounded-xl">
 										Annuler
@@ -110,13 +127,13 @@ export function DangerZoneSection() {
 									<Button
 										type="submit"
 										variant="destructive"
-										disabled={!passwordControl.value || isDeleting}
+										disabled={!password.field.value || fetcher.isSubmitting}
 										className="rounded-xl"
 									>
 										Supprimer mon compte
 									</Button>
 								</AlertDialogFooter>
-							</fetcher.Form>
+							</form>
 						</AlertDialogContent>
 					</AlertDialog>
 				</div>

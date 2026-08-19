@@ -50,3 +50,21 @@ export const changePasswordSchema = z
 export const verifyPhoneSchema = z.object({
 	code: z.string().regex(/^\d{4,8}$/, 'Code à 4-8 chiffres'),
 })
+
+export type UpdateNameInput = z.input<typeof updateNameSchema>
+export type UpdateNameData = z.output<typeof updateNameSchema>
+
+export type UpdateZoneInput = z.input<typeof updateZoneSchema>
+export type UpdateZoneData = z.output<typeof updateZoneSchema>
+
+export type SendPhoneOtpInput = z.input<typeof sendPhoneOtpSchema>
+export type SendPhoneOtpData = z.output<typeof sendPhoneOtpSchema>
+
+export type DeleteAccountInput = z.input<typeof deleteAccountSchema>
+export type DeleteAccountData = z.output<typeof deleteAccountSchema>
+
+export type ChangePasswordInput = z.input<typeof changePasswordSchema>
+export type ChangePasswordData = z.output<typeof changePasswordSchema>
+
+export type VerifyPhoneInput = z.input<typeof verifyPhoneSchema>
+export type VerifyPhoneData = z.output<typeof verifyPhoneSchema>

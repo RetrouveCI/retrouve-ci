@@ -1,6 +1,8 @@
-import { data, redirect } from 'react-router'
+import { redirect } from 'react-router'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import { getServerSession } from '@/shared/helpers/session.server'
-import { ApiError } from '@/shared/utils/api-fetch'
 import { settingsActionSchema } from '../settings.schema'
 import {
 	deleteAccount,
@@ -8,7 +10,11 @@ import {
 	updateProfile,
 } from './settings.service'
 
-export async function settingsAction({ request }: { request: Request }) {
+export async function settingsAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	const session = await getServerSession(request)
 	if (!session) throw redirect('/auth/login')
 
@@ -16,35 +22,31 @@ export async function settingsAction({ request }: { request: Request }) {
 		Object.fromEntries(await request.formData()),
 	)
 	if (!submission.success) {
-		return data({ ok: false }, { status: 400 })
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
 
-	try {
-		switch (submission.data.intent) {
-			case 'update-name':
-				await updateProfile(request, { name: submission.data.name })
-				break
-			case 'update-zone':
-				await updateProfile(request, {
-					city: submission.data.city,
-					commune: submission.data.commune ?? '',
-				})
-				break
-			case 'send-phone-otp':
-				await sendPhoneChangeOtp(request, submission.data.phone)
-				break
-			case 'delete-account':
-				await deleteAccount(submission.data.password, request)
-				break
-		}
-		return { ok: true }
-	} catch (err) {
-		if (err instanceof ApiError && err.status === 401)
-			throw redirect('/auth/login')
-		if (err instanceof ApiError) {
-			return data({ ok: false, error: err.message }, { status: err.status })
-		}
+	const values = submission.data
 
-		return data({ ok: false }, { status: 400 })
-	}
+	return withApiOperationError(
+		async () => {
+			switch (values.intent) {
+				case 'update-name':
+					await updateProfile(request, { name: values.name })
+					break
+				case 'update-zone':
+					await updateProfile(request, {
+						city: values.city,
+						commune: values.commune ?? '',
+					})
+					break
+				case 'send-phone-otp':
+					await sendPhoneChangeOtp(request, values.phone)
+					break
+				case 'delete-account':
+					await deleteAccount(values.password, request)
+					break
+			}
+		},
+		{ redirectOnUnauthorized: '/auth/login' },
+	)
 }

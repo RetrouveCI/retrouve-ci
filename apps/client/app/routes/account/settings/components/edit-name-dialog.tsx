@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useFetcher } from 'react-router'
-import { useForm, getInputProps, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
+import { Controller, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
 import {
 	Button,
 	Dialog,
@@ -10,46 +9,60 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
+	FieldError,
 	Input,
 } from '@app/ui/components'
-import { InputLabel, FieldError } from '@app/ui/components/form'
+import { FormRootError, InputLabel } from '@app/ui/components/form'
 import { Loader2, Check } from 'lucide-react'
 import { toast } from 'sonner'
-import { updateNameSchema } from '../settings.schema'
-
-interface ActionResult {
-	ok: boolean
-	error?: string
-}
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import {
+	updateNameSchema,
+	type UpdateNameData,
+	type UpdateNameInput,
+} from '../settings.schema'
+import type { action } from '../_index'
 
 export function EditNameDialog({ currentName }: { currentName: string }) {
-	const fetcher = useFetcher<ActionResult>()
 	const [open, setOpen] = useState(false)
-	const isSaving = fetcher.state !== 'idle'
+	const [hasSubmitted, setHasSubmitted] = useState(false)
 
-	const [form, fields] = useForm({
-		id: 'update-name-form',
-		constraint: getZodConstraint(updateNameSchema),
-		defaultValue: { name: currentName },
-		shouldValidate: 'onBlur',
-		shouldRevalidate: 'onInput',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: updateNameSchema })
-		},
+	const fetcher = useActionFetcher<typeof action, UpdateNameInput>()
+
+	const form = useForm<UpdateNameInput, unknown, UpdateNameData>({
+		resolver: standardSchemaResolver(updateNameSchema),
+		mode: 'onBlur',
+		reValidateMode: 'onChange',
+		errors: fetcher.errors,
+		defaultValues: { intent: 'update-name', name: currentName },
 	})
 
+	const onSubmit = (values: UpdateNameData) => {
+		setHasSubmitted(true)
+		void fetcher.submit(values, { method: 'post' })
+	}
+
+	// `fetcher.isOk` stays true once the dialog has closed, so reopening it would
+	// replay this effect: the flag is what makes it fire once per submission.
 	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-		if (fetcher.data.ok) {
-			toast.success('Nom mis à jour')
-			setOpen(false)
-		} else {
-			toast.error(fetcher.data.error ?? 'Une erreur est survenue')
-		}
-	}, [fetcher.state, fetcher.data])
+		if (!hasSubmitted || !fetcher.isOk) return
+
+		setHasSubmitted(false)
+		toast.success('Nom mis à jour')
+		setOpen(false)
+	}, [hasSubmitted, fetcher.isOk])
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog
+			open={open}
+			onOpenChange={next => {
+				setOpen(next)
+				// Reset on open, not on close: a successful save closes the dialog from
+				// the effect above, which never goes through `onOpenChange`. Resetting
+				// here means it always opens on the value the loader last returned.
+				if (next) form.reset({ intent: 'update-name', name: currentName })
+			}}
+		>
 			<DialogTrigger asChild>
 				<Button variant="ghost" size="sm" className="rounded-lg text-xs">
 					Modifier
@@ -62,28 +75,40 @@ export function EditNameDialog({ currentName }: { currentName: string }) {
 						Modifier votre nom et prénoms
 					</DialogDescription>
 				</DialogHeader>
-				<fetcher.Form
-					method="post"
-					{...getFormProps(form)}
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					noValidate
 					className="space-y-4"
 				>
-					<input type="hidden" name="intent" value="update-name" />
-					<div className="space-y-2">
-						<InputLabel htmlFor={fields.name.id}>Nom et prénoms</InputLabel>
-						<Input
-							{...getInputProps(fields.name, { type: 'text' })}
-							key={fields.name.key}
-							placeholder="Ex : Adjoua Konan"
-							className="h-11"
-						/>
-						<FieldError errors={fields.name.errors} />
-					</div>
+					<FormRootError message={form.formState.errors.root?.message} />
+
+					<Controller
+						control={form.control}
+						name="name"
+						render={({ field, fieldState }) => (
+							<div className="space-y-2">
+								<InputLabel htmlFor={field.name}>Nom et prénoms</InputLabel>
+								<Input
+									{...field}
+									id={field.name}
+									value={field.value ?? ''}
+									placeholder="Ex : Adjoua Konan"
+									className="h-11"
+									aria-invalid={fieldState.invalid || undefined}
+								/>
+								{fieldState.error && (
+									<FieldError errors={[fieldState.error]} className="text-xs" />
+								)}
+							</div>
+						)}
+					/>
+
 					<Button
 						type="submit"
-						disabled={isSaving}
+						disabled={fetcher.isSubmitting}
 						className="bg-primary-green hover:bg-primary-green-dark h-11 w-full gap-2 rounded-xl text-white"
 					>
-						{isSaving ? (
+						{fetcher.isSubmitting ? (
 							<>
 								<Loader2 className="h-4 w-4 animate-spin" />
 								Enregistrement...
@@ -95,7 +120,7 @@ export function EditNameDialog({ currentName }: { currentName: string }) {
 							</>
 						)}
 					</Button>
-				</fetcher.Form>
+				</form>
 			</DialogContent>
 		</Dialog>
 	)
