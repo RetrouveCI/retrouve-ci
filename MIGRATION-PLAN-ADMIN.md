@@ -56,7 +56,7 @@ v7 — quelques reliquats subsistent.
 | 4   | `features/<f>/<f>.types.ts` au lieu de `features/<f>/types/<f>.types.ts`        | E7    |
 | 5   | `shared/lib/api-client.ts` : le fichier devrait s'appeler `api-fetch.ts`        | E11   |
 | 6   | `fetch` hors `servers/` : `shared/components/dashboard-context.tsx`             | E7    |
-| 7   | Aucun test                                                                      | E10   |
+| 7   | 🟡 Socle de test posé, 23 cas sur `shared/` — les features restent à couvrir    | E10   |
 | 8   | `tsconfig.json` autonome (ne dérive pas de `@app/typescript-config`)            | E4    |
 | 9   | Reliquats Next dans les deps (`next-themes`, `@tailwindcss/postcss`, `postcss`) | E3    |
 
@@ -195,23 +195,35 @@ qui n'a aucun canal de retour.
 
 ---
 
-## 5. E10 — Tests
+## 5. E10 — Tests — 🟡 socle fait
 
-**Branche** `migration-e10-tests-front` · **scope** `admin/tests` · **~0,75 j
-pour admin**.
+**Branche** `migration-e10-admin-tests` · **scope** `admin/tests`.
 
-Même mise en place que le client (§5 du plan client) : deux projects Vitest
-(`ui` browser mode, `node`), `test-setup/`, tests dans `__tests__/`.
+Le socle a été posé **avant E7.A** : deux projects Vitest (`ui` en browser mode
+Chromium, `node` pour les modules purs), `app/shared/helpers/testing.ts` comme
+point d'entrée unique, tests en `__tests__/` à côté du fichier testé. Détail de
+la mécanique et des pièges dans le §E10 du plan racine. Pas de `test-setup/` :
+les deux fichiers correspondants de la référence sont vides.
+
+Livré avec le socle, 23 cas sur le contrat action/formulaire d'E7.0 —
+`zodErrorToFieldErrors`, `withApiOperationError` / `getApiErrorMessage`,
+`resolveRouteMeta`, et le `useActionFetcher` en browser mode. Ils remplacent le
+harness jetable d'E7.0.
+
+**Reste à faire** : les tests de formulaire de chaque tranche E7 (E7.A → E7.E),
+puis les priorités ci-dessous.
 
 ### Priorités de couverture
 
-| Cible                                 | Pourquoi                                                   |
-| ------------------------------------- | ---------------------------------------------------------- |
-| `shared/auth/auth.server.ts`          | `requireAdminSession` — le contrôle d'accès du back-office |
-| `features/*/servers/*.loader.ts`      | redirection si session absente ou rôle non-admin           |
-| `features/posts/servers/*.action.ts`  | modération — transitions d'état                            |
-| `features/orders/servers/*.action.ts` | changement de statut de commande                           |
-| `shared/components/data-table.tsx`    | composant transverse, tri / pagination                     |
+Chemins de la structure cible (E13) :
+
+| Cible                                         | Pourquoi                                                   |
+| --------------------------------------------- | ---------------------------------------------------------- |
+| `shared/helpers/session.server.ts`            | `requireAdminSession` — le contrôle d'accès du back-office |
+| `routes/dashboard/*/servers/*.loader.ts`      | redirection si session absente ou rôle non-admin           |
+| `routes/dashboard/posts/servers/*.action.ts`  | modération — transitions d'état                            |
+| `routes/dashboard/orders/servers/*.action.ts` | changement de statut de commande                           |
+| `components/data-table.tsx`                   | composant transverse, tri / pagination                     |
 
 > **À vérifier explicitement** : que la modération et les changements de statut
 > sont refusés côté **API** aussi, pas seulement masqués dans l'UI admin. C'est
@@ -249,7 +261,7 @@ Voir [MIGRATION-PLAN-PACKAGES.md](MIGRATION-PLAN-PACKAGES.md) §5. Côté admin 
 ```bash
 pnpm --filter @app/admin run typecheck
 pnpm --filter @app/admin run lint
-pnpm --filter @app/admin run test     # à partir d'E10
+pnpm --filter @app/admin run test     # les deux projects (ui + node)
 pnpm run format:check
 ```
 

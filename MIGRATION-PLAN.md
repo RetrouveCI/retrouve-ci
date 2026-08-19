@@ -124,7 +124,7 @@ encore ce script (le seed tourne au démarrage de l'API, dans
 | `vitest`          | `^3.2.4` → `^4.1.9` (résolu en 4.1.10), idem `@vitest/coverage-v8`. Aucun changement de config nécessaire, 188/188 tests verts                 |
 | `react-hook-form` | `^7.54.1` → `7.71.1` et `@hookform/resolvers` `^3.9.1` → `5.2.2` (préparent E7)                                                                |
 | Conform           | les 31 fichiers important `@conform-to/zod` basculent sur l'entrée `@conform-to/zod/v4` — un import par fichier, retiré entièrement en E7      |
-| jsdom             | **inchangé** (`^25.0.1`, compatible Vitest 4) — le browser mode est tranché en E10 (§6)                                                        |
+| jsdom             | **inchangé** (`^25.0.1`, compatible Vitest 4) — le browser mode a été tranché en E10 (§6), `jsdom` ne sert plus qu'à `apps/api`                |
 | Catalog           | `minimumReleaseAgeExclude` de turbo réaligné `2.10.5` → `2.10.7` (dérive laissée par E1)                                                       |
 
 Corrections Zod 4 effectivement nécessaires — 6 fichiers seulement, les motifs
@@ -237,8 +237,8 @@ E10 et restent inertes d'ici là. `prettier` et `turbo` avaient été catalogué
 E1.
 
 L'outillage de test front (`@vitest/browser-playwright`, `playwright`,
-`vitest-browser-react`) est **volontairement laissé de côté** : il arrive en E10
-avec les premiers tests front (§6).
+`vitest-browser-react`) est **volontairement laissé de côté** : il est arrivé en
+E10 avec les premiers tests front (§6).
 
 ### 3.3 Packages
 
@@ -394,7 +394,7 @@ Une ligne = une branche = une PR = une session.
 | **E7**  | 🟡 Conform → RHF (E7.1 → E7.3 faites)       | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`, `admin/…`      | 2,75 j | E3        |
 | **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`                       | 3 j    | E6        |
 | **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                           | 1 j    | E4, E8    |
-| **E10** | Tests front : Vitest client + admin         | `migration-e10-tests-front`        | `client/tests`, `admin/tests`         | 1,5 j  | E4, E7    |
+| **E10** | 🟡 Tests front (socle + admin faits)        | `migration-e10-tests-front`        | `client/tests`, `admin/tests`         | 0,75 j | E4, E7    |
 | **E11** | Mutualisation front (`@app/web-kit`)        | `migration-e11-web-kit`            | `packages/web-kit`                    | 1,5 j  | E7        |
 | **E12** | Docs d'architecture                         | `migration-e12-docs-architecture`  | `root/docs`                           | 0,5 j  | E8        |
 | **E13** | ✅ Structure front → `app/routes/`          | (fait)                             | `client/structure`, `admin/structure` | —      | E3b       |
@@ -664,6 +664,60 @@ trancher entre régression réelle et artefact sans navigateur. Là où `sonner`
 graphiques sont du rendu pur : **un passage visuel réel sur le dashboard admin
 `/` reste nécessaire**.
 
+### E10 — Tests front — 🟡 socle + `apps/admin` faits
+
+Le socle a été posé **avant E7.A**, pour que les tranches E7 de l'admin livrent
+des tests qui restent au lieu de harness jetables.
+
+`apps/admin/vite.config.ts` déclare deux **projects** Vitest :
+
+| project | `include`           | environnement                                    |
+| ------- | ------------------- | ------------------------------------------------ |
+| `ui`    | `app/**/*.test.tsx` | browser mode, Chromium headless (`playwright()`) |
+| `node`  | `app/**/*.test.ts`  | node — modules purs (helpers, mappers, schémas)  |
+
+Trois points de mécanique, tous des pièges :
+
+1. **`reactRouter()` est désactivé sous `VITEST`**
+   (`...(process.env.VITEST ? [] : [reactRouter()])`). Le plugin construit le
+   graphe de route-modules et une entrée SSR autour de `routes.ts`, que le
+   runner navigateur ne peut pas monter. Les tests montent les composants
+   directement, dans un `createRoutesStub` de react-router.
+2. **`types: ["vitest/globals", "vite/client"]`** dans le `tsconfig.json`, sinon
+   `describe` / `it` / `expect` ne typent pas.
+3. **Les versions `vitest` et `@vitest/browser` doivent être identiques** — le
+   runner le signale sinon (`Running mixed versions is not supported`). Le
+   catalog a donc été aligné sur `^4.1.11` pour `vitest`,
+   `@vitest/browser-playwright` et `@vitest/coverage-v8`.
+
+`app/shared/helpers/testing.ts` réexporte `page` / `userEvent` (de
+`vitest/browser`) et `render` / `cleanup` (de `vitest-browser-react`) : aucun
+test n'importe les paquets du runner directement, et c'est là qu'un wrapper de
+providers atterrira au premier test qui en aura besoin. `resolve.alias` n'a
+**pas** été nécessaire : `vite-tsconfig-paths` résout `@/…` sous Vitest.
+
+Chromium seul, en local comme en CI — un second moteur doublerait le coût
+d'installation pour des tests qui portent sur des libellés français et le
+comportement de react-hook-form, pas sur des différences de moteur. Le job
+`vitest` de la CI installe le navigateur
+(`playwright install --with-deps chromium`) avant `pnpm test`.
+
+Premiers tests, choisis pour survivre à E7.A → E7.E — ils remplacent le harness
+jetable d'E7.0 :
+
+| fichier                                              | project | cas |
+| ---------------------------------------------------- | ------- | --- |
+| `shared/helpers/__tests__/form.test.ts`              | node    | 5   |
+| `shared/helpers/__tests__/page-meta.test.ts`         | node    | 5   |
+| `shared/utils/__tests__/api-operation.test.ts`       | node    | 10  |
+| `shared/hooks/__tests__/use-action-fetcher.test.tsx` | ui      | 3   |
+
+Le test du `useActionFetcher` fixe l'invariant de #59 : **deux formulaires
+restent indépendants sans `key`**.
+
+**Reste à faire** : le même socle sur `apps/client` (les 4 fichiers d'infra), et
+les tests de formulaire de chaque tranche E7.
+
 ### E12 — Docs d'architecture
 
 Créer `docs/architecture/` sur le modèle de la référence : vue d'ensemble,
@@ -875,12 +929,12 @@ réinventer sa forme. Le premier des deux à arriver est **E7.C** ; côté clien
 
 ## 6. Décisions à arbitrer
 
-| Sujet                    | Options                                                                                                 | Recommandation                                                                                                                                                                                                                                                                                        |
-| ------------------------ | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Style Prettier**       | ✅ **tranché en E1 : (b)** — on garde `useTabs: true` / `printWidth: 80`, divergence documentée en §3.7 | (b) — un reformatage global noie tous les diffs de la migration et casse `git blame`. À refaire après E12 en commit isolé + `.git-blame-ignore-revs`.                                                                                                                                                 |
-| **Ordre E7 / E2**        | migrer Conform vers `@conform-to/zod/v4` puis vers RHF, ou enchaîner E7 juste après E3                  | **enchaîner E7** — évite une migration jetable sur 41 fichiers                                                                                                                                                                                                                                        |
-| **Tests front**          | browser mode (`@vitest/browser-playwright`, comme la référence) ou `jsdom`                              | **browser mode** pour rester aligné, mais coût CI plus élevé. E2 laisse `jsdom` en place : la bascule se fait en **E10**, avec les presets E4 et les premiers tests front — installer une chaîne Playwright en CI pour zéro test n'a pas de sens, et l'outillage correspondant relève du catalog d'E3 |
-| **`@app/web-kit` (E11)** | mutualiser client ↔ admin, ou assumer la duplication                                                   | mutualiser — 5 fichiers strictement identiques aujourd'hui                                                                                                                                                                                                                                            |
+| Sujet                    | Options                                                                                                 | Recommandation                                                                                                                                                                                                                                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Style Prettier**       | ✅ **tranché en E1 : (b)** — on garde `useTabs: true` / `printWidth: 80`, divergence documentée en §3.7 | (b) — un reformatage global noie tous les diffs de la migration et casse `git blame`. À refaire après E12 en commit isolé + `.git-blame-ignore-revs`.                                                                                                                                                              |
+| **Ordre E7 / E2**        | migrer Conform vers `@conform-to/zod/v4` puis vers RHF, ou enchaîner E7 juste après E3                  | **enchaîner E7** — évite une migration jetable sur 41 fichiers                                                                                                                                                                                                                                                     |
+| **Tests front**          | browser mode (`@vitest/browser-playwright`, comme la référence) ou `jsdom`                              | ✅ **tranché en E10 : browser mode**, installé sur `apps/admin` avant E7.A. Deux projects Vitest (`ui` en Chromium, `node` pour les modules purs), le plugin `reactRouter()` désactivé sous `VITEST`, et une étape d'installation Chromium dans le job `vitest` de la CI. `jsdom` reste au catalog pour `apps/api` |
+| **`@app/web-kit` (E11)** | mutualiser client ↔ admin, ou assumer la duplication                                                   | mutualiser — 5 fichiers strictement identiques aujourd'hui                                                                                                                                                                                                                                                         |
 
 ---
 
