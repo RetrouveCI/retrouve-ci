@@ -224,16 +224,37 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
 `requireServerSession`, which forward the request's `Cookie` header to
 `/api/auth/get-session` — used by route loaders to gate server data fetches.
 
-> **The two apps share one session cookie.** The API runs a **single**
-> better-auth instance (`apps/api/src/infrastructure/auth/auth.config.ts`), so
-> the admin app and the client app read the same cookie. Both sides therefore
-> filter by audience: `requireAdminSession` requires `role === 'admin'`, and the
-> client's `getServerSession` returns `null` for an admin session — a backoffice
-> account is not a user of the public app. `AuthContext` applies the same rule.
-> This stops cross-context _use_, but the sessions are still not independent:
-> signing in on one app replaces the other's cookie. Separating them for real
-> needs two better-auth instances with distinct cookie namespaces
-> (`advanced.cookiePrefix` + `basePath`), which is a lot of its own.
+> **The two apps share one session cookie — known limitation.** The API runs a
+> **single** better-auth instance
+> (`apps/api/src/infrastructure/auth/auth.config.ts`), so the admin app and the
+> client app read the same cookie. An admin signed in on the backoffice
+> therefore appears signed in on the client too.
+>
+> The client does **not** filter on `role` to prevent this, and must not: an
+> admin is also a person who can lose their phone, so they have to be able to
+> sign in here. `role` says who the user is, not what the session was created
+> for. Filtering on it locks admins out of the public app.
+>
+> Telling the two apart needs the **audience carried by the session itself**:
+> two better-auth instances with distinct cookie namespaces (`appName` drives
+> `advanced.cookiePrefix`) mounted on distinct `basePath`s, so the same person
+> can be an admin on the backoffice and a user on the client at the same time.
+> Two constraints shape that work:
+>
+> - `@thallesp/nestjs-better-auth` binds its options to a **single injection
+>   token** and registers its own global guard, so two registrations would have
+>   the second overwrite `request.session` and reject every authenticated
+>   request. Two instances means owning the global guard, `@Session()` and
+>   `@Roles`.
+> - Two cookies are **not** isolation on their own: the browser sends both to
+>   the API, so a script injected into the public app would still carry the
+>   admin cookie. The request's `Origin` is what selects which instance's
+>   session to read — a page can neither forge nor remove it. Server-side calls
+>   carry no `Origin`, so each front-end's loaders have to say which audience
+>   they speak for.
+>
+> Meanwhile `requireAdminSession` still requires `role === 'admin'`, so a
+> regular user cannot reach the dashboard.
 
 #### Client app conventions (loader/action + Zod)
 

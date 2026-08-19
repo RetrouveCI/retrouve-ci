@@ -29,16 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const navigate = useNavigate()
 	const session = authClient.useSession()
 
-	// Same rule as `shared/helpers/session.server.ts`: a backoffice account is not
-	// a user of this app. The API runs a single better-auth instance, so an admin
-	// signed in on the backoffice would otherwise appear signed in here too.
-	// `role` is not in the phone-number client's inferred user type — the `admin`
-	// plugin lives on the server side only — hence the narrow read.
-	const rawUser = session.data?.user
-	const sessionUser =
-		(rawUser as { role?: string } | undefined)?.role === 'admin'
-			? undefined
-			: rawUser
+	const sessionUser = session.data?.user
 
 	const user: User | null = useMemo(
 		() =>
