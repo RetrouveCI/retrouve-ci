@@ -127,11 +127,11 @@ jusqu'à la migration de leurs derniers consommateurs — côté admin
 `administrators/components/admin-form-dialog.tsx` (E7.E).
 
 **Prérequis bloquant : le socle du contrat action/formulaire, absent de
-`apps/admin`.** Ce paragraphe ne demandait que le hook `useActionFetcher` ; il
-datait d'avant E13.7, qui a livré le contrat complet — et côté client seulement.
-`apps/admin/app/shared/` n'a aujourd'hui que `constants/`, `helpers/` et
-`utils/`. Il manque **quatre** fichiers, à recopier depuis `apps/client` dans
-une tranche **E7.0** avant E7.A :
+`apps/admin` — ✅ livré par E7.0.** Ce paragraphe ne demandait que le hook
+`useActionFetcher` ; il datait d'avant E13.7, qui a livré le contrat complet —
+et côté client seulement. `apps/admin/app/shared/` n'avait que `constants/`,
+`helpers/` et `utils/`. Les **quatre** fichiers manquants ont été recopiés
+depuis `apps/client`, à l'octet près, dans une tranche **E7.0** avant E7.A :
 
 | Fichier                              | Rôle                                                         |
 | ------------------------------------ | ------------------------------------------------------------ |
@@ -142,20 +142,38 @@ une tranche **E7.0** avant E7.A :
 
 Recopier, pas mutualiser : le socle remonte dans `@app/web-kit` en **E11**, une
 fois les deux copies stabilisées. Voir [MIGRATION-PLAN.md](MIGRATION-PLAN.md)
-§E13.7, « Deux points ouverts ». `withApiOperationError` accepte
-`redirectOnUnauthorized` — côté admin, c'est `/auth/login`, et il complète
-`requireAdminSession` que chaque loader appelle déjà.
+§E13.7, « Deux points ouverts ». Les quatre fichiers sont donc
+**byte-identiques** à ceux du client, pour que la remontée en E11 soit un simple
+déplacement : aucune divergence à réconcilier, y compris dans les commentaires
+de `useActionFetcher` (dont l'avertissement sur la `key` vaut pour les deux
+apps, même si les dialogues qu'il cite en preuve vivent côté client).
+
+`withApiOperationError` accepte `redirectOnUnauthorized` — côté admin, c'est
+`/auth/login`, et il complète `requireAdminSession` que chaque loader appelle
+déjà. `apps/admin` a déjà `react-hook-form`, `@hookform/resolvers` et `zod` dans
+son `package.json` (E7.1, §4.6), et son `shared/utils/api-fetch.ts` exporte la
+même classe `ApiError` que le client : la recopie n'a demandé aucune adaptation.
+
+**E7.0 n'a aucun consommateur, c'est assumé** : la tranche existe pour que E7.A
+→ E7.E soient de petites PR. Le socle a donc été vérifié par un harness jetable
+(27 assertions) plutôt que par un écran — `zodErrorToFieldErrors` (erreur de
+champ sur son champ, `refine` de formulaire sur `root`, les deux ensemble, un
+seul message par champ), `withApiOperationError` (succès, `ApiError` → `root`
+seul, 401 sans l'option → erreur de formulaire, 401 avec l'option → `redirect`
+vers `/auth/login`, 403 non redirigé, non-`ApiError` re-levée, `redirect`
+interne non avalé) et `getApiErrorMessage`. `useActionFetcher` n'est pas couvert
+: sans consommateur il n'y a rien à monter, et E7.A l'exercera.
 
 ### Découpage des PR
 
-| PR   | Feature          | Fichiers | Remarque                                      |
-| ---- | ---------------- | -------- | --------------------------------------------- |
-| E7.0 | `shared/`        | 4        | socle du contrat recopié depuis `apps/client` |
-| E7.A | `auth`           | 3        | login, forgot-password, reset-password        |
-| E7.B | `events`         | 2        | dialogue de création/édition + action         |
-| E7.C | `qr/generate`    | 2        | génération de lots — **étend `ActionResult`** |
-| E7.D | `profile`        | 1        | changement de mot de passe                    |
-| E7.E | `administrators` | 2        | 🟡 mock — convertir quand même                |
+| PR   | Feature          | Fichiers | Remarque                                         |
+| ---- | ---------------- | -------- | ------------------------------------------------ |
+| E7.0 | `shared/`        | 4        | ✅ **fait** — socle recopié depuis `apps/client` |
+| E7.A | `auth`           | 3        | login, forgot-password, reset-password           |
+| E7.B | `events`         | 2        | dialogue de création/édition + action            |
+| E7.C | `qr/generate`    | 2        | génération de lots — **étend `ActionResult`**    |
+| E7.D | `profile`        | 1        | changement de mot de passe                       |
+| E7.E | `administrators` | 2        | 🟡 mock — convertir quand même                   |
 
 **E7.C porte une décision de contrat.** Son action renvoie les jetons générés,
 et la page les affiche : c'est l'un des deux seuls écrans du dépôt qui montre le
