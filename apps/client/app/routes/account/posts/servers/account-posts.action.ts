@@ -1,7 +1,9 @@
-import { data, redirect } from 'react-router'
+import { redirect } from 'react-router'
 import { z } from 'zod'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { getServerSession } from '@/shared/helpers/session.server'
-import { ApiError } from '@/shared/utils/api-fetch'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import {
 	deleteLostItem,
 	updateLostItemResolution,
@@ -16,7 +18,11 @@ const actionSchema = z.discriminatedUnion('intent', [
 	}),
 ])
 
-export async function accountPostsAction({ request }: { request: Request }) {
+export async function accountPostsAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	const session = await getServerSession(request)
 	if (!session) throw redirect('/auth/login')
 
@@ -24,24 +30,21 @@ export async function accountPostsAction({ request }: { request: Request }) {
 		Object.fromEntries(await request.formData()),
 	)
 	if (!submission.success) {
-		return data({ ok: false }, { status: 400 })
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
 
-	try {
-		if (submission.data.intent === 'delete') {
-			await deleteLostItem(submission.data.id, request)
-		} else {
-			await updateLostItemResolution(
-				submission.data.id,
-				submission.data.status,
-				request,
-			)
-		}
-		return { ok: true }
-	} catch (err) {
-		if (err instanceof ApiError && err.status === 401)
-			throw redirect('/auth/login')
+	if (submission.data.intent === 'delete') {
+		const { id } = submission.data
 
-		return data({ ok: false }, { status: 400 })
+		return withApiOperationError(() => deleteLostItem(id, request), {
+			redirectOnUnauthorized: '/auth/login',
+		})
 	}
+
+	const { id, status } = submission.data
+
+	return withApiOperationError(
+		() => updateLostItemResolution(id, status, request),
+		{ redirectOnUnauthorized: '/auth/login' },
+	)
 }

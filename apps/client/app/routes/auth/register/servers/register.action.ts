@@ -1,47 +1,50 @@
-import { data } from 'react-router'
 import { requireServerSession } from '@/shared/helpers/session.server'
-import { ApiError } from '@/shared/utils/api-fetch'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import {
 	sendOtpActionSchema,
 	setInitialPasswordActionSchema,
 } from '../register.schema'
 import { setInitialPassword, sendOtp } from './register.service'
 
-export async function registerAction({ request }: { request: Request }) {
+export async function registerAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	const formData = Object.fromEntries(await request.formData())
 
 	switch (formData.intent) {
 		case 'send-otp': {
 			const submission = sendOtpActionSchema.safeParse(formData)
-			if (!submission.success) return data({ ok: false }, { status: 400 })
-
-			try {
-				await sendOtp(submission.data.phoneNumber, request)
-				return { ok: true }
-			} catch (err) {
-				if (err instanceof ApiError) {
-					return data({ ok: false, error: err.message }, { status: err.status })
+			if (!submission.success) {
+				return {
+					success: false,
+					errors: zodErrorToFieldErrors(submission.error),
 				}
-				return data({ ok: false }, { status: 400 })
 			}
+
+			return withApiOperationError(() =>
+				sendOtp(submission.data.phoneNumber, request),
+			)
 		}
 		case 'set-initial-password': {
 			await requireServerSession(request)
 
 			const submission = setInitialPasswordActionSchema.safeParse(formData)
-			if (!submission.success) return data({ ok: false }, { status: 400 })
-
-			try {
-				await setInitialPassword(submission.data.newPassword, request)
-				return { ok: true }
-			} catch (err) {
-				if (err instanceof ApiError) {
-					return data({ ok: false, error: err.message }, { status: err.status })
+			if (!submission.success) {
+				return {
+					success: false,
+					errors: zodErrorToFieldErrors(submission.error),
 				}
-				return data({ ok: false }, { status: 400 })
 			}
+
+			return withApiOperationError(() =>
+				setInitialPassword(submission.data.newPassword, request),
+			)
 		}
 		default:
-			return data({ ok: false }, { status: 400 })
+			return { success: false }
 	}
 }

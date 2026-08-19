@@ -11,41 +11,45 @@ import {
 	DialogTrigger,
 } from '@app/ui/components'
 import { useEffect, useState } from 'react'
-import { useFetcher } from 'react-router'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
-
-interface ActionResult {
-	ok: boolean
-	error?: string
-}
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import type { ActionResult } from '@/shared/types/action'
 
 export function ActivateStickerDialog() {
-	const fetcher = useFetcher<ActionResult>()
+	// Typed on `ActionResult` rather than `typeof action`: this route is on
+	// stand-by, so its generated types do not exist.
+	const fetcher = useActionFetcher<ActionResult>()
+	const [hasSubmitted, setHasSubmitted] = useState(false)
 	const [open, setOpen] = useState(false)
 	const [code, setCode] = useState('')
 	const [label, setLabel] = useState('')
 	const [linkedObject, setLinkedObject] = useState('')
 
 	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
+		if (!hasSubmitted || fetcher.state !== 'idle') return
 
-		if (fetcher.data.ok) {
+		setHasSubmitted(false)
+
+		if (fetcher.isOk) {
 			toast.success('Sticker activé avec succès')
 			setCode('')
 			setLabel('')
 			setLinkedObject('')
 			setOpen(false)
 		} else {
-			toast.error(fetcher.data.error ?? "Impossible d'activer ce sticker")
+			toast.error(
+				fetcher.errors?.root?.message ?? "Impossible d'activer ce sticker",
+			)
 		}
-	}, [fetcher.state, fetcher.data])
+	}, [hasSubmitted, fetcher.state, fetcher.isOk, fetcher.errors])
 
 	const handleSubmit = () => {
 		if (!code || !label) {
 			toast.error('Veuillez remplir le code et le nom')
 			return
 		}
+		setHasSubmitted(true)
 		void fetcher.submit(
 			{
 				intent: 'activate',
@@ -116,7 +120,7 @@ export function ActivateStickerDialog() {
 					</Button>
 					<Button
 						onClick={handleSubmit}
-						disabled={fetcher.state !== 'idle'}
+						disabled={fetcher.isSubmitting}
 						className="bg-primary-green hover:bg-primary-green-dark rounded-xl text-white"
 					>
 						Activer

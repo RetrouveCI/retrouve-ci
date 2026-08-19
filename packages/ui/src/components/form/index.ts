@@ -5,6 +5,7 @@ export * from './input-label'
 // shadcn `ui/field.tsx` primitives; these are what new and migrated forms must
 // use.
 export * from './form-input-field'
+export * from './form-root-error'
 export * from './form-textarea-field'
 
 // Conform-based wrappers — legacy, kept only until their last consumer is

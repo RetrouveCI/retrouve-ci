@@ -1,5 +1,6 @@
-import { data } from 'react-router'
-import { ApiError } from '@/shared/utils/api-fetch'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import {
 	resendOtpActionSchema,
 	resetPasswordActionSchema,
@@ -9,39 +10,41 @@ import {
 	resetPassword,
 } from './reset-password.service'
 
-export async function resetPasswordAction({ request }: { request: Request }) {
+export async function resetPasswordAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	const formData = Object.fromEntries(await request.formData())
 
 	switch (formData.intent) {
 		case 'resend-otp': {
 			const submission = resendOtpActionSchema.safeParse(formData)
-			if (!submission.success) return data({ ok: false }, { status: 400 })
-
-			try {
-				await requestPasswordResetOtp(submission.data.phoneNumber, request)
-				return { ok: true }
-			} catch (err) {
-				if (err instanceof ApiError) {
-					return data({ ok: false, error: err.message }, { status: err.status })
+			if (!submission.success) {
+				return {
+					success: false,
+					errors: zodErrorToFieldErrors(submission.error),
 				}
-				return data({ ok: false }, { status: 400 })
 			}
+
+			return withApiOperationError(() =>
+				requestPasswordResetOtp(submission.data.phoneNumber, request),
+			)
 		}
 		case 'reset-password': {
 			const submission = resetPasswordActionSchema.safeParse(formData)
-			if (!submission.success) return data({ ok: false }, { status: 400 })
-
-			try {
-				await resetPassword(submission.data, request)
-				return { ok: true }
-			} catch (err) {
-				if (err instanceof ApiError) {
-					return data({ ok: false, error: err.message }, { status: err.status })
+			if (!submission.success) {
+				return {
+					success: false,
+					errors: zodErrorToFieldErrors(submission.error),
 				}
-				return data({ ok: false }, { status: 400 })
 			}
+
+			return withApiOperationError(() =>
+				resetPassword(submission.data, request),
+			)
 		}
 		default:
-			return data({ ok: false }, { status: 400 })
+			return { success: false }
 	}
 }

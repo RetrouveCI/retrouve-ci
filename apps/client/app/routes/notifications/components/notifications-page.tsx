@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Link, useFetcher } from 'react-router'
+import type { ActionResult } from '@/shared/types/action'
 import { Bell, BellOff, ArrowLeft, CheckCheck } from 'lucide-react'
 import { Button } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
@@ -45,7 +46,7 @@ export function NotificationsPage({
 	unreadCount,
 }: NotificationsPageProps) {
 	const [filter, setFilter] = useState<Filter>('all')
-	const actionFetcher = useFetcher<{ ok: boolean }>()
+	const actionFetcher = useFetcher<ActionResult>()
 
 	const filteredItems = useMemo(() => {
 		if (filter === 'unread') return items.filter(n => !n.read)

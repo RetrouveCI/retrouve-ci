@@ -1,42 +1,35 @@
-import { useEffect, useRef } from 'react'
+import type { FieldErrors, FieldValues } from 'react-hook-form'
 import { useFetcher } from 'react-router'
 
-export interface ActionResult {
-	ok: boolean
-	error?: string
-}
+/**
+ * Thin wrapper over `useFetcher` for actions that answer the
+ * `{ success, errors }` contract. `errors` comes back shaped as react-hook-form
+ * `FieldErrors`, so a form hands it straight to `useForm`'s `errors:` option and
+ * server-side messages land on the fields they belong to.
+ *
+ * Pass a `key` when two instances of the same form can be mounted at once (a
+ * create dialog and a row-level edit dialog, say): without one they would share
+ * a single fetcher and each other's errors.
+ */
+export function useActionFetcher<
+	TAction,
+	TFormInput extends FieldValues = FieldValues,
+>(key?: string) {
+	const fetcher = useFetcher<TAction>({ key })
 
-interface UseActionFetcherOptions {
-	onOk?: (result: ActionResult) => void
-	onError?: (result: ActionResult) => void
-}
-
-export function useActionFetcher(options: UseActionFetcherOptions = {}) {
-	const fetcher = useFetcher<ActionResult>()
-
-	// Must stay declared before the settle effect, so the callbacks are already
-	// refreshed when it runs in the same commit.
-	const optionsRef = useRef(options)
-	useEffect(() => {
-		optionsRef.current = options
-	})
-
-	const handledRef = useRef<ActionResult | null>(null)
-
-	useEffect(() => {
-		if (fetcher.state !== 'idle') return
-
-		const result = fetcher.data
-		if (!result || handledRef.current === result) return
-		handledRef.current = result
-
-		if (result.ok) optionsRef.current.onOk?.(result)
-		else optionsRef.current.onError?.(result)
-	}, [fetcher.state, fetcher.data])
+	const record = (
+		typeof fetcher.data === 'object' && fetcher.data !== null
+			? fetcher.data
+			: undefined
+	) as Record<string, unknown> | undefined
 
 	return {
-		submit: fetcher.submit,
 		data: fetcher.data,
+		isOk: record?.success === true && fetcher.state === 'idle',
+		errors: record?.errors as FieldErrors<TFormInput> | undefined,
 		isSubmitting: fetcher.state !== 'idle',
+		submit: fetcher.submit,
+		Form: fetcher.Form,
+		state: fetcher.state,
 	}
 }

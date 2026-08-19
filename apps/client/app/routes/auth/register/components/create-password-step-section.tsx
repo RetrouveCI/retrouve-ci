@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useController, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { FormRootError } from '@app/ui/components/form'
 import { toErrorList } from '../../helpers/field-errors'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import {
@@ -10,6 +12,7 @@ import {
 	type NewPasswordInput,
 } from '../register.schema'
 import { PasswordStep } from '../../components/password-step'
+import type { action } from '../_index'
 
 export function CreatePasswordStepSection({
 	redirectTo,
@@ -17,24 +20,14 @@ export function CreatePasswordStepSection({
 	redirectTo: string
 }) {
 	const navigate = useNavigate()
+	const [hasSubmitted, setHasSubmitted] = useState(false)
 
-	const { submit, isSubmitting } = useActionFetcher({
-		onOk: () => {
-			toast.success('Compte créé !', {
-				description: 'Bienvenue sur RetrouveCI.',
-			})
-			navigate(redirectTo, { replace: true })
-		},
-		onError: result => {
-			toast.error(
-				result.error ?? 'Une erreur est survenue. Veuillez réessayer.',
-			)
-		},
-	})
+	const fetcher = useActionFetcher<typeof action, NewPasswordInput>()
 
 	const form = useForm<NewPasswordInput, unknown, NewPasswordData>({
 		resolver: standardSchemaResolver(newPasswordSchema),
 		mode: 'onSubmit',
+		errors: fetcher.errors,
 		reValidateMode: 'onChange',
 		defaultValues: { newPassword: '', confirmPassword: '' },
 	})
@@ -49,14 +42,30 @@ export function CreatePasswordStepSection({
 	})
 
 	const onSubmit = (values: NewPasswordData) => {
-		void submit(
+		setHasSubmitted(true)
+		void fetcher.submit(
 			{ intent: 'set-initial-password', newPassword: values.newPassword },
 			{ method: 'post' },
 		)
 	}
 
+	useEffect(() => {
+		if (!hasSubmitted || !fetcher.isOk) return
+
+		setHasSubmitted(false)
+		toast.success('Compte créé !', {
+			description: 'Bienvenue sur RetrouveCI.',
+		})
+		void navigate(redirectTo, { replace: true })
+	}, [hasSubmitted, fetcher.isOk, navigate, redirectTo])
+
 	return (
 		<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+			<FormRootError
+				message={form.formState.errors.root?.message}
+				className="mb-5"
+			/>
+
 			<PasswordStep
 				step="create-password"
 				newPassword={newPassword.field.value}
@@ -65,7 +74,7 @@ export function CreatePasswordStepSection({
 				setConfirmPassword={confirmPassword.field.onChange}
 				newPasswordErrors={toErrorList(newPassword.fieldState.error)}
 				confirmPasswordErrors={toErrorList(confirmPassword.fieldState.error)}
-				isSubmitting={isSubmitting}
+				isSubmitting={fetcher.isSubmitting}
 			/>
 		</form>
 	)

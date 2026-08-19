@@ -21,16 +21,12 @@ import {
 	AlertDialogTrigger,
 } from '@app/ui/components'
 import { useEffect, useState } from 'react'
-import { useFetcher } from 'react-router'
 import { QrCode, Edit2, PowerOff, Calendar, Package } from 'lucide-react'
 import { toast } from 'sonner'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import type { ActionResult } from '@/shared/types/action'
 import type { Sticker } from '@/shared/types/sticker'
 import { cn } from '@app/ui/utils'
-
-interface ActionResult {
-	ok: boolean
-	error?: string
-}
 
 function formatDate(dateString: string) {
 	return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -45,34 +41,57 @@ interface StickerCardProps {
 }
 
 export function StickerCard({ sticker }: StickerCardProps) {
-	const updateFetcher = useFetcher<ActionResult>()
-	const revokeFetcher = useFetcher<ActionResult>()
+	// Typed on `ActionResult` rather than `typeof action`: this route is on
+	// stand-by, so its generated types do not exist.
+	const updateFetcher = useActionFetcher<ActionResult>()
+	const revokeFetcher = useActionFetcher<ActionResult>()
+	const [hasSubmittedUpdate, setHasSubmittedUpdate] = useState(false)
+	const [hasSubmittedRevoke, setHasSubmittedRevoke] = useState(false)
 	const [isEditing, setIsEditing] = useState(false)
 	const [editLabel, setEditLabel] = useState(sticker.label ?? '')
 	const [editObject, setEditObject] = useState(sticker.linkedObject ?? '')
 
 	useEffect(() => {
-		if (updateFetcher.state !== 'idle' || !updateFetcher.data) return
+		if (!hasSubmittedUpdate || updateFetcher.state !== 'idle') return
 
-		if (updateFetcher.data.ok) {
+		setHasSubmittedUpdate(false)
+
+		if (updateFetcher.isOk) {
 			setIsEditing(false)
 			toast.success('Sticker mis à jour')
 		} else {
-			toast.error(updateFetcher.data.error ?? 'Une erreur est survenue')
+			toast.error(
+				updateFetcher.errors?.root?.message ?? 'Une erreur est survenue',
+			)
 		}
-	}, [updateFetcher.state, updateFetcher.data])
+	}, [
+		hasSubmittedUpdate,
+		updateFetcher.state,
+		updateFetcher.isOk,
+		updateFetcher.errors,
+	])
 
 	useEffect(() => {
-		if (revokeFetcher.state !== 'idle' || !revokeFetcher.data) return
+		if (!hasSubmittedRevoke || revokeFetcher.state !== 'idle') return
 
-		if (revokeFetcher.data.ok) {
+		setHasSubmittedRevoke(false)
+
+		if (revokeFetcher.isOk) {
 			toast.success('Sticker désactivé')
 		} else {
-			toast.error(revokeFetcher.data.error ?? 'Une erreur est survenue')
+			toast.error(
+				revokeFetcher.errors?.root?.message ?? 'Une erreur est survenue',
+			)
 		}
-	}, [revokeFetcher.state, revokeFetcher.data])
+	}, [
+		hasSubmittedRevoke,
+		revokeFetcher.state,
+		revokeFetcher.isOk,
+		revokeFetcher.errors,
+	])
 
 	const handleSave = () => {
+		setHasSubmittedUpdate(true)
 		void updateFetcher.submit(
 			{
 				intent: 'update',
@@ -85,6 +104,7 @@ export function StickerCard({ sticker }: StickerCardProps) {
 	}
 
 	const handleRevoke = () => {
+		setHasSubmittedRevoke(true)
 		void revokeFetcher.submit(
 			{ intent: 'revoke', code: sticker.code },
 			{ method: 'post' },
@@ -92,8 +112,8 @@ export function StickerCard({ sticker }: StickerCardProps) {
 	}
 
 	const isActive = sticker.status === 'activated'
-	const isUpdating = updateFetcher.state !== 'idle'
-	const isRevoking = revokeFetcher.state !== 'idle'
+	const isUpdating = updateFetcher.isSubmitting
+	const isRevoking = revokeFetcher.isSubmitting
 
 	return (
 		<div

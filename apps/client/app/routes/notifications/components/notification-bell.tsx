@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useFetcher } from 'react-router'
+import type { ActionResult } from '@/shared/types/action'
 import { Bell, BellOff } from 'lucide-react'
 import {
 	Badge,
@@ -22,7 +23,7 @@ interface NotificationsLoaderData {
 export function NotificationBell() {
 	const [open, setOpen] = useState(false)
 	const listFetcher = useFetcher<NotificationsLoaderData>()
-	const actionFetcher = useFetcher<{ ok: boolean }>()
+	const actionFetcher = useFetcher<ActionResult>()
 	const previousActionState = useRef(actionFetcher.state)
 
 	useEffect(() => {

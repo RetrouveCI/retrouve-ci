@@ -233,9 +233,28 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   migrated still use `@conform-to/react` + `@conform-to/zod` (`useForm`,
   `useInputControl`, `getFormProps`, `getZodConstraint`, `parseWithZod`); do not
   add new ones.
-- Actions returning `{ ok, error }` are consumed through
-  `shared/hooks/use-action-fetcher.ts`, which fires `onOk` / `onError` once per
-  response — not through a hand-rolled `useEffect` on `fetcher.data`.
+- Actions answer a single contract, `ActionResult` from
+  `shared/types/action.ts`: `{ success: true }` or
+  `{ success: false, errors? }`, where `errors` is already shaped as
+  react-hook-form `FieldErrors` — one entry per field, plus `root` for anything
+  that belongs to no field. Two helpers build it: `zodErrorToFieldErrors`
+  (`shared/helpers/form.ts`) turns a failed `safeParse` into that map, and
+  `withApiOperationError` (`shared/utils/api-operation.ts`) wraps the API call —
+  it returns `{ success: true }`, turns an `ApiError` into a `root` error, and
+  rethrows anything else. Pass it `redirectOnUnauthorized` to convert a 401 into
+  a `redirect()` instead of a form error.
+- Forms consume that result through `shared/hooks/use-action-fetcher.ts`
+  (`{ data, isOk, errors, isSubmitting, submit, Form, state }`) and hand
+  `fetcher.errors` straight to `useForm`'s `errors:` option, so server-side
+  messages land on the fields they belong to. Render `root` with `FormRootError`
+  from `@app/ui/components/form`. Pass `useActionFetcher` a key when two
+  instances of the same form can be mounted at once (a create dialog and a
+  row-level edit dialog, say) — without one they share a fetcher and each
+  other's errors. Success side effects (a toast, a navigation, closing a dialog)
+  go in a `useEffect` guarded on `fetcher.isOk`.
+- Forms still on Conform keep the older `{ ok, error }` / `submission.reply()`
+  shapes until their E7 migration: `contact`, `publish`, `account/settings`,
+  `account/posts/edit`, `stickers/order` and `q`. Do not add new ones.
 - Each route feature owns its own Zod schema as a sibling `*.schema.ts` file
   (e.g. `routes/auth/login/login.schema.ts`,
   `routes/account/settings/settings.schema.ts`). Small schemas may be duplicated
