@@ -308,24 +308,37 @@ et le serveur a quelque chose à dire sur quatre champs précis. Sous le nouveau
 contrat c'est un 200 portant `{ success: false, errors }` — et c'est aussi ce
 qui permet aux messages d'atterrir sur leurs champs.
 
-**Le balisage sur mesure est conservé, et c'est une décision, pas une
-facilité.** La page stylise ses contrôles en `focus:`
-(`focus:ring-primary-green/30 focus:ring-2`) ; l'`Input` partagé stylise son
-anneau en `focus-visible:`
-(`focus-visible:ring-ring/50 focus-visible:ring-[3px]`). Les deux sélecteurs
-matchent un champ texte focalisé, et Tailwind émet `focus-visible` après `focus`
-: passer par le composant partagé aurait **silencieusement remplacé l'anneau
-vert par le gris par défaut**. `Controller` habille donc les éléments existants,
-et les trois champs texte identiques passent par un `TextField` local au
-fichier. `FormInputField` / `FormTextareaField` ne conviennent pas ici pour la
-même raison.
+**Le balisage sur mesure est conservé** : `Controller` habille les éléments
+existants, et les trois champs texte identiques passent par un `TextField` local
+au fichier. Le rendu ne bouge donc pas d'un pixel, ce qui est le seul argument
+qui tienne — faute d'accès navigateur, une dérive visuelle ne serait vue par
+personne avant la prod.
 
-> ⚠️ **Le même conflit existe déjà dans `auth`, livré en E7.2.**
-> `login/components/login-form.tsx` et `components/phone-step.tsx` passent
-> `focus:ring-primary-green/20` à l'`Input` partagé, dont les classes de base
-> posent un anneau `focus-visible:` que Tailwind ordonne après. L'anneau vert y
-> est probablement déjà perdu. À vérifier à l'œil en même temps que les 5 pages
-> `/auth` ; le correctif est un changement à part.
+> **Correction.** Ce paragraphe affirmait d'abord qu'utiliser l'`Input` partagé
+> aurait « silencieusement remplacé l'anneau vert par le gris par défaut », et
+> qu'`auth` avait déjà perdu le sien depuis E7.2. **C'est faux, et l'utilisateur
+> l'a vérifié à l'œil : les 5 pages `/auth` sont bonnes.**
+>
+> Le conflit de classes, lui, est réel : la page stylise ses contrôles en
+> `focus:` (`focus:ring-primary-green/30 focus:ring-2`), l'`Input` partagé
+> stylise son anneau en `focus-visible:`
+> (`focus-visible:ring-ring/50 focus-visible:ring-[3px]`), les deux sélecteurs
+> matchent un champ texte focalisé, et le CSS généré place bien les règles
+> `focus-visible` après les `focus` (vérifié dans
+> `build/client/assets/root-*.css` : ~103 300 pour `focus:ring-2`, ~106 130 pour
+> `focus-visible:ring-[3px]`). À spécificité égale, `focus-visible` gagne, donc
+> les surcharges `focus:` sont du **code mort**.
+>
+> Mais la conséquence annoncée ne suit pas : `--ring` vaut
+> `oklch(0.52 0.15 145)` — teinte 145, le vert de la marque, choisi exprès. Ce
+> qui gagne est donc un anneau vert lui aussi, simplement à 50 % d'opacité sur 3
+> px au lieu de 30 % sur 2 px. Invisible en pratique, et il n'y a **rien à
+> corriger dans `auth`** au-delà d'un éventuel nettoyage des classes mortes.
+>
+> Ce qui rend `FormInputField` / `FormTextareaField` inadaptés à cette page
+> reste vrai, mais pour l'autre raison, plus banale : leur `Field` +
+> `FieldLabel` change les espacements et la taille des messages (voir le
+> paragraphe `FieldError` ci-dessous).
 
 **`FieldError` : celui de shadcn, contrairement à E7.2.** §4.3.1 avait gardé la
 version Conform de `@app/ui/components/form` pour un DOM identique à l'octet, et
