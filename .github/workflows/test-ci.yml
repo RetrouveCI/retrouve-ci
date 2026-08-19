@@ -121,9 +121,10 @@ jobs:
       - name: Build shared packages
         run: pnpm exec turbo run build --filter=@app/database
 
-      # The admin app's component tests run in a real browser (Vitest browser
-      # mode), so the Chromium build and its system libraries have to be present
-      # before `pnpm test`.
+      # Component tests run in a real browser (Vitest browser mode), so the
+      # Chromium build and its system libraries have to be present before
+      # `pnpm test`. One install is enough for both front-ends: Playwright caches
+      # browsers per machine, not per workspace.
       - name: Install Playwright browsers
         run: pnpm --filter @app/admin exec playwright install --with-deps chromium
 
