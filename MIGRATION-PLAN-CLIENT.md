@@ -245,7 +245,7 @@ copies étant alors identiques.
 | ------ | ------------------------ | -------- | ------------------------------------------------------------- |
 | E7.1   | `packages/ui`            | 3 (+2)   | ✅ **fait** — wrappers RHF sur `ui/field.tsx` + deps des apps |
 | E7.2   | `auth` (7 formulaires)   | 12       | ✅ **fait** — voir §4.3.1                                     |
-| E7.3   | `contact`                | 1        | le plus simple — bon second pilote                            |
+| E7.3   | `contact`                | 3        | ✅ **fait** — voir §4.3.2                                     |
 | E7.4   | `publish` (multi-étapes) | 7        | le plus délicat : 3 sections + hook `use-publish-form`        |
 | E7.5   | `account/settings`       | 5        | 4 dialogues + danger zone                                     |
 | E7.6   | `account/posts/edit`     | 3        | hook `use-edit-post-form`                                     |
@@ -294,6 +294,81 @@ validation, valeur _parsée_ et non brute transmise au handler (la parité avec
 expiration puis renvoi du code OTP, code refusé qui vide le champ. Reste à voir
 à l'œil : les 5 pages sous `/auth`.
 
+#### 4.3.2 E7.3 — `contact` : ce qui a été fait
+
+**Trois fichiers, pas un.** Le décompte initial ne comptait que le composant.
+S'y ajoutent l'action, qui passe au contrat `{ success, errors }` de E13.7, et
+le schéma, qui gagne les exports de types `ContactInput` / `ContactData` que
+`useForm<Input, unknown, Output>` réclame — comme les quatre schémas `auth`. Les
+règles de validation, elles, ne bougent pas.
+
+**L'action perd ses `data(..., { status })`.** Un formulaire invalide répondait
+en HTTP 400. Ce n'est pas une erreur de transport : la requête a été comprise,
+et le serveur a quelque chose à dire sur quatre champs précis. Sous le nouveau
+contrat c'est un 200 portant `{ success: false, errors }` — et c'est aussi ce
+qui permet aux messages d'atterrir sur leurs champs.
+
+**Le balisage sur mesure est conservé, et c'est une décision, pas une
+facilité.** La page stylise ses contrôles en `focus:`
+(`focus:ring-primary-green/30 focus:ring-2`) ; l'`Input` partagé stylise son
+anneau en `focus-visible:`
+(`focus-visible:ring-ring/50 focus-visible:ring-[3px]`). Les deux sélecteurs
+matchent un champ texte focalisé, et Tailwind émet `focus-visible` après `focus`
+: passer par le composant partagé aurait **silencieusement remplacé l'anneau
+vert par le gris par défaut**. `Controller` habille donc les éléments existants,
+et les trois champs texte identiques passent par un `TextField` local au
+fichier. `FormInputField` / `FormTextareaField` ne conviennent pas ici pour la
+même raison.
+
+> ⚠️ **Le même conflit existe déjà dans `auth`, livré en E7.2.**
+> `login/components/login-form.tsx` et `components/phone-step.tsx` passent
+> `focus:ring-primary-green/20` à l'`Input` partagé, dont les classes de base
+> posent un anneau `focus-visible:` que Tailwind ordonne après. L'anneau vert y
+> est probablement déjà perdu. À vérifier à l'œil en même temps que les 5 pages
+> `/auth` ; le correctif est un changement à part.
+
+**`FieldError` : celui de shadcn, contrairement à E7.2.** §4.3.1 avait gardé la
+version Conform de `@app/ui/components/form` pour un DOM identique à l'octet, et
+renvoyait le passage à la famille `Field` à un arbitrage UI. `contact` prend
+l'autre voie, pour une raison concrète : la version Conform attend
+`errors: string[]`, et l'adaptateur qui fait la conversion (`toErrorList`) vit
+dans `routes/auth/helpers/` — inatteignable depuis une autre zone sans le
+recopier ou le remonter. La version shadcn prend directement
+`errors={[fieldState.error]}`, c'est ce que font les wrappers de `packages/ui`,
+et c'est ce que prescrit le commentaire en tête de
+`packages/ui/src/components/form/index.ts`. Avec `className="text-xs"` la taille
+d'origine est conservée ; il ne reste comme écart que `<div role="alert">` au
+lieu de `<p>`, soit un gain d'accessibilité. Les formulaires `auth` pourront
+converger en fin d'étape, quand les wrappers Conform disparaîtront (§4.5).
+
+⚠️ Le garde `fieldState.error &&` n'est pas décoratif : `errors={[undefined]}`
+fait rendre au composant shadcn une liste à puces vide. `FormInputField` se
+garde de la même façon.
+
+**Pas de drapeau `hasSubmitted`.** Le succès échange le formulaire contre son
+écran de confirmation, depuis un `useEffect` gardé sur `fetcher.isOk`.
+Contrairement à `password-forgotten`, l'effet ne navigue pas : il pose un état
+local idempotent, qu'un rejeu ne dérange pas. Le cas à connaître est l'inverse —
+après « Envoyer un autre message », `fetcher.isOk` est **toujours vrai** ;
+l'effet ne rejoue pas parce que ses dépendances n'ont pas changé, et la
+soumission suivante le relance grâce à son cycle faux → vrai.
+
+Au passage, les libellés gagnent un `htmlFor` et les contrôles un `id` : ils
+n'étaient associés à rien.
+
+**Vérification.** `format:check`, `typecheck`, `lint`, `test` et `build` verts.
+Harness jsdom jetable, le vrai `ContactForm` monté dans un `createMemoryRouter`
+câblé sur le vrai `contactAction`, `fetch` stubé par _factory_ : **52
+assertions**, toutes vertes — 20 sur l'action (corps transmis, trim, les quatre
+erreurs de champ sans `root`, API jamais appelée si la validation échoue,
+`ApiError` → `root` seul, message vide → message par défaut, non-`ApiError`
+re-levée) et 32 sur le formulaire (soumission vide bloquée côté client, erreur
+`root` serveur dans l'alerte, erreur de champ serveur sous son champ avec les
+valeurs conservées, succès → écran de confirmation, retour à un formulaire vide
+et propre, puis **une seconde soumission qui réaffiche bien la confirmation**).
+Reste à voir à l'œil : à quoi ressemble un échec serveur, maintenant une alerte
+`FormRootError` en tête de formulaire là où il y avait un toast.
+
 ### 4.4 À traiter dans la même étape
 
 - **Écart 4** : ✅ **absorbé par E13.3** — les 5 fichiers `<f>.types.ts` ont été
@@ -310,6 +385,13 @@ Retirer `@conform-to/react` et `@conform-to/zod` de `apps/client/package.json`,
 `apps/admin/package.json`, `packages/ui/package.json` et du catalog. C'est aussi
 là que `components/form/{input-field,textarea-field}.tsx` disparaissent, une
 fois leurs 8 consommateurs migrés.
+
+**Cette fin d'étape n'est pas atteignable depuis le client seul.** Les 10
+fichiers Conform de `apps/admin` doivent être migrés d'abord (tranches E7.0 →
+E7.E, voir [MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md) §4), et les 8
+consommateurs des deux wrappers Conform se répartissent 4 / 4 entre les deux
+apps (`grep -rln "InputField\|TextareaField" apps/*/app`). E7.6 terminée ne clôt
+donc que la moitié client de l'étape.
 
 ### 4.6 Dépendances : blocage levé en E7.1
 
