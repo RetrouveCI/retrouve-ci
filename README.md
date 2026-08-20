@@ -101,7 +101,8 @@ pnpm --filter @app/ui build
 - **Domain-Driven / Clean Architecture** (`domains` / `presentation` /
   `infrastructure` / `shared`)
 - **Prisma 7** over Postgres via driver adapters (`@prisma/adapter-pg`)
-- **BullMQ** (Redis) for background jobs, **better-auth** for auth
+- **BullMQ** (Redis) for background jobs — match notifications and OTP SMS — and
+  **better-auth** for auth (phone OTPs delivered over SMS via Letexto)
 - **Vitest** for unit tests
 
 ## CI/CD & Docker

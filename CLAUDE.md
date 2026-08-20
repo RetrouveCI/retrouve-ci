@@ -174,7 +174,25 @@ shared/           # Cross-cutting: errors, exception filters
   thin and delegate to use-cases.
 - Auth is **better-auth** (`@thallesp/nestjs-better-auth`): phone-number based
   for the client, email/password + admin role for the admin app.
-- Background jobs (e.g. match notifications) run on **BullMQ** backed by Redis.
+- **Phone OTPs go out over SMS through Letexto, on their own BullMQ queue.**
+  better-auth's `phoneNumber()` plugin still owns the code itself — it generates
+  it, stores it and verifies it, so there is no parallel OTP store; the app only
+  sets `expiresIn` (`OTP_TTL_SECONDS`, **120 s**) and delivers. `sendOTP` /
+  `sendPasswordResetOTP` enqueue on the `otp` queue via `OtpDispatcher`
+  (`infrastructure/auth/`); `OtpConsumer` (`presentation/auth/queue-consumers/`)
+  builds the message and calls `LetextoService` (`infrastructure/sms/`). Jobs
+  retry three times with an exponential backoff and are removed on both success
+  **and** failure, since each carries a live code; the failure log names the
+  recipient, never the code. Templates live in `shared/auth/otp-message.ts` and
+  are deliberately **unaccented** — one accent switches the SMS from GSM-7 to
+  UCS-2 and halves the segment from 160 characters to 70 — and are asserted
+  against a 150-char ceiling by their spec. `LETEXTO_API_URL`, `LETEXTO_API_KEY`
+  and `LETEXTO_API_SENDER` are **required in production**: the API refuses to
+  start without them, because a sign-in that cannot deliver its code is worse
+  than a boot failure. Left unset in development, the code is logged to the
+  console as it was before there was a gateway.
+- Background jobs (e.g. match notifications, OTP SMS) run on **BullMQ** backed
+  by Redis.
 - A startup **seeder** creates the super admin and a mock user from env vars
   when absent.
 - Validation uses NestJS `ValidationPipe` (`whitelist` + `forbidNonWhitelisted`)

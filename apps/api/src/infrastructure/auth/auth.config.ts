@@ -1,21 +1,22 @@
-import { createAuth as createSharedAuth, logSecretDelivery } from '@app/auth'
+import { createAuth as createSharedAuth } from '@app/auth'
 import { phoneNumber } from 'better-auth/plugins'
 import type { PrismaClient } from '@app/database'
+import { OTP_TTL_SECONDS } from '@/shared/auth/otp.const'
+import type { OtpDispatcher } from './otp-dispatcher.service'
 
 export const ADMIN_AUTH_BASE_PATH = '/api/admin-auth'
 
 const ADMIN_APP_NAME = 'retrouveci-admin'
 
-export function createClientAuth(prisma: PrismaClient) {
+export function createClientAuth(prisma: PrismaClient, otp: OtpDispatcher) {
 	return createSharedAuth(prisma, {
 		plugins: [
 			phoneNumber({
-				sendOTP: ({ phoneNumber, code }) => {
-					logSecretDelivery('OTP', phoneNumber, code)
-				},
-				sendPasswordResetOTP: ({ phoneNumber, code }) => {
-					logSecretDelivery('Password reset OTP', phoneNumber, code)
-				},
+				expiresIn: OTP_TTL_SECONDS,
+				sendOTP: ({ phoneNumber, code }) =>
+					otp.dispatch({ purpose: 'sign-in', phoneNumber, code }),
+				sendPasswordResetOTP: ({ phoneNumber, code }) =>
+					otp.dispatch({ purpose: 'password-reset', phoneNumber, code }),
 				signUpOnVerification: {
 					getTempEmail: phoneNumber => `${phoneNumber}@phone.retrouveci.local`,
 					getTempName: phoneNumber => phoneNumber,

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { AuthModule } from '@/infrastructure/auth/auth.module'
 import { PrismaModule } from '@/infrastructure/database/prisma.module'
 import { QueueModule } from '@/infrastructure/queue/queue.module'
+import { SmsModule } from '@/infrastructure/sms/sms.module'
 import { SeederModule } from '@/infrastructure/seeder/seeder.module'
 import { AccountModule } from '@/presentation/auth/account.module'
 import { ContactMessagesModule } from '@/presentation/contact-messages/contact-messages.module'
@@ -23,6 +24,7 @@ import { UploadsModule } from '@/presentation/uploads/uploads.module'
 		}),
 		PrismaModule,
 		QueueModule,
+		SmsModule,
 		SeederModule,
 		HealthModule,
 		AuthModule,
