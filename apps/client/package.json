@@ -19,8 +19,6 @@
 	},
 	"dependencies": {
 		"@app/ui": "workspace:*",
-		"@conform-to/react": "catalog:",
-		"@conform-to/zod": "catalog:",
 		"@react-router/node": "catalog:",
 		"@react-router/serve": "catalog:",
 		"@vercel/analytics": "catalog:",

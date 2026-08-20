@@ -83,7 +83,7 @@ Arborescence `app/routes/<zone>/<page>/` + `app/components/`, `app/context/`, `a
 - [ ] Aucune logique de transformation dans un composant → `mapper`.
 - [ ] `*.action.ts` valident l'input avec le schéma `zod` de la route avant l'appel service.
 - [ ] Validation `zod` partagée entre formulaire client et `*.action.ts`.
-- [ ] `*.action.ts` renvoie `ActionResult` — `{ success: true }` ou `{ success: false, errors? }` — via `zodErrorToFieldErrors` et `withApiOperationError`, jamais une forme ad hoc. Exception connue : les routes encore sur Conform (`contact`, `publish`, `account/settings`, `account/posts/edit`, `stickers/order`, `q`), qui convergent à leur migration E7.x.
+- [ ] `*.action.ts` renvoie `ActionResult` — `{ success: true }` ou `{ success: false, errors? }` — via `zodErrorToFieldErrors` et `withApiOperationError`, jamais une forme ad hoc. Plus aucune exception depuis E7.G : toutes les routes des deux apps, montées ou en stand-by, répondent ce contrat.
 - [ ] Un formulaire react-hook-form passe `fetcher.errors` à l'option `errors:` de `useForm`, affiche `root` avec `FormRootError`, et met ses effets de succès dans un `useEffect` gardé sur `fetcher.isOk`. Le toast n'est jamais le seul canal d'une erreur de champ.
 - [ ] Type/composant/mapper partagé → remonté au dossier de zone, ou dans `app/shared/` s'il traverse les zones — jamais laissé dans une route.
 - [ ] Loaders/actions conformes React Router v7 ; la page est un `_index.tsx`, et toute route ajoutée ou déplacée a son entrée à jour dans `app/routes.ts` (résolu par chemin — invisible au `typecheck`, vérifier au `build`).

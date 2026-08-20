@@ -196,12 +196,10 @@ Both apps share the same stack:
 - **Tailwind CSS v4** — configured via CSS `@theme` directives, not a JS config
   file
 - **shadcn/ui** — components imported via `@app/ui/components`
-- **Forms are mid-migration** from `@conform-to/*` to **react-hook-form + zod**
-  (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). Every form on a mounted
-  `client` route is on react-hook-form, as is the whole of `admin`. What is left
-  on Conform: the `client`'s stand-by features (`stickers/order`, `q` — their
-  routes are commented out of `routes.ts`) and the two legacy wrappers in
-  `packages/ui`. New forms use react-hook-form.
+- **Forms are react-hook-form + zod** everywhere, in both apps and in
+  `packages/ui` (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md), closed). The
+  `@conform-to/*` packages are gone from the catalog, including on the stand-by
+  routes whose entries are commented out of `routes.ts`.
 - The admin dialogs use `FormInputField` / `FormTextareaField` from
   `@app/ui/components/form` — `Controller` + the shadcn `Field` family,
   factored, since their fields are uniform. Bespoke fields (an icon inside the
@@ -243,6 +241,15 @@ Route structure (all under `app/`):
 > move there is only caught by `pnpm build`, never by `typecheck` alone. An area
 > folder may hold the `components/`, `servers/` and `types/` its sub-routes
 > share (see `routes/publish/`, `routes/auth/`).
+>
+> A route whose entry is commented out of `routes.ts` gets **no `+types/`
+> module** — React Router only generates them for mounted routes — so it must
+> spell its loader/action args out (`({ request }: { request: Request })`),
+> which is what every action in the repo does anyway. That is what keeps
+> `stickers/**` and `q/**` inside `typecheck`, the only gate that covers them
+> since `build` never bundles them. `account/orders/**` and
+> `account/stickers/_index.tsx` are still excluded in
+> `apps/client/tsconfig.json` for exactly that missing module.
 
 Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
 `AuthContext` (`app/context/auth.tsx`) wraps `authClient.useSession()` for
@@ -322,10 +329,10 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   `standardSchemaResolver(schema)` from `@hookform/resolvers/standard-schema`,
   plus `Controller` (or `useController`, when one component takes several fields
   as a flat prop contract). `FormInputField` / `FormTextareaField` from
-  `@app/ui/components/form` wrap the common single-input case. Forms not yet
-  migrated still use `@conform-to/react` + `@conform-to/zod` (`useForm`,
-  `useInputControl`, `getFormProps`, `getZodConstraint`, `parseWithZod`); do not
-  add new ones.
+  `@app/ui/components/form` wrap the common single-input case; a form whose
+  markup is bespoke (raw `<input>`s with their own classes, as in
+  `routes/contact` and `routes/q`) inlines `Controller` instead, so migrating it
+  leaves the DOM untouched.
 - Actions answer a single contract, `ActionResult` from
   `shared/types/action.ts`: `{ success: true }` or
   `{ success: false, errors? }`, where `errors` is already shaped as
@@ -348,9 +355,6 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   `useFetcher` falls back to `useId()`, so every call already owns its own
   fetcher. Pass a key only to share one fetcher's state between components, or
   to keep it alive across an unmount.
-- Forms still on Conform keep the older `{ ok, error }` / `submission.reply()`
-  shapes until their E7 migration: `stickers/order` and `q` on the client, both
-  stand-by. Do not add new ones.
 - Each route feature owns its own Zod schema as a sibling `*.schema.ts` file
   (e.g. `routes/auth/login/login.schema.ts`,
   `routes/account/settings/settings.schema.ts`). Small schemas may be duplicated

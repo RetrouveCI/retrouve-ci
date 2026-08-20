@@ -392,7 +392,7 @@ Reste à voir à l'œil : à quoi ressemble un échec serveur, maintenant une al
   `CLAUDE.md` comme les deux appels d'auth qui ont besoin du `Set-Cookie` en
   direct.
 
-### 4.5 Fin d'étape
+### 4.5 Fin d'étape — ✅ faite en E7.G
 
 Retirer `@conform-to/react` et `@conform-to/zod` de `apps/client/package.json`,
 `apps/admin/package.json`, `packages/ui/package.json` et du catalog. C'est aussi
