@@ -51,8 +51,7 @@ pnpm --filter @app/ui build
 Tests are run with **Vitest**. The `api` app uses `*.spec.ts` (node). Both
 front-ends declare two Vitest **projects**: `node` for `__tests__/*.test.ts`
 (pure modules) and `ui` for `__tests__/*.test.tsx`, run in a real Chromium
-through browser mode. `apps/admin` has suites for both; `apps/client` currently
-only has `node` ones.
+through browser mode. Both apps have suites for both projects.
 
 ```bash
 pnpm --filter @app/api test        # api only

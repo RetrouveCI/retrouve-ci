@@ -1,8 +1,9 @@
 import { Button, Input, Label } from '@app/ui/components'
-import type { FieldMetadata } from '@conform-to/react'
+import type { Control } from 'react-hook-form'
 import { ArrowLeft, ArrowRight, Tag, Check, X } from 'lucide-react'
-import { InputField, TextareaField } from '@app/ui/components/form'
+import { FormInputField, FormTextareaField } from '@app/ui/components/form'
 import { OrderSummaryCard } from './order-summary-card'
+import type { StickerOrderData, StickerOrderInput } from '../order.schema'
 
 interface Pack {
 	id: string
@@ -11,15 +12,8 @@ interface Pack {
 	price: number
 }
 
-interface DeliveryStepFields {
-	name: FieldMetadata<string>
-	phone: FieldMetadata<string>
-	address: FieldMetadata<string>
-	city: FieldMetadata<string>
-}
-
 interface DeliveryStepProps {
-	fields: DeliveryStepFields
+	control: Control<StickerOrderInput, unknown, StickerOrderData>
 	couponInput: string
 	appliedCoupon: string | null
 	couponError: string
@@ -37,7 +31,7 @@ interface DeliveryStepProps {
 const DELIVERY_FEE_BASE = 1000
 
 export function DeliveryStep({
-	fields,
+	control,
 	couponInput,
 	appliedCoupon,
 	couponError,
@@ -70,16 +64,18 @@ export function DeliveryStep({
 				</div>
 
 				<div className="bg-background space-y-5 rounded-2xl border p-6">
-					<InputField
-						field={fields.name}
+					<FormInputField
+						control={control}
+						name="name"
 						label="Nom complet"
 						required
 						placeholder="Kouadio Jean"
 						className="h-12 rounded-xl"
 					/>
 
-					<InputField
-						field={fields.phone}
+					<FormInputField
+						control={control}
+						name="phone"
 						label="Téléphone"
 						required
 						type="tel"
@@ -87,16 +83,18 @@ export function DeliveryStep({
 						className="h-12 rounded-xl"
 					/>
 
-					<TextareaField
-						field={fields.address}
+					<FormTextareaField
+						control={control}
+						name="address"
 						label="Adresse de livraison"
 						required
 						placeholder="Cocody Riviera 2, près de la pharmacie..."
 						className="min-h-20 resize-none rounded-xl"
 					/>
 
-					<InputField
-						field={fields.city}
+					<FormInputField
+						control={control}
+						name="city"
 						label="Ville"
 						placeholder="Abidjan"
 						className="h-12 rounded-xl"
