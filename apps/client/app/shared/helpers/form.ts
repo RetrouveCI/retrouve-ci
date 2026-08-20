@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { FormErrors } from '@/shared/types/action'
+import type { ActionResult, FormErrors } from '@/shared/types/action'
 
 /**
  * Turn a `ZodError` into the error map an action sends back. Issues that belong
@@ -26,4 +26,13 @@ export function zodErrorToFieldErrors(
 	}
 
 	return Object.keys(errors).length ? errors : undefined
+}
+
+/**
+ * Failures that belong to no field — an unknown intent, a missing id, a value
+ * that is not a form input — are reported on `root`, which is where a form
+ * renders them through `FormRootError`.
+ */
+export function rootError(message: string): ActionResult {
+	return { success: false, errors: { root: { type: 'custom', message } } }
 }

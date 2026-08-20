@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
-import { useFetcher, useRevalidator } from 'react-router'
+import { useEffect, useState } from 'react'
 import {
 	Avatar,
 	AvatarFallback,
@@ -28,7 +27,9 @@ import { BentoCard } from '@/components/bento-card'
 import { DataTable } from '@/components/data-table'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { AdminStatsGrid } from './components/admin-stats-grid'
-import { AdminFormDialog } from './components/admin-form-dialog'
+import { AdminCreateDialog } from './components/admin-create-dialog'
+import { AdminRoleDialog } from './components/admin-role-dialog'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { administratorsLoader } from './servers/administrators.loader'
 import { administratorsAction } from './servers/administrators.action'
 import { format } from 'date-fns'
@@ -72,85 +73,100 @@ const ROLE_CONFIG: Record<
 	moderator: { label: 'Modérateur', icon: ShieldAlert, variant: 'outline' },
 }
 
-interface MutationResult {
-	ok: boolean
-	intent?: string
-	status?: string
-	error?: string
-}
-
 export default function AdministratorsPage({
 	loaderData,
 }: Route.ComponentProps) {
 	const { admins } = loaderData
-	const revalidator = useRevalidator()
 
 	const [statusFilter, setStatusFilter] = useState<string>('all')
-	const [formOpen, setFormOpen] = useState(false)
-	const [editingAdmin, setEditingAdmin] = useState<Admin | null>(null)
+	const [createOpen, setCreateOpen] = useState(false)
+	const [roleTarget, setRoleTarget] = useState<Admin | null>(null)
 	const [deleteTarget, setDeleteTarget] = useState<Admin | null>(null)
 	const [resetTarget, setResetTarget] = useState<Admin | null>(null)
 
-	const toggleFetcher = useFetcher<MutationResult>()
-	const deleteFetcher = useFetcher<MutationResult>()
-	const resetFetcher = useFetcher<MutationResult>()
+	// The three row actions are not forms — no fields, so nothing to put an error
+	// on but `root`. They keep their toasts, and read them off the same
+	// `{ success, errors }` contract as every action in the app. A fetcher action
+	// revalidates the loader on its own, so no explicit revalidation here.
+	const toggleFetcher = useActionFetcher<typeof action>()
+	const deleteFetcher = useActionFetcher<typeof action>()
+	const resetFetcher = useActionFetcher<typeof action>()
 
-	const processedToggle = useRef<MutationResult | undefined>(undefined)
-	const processedDelete = useRef<MutationResult | undefined>(undefined)
-	const processedReset = useRef<MutationResult | undefined>(undefined)
+	// The action answers `{ success }`, so the requested status is what the toast
+	// names. These flags are also what keeps each effect from replaying, since
+	// `isOk` stays true afterwards — and they cannot be the dialog's own state:
+	// `AlertDialogAction` closes it on click, well before the fetcher settles.
+	const [requestedStatus, setRequestedStatus] = useState<AdminStatus | null>(
+		null,
+	)
+	const [deleteSubmitted, setDeleteSubmitted] = useState(false)
+	const [resetSubmitted, setResetSubmitted] = useState(false)
 
 	useEffect(() => {
-		if (toggleFetcher.state !== 'idle' || !toggleFetcher.data) return
-		if (toggleFetcher.data === processedToggle.current) return
-		processedToggle.current = toggleFetcher.data
+		if (!requestedStatus) return
 
-		if (toggleFetcher.data.ok) {
+		if (toggleFetcher.isOk) {
+			setRequestedStatus(null)
 			toast.success(
-				toggleFetcher.data.status === 'inactive'
-					? 'Compte désactivé'
-					: 'Compte activé',
+				requestedStatus === 'inactive' ? 'Compte désactivé' : 'Compte activé',
 			)
-			revalidator.revalidate()
-		} else if (toggleFetcher.data.error) {
-			toast.error(toggleFetcher.data.error)
+			return
 		}
-	}, [toggleFetcher.state, toggleFetcher.data, revalidator])
+
+		if (toggleFetcher.errors?.root) {
+			setRequestedStatus(null)
+			toast.error(
+				toggleFetcher.errors.root.message ??
+					'Impossible de changer le statut du compte',
+			)
+		}
+	}, [requestedStatus, toggleFetcher.isOk, toggleFetcher.errors])
 
 	useEffect(() => {
-		if (deleteFetcher.state !== 'idle' || !deleteFetcher.data) return
-		if (deleteFetcher.data === processedDelete.current) return
-		processedDelete.current = deleteFetcher.data
+		if (!deleteSubmitted) return
 
-		if (deleteFetcher.data.ok) {
+		if (deleteFetcher.isOk) {
+			setDeleteSubmitted(false)
 			toast.success('Administrateur supprimé')
 			setDeleteTarget(null)
-			revalidator.revalidate()
-		} else if (deleteFetcher.data.error) {
-			toast.error(deleteFetcher.data.error)
+			return
 		}
-	}, [deleteFetcher.state, deleteFetcher.data, revalidator])
+
+		if (deleteFetcher.errors?.root) {
+			setDeleteSubmitted(false)
+			toast.error(
+				deleteFetcher.errors.root.message ??
+					"Impossible de supprimer l'administrateur",
+			)
+			setDeleteTarget(null)
+		}
+	}, [deleteSubmitted, deleteFetcher.isOk, deleteFetcher.errors])
 
 	useEffect(() => {
-		if (resetFetcher.state !== 'idle' || !resetFetcher.data) return
-		if (resetFetcher.data === processedReset.current) return
-		processedReset.current = resetFetcher.data
+		if (!resetSubmitted) return
 
-		if (resetFetcher.data.ok) {
+		if (resetFetcher.isOk) {
+			setResetSubmitted(false)
 			toast.success('Email de réinitialisation envoyé')
 			setResetTarget(null)
-		} else if (resetFetcher.data.error) {
-			toast.error(resetFetcher.data.error)
+			return
 		}
-	}, [resetFetcher.state, resetFetcher.data])
 
-	const handleFormSuccess = () => {
-		revalidator.revalidate()
-	}
+		if (resetFetcher.errors?.root) {
+			setResetSubmitted(false)
+			toast.error(
+				resetFetcher.errors.root.message ??
+					"Impossible d'envoyer l'email de réinitialisation",
+			)
+			setResetTarget(null)
+		}
+	}, [resetSubmitted, resetFetcher.isOk, resetFetcher.errors])
 
 	const handleToggleStatus = (admin: Admin) => {
 		const newStatus: AdminStatus =
 			admin.status === 'active' ? 'inactive' : 'active'
-		toggleFetcher.submit(
+		setRequestedStatus(newStatus)
+		void toggleFetcher.submit(
 			{ intent: 'toggle-status', id: admin.id, status: newStatus },
 			{ method: 'post' },
 		)
@@ -158,7 +174,8 @@ export default function AdministratorsPage({
 
 	const handleDelete = () => {
 		if (!deleteTarget) return
-		deleteFetcher.submit(
+		setDeleteSubmitted(true)
+		void deleteFetcher.submit(
 			{ intent: 'delete', id: deleteTarget.id },
 			{ method: 'post' },
 		)
@@ -166,7 +183,8 @@ export default function AdministratorsPage({
 
 	const handleResetPassword = () => {
 		if (!resetTarget) return
-		resetFetcher.submit(
+		setResetSubmitted(true)
+		void resetFetcher.submit(
 			{ intent: 'reset-password', email: resetTarget.email },
 			{ method: 'post' },
 		)
@@ -262,16 +280,18 @@ export default function AdministratorsPage({
 				return (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="icon" className="h-8 w-8">
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-8 w-8"
+								aria-label={`Actions pour ${admin.name}`}
+							>
 								<MoreHorizontal className="h-4 w-4" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-52">
 							<DropdownMenuItem
-								onClick={() => {
-									setEditingAdmin(admin)
-									setFormOpen(true)
-								}}
+								onClick={() => setRoleTarget(admin)}
 								disabled={isSuperAdmin}
 							>
 								<Edit className="mr-2 h-4 w-4" /> Modifier le rôle
@@ -323,13 +343,7 @@ export default function AdministratorsPage({
 									<SelectItem value="inactive">Inactifs</SelectItem>
 								</SelectContent>
 							</Select>
-							<Button
-								size="sm"
-								onClick={() => {
-									setEditingAdmin(null)
-									setFormOpen(true)
-								}}
-							>
+							<Button size="sm" onClick={() => setCreateOpen(true)}>
 								<Plus className="mr-2 h-4 w-4" /> Ajouter un admin
 							</Button>
 						</div>
@@ -345,14 +359,12 @@ export default function AdministratorsPage({
 				</div>
 			</div>
 
-			<AdminFormDialog
-				open={formOpen}
-				onOpenChange={open => {
-					setFormOpen(open)
-					if (!open) setEditingAdmin(null)
-				}}
-				admin={editingAdmin}
-				onSuccess={handleFormSuccess}
+			<AdminCreateDialog open={createOpen} onOpenChange={setCreateOpen} />
+
+			<AdminRoleDialog
+				open={!!roleTarget}
+				onOpenChange={open => !open && setRoleTarget(null)}
+				admin={roleTarget}
 			/>
 
 			<AlertDialog

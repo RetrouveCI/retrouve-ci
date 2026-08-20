@@ -339,12 +339,6 @@ importers:
       '@app/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@conform-to/react':
-        specifier: 'catalog:'
-        version: 1.19.4(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@conform-to/zod':
-        specifier: 'catalog:'
-        version: 1.19.4(zod@4.4.3)
       '@fontsource-variable/geist':
         specifier: 'catalog:'
         version: 5.2.9

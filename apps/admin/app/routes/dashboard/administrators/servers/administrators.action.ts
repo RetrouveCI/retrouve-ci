@@ -1,115 +1,100 @@
-import { data } from 'react-router'
-import { parseWithZod } from '@conform-to/zod/v4'
+import { rootError, zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { requireAdminSession } from '@/shared/helpers/session.server'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import {
 	adminCreateSchema,
 	adminUpdateRoleSchema,
 } from '../administrators.schema'
 import {
-	createAdminUser,
-	setAdminRole,
 	banAdminUser,
-	unbanAdminUser,
+	createAdminUser,
 	removeAdminUser,
 	sendPasswordReset,
+	setAdminRole,
+	unbanAdminUser,
 } from './administrators.service'
 
-export async function administratorsAction({ request }: { request: Request }) {
+const API_OPTIONS = { redirectOnUnauthorized: '/auth/login' }
+
+export async function administratorsAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult> {
 	await requireAdminSession(request)
 
-	const cookie = request.headers.get('cookie') ?? ''
-	const origin = request.headers.get('origin') ?? ''
-	const headers = { cookie, origin }
+	const headers = {
+		cookie: request.headers.get('cookie') ?? '',
+		origin: request.headers.get('origin') ?? '',
+	}
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
+	const id = String(formData.get('id') ?? '')
 
 	if (intent === 'create') {
-		const submission = parseWithZod(formData, { schema: adminCreateSchema })
-		if (submission.status !== 'success') {
-			return data(
-				{ ok: false, submission: submission.reply() },
-				{ status: 400 },
-			)
+		const submission = adminCreateSchema.safeParse(Object.fromEntries(formData))
+
+		if (!submission.success) {
+			return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 		}
 
-		try {
-			await createAdminUser(headers, {
-				name: submission.value.name,
-				email: submission.value.email,
-				password: submission.value.password,
-				role: submission.value.role,
-				phone: submission.value.phone,
-			})
-			return { ok: true, intent }
-		} catch (err) {
-			const message =
-				err instanceof Error ? err.message : 'Erreur lors de la création'
-			return data({ ok: false, error: message }, { status: 400 })
-		}
+		const { phone, ...rest } = submission.data
+
+		return withApiOperationError(
+			() => createAdminUser(headers, { ...rest, ...(phone ? { phone } : {}) }),
+			API_OPTIONS,
+		)
 	}
 
 	if (intent === 'update') {
-		const submission = parseWithZod(formData, { schema: adminUpdateRoleSchema })
-		if (submission.status !== 'success') {
-			return data(
-				{ ok: false, submission: submission.reply() },
-				{ status: 400 },
-			)
-		}
+		const submission = adminUpdateRoleSchema.safeParse({
+			role: formData.get('role'),
+		})
 
-		const userId = String(formData.get('id') ?? '')
-		try {
-			await setAdminRole(headers, userId, submission.value.role)
-			return { ok: true, intent }
-		} catch (err) {
-			const message =
-				err instanceof Error ? err.message : 'Erreur lors de la mise à jour'
-			return data({ ok: false, error: message }, { status: 400 })
+		if (!submission.success) {
+			return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 		}
+		if (!id) return rootError("L'administrateur à modifier est introuvable")
+
+		return withApiOperationError(
+			() => setAdminRole(headers, id, submission.data.role),
+			API_OPTIONS,
+		)
 	}
 
 	if (intent === 'toggle-status') {
-		const userId = String(formData.get('id') ?? '')
-		const newStatus = String(formData.get('status') ?? '')
-		try {
-			if (newStatus === 'inactive') {
-				await banAdminUser(headers, userId)
-			} else {
-				await unbanAdminUser(headers, userId)
-			}
-			return { ok: true, intent, status: newStatus }
-		} catch (err) {
-			const message =
-				err instanceof Error
-					? err.message
-					: 'Erreur lors du changement de statut'
-			return data({ ok: false, error: message }, { status: 400 })
-		}
+		if (!id)
+			return rootError("L'administrateur à mettre à jour est introuvable")
+
+		const disabling = String(formData.get('status') ?? '') === 'inactive'
+
+		return withApiOperationError(
+			() =>
+				disabling ? banAdminUser(headers, id) : unbanAdminUser(headers, id),
+			API_OPTIONS,
+		)
 	}
 
 	if (intent === 'delete') {
-		const userId = String(formData.get('id') ?? '')
-		try {
-			await removeAdminUser(headers, userId)
-			return { ok: true, intent }
-		} catch (err) {
-			const message =
-				err instanceof Error ? err.message : 'Erreur lors de la suppression'
-			return data({ ok: false, error: message }, { status: 400 })
-		}
+		if (!id) return rootError("L'administrateur à supprimer est introuvable")
+
+		return withApiOperationError(
+			() => removeAdminUser(headers, id),
+			API_OPTIONS,
+		)
 	}
 
 	if (intent === 'reset-password') {
 		const email = String(formData.get('email') ?? '')
-		try {
-			await sendPasswordReset(headers, email)
-			return { ok: true, intent }
-		} catch (err) {
-			const message =
-				err instanceof Error ? err.message : "Erreur lors de l'envoi"
-			return data({ ok: false, error: message }, { status: 400 })
-		}
+		if (!email)
+			return rootError("L'administrateur à réinitialiser est introuvable")
+
+		return withApiOperationError(
+			() => sendPasswordReset(headers, email),
+			API_OPTIONS,
+		)
 	}
 
-	return data({ ok: false, error: 'Intent inconnu' }, { status: 400 })
+	return rootError('Action inconnue')
 }
