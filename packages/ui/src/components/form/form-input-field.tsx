@@ -6,8 +6,9 @@ import { Field, FieldError, FieldLabel } from '../ui/field'
 interface FormInputFieldProps<
 	TFieldValues extends FieldValues,
 	TName extends FieldPath<TFieldValues>,
+	TTransformedValues = TFieldValues,
 > {
-	control: Control<TFieldValues>
+	control: Control<TFieldValues, unknown, TTransformedValues>
 	name: TName
 	label: string
 	required?: boolean
@@ -19,6 +20,7 @@ interface FormInputFieldProps<
 export function FormInputField<
 	TFieldValues extends FieldValues,
 	TName extends FieldPath<TFieldValues>,
+	TTransformedValues = TFieldValues,
 >({
 	control,
 	name,
@@ -27,7 +29,7 @@ export function FormInputField<
 	type = 'text',
 	placeholder,
 	className = 'h-11',
-}: FormInputFieldProps<TFieldValues, TName>) {
+}: FormInputFieldProps<TFieldValues, TName, TTransformedValues>) {
 	return (
 		<Controller
 			control={control}

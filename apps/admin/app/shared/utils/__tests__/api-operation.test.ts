@@ -1,5 +1,9 @@
 import { ApiError } from '../api-fetch'
-import { getApiErrorMessage, withApiOperationError } from '../api-operation'
+import {
+	getApiErrorMessage,
+	withApiOperationData,
+	withApiOperationError,
+} from '../api-operation'
 
 const DEFAULT_MESSAGE = 'Une erreur est survenue. Veuillez réessayer.'
 
@@ -79,6 +83,49 @@ describe('withApiOperationError', () => {
 	it('rethrows anything that is not an ApiError', async () => {
 		await expect(
 			withApiOperationError(async () => {
+				throw new TypeError('fetch failed')
+			}),
+		).rejects.toThrow(TypeError)
+	})
+})
+
+describe('withApiOperationData', () => {
+	it('sends the resolved value back as data', async () => {
+		const result = await withApiOperationData(async () => [{ code: 'RCI-1' }])
+
+		expect(result).toEqual({ success: true, data: [{ code: 'RCI-1' }] })
+	})
+
+	it('drops nothing when the operation resolves undefined', async () => {
+		expect(await withApiOperationData(async () => undefined)).toEqual({
+			success: true,
+			data: undefined,
+		})
+	})
+
+	it('reports an ApiError on root, exactly as the discarding variant does', async () => {
+		const failing = () => Promise.reject(new ApiError(409, 'Quota atteint.'))
+
+		expect(await withApiOperationData(failing)).toEqual(
+			await withApiOperationError(failing),
+		)
+	})
+
+	it('redirects on 401 when a redirect target is given', async () => {
+		const thrown = await withApiOperationData(
+			async () => {
+				throw new ApiError(401, 'Unauthorized')
+			},
+			{ redirectOnUnauthorized: '/auth/login' },
+		).catch((error: unknown) => error)
+
+		expect(thrown).toBeInstanceOf(Response)
+		expect((thrown as Response).headers.get('Location')).toBe('/auth/login')
+	})
+
+	it('rethrows anything that is not an ApiError', async () => {
+		await expect(
+			withApiOperationData(async () => {
 				throw new TypeError('fetch failed')
 			}),
 		).rejects.toThrow(TypeError)

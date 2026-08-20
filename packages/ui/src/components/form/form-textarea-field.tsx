@@ -6,8 +6,9 @@ import { Field, FieldError, FieldLabel } from '../ui/field'
 interface FormTextareaFieldProps<
 	TFieldValues extends FieldValues,
 	TName extends FieldPath<TFieldValues>,
+	TTransformedValues = TFieldValues,
 > {
-	control: Control<TFieldValues>
+	control: Control<TFieldValues, unknown, TTransformedValues>
 	name: TName
 	label: string
 	required?: boolean
@@ -18,6 +19,7 @@ interface FormTextareaFieldProps<
 export function FormTextareaField<
 	TFieldValues extends FieldValues,
 	TName extends FieldPath<TFieldValues>,
+	TTransformedValues = TFieldValues,
 >({
 	control,
 	name,
@@ -25,7 +27,7 @@ export function FormTextareaField<
 	required,
 	placeholder,
 	className = 'min-h-20 resize-none',
-}: FormTextareaFieldProps<TFieldValues, TName>) {
+}: FormTextareaFieldProps<TFieldValues, TName, TTransformedValues>) {
 	return (
 		<Controller
 			control={control}

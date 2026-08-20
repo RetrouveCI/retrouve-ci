@@ -1,28 +1,30 @@
-import { data } from 'react-router'
-import { parseWithZod } from '@conform-to/zod/v4'
-import { ApiError } from '@/shared/utils/api-fetch'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { requireAdminSession } from '@/shared/helpers/session.server'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationData } from '@/shared/utils/api-operation'
 import { generateQrTokens } from '../../servers/qr.service'
-import { generateQrSchema } from '../generate.schema'
+import type { QrToken } from '../../types/qr.types'
+import { generateQrPayloadSchema } from '../generate.schema'
 
-export async function generateQrAction({ request }: { request: Request }) {
+export async function generateQrAction({
+	request,
+}: {
+	request: Request
+}): Promise<ActionResult<QrToken[]>> {
 	await requireAdminSession(request)
-	const formData = await request.formData()
-	const submission = parseWithZod(formData, { schema: generateQrSchema })
 
-	if (submission.status !== 'success') {
-		return data({ ok: false, submission: submission.reply() }, { status: 400 })
+	const submission = generateQrPayloadSchema.safeParse(
+		Object.fromEntries(await request.formData()),
+	)
+
+	if (!submission.success) {
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
 
-	const { count, batch } = submission.value
+	const { count, batch } = submission.data
 
-	try {
-		const tokens = await generateQrTokens(count, batch, request)
-		return { ok: true, tokens, count }
-	} catch (err) {
-		if (err instanceof ApiError) {
-			return data({ ok: false, error: err.message }, { status: err.status })
-		}
-		return data({ ok: false, error: 'Erreur serveur' }, { status: 500 })
-	}
+	return withApiOperationData(
+		() => generateQrTokens(count, batch || undefined, request),
+		{ redirectOnUnauthorized: '/auth/login' },
+	)
 }
