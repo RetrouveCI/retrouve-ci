@@ -1,5 +1,11 @@
-import { Button, RadioGroup, RadioGroupItem } from '@app/ui/components'
-import type { FieldMetadata } from '@conform-to/react'
+import {
+	Button,
+	Field,
+	FieldError,
+	RadioGroup,
+	RadioGroupItem,
+} from '@app/ui/components'
+import { Controller, type Control } from 'react-hook-form'
 import {
 	ArrowLeft,
 	Shield,
@@ -9,8 +15,9 @@ import {
 	Loader2,
 } from 'lucide-react'
 import { cn } from '@app/ui/utils'
-import { InputField, FieldError } from '@app/ui/components/form'
+import { FormInputField } from '@app/ui/components/form'
 import { OrderSummaryCard } from './order-summary-card'
+import type { StickerOrderData, StickerOrderInput } from '../order.schema'
 
 interface Pack {
 	id: string
@@ -28,11 +35,10 @@ interface PaymentMethod {
 }
 
 interface PaymentStepProps {
+	control: Control<StickerOrderInput, unknown, StickerOrderData>
 	paymentMethods: PaymentMethod[]
-	paymentMethod: string | null
-	onPaymentMethodChange: (id: string) => void
-	paymentMethodError?: string
-	paymentPhoneField: FieldMetadata<string>
+	paymentMethod: string
+	paymentPhone: string
 	isProcessing: boolean
 	selectedPackData: Pack
 	selectedPaymentData: PaymentMethod | undefined
@@ -43,11 +49,10 @@ interface PaymentStepProps {
 }
 
 export function PaymentStep({
+	control,
 	paymentMethods,
 	paymentMethod,
-	onPaymentMethodChange,
-	paymentMethodError,
-	paymentPhoneField,
+	paymentPhone,
 	isProcessing,
 	selectedPackData,
 	selectedPaymentData,
@@ -75,44 +80,57 @@ export function PaymentStep({
 				</div>
 
 				<div className="bg-background space-y-5 rounded-2xl border p-6">
-					<RadioGroup
-						value={paymentMethod || ''}
-						onValueChange={onPaymentMethodChange}
-					>
-						<div className="grid grid-cols-2 gap-3">
-							{paymentMethods.map(method => (
-								<label
-									key={method.id}
-									className={cn(
-										'relative flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition-all',
-										paymentMethod === method.id
-											? 'border-primary-green bg-primary-green/5'
-											: 'border-border hover:border-primary-green/30',
-									)}
+					<Controller
+						control={control}
+						name="paymentMethod"
+						render={({ field, fieldState }) => (
+							<Field data-invalid={fieldState.invalid}>
+								<RadioGroup
+									value={field.value ?? ''}
+									onValueChange={field.onChange}
 								>
-									<RadioGroupItem value={method.id} className="sr-only" />
-									<div
-										className="flex h-10 w-10 items-center justify-center rounded-lg text-xs font-bold text-white"
-										style={{ backgroundColor: method.color }}
-									>
-										<Smartphone className="h-5 w-5" />
+									<div className="grid grid-cols-2 gap-3">
+										{paymentMethods.map(method => (
+											<label
+												key={method.id}
+												className={cn(
+													'relative flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition-all',
+													field.value === method.id
+														? 'border-primary-green bg-primary-green/5'
+														: 'border-border hover:border-primary-green/30',
+												)}
+											>
+												<RadioGroupItem
+													value={method.id}
+													className="sr-only"
+													aria-label={method.name}
+												/>
+												<div
+													className="flex h-10 w-10 items-center justify-center rounded-lg text-xs font-bold text-white"
+													style={{ backgroundColor: method.color }}
+												>
+													<Smartphone className="h-5 w-5" />
+												</div>
+												<span className="text-sm font-medium">
+													{method.name}
+												</span>
+												{field.value === method.id && (
+													<Check className="text-primary-green absolute top-2 right-2 h-4 w-4" />
+												)}
+											</label>
+										))}
 									</div>
-									<span className="text-sm font-medium">{method.name}</span>
-									{paymentMethod === method.id && (
-										<Check className="text-primary-green absolute top-2 right-2 h-4 w-4" />
-									)}
-								</label>
-							))}
-						</div>
-					</RadioGroup>
-					<FieldError
-						errors={paymentMethodError ? [paymentMethodError] : undefined}
+								</RadioGroup>
+								{fieldState.error && <FieldError errors={[fieldState.error]} />}
+							</Field>
+						)}
 					/>
 
 					{paymentMethod && (
 						<div className="space-y-2 border-t pt-4">
-							<InputField
-								field={paymentPhoneField}
+							<FormInputField
+								control={control}
+								name="paymentPhone"
 								label={`Numéro ${selectedPaymentData?.name ?? ''}`}
 								required
 								type="tel"
@@ -136,7 +154,7 @@ export function PaymentStep({
 				<Button
 					type="submit"
 					size="lg"
-					disabled={!paymentMethod || !paymentPhoneField.value || isProcessing}
+					disabled={!paymentMethod || !paymentPhone || isProcessing}
 					className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-white"
 				>
 					{isProcessing ? (

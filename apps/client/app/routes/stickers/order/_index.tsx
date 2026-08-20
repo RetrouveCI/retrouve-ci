@@ -1,19 +1,18 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { useFetcher } from 'react-router'
-import {
-	useForm,
-	useInputControl,
-	getFormProps,
-	type SubmissionResult,
-} from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
+import { useForm, useWatch } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { FormRootError } from '@app/ui/components/form'
 import { OrderProgressBar } from './components/order-progress-bar'
 import { PackSelectionStep } from './components/pack-selection-step'
 import { DeliveryStep } from './components/delivery-step'
 import { PaymentStep } from './components/payment-step'
 import { ConfirmationStep } from './components/confirmation-step'
-import { stickerOrderSchema } from './order.schema'
+import {
+	stickerOrderSchema,
+	type StickerOrderData,
+	type StickerOrderInput,
+} from './order.schema'
 import { orderAction } from './servers/order.action'
 import {
 	DELIVERY_FEE,
@@ -21,6 +20,7 @@ import {
 	PACKS,
 	PAYMENT_METHODS,
 } from './stickers-order.const'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import type { Order } from '../../account/orders/types/orders.types'
 import { pageMeta } from '@/shared/helpers/page-meta'
 
@@ -35,51 +35,55 @@ export function meta() {
 }
 
 type Step = 'select' | 'delivery' | 'payment' | 'confirmation'
-type ActionData = SubmissionResult | { ok: true; order: Order }
+
+const EMPTY_VALUES: StickerOrderInput = {
+	packId: '',
+	name: '',
+	phone: '',
+	address: '',
+	city: 'Abidjan',
+	paymentMethod: '',
+	paymentPhone: '',
+	couponCode: '',
+}
+
+/** Validated before leaving each step, so an error lands on its field. */
+const STEP_FIELDS = {
+	select: ['packId'],
+	delivery: ['name', 'phone', 'address', 'city'],
+} as const
 
 export default function CommanderPage() {
-	const fetcher = useFetcher<ActionData>()
-	const actionData = fetcher.data
-	const lastResult =
-		actionData && 'status' in actionData ? actionData : undefined
+	const fetcher = useActionFetcher<typeof action, StickerOrderInput, Order>()
 
 	const [step, setStep] = useState<Step>('select')
 	const [order, setOrder] = useState<Order | null>(null)
+	const [hasSubmitted, setHasSubmitted] = useState(false)
 	const [couponInput, setCouponInput] = useState('')
 	const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null)
 	const [couponError, setCouponError] = useState('')
 
-	const [form, fields] = useForm({
-		lastResult,
-		constraint: getZodConstraint(stickerOrderSchema),
-		defaultValue: { city: 'Abidjan' },
-		shouldValidate: 'onSubmit',
-		shouldRevalidate: 'onInput',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: stickerOrderSchema })
-		},
+	const form = useForm<StickerOrderInput, unknown, StickerOrderData>({
+		resolver: standardSchemaResolver(stickerOrderSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: EMPTY_VALUES,
+		errors: fetcher.errors,
 	})
 
-	const packIdControl = useInputControl(fields.packId)
-	const paymentMethodControl = useInputControl(fields.paymentMethod)
-	const couponCodeControl = useInputControl(fields.couponCode)
-
-	const isProcessing = fetcher.state !== 'idle'
+	const values = useWatch({ control: form.control })
 
 	useEffect(() => {
-		if (!actionData) return
-		if ('ok' in actionData && actionData.ok) {
-			setOrder(actionData.order)
-			setStep('confirmation')
-		} else if ('status' in actionData && actionData.status === 'error') {
-			const formErrors = actionData.error?.[''] ?? []
-			if (formErrors.length > 0) toast.error(formErrors[0])
-		}
-	}, [actionData])
+		if (!hasSubmitted || !fetcher.isOk || !fetcher.data) return
 
-	const selectedPackData = PACKS.find(p => p.id === packIdControl.value)
+		setHasSubmitted(false)
+		setOrder(fetcher.data)
+		setStep('confirmation')
+	}, [hasSubmitted, fetcher.isOk, fetcher.data])
+
+	const selectedPackData = PACKS.find(pack => pack.id === values.packId)
 	const selectedPaymentData = PAYMENT_METHODS.find(
-		p => p.id === paymentMethodControl.value,
+		method => method.id === values.paymentMethod,
 	)
 	const deliveryFee = appliedCoupon ? 0 : DELIVERY_FEE
 	const totalPrice = (selectedPackData?.price ?? 0) + deliveryFee
@@ -89,44 +93,44 @@ export default function CommanderPage() {
 
 	const handleApplyCoupon = () => {
 		const code = couponInput.trim().toUpperCase()
-		if (VALID_COUPONS.includes(code)) {
-			setAppliedCoupon(code)
-			setCouponError('')
-			couponCodeControl.change(code)
-			toast.success('Coupon appliqué ! Livraison offerte.')
-		} else {
+		if (!VALID_COUPONS.includes(code)) {
 			setCouponError('Code invalide ou expiré.')
 			setAppliedCoupon(null)
+			return
 		}
+
+		setAppliedCoupon(code)
+		setCouponError('')
+		form.setValue('couponCode', code)
+		toast.success('Coupon appliqué ! Livraison offerte.')
 	}
 
 	const handleRemoveCoupon = () => {
 		setAppliedCoupon(null)
 		setCouponInput('')
 		setCouponError('')
-		couponCodeControl.change('')
+		form.setValue('couponCode', '')
 	}
 
-	const handleNext = () => {
-		if (step === 'select') {
-			if (!packIdControl.value) {
-				toast.error('Veuillez sélectionner un pack')
-				return
-			}
-			setStep('delivery')
-		} else if (step === 'delivery') {
-			if (!fields.name.value || !fields.phone.value || !fields.address.value) {
-				toast.error('Veuillez remplir tous les champs obligatoires')
-				return
-			}
-			setStep('payment')
-		}
+	const handleNext = async () => {
+		if (step !== 'select' && step !== 'delivery') return
+		if (!(await form.trigger(STEP_FIELDS[step]))) return
+
+		setStep(step === 'select' ? 'delivery' : 'payment')
 	}
 
 	const handleBack = () => {
 		if (step === 'delivery') setStep('select')
 		else if (step === 'payment') setStep('delivery')
 		else if (step === 'confirmation') setStep('payment')
+	}
+
+	const onSubmit = (submitted: StickerOrderData) => {
+		setHasSubmitted(true)
+		void fetcher.submit(
+			{ ...submitted, couponCode: submitted.couponCode ?? '' },
+			{ method: 'post' },
+		)
 	}
 
 	const stepNumber =
@@ -138,27 +142,33 @@ export default function CommanderPage() {
 
 			<div className="container mx-auto px-4 py-8">
 				<div className="mx-auto max-w-4xl">
-					<fetcher.Form method="post" {...getFormProps(form)}>
+					<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+						<FormRootError
+							className="mb-6"
+							title="Impossible de finaliser la commande"
+							message={form.formState.errors.root?.message}
+						/>
+
 						<div className={step === 'select' ? '' : 'hidden'}>
 							<PackSelectionStep
 								packs={PACKS}
-								selectedPack={packIdControl.value ?? null}
-								onSelectPack={packIdControl.change}
+								selectedPack={values.packId ?? null}
+								onSelectPack={packId => form.setValue('packId', packId)}
 								onNext={handleNext}
 								formatPrice={formatPrice}
-								error={fields.packId.errors?.[0]}
+								error={form.formState.errors.packId?.message}
 							/>
 						</div>
 
 						<div className={step === 'delivery' ? '' : 'hidden'}>
 							{selectedPackData && (
 								<DeliveryStep
-									fields={fields}
+									control={form.control}
 									couponInput={couponInput}
 									appliedCoupon={appliedCoupon}
 									couponError={couponError}
-									onCouponInputChange={val => {
-										setCouponInput(val)
+									onCouponInputChange={value => {
+										setCouponInput(value)
 										setCouponError('')
 									}}
 									onApplyCoupon={handleApplyCoupon}
@@ -176,12 +186,11 @@ export default function CommanderPage() {
 						<div className={step === 'payment' ? '' : 'hidden'}>
 							{selectedPackData && (
 								<PaymentStep
+									control={form.control}
 									paymentMethods={PAYMENT_METHODS}
-									paymentMethod={paymentMethodControl.value ?? null}
-									onPaymentMethodChange={paymentMethodControl.change}
-									paymentMethodError={fields.paymentMethod.errors?.[0]}
-									paymentPhoneField={fields.paymentPhone}
-									isProcessing={isProcessing}
+									paymentMethod={values.paymentMethod ?? ''}
+									paymentPhone={values.paymentPhone ?? ''}
+									isProcessing={fetcher.isSubmitting}
 									selectedPackData={selectedPackData}
 									selectedPaymentData={selectedPaymentData}
 									deliveryFee={deliveryFee}
@@ -191,12 +200,12 @@ export default function CommanderPage() {
 								/>
 							)}
 						</div>
-					</fetcher.Form>
+					</form>
 
 					{step === 'confirmation' && order && (
 						<ConfirmationStep
 							order={order}
-							phone={fields.phone.value ?? ''}
+							phone={values.phone ?? ''}
 							formatPrice={formatPrice}
 						/>
 					)}
