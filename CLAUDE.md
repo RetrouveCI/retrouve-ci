@@ -199,11 +199,10 @@ Both apps share the same stack:
 - **shadcn/ui** — components imported via `@app/ui/components`
 - **Forms are mid-migration** from `@conform-to/*` to **react-hook-form + zod**
   (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md)). Every form on a mounted
-  `client` route is on react-hook-form, as is the whole of `admin/auth`. What is
-  left on Conform: three `admin` dashboard features (`qr/generate`, `profile`,
-  `administrators` — five files), the `client`'s stand-by features
-  (`stickers/order`, `q` — their routes are commented out of `routes.ts`), and
-  the two legacy wrappers in `packages/ui`. New forms use react-hook-form.
+  `client` route is on react-hook-form, as is the whole of `admin`. What is left
+  on Conform: the `client`'s stand-by features (`stickers/order`, `q` — their
+  routes are commented out of `routes.ts`) and the two legacy wrappers in
+  `packages/ui`. New forms use react-hook-form.
 - The admin dialogs use `FormInputField` / `FormTextareaField` from
   `@app/ui/components/form` — `Controller` + the shadcn `Field` family,
   factored, since their fields are uniform. Bespoke fields (an icon inside the
@@ -336,8 +335,8 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   fetcher. Pass a key only to share one fetcher's state between components, or
   to keep it alive across an unmount.
 - Forms still on Conform keep the older `{ ok, error }` / `submission.reply()`
-  shapes until their E7 migration: `stickers/order` and `q` on the client (both
-  stand-by), and every form in `admin`. Do not add new ones.
+  shapes until their E7 migration: `stickers/order` and `q` on the client, both
+  stand-by. Do not add new ones.
 - Each route feature owns its own Zod schema as a sibling `*.schema.ts` file
   (e.g. `routes/auth/login/login.schema.ts`,
   `routes/account/settings/settings.schema.ts`). Small schemas may be duplicated
@@ -366,8 +365,10 @@ Route structure (defined in `app/routes.ts`):
 - `/events` — community events (real API: `events` domain)
 - `/notifications` — admin notifications (real API: `notifications` domain)
 - `/posts` — lost/found listings moderation (real API: `lost-items` domain)
-- `/users`, `/users/:id` — user management (mock — no API domain yet)
-- `/administrators` — admin account management (mock — no API domain yet)
+- `/users`, `/users/:id` — user management (real, via better-auth's `admin()`
+  plugin — no API domain of its own)
+- `/administrators` — admin account management (real, via better-auth's
+  `admin()` plugin — no API domain of its own)
 - `/profile` — admin profile (better-auth session data; password change via
   `authClient.changePassword`)
 - `/auth/login`, `/auth/forgot-password`, `/auth/reset-password` — auth pages,
@@ -404,10 +405,17 @@ Identical to the client app conventions above, with these admin-specific notes:
   response directly: `routes/dashboard/profile/helpers/profile.client.ts` calls
   `authClient.changePassword`, and `context/auth.tsx` calls
   `authClient.signIn.email` from the provider's `login`.
-- For sections with no API domain (`users`, `administrators`), mock data is
-  inlined in `servers/*.loader.ts` with `id: string` (forward-compatible).
-  Actions return mock mutation results; real persistence deferred until API
-  domains exist.
+- `users` and `administrators` have no API domain of their own: their
+  `servers/*.service.ts` call better-auth's `admin()` plugin endpoints
+  (`list-users`, `create-user`, `set-role`, `ban-user`, `unban-user`,
+  `remove-user`) directly. The mutations are real and `remove-user` is
+  irreversible. Because those endpoints read the **backoffice** session cookie,
+  they must be addressed on `/api/admin-auth/admin/*` — `/api/auth/admin/*` is
+  the public instance and answers 401 to a backoffice-only session. The
+  authorization itself is better-auth's: `adminRoles: ['admin']` in
+  `packages/auth`, so a `moderator` is refused server-side whatever the UI
+  offers. `list-users` is called with a hard `limit`, which is a ceiling, not
+  pagination.
 - `context/dashboard.tsx` fetches the unread notification count on mount via
   `apiFetch('/notifications/unread-count')` and exposes it through
   `useDashboard().counts`; the sidebar and `components/topbar.tsx` only read it.

@@ -1,4 +1,4 @@
-import { zodErrorToFieldErrors } from '@/shared/helpers/form'
+import { rootError, zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import type { ActionResult } from '@/shared/types/action'
 import { withApiOperationError } from '@/shared/utils/api-operation'
@@ -6,15 +6,6 @@ import { eventSchema, updateStatusSchema } from '../events.schema'
 import { createEvent, deleteEvent, updateEvent } from './events.service'
 
 const API_OPTIONS = { redirectOnUnauthorized: '/auth/login' }
-
-/**
- * Failures that belong to no field — an unknown intent, a missing id, a status
- * that is not a form input — are reported on `root`, which is where the page and
- * the dialog render them.
- */
-function rootError(message: string): ActionResult {
-	return { success: false, errors: { root: { type: 'custom', message } } }
-}
 
 export async function eventsAction({
 	request,

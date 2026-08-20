@@ -93,6 +93,9 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 	const [requestedStatus, setRequestedStatus] = useState<EventStatus | null>(
 		null,
 	)
+	// Not `deleteTarget`: `AlertDialogAction` closes the dialog on click, well
+	// before the fetcher settles, so the effect would never see it set.
+	const [deleteSubmitted, setDeleteSubmitted] = useState(false)
 
 	useEffect(() => {
 		if (!requestedStatus) return
@@ -115,22 +118,24 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 	}, [requestedStatus, statusFetcher.isOk, statusFetcher.errors])
 
 	useEffect(() => {
-		if (!deleteTarget) return
+		if (!deleteSubmitted) return
 
 		if (deleteFetcher.isOk) {
+			setDeleteSubmitted(false)
 			toast.success('Événement supprimé')
 			setDeleteTarget(null)
 			return
 		}
 
 		if (deleteFetcher.errors?.root) {
+			setDeleteSubmitted(false)
 			toast.error(
 				deleteFetcher.errors.root.message ??
 					"Impossible de supprimer l'événement",
 			)
 			setDeleteTarget(null)
 		}
-	}, [deleteTarget, deleteFetcher.isOk, deleteFetcher.errors])
+	}, [deleteSubmitted, deleteFetcher.isOk, deleteFetcher.errors])
 
 	const handleFilterChange = (value: string) => {
 		const next = new URLSearchParams(searchParams)
@@ -152,6 +157,7 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 
 	const handleDelete = () => {
 		if (!deleteTarget) return
+		setDeleteSubmitted(true)
 		void deleteFetcher.submit(
 			{ intent: 'delete', id: deleteTarget.id },
 			{ method: 'post' },
@@ -222,7 +228,12 @@ export default function EventsPage({ loaderData }: Route.ComponentProps) {
 				return (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="icon" className="h-8 w-8">
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-8 w-8"
+								aria-label={`Actions pour ${ev.title}`}
+							>
 								<MoreHorizontal className="h-4 w-4" />
 							</Button>
 						</DropdownMenuTrigger>
