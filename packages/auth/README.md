@@ -31,16 +31,22 @@ deletion, and the `admin()` plugin that defines the roles.
 
 An instance decides its own **identity**:
 
-| Option           | Role                                                                                                 |
-| ---------------- | ---------------------------------------------------------------------------------------------------- |
-| `appName`        | Names the instance **and its session cookie** — Better Auth derives `advanced.cookiePrefix` from it. |
-| `basePath`       | Where its routes are mounted. Defaults to `/api/auth`.                                               |
-| `plugins`        | On top of `admin()`. `apps/api` adds `phoneNumber()` for the public app.                             |
-| `trustedOrigins` | Overrides `getTrustedOrigins()`.                                                                     |
+| Option           | Role                                                                     |
+| ---------------- | ------------------------------------------------------------------------ |
+| `appName`        | Names the instance. **Does not** name its cookie — see the note below.   |
+| `basePath`       | Where its routes are mounted. Defaults to `/api/auth`.                   |
+| `cookiePrefix`   | Names the session cookie. This is what separates two instances.          |
+| `plugins`        | On top of `admin()`. `apps/api` adds `phoneNumber()` for the public app. |
+| `trustedOrigins` | Overrides `getTrustedOrigins()`.                                         |
 
-That split is what makes **two instances** possible: two `appName`s mean two
-independent cookies, so one browser can hold a backoffice session and a
+That split is what makes **two instances** possible: two `cookiePrefix`es mean
+two independent cookies, so one browser can hold a backoffice session and a
 public-app session at the same time.
+
+> `advanced.cookiePrefix` is documented as defaulting to `appName`, but in
+> Better Auth 1.6.18 it does not: setting only `appName` still yields
+> `better-auth.session_token`. Verified against a running instance — pass
+> `cookiePrefix` explicitly.
 
 ## Usage
 

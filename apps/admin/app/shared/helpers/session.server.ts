@@ -16,7 +16,7 @@ export async function getServerSession(
 	request: Request,
 ): Promise<ServerSession | null> {
 	try {
-		return await apiFetch<ServerSession | null>('/api/auth/get-session', {
+		return await apiFetch<ServerSession | null>('/api/admin-auth/get-session', {
 			headers: { Cookie: request.headers.get('cookie') ?? '' },
 		})
 	} catch {

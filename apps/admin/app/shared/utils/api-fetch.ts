@@ -30,6 +30,10 @@ export async function apiFetch<T>(
 		credentials: 'include',
 		headers: {
 			'Content-Type': 'application/json',
+			// Server-side calls carry no `Origin`, so the API has no other way to know
+			// which of the two sessions to read. Browser calls are decided by their
+			// `Origin`, which takes precedence.
+			'X-Auth-Audience': 'admin',
 			...init?.headers,
 		},
 	})
