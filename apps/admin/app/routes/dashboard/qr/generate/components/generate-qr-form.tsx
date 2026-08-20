@@ -1,134 +1,159 @@
-import { useEffect, useRef } from 'react'
-import { useFetcher } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import {
 	Button,
 	Checkbox,
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
 } from '@app/ui/components'
-import { InputField, InputLabel, FieldError } from '@app/ui/components/form'
-import { Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { useForm, useInputControl, getFormProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
-import { generateQrSchema } from '../generate.schema'
+import { FormInputField, FormRootError } from '@app/ui/components/form'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import {
+	generateQrSchema,
+	type GenerateQrData,
+	type GenerateQrInput,
+} from '../generate.schema'
+import { tokensToCsv } from '../helpers/qr-csv'
 import type { QrToken } from '../../types/qr.types'
+import type { action } from '../_index'
 
-interface ActionResult {
-	ok: boolean
-	tokens?: QrToken[]
-	count?: number
-	error?: string
+const QUANTITIES = [10, 25, 50, 100, 250, 500, 1000]
+
+const DEFAULT_VALUES: GenerateQrInput = {
+	count: '100',
+	batch: '',
+	exportCSV: true,
+}
+
+function downloadCsv(tokens: QrToken[]) {
+	const blob = new Blob([tokensToCsv(tokens)], { type: 'text/csv' })
+	const url = URL.createObjectURL(blob)
+	const anchor = document.createElement('a')
+	anchor.href = url
+	anchor.download = `qr-tokens-${Date.now()}.csv`
+	anchor.click()
+	URL.revokeObjectURL(url)
 }
 
 export function GenerateQrForm() {
-	const fetcher = useFetcher<ActionResult>()
-	const isGenerating = fetcher.state !== 'idle'
-	const processedRef = useRef<ActionResult | undefined>(undefined)
+	// Holds the values that were actually submitted, so the effect below reads the
+	// export choice as it was at submit time and fires exactly once per run.
+	const [pending, setPending] = useState<GenerateQrData | null>(null)
+	const fetcher = useActionFetcher<typeof action, GenerateQrInput, QrToken[]>()
 
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-		if (fetcher.data === processedRef.current) return
-		processedRef.current = fetcher.data
-
-		if (fetcher.data.ok && fetcher.data.tokens) {
-			const tokens = fetcher.data.tokens
-			const exportCSV = document.getElementById(
-				'exportCSV',
-			) as HTMLInputElement | null
-
-			if (exportCSV?.checked && tokens.length > 0) {
-				const headers = ['code', 'batch', 'status', 'createdAt']
-				const rows = tokens.map(t => [
-					t.code,
-					t.batch ?? '',
-					t.status,
-					t.createdAt,
-				])
-				const csv = [headers, ...rows].map(r => r.join(',')).join('\n')
-				const blob = new Blob([csv], { type: 'text/csv' })
-				const url = URL.createObjectURL(blob)
-				const a = document.createElement('a')
-				a.href = url
-				a.download = `qr-tokens-${Date.now()}.csv`
-				a.click()
-				URL.revokeObjectURL(url)
-			}
-
-			toast.success(`${fetcher.data.count} tokens générés avec succès`)
-		} else if (fetcher.data && !fetcher.data.ok) {
-			toast.error(fetcher.data.error ?? 'Erreur lors de la génération')
-		}
-	}, [fetcher.state, fetcher.data])
-
-	const [form, fields] = useForm({
-		id: 'generate-qr-form',
-		constraint: getZodConstraint(generateQrSchema),
-		shouldValidate: 'onSubmit',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: generateQrSchema })
-		},
-		onSubmit(event, { formData }) {
-			event.preventDefault()
-			void fetcher.submit(formData, { method: 'post' })
-		},
+	const form = useForm<GenerateQrInput, unknown, GenerateQrData>({
+		resolver: standardSchemaResolver(generateQrSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: DEFAULT_VALUES,
+		errors: fetcher.errors,
 	})
 
-	const countControl = useInputControl(fields.count)
+	useEffect(() => {
+		if (!pending || !fetcher.isOk) return
+
+		setPending(null)
+		const tokens = fetcher.data ?? []
+
+		if (pending.exportCSV && tokens.length > 0) downloadCsv(tokens)
+		toast.success(`${tokens.length} tokens générés avec succès`)
+	}, [pending, fetcher.isOk, fetcher.data])
+
+	const onSubmit = (values: GenerateQrData) => {
+		setPending(values)
+		void fetcher.submit(
+			{ count: String(values.count), batch: values.batch ?? '' },
+			{ method: 'post' },
+		)
+	}
 
 	return (
-		<form {...getFormProps(form)} className="space-y-6">
-			<div className="space-y-4">
-				<div className="space-y-2">
-					<InputLabel htmlFor="count">Quantité</InputLabel>
-					<Select
-						value={countControl.value ?? '100'}
-						onValueChange={value => countControl.change(value)}
-					>
-						<SelectTrigger id="count">
-							<SelectValue placeholder="Sélectionner une quantité" />
-						</SelectTrigger>
-						<SelectContent>
-							{[10, 25, 50, 100, 250, 500, 1000].map(n => (
-								<SelectItem key={n} value={String(n)}>
-									{n}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-					<input
-						type="hidden"
-						name="count"
-						value={countControl.value ?? '100'}
-					/>
-					<FieldError errors={fields.count.errors} />
-				</div>
+		<form
+			onSubmit={form.handleSubmit(onSubmit)}
+			noValidate
+			className="space-y-6"
+		>
+			<FormRootError
+				title="Impossible de générer les tokens"
+				message={form.formState.errors.root?.message}
+			/>
 
-				<InputField
-					field={fields.batch}
+			<FieldGroup className="gap-4">
+				<Controller
+					control={form.control}
+					name="count"
+					render={({ field, fieldState }) => (
+						<Field data-invalid={fieldState.invalid}>
+							<FieldLabel htmlFor={field.name}>Quantité</FieldLabel>
+							<Select
+								value={field.value ?? ''}
+								onValueChange={field.onChange}
+								onOpenChange={open => !open && field.onBlur()}
+								disabled={fetcher.isSubmitting}
+							>
+								<SelectTrigger
+									id={field.name}
+									aria-invalid={fieldState.invalid}
+								>
+									<SelectValue placeholder="Sélectionner une quantité" />
+								</SelectTrigger>
+								<SelectContent>
+									{QUANTITIES.map(quantity => (
+										<SelectItem key={quantity} value={String(quantity)}>
+											{quantity}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							{fieldState.error && <FieldError errors={[fieldState.error]} />}
+						</Field>
+					)}
+				/>
+
+				<FormInputField
+					control={form.control}
+					name="batch"
 					label="Nom du Batch (optionnel)"
 					placeholder="ex: Batch-Juillet-2026"
 				/>
-			</div>
+			</FieldGroup>
 
 			<div className="space-y-3">
 				<p className="text-sm font-medium">Options</p>
-				<div className="flex items-center gap-2">
-					<Checkbox id="exportCSV" defaultChecked />
-					<label
-						htmlFor="exportCSV"
-						className="cursor-pointer text-sm font-medium"
-					>
-						Télécharger le CSV après génération
-					</label>
-				</div>
+				<Controller
+					control={form.control}
+					name="exportCSV"
+					render={({ field }) => (
+						<Field orientation="horizontal" className="gap-2">
+							<Checkbox
+								id={field.name}
+								name={field.name}
+								ref={field.ref}
+								checked={field.value}
+								onCheckedChange={checked => field.onChange(checked === true)}
+								onBlur={field.onBlur}
+								disabled={fetcher.isSubmitting}
+							/>
+							<FieldLabel htmlFor={field.name} className="cursor-pointer">
+								Télécharger le CSV après génération
+							</FieldLabel>
+						</Field>
+					)}
+				/>
 			</div>
 
-			<Button type="submit" className="w-full" disabled={isGenerating}>
-				{isGenerating ? (
+			<Button type="submit" className="w-full" disabled={fetcher.isSubmitting}>
+				{fetcher.isSubmitting ? (
 					<>
 						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 						Génération en cours...

@@ -8,13 +8,18 @@ interface ApiOperationOptions {
 	redirectOnUnauthorized?: string
 }
 
-export async function withApiOperationError(
-	fn: () => Promise<unknown>,
+/**
+ * Same contract as `withApiOperationError`, but the resolved value is sent back
+ * to the form as `data`. Reach for it only when the form genuinely needs it —
+ * revalidating the loader is the cheaper answer whenever the data lives
+ * somewhere else too.
+ */
+export async function withApiOperationData<TData>(
+	fn: () => Promise<TData>,
 	{ redirectOnUnauthorized }: ApiOperationOptions = {},
-): Promise<ActionResult> {
+): Promise<ActionResult<TData>> {
 	try {
-		await fn()
-		return { success: true }
+		return { success: true, data: await fn() }
 	} catch (error) {
 		if (error instanceof ApiError) {
 			if (error.status === 401 && redirectOnUnauthorized) {
@@ -31,6 +36,14 @@ export async function withApiOperationError(
 
 		throw error
 	}
+}
+
+export async function withApiOperationError(
+	fn: () => Promise<unknown>,
+	options: ApiOperationOptions = {},
+): Promise<ActionResult> {
+	const result = await withApiOperationData(fn, options)
+	return result.success ? { success: true } : result
 }
 
 export function getApiErrorMessage(
