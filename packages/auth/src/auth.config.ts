@@ -43,9 +43,14 @@ export function logSecretDelivery(
 }
 
 export interface CreateAuthOptions {
-	/** Better Auth derives the session cookie prefix from it. */
 	appName?: string
 	basePath?: string
+	/**
+	 * Names the session cookie. Two instances need two prefixes to hold two
+	 * independent cookies — `appName` does **not** set this, despite what the
+	 * option's documentation suggests: the default is the literal `better-auth`.
+	 */
+	cookiePrefix?: string
 	plugins?: BetterAuthPlugin[]
 	trustedOrigins?: string[]
 }
@@ -55,6 +60,7 @@ export function createAuth(
 	{
 		appName = DEFAULT_APP_NAME,
 		basePath,
+		cookiePrefix,
 		plugins = [],
 		trustedOrigins,
 	}: CreateAuthOptions = {},
@@ -62,6 +68,7 @@ export function createAuth(
 	return betterAuth({
 		appName,
 		...(basePath ? { basePath } : {}),
+		...(cookiePrefix ? { advanced: { cookiePrefix } } : {}),
 		database: prismaAdapter(prisma, { provider: 'postgresql' }),
 		secret: process.env['BETTER_AUTH_SECRET'],
 		baseURL: process.env['BETTER_AUTH_URL'],

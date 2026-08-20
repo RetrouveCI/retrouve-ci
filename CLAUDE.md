@@ -253,37 +253,39 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
 `requireServerSession`, which forward the request's `Cookie` header to
 `/api/auth/get-session` — used by route loaders to gate server data fetches.
 
-> **The two apps share one session cookie — known limitation.** The API runs a
-> **single** better-auth instance
-> (`apps/api/src/infrastructure/auth/auth.config.ts`), so the admin app and the
-> client app read the same cookie. An admin signed in on the backoffice
-> therefore appears signed in on the client too.
+> **The two apps hold separate sessions.** The API runs **two** better-auth
+> instances, both built by `@app/auth` from the same database:
 >
-> The client does **not** filter on `role` to prevent this, and must not: an
-> admin is also a person who can lose their phone, so they have to be able to
-> sign in here. `role` says who the user is, not what the session was created
-> for. Filtering on it locks admins out of the public app.
+> | Instance | Base path         | Cookie                           | Extra plugin    |
+> | -------- | ----------------- | -------------------------------- | --------------- |
+> | public   | `/api/auth`       | `better-auth.session_token`      | `phoneNumber()` |
+> | admin    | `/api/admin-auth` | `retrouveci-admin.session_token` | —               |
 >
-> Telling the two apart needs the **audience carried by the session itself**:
-> two better-auth instances with distinct cookie namespaces (`appName` drives
-> `advanced.cookiePrefix`) mounted on distinct `basePath`s, so the same person
-> can be an admin on the backoffice and a user on the client at the same time.
-> Two constraints shape that work:
+> So one browser can be signed in to the backoffice and to the public app at the
+> same time, as two different sessions. An admin is also an ordinary user here,
+> and signing in on one app no longer replaces the other's session.
 >
-> - `@thallesp/nestjs-better-auth` binds its options to a **single injection
->   token** and registers its own global guard, so two registrations would have
->   the second overwrite `request.session` and reject every authenticated
->   request. Two instances means owning the global guard, `@Session()` and
->   `@Roles`.
-> - Two cookies are **not** isolation on their own: the browser sends both to
->   the API, so a script injected into the public app would still carry the
->   admin cookie. The request's `Origin` is what selects which instance's
->   session to read — a page can neither forge nor remove it. Server-side calls
->   carry no `Origin`, so each front-end's loaders have to say which audience
->   they speak for.
+> Two cookies are **not** isolation on their own — the browser sends both to the
+> API. `shared/auth/guards/session.guard.ts`, registered as the app's global
+> guard, is what decides **which** instance to read: the request's `Origin` when
+> there is one (a page can neither forge nor remove it, so an injected script
+> cannot claim the other audience), otherwise the `X-Auth-Audience` header,
+> which only server-side calls need since they carry no `Origin` —
+> `apps/admin`'s `apiFetch` sends it on every call. The chosen instance is the
+> only one consulted; there is no fallback to the other, which is the whole
+> point.
 >
-> Meanwhile `requireAdminSession` still requires `role === 'admin'`, so a
-> regular user cannot reach the dashboard.
+> That guard replaces the one `@thallesp/nestjs-better-auth` registers (both
+> registrations pass `disableGlobalAuthGuard: true`) and honours the same
+> decorators: `@AllowAnonymous()`, `@OptionalAuth()`, `@Roles([...])`. It
+> attaches `request.session` and `request.user`, so `@Session()` keeps working.
+> The admin instance is registered with `isGlobal: false`, because the package
+> binds its options to a single injection token and a second global registration
+> would take over `AuthService`.
+>
+> `ADMIN_ORIGINS` (CSV) lists the backoffice's origins and is **required in
+> production**: without it the API cannot tell the two apps apart, and refuses
+> to start.
 
 #### Client app conventions (loader/action + Zod)
 
