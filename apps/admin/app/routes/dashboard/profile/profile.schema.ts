@@ -15,3 +15,6 @@ export const changePasswordSchema = z
 		message: 'Les mots de passe ne correspondent pas',
 		path: ['confirmPassword'],
 	})
+
+export type ChangePasswordInput = z.input<typeof changePasswordSchema>
+export type ChangePasswordData = z.output<typeof changePasswordSchema>
