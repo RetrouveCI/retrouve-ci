@@ -48,17 +48,17 @@ v7 — quelques reliquats subsistent.
 
 ## 2. Écarts par rapport à la convention
 
-| #   | Écart                                                                           | Étape |
-| --- | ------------------------------------------------------------------------------- | ----- |
-| 1   | Schémas Zod locaux au lieu de `@app/contracts/<domaine>`                        | E6    |
-| 2   | Types d'API redéclarés à la main (8 fichiers `*.types.ts`)                      | E6    |
-| 3   | ✅ Conform retiré de l'app **et** du catalog (E7.G)                             | E7    |
-| 4   | `features/<f>/<f>.types.ts` au lieu de `features/<f>/types/<f>.types.ts`        | E7    |
-| 5   | `shared/lib/api-client.ts` : le fichier devrait s'appeler `api-fetch.ts`        | E11   |
-| 6   | `fetch` hors `servers/` : `context/dashboard.tsx` — **lot dédié**, pas E7       | —     |
-| 7   | 🟡 Socle de test posé, 23 cas sur `shared/` — les features restent à couvrir    | E10   |
-| 8   | `tsconfig.json` autonome (ne dérive pas de `@app/typescript-config`)            | E4    |
-| 9   | Reliquats Next dans les deps (`next-themes`, `@tailwindcss/postcss`, `postcss`) | E3    |
+| #   | Écart                                                                           | Étape  |
+| --- | ------------------------------------------------------------------------------- | ------ |
+| 1   | Schémas Zod locaux au lieu de `@app/contracts/<domaine>`                        | E6     |
+| 2   | Types d'API redéclarés à la main (8 fichiers `*.types.ts`)                      | E6     |
+| 3   | ✅ Conform retiré de l'app **et** du catalog (E7.G)                             | E7     |
+| 4   | `features/<f>/<f>.types.ts` au lieu de `features/<f>/types/<f>.types.ts`        | E7     |
+| 5   | `shared/lib/api-client.ts` : le fichier devrait s'appeler `api-fetch.ts`        | E11    |
+| 6   | ✅ `fetch` hors `servers/` supprimé — passé par le loader du layout             | (fait) |
+| 7   | 🟡 Socle de test posé, 23 cas sur `shared/` — les features restent à couvrir    | E10    |
+| 8   | `tsconfig.json` autonome (ne dérive pas de `@app/typescript-config`)            | E4     |
+| 9   | Reliquats Next dans les deps (`next-themes`, `@tailwindcss/postcss`, `postcss`) | E3     |
 
 ✅ Déjà conforme : `features/<f>/{components,servers,lib}`, layout unique
 `shared/components/dashboard-layout.tsx`, `requireAdminSession` en tête de
@@ -187,9 +187,11 @@ déjà celui qu'il a demandé.
 
 - **Écart 4** : `features/<f>/<f>.types.ts` → `features/<f>/types/<f>.types.ts`
   (8 fichiers).
-- **Écart 6** : `shared/components/dashboard-context.tsx` fait un `fetch`
-  client-side du compteur de notifications non lues. Le faire passer par le
-  loader du layout, ou documenter l'exception.
+- **Écart 6** — ✅ **fait**. Le compteur passe par
+  `routes/dashboard/servers/dashboard.loader.ts` ; `context/dashboard.tsx`
+  reçoit `counts` en prop et ne tient plus ni état ni effet. `LayoutCounts`
+  monte dans `shared/types/dashboard.ts`, puisqu'il traverse `components/`,
+  `context/` et un `servers/` de route.
 - Corriger la mention obsolète de `topbar.tsx` dans `CLAUDE.md`.
 
 ---

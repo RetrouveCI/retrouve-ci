@@ -1,18 +1,13 @@
 import { Outlet } from 'react-router'
 import { cn } from '@app/ui/utils'
-import { requireAdminSession } from '@/shared/helpers/session.server'
 import { Sidebar } from '@/components/sidebar'
 import { TopBar } from '@/components/topbar'
 import { NavigationProgress } from '@/components/navigation-progress'
 import { DashboardProvider, useDashboard } from '@/context/dashboard'
+import { dashboardLoader } from './servers/dashboard.loader'
 import type { Route } from './+types/layout'
 
-export async function loader({ request }: Route.LoaderArgs) {
-	await requireAdminSession(request)
-	const cookie = request.headers.get('cookie') ?? ''
-	const sidebarCollapsed = /(?:^|;\s*)sidebar_collapsed=1(?:;|$)/.test(cookie)
-	return { sidebarCollapsed }
-}
+export const loader = dashboardLoader
 
 function DashboardShell() {
 	const { collapsed } = useDashboard()
@@ -36,7 +31,10 @@ function DashboardShell() {
 
 export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
 	return (
-		<DashboardProvider initialCollapsed={loaderData.sidebarCollapsed}>
+		<DashboardProvider
+			initialCollapsed={loaderData.sidebarCollapsed}
+			counts={loaderData.counts}
+		>
 			<DashboardShell />
 		</DashboardProvider>
 	)

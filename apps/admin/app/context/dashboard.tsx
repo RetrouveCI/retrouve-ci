@@ -1,21 +1,5 @@
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useEffect,
-	useState,
-} from 'react'
-import { apiFetch } from '@/shared/utils/api-fetch'
-
-/**
- * Live counters surfaced as badges across the dashboard shell (sidebar +
- * top bar). Only `notificationsUnread` is wired to a real endpoint today;
- * the shape is intentionally open so other counters (pending posts, new
- * contact messages…) can be added once their endpoints exist.
- */
-export interface LayoutCounts {
-	notificationsUnread: number
-}
+import { createContext, useCallback, useContext, useState } from 'react'
+import type { LayoutCounts } from '@/shared/types/dashboard'
 
 interface DashboardContextValue {
 	collapsed: boolean
@@ -29,23 +13,14 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 365
 
 export function DashboardProvider({
 	initialCollapsed,
+	counts,
 	children,
 }: {
 	initialCollapsed: boolean
+	counts: LayoutCounts
 	children: React.ReactNode
 }) {
 	const [collapsed, setCollapsed] = useState(initialCollapsed)
-	const [counts, setCounts] = useState<LayoutCounts>({
-		notificationsUnread: 0,
-	})
-
-	useEffect(() => {
-		apiFetch<{ count: number }>('/notifications/unread-count')
-			.then(res =>
-				setCounts(prev => ({ ...prev, notificationsUnread: res.count })),
-			)
-			.catch(() => {})
-	}, [])
 
 	const toggleSidebar = useCallback(() => {
 		setCollapsed(prev => {

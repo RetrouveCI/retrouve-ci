@@ -15,7 +15,7 @@ import {
 import { cn } from '@app/ui/utils'
 import { useAuth } from '@/context/auth'
 import { useDashboard } from '@/context/dashboard'
-import type { LayoutCounts } from '@/context/dashboard'
+import type { LayoutCounts } from '@/shared/types/dashboard'
 import {
 	LayoutDashboard,
 	Users,
