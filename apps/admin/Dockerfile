@@ -26,6 +26,10 @@ RUN pnpm --filter @app/admin --legacy deploy --prod /prod/admin
 
 # ---- Runner : minimal production image -------------------------------------
 FROM node:24-bookworm-slim AS runner
+# `ADMIN_APP_URL` is read at runtime (`process.env`), so it is supplied at
+# `docker run` time rather than baked here: it is the public origin the emailed
+# password-reset link must point at, which the container cannot infer behind a
+# reverse proxy.
 ENV NODE_ENV="production" \
 	PORT="3001"
 WORKDIR /app
