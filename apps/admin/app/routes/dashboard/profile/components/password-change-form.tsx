@@ -1,52 +1,39 @@
-import { useState } from 'react'
-import { Button, Input } from '@app/ui/components'
-import { InputLabel, FieldError } from '@app/ui/components/form'
-import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react'
-import { BentoCard } from '@/components/bento-card'
+import { useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { Loader2, Lock } from 'lucide-react'
 import { toast } from 'sonner'
-import { useForm, getFormProps, getInputProps } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
-import { changePasswordSchema } from '../profile.schema'
-import { changePassword } from '../helpers/profile.client'
+import { Button, FieldGroup } from '@app/ui/components'
+import { FormRootError } from '@app/ui/components/form'
+import { BentoCard } from '@/components/bento-card'
+import { PasswordField } from '@/components/password-field'
+import {
+	changePasswordSchema,
+	type ChangePasswordData,
+	type ChangePasswordInput,
+} from '../profile.schema'
+import { usePasswordChangeSubmit } from '../hooks/use-password-change-submit'
 
 export function PasswordChangeForm() {
-	const [showCurrent, setShowCurrent] = useState(false)
-	const [showNew, setShowNew] = useState(false)
-	const [showConfirm, setShowConfirm] = useState(false)
-	const [isSubmitting, setIsSubmitting] = useState(false)
+	const { submit, isSubmitting, errors } = usePasswordChangeSubmit()
 
-	const [form, fields] = useForm({
-		id: 'change-password-form',
-		constraint: getZodConstraint(changePasswordSchema),
-		shouldValidate: 'onBlur',
-		shouldRevalidate: 'onInput',
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: changePasswordSchema })
+	const form = useForm<ChangePasswordInput, unknown, ChangePasswordData>({
+		resolver: standardSchemaResolver(changePasswordSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		defaultValues: {
+			currentPassword: '',
+			newPassword: '',
+			confirmPassword: '',
 		},
-		async onSubmit(event, { formData }) {
-			event.preventDefault()
-			const submission = parseWithZod(formData, {
-				schema: changePasswordSchema,
-			})
-			if (submission.status !== 'success') return
-
-			setIsSubmitting(true)
-			try {
-				const result = await changePassword(
-					submission.value.currentPassword,
-					submission.value.newPassword,
-				)
-				if (result.ok) {
-					toast.success('Mot de passe mis à jour avec succès')
-					form.reset()
-				} else {
-					toast.error(result.error ?? 'Mot de passe actuel incorrect')
-				}
-			} finally {
-				setIsSubmitting(false)
-			}
-		},
+		errors,
 	})
+
+	const onSubmit = async (values: ChangePasswordData) => {
+		if (await submit(values)) {
+			toast.success('Mot de passe mis à jour avec succès')
+			form.reset()
+		}
+	}
 
 	return (
 		<BentoCard variant="content" className="lg:col-span-2">
@@ -59,98 +46,41 @@ export function PasswordChangeForm() {
 					Mettez à jour votre mot de passe pour sécuriser votre compte.
 				</p>
 
-				<form {...getFormProps(form)} className="max-w-md">
-					<div className="space-y-4">
-						<div className="space-y-2">
-							<InputLabel htmlFor={fields.currentPassword.id}>
-								Mot de passe actuel
-							</InputLabel>
-							<div className="relative">
-								<Input
-									{...getInputProps(fields.currentPassword, {
-										type: showCurrent ? 'text' : 'password',
-									})}
-									key={fields.currentPassword.key}
-									className="pr-10"
-								/>
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon"
-									className="absolute top-0 right-0 h-full px-3 hover:bg-transparent"
-									onClick={() => setShowCurrent(p => !p)}
-								>
-									{showCurrent ? (
-										<EyeOff className="text-muted-foreground h-4 w-4" />
-									) : (
-										<Eye className="text-muted-foreground h-4 w-4" />
-									)}
-								</Button>
-							</div>
-							<FieldError errors={fields.currentPassword.errors} />
-						</div>
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					noValidate
+					className="max-w-md"
+				>
+					<FormRootError
+						title="Impossible de changer le mot de passe"
+						message={form.formState.errors.root?.message}
+						className="mb-4"
+					/>
 
-						<div className="space-y-2">
-							<InputLabel htmlFor={fields.newPassword.id}>
-								Nouveau mot de passe
-							</InputLabel>
-							<div className="relative">
-								<Input
-									{...getInputProps(fields.newPassword, {
-										type: showNew ? 'text' : 'password',
-									})}
-									key={fields.newPassword.key}
-									className="pr-10"
-								/>
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon"
-									className="absolute top-0 right-0 h-full px-3 hover:bg-transparent"
-									onClick={() => setShowNew(p => !p)}
-								>
-									{showNew ? (
-										<EyeOff className="text-muted-foreground h-4 w-4" />
-									) : (
-										<Eye className="text-muted-foreground h-4 w-4" />
-									)}
-								</Button>
-							</div>
-							<p className="text-muted-foreground text-xs">
-								Min. 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre
-							</p>
-							<FieldError errors={fields.newPassword.errors} />
-						</div>
+					<FieldGroup className="gap-4">
+						<PasswordField
+							control={form.control}
+							name="currentPassword"
+							label="Mot de passe actuel"
+							autoComplete="current-password"
+							disabled={isSubmitting}
+						/>
 
-						<div className="space-y-2">
-							<InputLabel htmlFor={fields.confirmPassword.id}>
-								Confirmer le mot de passe
-							</InputLabel>
-							<div className="relative">
-								<Input
-									{...getInputProps(fields.confirmPassword, {
-										type: showConfirm ? 'text' : 'password',
-									})}
-									key={fields.confirmPassword.key}
-									className="pr-10"
-								/>
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon"
-									className="absolute top-0 right-0 h-full px-3 hover:bg-transparent"
-									onClick={() => setShowConfirm(p => !p)}
-								>
-									{showConfirm ? (
-										<EyeOff className="text-muted-foreground h-4 w-4" />
-									) : (
-										<Eye className="text-muted-foreground h-4 w-4" />
-									)}
-								</Button>
-							</div>
-							<FieldError errors={fields.confirmPassword.errors} />
-						</div>
-					</div>
+						<PasswordField
+							control={form.control}
+							name="newPassword"
+							label="Nouveau mot de passe"
+							hint="Min. 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre"
+							disabled={isSubmitting}
+						/>
+
+						<PasswordField
+							control={form.control}
+							name="confirmPassword"
+							label="Confirmer le mot de passe"
+							disabled={isSubmitting}
+						/>
+					</FieldGroup>
 
 					<Button type="submit" className="mt-6" disabled={isSubmitting}>
 						{isSubmitting ? (

@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
-import { CheckCircle2, Loader2 } from 'lucide-react'
+import { CheckCircle2, Loader2, Lock } from 'lucide-react'
 import {
 	Alert,
 	AlertDescription,
@@ -9,13 +9,13 @@ import {
 	FieldGroup,
 } from '@app/ui/components'
 import { FormRootError } from '@app/ui/components/form'
+import { PasswordField } from '@/components/password-field'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import {
 	resetPasswordSchema,
 	type ResetPasswordData,
 	type ResetPasswordInput,
 } from '../reset-password.schema'
-import { PasswordField } from './password-field'
 import type { action } from '../_index'
 
 export function ResetPasswordForm({ token }: { token: string }) {
@@ -72,6 +72,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
 					label="Nouveau mot de passe"
 					placeholder="Minimum 8 caractères"
 					hint="Min. 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre"
+					icon={Lock}
+					inputClassName="h-10 rounded-lg"
 					disabled={fetcher.isSubmitting}
 					autoFocus
 				/>
@@ -81,6 +83,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
 					name="confirmPassword"
 					label="Confirmer le mot de passe"
 					placeholder="••••••••"
+					icon={Lock}
+					inputClassName="h-10 rounded-lg"
 					disabled={fetcher.isSubmitting}
 				/>
 			</FieldGroup>

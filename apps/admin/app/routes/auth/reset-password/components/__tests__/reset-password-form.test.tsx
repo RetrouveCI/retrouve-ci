@@ -15,8 +15,12 @@ function renderForm(action: (args: { request: Request }) => unknown) {
 	render(<Stub initialEntries={['/auth/reset-password']} />)
 }
 
-const newPassword = () => page.getByLabelText('Nouveau mot de passe')
-const confirmPassword = () => page.getByLabelText('Confirmer le mot de passe')
+// `exact` matters: each eye toggle is labelled after its field, so a loose
+// match would resolve to both the input and the button.
+const newPassword = () =>
+	page.getByLabelText('Nouveau mot de passe', { exact: true })
+const confirmPassword = () =>
+	page.getByLabelText('Confirmer le mot de passe', { exact: true })
 const submit = () =>
 	userEvent.click(
 		page.getByRole('button', { name: 'Réinitialiser le mot de passe' }),
@@ -129,7 +133,9 @@ describe('ResetPasswordForm', () => {
 		await expect.element(newPassword()).toHaveAttribute('type', 'password')
 
 		await userEvent.click(
-			page.getByRole('button', { name: 'Afficher le mot de passe' }).first(),
+			page.getByRole('button', {
+				name: 'Afficher le champ Nouveau mot de passe',
+			}),
 		)
 
 		await expect.element(newPassword()).toHaveAttribute('type', 'text')

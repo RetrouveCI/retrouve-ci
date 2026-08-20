@@ -4,7 +4,7 @@
  * English code to the user.
  *
  * Codes come from better-auth's `BASE_ERROR_CODES`; only the ones reachable
- * from an email/password sign-in are mapped.
+ * from an email/password sign-in or a password change are mapped.
  */
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
 	INVALID_EMAIL_OR_PASSWORD: 'Email ou mot de passe incorrect',
@@ -17,6 +17,8 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
 		'Ce compte ne dispose pas de connexion par mot de passe',
 	SESSION_EXPIRED: 'Votre session a expiré. Reconnectez-vous.',
 	FAILED_TO_CREATE_SESSION: 'La session n’a pas pu être créée',
+	PASSWORD_TOO_SHORT: 'Mot de passe trop court',
+	PASSWORD_TOO_LONG: 'Mot de passe trop long',
 }
 
 export const DEFAULT_AUTH_ERROR_MESSAGE =
