@@ -434,12 +434,20 @@ Identical to the client app conventions above, with these admin-specific notes:
   `packages/auth`, so a `moderator` is refused server-side whatever the UI
   offers. `list-users` is called with a hard `limit`, which is a ceiling, not
   pagination.
-- `context/dashboard.tsx` fetches the unread notification count on mount via
-  `apiFetch('/notifications/unread-count')` and exposes it through
-  `useDashboard().counts`; the sidebar and `components/topbar.tsx` only read it.
-  This is the admin app's one `fetch` outside a `servers/` folder (gap 6 of
-  [MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md)) — the dashboard layout's
-  loader is where it belongs, and moving it there is a lot of its own.
+- The unread notification count comes from
+  `routes/dashboard/servers/dashboard.loader.ts`, the dashboard layout's loader,
+  which hands it to `DashboardProvider` as a `counts` prop;
+  `useDashboard().counts` exposes it, and the sidebar and
+  `components/topbar.tsx` only read it. **No component or context in `admin`
+  fetches any more** (this closed gap 6 of
+  [MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md)); the app's only remaining
+  call outside a `servers/` folder is `shared/helpers/session.server.ts`, the
+  server-side session gate every loader goes through. `client` still has the
+  same defect in `components/activity-hub.tsx`, which fetches that very endpoint
+  in an effect — its own lot. Coming from a loader, the badge also revalidates
+  with every action instead of being read once on mount. A counter the API
+  cannot serve reads zero rather than throwing — a badge must never take the
+  shell down.
 
 #### Front-end tests
 
