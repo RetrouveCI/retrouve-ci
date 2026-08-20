@@ -5,7 +5,7 @@ export async function resetPassword(
 	token: string,
 	request: Request,
 ): Promise<void> {
-	await apiFetch('/api/auth/reset-password', {
+	await apiFetch('/api/admin-auth/reset-password', {
 		method: 'POST',
 		body: JSON.stringify({ newPassword, token }),
 		headers: { Origin: new URL(request.url).origin },

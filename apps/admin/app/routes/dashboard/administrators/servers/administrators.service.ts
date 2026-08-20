@@ -115,12 +115,11 @@ export async function removeAdminUser(
 export async function sendPasswordReset(
 	headers: ServerHeaders,
 	email: string,
+	redirectTo: string,
 ): Promise<void> {
-	// Stays on the public instance, paired with `routes/auth/reset-password`, which
-	// posts the token back there. Moving one without the other breaks the flow.
-	await apiFetch('/api/auth/request-password-reset', {
+	await apiFetch('/api/admin-auth/request-password-reset', {
 		method: 'POST',
 		headers: authHeaders(headers),
-		body: JSON.stringify({ email, redirectTo: '/auth/reset-password' }),
+		body: JSON.stringify({ email, redirectTo }),
 	})
 }

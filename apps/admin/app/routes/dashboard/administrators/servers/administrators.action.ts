@@ -1,4 +1,5 @@
 import { rootError, zodErrorToFieldErrors } from '@/shared/helpers/form'
+import { appUrl } from '@/shared/helpers/redirect'
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import type { ActionResult } from '@/shared/types/action'
 import { withApiOperationError } from '@/shared/utils/api-operation'
@@ -91,7 +92,12 @@ export async function administratorsAction({
 			return rootError("L'administrateur à réinitialiser est introuvable")
 
 		return withApiOperationError(
-			() => sendPasswordReset(headers, email),
+			() =>
+				sendPasswordReset(
+					headers,
+					email,
+					appUrl('/auth/reset-password', request),
+				),
 			API_OPTIONS,
 		)
 	}

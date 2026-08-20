@@ -29,7 +29,7 @@ export async function listUsers(
 	statusFilter?: UserStatus,
 ): Promise<{ users: User[]; total: number }> {
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
-		'/api/auth/admin/list-users?limit=500&filterField=role&filterOperator=eq&filterValue=user',
+		'/api/admin-auth/admin/list-users?limit=500&filterField=role&filterOperator=eq&filterValue=user',
 		{ headers: { Cookie: cookie } },
 	)
 
@@ -48,7 +48,7 @@ export async function getUserById(
 	userId: string,
 ): Promise<User | null> {
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
-		`/api/auth/admin/list-users?filterField=id&filterOperator=eq&filterValue=${encodeURIComponent(userId)}`,
+		`/api/admin-auth/admin/list-users?filterField=id&filterOperator=eq&filterValue=${encodeURIComponent(userId)}`,
 		{ headers: { Cookie: cookie } },
 	)
 	const found = res.users.find(u => u.role === 'user')
@@ -60,7 +60,7 @@ export async function banUser(
 	origin: string,
 	userId: string,
 ): Promise<void> {
-	await apiFetch('/api/auth/admin/ban-user', {
+	await apiFetch('/api/admin-auth/admin/ban-user', {
 		method: 'POST',
 		headers: { Cookie: cookie, Origin: origin },
 		body: JSON.stringify({ userId }),
@@ -72,7 +72,7 @@ export async function unbanUser(
 	origin: string,
 	userId: string,
 ): Promise<void> {
-	await apiFetch('/api/auth/admin/unban-user', {
+	await apiFetch('/api/admin-auth/admin/unban-user', {
 		method: 'POST',
 		headers: { Cookie: cookie, Origin: origin },
 		body: JSON.stringify({ userId }),

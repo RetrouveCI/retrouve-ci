@@ -285,6 +285,21 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
 > `ADMIN_ORIGINS` (CSV) lists the backoffice's origins and is **required in
 > production**: without it the API cannot tell the two apps apart, and refuses
 > to start.
+>
+> **Every backoffice call goes to `/api/admin-auth`, never `/api/auth`.**
+> Because the shared core carries the `admin()` plugin, both instances expose
+> `/admin/list-users` and friends, so a call to the wrong base path does not 404
+> — it validates against the other app's cookie and answers 401. These routes
+> are mounted as middleware before Nest, so `SessionGuard` never catches the
+> mistake. The email password-reset flow is the backoffice's alone (the public
+> app resets by phone OTP), so it lives there too.
+>
+> `ADMIN_APP_URL` is the backoffice's **public** origin, read at runtime by
+> `shared/helpers/redirect.ts`'s `appUrl()`. The reset link better-auth emails
+> resolves a relative `redirectTo` against `BETTER_AUTH_URL` — the API's own
+> origin, where nothing serves that page — so the link must be absolute. Unset,
+> `appUrl()` falls back to the request's origin, which is right in development
+> and behind no proxy.
 
 #### Client app conventions (loader/action + Zod)
 

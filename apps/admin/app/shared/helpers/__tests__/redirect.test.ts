@@ -1,4 +1,5 @@
 import {
+	appUrl,
 	DEFAULT_REDIRECT,
 	loginUrlWithRedirect,
 	sanitizeRedirect,
@@ -58,6 +59,44 @@ describe('loginUrlWithRedirect', () => {
 	it('builds the login URL that remembers where the admin was headed', () => {
 		expect(loginUrlWithRedirect('/orders')).toBe(
 			'/auth/login?redirectTo=%2Forders',
+		)
+	})
+})
+
+describe('appUrl', () => {
+	const request = new Request('http://localhost:3001/administrators')
+
+	afterEach(() => {
+		delete process.env['ADMIN_APP_URL']
+	})
+
+	it("falls back to the request's own origin when nothing is configured", () => {
+		expect(appUrl('/auth/reset-password', request)).toBe(
+			'http://localhost:3001/auth/reset-password',
+		)
+	})
+
+	it('prefers the configured public URL, which is what a proxy needs', () => {
+		process.env['ADMIN_APP_URL'] = 'https://admin.retrouveci.com'
+
+		expect(appUrl('/auth/reset-password', request)).toBe(
+			'https://admin.retrouveci.com/auth/reset-password',
+		)
+	})
+
+	it('tolerates a trailing slash and surrounding whitespace', () => {
+		process.env['ADMIN_APP_URL'] = '  https://admin.retrouveci.com/  '
+
+		expect(appUrl('/auth/reset-password', request)).toBe(
+			'https://admin.retrouveci.com/auth/reset-password',
+		)
+	})
+
+	it('ignores a blank value rather than building an unusable URL', () => {
+		process.env['ADMIN_APP_URL'] = '   '
+
+		expect(appUrl('/auth/reset-password', request)).toBe(
+			'http://localhost:3001/auth/reset-password',
 		)
 	})
 })

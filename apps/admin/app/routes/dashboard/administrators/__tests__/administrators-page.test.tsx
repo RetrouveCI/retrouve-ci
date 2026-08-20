@@ -28,16 +28,13 @@ const admins: Admin[] = [
 ]
 
 function renderPage(action: (args: { request: Request }) => unknown) {
+	const loader = vi.fn(() => ({ admins }))
 	const Stub = createRoutesStub([
-		{
-			path: '/administrators',
-			Component: AdministratorsPage,
-			loader: () => ({ admins }),
-			action,
-		},
+		{ path: '/administrators', Component: AdministratorsPage, loader, action },
 	])
 
 	render(<Stub initialEntries={['/administrators']} />)
+	return { loader }
 }
 
 const rowMenu = () =>
@@ -71,12 +68,13 @@ describe('AdministratorsPage', () => {
 
 	it('names the administrator in the delete confirmation and submits the intent', async () => {
 		const received: Record<string, string> = {}
-		renderPage(async ({ request }) => {
+		const { loader } = renderPage(async ({ request }) => {
 			for (const [key, value] of await request.formData()) {
 				received[key] = String(value)
 			}
 			return ok()
 		})
+		await vi.waitFor(() => expect(loader).toHaveBeenCalledTimes(1))
 
 		await openDeleteDialog()
 
@@ -90,6 +88,9 @@ describe('AdministratorsPage', () => {
 		await vi.waitFor(() =>
 			expect(success).toHaveBeenCalledWith('Administrateur supprimé'),
 		)
+		// The fetcher submission revalidates the loader on its own, which is why the
+		// page keeps no `useRevalidator`.
+		await vi.waitFor(() => expect(loader).toHaveBeenCalledTimes(2))
 	})
 
 	it('toasts the root error a failed deletion answers with', async () => {
