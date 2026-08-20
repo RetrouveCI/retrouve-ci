@@ -215,8 +215,8 @@ objets à méthodes (SDK d'auth) et `*Fetch` aux fonctions.
 `dotenv` (17.4.2). Toutes sont partagées avec `apps/api` → **elles doivent
 passer au catalog** (règle : ≥ 2 packages ⇒ catalog).
 
-`packages/ui` : retirer `@conform-to/react` + `@conform-to/zod` après E7,
-aligner `lucide-react`, `sonner`, `react-day-picker`,
+`packages/ui` : `@conform-to/react` retiré en E7.G (`@conform-to/zod` n'y était
+pas déclaré) ; reste à aligner `lucide-react`, `sonner`, `react-day-picker`,
 `class-variance-authority`, `tailwind-merge`.
 
 ### Dérive de `ui/field.tsx` — repérée en E7.1, non corrigée

@@ -4,11 +4,21 @@ import { qrContactLoader } from './servers/qr-contact.loader'
 import { qrContactAction } from './servers/qr-contact.action'
 import { QrOwnerCard } from './components/qr-owner-card'
 import { QrContactForm } from './components/qr-contact-form'
-import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
 
-export const loader = qrContactLoader
-export const action = qrContactAction
+// Explicit arg/prop types while the route stays unmounted: `./+types/_index` is
+// only generated for routes listed in routes.ts. Restore `Route.LoaderArgs` /
+// `Route.ActionArgs` / `Route.ComponentProps` when the route is remounted.
+export const loader = ({ params }: { params: { code: string } }) =>
+	qrContactLoader({ params })
+
+export const action = ({
+	request,
+	params,
+}: {
+	request: Request
+	params: { code: string }
+}) => qrContactAction({ request, params })
 
 export function meta() {
 	return pageMeta({
@@ -18,7 +28,11 @@ export function meta() {
 	})
 }
 
-export default function QrContactPage({ loaderData }: Route.ComponentProps) {
+interface QrContactPageProps {
+	loaderData: Awaited<ReturnType<typeof loader>>
+}
+
+export default function QrContactPage({ loaderData }: QrContactPageProps) {
 	const { token } = loaderData
 
 	return (

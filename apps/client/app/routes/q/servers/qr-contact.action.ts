@@ -1,31 +1,26 @@
-import { data } from 'react-router'
-import type { Route } from '../+types/_index'
-import { ApiError } from '@/shared/utils/api-fetch'
-import { parseWithZod } from '@conform-to/zod/v4'
+import { zodErrorToFieldErrors } from '@/shared/helpers/form'
+import type { ActionResult } from '@/shared/types/action'
+import { withApiOperationError } from '@/shared/utils/api-operation'
 import { qrContactSchema } from '../qr-contact.schema'
 import { contactQrOwner } from './qr-contact.service'
 
-export async function qrContactAction({ request, params }: Route.ActionArgs) {
+export async function qrContactAction({
+	request,
+	params,
+}: {
+	request: Request
+	params: { code: string }
+}): Promise<ActionResult> {
 	const formData = await request.formData()
-	const submission = parseWithZod(formData, { schema: qrContactSchema })
+	const submission = qrContactSchema.safeParse(Object.fromEntries(formData))
 
-	if (submission.status !== 'success') {
-		return data({ ok: false, submission: submission.reply() }, { status: 400 })
+	if (!submission.success) {
+		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
 
-	const { email, ...rest } = submission.value
-	const payload = { ...rest, ...(email ? { email } : {}) }
+	const { email, ...rest } = submission.data
 
-	try {
-		await contactQrOwner(params.code, payload)
-		return { ok: true, submission: submission.reply() }
-	} catch (err) {
-		if (err instanceof ApiError) {
-			return data(
-				{ ok: false, error: err.message, submission: submission.reply() },
-				{ status: err.status },
-			)
-		}
-		return data({ ok: false, submission: submission.reply() }, { status: 500 })
-	}
+	return withApiOperationError(() =>
+		contactQrOwner(params.code, { ...rest, ...(email ? { email } : {}) }),
+	)
 }

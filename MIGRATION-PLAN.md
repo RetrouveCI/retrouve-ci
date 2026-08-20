@@ -280,6 +280,15 @@ du contrat action/formulaire n'existe que dans `apps/client`, et `ActionResult`
 n'a pas de canal de charge utile. Toutes deux sont décrites au §E13.7
 ci-dessous.
 
+**Étape close en E7.G.** `stickers/order` (E7.F) puis `q` (E7.G) étaient les
+deux derniers formulaires ; `@conform-to/*` a quitté les trois `package.json` et
+le catalog, et `components/form/{input,textarea}-field.tsx` ont été supprimés.
+`field-error.tsx` et `input-label.tsx` restent : ils ne dépendaient pas de
+Conform et `routes/publish` les consomme. Les deux contraintes ci-dessus sont
+levées : `ActionResult<TData>` porte désormais une charge utile
+(`withApiOperationData`), et le socle du contrat reste propre à `apps/client` —
+sa mutualisation appartient à E11.
+
 **Correction apportée en E7.1** : la troisième raison citait le composant shadcn
 `ui/form.tsx` (`FormField`, `FormItem`, `FormControl`, `FormMessage`) comme la
 cible. C'est `ui/field.tsx` — la famille `Field`, plus récente — qui est
@@ -391,7 +400,7 @@ Une ligne = une branche = une PR = une session.
 | **E4**  | Presets partagés (ts / vitest / eslint)     | `migration-e4-presets-partages`    | `packages/config`                     | 0,5 j  | E2        |
 | **E5**  | Création de `@app/contracts`                | `migration-e5-contracts-init`      | `packages/contracts`                  | 0,5 j  | E2        |
 | **E6**  | Contrats : domaines API + bascule Zod       | `migration-e6-contracts-<domaine>` | `api/<domaine>`                       | 2 j    | E5        |
-| **E7**  | 🟡 Conform → RHF (client fait · admin E7.A) | `migration-e7-rhf-<cible>`         | `ui/form`, `client/…`, `admin/…`      | 1 j    | E3        |
+| **E7**  | ✅ Conform → RHF, catalog nettoyé (E7.G)    | (fait)                             | `ui/form`, `client/…`, `admin/…`      | —      | E3        |
 | **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`                       | 3 j    | E6        |
 | **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                           | 1 j    | E4, E8    |
 | **E10** | 🟡 Tests front (socle + admin faits)        | `migration-e10-tests-front`        | `client/tests`, `admin/tests`         | 0,75 j | E4, E7    |

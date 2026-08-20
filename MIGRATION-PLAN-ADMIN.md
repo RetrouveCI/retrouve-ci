@@ -52,7 +52,7 @@ v7 — quelques reliquats subsistent.
 | --- | ------------------------------------------------------------------------------- | ----- |
 | 1   | Schémas Zod locaux au lieu de `@app/contracts/<domaine>`                        | E6    |
 | 2   | Types d'API redéclarés à la main (8 fichiers `*.types.ts`)                      | E6    |
-| 3   | 🟡 Conform restant sur 3 features du dashboard (`auth` + `events` migrés)       | E7    |
+| 3   | ✅ Conform retiré de l'app **et** du catalog (E7.G)                             | E7    |
 | 4   | `features/<f>/<f>.types.ts` au lieu de `features/<f>/types/<f>.types.ts`        | E7    |
 | 5   | `shared/lib/api-client.ts` : le fichier devrait s'appeler `api-fetch.ts`        | E11   |
 | 6   | `fetch` hors `servers/` : `context/dashboard.tsx` — **lot dédié**, pas E7       | —     |

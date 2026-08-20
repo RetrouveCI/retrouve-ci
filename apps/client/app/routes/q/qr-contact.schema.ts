@@ -18,3 +18,6 @@ export const qrContactSchema = z.object({
 		.min(5, 'Votre message doit contenir au moins 5 caractères')
 		.max(500, 'Votre message ne peut pas dépasser 500 caractères'),
 })
+
+export type QrContactInput = z.input<typeof qrContactSchema>
+export type QrContactData = z.output<typeof qrContactSchema>
