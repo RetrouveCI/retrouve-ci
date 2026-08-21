@@ -19,7 +19,7 @@ const requestWith = (cookie?: string) =>
 
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
-	getUnreadCount.mockReset().mockResolvedValue({ count: 7 })
+	getUnreadCount.mockReset().mockResolvedValue(7)
 })
 
 afterEach(() => {

@@ -1,12 +1,13 @@
 import { Link } from 'react-router'
 import type { FetcherWithComponents } from 'react-router'
-import { Sparkles } from 'lucide-react'
+import { QrCode, Sparkles } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import type { Notification } from '@/shared/types/notification'
 import type { NotificationType } from '@/routes/notifications/types/notifications.types'
 
 const TYPE_ICONS: Record<NotificationType, React.ElementType> = {
 	match_found: Sparkles,
+	qr_scan: QrCode,
 }
 
 interface NotificationItemProps {

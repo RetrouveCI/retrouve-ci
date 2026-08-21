@@ -1,4 +1,6 @@
-export type NotificationType = 'match_found'
+import type { NotificationType } from '@app/contracts/notifications'
+
+export type { NotificationType }
 
 export interface Notification {
 	id: string
