@@ -341,14 +341,20 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   goes through a feature's `servers/*.loader.ts` / `servers/*.action.ts`
   (server-side) or a dedicated `helpers/*.client.ts` wrapper (client-side calls
   that manage cookies/sessions, e.g.
-  `routes/auth/helpers/phone-auth.client.ts`). In `routes/auth`, the two
-  endpoints that create/refresh the better-auth session cookie
-  (`sign-in/phone-number` via `AuthContext.login`, and `phone-number/verify` via
-  `lib/phone-auth.client.ts`) are the only auth calls made client-side — the
-  browser needs the `Set-Cookie` response directly, and this repo has no
-  server-side mechanism to forward `Set-Cookie` from an API response back
-  through a React Router action. Every other auth mutation (`send-otp`,
-  `request-password-reset`, `reset-password`) goes through
+  `routes/auth/helpers/phone-auth.client.ts`), or — when the data is wanted
+  lazily rather than per navigation — a **resource route** `fetcher.load`ed by a
+  hook: `routes.ts` points a path straight at a `servers/*.loader.ts` with no
+  component (`publish/matches`, `account/activity`). That is what
+  `components/activity-hub.tsx` uses: the floating panel's summary would cost a
+  session round-trip on every navigation from the root loader, for anonymous
+  visitors included, whereas its hook loads once per full page load and again on
+  each open. In `routes/auth`, the two endpoints that create/refresh the
+  better-auth session cookie (`sign-in/phone-number` via `AuthContext.login`,
+  and `phone-number/verify` via `lib/phone-auth.client.ts`) are the only auth
+  calls made client-side — the browser needs the `Set-Cookie` response directly,
+  and this repo has no server-side mechanism to forward `Set-Cookie` from an API
+  response back through a React Router action. Every other auth mutation
+  (`send-otp`, `request-password-reset`, `reset-password`) goes through
   `servers/*.action.ts`, using the `intent` field pattern when a route has more
   than one action (e.g.
   `routes/auth/reset-password/servers/reset-password.action.ts`).
@@ -470,12 +476,11 @@ Identical to the client app conventions above, with these admin-specific notes:
   fetches any more** (this closed gap 6 of
   [MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md)); the app's only remaining
   call outside a `servers/` folder is `shared/helpers/session.server.ts`, the
-  server-side session gate every loader goes through. `client` still has the
-  same defect in `components/activity-hub.tsx`, which fetches that very endpoint
-  in an effect — its own lot. Coming from a loader, the badge also revalidates
-  with every action instead of being read once on mount. A counter the API
-  cannot serve reads zero rather than throwing — a badge must never take the
-  shell down.
+  server-side session gate every loader goes through (`client` is the same: its
+  `activity-hub` twin is closed, see below). Coming from a loader, the badge
+  also revalidates with every action instead of being read once on mount. A
+  counter the API cannot serve reads zero rather than throwing — a badge must
+  never take the shell down.
 
 #### Front-end tests
 

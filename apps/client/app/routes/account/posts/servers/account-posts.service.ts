@@ -16,15 +16,18 @@ export interface PatchLostItemPayload {
 	photos?: string[]
 }
 
+export async function getMyLostItemsPage(
+	request: Request,
+): Promise<LostItemListApiResponse> {
+	return apiFetch<LostItemListApiResponse>('/lost-items/mine?pageSize=50', {
+		headers: { Cookie: request.headers.get('cookie') ?? '' },
+	})
+}
+
 export async function getMyLostItems(
 	request: Request,
 ): Promise<LostItemApiDto[]> {
-	const response = await apiFetch<LostItemListApiResponse>(
-		'/lost-items/mine?pageSize=50',
-		{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
-	)
-
-	return response.items
+	return (await getMyLostItemsPage(request)).items
 }
 
 export async function deleteLostItem(

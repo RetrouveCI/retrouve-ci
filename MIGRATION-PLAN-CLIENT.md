@@ -48,16 +48,16 @@ téléphone**.
 
 ## 2. Écarts par rapport à la convention
 
-| #   | Écart                                                                                                              | Étape |
-| --- | ------------------------------------------------------------------------------------------------------------------ | ----- |
-| 1   | Schémas Zod locaux à la feature au lieu de `@app/contracts/<domaine>`                                              | E6    |
-| 2   | Types d'API redéclarés à la main (`lost-items.types.ts`, `shared/types/*.ts`) — duplication silencieuse avec l'API | E6    |
-| 3   | Formulaires en Conform au lieu de react-hook-form                                                                  | E7    |
-| 4   | `features/<f>/<f>.types.ts` au lieu de `features/<f>/types/<f>.types.ts`                                           | E7    |
-| 5   | `shared/lib/api-client.ts` : le fichier devrait s'appeler `api-fetch.ts`                                           | E11   |
-| 6   | `fetch` hors `servers/` non documenté : `shared/components/activity-hub.tsx`                                       | E7    |
-| 7   | Aucun test                                                                                                         | E10   |
-| 8   | `tsconfig.json` autonome (ne dérive pas de `@app/typescript-config`)                                               | E4    |
+| #   | Écart                                                                                                              | Étape  |
+| --- | ------------------------------------------------------------------------------------------------------------------ | ------ |
+| 1   | Schémas Zod locaux à la feature au lieu de `@app/contracts/<domaine>`                                              | E6     |
+| 2   | Types d'API redéclarés à la main (`lost-items.types.ts`, `shared/types/*.ts`) — duplication silencieuse avec l'API | E6     |
+| 3   | Formulaires en Conform au lieu de react-hook-form                                                                  | E7     |
+| 4   | `features/<f>/<f>.types.ts` au lieu de `features/<f>/types/<f>.types.ts`                                           | E7     |
+| 5   | `shared/lib/api-client.ts` : le fichier devrait s'appeler `api-fetch.ts`                                           | E11    |
+| 6   | ✅ `fetch` hors `servers/` supprimé — route ressource `account/activity`                                           | (fait) |
+| 7   | Aucun test                                                                                                         | E10    |
+| 8   | `tsconfig.json` autonome (ne dérive pas de `@app/typescript-config`)                                               | E4     |
 
 ✅ Déjà conforme : arborescence
 `features/<f>/{components,hooks,mappers,servers,lib}`, couche `servers/` avec
@@ -387,10 +387,13 @@ Reste à voir à l'œil : à quoi ressemble un échec serveur, maintenant une al
 - **Écart 4** : ✅ **absorbé par E13.3** — les 5 fichiers `<f>.types.ts` ont été
   repliés dans `types/` au moment où leur dossier a bougé, plutôt que feature
   par feature.
-- **Écart 6** : `shared/components/activity-hub.tsx` fait un `fetch` hors
-  `servers/`. Soit le déplacer dans un loader, soit documenter l'exception dans
-  `CLAUDE.md` comme les deux appels d'auth qui ont besoin du `Set-Cookie` en
-  direct.
+- **Écart 6** — ✅ **fait**. `components/activity-hub.tsx` passe par la route
+  ressource `account/activity` (`routes/account/servers/activity.loader.ts`),
+  `fetcher.load`ée par `shared/hooks/use-activity-summary.ts` — le gabarit de
+  `publish/matches`. Pas le loader racine : il tourne à **chaque** navigation, y
+  compris pour un visiteur anonyme, alors que l'effet d'origine ne tournait
+  qu'une fois par chargement complet. Les deux `apiFetch` du composant sont
+  devenus un seul appel serveur qui lit ses deux sources en parallèle.
 
 ### 4.5 Fin d'étape — ✅ faite en E7.G
 

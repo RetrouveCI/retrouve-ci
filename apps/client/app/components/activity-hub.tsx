@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router'
 import {
 	Zap,
@@ -22,104 +22,29 @@ import {
 } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
 import { useAuth } from '@/context/auth'
-import { apiFetch } from '@/shared/utils/api-fetch'
-
-interface ActivitySummary {
-	posts: { total: number; active: number; pending: number }
-	// Stickers/orders on stand-by until we have a reliable printer/logistics partner
-	// stickers: { total: number; activated: number }
-	// orders: { total: number; inProgress: number }
-	unreadNotifications: number
-}
+import { useActivitySummary } from '@/shared/hooks/use-activity-summary'
+import type { ActivitySummary } from '@/shared/types/activity'
 
 export function ActivityHub() {
 	const { isAuthenticated, isLoading: authLoading } = useAuth()
 	const [open, setOpen] = useState(false)
-	const [loading, setLoading] = useState(false)
-	const [summary, setSummary] = useState<ActivitySummary | null>(null)
-	const [hasUnread, setHasUnread] = useState(false)
+	const { summary, isLoading, refresh } = useActivitySummary(isAuthenticated)
 
-	useEffect(() => {
-		if (!isAuthenticated) return
-		apiFetch<number>('/notifications/unread-count')
-			.then(count => setHasUnread(count > 0))
-			.catch(() => {})
-	}, [isAuthenticated])
-
-	const fetchSummary = useCallback(async () => {
-		setLoading(true)
-		try {
-			// Stickers/orders fetching on stand-by until we have a reliable printer/logistics partner
-			// const [postsRes, stickersRes, ordersRes, unreadCount] = await Promise.all([
-			// 	apiFetch<{ items: Array<{ status: string }>; total: number }>(
-			// 		'/qr-codes/mine?pageSize=50',
-			// 	),
-			// 	apiFetch<{ items: Array<{ status: string }>; total: number }>(
-			// 		'/sticker-orders/mine?pageSize=50',
-			// 	),
-			// ])
-			const [postsRes, unreadCount] = await Promise.all([
-				apiFetch<{
-					items: Array<{
-						moderationStatus: string
-						resolutionStatus: string
-					}>
-					total: number
-				}>('/lost-items/mine?pageSize=50'),
-				apiFetch<number>('/notifications/unread-count'),
-			])
-
-			const newSummary: ActivitySummary = {
-				posts: {
-					total: postsRes.total,
-					active: postsRes.items.filter(
-						i =>
-							i.resolutionStatus === 'active' &&
-							i.moderationStatus === 'published',
-					).length,
-					pending: postsRes.items.filter(i => i.moderationStatus === 'pending')
-						.length,
-				},
-				// stickers: {
-				// 	total: stickersRes.total,
-				// 	activated: stickersRes.items.filter(i => i.status === 'activated')
-				// 		.length,
-				// },
-				// orders: {
-				// 	total: ordersRes.total,
-				// 	inProgress: ordersRes.items.filter(
-				// 		i =>
-				// 			i.status === 'pending' ||
-				// 			i.status === 'processing' ||
-				// 			i.status === 'shipped',
-				// 	).length,
-				// },
-				unreadNotifications: unreadCount,
-			}
-			setSummary(newSummary)
-			setHasUnread(unreadCount > 0)
-		} catch {
-			// non-critical — fail silently
-		} finally {
-			setLoading(false)
-		}
-	}, [])
-
-	useEffect(() => {
-		if (open && isAuthenticated) {
-			fetchSummary()
-		}
-	}, [open, isAuthenticated, fetchSummary])
+	const handleOpenChange = (next: boolean) => {
+		setOpen(next)
+		// Opening is when the numbers matter, so they are re-read then.
+		if (next) refresh()
+	}
 
 	if (authLoading || !isAuthenticated) return null
 
 	const hasActivity =
-		hasUnread ||
+		summary !== null &&
 		// stand-by: summary.orders.inProgress > 0 (stickers on stand-by)
-		(summary !== null && summary.posts.pending > 0)
+		(summary.unreadNotifications > 0 || summary.posts.pending > 0)
 
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
+		<Popover open={open} onOpenChange={handleOpenChange}>
 			<PopoverTrigger asChild>
 				<button
 					className={cn(
@@ -160,7 +85,7 @@ export function ActivityHub() {
 					</p>
 				</div>
 
-				{loading ? (
+				{isLoading ? (
 					<div className="flex items-center justify-center py-8">
 						<Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
 					</div>
