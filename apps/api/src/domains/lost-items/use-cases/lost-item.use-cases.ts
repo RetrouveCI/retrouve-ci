@@ -14,10 +14,6 @@ import type {
 	ModerationStatus,
 	UpdateLostItemData,
 } from '../types/lost-item.types'
-import {
-	validateCreateLostItem,
-	validateUpdateLostItem,
-} from '../validators/lost-item.validator'
 
 @Injectable()
 export class LostItemUseCases {
@@ -27,8 +23,6 @@ export class LostItemUseCases {
 	) {}
 
 	async create(data: CreateLostItemData): Promise<LostItem> {
-		validateCreateLostItem(data)
-
 		return this.lostItemRepository.create(data)
 	}
 
@@ -74,8 +68,6 @@ export class LostItemUseCases {
 		userId: string,
 		data: UpdateLostItemData,
 	): Promise<LostItem> {
-		validateUpdateLostItem(data)
-
 		const lostItem = await this.getById(id)
 
 		if (lostItem.userId !== userId) {

@@ -24,27 +24,7 @@ import { cn } from '@app/ui/utils'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { PostPhotos } from './post-photos'
 import type { Post, ModerationStatus } from '../types/posts.types'
-
-const MODERATION_CONFIG: Record<
-	ModerationStatus,
-	{ label: string; className: string }
-> = {
-	pending: { label: 'En attente', className: STATUS_TONE_CLASSES.warning },
-	published: { label: 'Publié', className: STATUS_TONE_CLASSES.success },
-	hidden: { label: 'Masqué', className: STATUS_TONE_CLASSES.neutral },
-}
-
-const CATEGORY_LABELS: Record<string, string> = {
-	phone: 'Téléphone',
-	keys: 'Clés',
-	wallet: 'Portefeuille',
-	bag: 'Sac',
-	electronics: 'Électronique',
-	clothing: 'Vêtement',
-	jewelry: 'Bijou',
-	documents: 'Documents',
-	other: 'Autre',
-}
+import { CATEGORY_LABELS, MODERATION_CONFIG } from '../posts.const'
 
 interface MetaItem {
 	icon: typeof MapPin

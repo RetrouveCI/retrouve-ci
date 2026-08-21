@@ -1,14 +1,4 @@
-import type { LostItemType, LostItemCategory } from '@/shared/types/lost-item'
+import type { CreateLostItemInput } from '@app/contracts/lost-items'
 
-export interface CreateLostItemPayload {
-	type: LostItemType
-	category: LostItemCategory
-	title: string
-	description: string
-	ville: string
-	commune?: string
-	eventDate: string
-	contactName: string
-	contactWhatsapp: string
-	photos?: string[]
-}
+/** The POST body is the contract's own input; the action does the translating. */
+export type CreateLostItemPayload = CreateLostItemInput

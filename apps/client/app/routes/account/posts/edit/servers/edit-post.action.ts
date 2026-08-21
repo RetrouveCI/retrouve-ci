@@ -35,11 +35,9 @@ export async function editPostAction(
 					description: values.description,
 					ville: values.ville,
 					commune: values.commune || undefined,
-					eventDate: values.date
-						? new Date(values.date).toISOString()
-						: undefined,
+					eventDate: values.date,
 					contactName: values.name,
-					contactWhatsapp: `+225${values.whatsapp}`,
+					contactWhatsapp: values.whatsapp,
 					photos,
 				},
 				request,

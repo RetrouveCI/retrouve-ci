@@ -1,3 +1,4 @@
+import type { UpdateLostItemInput } from '@app/contracts/lost-items'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type {
 	LostItemApiDto,
@@ -5,16 +6,8 @@ import type {
 } from '@/shared/types/lost-items.types'
 import type { LostItemStatus } from '@/shared/types/lost-item'
 
-export interface PatchLostItemPayload {
-	title?: string
-	description?: string
-	ville?: string
-	commune?: string
-	eventDate?: string
-	contactName?: string
-	contactWhatsapp?: string
-	photos?: string[]
-}
+/** The PATCH body is the contract's own input, minus the resolution status. */
+export type PatchLostItemPayload = Omit<UpdateLostItemInput, 'resolutionStatus'>
 
 export async function getMyLostItemsPage(
 	request: Request,

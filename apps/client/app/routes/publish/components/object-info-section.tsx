@@ -15,10 +15,9 @@ import { cn } from '@app/ui/utils'
 import { Package } from 'lucide-react'
 import { PhotosUpload } from './photos-upload'
 import { SectionHeader } from './section-header'
+import { MIN_DESCRIPTION_LENGTH } from '@app/contracts/lost-items'
 import { OBJECT_TYPES } from '../publish.const'
 import type { PublishFormInput } from '../publish.schema'
-
-const MIN_DESCRIPTION_LENGTH = 20
 
 interface ObjectInfoSectionProps {
 	control: Control<PublishFormInput>

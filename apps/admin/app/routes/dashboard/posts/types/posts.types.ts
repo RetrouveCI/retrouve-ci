@@ -1,19 +1,17 @@
-export type LostItemType = 'lost' | 'found'
+import type {
+	LostItemCategory,
+	LostItemType,
+	ModerationStatus,
+	ResolutionStatus,
+} from '@app/contracts/lost-items'
+import type { Paginated } from '@app/contracts/shared'
 
-export type LostItemCategory =
-	| 'phone'
-	| 'keys'
-	| 'wallet'
-	| 'bag'
-	| 'electronics'
-	| 'clothing'
-	| 'jewelry'
-	| 'documents'
-	| 'other'
-
-export type ModerationStatus = 'pending' | 'published' | 'hidden'
-
-export type ResolutionStatus = 'active' | 'resolved' | 'expired'
+export type {
+	LostItemCategory,
+	LostItemType,
+	ModerationStatus,
+	ResolutionStatus,
+}
 
 export interface Post {
 	id: string
@@ -36,9 +34,4 @@ export interface Post {
 	updatedAt: string
 }
 
-export interface PostListResponse {
-	items: Post[]
-	total: number
-	page: number
-	pageSize: number
-}
+export type PostListResponse = Paginated<Post>

@@ -1,9 +1,9 @@
+import {
+	lostItemTypeSchema,
+	moderationStatusSchema,
+} from '@app/contracts/lost-items'
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import { listPosts } from './posts.service'
-import type { ModerationStatus, LostItemType } from '../types/posts.types'
-
-const VALID_MODERATION: ModerationStatus[] = ['pending', 'published', 'hidden']
-const VALID_TYPES: LostItemType[] = ['lost', 'found']
 
 export async function postsLoader({ request }: { request: Request }) {
 	await requireAdminSession(request)
@@ -12,15 +12,10 @@ export async function postsLoader({ request }: { request: Request }) {
 	const rawStatus = url.searchParams.get('status')
 	const rawType = url.searchParams.get('type')
 
-	const moderationStatus = VALID_MODERATION.includes(
-		rawStatus as ModerationStatus,
-	)
-		? (rawStatus as ModerationStatus)
-		: undefined
-
-	const type = VALID_TYPES.includes(rawType as LostItemType)
-		? (rawType as LostItemType)
-		: undefined
+	// An unknown value in the query string means "no filter", not an error: the
+	// page is reachable from a hand-edited URL.
+	const moderationStatus = moderationStatusSchema.safeParse(rawStatus).data
+	const type = lostItemTypeSchema.safeParse(rawType).data
 
 	const { items, total } = await listPosts({ moderationStatus, type }, request)
 

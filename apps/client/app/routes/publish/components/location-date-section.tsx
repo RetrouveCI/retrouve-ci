@@ -113,10 +113,7 @@ export function LocationDateSection({
 
 			<div className="space-y-1.5">
 				<InputLabel htmlFor="date" className="text-sm">
-					{dateLabel}{' '}
-					<span className="text-muted-foreground text-xs font-normal">
-						(optionnel)
-					</span>
+					{dateLabel} <span className="text-accent-orange">*</span>
 				</InputLabel>
 				<Input
 					{...date.field}
@@ -124,7 +121,9 @@ export function LocationDateSection({
 					type="date"
 					value={date.field.value ?? ''}
 					className="h-11"
+					aria-invalid={!!date.fieldState.error}
 				/>
+				<FieldError errors={[date.fieldState.error]} className="text-xs" />
 			</div>
 		</div>
 	)

@@ -16,13 +16,13 @@ import { ContactSection } from '@/routes/publish/components/contact-section'
 import { PublishPageHeader } from '@/routes/publish/components/publish-page-header'
 import { PhotosUpload } from '@/routes/publish/components/photos-upload'
 import { usePublishForm } from '@/routes/publish/hooks/use-publish-form'
+import { MIN_DESCRIPTION_LENGTH } from '@app/contracts/lost-items'
+import { toLocalDigits } from '@/shared/utils/phone'
 import { OBJECT_TYPES } from '@/routes/publish/publish.const'
 import { editPostLoader } from './servers/edit-post.loader'
 import { editPostAction } from './servers/edit-post.action'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
-
-const MIN_DESCRIPTION_LENGTH = 20
 
 export const loader = ({ request, params }: Route.LoaderArgs) =>
 	editPostLoader(request, params.id)
@@ -53,7 +53,7 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 		commune: item.commune ?? '',
 		date: item.eventDate.slice(0, 10),
 		name: item.contactName,
-		whatsapp: item.contactWhatsapp.replace(/^\+225/, ''),
+		whatsapp: toLocalDigits(item.contactWhatsapp),
 	})
 
 	return (
