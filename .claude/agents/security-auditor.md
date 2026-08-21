@@ -33,7 +33,7 @@ RetrouveCI is a **decoupled** monorepo: two React Router v7 SSR front-ends talki
 - **Front forms**: `react-hook-form` + `@hookform/resolvers` over the shared Zod schema; the matching `*.action.ts` re-validates with the *same* schema server-side. Client-only validation is a finding
 - **API layer**: NestJS DDD — `presentation/` (controllers, DTOs, queue-consumers), `domains/` (use-cases, repository, mappers, errors), `infrastructure/` (prisma, auth, queue, storage), `shared/` (errors, filters). Authorisation belongs on the controller (guards/decorators), never inside a use-case
 - **ORM**: Prisma with PostgreSQL, driver adapter `@prisma/adapter-pg` — parameterised by default; verify no `$queryRaw` / `$executeRaw` with interpolated user values
-- **Validation**: Zod (front, and API once the shared contracts package lands) + `class-validator` DTOs with `whitelist` + `forbidNonWhitelisted` on the API
+- **Validation**: Zod everywhere — the fronts, and the API through `ZodValidationPipe` over `@app/contracts/<domain>` schemas (no global `ValidationPipe`, no `class-validator`)
 - **Uploads**: Cloudinary via `infrastructure/storage` — check file-type/size limits and that no signed credential leaks to the client
 - **Jobs**: BullMQ over Redis — check that job payloads carry no secrets and that consumers re-validate their input
 

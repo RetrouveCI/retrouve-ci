@@ -38,8 +38,8 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 | 1   | `use-cases/<domaine>.use-cases.ts` : une classe fourre-tout au lieu d'un fichier par use-case | E8           |
 | 2   | Aucun `<domaine>-domain.module.ts` — les providers sont dans le module de présentation        | E8           |
 | 3   | `domains/*/models/` : couche en trop (fusionner dans `types/`)                                | E8           |
-| 4   | `domains/*/validators/` : couche en trop (remplacée par les contrats Zod)                     | E6           |
-| 5   | DTO `class-validator` dans `presentation/*/dto/` → schémas Zod + pipe                         | E6           |
+| 4   | ~~`domains/*/validators/` : couche en trop (remplacée par les contrats Zod)~~ ✅              | E6 ✅        |
+| 5   | ~~DTO `class-validator` dans `presentation/*/dto/` → schémas Zod + pipe~~ ✅                  | E6 ✅        |
 | 6   | `infrastructure/` → `infrastructures/`, `presentation/` → `presentations/`                    | E8           |
 | 7   | `libs/storage/cloudinary.ts` hors norme → `infrastructures/storage/`                          | E8           |
 | 8   | Tests `*.spec.ts` colocalisés → `__tests__/<name>.test.ts`                                    | E9           |
@@ -48,7 +48,7 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 
 ---
 
-## 3. E6 — Contrats Zod par domaine — 🟡 6 domaines sur 7 faits
+## 3. E6 — Contrats Zod par domaine — ✅ fait
 
 **Branches** `migration-e6-contracts-<domaine>` · **scope** `api/<domaine>` ·
 **2 j au total** · dépend de E5.
@@ -110,21 +110,48 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 ### 3.2 Prérequis livré dans la première PR d'E6
 
 - `src/shared/pipes/zod-validation.pipe.ts` (repris de la référence).
-- Conserver `ValidationPipe` global (`whitelist` + `forbidNonWhitelisted`) tant
-  que des DTO subsistent ; ne le retirer qu'à la dernière PR d'E6.
+- ~~Conserver `ValidationPipe` global (`whitelist` + `forbidNonWhitelisted`)
+  tant que des DTO subsistent ; ne le retirer qu'à la dernière PR d'E6.~~ ✅
+  Retiré en E6.7 avec le dernier DTO, en même temps que `class-validator` et
+  `class-transformer`. Chaque `@Body`/`@Query` de `presentation/` porte
+  désormais son propre `ZodValidationPipe` ; un `@Param` n'en a pas besoin.
+- `src/shared/swagger/api-zod.decorator.ts` (E6.7) : `@ApiZodBody` et
+  `@ApiZodQuery` dérivent le schéma OpenAPI du contrat par `z.toJSONSchema`,
+  puisque les `@ApiProperty` sont partis avec les DTO. Aucune dépendance
+  nouvelle — Zod 4 l'embarque.
 
 ### 3.3 Ordre (du moins couplé au plus couplé)
 
 ```
-contact-messages ✅ → events ✅ → notifications ✅ → sticker-orders ✅ → qr-codes ✅ → lost-items ✅ → auth
+contact-messages ✅ → events ✅ → notifications ✅ → sticker-orders ✅ → qr-codes ✅ → lost-items ✅ → auth ✅
 ```
 
 `matching` et `reporting` n'ont pas d'entrée HTTP utilisateur : rien à
 contractualiser.
 
 `lost-items` a fermé le dernier `domains/*/validators/` du dépôt : plus aucun
-domaine n'en porte. Il ne reste qu'`auth`, et le `ValidationPipe` global sort
-avec elle.
+domaine n'en porte. `auth` a fermé E6 : plus aucun `*.dto.ts`, plus aucun
+importateur de `class-validator`, et le `ValidationPipe` global est parti avec.
+
+**Ce qu'`auth` a exposé** — une même colonne `user.password` était gouvernée par
+**cinq** règles différentes (api `min 6`, deux fronts `min 6` avec et sans
+plafond, admin `min 8` + complexité, et la création d'administrateur `min 6`
+sans complexité). `shared/password.ts` en fait une : `8..128` plus une
+majuscule, une minuscule et un chiffre. `packages/auth` pose la longueur côté
+serveur — better-auth la vérifiait déjà par défaut à 8, c'est le dépôt qui
+l'abaissait à 6 — et un hook `before` sur `/admin/create-user` couvre le seul
+chemin d'écriture que better-auth ne borne pas lui-même. Les deux longueurs
+d'OTP concurrentes (`length(6)` et `/^\d{4,8}$/`) deviennent `OTP_LENGTH`, la
+seule que le plugin `phoneNumber()` émette. `phoneNumberValidator` est enfin
+fourni au plugin : un mauvais numéro échoue immédiatement au lieu de brûler les
+trois tentatives BullMQ d'`OtpConsumer`.
+
+**Dette ouverte, non introduite par E6.7** : un champ **absent** est refusé en
+anglais (`Invalid input: expected string, received undefined`) sur les six
+domaines déjà mergés, alors que CLAUDE.md exige le français. `auth` nomme ses
+propres messages et n'est pas concerné. `z.config(z.locales.fr())` corrigerait
+tout en une ligne, mais l'instance zod est partagée avec better-auth, dont les
+messages basculeraient aussi : décision à prendre séparément.
 
 ---
 
@@ -274,7 +301,7 @@ E6.3 notifications ✅    │
 E6.4 sticker-orders ✅   │
 E6.5 qr-codes ✅         │
 E6.6 lost-items ✅       │
-E6.7 auth                ─┘
+E6.7 auth ✅             ─┘
         ↓
 E8.1 renommages (api/core)
 E8.2 socle shared/ (api/core)

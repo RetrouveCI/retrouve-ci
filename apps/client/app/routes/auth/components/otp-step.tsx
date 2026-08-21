@@ -1,4 +1,5 @@
 import { Button, InputOTP, InputOTPGroup } from '@app/ui/components'
+import { OTP_LENGTH } from '@app/contracts/shared'
 import { Loader2, CheckCircle2, RefreshCw } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { OtpSlots } from './otp-slots'
@@ -30,7 +31,7 @@ export function OtpStep({
 				<div className="flex justify-center">
 					<InputOTP
 						name="otp"
-						maxLength={6}
+						maxLength={OTP_LENGTH}
 						value={otp}
 						onChange={val => {
 							setOtp(val)

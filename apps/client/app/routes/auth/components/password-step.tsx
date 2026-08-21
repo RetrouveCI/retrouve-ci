@@ -1,5 +1,10 @@
 import { Button } from '@app/ui/components'
 import { FieldError } from '@app/ui/components/form'
+import {
+	PASSWORD_HINT,
+	PASSWORD_MIN_LENGTH,
+	PASSWORD_PLACEHOLDER,
+} from '@app/contracts/shared'
 import { Loader2 } from 'lucide-react'
 import { PasswordInput } from './password-input'
 
@@ -36,8 +41,8 @@ export function PasswordStep({
 				label={isCreate ? 'Choisir un mot de passe' : 'Nouveau mot de passe'}
 				value={newPassword}
 				onChange={setNewPassword}
-				placeholder="Minimum 6 caracteres"
-				hint="Au moins 6 caracteres."
+				placeholder={PASSWORD_PLACEHOLDER}
+				hint={PASSWORD_HINT}
 				disabled={isSubmitting}
 				autoFocus
 			/>
@@ -59,7 +64,7 @@ export function PasswordStep({
 			<Button
 				type="submit"
 				className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
-				disabled={isSubmitting || newPassword.length < 6}
+				disabled={isSubmitting || newPassword.length < PASSWORD_MIN_LENGTH}
 			>
 				{isSubmitting ? (
 					<>

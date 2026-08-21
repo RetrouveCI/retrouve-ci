@@ -120,9 +120,18 @@ It holds no NestJS glue — wiring it into a composition root is the app's job
 The split follows the data model: because one database backs every instance, the
 package owns the Prisma adapter, the extra user fields (`city`, `commune`),
 email/password sign-in, user deletion and the `admin()` plugin that defines the
-roles. An instance decides only its own identity — `appName` (which better-auth
-turns into the session cookie prefix), `basePath`, and the plugins its audience
-needs. `apps/api` adds `phoneNumber()` for the public app.
+roles. It also owns the **password rule as the server enforces it**, reading
+`@app/contracts/shared`: `minPasswordLength` / `maxPasswordLength` come from
+`PASSWORD_MIN_LENGTH` / `PASSWORD_MAX_LENGTH` (better-auth's own default is
+already 8 — this repo used to lower it to 6), and a `hooks.before` middleware
+applies `passwordSchema` to `/admin/create-user`, the **one** password write
+better-auth does not bound itself. Every other path — sign-up, both
+reset-password flows, change-password, set-password, admin set-user-password —
+checks the length on its own. Neither sign-in route bounds the password it
+receives, so raising the floor locks no existing account out. An instance
+decides only its own identity — `appName` (which better-auth turns into the
+session cookie prefix), `basePath`, and the plugins its audience needs.
+`apps/api` adds `phoneNumber()` for the public app.
 
 That parameterisation is what makes two instances possible later: two `appName`s
 mean two independent cookies. See
@@ -160,11 +169,28 @@ Two rules hold for every schema added here:
   `z.union([z.number(), z.string().transform(Number)])` instead, and give the
   union its own `error`, or it reports `Invalid input` in English.
 
-The business schemas arrive in E6, one domain per PR: `shared/pagination.ts`,
-`shared/phone.ts`, `shared/calendar-date.ts`, `contact-messages/`, `events/`,
-`notifications/`, `sticker-orders/`, `qr-codes/` and `lost-items/` are in.
+E6 landed the business schemas, one domain per PR, and is **closed**:
+`shared/pagination.ts`, `shared/phone.ts`, `shared/calendar-date.ts`,
+`shared/password.ts`, `shared/otp.ts`, `contact-messages/`, `events/`,
+`notifications/`, `sticker-orders/`, `qr-codes/`, `lost-items/` and `auth/`.
 `MAX_PAGE_SIZE` lives here now, and a migrated domain no longer keeps a copy of
 it.
+
+`shared/password.ts` owns the **password rule** — `8..128` plus an uppercase, a
+lowercase and a digit — and was the worst drift E6 found: one `user.password`
+column governed by **five** rules at once (the API's `min 6`, the two fronts'
+`min 6` with and without a ceiling, the backoffice's `min 8` + complexity, and
+administrator creation at `min 6` with no complexity). Because an admin is also
+an ordinary user, the public app could reset a backoffice account to six
+characters. It also owns `withPasswordConfirmation`, which replaces the
+`newPassword === confirmPassword` refinement copied into five schemas, and
+`currentPasswordSchema` — a **login** field checks presence only, since an
+account may predate the rule. `PASSWORD_HINT` and `PASSWORD_PLACEHOLDER` live
+here too, so no form can advertise a rule the schema does not enforce.
+
+`shared/otp.ts` owns `OTP_LENGTH`. better-auth's `phoneNumber()` plugin defaults
+to `otpLength: 6` and the API never overrides it, so the phone-change form's
+`/^\d{4,8}$/` accepted a four-digit code the API could only ever reject.
 
 `shared/phone.ts` owns the **Côte d'Ivoire phone rule** — `225` plus exactly ten
 digits, spacing and the `+225` form accepted — and is the single home for what
@@ -254,20 +280,24 @@ shared/           # Cross-cutting: errors, exception filters
 - **Phone OTPs go out over SMS through Letexto, on their own BullMQ queue.**
   better-auth's `phoneNumber()` plugin still owns the code itself — it generates
   it, stores it and verifies it, so there is no parallel OTP store; the app only
-  sets `expiresIn` (`OTP_TTL_SECONDS`, **120 s**) and delivers. `sendOTP` /
-  `sendPasswordResetOTP` enqueue on the `otp` queue via `OtpDispatcher`
-  (`infrastructure/auth/`); `OtpConsumer` (`presentation/auth/queue-consumers/`)
-  builds the message and calls `LetextoService` (`infrastructure/sms/`). Jobs
-  retry three times with an exponential backoff and are removed on both success
-  **and** failure, since each carries a live code; the failure log names the
-  recipient, never the code. The recipient is normalised to `225` + **exactly 10
-  digits**, which is what the gateway addresses: E.164 (what better-auth
-  stores), a bare local number and either of them spaced are all accepted, and
-  anything else raises `InvalidRecipientError`, which the consumer turns into
-  BullMQ's `UnrecoverableError` — a number that will never be valid must not
-  burn the retries a transient failure needs. The same rule is enforced on every
-  phone field of both front-ends and by `qr-codes/contact-owner.schema.ts`, all
-  of them reading `@app/contracts/shared`'s `isValidLocalNumber` — the admin's
+  sets `expiresIn` (`OTP_TTL_SECONDS`, **120 s**), the code's length (six, the
+  plugin's own default, named `OTP_LENGTH` in `@app/contracts/shared`) and
+  `phoneNumberValidator`, which is `isValidLocalNumber` — without it a malformed
+  number only failed at delivery, after `OtpConsumer` had burnt its three BullMQ
+  attempts. `sendOTP` / `sendPasswordResetOTP` enqueue on the `otp` queue via
+  `OtpDispatcher` (`infrastructure/auth/`); `OtpConsumer`
+  (`presentation/auth/queue-consumers/`) builds the message and calls
+  `LetextoService` (`infrastructure/sms/`). Jobs retry three times with an
+  exponential backoff and are removed on both success **and** failure, since
+  each carries a live code; the failure log names the recipient, never the code.
+  The recipient is normalised to `225` + **exactly 10 digits**, which is what
+  the gateway addresses: E.164 (what better-auth stores), a bare local number
+  and either of them spaced are all accepted, and anything else raises
+  `InvalidRecipientError`, which the consumer turns into BullMQ's
+  `UnrecoverableError` — a number that will never be valid must not burn the
+  retries a transient failure needs. The same rule is enforced on every phone
+  field of both front-ends and by `qr-codes/contact-owner.schema.ts`, all of
+  them reading `@app/contracts/shared`'s `isValidLocalNumber` — the admin's
   optional administrator phone included, since it shares the `user.phoneNumber`
   column the public app sends codes to. Templates live in
   `shared/auth/otp-message.ts` and are deliberately **unaccented** — one accent
@@ -282,26 +312,30 @@ shared/           # Cross-cutting: errors, exception filters
   by Redis.
 - A startup **seeder** creates the super admin and a mock user from env vars
   when absent.
-- **Validation is migrating from `class-validator` DTOs to Zod contracts** (E6,
-  one domain per PR). A migrated endpoint applies
+- **Validation is Zod contracts, everywhere** (E6, closed). An endpoint applies
   `shared/pipes/zod-validation.pipe.ts` to a schema from
   `@app/contracts/<domain>`, which validates **and transforms** — a `.trim()` in
   the contract reaches the use-case, which a DTO never did — and answers
   `400 { message: 'Validation failed', errors: { <field>: [...] } }`. Every
   message must be French: a bare `z.enum` or `z.union` reports its default in
-  English, so both need an explicit `error`. The global `ValidationPipe`
-  (`whitelist` + `forbidNonWhitelisted`) stays registered until the last domain
-  moves, since DTOs remain elsewhere; the two do not conflict. Note the one
-  behaviour change it brings: a body field the schema does not know is now
-  stripped, where `forbidNonWhitelisted` used to answer 400. A domain's
-  `validators/` folder is absorbed at the same time — a rule expressible as a
-  refinement (`.trim().min(10)`) belongs in the contract; only what Zod cannot
-  express (cross-aggregate invariants, uniqueness) stays in the use-case. **No
-  `domains/*/validators/` folder is left**: `lost-items` held the last one.
-  Done: `contact-messages`, `events`, `notifications`, `sticker-orders`,
-  `qr-codes`, `lost-items`. Only `auth` remains, and the global `ValidationPipe`
-  leaves with it. Domain errors are translated to HTTP responses by
-  `DomainExceptionFilter`.
+  English, so both need an explicit `error`, and so does a bare `z.string()`
+  whose field may be **absent** — the type error fires before `.min()`, which is
+  why `passwordSchema` names its own. Note the behaviour change the pipe brings:
+  a body field the schema does not know is **stripped**, where the old
+  `forbidNonWhitelisted` answered 400. There are **no `*.dto.ts` files and no
+  `class-validator` importers left**, no `domains/*/validators/` folder, and the
+  global `ValidationPipe` is gone — every `@Body`/`@Query` in `presentation/`
+  carries its own pipe (a `@Param` is a plain string and needs none). Because
+  `@ApiProperty` left with the DTOs, `shared/swagger/api-zod.decorator.ts`
+  derives the OpenAPI schema from the contract itself through Zod 4's
+  `z.toJSONSchema` (`@ApiZodBody`, `@ApiZodQuery`) — no new dependency, and
+  `/docs` cannot drift from what the pipe enforces. Domain errors are translated
+  to HTTP responses by `DomainExceptionFilter`. **Known debt**: a body field
+  that is simply _missing_ still answers in English on the six domains migrated
+  before `auth`, since their schemas do not name a message for the type error.
+  `z.config(z.locales.fr())` would fix all of them at once, but the zod instance
+  is shared with better-auth, whose own messages would turn French too — an open
+  decision, not an oversight.
 - `apps/api` reads `@app/contracts` through its **`dist`**, so a contract change
   needs `pnpm --filter @app/contracts build` before `nest start` picks it up.
   `pnpm build` and `pnpm test` handle it via Turborepo's `^build`.

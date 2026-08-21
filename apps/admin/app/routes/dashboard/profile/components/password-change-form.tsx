@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { PASSWORD_HINT } from '@app/contracts/shared'
 import { Loader2, Lock } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button, FieldGroup } from '@app/ui/components'
@@ -70,7 +71,7 @@ export function PasswordChangeForm() {
 							control={form.control}
 							name="newPassword"
 							label="Nouveau mot de passe"
-							hint="Min. 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre"
+							hint={PASSWORD_HINT}
 							disabled={isSubmitting}
 						/>
 

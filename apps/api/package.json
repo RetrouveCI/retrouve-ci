@@ -29,8 +29,6 @@
 		"@thallesp/nestjs-better-auth": "catalog:",
 		"better-auth": "catalog:",
 		"bullmq": "catalog:",
-		"class-transformer": "catalog:",
-		"class-validator": "catalog:",
 		"cloudinary": "catalog:",
 		"dotenv": "catalog:",
 		"fastify": "catalog:",

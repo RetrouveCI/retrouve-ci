@@ -22,6 +22,7 @@ import {
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth'
 import { EventUseCases } from '@/domains/events/use-cases/event.use-cases'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('events')
 @ApiBearerAuth()
@@ -31,6 +32,7 @@ export class EventsController {
 
 	@Post()
 	@Roles(['admin'])
+	@ApiZodBody(createEventSchema)
 	create(
 		@Body(new ZodValidationPipe(createEventSchema)) data: CreateEventData,
 	) {
@@ -42,6 +44,7 @@ export class EventsController {
 
 	@Get()
 	@AllowAnonymous()
+	@ApiZodQuery(listEventsFilterSchema)
 	list(
 		@Query(new ZodValidationPipe(listEventsFilterSchema))
 		filter: ListEventsFilterData,
@@ -51,6 +54,7 @@ export class EventsController {
 
 	@Get('admin')
 	@Roles(['admin'])
+	@ApiZodQuery(adminListEventsFilterSchema)
 	listForAdmin(
 		@Query(new ZodValidationPipe(adminListEventsFilterSchema))
 		filter: AdminListEventsFilterData,
@@ -66,6 +70,7 @@ export class EventsController {
 
 	@Patch(':id')
 	@Roles(['admin'])
+	@ApiZodBody(updateEventSchema)
 	update(
 		@Param('id') id: string,
 		@Body(new ZodValidationPipe(updateEventSchema)) data: UpdateEventData,

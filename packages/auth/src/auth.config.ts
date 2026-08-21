@@ -4,7 +4,13 @@ import {
 	betterAuth,
 } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
+import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { admin } from 'better-auth/plugins'
+import {
+	PASSWORD_MAX_LENGTH,
+	PASSWORD_MIN_LENGTH,
+	passwordSchema,
+} from '@app/contracts/shared'
 
 type PrismaClient = Parameters<typeof prismaAdapter>[0]
 
@@ -42,6 +48,27 @@ export function logSecretDelivery(
 	console.log(`[auth] ${kind} for ${recipient}: ${secret}`)
 }
 
+/**
+ * `admin/create-user` is the one password write better-auth leaves unbounded —
+ * every other path checks `minPasswordLength` itself. Without this the rule the
+ * backoffice form states would be advisory, and an admin could be created with
+ * a password they could never reset to.
+ */
+const enforcePasswordRule = createAuthMiddleware(ctx => {
+	if (ctx.path !== '/admin/create-user') return Promise.resolve()
+
+	const { password } = (ctx.body ?? {}) as { password?: unknown }
+	const result = passwordSchema.safeParse(password)
+
+	if (!result.success) {
+		throw new APIError('BAD_REQUEST', {
+			message: result.error.issues[0]?.message ?? 'Mot de passe invalide',
+		})
+	}
+
+	return Promise.resolve()
+})
+
 export interface CreateAuthOptions {
 	appName?: string
 	basePath?: string
@@ -77,12 +104,14 @@ export function createAuth(
 			: getTrustedOrigins(),
 		emailAndPassword: {
 			enabled: true,
-			minPasswordLength: 6,
+			minPasswordLength: PASSWORD_MIN_LENGTH,
+			maxPasswordLength: PASSWORD_MAX_LENGTH,
 			sendResetPassword: ({ user, url }) => {
 				logSecretDelivery('Password reset', user.email, url)
 				return Promise.resolve()
 			},
 		},
+		hooks: { before: enforcePasswordRule },
 		user: {
 			additionalFields: {
 				city: { type: 'string', required: false, input: true },

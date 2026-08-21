@@ -42,7 +42,7 @@ const submit = () => page.getByRole('button', { name: 'Créer le compte' })
 async function fillValidAdmin() {
 	await userEvent.fill(name(), 'Awa Koné')
 	await userEvent.fill(email(), 'awa@retrouveci.com')
-	await userEvent.fill(password(), 'motdepasse')
+	await userEvent.fill(password(), 'Motdepasse1')
 }
 
 const ok = () => ({ success: true }) as ActionResult
@@ -90,7 +90,7 @@ describe('AdminCreateDialog', () => {
 			.element(page.getByText("L'email est requis"))
 			.toBeInTheDocument()
 		await expect
-			.element(page.getByText('Minimum 6 caractères'))
+			.element(page.getByText('Au moins 8 caractères'))
 			.toBeInTheDocument()
 		expect(action).not.toHaveBeenCalled()
 	})

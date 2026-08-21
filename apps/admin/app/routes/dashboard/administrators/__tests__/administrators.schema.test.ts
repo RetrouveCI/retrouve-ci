@@ -7,7 +7,7 @@ const VALID = {
 	name: 'Awa Koné',
 	email: 'awa@retrouveci.com',
 	phone: '+225 07 00 00 00 00',
-	password: 'motdepasse',
+	password: 'Motdepasse1',
 	role: 'moderator',
 }
 
@@ -20,7 +20,7 @@ describe('adminCreateSchema', () => {
 			name: 'Awa Koné',
 			email: 'awa@retrouveci.com',
 			phone: '+225 07 00 00 00 00',
-			password: 'motdepasse',
+			password: 'Motdepasse1',
 			role: 'moderator',
 		})
 	})
@@ -80,10 +80,21 @@ describe('adminCreateSchema', () => {
 		).toBe('Email invalide')
 	})
 
-	it('reports a password shorter than six characters', () => {
+	// This form used to allow six characters and no complexity, so an admin
+	// created here could not reset their own password afterwards.
+	it.each(['court', 'motdepasse', 'MOTDEPASSE1', 'Motdepasse'])(
+		'refuses %s, which the shared rule governs',
+		password => {
+			expect(adminCreateSchema.safeParse({ ...VALID, password }).success).toBe(
+				false,
+			)
+		},
+	)
+
+	it('reports the shared rule in French', () => {
 		const result = adminCreateSchema.safeParse({ ...VALID, password: 'court' })
 
-		expect(result.error?.issues[0]?.message).toBe('Minimum 6 caractères')
+		expect(result.error?.issues[0]?.message).toBe('Au moins 8 caractères')
 	})
 
 	it('refuses a role this interface cannot hand out', () => {

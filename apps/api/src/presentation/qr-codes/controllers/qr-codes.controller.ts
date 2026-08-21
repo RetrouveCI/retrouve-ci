@@ -26,6 +26,7 @@ import { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases
 import { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'
 import { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('qr-codes')
 @ApiBearerAuth()
@@ -39,6 +40,7 @@ export class QrCodesController {
 
 	@Post('generate')
 	@Roles(['admin'])
+	@ApiZodBody(generateQrTokensSchema)
 	generate(
 		@Body(new ZodValidationPipe(generateQrTokensSchema))
 		data: GenerateQrTokensData,
@@ -48,6 +50,7 @@ export class QrCodesController {
 
 	@Get()
 	@Roles(['admin'])
+	@ApiZodQuery(listQrTokensFilterSchema)
 	list(
 		@Query(new ZodValidationPipe(listQrTokensFilterSchema))
 		filter: ListQrTokensFilterData,
@@ -56,6 +59,7 @@ export class QrCodesController {
 	}
 
 	@Get('mine')
+	@ApiZodQuery(listQrTokensFilterSchema)
 	listMine(
 		@Session() session: UserSession<Auth>,
 		@Query(new ZodValidationPipe(listQrTokensFilterSchema))
@@ -77,6 +81,7 @@ export class QrCodesController {
 	}
 
 	@Post(':code/activate')
+	@ApiZodBody(qrTokenDetailsSchema)
 	activate(
 		@Session() session: UserSession<Auth>,
 		@Param('code') code: string,
@@ -87,6 +92,7 @@ export class QrCodesController {
 
 	@Post(':code/contact')
 	@AllowAnonymous()
+	@ApiZodBody(contactOwnerSchema)
 	async contactOwner(
 		@Param('code') code: string,
 		@Body(new ZodValidationPipe(contactOwnerSchema)) data: ContactOwnerData,
@@ -119,6 +125,7 @@ export class QrCodesController {
 	}
 
 	@Patch(':code')
+	@ApiZodBody(qrTokenDetailsSchema)
 	update(
 		@Session() session: UserSession<Auth>,
 		@Param('code') code: string,
