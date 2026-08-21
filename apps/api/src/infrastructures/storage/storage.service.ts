@@ -7,7 +7,7 @@ import {
 import {
 	configureCloudinary,
 	uploadImageBuffer,
-} from '@/libs/storage/cloudinary'
+} from '@/infrastructures/storage/cloudinary.client'
 import { loadStorageConfig, type StorageConfig } from './storage.config'
 
 export const MAX_PHOTO_SIZE = 5 * 1024 * 1024 // 5 Mo

@@ -1,4 +1,4 @@
-import type { CloudinaryCredentials } from '@/libs/storage/cloudinary'
+import type { CloudinaryCredentials } from '@/infrastructures/storage/cloudinary.client'
 
 export interface StorageConfig extends CloudinaryCredentials {
 	folder: string

@@ -7,14 +7,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	configureCloudinary,
 	uploadImageBuffer,
-} from '@/libs/storage/cloudinary'
+} from '@/infrastructures/storage/cloudinary.client'
 import {
 	MAX_PHOTO_SIZE,
 	StorageService,
 	type UploadFileInput,
 } from '../storage.service'
 
-vi.mock('@/libs/storage/cloudinary', () => ({
+vi.mock('@/infrastructures/storage/cloudinary.client', () => ({
 	configureCloudinary: vi.fn(),
 	uploadImageBuffer: vi.fn(),
 }))
