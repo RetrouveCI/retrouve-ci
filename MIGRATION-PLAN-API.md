@@ -48,7 +48,7 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 
 ---
 
-## 3. E6 — Contrats Zod par domaine
+## 3. E6 — Contrats Zod par domaine — 🟡 `contact-messages` fait
 
 **Branches** `migration-e6-contracts-<domaine>` · **scope** `api/<domaine>` ·
 **2 j au total** · dépend de E5.
@@ -105,7 +105,7 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 ### 3.3 Ordre (du moins couplé au plus couplé)
 
 ```
-contact-messages → events → notifications → sticker-orders → qr-codes → lost-items → auth
+contact-messages ✅ → events → notifications → sticker-orders → qr-codes → lost-items → auth
 ```
 
 `matching` et `reporting` n'ont pas d'entrée HTTP utilisateur : rien à

@@ -1,4 +1,7 @@
-export type ContactMessageStatus = 'new' | 'read' | 'archived'
+import type { ContactMessageStatus } from '@app/contracts/contact-messages'
+import type { Paginated } from '@app/contracts/shared'
+
+export type { ContactMessageStatus }
 
 export interface ContactMessage {
 	id: string
@@ -14,9 +17,4 @@ export interface ContactMessage {
 	readAt: string | null
 }
 
-export interface ContactMessageListResponse {
-	items: ContactMessage[]
-	total: number
-	page: number
-	pageSize: number
-}
+export type ContactMessageListResponse = Paginated<ContactMessage>
