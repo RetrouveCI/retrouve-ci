@@ -111,7 +111,7 @@ Le nom du package racine reste `retrouve-ci` (la racine n'est pas scopée).
 `db:push` est implémenté par `@app/database` (`prisma db push`). La tâche
 `db:seed` est **déclarée mais sans implémentation** : aucun workspace n'expose
 encore ce script (le seed tourne au démarrage de l'API, dans
-`infrastructure/seeder`). Elle est là pour la cible.
+`infrastructures/seeder`). Elle est là pour la cible.
 
 **Vérifié** : `typecheck` (6/6, `^db:generate` inclus) + `lint` + `test` +
 `format:check`.
@@ -304,18 +304,19 @@ Actuel                                  Cible (backend-conventions)
 src/                                    src/
 ├── domains/<d>/                        ├── domains/<d>/
 │   ├── models/          🔴 en trop     │   ├── repository/
-│   ├── validators/      🔴 en trop     │   ├── use-cases/     ← 1 fichier / use-case
-│   ├── types/                          │   ├── mappers/
-│   ├── mappers/                        │   ├── types/
-│   ├── errors/                         │   ├── errors/
+│   ├── types/                          │   ├── use-cases/     ← 1 fichier / use-case
+│   ├── mappers/                        │   ├── mappers/
+│   ├── errors/                         │   ├── types/
+│   ├── helpers/                        │   ├── errors/
 │   ├── repository/                     │   ├── helpers/
 │   └── use-cases/       🔴 1 gros      │   └── <d>-domain.module.ts   🔴 absent
 │       └── <d>.use-cases.ts            │
-├── infrastructure/      🔴 singulier   ├── infrastructures/
-├── presentation/        🔴 singulier   ├── presentations/<feature>/
-│   └── <f>/dto/         🔴 class-val.  │       ├── controllers/ services/ workers/ queue-consumers/
-├── libs/                🔴 hors norme  ├── shared/
-└── shared/                             └── (libs/ supprimé → infrastructures/)
+│   (validators/ supprimé ✅ E6)        │
+├── infrastructures/     ✅ E8.1        ├── infrastructures/
+├── presentations/       ✅ E8.1        ├── presentations/<feature>/
+│                                       │       ├── controllers/ services/ workers/ queue-consumers/
+└── shared/                             └── shared/
+    (libs/ supprimé ✅ E8.1)
 ```
 
 8 domaines, 84 fichiers TS. Détail complet et ordre de migration :

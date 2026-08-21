@@ -67,8 +67,8 @@ export function createAuth(prisma: PrismaClient) {
 }
 ```
 
-See `apps/api/src/infrastructure/auth/auth.config.ts`, and
-`apps/api/src/infrastructure/auth/auth.module.ts` for the NestJS wiring.
+See `apps/api/src/infrastructures/auth/auth.config.ts`, and
+`apps/api/src/infrastructures/auth/auth.module.ts` for the NestJS wiring.
 
 ## Not for the front-ends
 
