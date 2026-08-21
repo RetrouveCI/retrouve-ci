@@ -6,7 +6,7 @@ import {
 } from '@app/contracts/notifications'
 import { Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
-import type { Auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructures/auth/auth.config'
 import { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodQuery } from '@/shared/swagger/api-zod.decorator'

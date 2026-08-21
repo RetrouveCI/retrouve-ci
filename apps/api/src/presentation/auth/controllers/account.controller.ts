@@ -7,7 +7,7 @@ import {
 	setInitialPasswordSchema,
 	type SetInitialPasswordData,
 } from '@app/contracts/auth'
-import type { Auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructures/auth/auth.config'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody } from '@/shared/swagger/api-zod.decorator'
 

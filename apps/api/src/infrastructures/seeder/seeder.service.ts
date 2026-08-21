@@ -1,8 +1,8 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { AuthService } from '@thallesp/nestjs-better-auth'
-import type { Auth } from '@/infrastructure/auth/auth.config'
-import { PrismaService } from '@/infrastructure/database/prisma.service'
+import type { Auth } from '@/infrastructures/auth/auth.config'
+import { PrismaService } from '@/infrastructures/database/prisma.service'
 
 @Injectable()
 export class SeederService implements OnApplicationBootstrap {

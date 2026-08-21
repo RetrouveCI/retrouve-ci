@@ -1,11 +1,11 @@
 import { type Job, UnrecoverableError } from 'bullmq'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { SendOtpJobData } from '@/infrastructure/auth/otp-dispatcher.service'
-import type { LetextoService } from '@/infrastructure/sms/letexto.service'
+import type { SendOtpJobData } from '@/infrastructures/auth/otp-dispatcher.service'
+import type { LetextoService } from '@/infrastructures/sms/letexto.service'
 import {
 	InvalidRecipientError,
 	SmsDeliveryError,
-} from '@/infrastructure/sms/sms.errors'
+} from '@/infrastructures/sms/sms.errors'
 import { OtpConsumer } from './otp.consumer'
 
 function buildJob(overrides: Partial<SendOtpJobData> = {}, attemptsMade = 0) {

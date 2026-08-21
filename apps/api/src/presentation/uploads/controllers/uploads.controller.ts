@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger'
 import type { FastifyRequest } from 'fastify'
-import { StorageService } from '@/infrastructure/storage/storage.service'
+import { StorageService } from '@/infrastructures/storage/storage.service'
 
 @ApiTags('uploads')
 @ApiBearerAuth()

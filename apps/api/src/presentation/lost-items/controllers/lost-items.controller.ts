@@ -25,7 +25,7 @@ import {
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Queue } from 'bullmq'
-import type { Auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructures/auth/auth.config'
 import { FIND_MATCHES_JOB, MATCHING_QUEUE } from '@/domains/matching/constants'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'

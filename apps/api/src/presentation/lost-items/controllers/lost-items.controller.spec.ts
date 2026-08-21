@@ -1,6 +1,6 @@
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructures/auth/auth.config'
 import { FIND_MATCHES_JOB } from '@/domains/matching/constants'
 import type { LostItem } from '@/domains/lost-items/models/lost-item.model'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'

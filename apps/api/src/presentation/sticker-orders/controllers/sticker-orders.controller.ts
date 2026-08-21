@@ -18,7 +18,7 @@ import {
 } from '@app/contracts/sticker-orders'
 import { Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
-import type { Auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructures/auth/auth.config'
 import { StickerOrderUseCases } from '@/domains/sticker-orders/use-cases/sticker-order.use-cases'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'

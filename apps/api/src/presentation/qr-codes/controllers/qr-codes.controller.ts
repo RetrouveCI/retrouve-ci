@@ -21,7 +21,7 @@ import {
 } from '@app/contracts/qr-codes'
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
-import type { Auth } from '@/infrastructure/auth/auth.config'
+import type { Auth } from '@/infrastructures/auth/auth.config'
 import { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases'
 import { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'
 import { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
