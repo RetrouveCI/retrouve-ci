@@ -35,7 +35,8 @@
 		"dotenv": "catalog:",
 		"fastify": "catalog:",
 		"reflect-metadata": "catalog:",
-		"rxjs": "catalog:"
+		"rxjs": "catalog:",
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@nestjs/cli": "catalog:",

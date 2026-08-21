@@ -232,9 +232,21 @@ shared/           # Cross-cutting: errors, exception filters
   by Redis.
 - A startup **seeder** creates the super admin and a mock user from env vars
   when absent.
-- Validation uses NestJS `ValidationPipe` (`whitelist` + `forbidNonWhitelisted`)
-  with `class-validator` DTOs; domain errors are translated to HTTP responses by
+- **Validation is migrating from `class-validator` DTOs to Zod contracts** (E6,
+  one domain per PR). A migrated endpoint applies
+  `shared/pipes/zod-validation.pipe.ts` to a schema from
+  `@app/contracts/<domain>`, which validates **and transforms** — a `.trim()` in
+  the contract reaches the use-case, which a DTO never did — and answers
+  `400 { message: 'Validation failed', errors: { <field>: [...] } }`. Every
+  message must be French: a bare `z.enum` or `z.union` reports its default in
+  English, so both need an explicit `error`. The global `ValidationPipe`
+  (`whitelist` + `forbidNonWhitelisted`) stays registered until the last domain
+  moves, since DTOs remain elsewhere; the two do not conflict. Done:
+  `contact-messages`. Domain errors are translated to HTTP responses by
   `DomainExceptionFilter`.
+- `apps/api` reads `@app/contracts` through its **`dist`**, so a contract change
+  needs `pnpm --filter @app/contracts build` before `nest start` picks it up.
+  `pnpm build` and `pnpm test` handle it via Turborepo's `^build`.
 - Tests are **Vitest** (`*.spec.ts` colocated with use-cases, validators,
   mappers and controllers).
 

@@ -1,7 +1,7 @@
 import { zodErrorToFieldErrors } from '@/shared/helpers/form'
 import type { ActionResult } from '@/shared/types/action'
 import { withApiOperationError } from '@/shared/utils/api-operation'
-import { contactSchema } from '../contact.schema'
+import { createContactMessageSchema } from '@app/contracts/contact-messages'
 import { submitContactMessage } from './contact.service'
 
 export async function contactAction({
@@ -9,7 +9,7 @@ export async function contactAction({
 }: {
 	request: Request
 }): Promise<ActionResult> {
-	const submission = contactSchema.safeParse(
+	const submission = createContactMessageSchema.safeParse(
 		Object.fromEntries(await request.formData()),
 	)
 	if (!submission.success) {

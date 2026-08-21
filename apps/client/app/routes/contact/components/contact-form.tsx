@@ -8,16 +8,16 @@ import { FormRootError } from '@app/ui/components/form'
 import { cn } from '@app/ui/utils'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import {
-	contactSchema,
-	type ContactData,
-	type ContactInput,
-} from '../contact.schema'
+	createContactMessageSchema,
+	type CreateContactMessageData,
+	type CreateContactMessageInput,
+} from '@app/contracts/contact-messages'
 import type { action } from '../_index'
 
 const CONTROL_CLASSNAME =
 	'bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2'
 
-const INITIAL_VALUES: ContactInput = {
+const INITIAL_VALUES: CreateContactMessageInput = {
 	name: '',
 	email: '',
 	subject: '',
@@ -25,7 +25,7 @@ const INITIAL_VALUES: ContactInput = {
 }
 
 interface TextFieldProps {
-	control: Control<ContactInput>
+	control: Control<CreateContactMessageInput>
 	name: 'name' | 'email' | 'subject'
 	label: string
 	placeholder: string
@@ -68,10 +68,14 @@ function TextField({
 export function ContactForm() {
 	const [submitted, setSubmitted] = useState(false)
 
-	const fetcher = useActionFetcher<typeof action, ContactInput>()
+	const fetcher = useActionFetcher<typeof action, CreateContactMessageInput>()
 
-	const form = useForm<ContactInput, unknown, ContactData>({
-		resolver: standardSchemaResolver(contactSchema),
+	const form = useForm<
+		CreateContactMessageInput,
+		unknown,
+		CreateContactMessageData
+	>({
+		resolver: standardSchemaResolver(createContactMessageSchema),
 		mode: 'onSubmit',
 		errors: fetcher.errors,
 		reValidateMode: 'onChange',
@@ -83,7 +87,7 @@ export function ContactForm() {
 		setSubmitted(true)
 	}, [fetcher.isOk])
 
-	const onSubmit = (values: ContactData) => {
+	const onSubmit = (values: CreateContactMessageData) => {
 		void fetcher.submit(values, { method: 'post' })
 	}
 

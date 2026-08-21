@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { buildOtpMessage, type OtpPurpose } from './otp-message'
-import { MAX_OTP_SMS_LENGTH, OTP_TTL_SECONDS } from './otp.const'
+import { buildOtpMessage, type OtpPurpose } from '../otp-message'
+import { MAX_OTP_SMS_LENGTH, OTP_TTL_SECONDS } from '../otp.const'
 
 const PURPOSES: OtpPurpose[] = ['sign-in', 'password-reset']
 

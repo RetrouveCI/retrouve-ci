@@ -1,9 +1,8 @@
-import type { z } from 'zod'
+import type { CreateContactMessageData } from '@app/contracts/contact-messages'
 import { apiFetch } from '@/shared/utils/api-fetch'
-import type { contactSchema } from '../contact.schema'
 
 export async function submitContactMessage(
-	data: z.infer<typeof contactSchema>,
+	data: CreateContactMessageData,
 	request: Request,
 ): Promise<void> {
 	await apiFetch('/contact-messages', {

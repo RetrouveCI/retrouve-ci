@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getAdminOrigins, resolveAudience } from './session-audience'
+import { getAdminOrigins, resolveAudience } from '../session-audience'
 
 const ADMIN_ORIGINS = ['https://admin.retrouve.ci']
 

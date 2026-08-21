@@ -4,7 +4,7 @@ import {
 	DEFAULT_PAGE_SIZE,
 	MAX_PAGE_SIZE,
 	paginationQuerySchema,
-} from './pagination'
+} from '../pagination'
 
 const parse = (input: unknown) => paginationQuerySchema.safeParse(input)
 

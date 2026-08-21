@@ -8,11 +8,17 @@ import {
 	Query,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import {
+	createContactMessageSchema,
+	listContactMessagesFilterSchema,
+	updateContactMessageStatusSchema,
+	type CreateContactMessageData,
+	type ListContactMessagesFilterData,
+	type UpdateContactMessageStatusData,
+} from '@app/contracts/contact-messages'
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth'
 import { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'
-import { CreateContactMessageDto } from '../dto/create-contact-message.dto'
-import { ListContactMessagesQueryDto } from '../dto/list-contact-messages.query.dto'
-import { UpdateContactMessageStatusDto } from '../dto/update-contact-message-status.dto'
+import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 
 @ApiTags('contact-messages')
 @ApiBearerAuth()
@@ -24,14 +30,20 @@ export class ContactMessagesController {
 
 	@Post()
 	@AllowAnonymous()
-	create(@Body() dto: CreateContactMessageDto) {
-		return this.contactMessageUseCases.create(dto)
+	create(
+		@Body(new ZodValidationPipe(createContactMessageSchema))
+		data: CreateContactMessageData,
+	) {
+		return this.contactMessageUseCases.create(data)
 	}
 
 	@Get()
 	@Roles(['admin'])
-	list(@Query() query: ListContactMessagesQueryDto) {
-		return this.contactMessageUseCases.list(query)
+	list(
+		@Query(new ZodValidationPipe(listContactMessagesFilterSchema))
+		filter: ListContactMessagesFilterData,
+	) {
+		return this.contactMessageUseCases.list(filter)
 	}
 
 	@Get(':id')
@@ -44,8 +56,9 @@ export class ContactMessagesController {
 	@Roles(['admin'])
 	updateStatus(
 		@Param('id') id: string,
-		@Body() dto: UpdateContactMessageStatusDto,
+		@Body(new ZodValidationPipe(updateContactMessageStatusSchema))
+		data: UpdateContactMessageStatusData,
 	) {
-		return this.contactMessageUseCases.updateStatus(id, dto.status)
+		return this.contactMessageUseCases.updateStatus(id, data.status)
 	}
 }
