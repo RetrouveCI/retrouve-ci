@@ -12,7 +12,7 @@ import {
 	MAX_PHOTO_SIZE,
 	StorageService,
 	type UploadFileInput,
-} from './storage.service'
+} from '../storage.service'
 
 vi.mock('@/libs/storage/cloudinary', () => ({
 	configureCloudinary: vi.fn(),

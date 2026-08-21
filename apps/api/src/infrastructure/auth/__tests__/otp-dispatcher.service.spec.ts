@@ -5,7 +5,7 @@ import {
 	OTP_BACKOFF_DELAY_MS,
 	SEND_OTP_JOB,
 } from '@/shared/auth/otp.const'
-import { OtpDispatcher, type SendOtpJobData } from './otp-dispatcher.service'
+import { OtpDispatcher, type SendOtpJobData } from '../otp-dispatcher.service'
 
 function buildDispatcher(add = vi.fn().mockResolvedValue(undefined)) {
 	const dispatcher = new OtpDispatcher({

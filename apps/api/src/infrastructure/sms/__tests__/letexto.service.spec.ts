@@ -1,8 +1,8 @@
 import type { ConfigService } from '@nestjs/config'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { LetextoConfig } from './letexto.config'
-import { LetextoService, toLetextoRecipient } from './letexto.service'
-import { InvalidRecipientError, SmsDeliveryError } from './sms.errors'
+import { LetextoConfig } from '../letexto.config'
+import { LetextoService, toLetextoRecipient } from '../letexto.service'
+import { InvalidRecipientError, SmsDeliveryError } from '../sms.errors'
 
 const SETTINGS: Record<string, string> = {
 	LETEXTO_API_URL: 'https://apis.letexto.com/v1/messages/send',
