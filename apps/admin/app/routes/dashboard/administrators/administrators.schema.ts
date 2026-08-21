@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 
 /** The two roles this interface can hand out — `super_admin` is not one of them. */
 export const editableRoleSchema = z.enum(['admin', 'moderator'])
@@ -13,9 +14,14 @@ export const adminCreateSchema = z.object({
 	}),
 	// The input is an empty string when the field is left blank; the API wants the
 	// key absent rather than empty, so the transform is what `z.output` carries.
+	// Blank stays allowed — the field is optional — but anything typed must be a
+	// real number, since it shares a column with the public app's OTP recipient.
 	phone: z
 		.string()
-		.max(20, 'Maximum 20 caractères')
+		.refine(
+			value => value === '' || isValidLocalNumber(value),
+			PHONE_ERROR_MESSAGE,
+		)
 		.optional()
 		.transform(value => (value === '' ? undefined : value)),
 	password: z.string().min(6, 'Minimum 6 caractères'),

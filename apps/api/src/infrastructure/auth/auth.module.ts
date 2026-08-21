@@ -1,10 +1,13 @@
+import { BullModule } from '@nestjs/bullmq'
 import { Global, Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
 import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth'
 import { PrismaService } from '@/infrastructure/database/prisma.service'
 import { SessionGuard } from '@/shared/auth/guards/session.guard'
+import { OTP_QUEUE } from '@/shared/auth/otp.const'
 import { createAdminAuth, createClientAuth } from './auth.config'
 import { ADMIN_AUTH, CLIENT_AUTH } from './auth.tokens'
+import { OtpDispatcher } from './otp-dispatcher.service'
 
 /**
  * Both instances are built here so each is created once, and so the two
@@ -13,11 +16,14 @@ import { ADMIN_AUTH, CLIENT_AUTH } from './auth.tokens'
  */
 @Global()
 @Module({
+	imports: [BullModule.registerQueue({ name: OTP_QUEUE })],
 	providers: [
+		OtpDispatcher,
 		{
 			provide: CLIENT_AUTH,
-			inject: [PrismaService],
-			useFactory: (prisma: PrismaService) => createClientAuth(prisma),
+			inject: [PrismaService, OtpDispatcher],
+			useFactory: (prisma: PrismaService, otp: OtpDispatcher) =>
+				createClientAuth(prisma, otp),
 		},
 		{
 			provide: ADMIN_AUTH,

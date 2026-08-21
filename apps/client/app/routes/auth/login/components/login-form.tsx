@@ -66,6 +66,8 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 								{...field}
 								id="phone"
 								type="tel"
+								inputMode="numeric"
+								maxLength={14}
 								placeholder="07 XX XX XX XX"
 								className="border-border bg-background focus:border-primary-green focus:ring-primary-green/20 h-12 flex-1 rounded-xl border-2 transition-all focus:ring-2"
 								autoComplete="tel"

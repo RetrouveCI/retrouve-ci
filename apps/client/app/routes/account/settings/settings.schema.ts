@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 
 export const updateNameSchema = z.object({
 	intent: z.literal('update-name'),
@@ -20,7 +21,8 @@ export const sendPhoneOtpSchema = z.object({
 	intent: z.literal('send-phone-otp'),
 	phone: z
 		.string({ message: 'Votre numéro est requis' })
-		.regex(/^\d{8,16}$/, 'Numéro invalide (8 à 16 chiffres)'),
+		.trim()
+		.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
 })
 
 export const deleteAccountSchema = z.object({
