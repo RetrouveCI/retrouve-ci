@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaService } from '@/infrastructure/database/prisma.service'
+import { PrismaService } from '@/infrastructures/database/prisma.service'
 import { toDomainEvent, toPrismaStatus } from '../mappers/event.mapper'
 import type { Event, EventListResponse } from '../models/event.model'
 import type {

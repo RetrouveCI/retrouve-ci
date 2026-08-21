@@ -160,7 +160,7 @@ presentations/
 
 - ❌ Ajouter un dossier `validators/` local juste pour réexporter ou recopier un contrat partagé.
 
-- ❌ Introduire une surcouche `infrastructure/<feature>` alors qu'un repository Prisma direct suffit.
+- ❌ Introduire une surcouche `infrastructures/<feature>` alors qu'un repository Prisma direct suffit.
 
 - ❌ Importer un contrat via `@app/contracts` si la convention voulue est `@app/contracts/<domain>`.
 
@@ -174,6 +174,6 @@ presentations/ → domains/use-cases → domains/repository
 
 Les flèches vont **toujours vers `domains/`**, jamais l'inverse.
 
-- `presentation/` connaît `domains/`, mais `domains/` ne connaît pas `presentation/`.
+- `presentations/` connaît `domains/`, mais `domains/` ne connaît pas `presentations/`.
 - `infra/` implémente des interfaces de `domains/`, mais `domains/` ne connaît pas `infra/`.
 - `shared/` ne dépend d'aucune autre couche.

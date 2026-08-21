@@ -40,8 +40,8 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 | 3   | `domains/*/models/` : couche en trop (fusionner dans `types/`)                                | E8           |
 | 4   | ~~`domains/*/validators/` : couche en trop (remplacée par les contrats Zod)~~ ✅              | E6 ✅        |
 | 5   | ~~DTO `class-validator` dans `presentation/*/dto/` → schémas Zod + pipe~~ ✅                  | E6 ✅        |
-| 6   | `infrastructure/` → `infrastructures/`, `presentation/` → `presentations/`                    | E8           |
-| 7   | `libs/storage/cloudinary.ts` hors norme → `infrastructures/storage/`                          | E8           |
+| 6   | ~~`infrastructure/` → `infrastructures/`, `presentation/` → `presentations/`~~ ✅             | E8.1 ✅      |
+| 7   | ~~`libs/storage/cloudinary.ts` hors norme → `infrastructures/storage/`~~ ✅                   | E8.1 ✅      |
 | 8   | Tests `*.spec.ts` colocalisés → `__tests__/<name>.test.ts`                                    | E9           |
 | 9   | Aucune couche `shared/auth/{guards,decorators}` — contrôles de rôle dispersés                 | E8 (partiel) |
 | 10  | `shared/` quasi vide : manquent pipe Zod, `IDomainUseCase`, pagination, env                   | E8           |
@@ -160,18 +160,25 @@ messages basculeraient aussi : décision à prendre séparément.
 **Branches** `migration-e8-*` · **scope** `api/<domaine>` ou `api/core` · **3
 j** · dépend de E6.
 
-### 4.1 PR 1 — Renommages mécaniques (`api/core`)
+### 4.1 PR 1 — Renommages mécaniques (`api/core`) — ✅ fait (E8.1)
 
 Un commit par renommage, `typecheck` entre chaque :
 
-1. `src/infrastructure/` → `src/infrastructures/`
-2. `src/presentation/` → `src/presentations/`
-3. `src/libs/storage/cloudinary.ts` →
+1. ✅ `src/infrastructure/` → `src/infrastructures/`
+2. ✅ `src/presentation/` → `src/presentations/`
+3. ✅ `src/libs/storage/cloudinary.ts` →
    `src/infrastructures/storage/cloudinary.client.ts`, suppression de
    `src/libs/`
 
 Les imports sont en `@/…` : un `sed` sur `@/infrastructure/` →
-`@/infrastructures/` suffit, mais le `typecheck` reste l'arbitre.
+`@/infrastructures/` a suffi, le `typecheck` arbitrant entre chaque commit. Les
+41 imports relatifs internes aux deux dossiers se déplacent avec eux et n'ont
+pas bougé. Rien hors de `src/` ne nommait ces chemins — ni `nest-cli.json`, ni
+les tsconfig, ni le `Dockerfile` — donc le renommage s'arrête à `src/` et aux
+documents.
+
+`src/` ne porte plus que les quatre couches de la cible : `domains/`,
+`infrastructures/`, `presentations/` et `shared/`.
 
 ### 4.2 PR 2 — Socle `shared/` (`api/core`)
 

@@ -2,7 +2,7 @@ import { ForbiddenException, UnauthorizedException } from '@nestjs/common'
 import type { ExecutionContext } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AdminAuth, Auth } from '@/infrastructure/auth/auth.config'
+import type { AdminAuth, Auth } from '@/infrastructures/auth/auth.config'
 import { SessionGuard } from './session.guard'
 
 const ADMIN_ORIGIN = 'http://localhost:3001'

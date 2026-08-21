@@ -11,7 +11,7 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import fastifyMultipart from '@fastify/multipart'
 import { DomainExceptionFilter } from '@/shared/filters/domain-exception.filter'
-import { MAX_PHOTO_SIZE } from '@/infrastructure/storage/storage.service'
+import { MAX_PHOTO_SIZE } from '@/infrastructures/storage/storage.service'
 import { AppModule } from './app.module'
 
 const DEFAULT_PORT = 3002

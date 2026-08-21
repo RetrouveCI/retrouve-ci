@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { PrismaService } from '@/infrastructure/database/prisma.service'
+import { PrismaService } from '@/infrastructures/database/prisma.service'
 import type { DashboardStats, StatValue } from '../models/dashboard-stats.model'
 import type { ReportingRepository } from './reporting.repository'
 

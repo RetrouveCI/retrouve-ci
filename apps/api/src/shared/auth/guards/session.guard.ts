@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { fromNodeHeaders } from 'better-auth/node'
-import type { AdminAuth, Auth } from '@/infrastructure/auth/auth.config'
-import { ADMIN_AUTH, CLIENT_AUTH } from '@/infrastructure/auth/auth.tokens'
+import type { AdminAuth, Auth } from '@/infrastructures/auth/auth.config'
+import { ADMIN_AUTH, CLIENT_AUTH } from '@/infrastructures/auth/auth.tokens'
 import {
 	AUDIENCE_HEADER,
 	getAdminOrigins,

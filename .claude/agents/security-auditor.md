@@ -16,7 +16,7 @@ You will receive a list of absolute file paths. **You MUST call the Read tool on
 
 **Never infer, reconstruct, guess, or quote file contents you have not Read with the Read tool.**
 
-Use the Grep tool to search for patterns across related files (e.g., all `requireServerSession` / `requireAdminSession` calls, all `parseWithZod` usages, all `$queryRaw` usages, all guard decorators on controllers). Read additional context files as needed — for example, read `app/shared/auth/auth.server.ts` when reviewing front-end auth logic, `src/infrastructure/auth/auth.config.ts` on the API side, and the relevant Zod schema / DTO files when reviewing actions and controllers.
+Use the Grep tool to search for patterns across related files (e.g., all `requireServerSession` / `requireAdminSession` calls, all `parseWithZod` usages, all `$queryRaw` usages, all guard decorators on controllers). Read additional context files as needed — for example, read `app/shared/auth/auth.server.ts` when reviewing front-end auth logic, `src/infrastructures/auth/auth.config.ts` on the API side, and the relevant Zod schema / DTO files when reviewing actions and controllers.
 
 **All findings MUST include an "Evidence" field quoting the exact lines from Read tool output. Do not report any finding without evidence from code you have actually Read.**
 
@@ -31,10 +31,10 @@ RetrouveCI is a **decoupled** monorepo: two React Router v7 SSR front-ends talki
 - **Front auth**: Better Auth — phone-number plugin on `client`, `adminClient()` on `admin`. Server-side gate is `requireServerSession(request)` / `requireAdminSession(request)` in `app/shared/auth/auth.server.ts`, which forwards the `Cookie` header to `/api/auth/get-session`
 - **Front data layer**: every back-end call goes through a feature's `servers/*.service.ts` (via `apiFetch`) called from `servers/*.loader.ts` / `servers/*.action.ts`. A `fetch` outside `servers/` is itself a finding
 - **Front forms**: `react-hook-form` + `@hookform/resolvers` over the shared Zod schema; the matching `*.action.ts` re-validates with the *same* schema server-side. Client-only validation is a finding
-- **API layer**: NestJS DDD — `presentation/` (controllers, DTOs, queue-consumers), `domains/` (use-cases, repository, mappers, errors), `infrastructure/` (prisma, auth, queue, storage), `shared/` (errors, filters). Authorisation belongs on the controller (guards/decorators), never inside a use-case
+- **API layer**: NestJS DDD — `presentations/` (controllers, queue-consumers), `domains/` (use-cases, repository, mappers, errors), `infrastructures/` (prisma, auth, queue, storage, sms, seeder), `shared/` (errors, filters, pipes, guards, swagger). Authorisation belongs on the controller (guards/decorators), never inside a use-case
 - **ORM**: Prisma with PostgreSQL, driver adapter `@prisma/adapter-pg` — parameterised by default; verify no `$queryRaw` / `$executeRaw` with interpolated user values
 - **Validation**: Zod everywhere — the fronts, and the API through `ZodValidationPipe` over `@app/contracts/<domain>` schemas (no global `ValidationPipe`, no `class-validator`)
-- **Uploads**: Cloudinary via `infrastructure/storage` — check file-type/size limits and that no signed credential leaks to the client
+- **Uploads**: Cloudinary via `infrastructures/storage` — check file-type/size limits and that no signed credential leaks to the client
 - **Jobs**: BullMQ over Redis — check that job payloads carry no secrets and that consumers re-validate their input
 
 ---
@@ -64,7 +64,7 @@ RetrouveCI is a **decoupled** monorepo: two React Router v7 SSR front-ends talki
 - The session check runs **BEFORE** `formData` is parsed — calling it after is an auth bypass risk (**HIGH**)
 - On the API, every non-public controller route carries the auth guard, and admin-only routes additionally check the `admin` role — a route reachable without a guard is **CRITICAL**
 - Ownership is enforced server-side: a user can only read/mutate their own resources (listings, orders, notifications). Trusting a client-supplied `userId` is **CRITICAL**
-- Authorisation lives in `presentation/`, never inside a use-case or repository
+- Authorisation lives in `presentations/`, never inside a use-case or repository
 - No server-side operation reachable without a session check
 
 ### Input Validation

@@ -115,7 +115,7 @@ presentations/
 - ❌ Créer `presentations/http/...` au lieu d'une feature `presentations/<feature>/`.
 - ❌ Ajouter un dossier `validators/` local qui recopie ou réexporte un contrat partagé.
 - ❌ Regrouper tous les cas d'usage d'un domaine dans un seul fichier `*.use-cases.ts` — un fichier par use-case.
-- ❌ Nommer les dossiers au singulier (`infrastructure/`, `presentation/`) — la convention est `infrastructures/` et `presentations/`.
+- ❌ Nommer les dossiers au singulier (`infrastructure/`, `presentation/`) — la convention est `infrastructures/` et `presentations/`, et `apps/api` s'y conforme depuis E8.1.
 - ❌ Introduire une surcouche `infrastructures/<feature>` alors qu'un repository Prisma direct suffit.
 
 ## Flux de dépendances (règle absolue)
@@ -128,6 +128,6 @@ presentations/ → domains/use-cases → domains/repository
 
 Les flèches vont **toujours vers `domains/`**, jamais l'inverse.
 
-- `presentation/` connaît `domains/`, mais `domains/` ne connaît pas `presentation/`.
+- `presentations/` connaît `domains/`, mais `domains/` ne connaît pas `presentations/`.
 - `infra/` implémente des interfaces de `domains/`, mais `domains/` ne connaît pas `infra/`.
 - `shared/` ne dépend d'aucune autre couche.

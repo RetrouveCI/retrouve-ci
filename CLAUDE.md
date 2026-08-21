@@ -115,7 +115,7 @@ script.
 `@app/auth` owns the **shared better-auth core** as a framework-agnostic
 factory: `createAuth(prisma, { appName, basePath, plugins, trustedOrigins })`.
 It holds no NestJS glue — wiring it into a composition root is the app's job
-(`apps/api/src/infrastructure/auth/`).
+(`apps/api/src/infrastructures/auth/`).
 
 The split follows the data model: because one database backs every instance, the
 package owns the Prisma adapter, the extra user fields (`city`, `commune`),
@@ -195,7 +195,7 @@ to `otpLength: 6` and the API never overrides it, so the phone-change form's
 `shared/phone.ts` owns the **Côte d'Ivoire phone rule** — `225` plus exactly ten
 digits, spacing and the `+225` form accepted — and is the single home for what
 was written three times: once in each front's `shared/utils/phone.ts` and once
-inside `infrastructure/sms/letexto.service.ts`. Both fronts' copies are now
+inside `infrastructures/sms/letexto.service.ts`. Both fronts' copies are now
 re-exports, so the twelve files that import `@/shared/utils/phone` are
 untouched, and `toLetextoRecipient` keeps only what is gateway-specific: its
 `InvalidRecipientError` and the `+`-less `225XXXXXXXXXX` the API addresses.
@@ -266,14 +266,20 @@ at `/docs` in non-production (or when `ENABLE_SWAGGER=true`). It follows a
 ```text
 domains/          # Business core, one folder per bounded context
   <domain>/         # use-cases, models, repository, mappers, errors, types
-infrastructure/   # Framework/IO wiring: database, auth, queue (BullMQ), seeder
-presentation/     # HTTP layer: controllers + DTOs, one folder per domain
-shared/           # Cross-cutting: errors, exception filters
+infrastructures/  # Framework/IO wiring: database, auth, queue (BullMQ), sms,
+                  # storage, seeder
+presentations/    # HTTP layer: controllers + queue-consumers, one folder per
+                  # domain
+shared/           # Cross-cutting: errors, filters, pipes, guards, swagger
 ```
+
+These are the **four** folders `src/` holds — E8.1 pluralised the two middle
+ones and absorbed the stray `libs/storage/cloudinary.ts` into
+`infrastructures/storage/cloudinary.client.ts`.
 
 - Domains: `contact-messages`, `events`, `lost-items`, `matching`,
   `notifications`, `qr-codes`, `reporting`, `sticker-orders`. Each keeps its
-  use-cases free of NestJS/HTTP concerns; controllers in `presentation/` are
+  use-cases free of NestJS/HTTP concerns; controllers in `presentations/` are
   thin and delegate to use-cases.
 - Auth is **better-auth** (`@thallesp/nestjs-better-auth`): phone-number based
   for the client, email/password + admin role for the admin app.
@@ -285,9 +291,9 @@ shared/           # Cross-cutting: errors, exception filters
   `phoneNumberValidator`, which is `isValidLocalNumber` — without it a malformed
   number only failed at delivery, after `OtpConsumer` had burnt its three BullMQ
   attempts. `sendOTP` / `sendPasswordResetOTP` enqueue on the `otp` queue via
-  `OtpDispatcher` (`infrastructure/auth/`); `OtpConsumer`
-  (`presentation/auth/queue-consumers/`) builds the message and calls
-  `LetextoService` (`infrastructure/sms/`). Jobs retry three times with an
+  `OtpDispatcher` (`infrastructures/auth/`); `OtpConsumer`
+  (`presentations/auth/queue-consumers/`) builds the message and calls
+  `LetextoService` (`infrastructures/sms/`). Jobs retry three times with an
   exponential backoff and are removed on both success **and** failure, since
   each carries a live code; the failure log names the recipient, never the code.
   The recipient is normalised to `225` + **exactly 10 digits**, which is what
@@ -324,7 +330,7 @@ shared/           # Cross-cutting: errors, exception filters
   a body field the schema does not know is **stripped**, where the old
   `forbidNonWhitelisted` answered 400. There are **no `*.dto.ts` files and no
   `class-validator` importers left**, no `domains/*/validators/` folder, and the
-  global `ValidationPipe` is gone — every `@Body`/`@Query` in `presentation/`
+  global `ValidationPipe` is gone — every `@Body`/`@Query` in `presentations/`
   carries its own pipe (a `@Param` is a plain string and needs none). Because
   `@ApiProperty` left with the DTOs, `shared/swagger/api-zod.decorator.ts`
   derives the OpenAPI schema from the contract itself through Zod 4's
@@ -343,9 +349,11 @@ shared/           # Cross-cutting: errors, exception filters
   controllers).
 
 For where new code belongs (domains vs presentations vs infrastructures), use
-the `backend-conventions` skill (`.claude/skills/backend-conventions/`). Note
-that the layer names above are the **current** ones — the target layout, and the
-plan to get there, are in [MIGRATION-PLAN.md](MIGRATION-PLAN.md).
+the `backend-conventions` skill (`.claude/skills/backend-conventions/`). The
+layer **names** now match the target layout; what E8 still owes is their
+_contents_ — one use-case per file, a `<domain>-domain.module.ts` per domain,
+and `models/` folded into `types/`. See
+[MIGRATION-PLAN-API.md](MIGRATION-PLAN-API.md) §4.
 
 ### Frontend apps (React Router v7)
 
