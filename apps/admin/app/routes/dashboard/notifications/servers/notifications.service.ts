@@ -22,10 +22,8 @@ export async function listNotifications(
 	)
 }
 
-export async function getUnreadCount(
-	request: Request,
-): Promise<{ count: number }> {
-	return apiFetch<{ count: number }>('/notifications/unread-count', {
+export async function getUnreadCount(request: Request): Promise<number> {
+	return apiFetch<number>('/notifications/unread-count', {
 		headers: { Cookie: request.headers.get('cookie') ?? '' },
 	})
 }

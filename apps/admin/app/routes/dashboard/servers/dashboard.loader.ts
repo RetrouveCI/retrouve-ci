@@ -18,8 +18,7 @@ export async function dashboardLoader({ request }: { request: Request }) {
 // A badge must never take the shell down, so an unreachable counter reads zero.
 async function readCounts(request: Request): Promise<LayoutCounts> {
 	try {
-		const { count } = await getUnreadCount(request)
-		return { notificationsUnread: count }
+		return { notificationsUnread: await getUnreadCount(request) }
 	} catch {
 		return { notificationsUnread: 0 }
 	}

@@ -1,5 +1,11 @@
-export type NotificationType = 'match_found' | 'qr_scan'
+import type {
+	ListNotificationsFilterData,
+	NotificationType,
+} from '@app/contracts/notifications'
 
+export type { NotificationType }
+
+/** Created by the app itself — a match, a QR scan — never posted over HTTP. */
 export interface CreateNotificationData {
 	type: NotificationType
 	title: string
@@ -8,9 +14,7 @@ export interface CreateNotificationData {
 	userId: string
 }
 
-export interface ListNotificationsFilter {
+/** `userId` comes from the session, never from the query string. */
+export type ListNotificationsFilter = ListNotificationsFilterData & {
 	userId: string
-	read?: boolean
-	page: number
-	pageSize: number
 }

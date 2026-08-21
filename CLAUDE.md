@@ -161,8 +161,15 @@ Two rules hold for every schema added here:
   union its own `error`, or it reports `Invalid input` in English.
 
 The business schemas arrive in E6, one domain per PR: `shared/pagination.ts`,
-`contact-messages/` and `events/` are in. `MAX_PAGE_SIZE` lives here now, and a
-migrated domain no longer keeps a copy of it.
+`contact-messages/`, `events/` and `notifications/` are in. `MAX_PAGE_SIZE`
+lives here now, and a migrated domain no longer keeps a copy of it.
+
+A query string carries everything as a string, so a filter that is not a string
+needs the same union `paginationQuerySchema` uses for its numbers:
+`notifications/list-filter.schema.ts` reads `read` as
+`z.union([z.boolean(), z.enum(['true', 'false']).transform(…)])`. Keep that
+union local to the file that needs it, as `countable` is, until a second domain
+wants it.
 
 `events/` is where the package first carries a date. It deliberately does
 **not** use `z.iso.datetime()`: the admin form posts what an
@@ -254,8 +261,8 @@ shared/           # Cross-cutting: errors, exception filters
   `validators/` folder is absorbed at the same time — a rule expressible as a
   refinement (`.trim().min(10)`) belongs in the contract; only what Zod cannot
   express (cross-aggregate invariants, uniqueness) stays in the use-case. Done:
-  `contact-messages`, `events`. Domain errors are translated to HTTP responses
-  by `DomainExceptionFilter`.
+  `contact-messages`, `events`, `notifications`. Domain errors are translated to
+  HTTP responses by `DomainExceptionFilter`.
 - `apps/api` reads `@app/contracts` through its **`dist`**, so a contract change
   needs `pnpm --filter @app/contracts build` before `nest start` picks it up.
   `pnpm build` and `pnpm test` handle it via Turborepo's `^build`.
@@ -529,9 +536,12 @@ Identical to the client app conventions above, with these admin-specific notes:
   call outside a `servers/` folder is `shared/helpers/session.server.ts`, the
   server-side session gate every loader goes through (`client` is the same: its
   `activity-hub` twin is closed, see below). Coming from a loader, the badge
-  also revalidates with every action instead of being read once on mount. A
-  counter the API cannot serve reads zero rather than throwing — a badge must
-  never take the shell down.
+  also revalidates with every action instead of being read once on mount.
+  `/notifications/unread-count` answers a **bare number**, not `{ count }`: the
+  admin typed it the second way until E6.3, so `notificationsUnread` was
+  `undefined` and the badge silently never appeared. A counter the API cannot
+  serve reads zero rather than throwing — a badge must never take the shell
+  down.
 
 #### Front-end tests
 

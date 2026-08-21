@@ -1,10 +1,14 @@
 import { Controller, Get, Param, Patch, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import {
+	listNotificationsFilterSchema,
+	type ListNotificationsFilterData,
+} from '@app/contracts/notifications'
 import { Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructure/auth/auth.config'
 import { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
-import { ListNotificationsQueryDto } from '../dto/list-notifications.query.dto'
+import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 
 @ApiTags('notifications')
 @ApiBearerAuth()
@@ -15,9 +19,10 @@ export class NotificationsController {
 	@Get('mine')
 	listMine(
 		@Session() session: UserSession<Auth>,
-		@Query() query: ListNotificationsQueryDto,
+		@Query(new ZodValidationPipe(listNotificationsFilterSchema))
+		filter: ListNotificationsFilterData,
 	) {
-		return this.notificationUseCases.listMine(session.user.id, query)
+		return this.notificationUseCases.listMine(session.user.id, filter)
 	}
 
 	@Get('unread-count')

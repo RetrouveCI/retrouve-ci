@@ -1,3 +1,4 @@
+import { notificationReadSchema } from '@app/contracts/notifications'
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import { listNotifications } from './notifications.service'
 
@@ -6,8 +7,8 @@ export async function notificationsLoader({ request }: { request: Request }) {
 
 	const url = new URL(request.url)
 	const rawRead = url.searchParams.get('read')
-	const readFilter =
-		rawRead === 'true' ? true : rawRead === 'false' ? false : undefined
+	const parsedRead = notificationReadSchema.safeParse(rawRead)
+	const readFilter = parsedRead.success ? parsedRead.data : undefined
 
 	const { items, total } = await listNotifications(
 		{ read: readFilter },
