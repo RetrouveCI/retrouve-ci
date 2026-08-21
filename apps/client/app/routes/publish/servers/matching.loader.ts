@@ -1,13 +1,14 @@
 import { z } from 'zod'
+import {
+	lostItemCategorySchema,
+	lostItemTypeSchema,
+} from '@app/contracts/lost-items'
 import { toLostItem } from '@/shared/mappers/lost-item.mapper'
-import { OBJECT_TYPES } from '../publish.const'
 import { findMatchingLostItems } from './matching.service'
 
-const CATEGORY_VALUES = OBJECT_TYPES.map(o => o.value) as [string, ...string[]]
-
 const querySchema = z.object({
-	type: z.enum(['lost', 'found']),
-	category: z.enum(CATEGORY_VALUES),
+	type: lostItemTypeSchema,
+	category: lostItemCategorySchema,
 	ville: z.string().min(1),
 })
 

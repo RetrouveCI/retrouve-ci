@@ -1,16 +1,14 @@
-export type LostItemType = 'lost' | 'found'
-export type LostItemStatus = 'active' | 'resolved' | 'expired'
-export type ModerationStatus = 'pending' | 'published' | 'hidden'
-export type LostItemCategory =
-	| 'phone'
-	| 'keys'
-	| 'wallet'
-	| 'bag'
-	| 'electronics'
-	| 'clothing'
-	| 'jewelry'
-	| 'documents'
-	| 'other'
+import type {
+	LostItemCategory,
+	LostItemType,
+	ModerationStatus,
+	ResolutionStatus,
+} from '@app/contracts/lost-items'
+
+export type { LostItemCategory, LostItemType, ModerationStatus }
+
+/** The API calls it a resolution status; this app has always said `status`. */
+export type LostItemStatus = ResolutionStatus
 
 export interface LostItem {
 	id: string

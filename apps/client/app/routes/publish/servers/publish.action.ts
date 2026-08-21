@@ -39,11 +39,9 @@ export async function publishAction(
 					description: values.description,
 					ville: values.ville,
 					commune: values.commune || undefined,
-					eventDate: values.date
-						? new Date(values.date).toISOString()
-						: new Date().toISOString(),
+					eventDate: values.date,
 					contactName: values.name,
-					contactWhatsapp: `+225${values.whatsapp}`,
+					contactWhatsapp: values.whatsapp,
 					photos: photos.length ? photos : undefined,
 				},
 				request,

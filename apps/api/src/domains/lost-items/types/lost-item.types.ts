@@ -1,57 +1,40 @@
-export type LostItemType = 'lost' | 'found'
+import type {
+	AdminListLostItemsFilterData,
+	CreateLostItemData as CreateLostItemContract,
+	LostItemCategory,
+	LostItemType,
+	ModerationStatus,
+	ResolutionStatus,
+	UpdateLostItemData as UpdateLostItemContract,
+} from '@app/contracts/lost-items'
 
-export type LostItemCategory =
-	| 'phone'
-	| 'keys'
-	| 'wallet'
-	| 'bag'
-	| 'electronics'
-	| 'clothing'
-	| 'jewelry'
-	| 'documents'
-	| 'other'
+export type {
+	LostItemCategory,
+	LostItemType,
+	ModerationStatus,
+	ResolutionStatus,
+}
 
-export type ModerationStatus = 'pending' | 'published' | 'hidden'
-
-export type ResolutionStatus = 'active' | 'resolved' | 'expired'
-
-export interface CreateLostItemData {
-	type: LostItemType
-	category: LostItemCategory
-	title: string
-	description: string
-	ville: string
-	commune?: string
+/** The wire carries the date as a string; the domain works on a `Date`. */
+export type CreateLostItemData = Omit<CreateLostItemContract, 'eventDate'> & {
 	eventDate: Date
-	contactName: string
-	contactWhatsapp: string
-	photos?: string[]
 	userId: string
 }
 
-export interface UpdateLostItemData {
-	title?: string
-	description?: string
-	ville?: string
-	commune?: string
+export type UpdateLostItemData = Omit<UpdateLostItemContract, 'eventDate'> & {
 	eventDate?: Date
-	contactName?: string
-	contactWhatsapp?: string
-	photos?: string[]
-	resolutionStatus?: ResolutionStatus
 }
 
-export interface ListLostItemsFilter {
-	type?: LostItemType
-	category?: LostItemCategory
-	ville?: string
-	commune?: string
-	moderationStatus?: ModerationStatus
-	resolutionStatus?: ResolutionStatus
-	userId?: string
-	search?: string
+/**
+ * The repository also narrows by owner and by resolution status. Neither is a
+ * query parameter: both come from the use-case.
+ */
+export type ListLostItemsFilter = Omit<
+	AdminListLostItemsFilterData,
+	'dateFrom' | 'dateTo'
+> & {
 	dateFrom?: Date
 	dateTo?: Date
-	page: number
-	pageSize: number
+	resolutionStatus?: ResolutionStatus
+	userId?: string
 }

@@ -2,6 +2,7 @@ import { useActionData, useNavigation, useSubmit } from 'react-router'
 import type { FieldErrors } from 'react-hook-form'
 import { useForm, useWatch } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { MIN_DESCRIPTION_LENGTH } from '@app/contracts/lost-items'
 import type { ActionResult } from '@/shared/types/action'
 import {
 	publishFormSchema,
@@ -20,7 +21,7 @@ const EMPTY_VALUES: PublishFormInput = {
 	whatsapp: '',
 }
 
-const REQUIRED_FIELD_COUNT = 6
+const REQUIRED_FIELD_COUNT = 7
 
 /**
  * The publish form, shared by `/publish/lost`, `/publish/found` and
@@ -56,8 +57,9 @@ export function usePublishForm(defaultValues?: Partial<PublishFormInput>) {
 	const completedFieldCount = [
 		values.title,
 		values.objectType,
-		(values.description?.length ?? 0) >= 20,
+		(values.description?.length ?? 0) >= MIN_DESCRIPTION_LENGTH,
 		values.ville,
+		values.date,
 		values.name,
 		values.whatsapp,
 	].filter(Boolean).length

@@ -7,6 +7,7 @@ import { ObjectInfoSection } from '../components/object-info-section'
 import { PublishPageHeader } from '../components/publish-page-header'
 import { PublishSidebar } from '../components/publish-sidebar'
 import { PublishFormActions } from '../components/publish-form-actions'
+import { MIN_DESCRIPTION_LENGTH } from '@app/contracts/lost-items'
 import { usePublishForm } from '../hooks/use-publish-form'
 import { LOST_TIPS } from '../publish.const'
 import { publishLoader } from '../servers/publish.loader'
@@ -36,10 +37,11 @@ export default function PublishLostPage() {
 		{ label: 'Titre', done: !!values.title },
 		{ label: "Type d'objet", done: !!values.objectType },
 		{
-			label: 'Description (20 car. min)',
-			done: (values.description?.length ?? 0) >= 20,
+			label: `Description (${MIN_DESCRIPTION_LENGTH} car. min)`,
+			done: (values.description?.length ?? 0) >= MIN_DESCRIPTION_LENGTH,
 		},
 		{ label: 'Lieu de perte', done: !!values.ville },
+		{ label: 'Date de perte', done: !!values.date },
 		{ label: 'Votre nom', done: !!values.name },
 		{ label: 'WhatsApp', done: !!values.whatsapp },
 	]

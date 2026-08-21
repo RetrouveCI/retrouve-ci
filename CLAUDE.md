@@ -161,9 +161,10 @@ Two rules hold for every schema added here:
   union its own `error`, or it reports `Invalid input` in English.
 
 The business schemas arrive in E6, one domain per PR: `shared/pagination.ts`,
-`shared/phone.ts`, `contact-messages/`, `events/`, `notifications/`,
-`sticker-orders/` and `qr-codes/` are in. `MAX_PAGE_SIZE` lives here now, and a
-migrated domain no longer keeps a copy of it.
+`shared/phone.ts`, `shared/calendar-date.ts`, `contact-messages/`, `events/`,
+`notifications/`, `sticker-orders/`, `qr-codes/` and `lost-items/` are in.
+`MAX_PAGE_SIZE` lives here now, and a migrated domain no longer keeps a copy of
+it.
 
 `shared/phone.ts` owns the **Côte d'Ivoire phone rule** — `225` plus exactly ten
 digits, spacing and the `+225` form accepted — and is the single home for what
@@ -191,12 +192,27 @@ needs the same union `paginationQuerySchema` uses for its numbers:
 union local to the file that needs it, as `countable` is, until a second domain
 wants it.
 
-`events/` is where the package first carries a date. It deliberately does
-**not** use `z.iso.datetime()`: the admin form posts what an
-`<input type="datetime-local">` produces (`2026-09-01T18:30` — no seconds, no
-offset), which that helper rejects. `eventDate` accepts the ISO date and
-date-time shapes instead, and rebuilds the day to refuse the 31 February
-`Date.parse` would silently roll over.
+`shared/calendar-date.ts` owns the **date rule**, which deliberately does
+**not** use `z.iso.datetime()`: a form posts what its input produces —
+`datetime-local` gives `2026-09-01T18:30`, `date` gives `2026-09-01` — and
+neither carries the seconds and the offset that helper demands. It accepts both
+ISO shapes and rebuilds the day to refuse the 31 February `Date.parse` would
+silently roll over. `calendarDateSchema({ required, invalid })` is a factory
+because each caller names its own field: `events/` and `lost-items/` say
+`La date est requise`, and `lost-items/list-filter.schema.ts` names the boundary
+it refuses (`Date de début invalide`).
+
+`lost-items/` is the largest entry and the one that closed the **last** phone
+drift: `contactWhatsappSchema` refines on `isValidLocalNumber` and transforms
+with `toE164`, so the number is normalised **once**, server-side. The client
+used to prefix `+225` unconditionally onto a field its own regex let through at
+8 to 16 digits, so a poster who typed `2250700000000` was stored as
+`+2252250700000000` and could not be reached. `updateLostItemSchema` omits
+`type` and `category` before `.partial()`: they are set at publication, and the
+pipe now strips an attempt to rewrite them. Both fronts keep only their labels —
+`publish.const.ts`'s `OBJECT_TYPES` and the backoffice's `posts.const.ts` are
+`Record<LostItemCategory, …>` tables composed onto the contract's values, so a
+new category is a type error rather than a missing label.
 
 ### Database package (`packages/database`)
 
@@ -223,7 +239,7 @@ at `/docs` in non-production (or when `ENABLE_SWAGGER=true`). It follows a
 
 ```text
 domains/          # Business core, one folder per bounded context
-  <domain>/         # use-cases, models, repository, validators, mappers, errors, types
+  <domain>/         # use-cases, models, repository, mappers, errors, types
 infrastructure/   # Framework/IO wiring: database, auth, queue (BullMQ), seeder
 presentation/     # HTTP layer: controllers + DTOs, one folder per domain
 shared/           # Cross-cutting: errors, exception filters
@@ -280,14 +296,17 @@ shared/           # Cross-cutting: errors, exception filters
   stripped, where `forbidNonWhitelisted` used to answer 400. A domain's
   `validators/` folder is absorbed at the same time — a rule expressible as a
   refinement (`.trim().min(10)`) belongs in the contract; only what Zod cannot
-  express (cross-aggregate invariants, uniqueness) stays in the use-case. Done:
-  `contact-messages`, `events`, `notifications`, `sticker-orders`, `qr-codes`.
-  Domain errors are translated to HTTP responses by `DomainExceptionFilter`.
+  express (cross-aggregate invariants, uniqueness) stays in the use-case. **No
+  `domains/*/validators/` folder is left**: `lost-items` held the last one.
+  Done: `contact-messages`, `events`, `notifications`, `sticker-orders`,
+  `qr-codes`, `lost-items`. Only `auth` remains, and the global `ValidationPipe`
+  leaves with it. Domain errors are translated to HTTP responses by
+  `DomainExceptionFilter`.
 - `apps/api` reads `@app/contracts` through its **`dist`**, so a contract change
   needs `pnpm --filter @app/contracts build` before `nest start` picks it up.
   `pnpm build` and `pnpm test` handle it via Turborepo's `^build`.
-- Tests are **Vitest** (`*.spec.ts` colocated with use-cases, validators,
-  mappers and controllers).
+- Tests are **Vitest** (`*.spec.ts` colocated with use-cases, mappers and
+  controllers).
 
 For where new code belongs (domains vs presentations vs infrastructures), use
 the `backend-conventions` skill (`.claude/skills/backend-conventions/`). Note

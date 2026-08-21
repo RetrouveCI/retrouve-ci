@@ -1,10 +1,8 @@
 import { data } from 'react-router'
 import { ApiError } from '@/shared/utils/api-fetch'
 import { requireAdminSession } from '@/shared/helpers/session.server'
+import { moderationStatusSchema } from '@app/contracts/lost-items'
 import { moderatePost } from './posts.service'
-import type { ModerationStatus } from '../types/posts.types'
-
-const VALID_MODERATION: ModerationStatus[] = ['pending', 'published', 'hidden']
 
 export async function postsAction({ request }: { request: Request }) {
 	await requireAdminSession(request)
@@ -15,17 +13,14 @@ export async function postsAction({ request }: { request: Request }) {
 
 	try {
 		if (intent === 'moderate' && id) {
-			if (!VALID_MODERATION.includes(statusRaw as ModerationStatus)) {
+			const parsed = moderationStatusSchema.safeParse(statusRaw)
+			if (!parsed.success) {
 				return data(
-					{ ok: false, error: 'Statut de modération invalide' },
+					{ ok: false, error: parsed.error.issues[0]?.message },
 					{ status: 400 },
 				)
 			}
-			const post = await moderatePost(
-				id,
-				statusRaw as ModerationStatus,
-				request,
-			)
+			const post = await moderatePost(id, parsed.data, request)
 			return { ok: true, post, intent }
 		}
 

@@ -20,7 +20,6 @@ import {
 } from '@app/ui/components'
 import { BentoCard } from '@/components/bento-card'
 import { DataTable } from '@/components/data-table'
-import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { PostsStatsGrid } from './components/posts-stats-grid'
 import { PostDetailDialog } from './components/post-detail-dialog'
 import { postsLoader } from './servers/posts.loader'
@@ -38,6 +37,7 @@ import {
 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Post, ModerationStatus } from './types/posts.types'
+import { CATEGORY_LABELS, MODERATION_CONFIG } from './posts.const'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
 
@@ -45,27 +45,6 @@ export const loader = postsLoader
 export const action = postsAction
 
 export const handle: RouteHandle = { title: 'Posts' }
-
-const CATEGORY_LABELS: Record<string, string> = {
-	phone: 'Téléphone',
-	keys: 'Clés',
-	wallet: 'Portefeuille',
-	bag: 'Sac',
-	electronics: 'Électronique',
-	clothing: 'Vêtement',
-	jewelry: 'Bijou',
-	documents: 'Documents',
-	other: 'Autre',
-}
-
-const MODERATION_CONFIG: Record<
-	ModerationStatus,
-	{ label: string; className: string }
-> = {
-	pending: { label: 'En attente', className: STATUS_TONE_CLASSES.warning },
-	published: { label: 'Publié', className: STATUS_TONE_CLASSES.success },
-	hidden: { label: 'Masqué', className: STATUS_TONE_CLASSES.neutral },
-}
 
 interface ActionResult {
 	ok: boolean

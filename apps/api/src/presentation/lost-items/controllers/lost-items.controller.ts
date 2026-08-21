@@ -10,6 +10,18 @@ import {
 	Query,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import {
+	adminListLostItemsFilterSchema,
+	createLostItemSchema,
+	listLostItemsFilterSchema,
+	updateLostItemSchema,
+	updateModerationStatusSchema,
+	type AdminListLostItemsFilterData,
+	type CreateLostItemData,
+	type ListLostItemsFilterData,
+	type UpdateLostItemData,
+	type UpdateModerationStatusData,
+} from '@app/contracts/lost-items'
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Queue } from 'bullmq'
@@ -17,11 +29,7 @@ import type { Auth } from '@/infrastructure/auth/auth.config'
 import { FIND_MATCHES_JOB, MATCHING_QUEUE } from '@/domains/matching/constants'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
-import { AdminListLostItemsQueryDto } from '../dto/admin-list-lost-items.query.dto'
-import { CreateLostItemDto } from '../dto/create-lost-item.dto'
-import { ListLostItemsQueryDto } from '../dto/list-lost-items.query.dto'
-import { UpdateLostItemDto } from '../dto/update-lost-item.dto'
-import { UpdateModerationStatusDto } from '../dto/update-moderation-status.dto'
+import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 
 @ApiTags('lost-items')
 @ApiBearerAuth()
@@ -35,11 +43,11 @@ export class LostItemsController {
 	@Post()
 	async create(
 		@Session() session: UserSession<Auth>,
-		@Body() dto: CreateLostItemDto,
+		@Body(new ZodValidationPipe(createLostItemSchema)) data: CreateLostItemData,
 	) {
 		const lostItem = await this.lostItemUseCases.create({
-			...dto,
-			eventDate: new Date(dto.eventDate),
+			...data,
+			eventDate: new Date(data.eventDate),
 			userId: session.user.id,
 		})
 
@@ -52,9 +60,12 @@ export class LostItemsController {
 
 	@Get()
 	@AllowAnonymous()
-	list(@Query() query: ListLostItemsQueryDto) {
+	list(
+		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
+		filter: ListLostItemsFilterData,
+	) {
 		return this.lostItemUseCases.list({
-			...this.toListFilter(query),
+			...this.toListFilter(filter),
 			moderationStatus: 'published',
 		})
 	}
@@ -62,16 +73,19 @@ export class LostItemsController {
 	@Get('mine')
 	listMine(
 		@Session() session: UserSession<Auth>,
-		@Query() query: ListLostItemsQueryDto,
+		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
+		filter: ListLostItemsFilterData,
 	) {
 		return this.lostItemUseCases.listMine(
 			session.user.id,
-			this.toListFilter(query),
+			this.toListFilter(filter),
 		)
 	}
 
-	private toListFilter(query: ListLostItemsQueryDto): ListLostItemsFilter {
-		const { dateFrom, dateTo, ...rest } = query
+	private toListFilter(
+		filter: AdminListLostItemsFilterData,
+	): ListLostItemsFilter {
+		const { dateFrom, dateTo, ...rest } = filter
 
 		return {
 			...rest,
@@ -86,22 +100,21 @@ export class LostItemsController {
 
 	@Get('admin')
 	@Roles(['admin'])
-	listForAdmin(@Query() query: AdminListLostItemsQueryDto) {
-		return this.lostItemUseCases.list({
-			...this.toListFilter(query),
-			...(query.moderationStatus && {
-				moderationStatus: query.moderationStatus,
-			}),
-		})
+	listForAdmin(
+		@Query(new ZodValidationPipe(adminListLostItemsFilterSchema))
+		filter: AdminListLostItemsFilterData,
+	) {
+		return this.lostItemUseCases.list(this.toListFilter(filter))
 	}
 
 	@Patch(':id/moderation')
 	@Roles(['admin'])
 	updateModerationStatus(
 		@Param('id') id: string,
-		@Body() dto: UpdateModerationStatusDto,
+		@Body(new ZodValidationPipe(updateModerationStatusSchema))
+		data: UpdateModerationStatusData,
 	) {
-		return this.lostItemUseCases.moderate(id, dto.moderationStatus)
+		return this.lostItemUseCases.moderate(id, data.moderationStatus)
 	}
 
 	@Get(':id')
@@ -120,9 +133,9 @@ export class LostItemsController {
 	update(
 		@Session() session: UserSession<Auth>,
 		@Param('id') id: string,
-		@Body() dto: UpdateLostItemDto,
+		@Body(new ZodValidationPipe(updateLostItemSchema)) data: UpdateLostItemData,
 	) {
-		const { eventDate, ...rest } = dto
+		const { eventDate, ...rest } = data
 
 		return this.lostItemUseCases.update(id, session.user.id, {
 			...rest,

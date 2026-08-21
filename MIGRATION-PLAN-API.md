@@ -18,7 +18,7 @@ tests).**
 | ------------------ | -------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
 | `contact-messages` | 10       | `create`, `getById`, `list`, `getOne`, `updateStatus` (5)                                                    | errors, mappers, **models**, repository, types                          |
 | `events`           | 12       | `create`, `getById`, `list`, `update`, `delete` (5)                                                          | errors, mappers, **models**, repository, types, **validators**          |
-| `lost-items`       | 12       | `create`, `getById`, `view`, `recordContact`, `list`, `listMine`, `update`, `moderate`, `delete` (9)         | errors, mappers, **models**, repository, types, **validators**          |
+| `lost-items`       | 12       | `create`, `getById`, `view`, `recordContact`, `list`, `listMine`, `update`, `moderate`, `delete` (9)         | errors, mappers, **models**, repository, types                          |
 | `matching`         | 6        | `findMatches`, `notifyMatches` (2)                                                                           | helpers, **models**                                                     |
 | `notifications`    | 10       | `create`, `listMine`, `markAsRead`, `markAllAsRead`, `getUnreadCount` (5)                                    | errors, mappers, **models**, repository, types                          |
 | `qr-codes`         | 13       | `generateBatch`, `getByCode`, `activate`, `revoke`, `updateDetails`, `list`, `listMine`, `getPublicView` (8) | errors, helpers, mappers, **models**, repository, types, **validators** |
@@ -48,7 +48,7 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 
 ---
 
-## 3. E6 — Contrats Zod par domaine — 🟡 5 domaines sur 7 faits
+## 3. E6 — Contrats Zod par domaine — 🟡 6 domaines sur 7 faits
 
 **Branches** `migration-e6-contracts-<domaine>` · **scope** `api/<domaine>` ·
 **2 j au total** · dépend de E5.
@@ -116,11 +116,15 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 ### 3.3 Ordre (du moins couplé au plus couplé)
 
 ```
-contact-messages ✅ → events ✅ → notifications ✅ → sticker-orders ✅ → qr-codes ✅ → lost-items → auth
+contact-messages ✅ → events ✅ → notifications ✅ → sticker-orders ✅ → qr-codes ✅ → lost-items ✅ → auth
 ```
 
 `matching` et `reporting` n'ont pas d'entrée HTTP utilisateur : rien à
 contractualiser.
+
+`lost-items` a fermé le dernier `domains/*/validators/` du dépôt : plus aucun
+domaine n'en porte. Il ne reste qu'`auth`, et le `ValidationPipe` global sort
+avec elle.
 
 ---
 
@@ -264,13 +268,13 @@ de E4 et E8.
 ## 6. Ordre d'exécution recommandé
 
 ```
-E6.1 contact-messages  ─┐
-E6.2 events             │  (contrats, 1 PR / domaine)
-E6.3 notifications      │
-E6.4 sticker-orders     │
-E6.5 qr-codes           │
-E6.6 lost-items         │
-E6.7 auth              ─┘
+E6.1 contact-messages ✅ ─┐
+E6.2 events ✅           │  (contrats, 1 PR / domaine)
+E6.3 notifications ✅    │
+E6.4 sticker-orders ✅   │
+E6.5 qr-codes ✅         │
+E6.6 lost-items ✅       │
+E6.7 auth                ─┘
         ↓
 E8.1 renommages (api/core)
 E8.2 socle shared/ (api/core)

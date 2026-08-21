@@ -78,13 +78,6 @@ describe('LostItemUseCases', () => {
 			expect(repository.create).toHaveBeenCalledWith(data)
 			expect(result).toEqual(created)
 		})
-
-		it('throws when the data is invalid', async () => {
-			await expect(
-				useCases.create({ ...data, description: 'Trop court' }),
-			).rejects.toThrow()
-			expect(repository.create).not.toHaveBeenCalled()
-		})
 	})
 
 	describe('getById', () => {
@@ -257,13 +250,6 @@ describe('LostItemUseCases', () => {
 				useCases.update('lost-item-1', 'user-2', { title: 'Nouveau titre' }),
 			).rejects.toThrow(LostItemForbiddenError)
 			expect(repository.update).not.toHaveBeenCalled()
-		})
-
-		it('throws when the update data is invalid', async () => {
-			await expect(
-				useCases.update('lost-item-1', 'user-1', { description: 'Trop court' }),
-			).rejects.toThrow()
-			expect(repository.findById).not.toHaveBeenCalled()
 		})
 
 		it('throws LostItemNotFoundError when the item does not exist', async () => {

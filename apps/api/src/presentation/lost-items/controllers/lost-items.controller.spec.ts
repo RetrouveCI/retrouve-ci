@@ -4,9 +4,11 @@ import type { Auth } from '@/infrastructure/auth/auth.config'
 import { FIND_MATCHES_JOB } from '@/domains/matching/constants'
 import type { LostItem } from '@/domains/lost-items/models/lost-item.model'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
-import type { CreateLostItemDto } from '../dto/create-lost-item.dto'
-import type { ListLostItemsQueryDto } from '../dto/list-lost-items.query.dto'
-import type { UpdateLostItemDto } from '../dto/update-lost-item.dto'
+import type {
+	CreateLostItemData,
+	ListLostItemsFilterData,
+	UpdateLostItemData,
+} from '@app/contracts/lost-items'
 import { LostItemsController } from './lost-items.controller'
 
 function buildLostItem(overrides: Partial<LostItem> = {}): LostItem {
@@ -68,7 +70,7 @@ describe('LostItemsController', () => {
 
 	describe('create', () => {
 		it('converts the eventDate string, forwards the session user id and enqueues a matching job', async () => {
-			const dto: CreateLostItemDto = {
+			const dto: CreateLostItemData = {
 				type: 'lost',
 				category: 'phone',
 				title: 'iPhone 13 perdu',
@@ -98,7 +100,7 @@ describe('LostItemsController', () => {
 
 	describe('list', () => {
 		it('delegates to the use cases', async () => {
-			const query: ListLostItemsQueryDto = { page: 1, pageSize: 20 }
+			const query: ListLostItemsFilterData = { page: 1, pageSize: 20 }
 			const response = {
 				items: [buildLostItem()],
 				total: 1,
@@ -117,7 +119,7 @@ describe('LostItemsController', () => {
 		})
 
 		it('forwards commune and converts the date range to inclusive day bounds', async () => {
-			const query: ListLostItemsQueryDto = {
+			const query: ListLostItemsFilterData = {
 				page: 1,
 				pageSize: 20,
 				commune: 'Cocody',
@@ -146,7 +148,7 @@ describe('LostItemsController', () => {
 
 	describe('listMine', () => {
 		it('delegates to the use cases with the session user id', async () => {
-			const query: ListLostItemsQueryDto = { page: 1, pageSize: 20 }
+			const query: ListLostItemsFilterData = { page: 1, pageSize: 20 }
 			const response = {
 				items: [buildLostItem({ userId: 'user-1' })],
 				total: 1,
@@ -188,7 +190,7 @@ describe('LostItemsController', () => {
 
 	describe('update', () => {
 		it('converts the eventDate string when present', async () => {
-			const dto: UpdateLostItemDto = {
+			const dto: UpdateLostItemData = {
 				title: 'Nouveau titre',
 				eventDate: '2026-02-01',
 			}
@@ -206,7 +208,7 @@ describe('LostItemsController', () => {
 		})
 
 		it('omits eventDate when not provided', async () => {
-			const dto: UpdateLostItemDto = { title: 'Nouveau titre' }
+			const dto: UpdateLostItemData = { title: 'Nouveau titre' }
 			const updated = buildLostItem({ title: 'Nouveau titre' })
 			vi.mocked(useCases.update).mockResolvedValue(updated)
 
