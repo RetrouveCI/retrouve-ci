@@ -1,19 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { LetextoConfig } from './letexto.config'
-import { SmsDeliveryError } from './sms.errors'
+import { InvalidRecipientError, SmsDeliveryError } from './sms.errors'
+
+const COUNTRY_CODE = '225'
+const LOCAL_NUMBER_LENGTH = 10
 
 export interface SendSmsInput {
-	/** E.164, with or without the leading `+`. */
 	to: string
 	content: string
 }
 
-/**
- * Letexto expects the recipient in international form **without** the `+`
- * (`2250585743342`), while better-auth stores and receives E.164 (`+225…`).
- */
 export function toLetextoRecipient(phoneNumber: string): string {
-	return phoneNumber.replace(/[^\d]/g, '')
+	const digits = phoneNumber.replace(/\D/g, '')
+	const local = digits.startsWith(COUNTRY_CODE)
+		? digits.slice(COUNTRY_CODE.length)
+		: digits
+
+	if (local.length !== LOCAL_NUMBER_LENGTH) {
+		throw new InvalidRecipientError(phoneNumber)
+	}
+
+	return `${COUNTRY_CODE}${local}`
 }
 
 @Injectable()
@@ -57,6 +64,7 @@ export class LetextoService {
 
 		if (!response.ok) {
 			const body = await response.text().catch(() => '')
+
 			throw new SmsDeliveryError(
 				`Letexto refused the message (${response.status})${body ? `: ${body}` : ''}`,
 				response.status,

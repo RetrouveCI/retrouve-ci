@@ -183,14 +183,24 @@ shared/           # Cross-cutting: errors, exception filters
   builds the message and calls `LetextoService` (`infrastructure/sms/`). Jobs
   retry three times with an exponential backoff and are removed on both success
   **and** failure, since each carries a live code; the failure log names the
-  recipient, never the code. Templates live in `shared/auth/otp-message.ts` and
-  are deliberately **unaccented** — one accent switches the SMS from GSM-7 to
-  UCS-2 and halves the segment from 160 characters to 70 — and are asserted
-  against a 150-char ceiling by their spec. `LETEXTO_API_URL`, `LETEXTO_API_KEY`
-  and `LETEXTO_API_SENDER` are **required in production**: the API refuses to
-  start without them, because a sign-in that cannot deliver its code is worse
-  than a boot failure. Left unset in development, the code is logged to the
-  console as it was before there was a gateway.
+  recipient, never the code. The recipient is normalised to `225` + **exactly 10
+  digits**, which is what the gateway addresses: E.164 (what better-auth
+  stores), a bare local number and either of them spaced are all accepted, and
+  anything else raises `InvalidRecipientError`, which the consumer turns into
+  BullMQ's `UnrecoverableError` — a number that will never be valid must not
+  burn the retries a transient failure needs. The same rule is enforced on every
+  phone field of both front-ends, from `shared/utils/phone.ts` in each app
+  (duplicated on purpose: there is no `@app/contracts` yet and two apps cannot
+  import each other), the admin's optional administrator phone included, since
+  it shares the `user.phoneNumber` column the public app sends codes to.
+  Templates live in `shared/auth/otp-message.ts` and are deliberately
+  **unaccented** — one accent switches the SMS from GSM-7 to UCS-2 and halves
+  the segment from 160 characters to 70 — and are asserted against a 150-char
+  ceiling by their spec. `LETEXTO_API_URL`, `LETEXTO_API_KEY` and
+  `LETEXTO_API_SENDER` are **required in production**: the API refuses to start
+  without them, because a sign-in that cannot deliver its code is worse than a
+  boot failure. Left unset in development, the code is logged to the console as
+  it was before there was a gateway.
 - Background jobs (e.g. match notifications, OTP SMS) run on **BullMQ** backed
   by Redis.
 - A startup **seeder** creates the super admin and a mock user from env vars

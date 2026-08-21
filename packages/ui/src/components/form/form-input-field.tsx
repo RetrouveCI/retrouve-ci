@@ -15,6 +15,8 @@ interface FormInputFieldProps<
 	type?: 'text' | 'tel' | 'date' | 'email' | 'password' | 'datetime-local'
 	placeholder?: string
 	className?: string
+	inputMode?: React.ComponentProps<'input'>['inputMode']
+	maxLength?: number
 }
 
 export function FormInputField<
@@ -29,6 +31,8 @@ export function FormInputField<
 	type = 'text',
 	placeholder,
 	className = 'h-11',
+	inputMode,
+	maxLength,
 }: FormInputFieldProps<TFieldValues, TName, TTransformedValues>) {
 	return (
 		<Controller
@@ -46,6 +50,8 @@ export function FormInputField<
 						type={type}
 						placeholder={placeholder}
 						className={className}
+						inputMode={inputMode}
+						maxLength={maxLength}
 						aria-invalid={fieldState.invalid}
 					/>
 					{fieldState.error && <FieldError errors={[fieldState.error]} />}

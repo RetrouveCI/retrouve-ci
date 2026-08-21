@@ -1,11 +1,11 @@
 import { z } from 'zod'
+import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 
 export const phoneNumberSchema = z.object({
 	phoneNumber: z
 		.string()
 		.trim()
-		.min(8, 'Veuillez entrer un numéro valide')
-		.regex(/^\d[\d\s]*$/, 'Numéro invalide'),
+		.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
 })
 
 export const otpSchema = z.object({

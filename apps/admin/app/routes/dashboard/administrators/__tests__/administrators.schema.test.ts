@@ -40,14 +40,28 @@ describe('adminCreateSchema', () => {
 		expect(result.data?.phone).toBeUndefined()
 	})
 
-	it('rejects a phone number over 20 characters', () => {
-		const result = adminCreateSchema.safeParse({
-			...VALID,
-			phone: '0'.repeat(21),
-		})
+	// Blank stays allowed, but a number that is typed must be a real one: it
+	// lands in the same column the public app sends OTPs to.
+	it.each([
+		['too short', '058574334'],
+		['too long', '05857433421'],
+		['letters', 'pas un numero'],
+	])('rejects a phone number that is %s', (_label, phone) => {
+		const result = adminCreateSchema.safeParse({ ...VALID, phone })
 
-		expect(result.error?.issues[0]?.message).toBe('Maximum 20 caractères')
+		expect(result.error?.issues[0]?.message).toBe(
+			'Entrez un numéro à 10 chiffres',
+		)
 	})
+
+	it.each(['0585743342', '05 85 74 33 42', '+2250585743342'])(
+		'accepts %s',
+		phone => {
+			expect(adminCreateSchema.safeParse({ ...VALID, phone }).success).toBe(
+				true,
+			)
+		},
+	)
 
 	it('reports a name shorter than two characters', () => {
 		const result = adminCreateSchema.safeParse({ ...VALID, name: 'A' })

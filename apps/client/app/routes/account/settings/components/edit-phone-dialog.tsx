@@ -141,6 +141,8 @@ export function EditPhoneDialog() {
 											{...field}
 											id={field.name}
 											type="tel"
+											inputMode="numeric"
+											maxLength={14}
 											value={field.value ?? ''}
 											placeholder="07 XX XX XX XX"
 											className="h-11 flex-1"

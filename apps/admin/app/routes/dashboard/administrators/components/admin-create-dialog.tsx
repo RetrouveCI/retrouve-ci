@@ -119,6 +119,8 @@ export function AdminCreateDialog({
 								name="phone"
 								label="Téléphone (optionnel)"
 								type="tel"
+								inputMode="numeric"
+								maxLength={14}
 								placeholder="+225 07 00 00 00 00"
 							/>
 							<PasswordField

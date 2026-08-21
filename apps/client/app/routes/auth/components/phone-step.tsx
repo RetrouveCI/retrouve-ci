@@ -40,6 +40,8 @@ export function PhoneStep({
 						id="phone"
 						name="phoneNumber"
 						type="tel"
+						inputMode="numeric"
+						maxLength={14}
 						placeholder="07 XX XX XX XX"
 						value={phoneNumber}
 						onChange={e => setPhoneNumber(e.target.value)}

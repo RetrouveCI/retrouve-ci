@@ -2,7 +2,7 @@ import type { ConfigService } from '@nestjs/config'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LetextoConfig } from './letexto.config'
 import { LetextoService, toLetextoRecipient } from './letexto.service'
-import { SmsDeliveryError } from './sms.errors'
+import { InvalidRecipientError, SmsDeliveryError } from './sms.errors'
 
 const SETTINGS: Record<string, string> = {
 	LETEXTO_API_URL: 'https://apis.letexto.com/v1/messages/send',
@@ -33,10 +33,27 @@ afterEach(() => {
 })
 
 describe('toLetextoRecipient', () => {
-	// better-auth stores E.164; Letexto's `to` takes digits only.
-	it('strips the plus and any spacing', () => {
-		expect(toLetextoRecipient('+2250585743342')).toBe('2250585743342')
-		expect(toLetextoRecipient('+225 05 85 74 33 42')).toBe('2250585743342')
+	// Letexto wants `225` plus exactly the 10 local digits.
+	it.each([
+		['E.164 as better-auth stores it', '+2250585743342'],
+		['E.164 with the spacing the form shows', '+225 05 85 74 33 42'],
+		['no plus', '2250585743342'],
+		['the local number alone', '0585743342'],
+		['the local number spaced', '05 85 74 33 42'],
+	])('accepts %s', (_label, input) => {
+		expect(toLetextoRecipient(input)).toBe('2250585743342')
+	})
+
+	// Sending a malformed recipient would be billed and silently lost, so it is
+	// refused here instead.
+	it.each([
+		['too short', '+22505857433'],
+		['too long', '+22505857433421'],
+		['empty', ''],
+		['letters only', 'pas-un-numero'],
+		['a country code with nothing after it', '225'],
+	])('refuses %s', (_label, input) => {
+		expect(() => toLetextoRecipient(input)).toThrow(InvalidRecipientError)
 	})
 })
 

@@ -1,8 +1,11 @@
-import type { Job } from 'bullmq'
+import { type Job, UnrecoverableError } from 'bullmq'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { SendOtpJobData } from '@/infrastructure/auth/otp-dispatcher.service'
 import type { LetextoService } from '@/infrastructure/sms/letexto.service'
-import { SmsDeliveryError } from '@/infrastructure/sms/sms.errors'
+import {
+	InvalidRecipientError,
+	SmsDeliveryError,
+} from '@/infrastructure/sms/sms.errors'
 import { OtpConsumer } from './otp.consumer'
 
 function buildJob(overrides: Partial<SendOtpJobData> = {}, attemptsMade = 0) {
@@ -82,6 +85,22 @@ describe('OtpConsumer', () => {
 		await expect(
 			new OtpConsumer(buildSms(true, send)).process(buildJob()),
 		).rejects.toBeInstanceOf(SmsDeliveryError)
+	})
+
+	// Three retries are for a gateway that might come back; a bad number never
+	// will, so BullMQ is told not to bother.
+	it('does not retry a recipient the gateway cannot accept', async () => {
+		const send = vi
+			.fn()
+			.mockRejectedValue(new InvalidRecipientError('+22505857433'))
+		const consumer = new OtpConsumer(buildSms(true, send))
+		vi.spyOn(consumerLogger(consumer), 'error').mockImplementation(
+			() => undefined,
+		)
+
+		await expect(consumer.process(buildJob())).rejects.toBeInstanceOf(
+			UnrecoverableError,
+		)
 	})
 
 	it('never writes the code into the failure log', async () => {
