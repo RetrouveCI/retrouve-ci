@@ -74,7 +74,8 @@ packages/
   database/            # Prisma schema, migrations & generated client (@app/database)
   ui/                  # Shared component library (source-only, no build step)
   eslint-config/       # Shared ESLint configs (base, next, react-internal)
-  typescript-config/   # Shared tsconfig presets
+  typescript-config/   # Shared tsconfig presets (base, react-router, nest,
+                       # react-library) — every app and package extends one
   vitest-config/       # Shared Vitest presets (base, react)
 ```
 
