@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useRevalidator } from 'react-router'
 import { Controller, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { OTP_LENGTH } from '@app/contracts/shared'
 import {
 	Button,
 	Dialog,
@@ -207,6 +208,7 @@ export function EditPhoneDialog() {
 										id={field.name}
 										value={field.value ?? ''}
 										inputMode="numeric"
+										maxLength={OTP_LENGTH}
 										placeholder="123456"
 										className="h-11"
 										aria-invalid={fieldState.invalid || undefined}

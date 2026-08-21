@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { currentPasswordSchema } from '@app/contracts/shared'
 import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 
 export const loginSchema = z.object({
@@ -6,7 +7,7 @@ export const loginSchema = z.object({
 		.string()
 		.trim()
 		.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
-	password: z.string().min(4, 'Mot de passe trop court.'),
+	password: currentPasswordSchema,
 })
 
 export type LoginInput = z.input<typeof loginSchema>

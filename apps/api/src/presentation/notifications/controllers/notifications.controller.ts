@@ -9,6 +9,7 @@ import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructure/auth/auth.config'
 import { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('notifications')
 @ApiBearerAuth()
@@ -17,6 +18,7 @@ export class NotificationsController {
 	constructor(private readonly notificationUseCases: NotificationUseCases) {}
 
 	@Get('mine')
+	@ApiZodQuery(listNotificationsFilterSchema)
 	listMine(
 		@Session() session: UserSession<Auth>,
 		@Query(new ZodValidationPipe(listNotificationsFilterSchema))

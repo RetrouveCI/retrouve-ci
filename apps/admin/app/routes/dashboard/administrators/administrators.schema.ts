@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { passwordSchema } from '@app/contracts/shared'
 import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 
 /** The two roles this interface can hand out — `super_admin` is not one of them. */
@@ -24,7 +25,7 @@ export const adminCreateSchema = z.object({
 		)
 		.optional()
 		.transform(value => (value === '' ? undefined : value)),
-	password: z.string().min(6, 'Minimum 6 caractères'),
+	password: passwordSchema,
 	role: editableRoleSchema,
 })
 

@@ -1,5 +1,6 @@
 import { createAuth as createSharedAuth } from '@app/auth'
 import { phoneNumber } from 'better-auth/plugins'
+import { isValidLocalNumber } from '@app/contracts/shared'
 import type { PrismaClient } from '@app/database'
 import { OTP_TTL_SECONDS } from '@/shared/auth/otp.const'
 import type { OtpDispatcher } from './otp-dispatcher.service'
@@ -13,6 +14,7 @@ export function createClientAuth(prisma: PrismaClient, otp: OtpDispatcher) {
 		plugins: [
 			phoneNumber({
 				expiresIn: OTP_TTL_SECONDS,
+				phoneNumberValidator: isValidLocalNumber,
 				sendOTP: ({ phoneNumber, code }) =>
 					otp.dispatch({ purpose: 'sign-in', phoneNumber, code }),
 				sendPasswordResetOTP: ({ phoneNumber, code }) =>

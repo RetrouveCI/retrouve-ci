@@ -58,7 +58,7 @@ Apply these checks only against code you have actually Read.
 - All `formData.get()` values must pass through Zod before use — casting with `as string` without validation is **HIGH**.
 - ID fields from form data must be validated, not cast.
 - Front-end forms use `react-hook-form` + a resolver over the shared Zod schema, and the action re-validates with that same schema — hand-rolled `useState` validation, or a schema duplicated between form and action, is a finding.
-- API controllers validate every input (DTO `class-validator`, or the Zod pipe once contracts land); `whitelist` + `forbidNonWhitelisted` must stay on.
+- API controllers validate every input: each `@Body`/`@Query` carries its own `ZodValidationPipe` over a `@app/contracts/<domain>` schema. There is no global `ValidationPipe` and no `class-validator` DTO left — a body field the schema does not know is stripped, not refused.
 
 ### Types & Code Quality
 

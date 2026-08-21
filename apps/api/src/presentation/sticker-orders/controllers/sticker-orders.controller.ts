@@ -21,6 +21,7 @@ import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructure/auth/auth.config'
 import { StickerOrderUseCases } from '@/domains/sticker-orders/use-cases/sticker-order.use-cases'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('sticker-orders')
 @ApiBearerAuth()
@@ -29,6 +30,7 @@ export class StickerOrdersController {
 	constructor(private readonly stickerOrderUseCases: StickerOrderUseCases) {}
 
 	@Post()
+	@ApiZodBody(createStickerOrderSchema)
 	create(
 		@Session() session: UserSession<Auth>,
 		@Body(new ZodValidationPipe(createStickerOrderSchema))
@@ -42,6 +44,7 @@ export class StickerOrdersController {
 
 	@Get()
 	@Roles(['admin'])
+	@ApiZodQuery(listStickerOrdersFilterSchema)
 	list(
 		@Query(new ZodValidationPipe(listStickerOrdersFilterSchema))
 		filter: ListStickerOrdersFilterData,
@@ -50,6 +53,7 @@ export class StickerOrdersController {
 	}
 
 	@Get('mine')
+	@ApiZodQuery(listStickerOrdersFilterSchema)
 	listMine(
 		@Session() session: UserSession<Auth>,
 		@Query(new ZodValidationPipe(listStickerOrdersFilterSchema))
@@ -65,6 +69,7 @@ export class StickerOrdersController {
 
 	@Patch(':id/status')
 	@Roles(['admin'])
+	@ApiZodBody(updateStickerOrderStatusSchema)
 	updateStatus(
 		@Param('id') id: string,
 		@Body(new ZodValidationPipe(updateStickerOrderStatusSchema))

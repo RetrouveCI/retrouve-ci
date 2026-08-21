@@ -3,7 +3,6 @@ import { config } from 'dotenv'
 
 config()
 
-import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import {
 	FastifyAdapter,
@@ -69,14 +68,6 @@ async function bootstrap(): Promise<void> {
 		throwFileSizeLimit: false,
 		limits: { fileSize: MAX_PHOTO_SIZE, files: 1 },
 	})
-
-	app.useGlobalPipes(
-		new ValidationPipe({
-			whitelist: true,
-			transform: true,
-			forbidNonWhitelisted: true,
-		}),
-	)
 
 	app.useGlobalFilters(new DomainExceptionFilter())
 

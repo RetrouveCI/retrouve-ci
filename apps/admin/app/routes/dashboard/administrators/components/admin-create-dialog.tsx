@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { PASSWORD_HINT, PASSWORD_PLACEHOLDER } from '@app/contracts/shared'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -127,7 +128,8 @@ export function AdminCreateDialog({
 								control={form.control}
 								name="password"
 								label="Mot de passe"
-								placeholder="Minimum 6 caractères"
+								placeholder={PASSWORD_PLACEHOLDER}
+								hint={PASSWORD_HINT}
 								inputClassName="h-11"
 								disabled={fetcher.isSubmitting}
 							/>

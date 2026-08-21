@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { PASSWORD_HINT, PASSWORD_PLACEHOLDER } from '@app/contracts/shared'
 import { CheckCircle2, Loader2, Lock } from 'lucide-react'
 import {
 	Alert,
@@ -70,8 +71,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
 					control={form.control}
 					name="newPassword"
 					label="Nouveau mot de passe"
-					placeholder="Minimum 8 caractères"
-					hint="Min. 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre"
+					placeholder={PASSWORD_PLACEHOLDER}
+					hint={PASSWORD_HINT}
 					icon={Lock}
 					inputClassName="h-10 rounded-lg"
 					disabled={fetcher.isSubmitting}

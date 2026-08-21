@@ -1,20 +1,13 @@
 import { z } from 'zod'
+import { passwordSchema, withPasswordConfirmation } from '@app/contracts/shared'
 
-export const changePasswordSchema = z
-	.object({
+export const changePasswordSchema = withPasswordConfirmation(
+	z.object({
 		currentPassword: z.string().min(1, 'Mot de passe actuel requis'),
-		newPassword: z
-			.string()
-			.min(8, 'Au moins 8 caractères')
-			.regex(/[A-Z]/, 'Au moins une majuscule')
-			.regex(/[a-z]/, 'Au moins une minuscule')
-			.regex(/[0-9]/, 'Au moins un chiffre'),
+		newPassword: passwordSchema,
 		confirmPassword: z.string().min(1, 'Confirmation requise'),
-	})
-	.refine(data => data.newPassword === data.confirmPassword, {
-		message: 'Les mots de passe ne correspondent pas',
-		path: ['confirmPassword'],
-	})
+	}),
+)
 
 export type ChangePasswordInput = z.input<typeof changePasswordSchema>
 export type ChangePasswordData = z.output<typeof changePasswordSchema>

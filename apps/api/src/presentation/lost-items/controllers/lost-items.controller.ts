@@ -30,6 +30,7 @@ import { FIND_MATCHES_JOB, MATCHING_QUEUE } from '@/domains/matching/constants'
 import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('lost-items')
 @ApiBearerAuth()
@@ -41,6 +42,7 @@ export class LostItemsController {
 	) {}
 
 	@Post()
+	@ApiZodBody(createLostItemSchema)
 	async create(
 		@Session() session: UserSession<Auth>,
 		@Body(new ZodValidationPipe(createLostItemSchema)) data: CreateLostItemData,
@@ -60,6 +62,7 @@ export class LostItemsController {
 
 	@Get()
 	@AllowAnonymous()
+	@ApiZodQuery(listLostItemsFilterSchema)
 	list(
 		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
 		filter: ListLostItemsFilterData,
@@ -71,6 +74,7 @@ export class LostItemsController {
 	}
 
 	@Get('mine')
+	@ApiZodQuery(listLostItemsFilterSchema)
 	listMine(
 		@Session() session: UserSession<Auth>,
 		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
@@ -100,6 +104,7 @@ export class LostItemsController {
 
 	@Get('admin')
 	@Roles(['admin'])
+	@ApiZodQuery(adminListLostItemsFilterSchema)
 	listForAdmin(
 		@Query(new ZodValidationPipe(adminListLostItemsFilterSchema))
 		filter: AdminListLostItemsFilterData,
@@ -109,6 +114,7 @@ export class LostItemsController {
 
 	@Patch(':id/moderation')
 	@Roles(['admin'])
+	@ApiZodBody(updateModerationStatusSchema)
 	updateModerationStatus(
 		@Param('id') id: string,
 		@Body(new ZodValidationPipe(updateModerationStatusSchema))
@@ -130,6 +136,7 @@ export class LostItemsController {
 	}
 
 	@Patch(':id')
+	@ApiZodBody(updateLostItemSchema)
 	update(
 		@Session() session: UserSession<Auth>,
 		@Param('id') id: string,

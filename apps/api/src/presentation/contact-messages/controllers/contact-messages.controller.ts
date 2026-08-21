@@ -19,6 +19,7 @@ import {
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth'
 import { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('contact-messages')
 @ApiBearerAuth()
@@ -30,6 +31,7 @@ export class ContactMessagesController {
 
 	@Post()
 	@AllowAnonymous()
+	@ApiZodBody(createContactMessageSchema)
 	create(
 		@Body(new ZodValidationPipe(createContactMessageSchema))
 		data: CreateContactMessageData,
@@ -39,6 +41,7 @@ export class ContactMessagesController {
 
 	@Get()
 	@Roles(['admin'])
+	@ApiZodQuery(listContactMessagesFilterSchema)
 	list(
 		@Query(new ZodValidationPipe(listContactMessagesFilterSchema))
 		filter: ListContactMessagesFilterData,
@@ -54,6 +57,7 @@ export class ContactMessagesController {
 
 	@Patch(':id/status')
 	@Roles(['admin'])
+	@ApiZodBody(updateContactMessageStatusSchema)
 	updateStatus(
 		@Param('id') id: string,
 		@Body(new ZodValidationPipe(updateContactMessageStatusSchema))

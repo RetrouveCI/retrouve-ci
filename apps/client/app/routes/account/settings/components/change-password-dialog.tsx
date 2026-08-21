@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useController, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { PASSWORD_HINT, PASSWORD_PLACEHOLDER } from '@app/contracts/shared'
 import {
 	Button,
 	Dialog,
@@ -120,7 +121,8 @@ export function ChangePasswordDialog() {
 							label="Nouveau mot de passe"
 							value={next.field.value ?? ''}
 							onChange={next.field.onChange}
-							placeholder="6 caractères minimum"
+							placeholder={PASSWORD_PLACEHOLDER}
+							hint={PASSWORD_HINT}
 							disabled={isSaving}
 						/>
 						{next.fieldState.error && (
