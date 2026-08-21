@@ -1,17 +1,9 @@
+import type { CreateStickerOrderInput } from '@app/contracts/sticker-orders'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type { StickerOrderApiDto } from '../../../account/orders/types/orders.types'
 
-export interface CreateStickerOrderPayload {
-	packId: string
-	paymentMethod: string
-	deliveryAddress: string
-	deliveryCity: string
-	deliveryNotes?: string
-	couponCode?: string
-}
-
 export async function createStickerOrder(
-	payload: CreateStickerOrderPayload,
+	payload: CreateStickerOrderInput,
 	request: Request,
 ): Promise<StickerOrderApiDto> {
 	return apiFetch<StickerOrderApiDto>('/sticker-orders', {

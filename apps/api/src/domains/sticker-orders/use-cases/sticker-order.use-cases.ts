@@ -19,7 +19,6 @@ import type {
 	ListStickerOrdersFilter,
 	StickerOrderStatus,
 } from '../types/sticker-order.types'
-import { validateCreateStickerOrder } from '../validators/sticker-order.validator'
 
 @Injectable()
 export class StickerOrderUseCases {
@@ -29,10 +28,7 @@ export class StickerOrderUseCases {
 	) {}
 
 	async create(data: CreateStickerOrderData): Promise<StickerOrder> {
-		validateCreateStickerOrder(data)
-
-		// validateCreateStickerOrder guarantees the pack exists
-		const pack = getStickerPack(data.packId)!
+		const pack = getStickerPack(data.packId)
 		const deliveryFee = computeDeliveryFee(data.couponCode)
 		const total = pack.price + deliveryFee
 

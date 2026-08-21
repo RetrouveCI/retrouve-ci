@@ -1,3 +1,4 @@
+import { DELIVERY_FEE } from '@app/contracts/sticker-orders'
 import { Button, Input, Label } from '@app/ui/components'
 import type { Control } from 'react-hook-form'
 import { ArrowLeft, ArrowRight, Tag, Check, X } from 'lucide-react'
@@ -27,8 +28,6 @@ interface DeliveryStepProps {
 	onBack: () => void
 	onNext: () => void
 }
-
-const DELIVERY_FEE_BASE = 1000
 
 export function DeliveryStep({
 	control,
@@ -149,7 +148,7 @@ export function DeliveryStep({
 							<p className="text-muted-foreground text-xs">
 								Sans coupon, la livraison est facturée{' '}
 								<span className="font-medium">
-									{formatPrice(DELIVERY_FEE_BASE)} FCFA
+									{formatPrice(DELIVERY_FEE)} FCFA
 								</span>{' '}
 								partout à Abidjan.
 							</p>

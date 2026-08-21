@@ -95,13 +95,6 @@ describe('StickerOrderUseCases', () => {
 				expect.objectContaining({ deliveryFee: 0, total: 1500 }),
 			)
 		})
-
-		it('throws when the pack id is unknown', async () => {
-			await expect(
-				useCases.create({ ...data, packId: 'pack-unknown' }),
-			).rejects.toThrow()
-			expect(repository.create).not.toHaveBeenCalled()
-		})
 	})
 
 	describe('getById', () => {

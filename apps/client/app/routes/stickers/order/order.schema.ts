@@ -1,14 +1,11 @@
 import { z } from 'zod'
-import { PACKS, PAYMENT_METHODS } from './stickers-order.const'
+import { stickerPackIdSchema } from '@app/contracts/sticker-orders'
+import { PAYMENT_METHODS } from './stickers-order.const'
 
-const PACK_IDS = PACKS.map(p => p.id) as [string, ...string[]]
-const PAYMENT_METHOD_IDS = PAYMENT_METHODS.map(p => p.id) as [
-	string,
-	...string[],
-]
+const PAYMENT_METHOD_IDS = PAYMENT_METHODS.map(method => method.id)
 
 export const stickerOrderSchema = z.object({
-	packId: z.enum(PACK_IDS, { error: 'Sélectionnez un pack' }),
+	packId: z.string().min(1, 'Sélectionnez un pack').pipe(stickerPackIdSchema),
 	name: z
 		.string()
 		.min(2, 'Votre nom est requis')

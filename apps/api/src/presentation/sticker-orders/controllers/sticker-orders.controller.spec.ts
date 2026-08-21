@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { CreateStickerOrderData } from '@app/contracts/sticker-orders'
 import type { StickerOrderUseCases } from '@/domains/sticker-orders/use-cases/sticker-order.use-cases'
 import { StickerOrdersController } from './sticker-orders.controller'
 
@@ -31,17 +32,17 @@ describe('StickerOrdersController', () => {
 			const order = { id: 'order-1' }
 			vi.mocked(useCases.create).mockResolvedValue(order as never)
 
-			const dto = {
+			const data: CreateStickerOrderData = {
 				packId: 'pack-4',
 				paymentMethod: 'Orange Money',
 				deliveryAddress: 'Cocody Riviera 3, Abidjan',
 				deliveryCity: 'Abidjan',
 			}
 
-			const result = await controller.create(session, dto)
+			const result = await controller.create(session, data)
 
 			expect(useCases.create).toHaveBeenCalledWith({
-				...dto,
+				...data,
 				userId: 'user-1',
 			})
 			expect(result).toEqual(order)

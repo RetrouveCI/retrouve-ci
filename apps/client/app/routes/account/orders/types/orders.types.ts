@@ -1,9 +1,6 @@
-export type OrderStatus =
-	| 'pending'
-	| 'processing'
-	| 'shipped'
-	| 'delivered'
-	| 'cancelled'
+import type { StickerOrderStatus } from '@app/contracts/sticker-orders'
+
+export type OrderStatus = StickerOrderStatus
 
 export interface Order {
 	id: string

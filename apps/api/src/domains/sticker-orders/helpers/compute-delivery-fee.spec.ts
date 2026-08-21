@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DELIVERY_FEE } from '../constants'
+import { DELIVERY_FEE } from '@app/contracts/sticker-orders'
 import { computeDeliveryFee } from './compute-delivery-fee'
 
 describe('computeDeliveryFee', () => {

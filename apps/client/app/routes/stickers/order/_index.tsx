@@ -16,7 +16,7 @@ import {
 import { orderAction } from './servers/order.action'
 import {
 	DELIVERY_FEE,
-	VALID_COUPONS,
+	FREE_DELIVERY_COUPONS,
 	PACKS,
 	PAYMENT_METHODS,
 } from './stickers-order.const'
@@ -93,7 +93,7 @@ export default function CommanderPage() {
 
 	const handleApplyCoupon = () => {
 		const code = couponInput.trim().toUpperCase()
-		if (!VALID_COUPONS.includes(code)) {
+		if (!FREE_DELIVERY_COUPONS.includes(code)) {
 			setCouponError('Code invalide ou expiré.')
 			setAppliedCoupon(null)
 			return

@@ -1,16 +1,10 @@
-import {
-	ForbiddenError,
-	NotFoundError,
-	ValidationError,
-} from '@/shared/errors/domain.error'
+import { ForbiddenError, NotFoundError } from '@/shared/errors/domain.error'
 
 export class StickerOrderNotFoundError extends NotFoundError {
 	constructor(id: string) {
 		super(`Sticker order with id "${id}" not found`)
 	}
 }
-
-export class InvalidStickerOrderError extends ValidationError {}
 
 export class StickerOrderForbiddenError extends ForbiddenError {
 	constructor(id: string) {
