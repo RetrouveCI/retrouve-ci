@@ -9,12 +9,19 @@ import {
 	Query,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import {
+	adminListEventsFilterSchema,
+	createEventSchema,
+	listEventsFilterSchema,
+	updateEventSchema,
+	type AdminListEventsFilterData,
+	type CreateEventData,
+	type ListEventsFilterData,
+	type UpdateEventData,
+} from '@app/contracts/events'
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth'
 import { EventUseCases } from '@/domains/events/use-cases/event.use-cases'
-import { AdminListEventsQueryDto } from '../dto/admin-list-events.query.dto'
-import { CreateEventDto } from '../dto/create-event.dto'
-import { ListEventsQueryDto } from '../dto/list-events.query.dto'
-import { UpdateEventDto } from '../dto/update-event.dto'
+import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 
 @ApiTags('events')
 @ApiBearerAuth()
@@ -24,23 +31,31 @@ export class EventsController {
 
 	@Post()
 	@Roles(['admin'])
-	create(@Body() dto: CreateEventDto) {
+	create(
+		@Body(new ZodValidationPipe(createEventSchema)) data: CreateEventData,
+	) {
 		return this.eventUseCases.create({
-			...dto,
-			eventDate: new Date(dto.eventDate),
+			...data,
+			eventDate: new Date(data.eventDate),
 		})
 	}
 
 	@Get()
 	@AllowAnonymous()
-	list(@Query() query: ListEventsQueryDto) {
-		return this.eventUseCases.list({ ...query, status: 'published' })
+	list(
+		@Query(new ZodValidationPipe(listEventsFilterSchema))
+		filter: ListEventsFilterData,
+	) {
+		return this.eventUseCases.list({ ...filter, status: 'published' })
 	}
 
 	@Get('admin')
 	@Roles(['admin'])
-	listForAdmin(@Query() query: AdminListEventsQueryDto) {
-		return this.eventUseCases.list(query)
+	listForAdmin(
+		@Query(new ZodValidationPipe(adminListEventsFilterSchema))
+		filter: AdminListEventsFilterData,
+	) {
+		return this.eventUseCases.list(filter)
 	}
 
 	@Get(':id')
@@ -51,8 +66,11 @@ export class EventsController {
 
 	@Patch(':id')
 	@Roles(['admin'])
-	update(@Param('id') id: string, @Body() dto: UpdateEventDto) {
-		const { eventDate, ...rest } = dto
+	update(
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(updateEventSchema)) data: UpdateEventData,
+	) {
+		const { eventDate, ...rest } = data
 
 		return this.eventUseCases.update(id, {
 			...rest,

@@ -160,9 +160,16 @@ Two rules hold for every schema added here:
   `z.union([z.number(), z.string().transform(Number)])` instead, and give the
   union its own `error`, or it reports `Invalid input` in English.
 
-E5 delivered the skeleton and `shared/pagination.ts` only; the business schemas
-arrive in E6, one domain per PR. `MAX_PAGE_SIZE` lives here now, but the API
-domains still read their own copies until then.
+The business schemas arrive in E6, one domain per PR: `shared/pagination.ts`,
+`contact-messages/` and `events/` are in. `MAX_PAGE_SIZE` lives here now, and a
+migrated domain no longer keeps a copy of it.
+
+`events/` is where the package first carries a date. It deliberately does
+**not** use `z.iso.datetime()`: the admin form posts what an
+`<input type="datetime-local">` produces (`2026-09-01T18:30` — no seconds, no
+offset), which that helper rejects. `eventDate` accepts the ISO date and
+date-time shapes instead, and rebuilds the day to refuse the 31 February
+`Date.parse` would silently roll over.
 
 ### Database package (`packages/database`)
 
@@ -241,9 +248,14 @@ shared/           # Cross-cutting: errors, exception filters
   message must be French: a bare `z.enum` or `z.union` reports its default in
   English, so both need an explicit `error`. The global `ValidationPipe`
   (`whitelist` + `forbidNonWhitelisted`) stays registered until the last domain
-  moves, since DTOs remain elsewhere; the two do not conflict. Done:
-  `contact-messages`. Domain errors are translated to HTTP responses by
-  `DomainExceptionFilter`.
+  moves, since DTOs remain elsewhere; the two do not conflict. Note the one
+  behaviour change it brings: a body field the schema does not know is now
+  stripped, where `forbidNonWhitelisted` used to answer 400. A domain's
+  `validators/` folder is absorbed at the same time — a rule expressible as a
+  refinement (`.trim().min(10)`) belongs in the contract; only what Zod cannot
+  express (cross-aggregate invariants, uniqueness) stays in the use-case. Done:
+  `contact-messages`, `events`. Domain errors are translated to HTTP responses
+  by `DomainExceptionFilter`.
 - `apps/api` reads `@app/contracts` through its **`dist`**, so a contract change
   needs `pnpm --filter @app/contracts build` before `nest start` picks it up.
   `pnpm build` and `pnpm test` handle it via Turborepo's `^build`.

@@ -16,12 +16,16 @@ import {
 	FormRootError,
 	FormTextareaField,
 } from '@app/ui/components/form'
+import {
+	createEventSchema,
+	type CreateEventData,
+	type CreateEventInput,
+} from '@app/contracts/events'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
-import { eventSchema, type EventData, type EventInput } from '../events.schema'
 import type { Event } from '../types/events.types'
 import type { action } from '../_index'
 
-const EMPTY_VALUES: EventInput = {
+const EMPTY_VALUES: CreateEventInput = {
 	title: '',
 	description: '',
 	location: '',
@@ -30,7 +34,7 @@ const EMPTY_VALUES: EventInput = {
 	eventDate: '',
 }
 
-function toFormValues(event?: Event | null): EventInput {
+function toFormValues(event?: Event | null): CreateEventInput {
 	if (!event) return EMPTY_VALUES
 
 	return {
@@ -57,10 +61,10 @@ export function EventFormDialog({
 }: EventFormDialogProps) {
 	const isEditing = !!event
 	const [hasSubmitted, setHasSubmitted] = useState(false)
-	const fetcher = useActionFetcher<typeof action, EventInput>()
+	const fetcher = useActionFetcher<typeof action, CreateEventInput>()
 
-	const form = useForm<EventInput, unknown, EventData>({
-		resolver: standardSchemaResolver(eventSchema),
+	const form = useForm<CreateEventInput, unknown, CreateEventData>({
+		resolver: standardSchemaResolver(createEventSchema),
 		mode: 'onSubmit',
 		reValidateMode: 'onChange',
 		defaultValues: toFormValues(event),
@@ -83,7 +87,7 @@ export function EventFormDialog({
 		onOpenChange(false)
 	}, [hasSubmitted, fetcher.isOk, isEditing, onOpenChange])
 
-	const onSubmit = (values: EventData) => {
+	const onSubmit = (values: CreateEventData) => {
 		setHasSubmitted(true)
 		void fetcher.submit(
 			{

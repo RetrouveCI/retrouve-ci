@@ -1,17 +1,14 @@
+import { eventStatusSchema } from '@app/contracts/events'
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import { listEvents } from './events.service'
-import type { EventStatus } from '../types/events.types'
-
-const VALID_STATUSES: EventStatus[] = ['draft', 'published', 'cancelled']
 
 export async function eventsLoader({ request }: { request: Request }) {
 	await requireAdminSession(request)
 
 	const url = new URL(request.url)
 	const rawStatus = url.searchParams.get('status')
-	const status = VALID_STATUSES.includes(rawStatus as EventStatus)
-		? (rawStatus as EventStatus)
-		: undefined
+	const parsedStatus = eventStatusSchema.safeParse(rawStatus)
+	const status = parsedStatus.success ? parsedStatus.data : undefined
 
 	const { items, total } = await listEvents({ status }, request)
 

@@ -48,7 +48,7 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 
 ---
 
-## 3. E6 — Contrats Zod par domaine — 🟡 `contact-messages` fait
+## 3. E6 — Contrats Zod par domaine — 🟡 `contact-messages` et `events` faits
 
 **Branches** `migration-e6-contracts-<domaine>` · **scope** `api/<domaine>` ·
 **2 j au total** · dépend de E5.
@@ -60,22 +60,28 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
    `packages/contracts/src/<domaine>/<action>.schema.ts`. Exemple sur `events` :
 
    ```ts
-   // packages/contracts/src/events/create-event.schema.ts
+   // packages/contracts/src/events/create.schema.ts — tel que livré en E6.2
    import { z } from 'zod'
-   import { MIN_DESCRIPTION_LENGTH } from './events.const'
 
    export const createEventSchema = z.object({
-   	title: z.string().min(3).max(120),
-   	description: z.string().min(MIN_DESCRIPTION_LENGTH).max(2000),
-   	location: z.string().min(2).max(200),
-   	ville: z.string().min(2).max(120),
-   	commune: z.string().max(120).optional(),
-   	eventDate: z.iso.datetime(),
+   	title: z
+   		.string()
+   		.trim()
+   		.min(3, 'Le titre doit contenir au moins 3 caractères')
+   		.max(120, 'Maximum 120 caractères'),
+   	// …
+   	eventDate: eventDateSchema,
    })
 
    export type CreateEventInput = z.input<typeof createEventSchema>
    export type CreateEventData = z.output<typeof createEventSchema>
    ```
+
+   Deux règles que E6.2 a payées : **chaque message est en français**, y compris
+   les plafonds, puisque c'est le contrat qui alimente les champs du formulaire
+   ; et **`z.iso.datetime()` est un piège** pour un champ de date — il exige les
+   secondes et le fuseau, que `<input type="datetime-local">` ne poste pas.
+   `events` valide la forme ISO à la main (voir `create.schema.ts`).
 
 2. **Absorber le `validators/`** : les règles qui y vivaient (ex.
    `validateCreateEvent` qui contrôle `description.trim().length`) deviennent
@@ -83,12 +89,17 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
    exprimable en Zod (invariants inter-agrégats, unicité en base) **reste dans
    le use-case**, pas dans un `validators/`.
 3. **Controller** : remplacer le DTO par le pipe.
+
    ```ts
    @Post()
    create(@Body(new ZodValidationPipe(createEventSchema)) data: CreateEventData) {
      return this.createEvent.execute(data)
    }
    ```
+
+   Un champ inconnu du schéma est désormais **retiré** au lieu de valoir un 400
+   : le pipe Zod n'est pas `forbidNonWhitelisted`. Vérifié sur `events`.
+
 4. **`domains/<d>/types/`** dérive du contrat :
    `export type CreateEventData = z.output<typeof createEventSchema>`.
 5. **Supprimer** `presentation/<f>/dto/` et `domains/<d>/validators/` du domaine
@@ -105,7 +116,7 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 ### 3.3 Ordre (du moins couplé au plus couplé)
 
 ```
-contact-messages ✅ → events → notifications → sticker-orders → qr-codes → lost-items → auth
+contact-messages ✅ → events ✅ → notifications → sticker-orders → qr-codes → lost-items → auth
 ```
 
 `matching` et `reporting` n'ont pas d'entrée HTTP utilisateur : rien à

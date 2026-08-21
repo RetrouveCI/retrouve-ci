@@ -1,3 +1,4 @@
+import type { CreateEventInput, UpdateEventInput } from '@app/contracts/events'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type {
 	Event,
@@ -21,14 +22,7 @@ export async function listEvents(
 }
 
 export async function createEvent(
-	body: {
-		title: string
-		description: string
-		location: string
-		ville: string
-		commune?: string
-		eventDate: string
-	},
+	body: CreateEventInput,
 	request: Request,
 ): Promise<Event> {
 	return apiFetch<Event>('/events', {
@@ -40,15 +34,7 @@ export async function createEvent(
 
 export async function updateEvent(
 	id: string,
-	body: Partial<{
-		title: string
-		description: string
-		location: string
-		ville: string
-		commune: string
-		eventDate: string
-		status: EventStatus
-	}>,
+	body: UpdateEventInput,
 	request: Request,
 ): Promise<Event> {
 	return apiFetch<Event>(`/events/${id}`, {
