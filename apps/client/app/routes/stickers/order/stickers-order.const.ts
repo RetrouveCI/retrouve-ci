@@ -1,21 +1,28 @@
-export const DELIVERY_FEE = 1000
-export const VALID_COUPONS = ['RETROUVECI', 'LIVRAISON0', 'WELCOME2025']
+import {
+	STICKER_PACKS,
+	type StickerPackId,
+} from '@app/contracts/sticker-orders'
 
-export const PACKS = [
-	{
-		id: 'pack-4',
-		name: 'Starter',
-		quantity: 4,
-		price: 1500,
+export {
+	DELIVERY_FEE,
+	FREE_DELIVERY_COUPONS,
+} from '@app/contracts/sticker-orders'
+
+interface PackCopy {
+	description: string
+	popular: boolean
+	features: string[]
+}
+
+// Sales copy only. The id, name, quantity and price come from the contract, so
+// the price shown here cannot drift from the price the API charges.
+const PACK_COPY: Record<StickerPackId, PackCopy> = {
+	'pack-4': {
 		description: 'Idéal pour protéger vos essentiels',
 		popular: false,
 		features: ['4 stickers QR uniques', 'Support WhatsApp'],
 	},
-	{
-		id: 'pack-8',
-		name: 'Famille',
-		quantity: 8,
-		price: 2500,
+	'pack-8': {
 		description: 'Protégez toute la famille',
 		popular: true,
 		features: [
@@ -24,11 +31,7 @@ export const PACKS = [
 			'Économisez 500 FCFA',
 		],
 	},
-	{
-		id: 'pack-20',
-		name: 'Pro',
-		quantity: 20,
-		price: 7000,
+	'pack-20': {
 		description: 'Pour les entreprises et familles nombreuses',
 		popular: false,
 		features: [
@@ -37,7 +40,12 @@ export const PACKS = [
 			'Économisez 3000 FCFA',
 		],
 	},
-]
+}
+
+export const PACKS = STICKER_PACKS.map(pack => ({
+	...pack,
+	...PACK_COPY[pack.id],
+}))
 
 export const PAYMENT_METHODS = [
 	{

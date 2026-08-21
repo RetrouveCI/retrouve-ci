@@ -8,13 +8,19 @@ import {
 	Query,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import {
+	createStickerOrderSchema,
+	listStickerOrdersFilterSchema,
+	updateStickerOrderStatusSchema,
+	type CreateStickerOrderData,
+	type ListStickerOrdersFilterData,
+	type UpdateStickerOrderStatusData,
+} from '@app/contracts/sticker-orders'
 import { Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructure/auth/auth.config'
 import { StickerOrderUseCases } from '@/domains/sticker-orders/use-cases/sticker-order.use-cases'
-import { CreateStickerOrderDto } from '../dto/create-sticker-order.dto'
-import { ListStickerOrdersQueryDto } from '../dto/list-sticker-orders.query.dto'
-import { UpdateStickerOrderStatusDto } from '../dto/update-sticker-order-status.dto'
+import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 
 @ApiTags('sticker-orders')
 @ApiBearerAuth()
@@ -25,26 +31,31 @@ export class StickerOrdersController {
 	@Post()
 	create(
 		@Session() session: UserSession<Auth>,
-		@Body() dto: CreateStickerOrderDto,
+		@Body(new ZodValidationPipe(createStickerOrderSchema))
+		data: CreateStickerOrderData,
 	) {
 		return this.stickerOrderUseCases.create({
-			...dto,
+			...data,
 			userId: session.user.id,
 		})
 	}
 
 	@Get()
 	@Roles(['admin'])
-	list(@Query() query: ListStickerOrdersQueryDto) {
-		return this.stickerOrderUseCases.list(query)
+	list(
+		@Query(new ZodValidationPipe(listStickerOrdersFilterSchema))
+		filter: ListStickerOrdersFilterData,
+	) {
+		return this.stickerOrderUseCases.list(filter)
 	}
 
 	@Get('mine')
 	listMine(
 		@Session() session: UserSession<Auth>,
-		@Query() query: ListStickerOrdersQueryDto,
+		@Query(new ZodValidationPipe(listStickerOrdersFilterSchema))
+		filter: ListStickerOrdersFilterData,
 	) {
-		return this.stickerOrderUseCases.listMine(session.user.id, query)
+		return this.stickerOrderUseCases.listMine(session.user.id, filter)
 	}
 
 	@Get(':id')
@@ -56,8 +67,9 @@ export class StickerOrdersController {
 	@Roles(['admin'])
 	updateStatus(
 		@Param('id') id: string,
-		@Body() dto: UpdateStickerOrderStatusDto,
+		@Body(new ZodValidationPipe(updateStickerOrderStatusSchema))
+		data: UpdateStickerOrderStatusData,
 	) {
-		return this.stickerOrderUseCases.updateStatus(id, dto.status)
+		return this.stickerOrderUseCases.updateStatus(id, data.status)
 	}
 }

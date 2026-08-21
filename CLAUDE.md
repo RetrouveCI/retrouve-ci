@@ -161,8 +161,20 @@ Two rules hold for every schema added here:
   union its own `error`, or it reports `Invalid input` in English.
 
 The business schemas arrive in E6, one domain per PR: `shared/pagination.ts`,
-`contact-messages/`, `events/` and `notifications/` are in. `MAX_PAGE_SIZE`
-lives here now, and a migrated domain no longer keeps a copy of it.
+`contact-messages/`, `events/`, `notifications/` and `sticker-orders/` are in.
+`MAX_PAGE_SIZE` lives here now, and a migrated domain no longer keeps a copy of
+it.
+
+`sticker-orders/` is the first entry to carry **business data**, not only
+validation rules: the pack catalogue (id, name, quantity, price), the delivery
+fee and the free-delivery coupons. Each was written twice — once for the API,
+once for the order page — so a price change could land on one side only.
+`STICKER_PACKS_BY_ID` is keyed by pack id, which makes
+`domains/sticker-orders/helpers/get-sticker-pack.ts` a total function and
+removes the non-null assertion its validator used to justify. A front keeps only
+what is genuinely presentational: `stickers-order.const.ts` holds the sales copy
+(`description`, `popular`, `features`) and composes it onto the contract's
+packs.
 
 A query string carries everything as a string, so a filter that is not a string
 needs the same union `paginationQuerySchema` uses for its numbers:
@@ -261,8 +273,8 @@ shared/           # Cross-cutting: errors, exception filters
   `validators/` folder is absorbed at the same time — a rule expressible as a
   refinement (`.trim().min(10)`) belongs in the contract; only what Zod cannot
   express (cross-aggregate invariants, uniqueness) stays in the use-case. Done:
-  `contact-messages`, `events`, `notifications`. Domain errors are translated to
-  HTTP responses by `DomainExceptionFilter`.
+  `contact-messages`, `events`, `notifications`, `sticker-orders`. Domain errors
+  are translated to HTTP responses by `DomainExceptionFilter`.
 - `apps/api` reads `@app/contracts` through its **`dist`**, so a contract change
   needs `pnpm --filter @app/contracts build` before `nest start` picks it up.
   `pnpm build` and `pnpm test` handle it via Turborepo's `^build`.
