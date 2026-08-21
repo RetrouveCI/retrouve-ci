@@ -161,9 +161,17 @@ Two rules hold for every schema added here:
   union its own `error`, or it reports `Invalid input` in English.
 
 The business schemas arrive in E6, one domain per PR: `shared/pagination.ts`,
-`contact-messages/`, `events/`, `notifications/` and `sticker-orders/` are in.
-`MAX_PAGE_SIZE` lives here now, and a migrated domain no longer keeps a copy of
-it.
+`shared/phone.ts`, `contact-messages/`, `events/`, `notifications/`,
+`sticker-orders/` and `qr-codes/` are in. `MAX_PAGE_SIZE` lives here now, and a
+migrated domain no longer keeps a copy of it.
+
+`shared/phone.ts` owns the **Côte d'Ivoire phone rule** — `225` plus exactly ten
+digits, spacing and the `+225` form accepted — and is the single home for what
+was written three times: once in each front's `shared/utils/phone.ts` and once
+inside `infrastructure/sms/letexto.service.ts`. Both fronts' copies are now
+re-exports, so the twelve files that import `@/shared/utils/phone` are
+untouched, and `toLetextoRecipient` keeps only what is gateway-specific: its
+`InvalidRecipientError` and the `+`-less `225XXXXXXXXXX` the API addresses.
 
 `sticker-orders/` is the first entry to carry **business data**, not only
 validation rules: the pack catalogue (id, name, quantity, price), the delivery
@@ -242,18 +250,18 @@ shared/           # Cross-cutting: errors, exception filters
   anything else raises `InvalidRecipientError`, which the consumer turns into
   BullMQ's `UnrecoverableError` — a number that will never be valid must not
   burn the retries a transient failure needs. The same rule is enforced on every
-  phone field of both front-ends, from `shared/utils/phone.ts` in each app
-  (duplicated on purpose: there is no `@app/contracts` yet and two apps cannot
-  import each other), the admin's optional administrator phone included, since
-  it shares the `user.phoneNumber` column the public app sends codes to.
-  Templates live in `shared/auth/otp-message.ts` and are deliberately
-  **unaccented** — one accent switches the SMS from GSM-7 to UCS-2 and halves
-  the segment from 160 characters to 70 — and are asserted against a 150-char
-  ceiling by their spec. `LETEXTO_API_URL`, `LETEXTO_API_KEY` and
-  `LETEXTO_API_SENDER` are **required in production**: the API refuses to start
-  without them, because a sign-in that cannot deliver its code is worse than a
-  boot failure. Left unset in development, the code is logged to the console as
-  it was before there was a gateway.
+  phone field of both front-ends and by `qr-codes/contact-owner.schema.ts`, all
+  of them reading `@app/contracts/shared`'s `isValidLocalNumber` — the admin's
+  optional administrator phone included, since it shares the `user.phoneNumber`
+  column the public app sends codes to. Templates live in
+  `shared/auth/otp-message.ts` and are deliberately **unaccented** — one accent
+  switches the SMS from GSM-7 to UCS-2 and halves the segment from 160
+  characters to 70 — and are asserted against a 150-char ceiling by their spec.
+  `LETEXTO_API_URL`, `LETEXTO_API_KEY` and `LETEXTO_API_SENDER` are **required
+  in production**: the API refuses to start without them, because a sign-in that
+  cannot deliver its code is worse than a boot failure. Left unset in
+  development, the code is logged to the console as it was before there was a
+  gateway.
 - Background jobs (e.g. match notifications, OTP SMS) run on **BullMQ** backed
   by Redis.
 - A startup **seeder** creates the super admin and a mock user from env vars
@@ -273,8 +281,8 @@ shared/           # Cross-cutting: errors, exception filters
   `validators/` folder is absorbed at the same time — a rule expressible as a
   refinement (`.trim().min(10)`) belongs in the contract; only what Zod cannot
   express (cross-aggregate invariants, uniqueness) stays in the use-case. Done:
-  `contact-messages`, `events`, `notifications`, `sticker-orders`. Domain errors
-  are translated to HTTP responses by `DomainExceptionFilter`.
+  `contact-messages`, `events`, `notifications`, `sticker-orders`, `qr-codes`.
+  Domain errors are translated to HTTP responses by `DomainExceptionFilter`.
 - `apps/api` reads `@app/contracts` through its **`dist`**, so a contract change
   needs `pnpm --filter @app/contracts build` before `nest start` picks it up.
   `pnpm build` and `pnpm test` handle it via Turborepo's `^build`.

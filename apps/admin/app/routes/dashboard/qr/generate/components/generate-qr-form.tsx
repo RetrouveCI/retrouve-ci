@@ -16,6 +16,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@app/ui/components'
+import { MAX_GENERATE_COUNT } from '@app/contracts/qr-codes'
 import { FormInputField, FormRootError } from '@app/ui/components/form'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import {
@@ -27,7 +28,7 @@ import { tokensToCsv } from '../helpers/qr-csv'
 import type { QrToken } from '../../types/qr.types'
 import type { action } from '../_index'
 
-const QUANTITIES = [10, 25, 50, 100, 250, 500, 1000]
+const QUANTITIES = [10, 25, 50, 100, 250, MAX_GENERATE_COUNT]
 
 const DEFAULT_VALUES: GenerateQrInput = {
 	count: '100',
@@ -96,7 +97,7 @@ export function GenerateQrForm() {
 						<Field data-invalid={fieldState.invalid}>
 							<FieldLabel htmlFor={field.name}>Quantité</FieldLabel>
 							<Select
-								value={field.value ?? ''}
+								value={String(field.value ?? '')}
 								onValueChange={field.onChange}
 								onOpenChange={open => !open && field.onBlur()}
 								disabled={fetcher.isSubmitting}

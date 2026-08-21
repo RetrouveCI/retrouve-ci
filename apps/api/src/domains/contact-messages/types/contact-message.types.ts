@@ -3,18 +3,21 @@ import type {
 	CreateContactMessageData as CreateContactMessageContract,
 	ListContactMessagesFilterData,
 } from '@app/contracts/contact-messages'
+import type { ContactOwnerData } from '@app/contracts/qr-codes'
 
 export type { ContactMessageStatus }
 
 /**
- * A superset of the web form: `qr-codes/:code/contact` creates a message too,
- * with a phone instead of an email and a subject it derives itself. Its own
- * contract lands with that domain's E6 slice.
+ * Two entry points land here. The web form posts an email and its own subject; a
+ * QR scan posts the finder's phone, derives the subject from the sticker, and
+ * names the sticker and its owner.
  */
-export type CreateContactMessageData = Partial<CreateContactMessageContract> &
-	Pick<CreateContactMessageContract, 'name' | 'message'> & {
-		subject: string
-		phone?: string
+export type CreateContactMessageData = Pick<
+	CreateContactMessageContract,
+	'name' | 'subject' | 'message'
+> &
+	Partial<Pick<CreateContactMessageContract, 'email'>> &
+	Partial<Pick<ContactOwnerData, 'phone'>> & {
 		qrTokenCode?: string
 		recipientUserId?: string
 	}

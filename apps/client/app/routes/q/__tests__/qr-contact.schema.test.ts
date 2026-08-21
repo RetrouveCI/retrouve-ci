@@ -25,9 +25,7 @@ describe('qrContactSchema', () => {
 	// an empty form actually shows — none of them may fall back to zod's English.
 	it('answers in French for every blank the form can post', () => {
 		expect(messageFor({ name: '' })).toBe('Veuillez entrer votre nom complet')
-		expect(messageFor({ phone: '' })).toBe(
-			'Veuillez entrer un numéro de téléphone valide',
-		)
+		expect(messageFor({ phone: '' })).toBe('Entrez un numéro à 10 chiffres')
 		expect(messageFor({ message: '' })).toBe(
 			'Votre message doit contenir au moins 5 caractères',
 		)

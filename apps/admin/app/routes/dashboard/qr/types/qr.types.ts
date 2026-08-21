@@ -1,4 +1,6 @@
-export type QrTokenStatus = 'generated' | 'activated' | 'revoked'
+import type { QrTokenStatus } from '@app/contracts/qr-codes'
+
+export type { QrTokenStatus }
 
 export interface QrToken {
 	id: string

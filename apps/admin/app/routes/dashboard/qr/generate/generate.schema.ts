@@ -1,12 +1,7 @@
 import { z } from 'zod'
+import { generateQrTokensSchema } from '@app/contracts/qr-codes'
 
-export const generateQrSchema = z.object({
-	count: z.coerce
-		.number<string>()
-		.int()
-		.min(1, 'Minimum 1')
-		.max(1000, 'Maximum 1000'),
-	batch: z.string().max(60, 'Maximum 60 caractères').optional(),
+export const generateQrSchema = generateQrTokensSchema.extend({
 	exportCSV: z.boolean(),
 })
 

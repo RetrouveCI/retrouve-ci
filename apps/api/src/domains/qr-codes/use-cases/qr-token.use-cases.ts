@@ -16,12 +16,10 @@ import {
 	type QrTokenRepository,
 } from '../repository/qr-token.repository'
 import type {
-	ActivateQrTokenData,
+	QrTokenDetailsData,
 	GenerateQrTokensData,
 	ListQrTokensFilter,
-	UpdateQrTokenData,
 } from '../types/qr-token.types'
-import { validateGenerateQrTokens } from '../validators/qr-token.validator'
 
 @Injectable()
 export class QrTokenUseCases {
@@ -31,8 +29,6 @@ export class QrTokenUseCases {
 	) {}
 
 	async generateBatch(data: GenerateQrTokensData): Promise<QrToken[]> {
-		validateGenerateQrTokens(data)
-
 		const codes = Array.from({ length: data.count }, () => generateQrCode())
 
 		return this.qrTokenRepository.createMany(codes, data.batch)
@@ -51,7 +47,7 @@ export class QrTokenUseCases {
 	async activate(
 		code: string,
 		userId: string,
-		data: ActivateQrTokenData,
+		data: QrTokenDetailsData,
 	): Promise<QrToken> {
 		const qrToken = await this.getByCode(code)
 
@@ -79,7 +75,7 @@ export class QrTokenUseCases {
 	async updateDetails(
 		code: string,
 		userId: string,
-		data: UpdateQrTokenData,
+		data: QrTokenDetailsData,
 	): Promise<QrToken> {
 		const qrToken = await this.getByCode(code)
 

@@ -1,9 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { LetextoConfig } from './letexto.config'
+import {
+	COUNTRY_CODE,
+	LOCAL_NUMBER_LENGTH,
+	toLocalDigits,
+} from '@app/contracts/shared'
 import { InvalidRecipientError, SmsDeliveryError } from './sms.errors'
-
-const COUNTRY_CODE = '225'
-const LOCAL_NUMBER_LENGTH = 10
 
 export interface SendSmsInput {
 	to: string
@@ -11,15 +13,13 @@ export interface SendSmsInput {
 }
 
 export function toLetextoRecipient(phoneNumber: string): string {
-	const digits = phoneNumber.replace(/\D/g, '')
-	const local = digits.startsWith(COUNTRY_CODE)
-		? digits.slice(COUNTRY_CODE.length)
-		: digits
+	const local = toLocalDigits(phoneNumber)
 
 	if (local.length !== LOCAL_NUMBER_LENGTH) {
 		throw new InvalidRecipientError(phoneNumber)
 	}
 
+	// The gateway addresses `225` + the local number, with no `+`.
 	return `${COUNTRY_CODE}${local}`
 }
 

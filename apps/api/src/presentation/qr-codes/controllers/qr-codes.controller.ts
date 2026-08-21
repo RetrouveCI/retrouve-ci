@@ -9,17 +9,23 @@ import {
 	Query,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import {
+	contactOwnerSchema,
+	generateQrTokensSchema,
+	listQrTokensFilterSchema,
+	qrTokenDetailsSchema,
+	type ContactOwnerData,
+	type GenerateQrTokensData,
+	type ListQrTokensFilterData,
+	type QrTokenDetailsData,
+} from '@app/contracts/qr-codes'
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructure/auth/auth.config'
 import { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases'
 import { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'
 import { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
-import { ActivateQrTokenDto } from '../dto/activate-qr-token.dto'
-import { ContactOwnerDto } from '../dto/contact-owner.dto'
-import { GenerateQrTokensDto } from '../dto/generate-qr-tokens.dto'
-import { ListQrTokensQueryDto } from '../dto/list-qr-tokens.query.dto'
-import { UpdateQrTokenDto } from '../dto/update-qr-token.dto'
+import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 
 @ApiTags('qr-codes')
 @ApiBearerAuth()
@@ -33,22 +39,29 @@ export class QrCodesController {
 
 	@Post('generate')
 	@Roles(['admin'])
-	generate(@Body() dto: GenerateQrTokensDto) {
-		return this.qrTokenUseCases.generateBatch(dto)
+	generate(
+		@Body(new ZodValidationPipe(generateQrTokensSchema))
+		data: GenerateQrTokensData,
+	) {
+		return this.qrTokenUseCases.generateBatch(data)
 	}
 
 	@Get()
 	@Roles(['admin'])
-	list(@Query() query: ListQrTokensQueryDto) {
-		return this.qrTokenUseCases.list(query)
+	list(
+		@Query(new ZodValidationPipe(listQrTokensFilterSchema))
+		filter: ListQrTokensFilterData,
+	) {
+		return this.qrTokenUseCases.list(filter)
 	}
 
 	@Get('mine')
 	listMine(
 		@Session() session: UserSession<Auth>,
-		@Query() query: ListQrTokensQueryDto,
+		@Query(new ZodValidationPipe(listQrTokensFilterSchema))
+		filter: ListQrTokensFilterData,
 	) {
-		return this.qrTokenUseCases.listMine(session.user.id, query)
+		return this.qrTokenUseCases.listMine(session.user.id, filter)
 	}
 
 	@Get(':code/scan')
@@ -67,16 +80,16 @@ export class QrCodesController {
 	activate(
 		@Session() session: UserSession<Auth>,
 		@Param('code') code: string,
-		@Body() dto: ActivateQrTokenDto,
+		@Body(new ZodValidationPipe(qrTokenDetailsSchema)) data: QrTokenDetailsData,
 	) {
-		return this.qrTokenUseCases.activate(code, session.user.id, dto)
+		return this.qrTokenUseCases.activate(code, session.user.id, data)
 	}
 
 	@Post(':code/contact')
 	@AllowAnonymous()
 	async contactOwner(
 		@Param('code') code: string,
-		@Body() dto: ContactOwnerDto,
+		@Body(new ZodValidationPipe(contactOwnerSchema)) data: ContactOwnerData,
 	) {
 		const token = await this.qrTokenUseCases.getByCode(code)
 
@@ -85,11 +98,11 @@ export class QrCodesController {
 		}
 
 		await this.contactMessageUseCases.create({
-			name: dto.name,
-			email: dto.email,
-			phone: dto.phone,
+			name: data.name,
+			email: data.email,
+			phone: data.phone,
 			subject: `Sticker QR — ${token.label ?? token.code}`,
-			message: dto.message,
+			message: data.message,
 			qrTokenCode: token.code,
 			recipientUserId: token.userId,
 		})
@@ -97,7 +110,7 @@ export class QrCodesController {
 		await this.notificationUseCases.create({
 			type: 'qr_scan',
 			title: "Quelqu'un a trouvé votre objet",
-			message: `${dto.name} vous a contacté via votre sticker QR.`,
+			message: `${data.name} vous a contacté via votre sticker QR.`,
 			link: '/account/stickers',
 			userId: token.userId,
 		})
@@ -109,9 +122,9 @@ export class QrCodesController {
 	update(
 		@Session() session: UserSession<Auth>,
 		@Param('code') code: string,
-		@Body() dto: UpdateQrTokenDto,
+		@Body(new ZodValidationPipe(qrTokenDetailsSchema)) data: QrTokenDetailsData,
 	) {
-		return this.qrTokenUseCases.updateDetails(code, session.user.id, dto)
+		return this.qrTokenUseCases.updateDetails(code, session.user.id, data)
 	}
 
 	@Post(':code/revoke')

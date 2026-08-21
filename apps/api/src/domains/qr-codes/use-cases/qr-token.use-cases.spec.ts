@@ -65,11 +65,6 @@ describe('QrTokenUseCases', () => {
 			)
 			expect(result).toEqual(created)
 		})
-
-		it('throws when the count is invalid', async () => {
-			await expect(useCases.generateBatch({ count: 0 })).rejects.toThrow()
-			expect(repository.createMany).not.toHaveBeenCalled()
-		})
 	})
 
 	describe('getByCode', () => {

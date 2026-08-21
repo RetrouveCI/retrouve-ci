@@ -1,23 +1,13 @@
-export type QrTokenStatus = 'generated' | 'activated' | 'revoked'
+import type {
+	GenerateQrTokensData,
+	ListQrTokensFilterData,
+	QrTokenDetailsData,
+	QrTokenStatus,
+} from '@app/contracts/qr-codes'
 
-export interface GenerateQrTokensData {
-	count: number
-	batch?: string
-}
+export type { GenerateQrTokensData, QrTokenDetailsData, QrTokenStatus }
 
-export interface ActivateQrTokenData {
-	label?: string
-	linkedObject?: string
-}
-
-export interface UpdateQrTokenData {
-	label?: string
-	linkedObject?: string
-}
-
-export interface ListQrTokensFilter {
-	status?: QrTokenStatus
+/** The admin list is unscoped; `listMine` narrows it to the session's user. */
+export type ListQrTokensFilter = ListQrTokensFilterData & {
 	userId?: string
-	page: number
-	pageSize: number
 }
