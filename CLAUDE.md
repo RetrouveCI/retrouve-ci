@@ -70,6 +70,7 @@ apps/
   api/      # Backend REST API (NestJS / Fastify, port 3002)
 packages/
   auth/                # Shared better-auth core, framework-agnostic (@app/auth)
+  contracts/           # Zod schemas shared by the API and both fronts (@app/contracts)
   database/            # Prisma schema, migrations & generated client (@app/database)
   ui/                  # Shared component library (source-only, no build step)
   eslint-config/       # Shared ESLint configs (base, next, react-internal)
@@ -136,6 +137,32 @@ It is **server-side only**: `Session` describes the shared core and so carries
 no `phoneNumber` (those columns come from the app-supplied plugin), and the
 front-ends read `/api/auth/get-session` over JSON where dates are strings. Each
 front keeps its own interface for that response.
+
+### Contracts package (`packages/contracts`)
+
+`@app/contracts` is the **single source of truth for every Zod schema shared
+between the API and a front-end**. It is imported **by sub-path only** —
+`@app/contracts/shared`, `@app/contracts/lost-items` — because its `exports`
+uses a `"./*"` pattern; there is no root barrel, by design.
+
+Like `database` and `auth` it **has a build step**: `apps/api` resolves it
+through `dist` (CJS, the `require` condition) so it builds first via Turborepo's
+`^build`, while the two front-ends resolve `src` directly (`types` and `import`
+both point there), so type-checking a consumer needs no build. Specs are
+excluded from `tsconfig.build.json` and never ship in `dist`.
+
+Two rules hold for every schema added here:
+
+- export **both** `z.input` and `z.output` as `XxxInput` / `XxxData`, since a
+  form types its fields on the input and its submit handler on the output;
+- never `z.coerce`, whose `z.input` is `unknown` in Zod 4 — which makes the
+  exported `Input` type useless and untypable by react-hook-form. Accept
+  `z.union([z.number(), z.string().transform(Number)])` instead, and give the
+  union its own `error`, or it reports `Invalid input` in English.
+
+E5 delivered the skeleton and `shared/pagination.ts` only; the business schemas
+arrive in E6, one domain per PR. `MAX_PAGE_SIZE` lives here now, but the API
+domains still read their own copies until then.
 
 ### Database package (`packages/database`)
 

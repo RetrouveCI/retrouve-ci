@@ -84,7 +84,7 @@ pnpm run typecheck && pnpm run lint && pnpm run test
 
 ---
 
-## 3. E5 — Création de `@app/contracts`
+## 3. E5 — Création de `@app/contracts` — ✅ fait
 
 **Branche** `migration-e5-contracts-init` · **scope** `packages/contracts` ·
 **0,5 j** · dépend de E2 (Zod 4).
@@ -145,6 +145,13 @@ L'export par motif `"./*"` impose l'import **par sous-chemin** :
 
 Uniquement `shared/pagination.ts` + le squelette. **Les schémas métier arrivent
 en E6**, un domaine par PR — c'est ce qui rend chaque PR relisible.
+
+Deux écarts au plan, tous deux constatés à l'écriture : le package a aussi un
+script `test` (11 cas sur les bornes de pagination, via le preset
+`@app/vitest-config/base` que `apps/api` consomme déjà), et
+`tsconfig.build.json` exclut `src/**/*.spec.ts`, sans quoi les specs
+atterrissaient dans `dist`. `MAX_PAGE_SIZE` y est exporté, mais les six domaines
+de l'API gardent leur copie jusqu'à E6.
 
 ---
 
