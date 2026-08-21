@@ -1,6 +1,6 @@
 import { redirect } from 'react-router'
 import { apiFetch } from '@/shared/utils/api-fetch'
-import { loginUrlWithRedirect, sanitizeRedirect } from './redirect'
+import { loginUrlWithRedirect, sanitizeRedirect, toRoutePath } from './redirect'
 
 interface ServerSession {
 	session: { id: string; userId: string }
@@ -44,9 +44,9 @@ export async function requireServerSession(
 ): Promise<ServerSession> {
 	const session = await getServerSession(request)
 	if (!session) {
-		const url = new URL(request.url)
-		throw redirect(loginUrlWithRedirect(url.pathname + url.search))
+		throw redirect(loginUrlWithRedirect(toRoutePath(request.url)))
 	}
+
 	return session
 }
 
@@ -57,6 +57,7 @@ export async function requireServerSession(
  */
 export async function redirectIfAuthenticated(request: Request): Promise<void> {
 	const session = await getServerSession(request)
+
 	if (session) {
 		const url = new URL(request.url)
 		throw redirect(sanitizeRedirect(url.searchParams.get('redirectTo')))

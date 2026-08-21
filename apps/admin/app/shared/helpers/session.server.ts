@@ -1,6 +1,6 @@
 import { redirect } from 'react-router'
 import { apiFetch } from '@/shared/utils/api-fetch'
-import { loginUrlWithRedirect, sanitizeRedirect } from './redirect'
+import { loginUrlWithRedirect, sanitizeRedirect, toRoutePath } from './redirect'
 
 interface ServerSession {
 	session: { id: string; userId: string }
@@ -29,8 +29,7 @@ export async function requireAdminSession(
 ): Promise<ServerSession> {
 	const session = await getServerSession(request)
 	if (!session || session.user.role !== 'admin') {
-		const url = new URL(request.url)
-		throw redirect(loginUrlWithRedirect(url.pathname + url.search))
+		throw redirect(loginUrlWithRedirect(toRoutePath(request.url)))
 	}
 	return session
 }

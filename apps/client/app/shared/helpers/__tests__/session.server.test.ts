@@ -83,6 +83,23 @@ describe('requireServerSession', () => {
 		})
 	})
 
+	// The bug this replaces: a single-fetch loader request carries
+	// `/notifications.data?_routes=…`, and remembering *that* sent the visitor
+	// back to a raw turbo-stream payload after signing in.
+	it('remembers the route path, not the single-fetch data URL', async () => {
+		mockedApiFetch.mockResolvedValue(null)
+
+		const thrown = await requireServerSession(
+			new Request(
+				'https://retrouve.ci/notifications.data?_routes=routes%2Fnotifications%2F_index',
+			),
+		).catch((error: unknown) => error)
+
+		expect((thrown as Response).headers.get('Location')).toBe(
+			'/auth/login?redirectTo=%2Fnotifications',
+		)
+	})
+
 	it('redirects to the login page, remembering the page, when there is no session', async () => {
 		mockedApiFetch.mockResolvedValue(null)
 
