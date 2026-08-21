@@ -91,7 +91,7 @@ describe('QrContactPage', () => {
 			.element(page.getByText('Veuillez entrer votre nom complet'))
 			.toBeInTheDocument()
 		await expect
-			.element(page.getByText('Veuillez entrer un numéro de téléphone valide'))
+			.element(page.getByText('Entrez un numéro à 10 chiffres'))
 			.toBeInTheDocument()
 		await expect
 			.element(

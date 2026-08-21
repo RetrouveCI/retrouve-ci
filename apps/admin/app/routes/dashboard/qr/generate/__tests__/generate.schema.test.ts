@@ -1,3 +1,4 @@
+import { MAX_GENERATE_COUNT } from '@app/contracts/qr-codes'
 import { generateQrPayloadSchema, generateQrSchema } from '../generate.schema'
 
 describe('generateQrSchema', () => {
@@ -12,15 +13,24 @@ describe('generateQrSchema', () => {
 		expect(result.data?.count).toBe(250)
 	})
 
-	it('rejects a quantity outside 1..1000', () => {
+	// The form used to allow 1000 and offer a 1000 button, which the API refused
+	// with a 400. The bound is the contract's now, and it is 500.
+	it('rejects a quantity the API would refuse', () => {
 		const tooMany = generateQrSchema.safeParse({
-			count: '1001',
+			count: String(MAX_GENERATE_COUNT + 1),
 			exportCSV: true,
 		})
 		const none = generateQrSchema.safeParse({ count: '0', exportCSV: true })
 
-		expect(tooMany.error?.issues[0]?.message).toBe('Maximum 1000')
+		expect(MAX_GENERATE_COUNT).toBe(500)
+		expect(tooMany.error?.issues[0]?.message).toBe('Maximum 500')
 		expect(none.error?.issues[0]?.message).toBe('Minimum 1')
+		expect(
+			generateQrSchema.safeParse({
+				count: String(MAX_GENERATE_COUNT),
+				exportCSV: true,
+			}).success,
+		).toBe(true)
 	})
 
 	it('rejects a fractional quantity', () => {

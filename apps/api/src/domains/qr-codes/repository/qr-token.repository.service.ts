@@ -12,9 +12,8 @@ import type {
 	QrTokenPublicView,
 } from '../models/qr-token.model'
 import type {
-	ActivateQrTokenData,
+	QrTokenDetailsData,
 	ListQrTokensFilter,
-	UpdateQrTokenData,
 } from '../types/qr-token.types'
 import type { QrTokenRepository } from './qr-token.repository'
 
@@ -59,7 +58,7 @@ export class QrTokenRepositoryService implements QrTokenRepository {
 	async activate(
 		code: string,
 		userId: string,
-		data: ActivateQrTokenData,
+		data: QrTokenDetailsData,
 	): Promise<QrToken> {
 		const qrToken = await this.prisma.qrToken.update({
 			where: { code },
@@ -87,7 +86,10 @@ export class QrTokenRepositoryService implements QrTokenRepository {
 		return toDomainQrToken(qrToken)
 	}
 
-	async updateDetails(code: string, data: UpdateQrTokenData): Promise<QrToken> {
+	async updateDetails(
+		code: string,
+		data: QrTokenDetailsData,
+	): Promise<QrToken> {
 		const qrToken = await this.prisma.qrToken.update({
 			where: { code },
 			data: {

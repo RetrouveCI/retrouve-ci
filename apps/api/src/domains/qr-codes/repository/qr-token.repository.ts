@@ -4,9 +4,8 @@ import type {
 	QrTokenPublicView,
 } from '../models/qr-token.model'
 import type {
-	ActivateQrTokenData,
+	QrTokenDetailsData,
 	ListQrTokensFilter,
-	UpdateQrTokenData,
 } from '../types/qr-token.types'
 
 export const QR_TOKEN_REPOSITORY = Symbol('QR_TOKEN_REPOSITORY')
@@ -18,9 +17,9 @@ export interface QrTokenRepository {
 	activate(
 		code: string,
 		userId: string,
-		data: ActivateQrTokenData,
+		data: QrTokenDetailsData,
 	): Promise<QrToken>
 	revoke(code: string): Promise<QrToken>
-	updateDetails(code: string, data: UpdateQrTokenData): Promise<QrToken>
+	updateDetails(code: string, data: QrTokenDetailsData): Promise<QrToken>
 	list(filter: ListQrTokensFilter): Promise<QrTokenListResponse>
 }
