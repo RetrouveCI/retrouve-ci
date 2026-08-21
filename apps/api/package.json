@@ -24,6 +24,7 @@
 		"@nestjs/platform-fastify": "catalog:",
 		"@nestjs/swagger": "catalog:",
 		"@app/auth": "workspace:*",
+		"@app/contracts": "workspace:*",
 		"@app/database": "workspace:*",
 		"@thallesp/nestjs-better-auth": "catalog:",
 		"better-auth": "catalog:",

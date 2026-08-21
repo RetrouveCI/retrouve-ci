@@ -398,7 +398,7 @@ Une ligne = une branche = une PR = une session.
 | **E3**  | ✅ Catalog : reste des versions + nettoyage | (fait)                             | `root/deps`                           | —      | E2        |
 | **E3b** | ✅ Les 4 majors, une PR chacune             | (fait)                             | `root/deps`                           | —      | E3        |
 | **E4**  | Presets partagés (ts / vitest / eslint)     | `migration-e4-presets-partages`    | `packages/config`                     | 0,5 j  | E2        |
-| **E5**  | Création de `@app/contracts`                | `migration-e5-contracts-init`      | `packages/contracts`                  | 0,5 j  | E2        |
+| **E5**  | ✅ Création de `@app/contracts`             | (fait)                             | `packages/contracts`                  | —      | E2        |
 | **E6**  | Contrats : domaines API + bascule Zod       | `migration-e6-contracts-<domaine>` | `api/<domaine>`                       | 2 j    | E5        |
 | **E7**  | ✅ Conform → RHF, catalog nettoyé (E7.G)    | (fait)                             | `ui/form`, `client/…`, `admin/…`      | —      | E3        |
 | **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`                       | 3 j    | E6        |
