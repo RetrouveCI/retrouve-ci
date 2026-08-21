@@ -79,7 +79,7 @@ describe('EventFormDialog', () => {
 		await userEvent.click(page.getByRole('button', { name: 'Créer' }))
 
 		await expect
-			.element(page.getByText('Minimum 3 caractères'))
+			.element(page.getByText('Le titre doit contenir au moins 3 caractères'))
 			.toBeInTheDocument()
 		await expect
 			.element(page.getByText('La date est requise'))

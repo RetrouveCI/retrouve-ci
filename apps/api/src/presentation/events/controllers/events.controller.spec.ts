@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type {
+	CreateEventData,
+	ListEventsFilterData,
+	UpdateEventData,
+} from '@app/contracts/events'
 import type { Event } from '@/domains/events/models/event.model'
 import { EventUseCases } from '@/domains/events/use-cases/event.use-cases'
-import type { CreateEventDto } from '../dto/create-event.dto'
-import type { ListEventsQueryDto } from '../dto/list-events.query.dto'
-import type { UpdateEventDto } from '../dto/update-event.dto'
 import { EventsController } from './events.controller'
 
 function buildEvent(overrides: Partial<Event> = {}): Event {
@@ -43,7 +45,7 @@ describe('EventsController', () => {
 
 	describe('create', () => {
 		it('converts the eventDate string and forwards to the use cases', async () => {
-			const dto: CreateEventDto = {
+			const data: CreateEventData = {
 				title: 'Collecte des objets retrouvés',
 				description: 'Une journée pour restituer les objets retrouvés',
 				location: 'Place de la mairie',
@@ -53,10 +55,10 @@ describe('EventsController', () => {
 			const created = buildEvent()
 			vi.mocked(useCases.create).mockResolvedValue(created)
 
-			const result = await controller.create(dto)
+			const result = await controller.create(data)
 
 			expect(useCases.create).toHaveBeenCalledWith({
-				...dto,
+				...data,
 				eventDate: new Date('2026-02-01'),
 			})
 			expect(result).toEqual(created)
@@ -65,7 +67,7 @@ describe('EventsController', () => {
 
 	describe('list', () => {
 		it('forces the published status', async () => {
-			const query: ListEventsQueryDto = { page: 1, pageSize: 20 }
+			const query: ListEventsFilterData = { page: 1, pageSize: 20 }
 			const response = {
 				items: [buildEvent({ status: 'published' })],
 				total: 1,
@@ -116,14 +118,14 @@ describe('EventsController', () => {
 
 	describe('update', () => {
 		it('converts the eventDate string when present', async () => {
-			const dto: UpdateEventDto = {
+			const data: UpdateEventData = {
 				title: 'Nouveau titre',
 				eventDate: '2026-03-01',
 			}
 			const updated = buildEvent({ title: 'Nouveau titre' })
 			vi.mocked(useCases.update).mockResolvedValue(updated)
 
-			const result = await controller.update('event-1', dto)
+			const result = await controller.update('event-1', data)
 
 			expect(useCases.update).toHaveBeenCalledWith('event-1', {
 				title: 'Nouveau titre',
@@ -133,11 +135,11 @@ describe('EventsController', () => {
 		})
 
 		it('omits eventDate when not provided', async () => {
-			const dto: UpdateEventDto = { title: 'Nouveau titre' }
+			const data: UpdateEventData = { title: 'Nouveau titre' }
 			const updated = buildEvent({ title: 'Nouveau titre' })
 			vi.mocked(useCases.update).mockResolvedValue(updated)
 
-			await controller.update('event-1', dto)
+			await controller.update('event-1', data)
 
 			expect(useCases.update).toHaveBeenCalledWith('event-1', {
 				title: 'Nouveau titre',

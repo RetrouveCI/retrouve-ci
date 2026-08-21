@@ -49,7 +49,7 @@ describe('EventUseCases', () => {
 			eventDate: new Date('2026-02-01'),
 		}
 
-		it('creates an event when data is valid', async () => {
+		it('creates an event', async () => {
 			const created = buildEvent()
 			vi.mocked(repository.create).mockResolvedValue(created)
 
@@ -57,13 +57,6 @@ describe('EventUseCases', () => {
 
 			expect(repository.create).toHaveBeenCalledWith(data)
 			expect(result).toEqual(created)
-		})
-
-		it('throws when the data is invalid', async () => {
-			await expect(
-				useCases.create({ ...data, description: 'Court' }),
-			).rejects.toThrow()
-			expect(repository.create).not.toHaveBeenCalled()
 		})
 	})
 
@@ -120,13 +113,6 @@ describe('EventUseCases', () => {
 				title: 'Nouveau titre',
 			})
 			expect(result).toEqual(updated)
-		})
-
-		it('throws when the update data is invalid', async () => {
-			await expect(
-				useCases.update('event-1', { description: 'Court' }),
-			).rejects.toThrow()
-			expect(repository.findById).not.toHaveBeenCalled()
 		})
 
 		it('throws EventNotFoundError when the event does not exist', async () => {

@@ -10,10 +10,6 @@ import type {
 	ListEventsFilter,
 	UpdateEventData,
 } from '../types/event.types'
-import {
-	validateCreateEvent,
-	validateUpdateEvent,
-} from '../validators/event.validator'
 
 @Injectable()
 export class EventUseCases {
@@ -23,8 +19,6 @@ export class EventUseCases {
 	) {}
 
 	async create(data: CreateEventData): Promise<Event> {
-		validateCreateEvent(data)
-
 		return this.eventRepository.create(data)
 	}
 
@@ -43,8 +37,6 @@ export class EventUseCases {
 	}
 
 	async update(id: string, data: UpdateEventData): Promise<Event> {
-		validateUpdateEvent(data)
-
 		await this.getById(id)
 
 		return this.eventRepository.update(id, data)

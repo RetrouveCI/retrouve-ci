@@ -1,26 +1,20 @@
-export type EventStatus = 'draft' | 'published' | 'cancelled'
+import type {
+	AdminListEventsFilterData,
+	CreateEventData as CreateEventContract,
+	EventStatus,
+	UpdateEventData as UpdateEventContract,
+} from '@app/contracts/events'
 
-export interface CreateEventData {
-	title: string
-	description: string
-	location: string
-	ville: string
-	commune?: string
+export type { EventStatus }
+
+/** The wire carries the date as a string; the domain works on a `Date`. */
+export type CreateEventData = Omit<CreateEventContract, 'eventDate'> & {
 	eventDate: Date
 }
 
-export interface UpdateEventData {
-	title?: string
-	description?: string
-	location?: string
-	ville?: string
-	commune?: string
+export type UpdateEventData = Omit<UpdateEventContract, 'eventDate'> & {
 	eventDate?: Date
-	status?: EventStatus
 }
 
-export interface ListEventsFilter {
-	status?: EventStatus
-	page: number
-	pageSize: number
-}
+/** The public list narrows the status to `published`; the admin one is free. */
+export type ListEventsFilter = AdminListEventsFilterData

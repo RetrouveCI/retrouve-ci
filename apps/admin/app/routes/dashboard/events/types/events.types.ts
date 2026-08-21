@@ -1,4 +1,6 @@
-export type EventStatus = 'draft' | 'published' | 'cancelled'
+import type { EventStatus } from '@app/contracts/events'
+
+export type { EventStatus }
 
 export interface Event {
 	id: string
