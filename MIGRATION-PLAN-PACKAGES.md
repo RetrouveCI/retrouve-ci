@@ -10,15 +10,15 @@
 
 ## 1. État actuel
 
-| Package                  | Scope          | Build     | Rôle                                        |
-| ------------------------ | -------------- | --------- | ------------------------------------------- |
-| `@app/database`          | ✅ renommé     | oui       | Prisma 7.8 — schéma, migrations, client     |
-| `@app/ui`                | ✅ renommé     | non (src) | shadcn/ui partagé client + admin            |
-| `@app/eslint-config`     | ✅ renommé     | non       | presets `base`, `next-js`, `react-internal` |
-| `@app/typescript-config` | ✅ renommé     | non       | presets `base`, `nextjs`, `react-library`   |
-| `@app/vitest-config`     | ✅ renommé     | non       | presets `base`, `react`                     |
-| `@app/contracts`         | ✅ créé (E5/E6)  | oui       | schémas Zod partagés front + back                       |
-| `@app/web-kit`           | ✅ créé (E11)  | non (src) | code front commun client ↔ admin           |
+| Package                  | Scope           | Build     | Rôle                                                    |
+| ------------------------ | --------------- | --------- | ------------------------------------------------------- |
+| `@app/database`          | ✅ renommé      | oui       | Prisma 7.8 — schéma, migrations, client                 |
+| `@app/ui`                | ✅ renommé      | non (src) | shadcn/ui partagé client + admin                        |
+| `@app/eslint-config`     | ✅ renommé      | non       | presets `base`, `react-internal`                        |
+| `@app/typescript-config` | ✅ E4 (partiel) | non       | presets `base`, `react-router`, `nest`, `react-library` |
+| `@app/vitest-config`     | ✅ renommé      | non       | presets `base`, `react`                                 |
+| `@app/contracts`         | ✅ créé (E5/E6) | oui       | schémas Zod partagés front + back                       |
+| `@app/web-kit`           | ✅ créé (E11)   | non (src) | code front commun client ↔ admin                       |
 
 ---
 
