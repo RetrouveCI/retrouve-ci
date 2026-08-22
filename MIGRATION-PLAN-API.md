@@ -44,7 +44,7 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 | 7   | ~~`libs/storage/cloudinary.ts` hors norme → `infrastructures/storage/`~~ ✅                   | E8.1 ✅      |
 | 8   | Tests `*.spec.ts` colocalisés → `__tests__/<name>.test.ts`                                    | E9           |
 | 9   | Aucune couche `shared/auth/{guards,decorators}` — contrôles de rôle dispersés                 | E8 (partiel) |
-| 10  | `shared/` quasi vide : manquent pipe Zod, `IDomainUseCase`, pagination, env                   | E8           |
+| 10  | 🟡 `shared/` : pipe Zod ✅, pagination ✅ ; `IDomainUseCase` → §4.3, env écarté (§4.2)        | E8.2 🟡      |
 
 ---
 
@@ -180,21 +180,40 @@ documents.
 `src/` ne porte plus que les quatre couches de la cible : `domains/`,
 `infrastructures/`, `presentations/` et `shared/`.
 
-### 4.2 PR 2 — Socle `shared/` (`api/core`)
+### 4.2 PR 2 — Socle `shared/` (`api/core`) — ✅ fait, avec trois écarts
 
-Créer, sur le modèle de la référence :
+Livré :
 
-```
-src/shared/
-├── types/domain-use-case.type.ts     # export interface IDomainUseCase<In, Out> { execute(input: In): Promise<Out> }
-├── utils/pagination.util.ts
-├── config/env.validation.ts          # remplace la lecture ad hoc de process.env
-└── constants/queue.constants.ts
-```
+- **`shared/utils/pagination.util.ts`** — `toPrismaPage` et `toPaginated`.
+  Mesuré avant d'écrire : `(filter.page - 1) * filter.pageSize` était écrit
+  **six fois**, et les six construisaient le même
+  `{ items, total, page, pageSize }`. `utils/` et non `helpers/` : le calcul est
+  technique et ne porte aucune règle métier.
+- **`infrastructures/queue/queue.constants.ts`** — et non `shared/constants/`.
+  Le skill `backend-conventions` ne donne à `shared/` que `helpers/`, `types/`
+  et `utils/`, et place les constantes d'un service à côté de ce service. Le
+  déplacement corrige aussi une vraie inversion de couche : `MATCHING_QUEUE`
+  vivait dans `domains/matching/`, donc `presentations/` allait chercher une
+  adresse Redis dans un domaine.
+
+Écartés, et pourquoi :
+
+- **`types/domain-use-case.type.ts`** — `IDomainUseCase<In, Out>` n'a de sens
+  qu'une fois les use-cases éclatés un par fichier. Le créer maintenant, c'est
+  un socle sans appelant ; il arrive avec §4.3, son premier consommateur.
+- **`config/env.validation.ts`** — la prémisse (« remplace la lecture ad hoc de
+  `process.env` ») ne décrit pas le dépôt : il reste **10 lectures dans 3
+  fichiers** hors specs, chacune dans le `*.config.ts` de sa propre
+  préoccupation (`letexto.config.ts`, `storage.config.ts`,
+  `session-audience.ts`), avec sa garde « requis en production » explicite. Ce
+  n'est pas de l'ad hoc, c'est de la localité — et `ConfigModule` est déjà en
+  place. Centraliser dissoudrait cette localité sans rien gagner.
+- **Fusionner `shared/filters/` dans `shared/errors/`** — un `ExceptionFilter`
+  est une pièce HTTP NestJS, une `DomainError` une pièce métier. Les mettre dans
+  le même dossier brouille la frontière que le reste d'E8 s'emploie à tracer.
 
 `shared/errors/domain.error.ts` et `shared/filters/domain-exception.filter.ts`
-existent déjà — les déplacer vers `shared/errors/` pour coller à la référence
-(`domain-error.ts` + `domain-exception.filter.ts` dans le même dossier).
+restent donc où ils sont.
 
 ### 4.3 PR 3..10 — Un domaine par PR
 

@@ -2,12 +2,11 @@ import { InjectQueue } from '@nestjs/bullmq'
 import { Injectable } from '@nestjs/common'
 import type { Queue } from 'bullmq'
 import type { OtpPurpose } from '@/shared/auth/otp-message'
+import { OTP_ATTEMPTS, OTP_BACKOFF_DELAY_MS } from '@/shared/auth/otp.const'
 import {
-	OTP_ATTEMPTS,
-	OTP_BACKOFF_DELAY_MS,
 	OTP_QUEUE,
 	SEND_OTP_JOB,
-} from '@/shared/auth/otp.const'
+} from '@/infrastructures/queue/queue.constants'
 
 export interface SendOtpJobData {
 	purpose: OtpPurpose

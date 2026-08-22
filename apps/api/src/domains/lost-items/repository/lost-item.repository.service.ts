@@ -18,6 +18,7 @@ import type {
 	LostItemRepository,
 	MatchCandidatesFilter,
 } from './lost-item.repository'
+import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 
 @Injectable()
 export class LostItemRepositoryService implements LostItemRepository {
@@ -85,18 +86,12 @@ export class LostItemRepositoryService implements LostItemRepository {
 			this.prisma.lostItem.findMany({
 				where,
 				orderBy: { createdAt: 'desc' },
-				skip: (filter.page - 1) * filter.pageSize,
-				take: filter.pageSize,
+				...toPrismaPage(filter),
 			}),
 			this.prisma.lostItem.count({ where }),
 		])
 
-		return {
-			items: items.map(toDomainLostItem),
-			total,
-			page: filter.page,
-			pageSize: filter.pageSize,
-		}
+		return toPaginated(items.map(toDomainLostItem), total, filter)
 	}
 
 	async findMatchCandidates(

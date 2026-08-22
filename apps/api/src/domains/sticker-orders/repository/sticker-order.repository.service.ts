@@ -16,6 +16,7 @@ import type {
 	CreateStickerOrderRecord,
 	StickerOrderRepository,
 } from './sticker-order.repository'
+import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 
 @Injectable()
 export class StickerOrderRepositoryService implements StickerOrderRepository {
@@ -62,18 +63,12 @@ export class StickerOrderRepositoryService implements StickerOrderRepository {
 			this.prisma.stickerOrder.findMany({
 				where,
 				orderBy: { createdAt: 'desc' },
-				skip: (filter.page - 1) * filter.pageSize,
-				take: filter.pageSize,
+				...toPrismaPage(filter),
 			}),
 			this.prisma.stickerOrder.count({ where }),
 		])
 
-		return {
-			items: items.map(toDomainStickerOrder),
-			total,
-			page: filter.page,
-			pageSize: filter.pageSize,
-		}
+		return toPaginated(items.map(toDomainStickerOrder), total, filter)
 	}
 
 	async updateStatus(

@@ -271,7 +271,8 @@ infrastructures/  # Framework/IO wiring: database, auth, queue (BullMQ), sms,
                   # storage, seeder
 presentations/    # HTTP layer: controllers + queue-consumers, one folder per
                   # domain
-shared/           # Cross-cutting: errors, filters, pipes, guards, swagger
+shared/           # Cross-cutting: errors, filters, pipes, guards, swagger,
+                  # utils (pagination)
 ```
 
 These are the **four** folders `src/` holds — E8.1 pluralised the two middle

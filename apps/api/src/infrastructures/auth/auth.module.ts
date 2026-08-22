@@ -4,10 +4,10 @@ import { APP_GUARD } from '@nestjs/core'
 import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
 import { SessionGuard } from '@/shared/auth/guards/session.guard'
-import { OTP_QUEUE } from '@/shared/auth/otp.const'
 import { createAdminAuth, createClientAuth } from './auth.config'
 import { ADMIN_AUTH, CLIENT_AUTH } from './auth.tokens'
 import { OtpDispatcher } from './otp-dispatcher.service'
+import { OTP_QUEUE } from '@/infrastructures/queue/queue.constants'
 
 /**
  * Both instances are built here so each is created once, and so the two
