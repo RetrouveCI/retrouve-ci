@@ -16,6 +16,7 @@ import type {
 	ListQrTokensFilter,
 } from '../types/qr-token.types'
 import type { QrTokenRepository } from './qr-token.repository'
+import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 
 @Injectable()
 export class QrTokenRepositoryService implements QrTokenRepository {
@@ -113,17 +114,11 @@ export class QrTokenRepositoryService implements QrTokenRepository {
 			this.prisma.qrToken.findMany({
 				where,
 				orderBy: { createdAt: 'desc' },
-				skip: (filter.page - 1) * filter.pageSize,
-				take: filter.pageSize,
+				...toPrismaPage(filter),
 			}),
 			this.prisma.qrToken.count({ where }),
 		])
 
-		return {
-			items: items.map(toDomainQrToken),
-			total,
-			page: filter.page,
-			pageSize: filter.pageSize,
-		}
+		return toPaginated(items.map(toDomainQrToken), total, filter)
 	}
 }

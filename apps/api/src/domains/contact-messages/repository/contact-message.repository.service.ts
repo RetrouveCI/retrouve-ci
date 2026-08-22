@@ -14,6 +14,7 @@ import type {
 	ListContactMessagesFilter,
 } from '../types/contact-message.types'
 import type { ContactMessageRepository } from './contact-message.repository'
+import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 
 @Injectable()
 export class ContactMessageRepositoryService
@@ -56,18 +57,12 @@ export class ContactMessageRepositoryService
 			this.prisma.contactMessage.findMany({
 				where,
 				orderBy: { createdAt: 'desc' },
-				skip: (filter.page - 1) * filter.pageSize,
-				take: filter.pageSize,
+				...toPrismaPage(filter),
 			}),
 			this.prisma.contactMessage.count({ where }),
 		])
 
-		return {
-			items: items.map(toDomainContactMessage),
-			total,
-			page: filter.page,
-			pageSize: filter.pageSize,
-		}
+		return toPaginated(items.map(toDomainContactMessage), total, filter)
 	}
 
 	async updateStatus(
