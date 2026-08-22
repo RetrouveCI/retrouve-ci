@@ -20,6 +20,7 @@
 	"dependencies": {
 		"@app/contracts": "workspace:*",
 		"@app/ui": "workspace:*",
+		"@app/web-kit": "workspace:*",
 		"@react-router/node": "catalog:",
 		"@react-router/serve": "catalog:",
 		"@tanstack/react-table": "^8.21.3",

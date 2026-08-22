@@ -73,9 +73,9 @@ packages/
   contracts/           # Zod schemas shared by the API and both fronts (@app/contracts)
   database/            # Prisma schema, migrations & generated client (@app/database)
   ui/                  # Shared component library (source-only, no build step)
-  eslint-config/       # Shared ESLint configs (base, next, react-internal)
-  typescript-config/   # Shared tsconfig presets (base, react-router, nest,
-                       # react-library) — every app and package extends one
+  web-kit/             # Front code shared client <-> admin (source-only, @app/web-kit)
+  eslint-config/       # Shared ESLint configs (base, react-internal)
+  typescript-config/   # Shared tsconfig presets
   vitest-config/       # Shared Vitest presets (base, react)
 ```
 
@@ -110,6 +110,37 @@ The package exports:
 paths in each app's `tsconfig.json` resolve imports directly to `src/`.
 Turborepo's `"dependsOn": ["^build"]` applies only when the package has a build
 script.
+
+### Front kit package (`packages/web-kit`)
+
+`@app/web-kit` holds the code the two front-ends **genuinely** share. It is
+source-only like `@app/ui` — no build step, `exports` point straight at `src/`,
+and each app's Vite compiles it. Imported by sub-path only: `@app/web-kit/api`,
+`@app/web-kit/action`.
+
+`action/` is the E7 foundation — `ActionResult`, `zodErrorToFieldErrors`,
+`rootError`, `withApiOperationData` / `withApiOperationError`,
+`useActionFetcher`. Those four files were **byte-identical** in both apps, so
+every form in the monorepo depended on two copies staying in step.
+
+`api/` holds `ApiError` and `createApiFetch()`. It is a factory rather than a
+plain function because the two apps address different audiences on one API: the
+backoffice sends `X-Auth-Audience: admin` on every call, and that header was the
+_only_ difference between the two former `apiFetch` implementations. Both halves
+of that rule are asserted — the backoffice's spec checks the header is sent, the
+client's checks it is absent, since the public app claiming the admin audience
+is what `SessionGuard` exists to prevent.
+
+Each app keeps a one-line re-export at its old `@/shared/...` path, so the 65
+files importing these modules were untouched. New code may import
+`@app/web-kit/action` directly.
+
+What deliberately stays per-app: `auth-client.ts` (different better-auth
+plugins), `session.server.ts` / `redirect.ts` / `page-meta.ts` (same idea,
+genuinely different code), `helpers/testing.ts` (two `export *` lines over the
+test runner, not worth dragging `vitest/browser` into the package) and
+`utils/phone.ts` (already a re-export of `@app/contracts/shared`). See
+[packages/web-kit/README.md](packages/web-kit/README.md).
 
 ### Auth package (`packages/auth`)
 
@@ -508,17 +539,16 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   markup is bespoke (raw `<input>`s with their own classes, as in
   `routes/contact` and `routes/q`) inlines `Controller` instead, so migrating it
   leaves the DOM untouched.
-- Actions answer a single contract, `ActionResult` from
-  `shared/types/action.ts`: `{ success: true }` or
+- Actions answer a single contract, `ActionResult` from `@app/web-kit/action`
+  (re-exported at `shared/types/action.ts`): `{ success: true }` or
   `{ success: false, errors? }`, where `errors` is already shaped as
   react-hook-form `FieldErrors` — one entry per field, plus `root` for anything
-  that belongs to no field. Two helpers build it: `zodErrorToFieldErrors`
-  (`shared/helpers/form.ts`) turns a failed `safeParse` into that map, and
-  `withApiOperationError` (`shared/utils/api-operation.ts`) wraps the API call —
-  it returns `{ success: true }`, turns an `ApiError` into a `root` error, and
-  rethrows anything else. Pass it `redirectOnUnauthorized` to convert a 401 into
-  a `redirect()` instead of a form error.
-- Forms consume that result through `shared/hooks/use-action-fetcher.ts`
+  that belongs to no field. Two helpers build it: `zodErrorToFieldErrors` turns
+  a failed `safeParse` into that map, and `withApiOperationError` wraps the API
+  call — it returns `{ success: true }`, turns an `ApiError` into a `root`
+  error, and rethrows anything else. Pass it `redirectOnUnauthorized` to convert
+  a 401 into a `redirect()` instead of a form error.
+- Forms consume that result through `useActionFetcher`
   (`{ data, isOk, errors, isSubmitting, submit, Form, state }`) and hand
   `fetcher.errors` straight to `useForm`'s `errors:` option, so server-side
   messages land on the fields they belong to. Render `root` with `FormRootError`

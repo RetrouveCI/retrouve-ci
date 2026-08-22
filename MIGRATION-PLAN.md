@@ -287,7 +287,8 @@ le catalog, et `components/form/{input,textarea}-field.tsx` ont été supprimés
 Conform et `routes/publish` les consomme. Les deux contraintes ci-dessus sont
 levées : `ActionResult<TData>` porte désormais une charge utile
 (`withApiOperationData`), et le socle du contrat reste propre à `apps/client` —
-sa mutualisation appartient à E11.
+sa mutualisation appartient à E11. ✅ **Faite** : le socle vit dans
+`@app/web-kit/action`, les deux apps n'en gardent qu'un réexport.
 
 **Correction apportée en E7.1** : la troisième raison citait le composant shadcn
 `ui/form.tsx` (`FormField`, `FormItem`, `FormControl`, `FormMessage`) comme la
@@ -405,7 +406,7 @@ Une ligne = une branche = une PR = une session.
 | **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`                       | 3 j    | E6        |
 | **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                           | 1 j    | E4, E8    |
 | **E10** | 🟡 Tests front (socle + admin faits)        | `migration-e10-tests-front`        | `client/tests`, `admin/tests`         | 0,75 j | E4, E7    |
-| **E11** | Mutualisation front (`@app/web-kit`)        | `migration-e11-web-kit`            | `packages/web-kit`                    | 1,5 j  | E7        |
+| **E11** | ✅ Mutualisation front (`@app/web-kit`)     | (fait)                             | `packages/web-kit`                    | —      | E7        |
 | **E12** | Docs d'architecture                         | `migration-e12-docs-architecture`  | `root/docs`                           | 0,5 j  | E8        |
 | **E13** | ✅ Structure front → `app/routes/`          | (fait)                             | `client/structure`, `admin/structure` | —      | E3b       |
 
@@ -904,6 +905,10 @@ stabilisées. Remonter d'abord obligerait à créer le paquet, à y déplacer le
 socle client et à migrer l'admin dans la même PR — trois choses non liées dans
 un seul diff, alors que E11 est déjà l'étape prévue pour ça.
 
+✅ **Les deux temps ont eu lieu.** La recopie d'E7.0 a effectivement laissé
+quatre fichiers identiques à l'octet dans les deux apps, ce qui a rendu la
+mesure d'E11 triviale : `diff` répond, aucun arbitrage n'a été nécessaire.
+
 **2. `ActionResult` n'a pas de canal de charge utile.** Le type dit
 `{ success: true }` et rien d'autre, alors que trois familles d'actions
 renvoient aujourd'hui une donnée : `stickers/order` la commande créée, l'admin
@@ -944,7 +949,7 @@ réinventer sa forme. Le premier des deux à arriver est **E7.C** ; côté clien
 | **Style Prettier**       | ✅ **tranché en E1 : (b)** — on garde `useTabs: true` / `printWidth: 80`, divergence documentée en §3.7 | (b) — un reformatage global noie tous les diffs de la migration et casse `git blame`. À refaire après E12 en commit isolé + `.git-blame-ignore-revs`.                                                                                                                                                              |
 | **Ordre E7 / E2**        | migrer Conform vers `@conform-to/zod/v4` puis vers RHF, ou enchaîner E7 juste après E3                  | **enchaîner E7** — évite une migration jetable sur 41 fichiers                                                                                                                                                                                                                                                     |
 | **Tests front**          | browser mode (`@vitest/browser-playwright`, comme la référence) ou `jsdom`                              | ✅ **tranché en E10 : browser mode**, installé sur `apps/admin` avant E7.A. Deux projects Vitest (`ui` en Chromium, `node` pour les modules purs), le plugin `reactRouter()` désactivé sous `VITEST`, et une étape d'installation Chromium dans le job `vitest` de la CI. `jsdom` reste au catalog pour `apps/api` |
-| **`@app/web-kit` (E11)** | mutualiser client ↔ admin, ou assumer la duplication                                                   | mutualiser — 5 fichiers strictement identiques aujourd'hui                                                                                                                                                                                                                                                         |
+| **`@app/web-kit` (E11)** | ✅ tranché : mutualisé — client ↔ admin                                                                | mutualiser — 5 fichiers strictement identiques aujourd'hui                                                                                                                                                                                                                                                         |
 
 ---
 
