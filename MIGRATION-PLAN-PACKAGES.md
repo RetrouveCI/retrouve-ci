@@ -10,15 +10,15 @@
 
 ## 1. État actuel
 
-| Package                  | Scope            | Build     | Rôle                                        |
-| ------------------------ | ---------------- | --------- | ------------------------------------------- |
-| `@app/database`          | ✅ renommé       | oui       | Prisma 7.8 — schéma, migrations, client     |
-| `@app/ui`                | ✅ renommé       | non (src) | shadcn/ui partagé client + admin            |
-| `@app/eslint-config`     | ✅ renommé       | non       | presets `base`, `next-js`, `react-internal` |
-| `@app/typescript-config` | ✅ renommé       | non       | presets `base`, `nextjs`, `react-library`   |
-| `@app/vitest-config`     | ✅ renommé       | non       | presets `base`, `react`                     |
-| `@app/contracts`         | 🔴 **à créer**   | oui       | schémas Zod partagés front + back           |
-| `@app/web-kit`           | 🔸 à créer (E11) | non (src) | code front commun client ↔ admin           |
+| Package                  | Scope          | Build     | Rôle                                        |
+| ------------------------ | -------------- | --------- | ------------------------------------------- |
+| `@app/database`          | ✅ renommé     | oui       | Prisma 7.8 — schéma, migrations, client     |
+| `@app/ui`                | ✅ renommé     | non (src) | shadcn/ui partagé client + admin            |
+| `@app/eslint-config`     | ✅ renommé     | non       | presets `base`, `next-js`, `react-internal` |
+| `@app/typescript-config` | ✅ renommé     | non       | presets `base`, `nextjs`, `react-library`   |
+| `@app/vitest-config`     | ✅ renommé     | non       | presets `base`, `react`                     |
+| `@app/contracts`         | 🔴 **à créer** | oui       | schémas Zod partagés front + back           |
+| `@app/web-kit`           | ✅ créé (E11)  | non (src) | code front commun client ↔ admin           |
 
 ---
 
@@ -177,41 +177,65 @@ schéma exporte `z.input` **et** `z.output` typés (`XxxInput` / `XxxData`).
 
 ---
 
-## 5. E11 — `@app/web-kit`
+## 5. E11 — `@app/web-kit` — ✅ fait
 
 **Branche** `migration-e11-web-kit` · **scope** `packages/web-kit` · **1,5 j** ·
 dépend de E7.
 
 ### 5.1 Doublons constatés client ↔ admin
 
-| Fichier                                  | client | admin | Identique ?                            |
-| ---------------------------------------- | ------ | ----- | -------------------------------------- |
-| `app/shared/lib/api-client.ts`           | ✅     | ✅    | oui — `apiFetch` + `ApiError`          |
-| `app/shared/auth/auth-client.ts`         | ✅     | ✅    | non — plugins différents (phone/admin) |
-| `app/shared/auth/auth.server.ts`         | ✅     | ✅    | partiellement — même mécanique cookie  |
-| `app/shared/components/theme-toggle.tsx` | ✅     | ✅    | oui                                    |
-| `app/shared/components/not-found.tsx`    | ✅     | ✅    | quasi                                  |
+⚠️ Ce tableau **datait d'avant E13** : les chemins ont changé et l'inventaire
+était faux. Mesure refaite fichier par fichier (`diff` sur les 11 modules
+présents dans les deux `app/shared/`) :
+
+| Fichier                              | Identique ?                                     |
+| ------------------------------------ | ----------------------------------------------- |
+| `shared/types/action.ts`             | **oui, à l'octet**                              |
+| `shared/helpers/form.ts`             | **oui, à l'octet**                              |
+| `shared/utils/api-operation.ts`      | **oui, à l'octet**                              |
+| `shared/hooks/use-action-fetcher.ts` | **oui, à l'octet**                              |
+| `shared/helpers/testing.ts`          | oui, à l'octet — mais 2 lignes d'`export *`     |
+| `shared/utils/api-fetch.ts`          | à 4 lignes près (l'en-tête `X-Auth-Audience`)   |
+| `shared/utils/phone.ts`              | à 5 lignes près — déjà des réexports du contrat |
+| `shared/helpers/auth-client.ts`      | non — plugins better-auth divergents            |
+| `shared/helpers/redirect.ts`         | non — 23 lignes d'écart                         |
+| `shared/helpers/session.server.ts`   | non — 38 lignes d'écart                         |
+| `shared/helpers/page-meta.ts`        | non — 85 lignes d'écart                         |
+
+Il n'existe ni `theme-toggle.tsx` ni `not-found.tsx` partagés dans `app/shared/`
+: ces deux lignes du tableau d'origine ne décrivaient pas le dépôt.
 
 ### 5.2 Périmètre du package
 
-À mutualiser (le tronc commun réellement identique) :
+Livré — le tronc commun réellement identique :
 
 ```
 packages/web-kit/src/
-├── api/{api-fetch.ts,api-error.ts}       # renommé : *Fetch = fonction (cf. frontend-conventions)
-├── auth/{server-session.ts}              # forward du Cookie vers /api/auth/get-session
-├── components/{theme-toggle.tsx,not-found-content.tsx}
-└── theme/{theme.server.ts,theme.ts}
+├── api/{api-error.ts,api-fetch.ts}   # ApiError + createApiFetch(), une fabrique
+└── action/{action.types.ts,form.ts,api-operation.ts,use-action-fetcher.ts}
 ```
 
-À **ne pas** mutualiser : `auth-client.ts` (plugins better-auth divergents), les
-layouts, la navigation — chaque app garde les siens.
+`createApiFetch` est une **fabrique** et non une fonction : l'en-tête
+`X-Auth-Audience: admin` était la seule différence entre les deux `apiFetch`, et
+il décide quelle session l'API lit. Les deux moitiés de la règle sont testées —
+le spec du backoffice vérifie que l'en-tête part, celui du client qu'il est
+absent.
 
-### 5.3 Renommage à faire au passage
+Les 65 fichiers qui importent ces modules n'ont **pas** bougé : chaque app garde
+un réexport d'une ligne à son ancien chemin `@/shared/…`, comme `phone.ts` le
+fait depuis E6.5.
 
-`shared/lib/api-client.ts` → `api-fetch.ts`. Le fichier exporte déjà `apiFetch`
-(conforme), mais son nom dit `client` — or la convention réserve `*Client` aux
-objets à méthodes (SDK d'auth) et `*Fetch` aux fonctions.
+À **ne pas** mutualiser : `auth-client.ts` (plugins better-auth divergents),
+`session.server.ts` / `redirect.ts` / `page-meta.ts` (même idée, code réellement
+différent), `helpers/testing.ts` (deux `export *` sur les paquets du runner — le
+partager ferait entrer `vitest/browser` dans le graphe du paquet pour deux
+lignes), `utils/phone.ts` (déjà un réexport du contrat), les layouts et la
+navigation.
+
+### 5.3 Renommage à faire au passage — ✅ sans objet
+
+`shared/lib/api-client.ts` → `api-fetch.ts` : **déjà fait**, par E13. Le fichier
+s'appelle `shared/utils/api-fetch.ts` dans les deux apps.
 
 ---
 
