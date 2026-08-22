@@ -3,7 +3,7 @@ import {
 	type Event as PrismaEvent,
 } from '@app/database'
 import { describe, expect, it } from 'vitest'
-import { toDomainEvent, toDomainStatus, toPrismaStatus } from './event.mapper'
+import { toDomainEvent, toDomainStatus, toPrismaStatus } from '../event.mapper'
 
 const prismaEvent: PrismaEvent = {
 	id: 'event-1',

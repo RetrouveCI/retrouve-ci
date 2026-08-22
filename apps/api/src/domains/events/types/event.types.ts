@@ -4,6 +4,7 @@ import type {
 	EventStatus,
 	UpdateEventData as UpdateEventContract,
 } from '@app/contracts/events'
+import type { Paginated } from '@/shared/utils/pagination.util'
 
 export type { EventStatus }
 
@@ -18,3 +19,18 @@ export type UpdateEventData = Omit<UpdateEventContract, 'eventDate'> & {
 
 /** The public list narrows the status to `published`; the admin one is free. */
 export type ListEventsFilter = AdminListEventsFilterData
+
+export interface Event {
+	id: string
+	title: string
+	description: string
+	location: string
+	ville: string
+	commune: string | null
+	eventDate: Date
+	status: EventStatus
+	createdAt: Date
+	updatedAt: Date
+}
+
+export type EventListResponse = Paginated<Event>
