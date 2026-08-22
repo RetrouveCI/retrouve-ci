@@ -10,15 +10,15 @@
 
 ## 1. État actuel
 
-| Package                  | Scope            | Build     | Rôle                                        |
-| ------------------------ | ---------------- | --------- | ------------------------------------------- |
-| `@app/database`          | ✅ renommé       | oui       | Prisma 7.8 — schéma, migrations, client     |
-| `@app/ui`                | ✅ renommé       | non (src) | shadcn/ui partagé client + admin            |
-| `@app/eslint-config`     | ✅ renommé       | non       | presets `base`, `next-js`, `react-internal` |
-| `@app/typescript-config` | ✅ renommé       | non       | presets `base`, `nextjs`, `react-library`   |
-| `@app/vitest-config`     | ✅ renommé       | non       | presets `base`, `react`                     |
-| `@app/contracts`         | 🔴 **à créer**   | oui       | schémas Zod partagés front + back           |
-| `@app/web-kit`           | 🔸 à créer (E11) | non (src) | code front commun client ↔ admin           |
+| Package                  | Scope            | Build     | Rôle                                                    |
+| ------------------------ | ---------------- | --------- | ------------------------------------------------------- |
+| `@app/database`          | ✅ renommé       | oui       | Prisma 7.8 — schéma, migrations, client                 |
+| `@app/ui`                | ✅ renommé       | non (src) | shadcn/ui partagé client + admin                        |
+| `@app/eslint-config`     | ✅ renommé       | non       | presets `base`, `react-internal`                        |
+| `@app/typescript-config` | ✅ E4 (partiel)  | non       | presets `base`, `react-router`, `nest`, `react-library` |
+| `@app/vitest-config`     | ✅ renommé       | non       | presets `base`, `react`                                 |
+| `@app/contracts`         | ✅ créé (E5/E6)  | oui       | schémas Zod partagés front + back                       |
+| `@app/web-kit`           | 🔸 à créer (E11) | non (src) | code front commun client ↔ admin                       |
 
 ---
 
@@ -27,7 +27,7 @@
 **Branche** `migration-e4-presets-partages` · **scope** `packages/config` ·
 **0,5 j** · dépend de E2 (Vitest 4).
 
-### 2.1 `@app/typescript-config`
+### 2.1 `@app/typescript-config` — ✅ fait
 
 Ajouter deux presets repris de la référence :
 
@@ -53,13 +53,39 @@ que les apps RetrouveCI n'ont pas aujourd'hui : il impose `import type`
 explicite. Prévoir une passe de correction (l'erreur TS est claire et
 mécanique).
 
-### 2.2 `@app/vitest-config`
+**Fait.** La passe de correction a coûté **deux lignes**, toutes deux dans
+`packages/ui` (`VariantProps` dans `sidebar.tsx`, `ToasterProps` dans
+`sonner.tsx`) — pas la campagne que ce paragraphe laissait craindre.
 
-- Ajouter **`node.js`** : `nodeConfig` = `baseConfig` + `environment: 'node'` +
-  `oxc: false` + `plugins: [swc.vite({ module: { type: 'es6' } })]`. Le plugin
-  SWC est **indispensable** pour que l'émission des décorateurs fonctionne et
-  donc que l'injection NestJS marche sous Vitest. Nouvelle devDep :
-  `unplugin-swc`, `@swc/core`.
+Deux écarts assumés par rapport à la référence, parce que les reprendre aurait
+été un changement de comportement déguisé en mutualisation :
+
+- `lib` reste `esnext` et non `ES2024` ;
+- `types` garde `vitest/globals` et non `node` — les tests des deux fronts
+  s'appuient dessus pour écrire `describe` sans import.
+
+Retirés au passage : `nextjs.json`, sans consommateur depuis que l'admin a
+quitté Next.js, et l'alias `@retrouveci/ui/*` de `packages/ui/tsconfig.json`,
+vestige de l'ancien scope que rien n'importait. `packages/ui` dérive désormais
+de `react-library.json`, qui existait pour ça et n'avait aucun consommateur non
+plus.
+
+### 2.2 `@app/vitest-config` — 🔸 reste à faire, moins le preset `node`
+
+⚠️ **Le preset `node` + SWC est écarté pour l'instant.** Il n'est indispensable
+que si un test construit un module de test NestJS et laisse le conteneur
+injecter ; aucun des 232 specs de l'api ne le fait — ils instancient les classes
+à la main (`new XxxController(deps)`), et passent donc sans émission de
+décorateurs. Ajouter `unplugin-swc` et `@swc/core` maintenant, ce serait deux
+dépendances pour une capacité que rien n'exerce. Le preset doit arriver avec le
+premier test qui en a besoin, ce qui est le sujet d'**E9**.
+
+- ~~Ajouter **`node.js`** : `nodeConfig` = `baseConfig` +
+  `environment: 'node'` + `oxc: false` +
+  `plugins: [swc.vite({ module: { type: 'es6' } })]`. Le plugin SWC est
+  **indispensable** pour que l'émission des décorateurs fonctionne et donc que
+  l'injection NestJS marche sous Vitest. Nouvelle devDep : `unplugin-swc`,
+  `@swc/core`.~~ → reporté à E9, voir ci-dessus.
 - Aligner `base.ts` sur la référence : `globals: true`, `clearMocks: true`,
   `passWithNoTests: true`, coverage v8 avec
   `reporter: ['text', 'json', 'html']`.
@@ -69,11 +95,12 @@ mécanique).
   CommonJS, le package `@app/vitest-config` est ESM-only) et l'appuyer sur
   `nodeConfig`.
 
-### 2.3 `@app/eslint-config`
+### 2.3 `@app/eslint-config` — 🔸 reste à faire
 
 - Ajouter **`nest.js`** (repris de la référence) : règles TS pour NestJS, dont
   `max-params` que les controllers désactivent ponctuellement.
-- Supprimer **`next.js`** et la devDep `@next/eslint-plugin-next`.
+- ~~Supprimer **`next.js`** et la devDep `@next/eslint-plugin-next`.~~ ✅ déjà
+  fait : ni le fichier ni la dépendance n'existent plus.
 - Brancher `apps/api` sur le preset `nest`.
 
 ### Vérification
