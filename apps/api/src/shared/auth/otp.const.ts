@@ -1,6 +1,3 @@
-export const OTP_QUEUE = 'otp'
-export const SEND_OTP_JOB = 'send-otp'
-
 /** Two minutes, as agreed. better-auth's own default is 300 seconds. */
 export const OTP_TTL_SECONDS = 120
 
