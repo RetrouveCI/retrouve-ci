@@ -1,10 +1,7 @@
 import type { Queue } from 'bullmq'
 import { describe, expect, it, vi } from 'vitest'
-import {
-	OTP_ATTEMPTS,
-	OTP_BACKOFF_DELAY_MS,
-	SEND_OTP_JOB,
-} from '@/shared/auth/otp.const'
+import { OTP_ATTEMPTS, OTP_BACKOFF_DELAY_MS } from '@/shared/auth/otp.const'
+import { SEND_OTP_JOB } from '@/infrastructures/queue/queue.constants'
 import { OtpDispatcher, type SendOtpJobData } from '../otp-dispatcher.service'
 
 function buildDispatcher(add = vi.fn().mockResolvedValue(undefined)) {

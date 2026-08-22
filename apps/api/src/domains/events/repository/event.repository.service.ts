@@ -8,6 +8,7 @@ import type {
 	UpdateEventData,
 } from '../types/event.types'
 import type { EventRepository } from './event.repository'
+import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 
 @Injectable()
 export class EventRepositoryService implements EventRepository {
@@ -43,18 +44,12 @@ export class EventRepositoryService implements EventRepository {
 			this.prisma.event.findMany({
 				where,
 				orderBy: { eventDate: 'asc' },
-				skip: (filter.page - 1) * filter.pageSize,
-				take: filter.pageSize,
+				...toPrismaPage(filter),
 			}),
 			this.prisma.event.count({ where }),
 		])
 
-		return {
-			items: items.map(toDomainEvent),
-			total,
-			page: filter.page,
-			pageSize: filter.pageSize,
-		}
+		return toPaginated(items.map(toDomainEvent), total, filter)
 	}
 
 	async update(id: string, data: UpdateEventData): Promise<Event> {

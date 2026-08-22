@@ -6,7 +6,8 @@ import type { SendOtpJobData } from '@/infrastructures/auth/otp-dispatcher.servi
 import { LetextoService } from '@/infrastructures/sms/letexto.service'
 import { InvalidRecipientError } from '@/infrastructures/sms/sms.errors'
 import { buildOtpMessage } from '@/shared/auth/otp-message'
-import { OTP_ATTEMPTS, OTP_QUEUE } from '@/shared/auth/otp.const'
+import { OTP_ATTEMPTS } from '@/shared/auth/otp.const'
+import { OTP_QUEUE } from '@/infrastructures/queue/queue.constants'
 
 const LOG_LABELS: Record<SendOtpJobData['purpose'], string> = {
 	'sign-in': 'OTP',

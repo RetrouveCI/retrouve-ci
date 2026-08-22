@@ -13,6 +13,7 @@ import type {
 	ListNotificationsFilter,
 } from '../types/notification.types'
 import type { NotificationRepository } from './notification.repository'
+import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 
 @Injectable()
 export class NotificationRepositoryService implements NotificationRepository {
@@ -52,18 +53,12 @@ export class NotificationRepositoryService implements NotificationRepository {
 			this.prisma.notification.findMany({
 				where,
 				orderBy: { createdAt: 'desc' },
-				skip: (filter.page - 1) * filter.pageSize,
-				take: filter.pageSize,
+				...toPrismaPage(filter),
 			}),
 			this.prisma.notification.count({ where }),
 		])
 
-		return {
-			items: items.map(toDomainNotification),
-			total,
-			page: filter.page,
-			pageSize: filter.pageSize,
-		}
+		return toPaginated(items.map(toDomainNotification), total, filter)
 	}
 
 	async markAsRead(id: string): Promise<Notification> {

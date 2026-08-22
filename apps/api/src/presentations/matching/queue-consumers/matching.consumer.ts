@@ -1,7 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq'
 import type { Job } from 'bullmq'
-import { MATCHING_QUEUE } from '@/domains/matching/constants'
 import { MatchingUseCases } from '@/domains/matching/use-cases/matching.use-cases'
+import { MATCHING_QUEUE } from '@/infrastructures/queue/queue.constants'
 
 interface FindMatchesJobData {
 	lostItemId: string
