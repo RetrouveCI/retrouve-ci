@@ -10,6 +10,7 @@ import { RevokeTokenDialog } from './components/revoke-token-dialog'
 import { qrTokenLoader } from './servers/qr-token.loader'
 import { qrTokenAction } from './servers/qr-token.action'
 import type { QrToken } from '../types/qr.types'
+import { publicAppUrl } from '@/shared/helpers/env'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
 
@@ -61,7 +62,7 @@ export default function QrTokenDetailPage({
 		toast.success(`${label} copié`)
 	}
 
-	const qrUrl = `${import.meta.env.VITE_API_URL?.replace(':3002', ':3000') ?? 'https://retrouveci.com'}/q/${token.code}`
+	const qrUrl = `${publicAppUrl()}/q/${token.code}`
 
 	return (
 		<>

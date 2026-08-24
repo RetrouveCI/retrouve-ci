@@ -12,6 +12,7 @@ import { DataTable } from '@/components/data-table'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { publicAppUrl } from '@/shared/helpers/env'
 import { MoreHorizontal, Eye, Copy, Link as LinkIcon, Ban } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { QrToken } from '../types/qr.types'
@@ -114,10 +115,7 @@ export function QrTokensTable({ data, onCopy }: QrTokensTableProps) {
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={() =>
-								onCopy(
-									`${import.meta.env.VITE_API_URL?.replace(':3002', ':3000') ?? 'https://retrouveci.com'}/q/${row.original.code}`,
-									'Lien',
-								)
+								onCopy(`${publicAppUrl()}/q/${row.original.code}`, 'Lien')
 							}
 						>
 							<LinkIcon className="mr-2 h-4 w-4" /> Copier le lien
