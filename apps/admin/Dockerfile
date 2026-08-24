@@ -18,7 +18,28 @@ FROM base AS builder
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
 
+# Vite inlines `import.meta.env.VITE_API_URL` at build time. Unset, `authClient`
+# is built with `baseURL: "/api/admin-auth"`, which better-auth rejects for
+# having no protocol — the container then exits 1 on boot. Refuse to produce it.
+RUN test -n "$VITE_API_URL" || { \
+	echo "ERROR: VITE_API_URL is required at build time."; \
+	echo "       docker build -f apps/admin/Dockerfile \\"; \
+	echo "         --build-arg VITE_API_URL=https://api.example.com \\"; \
+	echo "         -t retrouveci-admin ."; \
+	exit 1; \
+	}
+
 COPY . .
+
+# `pnpm install` resolves this app's `catalog:` ranges from the root
+# pnpm-workspace.yaml, and the build needs the sibling packages it depends on,
+# so the whole workspace has to be in the context.
+RUN test -f pnpm-workspace.yaml || { \
+	echo "ERROR: the build context must be the monorepo root, not apps/admin/."; \
+	echo "       docker build -f apps/admin/Dockerfile -t retrouveci-admin ."; \
+	exit 1; \
+	}
+
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
 	pnpm install --frozen-lockfile
 RUN pnpm exec turbo run build --filter=@app/admin
