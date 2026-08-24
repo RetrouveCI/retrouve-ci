@@ -22,7 +22,14 @@ import {
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructures/auth/auth.config'
-import { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases'
+import { ActivateQrTokenUseCase } from '@/domains/qr-codes/use-cases/activate-qr-token.use-case'
+import { GenerateQrTokensUseCase } from '@/domains/qr-codes/use-cases/generate-qr-tokens.use-case'
+import { GetMyQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-my-qr-tokens.use-case'
+import { GetPaginatedQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-paginated-qr-tokens.use-case'
+import { GetQrTokenByCodeUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-by-code.use-case'
+import { GetQrTokenPublicViewUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-public-view.use-case'
+import { RevokeQrTokenUseCase } from '@/domains/qr-codes/use-cases/revoke-qr-token.use-case'
+import { UpdateQrTokenDetailsUseCase } from '@/domains/qr-codes/use-cases/update-qr-token-details.use-case'
 import { CreateContactMessageUseCase } from '@/domains/contact-messages/use-cases/create-contact-message.use-case'
 import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
@@ -33,7 +40,14 @@ import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 @Controller('qr-codes')
 export class QrCodesController {
 	constructor(
-		private readonly qrTokenUseCases: QrTokenUseCases,
+		private readonly generateQrTokensUseCase: GenerateQrTokensUseCase,
+		private readonly getQrTokenByCodeUseCase: GetQrTokenByCodeUseCase,
+		private readonly getQrTokenPublicViewUseCase: GetQrTokenPublicViewUseCase,
+		private readonly activateQrTokenUseCase: ActivateQrTokenUseCase,
+		private readonly revokeQrTokenUseCase: RevokeQrTokenUseCase,
+		private readonly updateQrTokenDetailsUseCase: UpdateQrTokenDetailsUseCase,
+		private readonly getPaginatedQrTokensUseCase: GetPaginatedQrTokensUseCase,
+		private readonly getMyQrTokensUseCase: GetMyQrTokensUseCase,
 		private readonly createContactMessage: CreateContactMessageUseCase,
 		private readonly createNotification: CreateNotificationUseCase,
 	) {}
@@ -45,7 +59,7 @@ export class QrCodesController {
 		@Body(new ZodValidationPipe(generateQrTokensSchema))
 		data: GenerateQrTokensData,
 	) {
-		return this.qrTokenUseCases.generateBatch(data)
+		return this.generateQrTokensUseCase.execute(data)
 	}
 
 	@Get()
@@ -55,7 +69,7 @@ export class QrCodesController {
 		@Query(new ZodValidationPipe(listQrTokensFilterSchema))
 		filter: ListQrTokensFilterData,
 	) {
-		return this.qrTokenUseCases.list(filter)
+		return this.getPaginatedQrTokensUseCase.execute(filter)
 	}
 
 	@Get('mine')
@@ -65,19 +79,22 @@ export class QrCodesController {
 		@Query(new ZodValidationPipe(listQrTokensFilterSchema))
 		filter: ListQrTokensFilterData,
 	) {
-		return this.qrTokenUseCases.listMine(session.user.id, filter)
+		return this.getMyQrTokensUseCase.execute({
+			userId: session.user.id,
+			filter,
+		})
 	}
 
 	@Get(':code/scan')
 	@AllowAnonymous()
 	getPublicView(@Param('code') code: string) {
-		return this.qrTokenUseCases.getPublicView(code)
+		return this.getQrTokenPublicViewUseCase.execute(code)
 	}
 
 	@Get(':code')
 	@AllowAnonymous()
 	getOne(@Param('code') code: string) {
-		return this.qrTokenUseCases.getByCode(code)
+		return this.getQrTokenByCodeUseCase.execute(code)
 	}
 
 	@Post(':code/activate')
@@ -87,7 +104,11 @@ export class QrCodesController {
 		@Param('code') code: string,
 		@Body(new ZodValidationPipe(qrTokenDetailsSchema)) data: QrTokenDetailsData,
 	) {
-		return this.qrTokenUseCases.activate(code, session.user.id, data)
+		return this.activateQrTokenUseCase.execute({
+			code,
+			userId: session.user.id,
+			data,
+		})
 	}
 
 	@Post(':code/contact')
@@ -97,7 +118,7 @@ export class QrCodesController {
 		@Param('code') code: string,
 		@Body(new ZodValidationPipe(contactOwnerSchema)) data: ContactOwnerData,
 	) {
-		const token = await this.qrTokenUseCases.getByCode(code)
+		const token = await this.getQrTokenByCodeUseCase.execute(code)
 
 		if (token.status !== 'activated' || !token.userId) {
 			throw new BadRequestException("Ce sticker n'est pas encore activé")
@@ -131,11 +152,15 @@ export class QrCodesController {
 		@Param('code') code: string,
 		@Body(new ZodValidationPipe(qrTokenDetailsSchema)) data: QrTokenDetailsData,
 	) {
-		return this.qrTokenUseCases.updateDetails(code, session.user.id, data)
+		return this.updateQrTokenDetailsUseCase.execute({
+			code,
+			userId: session.user.id,
+			data,
+		})
 	}
 
 	@Post(':code/revoke')
 	revoke(@Session() session: UserSession<Auth>, @Param('code') code: string) {
-		return this.qrTokenUseCases.revoke(code, session.user.id)
+		return this.revokeQrTokenUseCase.execute({ code, userId: session.user.id })
 	}
 }
