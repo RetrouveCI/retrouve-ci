@@ -283,33 +283,35 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
   chaînage dans un même domaine. La variante puriste (le domaine renvoie des
   `CreateNotificationData[]`, `MatchingConsumer` les écrit) a été écartée : elle
   éclate une opération atomique sur deux couches. Le lien vers `lost-items`
-  reste un repository, `findMatchCandidates` n'ayant pas de use-case. ⚠️
-  **Constat non corrigé (E8.8)** : le chemin de notification est
-  **inatteignable**. `FIND_MATCHES_JOB` n'est mis en file qu'à la **création**
-  d'une annonce, où elle vaut toujours `pending` ; `NotifyMatchesUseCase` sort
-  alors silencieusement, et la modération vers `published` ne remet **rien** en
-  file. Vérifié à chaud : 0 notification après création puis publication d'un
-  couple perdu/trouvé qui matche à 110. La chaîne elle-même est saine — un job
-  mis en file à la main sur une annonce publiée crée bien la notification. Il
-  manque un `matchingQueue.add` dans `updateModerationStatus`, ce qui est un
-  changement de comportement, pas un refactor. Même famille que le constat
-  `view` de `lost-items` : du code écrit et testé, sans appelant atteignable. À
-  noter aussi : sur une annonce introuvable le consumer laisse BullMQ brûler ses
-  trois tentatives, là où `OtpConsumer` lève `UnrecoverableError`.
+  reste un repository, `findMatchCandidates` n'ayant pas de use-case. ✅
+  **Corrigé (suivi d'E8.8)** : le chemin de notification était
+  **inatteignable**. `FIND_MATCHES_JOB` n'était mis en file qu'à la
+  **création**, où une annonce vaut toujours `pending` (`@default(PENDING)`, ni
+  `create` ni le contrat ne la fixent) ; `NotifyMatchesUseCase` sortait donc
+  toujours silencieusement, et la modération vers `published` ne remettait
+  **rien** en file. L'enqueue a été **déplacé** de `create` vers
+  `updateModerationStatus`, conditionné à `published` — le laisser sur `create`
+  aurait gardé un appel prouvablement mort. À noter, non corrigé : sur une
+  annonce introuvable le consumer laisse BullMQ brûler ses trois tentatives, là
+  où `OtpConsumer` lève `UnrecoverableError`.
 - **`lost-items`** : trois gardes partagés dans `helpers/` —
   `require-lost-item`, `require-published-lost-item`, `require-owned-lost-item`
   — chacun ayant au moins deux appelants. Le domaine portait **`models/` et
   `types/` en même temps** : la fusion n'est pas un `git mv`, et
-  `LostItemListResponse` devient `Paginated<LostItem>`. ⚠️ **Constat non corrigé
-  (E8.7)** : `view` — le seul use-case qui exige
-  `moderationStatus === 'published'` et incrémente `views` — **n'a aucun
-  appelant**. `GET /lost-items/:id` est câblé sur `getById`, qui ne contrôle
-  rien, et la route est `@AllowAnonymous()`. Vérifié à chaud : un appelant
-  anonyme lit une annonce `pending` **avec le WhatsApp du propriétaire**, et
-  `views` reste à 0. Migré à l'identique et **asservi par un test** qui énonce
-  ce comportement, plutôt que corrigé dans une PR de refactor. À trancher : le
-  correctif tient en une ligne (`getOne` → `ViewLostItemUseCase`) mais change le
-  contrat public de la route.
+  `LostItemListResponse` devient `Paginated<LostItem>`. ✅ **Corrigé (suivi
+  d'E8.7)** : `GET /lost-items/:id` était câblé sur `getById`, qui ne contrôle
+  aucun statut, sur une route `@AllowAnonymous()` — un appelant anonyme lisait
+  une annonce `pending` **avec le WhatsApp du propriétaire**, et `views` restait
+  à 0 puisque `view`, le seul use-case qui contrôlait la publication, n'avait
+  aucun appelant. La route passe en `@OptionalAuth()` et sur
+  `ViewLostItemUseCase`, dont le contrat devient `{ id, viewerId? }` : **publiée
+  pour tous, non publiée pour son seul auteur**, 404 sinon. Le compteur n'est
+  incrémenté que pour un visiteur qui n'en est pas l'auteur. La 404 stricte a
+  été écartée : `/account/posts` renvoie vers `/posts/:id` par un lien « Voir »
+  rendu pour tous les statuts, donc l'auteur aurait perdu la prévisualisation de
+  son annonce en attente. `getById` n'ayant plus d'appelant,
+  `GetLostItemByIdUseCase` est supprimé — garder un use-case exporté sans
+  appelant est précisément ce qui a rendu ces deux bugs invisibles.
 - **`reporting`** : un seul use-case, pas d'`errors/` ni de `mappers/`. Créer
   quand même le domain module — la règle « chaque domaine est un module NestJS
   indépendant » ne souffre pas d'exception.

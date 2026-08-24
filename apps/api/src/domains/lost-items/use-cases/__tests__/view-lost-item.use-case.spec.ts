@@ -16,33 +16,92 @@ describe('ViewLostItemUseCase', () => {
 		useCase = new ViewLostItemUseCase(repository)
 	})
 
-	it('increments the view count and returns the updated lost item', async () => {
-		const lostItem = buildLostItem({ moderationStatus: 'published', views: 5 })
-		vi.mocked(repository.findById).mockResolvedValue(lostItem)
+	describe('a published listing', () => {
+		it('counts the view of an anonymous visitor', async () => {
+			const lostItem = buildLostItem({ views: 5 })
+			vi.mocked(repository.findById).mockResolvedValue(lostItem)
 
-		const result = await useCase.execute('lost-item-1')
+			const result = await useCase.execute({ id: 'lost-item-1' })
 
-		expect(repository.incrementViews).toHaveBeenCalledWith('lost-item-1')
-		expect(result).toEqual({ ...lostItem, views: 6 })
+			expect(repository.incrementViews).toHaveBeenCalledWith('lost-item-1')
+			expect(result).toEqual({ ...lostItem, views: 6 })
+		})
+
+		it('counts the view of a signed-in visitor who is not the author', async () => {
+			const lostItem = buildLostItem({ userId: 'user-1', views: 5 })
+			vi.mocked(repository.findById).mockResolvedValue(lostItem)
+
+			const result = await useCase.execute({
+				id: 'lost-item-1',
+				viewerId: 'user-2',
+			})
+
+			expect(repository.incrementViews).toHaveBeenCalledOnce()
+			expect(result.views).toBe(6)
+		})
+
+		/** An author re-reading their own listing is not an audience figure. */
+		it('does not count the author reading their own listing', async () => {
+			const lostItem = buildLostItem({ userId: 'user-1', views: 5 })
+			vi.mocked(repository.findById).mockResolvedValue(lostItem)
+
+			const result = await useCase.execute({
+				id: 'lost-item-1',
+				viewerId: 'user-1',
+			})
+
+			expect(repository.incrementViews).not.toHaveBeenCalled()
+			expect(result).toEqual(lostItem)
+		})
 	})
 
-	it('throws when the item does not exist, without counting a view', async () => {
+	describe('an unpublished listing', () => {
+		it.each(['pending', 'hidden'] as const)(
+			'is returned to its author when %s, without counting a view',
+			async moderationStatus => {
+				const lostItem = buildLostItem({ userId: 'user-1', moderationStatus })
+				vi.mocked(repository.findById).mockResolvedValue(lostItem)
+
+				const result = await useCase.execute({
+					id: 'lost-item-1',
+					viewerId: 'user-1',
+				})
+
+				expect(result).toEqual(lostItem)
+				expect(repository.incrementViews).not.toHaveBeenCalled()
+			},
+		)
+
+		/** The leak this closes: a third party reading a listing under moderation. */
+		it('answers not found to an anonymous visitor', async () => {
+			vi.mocked(repository.findById).mockResolvedValue(
+				buildLostItem({ userId: 'user-1', moderationStatus: 'pending' }),
+			)
+
+			await expect(useCase.execute({ id: 'lost-item-1' })).rejects.toThrow(
+				LostItemNotFoundError,
+			)
+			expect(repository.incrementViews).not.toHaveBeenCalled()
+		})
+
+		it('answers not found to a signed-in visitor who is not the author', async () => {
+			vi.mocked(repository.findById).mockResolvedValue(
+				buildLostItem({ userId: 'user-1', moderationStatus: 'pending' }),
+			)
+
+			await expect(
+				useCase.execute({ id: 'lost-item-1', viewerId: 'user-2' }),
+			).rejects.toThrow(LostItemNotFoundError)
+			expect(repository.incrementViews).not.toHaveBeenCalled()
+		})
+	})
+
+	it('throws when the listing does not exist', async () => {
 		vi.mocked(repository.findById).mockResolvedValue(null)
 
-		await expect(useCase.execute('missing')).rejects.toThrow(
-			LostItemNotFoundError,
-		)
-		expect(repository.incrementViews).not.toHaveBeenCalled()
-	})
-
-	it('throws when the item is not published, without counting a view', async () => {
-		vi.mocked(repository.findById).mockResolvedValue(
-			buildLostItem({ moderationStatus: 'pending' }),
-		)
-
-		await expect(useCase.execute('lost-item-1')).rejects.toThrow(
-			LostItemNotFoundError,
-		)
+		await expect(
+			useCase.execute({ id: 'missing', viewerId: 'user-1' }),
+		).rejects.toThrow(LostItemNotFoundError)
 		expect(repository.incrementViews).not.toHaveBeenCalled()
 	})
 })
