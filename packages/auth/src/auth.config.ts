@@ -78,6 +78,8 @@ export interface CreateAuthOptions {
 	 * option's documentation suggests: the default is the literal `better-auth`.
 	 */
 	cookiePrefix?: string
+	/** Parent domain for the session cookie, e.g. `.example.com`. */
+	cookieDomain?: string
 	plugins?: BetterAuthPlugin[]
 	trustedOrigins?: string[]
 }
@@ -88,14 +90,22 @@ export function createAuth(
 		appName = DEFAULT_APP_NAME,
 		basePath,
 		cookiePrefix,
+		cookieDomain,
 		plugins = [],
 		trustedOrigins,
 	}: CreateAuthOptions = {},
 ) {
+	const advanced = {
+		...(cookiePrefix ? { cookiePrefix } : {}),
+		...(cookieDomain
+			? { crossSubDomainCookies: { enabled: true, domain: cookieDomain } }
+			: {}),
+	}
+
 	return betterAuth({
 		appName,
 		...(basePath ? { basePath } : {}),
-		...(cookiePrefix ? { advanced: { cookiePrefix } } : {}),
+		...(Object.keys(advanced).length ? { advanced } : {}),
 		database: prismaAdapter(prisma, { provider: 'postgresql' }),
 		secret: process.env['BETTER_AUTH_SECRET'],
 		baseURL: process.env['BETTER_AUTH_URL'],
