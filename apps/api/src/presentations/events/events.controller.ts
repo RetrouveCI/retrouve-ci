@@ -32,7 +32,6 @@ import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 @ApiBearerAuth()
 @Controller('events')
 export class EventsController {
-	// eslint-disable-next-line max-params
 	constructor(
 		private readonly createEvent: CreateEventUseCase,
 		private readonly getPaginatedEvents: GetPaginatedEventsUseCase,
