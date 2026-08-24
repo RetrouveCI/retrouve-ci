@@ -4,7 +4,7 @@ import {
 	toDomainNotification,
 	toDomainType,
 	toPrismaType,
-} from './notification.mapper'
+} from '../notification.mapper'
 
 describe('notification mapper', () => {
 	it('maps a Prisma Notification to the domain model', () => {

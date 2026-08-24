@@ -2,6 +2,7 @@ import type {
 	ListNotificationsFilterData,
 	NotificationType,
 } from '@app/contracts/notifications'
+import type { Paginated } from '@/shared/utils/pagination.util'
 
 export type { NotificationType }
 
@@ -18,3 +19,17 @@ export interface CreateNotificationData {
 export type ListNotificationsFilter = ListNotificationsFilterData & {
 	userId: string
 }
+
+export interface Notification {
+	id: string
+	type: NotificationType
+	title: string
+	message: string
+	link: string | null
+	read: boolean
+	userId: string
+	createdAt: Date
+	readAt: Date | null
+}
+
+export type NotificationListResponse = Paginated<Notification>

@@ -3,11 +3,11 @@ import { QR_TOKEN_REPOSITORY } from '@/domains/qr-codes/repository/qr-token.repo
 import { QrTokenRepositoryService } from '@/domains/qr-codes/repository/qr-token.repository.service'
 import { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases'
 import { ContactMessagesDomainModule } from '@/domains/contact-messages/contact-messages-domain.module'
-import { NotificationsModule } from '@/presentations/notifications/notifications.module'
+import { NotificationsDomainModule } from '@/domains/notifications/notifications-domain.module'
 import { QrCodesController } from './controllers/qr-codes.controller'
 
 @Module({
-	imports: [ContactMessagesDomainModule, NotificationsModule],
+	imports: [ContactMessagesDomainModule, NotificationsDomainModule],
 	controllers: [QrCodesController],
 	providers: [
 		QrTokenUseCases,
