@@ -41,7 +41,7 @@ FROM node:24-bookworm-slim AS runner
 # password-reset link must point at, which the container cannot infer behind a
 # reverse proxy.
 ENV NODE_ENV="production" \
-	PORT="3335"
+	PORT="3000"
 
 WORKDIR /app
 COPY --from=builder --chown=node:node /prod/admin/node_modules ./node_modules
@@ -50,6 +50,6 @@ COPY --from=builder --chown=node:node /prod/admin/package.json ./package.json
 
 USER node
 
-EXPOSE 3335
+EXPOSE 3000
 
 CMD ["./node_modules/.bin/react-router-serve", "./build/server/index.js"]

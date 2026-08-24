@@ -37,7 +37,7 @@ FROM node:24-bookworm-slim AS runner
 # required: the server refuses to start without it rather than silently calling
 # its own origin, which is what the former build-time `VITE_API_URL` did.
 ENV NODE_ENV="production" \
-	PORT="3334"
+	PORT="3000"
 
 WORKDIR /app
 COPY --from=builder --chown=node:node /prod/client/node_modules ./node_modules
@@ -46,6 +46,6 @@ COPY --from=builder --chown=node:node /prod/client/package.json ./package.json
 
 USER node
 
-EXPOSE 3334
+EXPOSE 3000
 
 CMD ["./node_modules/.bin/react-router-serve", "./build/server/index.js"]
