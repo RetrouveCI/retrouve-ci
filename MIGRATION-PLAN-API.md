@@ -33,18 +33,18 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 
 ## 2. Les 10 écarts à corriger
 
-| #   | Écart                                                                                         | Étape        |
-| --- | --------------------------------------------------------------------------------------------- | ------------ |
-| 1   | `use-cases/<domaine>.use-cases.ts` : une classe fourre-tout au lieu d'un fichier par use-case | E8           |
-| 2   | Aucun `<domaine>-domain.module.ts` — les providers sont dans le module de présentation        | E8           |
-| 3   | `domains/*/models/` : couche en trop (fusionner dans `types/`)                                | E8           |
-| 4   | ~~`domains/*/validators/` : couche en trop (remplacée par les contrats Zod)~~ ✅              | E6 ✅        |
-| 5   | ~~DTO `class-validator` dans `presentation/*/dto/` → schémas Zod + pipe~~ ✅                  | E6 ✅        |
-| 6   | ~~`infrastructure/` → `infrastructures/`, `presentation/` → `presentations/`~~ ✅             | E8.1 ✅      |
-| 7   | ~~`libs/storage/cloudinary.ts` hors norme → `infrastructures/storage/`~~ ✅                   | E8.1 ✅      |
-| 8   | 🟡 Tests → `__tests__/` : **tranché**, appliqué par domaine migré ; reste 7 domaines          | E8/E9 🟡     |
-| 9   | Aucune couche `shared/auth/{guards,decorators}` — contrôles de rôle dispersés                 | E8 (partiel) |
-| 10  | 🟡 `shared/` : pipe Zod ✅, pagination ✅ ; `IDomainUseCase` → §4.3, env écarté (§4.2)        | E8.2 🟡      |
+| #   | Écart                                                                                       | Étape         |
+| --- | ------------------------------------------------------------------------------------------- | ------------- |
+| 1   | ~~`use-cases/<domaine>.use-cases.ts` : une classe fourre-tout~~ ✅ 8 domaines migrés        | E8 ✅         |
+| 2   | ~~Aucun `<domaine>-domain.module.ts`~~ ✅ les 8 existent, aucun provider en présentation    | E8 ✅         |
+| 3   | ~~`domains/*/models/` : couche en trop~~ ✅ plus aucun `models/` dans `domains/`            | E8 ✅         |
+| 4   | ~~`domains/*/validators/` : couche en trop (remplacée par les contrats Zod)~~ ✅            | E6 ✅         |
+| 5   | ~~DTO `class-validator` dans `presentation/*/dto/` → schémas Zod + pipe~~ ✅                | E6 ✅         |
+| 6   | ~~`infrastructure/` → `infrastructures/`, `presentation/` → `presentations/`~~ ✅           | E8.1 ✅       |
+| 7   | ~~`libs/storage/cloudinary.ts` hors norme → `infrastructures/storage/`~~ ✅                 | E8.1 ✅       |
+| 8   | 🟡 Tests → `__tests__/` : les 8 domaines sont faits ; reste `infrastructures/` et `shared/` | E8 ✅ / E9 🟡 |
+| 9   | Aucune couche `shared/auth/{guards,decorators}` — contrôles de rôle dispersés               | E8 (partiel)  |
+| 10  | 🟡 `shared/` : pipe Zod ✅, pagination ✅ ; `IDomainUseCase` → §4.3, env écarté (§4.2)      | E8.2 🟡       |
 
 ---
 
@@ -322,6 +322,18 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
   `notifications` répond **404** dans la même situation pour ne pas confirmer
   qu'un id existe. Migré à l'identique et asservi par un test qui énonce le
   comportement ; à harmoniser dans un choix produit, pas dans un refactor.
+- **`qr-codes`** : 8 use-cases et **deux** gardes partagés — `require-qr-token`
+  (4 appelants) et `require-owned-qr-token` (`revoke`, `updateDetails`).
+  L'activation ne contrôle pas la propriété : c'est elle qui l'attribue, donc
+  elle contrôle le _statut_. ⚠️ **Deux constats non corrigés.**
+  `GET /qr-codes/:code` est `@AllowAnonymous()` et renvoie le token complet :
+  vérifié à chaud, il expose le `userId` du propriétaire et le `label` à
+  quiconque détient un code, alors que `/:code/scan` existe précisément pour ne
+  montrer que la vue publique (prénom seul). Et `contactOwner` garde une règle
+  métier dans le contrôleur — le contrôle `status !== 'activated'` avec son
+  `BadRequestException`. Le déplacer en domaine est faisable (`ValidationError`
+  mappe déjà sur 400) mais ajoute un champ `error` à la réponse : changement de
+  contrat, donc décision produit.
 - **`reporting`** : un seul use-case, pas d'`errors/` ni de `mappers/`. Créer
   quand même le domain module — la règle « chaque domaine est un module NestJS
   indépendant » ne souffre pas d'exception.

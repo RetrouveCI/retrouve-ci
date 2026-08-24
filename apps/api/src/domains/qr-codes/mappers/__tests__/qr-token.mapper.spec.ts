@@ -4,7 +4,7 @@ import {
 	toDomainQrToken,
 	toDomainStatus,
 	toPrismaStatus,
-} from './qr-token.mapper'
+} from '../qr-token.mapper'
 
 describe('qr-token mapper', () => {
 	it('maps a Prisma QrToken to the domain model', () => {
