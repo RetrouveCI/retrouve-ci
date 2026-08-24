@@ -4,7 +4,7 @@ import type { CreateContactMessageData } from '../../types/contact-message.types
 import {
 	buildContactMessage,
 	buildRepository,
-} from '../contact-message.fixture'
+} from '../../__tests__/contact-message.fixture'
 import { CreateContactMessageUseCase } from '../create-contact-message.use-case'
 
 describe('CreateContactMessageUseCase', () => {
