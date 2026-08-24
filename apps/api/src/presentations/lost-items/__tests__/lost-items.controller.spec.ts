@@ -8,12 +8,12 @@ import type {
 import { buildLostItem } from '@/domains/lost-items/__tests__/lost-item.fixture'
 import type { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
 import type { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
-import type { GetLostItemByIdUseCase } from '@/domains/lost-items/use-cases/get-lost-item-by-id.use-case'
 import type { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import type { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
 import type { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
 import type { RecordLostItemContactUseCase } from '@/domains/lost-items/use-cases/record-lost-item-contact.use-case'
 import type { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
+import type { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import type { Auth } from '@/infrastructures/auth/auth.config'
 import { FIND_MATCHES_JOB } from '@/infrastructures/queue/queue.constants'
 import { LostItemsController } from '../lost-items.controller'
@@ -32,7 +32,7 @@ function buildMatchingQueue() {
 
 describe('LostItemsController', () => {
 	let createLostItem: CreateLostItemUseCase
-	let getLostItemById: GetLostItemByIdUseCase
+	let viewLostItem: ViewLostItemUseCase
 	let recordLostItemContact: RecordLostItemContactUseCase
 	let getPaginatedLostItems: GetPaginatedLostItemsUseCase
 	let getMyLostItems: GetMyLostItemsUseCase
@@ -44,7 +44,7 @@ describe('LostItemsController', () => {
 
 	beforeEach(() => {
 		createLostItem = buildUseCase<CreateLostItemUseCase>()
-		getLostItemById = buildUseCase<GetLostItemByIdUseCase>()
+		viewLostItem = buildUseCase<ViewLostItemUseCase>()
 		recordLostItemContact = buildUseCase<RecordLostItemContactUseCase>()
 		getPaginatedLostItems = buildUseCase<GetPaginatedLostItemsUseCase>()
 		getMyLostItems = buildUseCase<GetMyLostItemsUseCase>()
@@ -54,7 +54,7 @@ describe('LostItemsController', () => {
 		matchingQueue = buildMatchingQueue()
 		controller = new LostItemsController(
 			createLostItem,
-			getLostItemById,
+			viewLostItem,
 			recordLostItemContact,
 			getPaginatedLostItems,
 			getMyLostItems,
@@ -66,7 +66,7 @@ describe('LostItemsController', () => {
 	})
 
 	describe('create', () => {
-		it('converts the eventDate string, forwards the session user id and enqueues a matching job', async () => {
+		it('converts the eventDate string and forwards the session user id', async () => {
 			const dto: CreateLostItemData = {
 				type: 'lost',
 				category: 'phone',
@@ -87,9 +87,6 @@ describe('LostItemsController', () => {
 				...dto,
 				eventDate: new Date('2026-01-01'),
 				userId: 'user-1',
-			})
-			expect(matchingQueue.add).toHaveBeenCalledWith(FIND_MATCHES_JOB, {
-				lostItemId: created.id,
 			})
 			expect(result).toEqual(created)
 		})
@@ -165,14 +162,29 @@ describe('LostItemsController', () => {
 	})
 
 	describe('getOne', () => {
-		it('delegates to the use-case', async () => {
+		it('passes the signed-in visitor id along', async () => {
 			const lostItem = buildLostItem()
-			vi.mocked(getLostItemById.execute).mockResolvedValue(lostItem)
+			vi.mocked(viewLostItem.execute).mockResolvedValue(lostItem)
 
-			const result = await controller.getOne('lost-item-1')
+			const result = await controller.getOne(session, 'lost-item-1')
 
-			expect(getLostItemById.execute).toHaveBeenCalledWith('lost-item-1')
+			expect(viewLostItem.execute).toHaveBeenCalledWith({
+				id: 'lost-item-1',
+				viewerId: 'user-1',
+			})
 			expect(result).toEqual(lostItem)
+		})
+
+		/** `@OptionalAuth()`: no session, so no viewer to compare the owner to. */
+		it('passes no viewer id when nobody is signed in', async () => {
+			vi.mocked(viewLostItem.execute).mockResolvedValue(buildLostItem())
+
+			await controller.getOne(null, 'lost-item-1')
+
+			expect(viewLostItem.execute).toHaveBeenCalledWith({
+				id: 'lost-item-1',
+				viewerId: undefined,
+			})
 		})
 	})
 
@@ -260,7 +272,7 @@ describe('LostItemsController', () => {
 			).toEqual(['admin'])
 		})
 
-		it('delegates to the use-case', async () => {
+		it('delegates to the use-case and enqueues a matching job on publication', async () => {
 			const moderated = buildLostItem({ moderationStatus: 'published' })
 			vi.mocked(moderateLostItem.execute).mockResolvedValue(moderated)
 
@@ -272,8 +284,27 @@ describe('LostItemsController', () => {
 				id: 'lost-item-1',
 				moderationStatus: 'published',
 			})
+			expect(matchingQueue.add).toHaveBeenCalledWith(FIND_MATCHES_JOB, {
+				lostItemId: 'lost-item-1',
+			})
 			expect(result).toEqual(moderated)
 		})
+
+		/** Publication is the only transition that makes a listing matchable. */
+		it.each(['pending', 'hidden'] as const)(
+			'enqueues nothing when moderating to %s',
+			async moderationStatus => {
+				vi.mocked(moderateLostItem.execute).mockResolvedValue(
+					buildLostItem({ moderationStatus }),
+				)
+
+				await controller.updateModerationStatus('lost-item-1', {
+					moderationStatus,
+				})
+
+				expect(matchingQueue.add).not.toHaveBeenCalled()
+			},
+		)
 	})
 
 	describe('delete', () => {

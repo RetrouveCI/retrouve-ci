@@ -22,19 +22,24 @@ import {
 	type UpdateLostItemData,
 	type UpdateModerationStatusData,
 } from '@app/contracts/lost-items'
-import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
+import {
+	AllowAnonymous,
+	OptionalAuth,
+	Roles,
+	Session,
+} from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Queue } from 'bullmq'
 import type { Auth } from '@/infrastructures/auth/auth.config'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
 import { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
 import { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
-import { GetLostItemByIdUseCase } from '@/domains/lost-items/use-cases/get-lost-item-by-id.use-case'
 import { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
 import { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
 import { RecordLostItemContactUseCase } from '@/domains/lost-items/use-cases/record-lost-item-contact.use-case'
 import { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
+import { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 import {
@@ -48,7 +53,7 @@ import {
 export class LostItemsController {
 	constructor(
 		private readonly createLostItemUseCase: CreateLostItemUseCase,
-		private readonly getLostItemByIdUseCase: GetLostItemByIdUseCase,
+		private readonly viewLostItemUseCase: ViewLostItemUseCase,
 		private readonly recordLostItemContactUseCase: RecordLostItemContactUseCase,
 		private readonly getPaginatedLostItemsUseCase: GetPaginatedLostItemsUseCase,
 		private readonly getMyLostItemsUseCase: GetMyLostItemsUseCase,
@@ -60,21 +65,15 @@ export class LostItemsController {
 
 	@Post()
 	@ApiZodBody(createLostItemSchema)
-	async create(
+	create(
 		@Session() session: UserSession<Auth>,
 		@Body(new ZodValidationPipe(createLostItemSchema)) data: CreateLostItemData,
 	) {
-		const lostItem = await this.createLostItemUseCase.execute({
+		return this.createLostItemUseCase.execute({
 			...data,
 			eventDate: new Date(data.eventDate),
 			userId: session.user.id,
 		})
-
-		await this.matchingQueue.add(FIND_MATCHES_JOB, {
-			lostItemId: lostItem.id,
-		})
-
-		return lostItem
 	}
 
 	@Get()
@@ -132,21 +131,34 @@ export class LostItemsController {
 	@Patch(':id/moderation')
 	@Roles(['admin'])
 	@ApiZodBody(updateModerationStatusSchema)
-	updateModerationStatus(
+	async updateModerationStatus(
 		@Param('id') id: string,
 		@Body(new ZodValidationPipe(updateModerationStatusSchema))
 		data: UpdateModerationStatusData,
 	) {
-		return this.moderateLostItemUseCase.execute({
+		const lostItem = await this.moderateLostItemUseCase.execute({
 			id,
 			moderationStatus: data.moderationStatus,
 		})
+
+		/** Publication is the only moment a listing becomes matchable. */
+		if (lostItem.moderationStatus === 'published') {
+			await this.matchingQueue.add(FIND_MATCHES_JOB, { lostItemId: id })
+		}
+
+		return lostItem
 	}
 
 	@Get(':id')
-	@AllowAnonymous()
-	getOne(@Param('id') id: string) {
-		return this.getLostItemByIdUseCase.execute(id)
+	@OptionalAuth()
+	getOne(
+		@Session() session: UserSession<Auth> | null,
+		@Param('id') id: string,
+	) {
+		return this.viewLostItemUseCase.execute({
+			id,
+			viewerId: session?.user.id,
+		})
 	}
 
 	@Post(':id/contact')
