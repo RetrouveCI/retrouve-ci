@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { LostItem } from '@/domains/lost-items/models/lost-item.model'
+import type { LostItem } from '@/domains/lost-items/types/lost-item.types'
 import {
 	SCORE_EVENT_DATE_CLOSE,
 	SCORE_EVENT_DATE_NEAR,

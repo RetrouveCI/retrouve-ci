@@ -6,7 +6,7 @@ import {
 	type LostItem as PrismaLostItem,
 } from '@app/database'
 
-import type { LostItem } from '../models/lost-item.model'
+import type { LostItem } from '../types/lost-item.types'
 import type {
 	LostItemCategory,
 	LostItemType,

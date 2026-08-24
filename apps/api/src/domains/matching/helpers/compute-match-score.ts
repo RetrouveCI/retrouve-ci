@@ -1,4 +1,4 @@
-import type { LostItem } from '@/domains/lost-items/models/lost-item.model'
+import type { LostItem } from '@/domains/lost-items/types/lost-item.types'
 import {
 	EVENT_DATE_CLOSE_DAYS,
 	EVENT_DATE_NEAR_DAYS,

@@ -1,21 +1,14 @@
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
-import { LOST_ITEM_REPOSITORY } from '@/domains/lost-items/repository/lost-item.repository'
-import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
-import { LostItemRepositoryService } from '@/domains/lost-items/repository/lost-item.repository.service'
-import { LostItemsController } from './controllers/lost-items.controller'
+import { LostItemsDomainModule } from '@/domains/lost-items/lost-items-domain.module'
 import { MATCHING_QUEUE } from '@/infrastructures/queue/queue.constants'
+import { LostItemsController } from './lost-items.controller'
 
 @Module({
-	imports: [BullModule.registerQueue({ name: MATCHING_QUEUE })],
-	controllers: [LostItemsController],
-	providers: [
-		LostItemUseCases,
-		{
-			provide: LOST_ITEM_REPOSITORY,
-			useClass: LostItemRepositoryService,
-		},
+	imports: [
+		LostItemsDomainModule,
+		BullModule.registerQueue({ name: MATCHING_QUEUE }),
 	],
-	exports: [LOST_ITEM_REPOSITORY],
+	controllers: [LostItemsController],
 })
 export class LostItemsModule {}

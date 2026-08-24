@@ -275,7 +275,29 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
 
 - **`matching`** : pas de `repository/`, il consomme ceux de `lost-items` et
   `notifications`. Son `queue-consumers/matching.consumer.ts` est déjà au bon
-  endroit. Le domaine importe les domain modules des deux autres.
+  endroit. Le domaine importe les domain modules des deux autres. ⚠️ **Décision
+  2026-08-24** : `notifyMatches` n'écrira plus par `NotificationRepository` mais
+  par `CreateNotificationUseCase` — un domaine passe par l'API publique d'un
+  autre, pas par son repository. La règle « un use-case n'appelle jamais un
+  autre use-case » se lit **intra-domaine** : elle existe pour empêcher le
+  chaînage dans un même domaine. La variante puriste (le domaine renvoie des
+  `CreateNotificationData[]`, `MatchingConsumer` les écrit) a été écartée : elle
+  éclate une opération atomique sur deux couches. Le lien vers `lost-items`
+  reste un repository, `findMatchCandidates` n'ayant pas de use-case.
+- **`lost-items`** : trois gardes partagés dans `helpers/` —
+  `require-lost-item`, `require-published-lost-item`, `require-owned-lost-item`
+  — chacun ayant au moins deux appelants. Le domaine portait **`models/` et
+  `types/` en même temps** : la fusion n'est pas un `git mv`, et
+  `LostItemListResponse` devient `Paginated<LostItem>`. ⚠️ **Constat non corrigé
+  (E8.7)** : `view` — le seul use-case qui exige
+  `moderationStatus === 'published'` et incrémente `views` — **n'a aucun
+  appelant**. `GET /lost-items/:id` est câblé sur `getById`, qui ne contrôle
+  rien, et la route est `@AllowAnonymous()`. Vérifié à chaud : un appelant
+  anonyme lit une annonce `pending` **avec le WhatsApp du propriétaire**, et
+  `views` reste à 0. Migré à l'identique et **asservi par un test** qui énonce
+  ce comportement, plutôt que corrigé dans une PR de refactor. À trancher : le
+  correctif tient en une ligne (`getOne` → `ViewLostItemUseCase`) mais change le
+  contrat public de la route.
 - **`reporting`** : un seul use-case, pas d'`errors/` ni de `mappers/`. Créer
   quand même le domain module — la règle « chaque domaine est un module NestJS
   indépendant » ne souffre pas d'exception.
@@ -347,10 +369,19 @@ E6.7 auth ✅             ─┘
 E8.1 renommages (api/core)
 E8.2 socle shared/ (api/core)
 E8.3 contact-messages   ← PILOTE : valider le gabarit avant de continuer
-E8.4..E8.10 les 7 autres domaines
+E8.4 events ✅ · E8.5 notifications ✅ · E8.6 reporting ✅
+E8.7 lost-items → E8.8 matching → E8.9 sticker-orders → E8.10 qr-codes
         ↓
 E9 tests
 ```
+
+⚠️ **Ordre corrigé le 2026-08-24 : `lost-items` passe AVANT `matching`**, à
+l'inverse de ce que cette section recommandait. `matching` ne peut pas être
+terminé le premier : ses use-cases injectent `@Inject(LOST_ITEM_REPOSITORY)` et
+`presentations/matching/matching.module.ts` importe `LostItemsModule` — un
+module de **présentation**. Les deux ne se corrigent qu'une fois
+`LostItemsDomainModule` créé, donc `matching` d'abord aurait laissé deux dettes
+à repasser. `lost-items` fait le recâblage au passage.
 
 **Pilote** : `contact-messages` de bout en bout (E6.1 puis E8.3) avant tout le
 reste. 10 fichiers, CRUD pur, ni queue ni upload — le gabarit se relit en une

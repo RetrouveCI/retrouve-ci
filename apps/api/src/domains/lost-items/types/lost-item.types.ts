@@ -7,6 +7,7 @@ import type {
 	ResolutionStatus,
 	UpdateLostItemData as UpdateLostItemContract,
 } from '@app/contracts/lost-items'
+import type { Paginated } from '@/shared/utils/pagination.util'
 
 export type {
 	LostItemCategory,
@@ -38,3 +39,36 @@ export type ListLostItemsFilter = Omit<
 	resolutionStatus?: ResolutionStatus
 	userId?: string
 }
+
+/** Matching searches the opposite type; the filter is not a query shape. */
+export interface MatchCandidatesFilter {
+	type: LostItemType
+	category: LostItemCategory
+	ville: string
+	moderationStatus: ModerationStatus
+	resolutionStatus: ResolutionStatus
+	limit: number
+}
+
+export interface LostItem {
+	id: string
+	type: LostItemType
+	category: LostItemCategory
+	title: string
+	description: string
+	ville: string
+	commune: string | null
+	eventDate: Date
+	contactName: string
+	contactWhatsapp: string
+	photos: string[]
+	moderationStatus: ModerationStatus
+	resolutionStatus: ResolutionStatus
+	views: number
+	contactsCount: number
+	userId: string
+	createdAt: Date
+	updatedAt: Date
+}
+
+export type LostItemListResponse = Paginated<LostItem>
