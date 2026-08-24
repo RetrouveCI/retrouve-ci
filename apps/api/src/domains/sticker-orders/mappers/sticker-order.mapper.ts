@@ -3,7 +3,7 @@ import {
 	type StickerOrder as PrismaStickerOrder,
 } from '@app/database'
 
-import type { StickerOrder } from '../models/sticker-order.model'
+import type { StickerOrder } from '../types/sticker-order.types'
 import type { StickerOrderStatus } from '../types/sticker-order.types'
 
 export function toDomainStickerOrder(

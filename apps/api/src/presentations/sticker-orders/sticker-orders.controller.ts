@@ -19,7 +19,11 @@ import {
 import { Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructures/auth/auth.config'
-import { StickerOrderUseCases } from '@/domains/sticker-orders/use-cases/sticker-order.use-cases'
+import { CreateStickerOrderUseCase } from '@/domains/sticker-orders/use-cases/create-sticker-order.use-case'
+import { GetMyStickerOrdersUseCase } from '@/domains/sticker-orders/use-cases/get-my-sticker-orders.use-case'
+import { GetPaginatedStickerOrdersUseCase } from '@/domains/sticker-orders/use-cases/get-paginated-sticker-orders.use-case'
+import { GetStickerOrderUseCase } from '@/domains/sticker-orders/use-cases/get-sticker-order.use-case'
+import { UpdateStickerOrderStatusUseCase } from '@/domains/sticker-orders/use-cases/update-sticker-order-status.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
@@ -27,7 +31,13 @@ import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 @ApiBearerAuth()
 @Controller('sticker-orders')
 export class StickerOrdersController {
-	constructor(private readonly stickerOrderUseCases: StickerOrderUseCases) {}
+	constructor(
+		private readonly createStickerOrderUseCase: CreateStickerOrderUseCase,
+		private readonly getStickerOrderUseCase: GetStickerOrderUseCase,
+		private readonly getPaginatedStickerOrdersUseCase: GetPaginatedStickerOrdersUseCase,
+		private readonly getMyStickerOrdersUseCase: GetMyStickerOrdersUseCase,
+		private readonly updateStickerOrderStatusUseCase: UpdateStickerOrderStatusUseCase,
+	) {}
 
 	@Post()
 	@ApiZodBody(createStickerOrderSchema)
@@ -36,7 +46,7 @@ export class StickerOrdersController {
 		@Body(new ZodValidationPipe(createStickerOrderSchema))
 		data: CreateStickerOrderData,
 	) {
-		return this.stickerOrderUseCases.create({
+		return this.createStickerOrderUseCase.execute({
 			...data,
 			userId: session.user.id,
 		})
@@ -49,7 +59,7 @@ export class StickerOrdersController {
 		@Query(new ZodValidationPipe(listStickerOrdersFilterSchema))
 		filter: ListStickerOrdersFilterData,
 	) {
-		return this.stickerOrderUseCases.list(filter)
+		return this.getPaginatedStickerOrdersUseCase.execute(filter)
 	}
 
 	@Get('mine')
@@ -59,12 +69,15 @@ export class StickerOrdersController {
 		@Query(new ZodValidationPipe(listStickerOrdersFilterSchema))
 		filter: ListStickerOrdersFilterData,
 	) {
-		return this.stickerOrderUseCases.listMine(session.user.id, filter)
+		return this.getMyStickerOrdersUseCase.execute({
+			userId: session.user.id,
+			filter,
+		})
 	}
 
 	@Get(':id')
 	getOne(@Session() session: UserSession<Auth>, @Param('id') id: string) {
-		return this.stickerOrderUseCases.getOne(id, session.user.id)
+		return this.getStickerOrderUseCase.execute({ id, userId: session.user.id })
 	}
 
 	@Patch(':id/status')
@@ -75,6 +88,9 @@ export class StickerOrdersController {
 		@Body(new ZodValidationPipe(updateStickerOrderStatusSchema))
 		data: UpdateStickerOrderStatusData,
 	) {
-		return this.stickerOrderUseCases.updateStatus(id, data.status)
+		return this.updateStickerOrderStatusUseCase.execute({
+			id,
+			status: data.status,
+		})
 	}
 }
