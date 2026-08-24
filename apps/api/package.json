@@ -10,6 +10,7 @@
 		"build": "nest build && tsc-alias -p tsconfig.build.json",
 		"dev": "concurrently \"tsc-alias -p tsconfig.build.json -w\" \"nest start --watch\"",
 		"start": "node dist/main.js",
+		"docker:build": "docker build -f Dockerfile -t retrouveci-api:local ../..",
 		"lint": "eslint",
 		"typecheck": "tsc --noEmit",
 		"test": "vitest run"
