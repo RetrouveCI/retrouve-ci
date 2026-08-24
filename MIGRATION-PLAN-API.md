@@ -283,7 +283,19 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
   chaînage dans un même domaine. La variante puriste (le domaine renvoie des
   `CreateNotificationData[]`, `MatchingConsumer` les écrit) a été écartée : elle
   éclate une opération atomique sur deux couches. Le lien vers `lost-items`
-  reste un repository, `findMatchCandidates` n'ayant pas de use-case.
+  reste un repository, `findMatchCandidates` n'ayant pas de use-case. ⚠️
+  **Constat non corrigé (E8.8)** : le chemin de notification est
+  **inatteignable**. `FIND_MATCHES_JOB` n'est mis en file qu'à la **création**
+  d'une annonce, où elle vaut toujours `pending` ; `NotifyMatchesUseCase` sort
+  alors silencieusement, et la modération vers `published` ne remet **rien** en
+  file. Vérifié à chaud : 0 notification après création puis publication d'un
+  couple perdu/trouvé qui matche à 110. La chaîne elle-même est saine — un job
+  mis en file à la main sur une annonce publiée crée bien la notification. Il
+  manque un `matchingQueue.add` dans `updateModerationStatus`, ce qui est un
+  changement de comportement, pas un refactor. Même famille que le constat
+  `view` de `lost-items` : du code écrit et testé, sans appelant atteignable. À
+  noter aussi : sur une annonce introuvable le consumer laisse BullMQ brûler ses
+  trois tentatives, là où `OtpConsumer` lève `UnrecoverableError`.
 - **`lost-items`** : trois gardes partagés dans `helpers/` —
   `require-lost-item`, `require-published-lost-item`, `require-owned-lost-item`
   — chacun ayant au moins deux appelants. Le domaine portait **`models/` et
