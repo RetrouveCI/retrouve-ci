@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'
+import type { CreateContactMessageUseCase } from '@/domains/contact-messages/use-cases/create-contact-message.use-case'
 import type { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
 import type { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases'
 import { QrCodesController } from './qr-codes.controller'
@@ -17,8 +17,8 @@ function buildUseCases(): QrTokenUseCases {
 	} as unknown as QrTokenUseCases
 }
 
-function buildContactMessageUseCases(): ContactMessageUseCases {
-	return { create: vi.fn() } as unknown as ContactMessageUseCases
+function buildCreateContactMessage(): CreateContactMessageUseCase {
+	return { execute: vi.fn() } as unknown as CreateContactMessageUseCase
 }
 
 function buildNotificationUseCases(): NotificationUseCases {
@@ -37,7 +37,7 @@ describe('QrCodesController', () => {
 		useCases = buildUseCases()
 		controller = new QrCodesController(
 			useCases,
-			buildContactMessageUseCases(),
+			buildCreateContactMessage(),
 			buildNotificationUseCases(),
 		)
 	})

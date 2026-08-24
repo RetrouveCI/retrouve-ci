@@ -4,7 +4,7 @@ import {
 	toDomainContactMessage,
 	toDomainStatus,
 	toPrismaStatus,
-} from './contact-message.mapper'
+} from '../contact-message.mapper'
 
 describe('contact-message mapper', () => {
 	it('maps a Prisma ContactMessage to the domain model', () => {

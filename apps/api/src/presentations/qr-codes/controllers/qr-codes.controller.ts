@@ -23,7 +23,7 @@ import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructures/auth/auth.config'
 import { QrTokenUseCases } from '@/domains/qr-codes/use-cases/qr-token.use-cases'
-import { ContactMessageUseCases } from '@/domains/contact-messages/use-cases/contact-message.use-cases'
+import { CreateContactMessageUseCase } from '@/domains/contact-messages/use-cases/create-contact-message.use-case'
 import { NotificationUseCases } from '@/domains/notifications/use-cases/notification.use-cases'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
@@ -34,7 +34,7 @@ import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 export class QrCodesController {
 	constructor(
 		private readonly qrTokenUseCases: QrTokenUseCases,
-		private readonly contactMessageUseCases: ContactMessageUseCases,
+		private readonly createContactMessage: CreateContactMessageUseCase,
 		private readonly notificationUseCases: NotificationUseCases,
 	) {}
 
@@ -103,7 +103,7 @@ export class QrCodesController {
 			throw new BadRequestException("Ce sticker n'est pas encore activé")
 		}
 
-		await this.contactMessageUseCases.create({
+		await this.createContactMessage.execute({
 			name: data.name,
 			email: data.email,
 			phone: data.phone,

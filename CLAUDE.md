@@ -297,7 +297,8 @@ at `/docs` in non-production (or when `ENABLE_SWAGGER=true`). It follows a
 
 ```text
 domains/          # Business core, one folder per bounded context
-  <domain>/         # use-cases, models, repository, mappers, errors, types
+  <domain>/         # use-cases, repository, mappers, helpers, errors, types
+                    # + <domain>-domain.module.ts
 infrastructures/  # Framework/IO wiring: database, auth, queue (BullMQ), sms,
                   # storage, seeder
 presentations/    # HTTP layer: controllers + queue-consumers, one folder per
@@ -378,8 +379,27 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
 - `apps/api` reads `@app/contracts` through its **`dist`**, so a contract change
   needs `pnpm --filter @app/contracts build` before `nest start` picks it up.
   `pnpm build` and `pnpm test` handle it via Turborepo's `^build`.
-- Tests are **Vitest** (`*.spec.ts` colocated with use-cases, mappers and
-  controllers).
+- Tests are **Vitest** and live in a `__tests__/` folder next to the file under
+  test (`use-cases/__tests__/create-x.use-case.spec.ts`), the same convention
+  the two front-ends use. Shared data builders go in a `*.fixture.ts`, which
+  `tsconfig.build.json` excludes alongside the specs. `contact-messages` follows
+  this; the other domains still colocate and move as they are migrated.
+
+A domain migrated by E8 has a definite shape — `contact-messages` is the pilot:
+
+- **one file per use-case**, each an `@Injectable()` class implementing
+  `IDomainUseCase<TInput, TOutput>` from `shared/types/domain-use-case.type.ts`
+  with a single public `execute`. A use-case **never** calls another one: the
+  existence check two of them share lives in `helpers/require-<entity>.ts`.
+- **the repository is one concrete class**, `repository/<entity>.repository.ts`,
+  injected by its type. No interface file, no `Symbol` token, no `.service.ts`
+  suffix — the file in `repository/` _is_ the repository.
+- **`<domain>-domain.module.ts`** provides and exports the repository and every
+  use-case, so a presentation module declares only its controller and imports
+  the domain module. A second domain needing a use-case imports that domain
+  module, never the other presentation module.
+- **no `models/` folder**: the entity type lives in `types/`, and a paginated
+  response is `Paginated<T>` from `shared/utils/pagination.util.ts`.
 
 For where new code belongs (domains vs presentations vs infrastructures), use
 the `backend-conventions` skill (`.claude/skills/backend-conventions/`). The

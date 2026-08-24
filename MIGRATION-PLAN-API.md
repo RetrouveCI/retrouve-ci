@@ -42,7 +42,7 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 | 5   | ~~DTO `class-validator` dans `presentation/*/dto/` → schémas Zod + pipe~~ ✅                  | E6 ✅        |
 | 6   | ~~`infrastructure/` → `infrastructures/`, `presentation/` → `presentations/`~~ ✅             | E8.1 ✅      |
 | 7   | ~~`libs/storage/cloudinary.ts` hors norme → `infrastructures/storage/`~~ ✅                   | E8.1 ✅      |
-| 8   | Tests `*.spec.ts` colocalisés → `__tests__/<name>.test.ts`                                    | E9           |
+| 8   | 🟡 Tests → `__tests__/` : **tranché**, appliqué par domaine migré ; reste 7 domaines          | E8/E9 🟡     |
 | 9   | Aucune couche `shared/auth/{guards,decorators}` — contrôles de rôle dispersés                 | E8 (partiel) |
 | 10  | 🟡 `shared/` : pipe Zod ✅, pagination ✅ ; `IDomainUseCase` → §4.3, env écarté (§4.2)        | E8.2 🟡      |
 
@@ -221,6 +221,13 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
 `notifications` → `reporting` → `matching` → `sticker-orders` → `qr-codes` →
 `lost-items` :
 
+> **Décision prise pendant le pilote** (`contact-messages`) : le `repository/`
+> ne porte **plus d'abstraction**. Une seule classe concrète `@Injectable()`
+> dans `repository/<entity>.repository.ts`, injectée par son type — plus de
+> fichier d'interface, plus de token `Symbol`, plus de suffixe `.service.ts`. Et
+> les tests passent en `__tests__/` frère du fichier testé, ce qui absorbe
+> l'écart n°8 domaine par domaine au lieu d'attendre E9.
+
 1. **Éclater** `<domaine>.use-cases.ts`. Une méthode → un fichier → une classe :
 
    | Méthode actuelle     | Fichier cible                                    |
@@ -296,8 +303,13 @@ périmètre de cette migration.
 **Branche** `migration-e9-tests-api` · **scope** `api/tests` · **1 j** · dépend
 de E4 et E8.
 
-1. Déplacer les **30** `*.spec.ts` vers `__tests__/<name>.test.ts`, en miroir
-   exact du code :
+1. Déplacer les `*.spec.ts` restants vers `__tests__/`, en miroir exact du code.
+   ⚠️ **Le compte n'est plus 30** : la convention est tranchée et chaque PR d'E8
+   la applique à son domaine au passage — `contact-messages` est fait. E9 ne
+   ramasse donc que les domaines non encore migrés et ce qui vit hors des
+   domaines (`infrastructures/`, `shared/`). L'extension reste `.spec.ts`, pas
+   `.test.ts` : c'est ce que `vitest.config.ts` collecte (`src/**/*.spec.ts`).
+   Miroir attendu :
    ```
    domains/events/use-cases/
    ├── create-event.use-case.ts

@@ -3,8 +3,10 @@ import {
 	type ContactMessage as PrismaContactMessage,
 } from '@app/database'
 
-import type { ContactMessage } from '../models/contact-message.model'
-import type { ContactMessageStatus } from '../types/contact-message.types'
+import type {
+	ContactMessage,
+	ContactMessageStatus,
+} from '../types/contact-message.types'
 
 export function toDomainContactMessage(
 	contactMessage: PrismaContactMessage,

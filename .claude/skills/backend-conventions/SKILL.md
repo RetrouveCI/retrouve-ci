@@ -19,7 +19,7 @@ src/
 
 ```
 domains/
-├── repository/    # Interfaces d'accès aux données
+├── repository/    # Repositories — une classe concrète par entité, pas d'interface
 ├── mappers/       # Transformation entité ↔ DTO
 ├── use-cases/     # Cas d'usage métier (commandes / queries)
 ├── helpers/       # Fonctions utilitaires fonctionnelles qui se limitent au domaine (pures)
@@ -35,6 +35,16 @@ domains/
   vivent dans le **package de contrats partagé** (`[domaine]/*.schema.ts`), la même
   source de vérité que le front (voir `frontend-conventions`).
 - ✅ Les `errors/` étendent une classe de base commune (`DomainError`).
+- ✅ Un **repository** est une classe concrète `@Injectable()` dans
+  `repository/[entity].repository.ts`, qui injecte `PrismaService` et qu'un
+  use-case injecte **par son type**. Pas de fichier d'interface, pas de token
+  DI, pas de suffixe `.service.ts` : le fichier du dossier `repository/` **est**
+  le repository.
+- ❌ Ne pas ajouter d'interface, de token DI, d'adapter ni de module infra dédié
+  sans besoin réel — l'abstraction se paie à chaque lecture.
+- ✅ Les tests vivent dans un dossier `__tests__/` frère du fichier testé
+  (`use-cases/__tests__/create-x.use-case.spec.ts`), et les fabriques de données
+  partagées dans un `*.fixture.ts` — exclu du build.
 - ✅ Chaque domaine doit être un module NestJS indépendant
 
 ## `infrastructures/` — Services externes
@@ -99,7 +109,7 @@ presentations/
 | Nouveau worker / cron         | `presentations/<feature-name>/[entity].worker.ts`                                                                                                      |
 | Nouveau consommateur de queue | `presentations/<feature-name>/[entity].consumer.ts`                                                                                                    |
 | Nouvelle API externe          | `infrastructures/<service-name>/[service].service.ts` + `infrastructures/<service-name>/[service].config.ts` (+ `packages/<service-name>/` si wrapper) |
-| Nouvelle interface de repo    | `domains/<domain-name>/repository/[entity].repository.ts`                                                                                              |
+| Nouveau repository            | `domains/<domain-name>/repository/[entity].repository.ts`                                                                                              |
 | Nouveau mapper                | `domains/<domain-name>/mappers/[entity].mapper.ts`                                                                                                     |
 | Nouvelle erreur métier        | `domains/<domain-name>/errors/[entity].errors.ts`                                                                                                      |
 | Nouveau type métier           | `domains/<domain-name>/types/[entity].types.ts`                                                                                                        |
