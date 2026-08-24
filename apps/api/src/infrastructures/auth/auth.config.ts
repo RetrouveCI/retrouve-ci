@@ -3,6 +3,7 @@ import { phoneNumber } from 'better-auth/plugins'
 import { isValidLocalNumber } from '@app/contracts/shared'
 import type { PrismaClient } from '@app/database'
 import { getAllowedOrigins } from '@/shared/auth/allowed-origins'
+import { getCookieDomain } from '@/shared/auth/cookie-domain'
 import { OTP_TTL_SECONDS } from '@/shared/auth/otp.const'
 import type { OtpDispatcher } from './otp-dispatcher.service'
 
@@ -13,6 +14,7 @@ const ADMIN_APP_NAME = 'retrouveci-admin'
 export function createClientAuth(prisma: PrismaClient, otp: OtpDispatcher) {
 	return createSharedAuth(prisma, {
 		trustedOrigins: getAllowedOrigins(),
+		cookieDomain: getCookieDomain(),
 		plugins: [
 			phoneNumber({
 				expiresIn: OTP_TTL_SECONDS,
@@ -41,6 +43,7 @@ export function createAdminAuth(prisma: PrismaClient) {
 		basePath: ADMIN_AUTH_BASE_PATH,
 		cookiePrefix: ADMIN_APP_NAME,
 		trustedOrigins: getAllowedOrigins(),
+		cookieDomain: getCookieDomain(),
 	})
 }
 
