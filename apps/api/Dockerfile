@@ -40,7 +40,7 @@ RUN pnpm --filter @app/database --legacy deploy /prod/migrator
 # ---- Runner : minimal production image -------------------------------------
 FROM node:24-bookworm-slim AS runner
 ENV NODE_ENV="production" \
-  PORT="3000"
+  PORT="3333"
 
 # OpenSSL is required by the Prisma schema engine (migrate deploy)
 RUN apt-get update \
@@ -60,6 +60,6 @@ COPY --from=builder --chown=node:node --chmod=755 /app/apps/api/entrypoint.sh ./
 
 USER node
 
-EXPOSE 3000
+EXPOSE 3333
 
 ENTRYPOINT ["./entrypoint.sh"]
