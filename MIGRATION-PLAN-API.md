@@ -325,8 +325,11 @@ de E4 et E8.
    d'entrée (vide, `null`, bornes, collections à 0 et 1 élément) — cf. skill
    `unit-tests`.
 5. Cibles sans test aujourd'hui : `infrastructures/auth`,
-   `infrastructures/queue`, `infrastructures/seeder`, les mappers de
-   `reporting`.
+   `infrastructures/queue`, `infrastructures/seeder`. ⚠️ Le SQL brut de
+   `reporting` reste non couvert, mais ce n'est pas un mapper : le domaine n'en
+   a aucun, ses dix `$queryRaw` produisent directement la forme rendue. Un test
+   ne vaudrait qu'exécuté contre Postgres, ce que ce dépôt ne fait pas — à
+   trancher en E9.
 
 ---
 
