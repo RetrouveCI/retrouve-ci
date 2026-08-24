@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DELIVERY_FEE } from '@app/contracts/sticker-orders'
-import { computeDeliveryFee } from './compute-delivery-fee'
+import { computeDeliveryFee } from '../compute-delivery-fee'
 
 describe('computeDeliveryFee', () => {
 	it('returns the standard delivery fee when no coupon is provided', () => {

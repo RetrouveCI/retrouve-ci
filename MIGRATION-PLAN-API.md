@@ -312,6 +312,16 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
   son annonce en attente. `getById` n'ayant plus d'appelant,
   `GetLostItemByIdUseCase` est supprimé — garder un use-case exporté sans
   appelant est précisément ce qui a rendu ces deux bugs invisibles.
+- **`sticker-orders`** : **5** use-cases, pas 6 comme l'annonce le tableau §2.
+  `getById` n'avait aucun appelant externe — le contrôleur expose `getOne`, qui
+  ajoute le contrôle de propriété — donc il devient le garde
+  `helpers/require-sticker-order.ts`, partagé par `GetStickerOrderUseCase` et
+  `UpdateStickerOrderStatusUseCase`. Même pli que `contact-messages`, qui avait
+  fondu ses `getById`/`getOne` en un seul fichier. ⚠️ **Divergence non
+  corrigée** : `getOne` répond **403** pour la commande d'un tiers, là où
+  `notifications` répond **404** dans la même situation pour ne pas confirmer
+  qu'un id existe. Migré à l'identique et asservi par un test qui énonce le
+  comportement ; à harmoniser dans un choix produit, pas dans un refactor.
 - **`reporting`** : un seul use-case, pas d'`errors/` ni de `mappers/`. Créer
   quand même le domain module — la règle « chaque domaine est un module NestJS
   indépendant » ne souffre pas d'exception.

@@ -4,7 +4,7 @@ import {
 	toDomainStatus,
 	toDomainStickerOrder,
 	toPrismaStatus,
-} from './sticker-order.mapper'
+} from '../sticker-order.mapper'
 
 describe('sticker-order mapper', () => {
 	it('maps a Prisma StickerOrder to the domain model', () => {
