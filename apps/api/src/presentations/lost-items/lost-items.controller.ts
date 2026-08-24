@@ -26,8 +26,15 @@ import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Queue } from 'bullmq'
 import type { Auth } from '@/infrastructures/auth/auth.config'
-import { LostItemUseCases } from '@/domains/lost-items/use-cases/lost-item.use-cases'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
+import { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
+import { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
+import { GetLostItemByIdUseCase } from '@/domains/lost-items/use-cases/get-lost-item-by-id.use-case'
+import { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
+import { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
+import { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
+import { RecordLostItemContactUseCase } from '@/domains/lost-items/use-cases/record-lost-item-contact.use-case'
+import { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 import {
@@ -40,7 +47,14 @@ import {
 @Controller('lost-items')
 export class LostItemsController {
 	constructor(
-		private readonly lostItemUseCases: LostItemUseCases,
+		private readonly createLostItemUseCase: CreateLostItemUseCase,
+		private readonly getLostItemByIdUseCase: GetLostItemByIdUseCase,
+		private readonly recordLostItemContactUseCase: RecordLostItemContactUseCase,
+		private readonly getPaginatedLostItemsUseCase: GetPaginatedLostItemsUseCase,
+		private readonly getMyLostItemsUseCase: GetMyLostItemsUseCase,
+		private readonly updateLostItemUseCase: UpdateLostItemUseCase,
+		private readonly moderateLostItemUseCase: ModerateLostItemUseCase,
+		private readonly deleteLostItemUseCase: DeleteLostItemUseCase,
 		@InjectQueue(MATCHING_QUEUE) private readonly matchingQueue: Queue,
 	) {}
 
@@ -50,7 +64,7 @@ export class LostItemsController {
 		@Session() session: UserSession<Auth>,
 		@Body(new ZodValidationPipe(createLostItemSchema)) data: CreateLostItemData,
 	) {
-		const lostItem = await this.lostItemUseCases.create({
+		const lostItem = await this.createLostItemUseCase.execute({
 			...data,
 			eventDate: new Date(data.eventDate),
 			userId: session.user.id,
@@ -70,7 +84,7 @@ export class LostItemsController {
 		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
 		filter: ListLostItemsFilterData,
 	) {
-		return this.lostItemUseCases.list({
+		return this.getPaginatedLostItemsUseCase.execute({
 			...this.toListFilter(filter),
 			moderationStatus: 'published',
 		})
@@ -83,10 +97,10 @@ export class LostItemsController {
 		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
 		filter: ListLostItemsFilterData,
 	) {
-		return this.lostItemUseCases.listMine(
-			session.user.id,
-			this.toListFilter(filter),
-		)
+		return this.getMyLostItemsUseCase.execute({
+			userId: session.user.id,
+			filter: this.toListFilter(filter),
+		})
 	}
 
 	private toListFilter(
@@ -112,7 +126,7 @@ export class LostItemsController {
 		@Query(new ZodValidationPipe(adminListLostItemsFilterSchema))
 		filter: AdminListLostItemsFilterData,
 	) {
-		return this.lostItemUseCases.list(this.toListFilter(filter))
+		return this.getPaginatedLostItemsUseCase.execute(this.toListFilter(filter))
 	}
 
 	@Patch(':id/moderation')
@@ -123,19 +137,22 @@ export class LostItemsController {
 		@Body(new ZodValidationPipe(updateModerationStatusSchema))
 		data: UpdateModerationStatusData,
 	) {
-		return this.lostItemUseCases.moderate(id, data.moderationStatus)
+		return this.moderateLostItemUseCase.execute({
+			id,
+			moderationStatus: data.moderationStatus,
+		})
 	}
 
 	@Get(':id')
 	@AllowAnonymous()
 	getOne(@Param('id') id: string) {
-		return this.lostItemUseCases.getById(id)
+		return this.getLostItemByIdUseCase.execute(id)
 	}
 
 	@Post(':id/contact')
 	@AllowAnonymous()
 	recordContact(@Param('id') id: string) {
-		return this.lostItemUseCases.recordContact(id)
+		return this.recordLostItemContactUseCase.execute(id)
 	}
 
 	@Patch(':id')
@@ -147,14 +164,18 @@ export class LostItemsController {
 	) {
 		const { eventDate, ...rest } = data
 
-		return this.lostItemUseCases.update(id, session.user.id, {
-			...rest,
-			...(eventDate && { eventDate: new Date(eventDate) }),
+		return this.updateLostItemUseCase.execute({
+			id,
+			userId: session.user.id,
+			data: {
+				...rest,
+				...(eventDate && { eventDate: new Date(eventDate) }),
+			},
 		})
 	}
 
 	@Delete(':id')
 	delete(@Session() session: UserSession<Auth>, @Param('id') id: string) {
-		return this.lostItemUseCases.delete(id, session.user.id)
+		return this.deleteLostItemUseCase.execute({ id, userId: session.user.id })
 	}
 }

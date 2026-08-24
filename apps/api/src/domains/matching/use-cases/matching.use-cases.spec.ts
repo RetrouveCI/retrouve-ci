@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { LostItemNotFoundError } from '@/domains/lost-items/errors/lost-item.errors'
-import type { LostItem } from '@/domains/lost-items/models/lost-item.model'
+import type { LostItem } from '@/domains/lost-items/types/lost-item.types'
 import type { LostItemRepository } from '@/domains/lost-items/repository/lost-item.repository'
 import type { NotificationRepository } from '@/domains/notifications/repository/notification.repository'
 import { MATCH_SCORE_THRESHOLD } from '../constants'
@@ -41,7 +41,7 @@ function buildRepository(): LostItemRepository {
 		delete: vi.fn(),
 		incrementViews: vi.fn(),
 		incrementContacts: vi.fn(),
-	}
+	} as unknown as LostItemRepository
 }
 
 /** A concrete class now, so the double is a partial cast, not a structural match. */

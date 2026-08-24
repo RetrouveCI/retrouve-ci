@@ -1,11 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { LostItemNotFoundError } from '@/domains/lost-items/errors/lost-item.errors'
-import type { LostItem } from '@/domains/lost-items/models/lost-item.model'
-import {
-	LOST_ITEM_REPOSITORY,
-	type LostItemRepository,
-} from '@/domains/lost-items/repository/lost-item.repository'
-import type { LostItemType } from '@/domains/lost-items/types/lost-item.types'
+import { LostItemRepository } from '@/domains/lost-items/repository/lost-item.repository'
+import type {
+	LostItem,
+	LostItemType,
+} from '@/domains/lost-items/types/lost-item.types'
 import { NotificationRepository } from '@/domains/notifications/repository/notification.repository'
 import { MATCH_SCORE_THRESHOLD, MAX_CANDIDATES } from '../constants'
 import { computeMatchScore } from '../helpers/compute-match-score'
@@ -19,7 +18,6 @@ const OPPOSITE_TYPE: Record<LostItemType, LostItemType> = {
 @Injectable()
 export class MatchingUseCases {
 	constructor(
-		@Inject(LOST_ITEM_REPOSITORY)
 		private readonly lostItemRepository: LostItemRepository,
 		private readonly notificationRepository: NotificationRepository,
 	) {}

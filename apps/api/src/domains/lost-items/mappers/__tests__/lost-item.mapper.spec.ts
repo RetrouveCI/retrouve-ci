@@ -16,7 +16,7 @@ import {
 	toPrismaModerationStatus,
 	toPrismaResolutionStatus,
 	toPrismaType,
-} from './lost-item.mapper'
+} from '../lost-item.mapper'
 
 const prismaLostItem: PrismaLostItem = {
 	id: 'lost-item-1',
