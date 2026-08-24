@@ -1,19 +1,16 @@
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
-import { MatchingUseCases } from '@/domains/matching/use-cases/matching.use-cases'
-import { LostItemsDomainModule } from '@/domains/lost-items/lost-items-domain.module'
-import { NotificationsDomainModule } from '@/domains/notifications/notifications-domain.module'
-import { MatchingController } from './controllers/matching.controller'
-import { MatchingConsumer } from './queue-consumers/matching.consumer'
+import { MatchingDomainModule } from '@/domains/matching/matching-domain.module'
 import { MATCHING_QUEUE } from '@/infrastructures/queue/queue.constants'
+import { MatchingController } from './matching.controller'
+import { MatchingConsumer } from './queue-consumers/matching.consumer'
 
 @Module({
 	imports: [
-		LostItemsDomainModule,
-		NotificationsDomainModule,
+		MatchingDomainModule,
 		BullModule.registerQueue({ name: MATCHING_QUEUE }),
 	],
 	controllers: [MatchingController],
-	providers: [MatchingUseCases, MatchingConsumer],
+	providers: [MatchingConsumer],
 })
 export class MatchingModule {}

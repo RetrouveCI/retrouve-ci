@@ -7,8 +7,8 @@ import {
 	SCORE_SAME_COMMUNE,
 	SCORE_SAME_VILLE,
 	SCORE_TEXT_OVERLAP,
-} from '../constants'
-import { computeMatchScore } from './compute-match-score'
+} from '../../constants'
+import { computeMatchScore } from '../compute-match-score'
 
 function buildLostItem(overrides: Partial<LostItem> = {}): LostItem {
 	return {
