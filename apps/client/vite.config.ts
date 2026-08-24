@@ -2,7 +2,18 @@ import { reactRouter } from '@react-router/dev/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { playwright } from '@vitest/browser-playwright'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
+
+// Vite only exposes `VITE_*` to `import.meta.env`, and the server side reads
+// `process.env`, which Vite does not populate. Loading the app's env files here
+// makes `pnpm dev` read `.env.local` exactly as the container reads real
+// environment variables. `??=` so anything already exported wins.
+for (const [key, value] of Object.entries(
+	loadEnv(process.env.NODE_ENV ?? 'development', process.cwd(), ''),
+)) {
+	process.env[key] ??= value
+}
 
 export default defineConfig({
 	plugins: [
@@ -22,6 +33,9 @@ export default defineConfig({
 	optimizeDeps: { entries: ['app/**/*.test.tsx'] },
 	test: {
 		globals: true,
+		// `apiFetch` resolves its base URL from `API_URL` at call time, so the
+		// suite needs one; a fixed value also lets a spec assert the URL it built.
+		env: { API_URL: 'http://api.test' },
 		projects: [
 			{
 				// Component and hook tests: run in a real browser, so Radix's pointer

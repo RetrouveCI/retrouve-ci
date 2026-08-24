@@ -15,20 +15,6 @@ WORKDIR /app
 # ---- Builder : install, build the client, then bundle ----------------------
 FROM base AS builder
 
-ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL}
-
-# Vite inlines `import.meta.env.VITE_API_URL` at build time, so an image built
-# without it is permanently pointed at nothing: `apiFetch` resolves every call
-# against the client's own origin. Refuse to produce that image.
-RUN test -n "$VITE_API_URL" || { \
-	echo "ERROR: VITE_API_URL is required at build time."; \
-	echo "       docker build -f apps/client/Dockerfile \\"; \
-	echo "         --build-arg VITE_API_URL=https://api.example.com \\"; \
-	echo "         -t retrouveci-client ."; \
-	exit 1; \
-	}
-
 COPY . .
 
 # `pnpm install` resolves this app's `catalog:` ranges from the root
@@ -47,12 +33,19 @@ RUN pnpm --filter @app/client --legacy deploy --prod /prod/client
 
 # ---- Runner : minimal production image -------------------------------------
 FROM node:24-bookworm-slim AS runner
+# `API_URL` is read at runtime, so one image serves every environment. It is
+# required: the server refuses to start without it rather than silently calling
+# its own origin, which is what the former build-time `VITE_API_URL` did.
 ENV NODE_ENV="production" \
-	PORT="3000"
+	PORT="3334"
+
 WORKDIR /app
 COPY --from=builder --chown=node:node /prod/client/node_modules ./node_modules
 COPY --from=builder --chown=node:node /prod/client/build ./build
 COPY --from=builder --chown=node:node /prod/client/package.json ./package.json
+
 USER node
-EXPOSE 3000
+
+EXPOSE 3334
+
 CMD ["./node_modules/.bin/react-router-serve", "./build/server/index.js"]

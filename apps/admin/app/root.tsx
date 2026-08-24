@@ -18,12 +18,14 @@ import '@fontsource-variable/geist-mono'
 import './app.css'
 
 import type { Route } from './+types/root'
+import { publicEnv } from '@/shared/helpers/env'
+import { PublicEnvScript } from '@/components/public-env-script'
 
 export function loader({ request }: Route.LoaderArgs) {
 	const cookie = request.headers.get('cookie') ?? ''
 	const theme = /(?:^|;\s*)theme=dark(?:;|$)/.test(cookie) ? 'dark' : 'light'
 
-	return { theme: theme as 'light' | 'dark' }
+	return { theme: theme as 'light' | 'dark', env: publicEnv() }
 }
 
 const SITE_NAME = 'RetrouveCI Admin'
@@ -63,6 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body className="font-sans antialiased">
 				{children}
+				<PublicEnvScript env={data?.env} />
 				<ScrollRestoration />
 				<Scripts />
 			</body>

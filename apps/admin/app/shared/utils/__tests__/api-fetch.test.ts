@@ -76,4 +76,12 @@ describe('the backoffice apiFetch', () => {
 
 		await expect(apiFetch('/contact-messages/x')).resolves.toBeUndefined()
 	})
+
+	it('prefixes the path with API_URL, read at call time', async () => {
+		const spy = mockFetch(new Response('{}', { status: 200 }))
+
+		await apiFetch('/lost-items')
+
+		expect(spy.mock.calls[0]?.[0]).toBe('http://api.test/lost-items')
+	})
 })

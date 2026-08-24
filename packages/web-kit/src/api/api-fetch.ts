@@ -2,6 +2,13 @@ import { ApiError, toApiErrorMessage, type ApiErrorBody } from './api-error'
 
 interface CreateApiFetchOptions {
 	/**
+	 * Where the API lives, resolved **per call** rather than when this module is
+	 * first imported. It used to read `import.meta.env.VITE_API_URL`, which Vite
+	 * inlines at build time — so the address of the API was frozen into the
+	 * image, and an image built without it silently called its own origin.
+	 */
+	baseUrl: () => string
+	/**
 	 * Sent on every call. The backoffice needs `X-Auth-Audience`, because a
 	 * server-side call carries no `Origin` and the API has no other way to tell
 	 * which of the two sessions to read.
@@ -15,13 +22,14 @@ interface CreateApiFetchOptions {
  * identical, and was written twice before this.
  */
 export function createApiFetch({
+	baseUrl,
 	defaultHeaders = {},
-}: CreateApiFetchOptions = {}) {
+}: CreateApiFetchOptions) {
 	return async function apiFetch<T>(
 		path: string,
 		init?: RequestInit,
 	): Promise<T> {
-		const response = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
+		const response = await fetch(`${baseUrl()}${path}`, {
 			...init,
 			credentials: 'include',
 			headers: {

@@ -1,4 +1,5 @@
 import { createApiFetch } from '@app/web-kit/api'
+import { apiUrl } from '@/shared/helpers/env'
 
 export { ApiError } from '@app/web-kit/api'
 
@@ -8,5 +9,6 @@ export { ApiError } from '@app/web-kit/api'
  * `Origin`, which takes precedence.
  */
 export const apiFetch = createApiFetch({
+	baseUrl: apiUrl,
 	defaultHeaders: { 'X-Auth-Audience': 'admin' },
 })

@@ -1,5 +1,6 @@
 import { ApiError } from '@/shared/utils/api-fetch'
 import { MAX_PHOTOS } from '../publish.const'
+import { apiUrl } from '@/shared/helpers/env'
 
 interface UploadPhotoResponse {
 	url: string
@@ -36,14 +37,11 @@ export async function uploadLostItemPhoto(
 	const body = new FormData()
 	body.append('photo', file)
 
-	const response = await fetch(
-		`${import.meta.env.VITE_API_URL}/uploads/lost-item-photo`,
-		{
-			method: 'POST',
-			body,
-			headers: { Cookie: request.headers.get('cookie') ?? '' },
-		},
-	)
+	const response = await fetch(`${apiUrl()}/uploads/lost-item-photo`, {
+		method: 'POST',
+		body,
+		headers: { Cookie: request.headers.get('cookie') ?? '' },
+	})
 
 	if (!response.ok) {
 		const errorBody = (await response.json().catch(() => null)) as {

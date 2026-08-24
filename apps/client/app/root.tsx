@@ -13,6 +13,8 @@ import { AuthProvider } from '@/context/auth'
 import { ActivityHub } from '@/components/activity-hub'
 import { ThemeProvider } from '@/context/theme'
 import { getThemeFromRequest } from '@/shared/helpers/theme.server'
+import { publicEnv } from '@/shared/helpers/env'
+import { PublicEnvScript } from '@/components/public-env-script'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { NotFoundContent } from '@/components/not-found-content'
@@ -30,7 +32,7 @@ import {
 } from '@/shared/helpers/page-meta'
 
 export function loader({ request }: Route.LoaderArgs) {
-	return { theme: getThemeFromRequest(request) }
+	return { theme: getThemeFromRequest(request), env: publicEnv() }
 }
 
 export function meta() {
@@ -92,6 +94,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body className="flex min-h-screen flex-col font-sans antialiased">
 				{children}
+				<PublicEnvScript env={data?.env} />
 				<ScrollRestoration />
 				<Scripts />
 			</body>
