@@ -74,15 +74,15 @@ export function BrandingPanel() {
 
 				<div className="flex gap-8">
 					<div>
-						<p className="text-3xl font-bold xl:text-4xl">1,500+</p>
+						<p className="text-3xl font-bold xl:text-4xl">2,500+</p>
 						<p className="text-sm text-white/70">Objets retrouves</p>
 					</div>
 					<div>
-						<p className="text-3xl font-bold xl:text-4xl">5,000+</p>
+						<p className="text-3xl font-bold xl:text-4xl">15,000+</p>
 						<p className="text-sm text-white/70">Utilisateurs actifs</p>
 					</div>
 					<div>
-						<p className="text-3xl font-bold xl:text-4xl">20+</p>
+						<p className="text-3xl font-bold xl:text-4xl">50+</p>
 						<p className="text-sm text-white/70">Villes couvertes</p>
 					</div>
 				</div>
