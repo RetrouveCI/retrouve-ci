@@ -44,6 +44,7 @@ function buildRepository(): LostItemRepository {
 	}
 }
 
+/** A concrete class now, so the double is a partial cast, not a structural match. */
 function buildNotificationRepository(): NotificationRepository {
 	return {
 		create: vi.fn(),
@@ -52,7 +53,7 @@ function buildNotificationRepository(): NotificationRepository {
 		markAsRead: vi.fn(),
 		markAllAsRead: vi.fn(),
 		countUnread: vi.fn(),
-	}
+	} as unknown as NotificationRepository
 }
 
 describe('MatchingUseCases', () => {

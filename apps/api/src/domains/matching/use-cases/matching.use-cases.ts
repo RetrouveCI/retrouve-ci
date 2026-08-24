@@ -6,10 +6,7 @@ import {
 	type LostItemRepository,
 } from '@/domains/lost-items/repository/lost-item.repository'
 import type { LostItemType } from '@/domains/lost-items/types/lost-item.types'
-import {
-	NOTIFICATION_REPOSITORY,
-	type NotificationRepository,
-} from '@/domains/notifications/repository/notification.repository'
+import { NotificationRepository } from '@/domains/notifications/repository/notification.repository'
 import { MATCH_SCORE_THRESHOLD, MAX_CANDIDATES } from '../constants'
 import { computeMatchScore } from '../helpers/compute-match-score'
 import type { MatchCandidate } from '../models/match.model'
@@ -24,7 +21,6 @@ export class MatchingUseCases {
 	constructor(
 		@Inject(LOST_ITEM_REPOSITORY)
 		private readonly lostItemRepository: LostItemRepository,
-		@Inject(NOTIFICATION_REPOSITORY)
 		private readonly notificationRepository: NotificationRepository,
 	) {}
 
