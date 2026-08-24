@@ -20,7 +20,11 @@ import {
 	type UpdateEventData,
 } from '@app/contracts/events'
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth'
-import { EventUseCases } from '@/domains/events/use-cases/event.use-cases'
+import { CreateEventUseCase } from '@/domains/events/use-cases/create-event.use-case'
+import { DeleteEventUseCase } from '@/domains/events/use-cases/delete-event.use-case'
+import { GetEventByIdUseCase } from '@/domains/events/use-cases/get-event-by-id.use-case'
+import { GetPaginatedEventsUseCase } from '@/domains/events/use-cases/get-paginated-events.use-case'
+import { UpdateEventUseCase } from '@/domains/events/use-cases/update-event.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
@@ -28,7 +32,13 @@ import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 @ApiBearerAuth()
 @Controller('events')
 export class EventsController {
-	constructor(private readonly eventUseCases: EventUseCases) {}
+	constructor(
+		private readonly createEvent: CreateEventUseCase,
+		private readonly getPaginatedEvents: GetPaginatedEventsUseCase,
+		private readonly getEventById: GetEventByIdUseCase,
+		private readonly updateEvent: UpdateEventUseCase,
+		private readonly deleteEvent: DeleteEventUseCase,
+	) {}
 
 	@Post()
 	@Roles(['admin'])
@@ -36,7 +46,7 @@ export class EventsController {
 	create(
 		@Body(new ZodValidationPipe(createEventSchema)) data: CreateEventData,
 	) {
-		return this.eventUseCases.create({
+		return this.createEvent.execute({
 			...data,
 			eventDate: new Date(data.eventDate),
 		})
@@ -49,7 +59,7 @@ export class EventsController {
 		@Query(new ZodValidationPipe(listEventsFilterSchema))
 		filter: ListEventsFilterData,
 	) {
-		return this.eventUseCases.list({ ...filter, status: 'published' })
+		return this.getPaginatedEvents.execute({ ...filter, status: 'published' })
 	}
 
 	@Get('admin')
@@ -59,13 +69,13 @@ export class EventsController {
 		@Query(new ZodValidationPipe(adminListEventsFilterSchema))
 		filter: AdminListEventsFilterData,
 	) {
-		return this.eventUseCases.list(filter)
+		return this.getPaginatedEvents.execute(filter)
 	}
 
 	@Get(':id')
 	@AllowAnonymous()
 	getOne(@Param('id') id: string) {
-		return this.eventUseCases.getById(id)
+		return this.getEventById.execute(id)
 	}
 
 	@Patch(':id')
@@ -77,15 +87,18 @@ export class EventsController {
 	) {
 		const { eventDate, ...rest } = data
 
-		return this.eventUseCases.update(id, {
-			...rest,
-			...(eventDate && { eventDate: new Date(eventDate) }),
+		return this.updateEvent.execute({
+			id,
+			data: {
+				...rest,
+				...(eventDate && { eventDate: new Date(eventDate) }),
+			},
 		})
 	}
 
 	@Delete(':id')
 	@Roles(['admin'])
 	delete(@Param('id') id: string) {
-		return this.eventUseCases.delete(id)
+		return this.deleteEvent.execute(id)
 	}
 }
