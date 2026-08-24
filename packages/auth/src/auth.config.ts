@@ -78,13 +78,7 @@ export interface CreateAuthOptions {
 	 * option's documentation suggests: the default is the literal `better-auth`.
 	 */
 	cookiePrefix?: string
-	/**
-	 * Parent domain to set the session cookie on, e.g. `.example.com`. Without
-	 * it the cookie is host-only on the API's own hostname, so a front served
-	 * from a sibling subdomain never receives it — and a server-side session
-	 * check, which can only forward the cookies the browser sent to *its* own
-	 * origin, always sees an anonymous request.
-	 */
+	/** Parent domain for the session cookie, e.g. `.example.com`. */
 	cookieDomain?: string
 	plugins?: BetterAuthPlugin[]
 	trustedOrigins?: string[]

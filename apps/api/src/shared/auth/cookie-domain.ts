@@ -11,20 +11,9 @@ function hostOf(url: string | undefined): string | undefined {
 }
 
 /**
- * The parent domain the session cookie is set on, e.g. `.retrouveci.com`.
- *
- * Without it the cookie is host-only on the API's hostname. A front served from
- * a sibling subdomain then never receives it, and since a loader can only
- * forward the cookies the browser sent to **its own** origin, every server-side
- * session check sees an anonymous request — the sign-in succeeds, the redirect
- * bounces straight back to the login page.
- *
- * It works on localhost with no value at all, because cookies ignore the port:
- * `localhost:3001` and `localhost:3002` share one cookie host. That is why this
- * only ever broke in production.
- *
- * So it is **required** in production as soon as the API and the fronts are on
- * different hosts, and pointless when they are not.
+ * Parent domain for the session cookie. Host-only, a front on a sibling
+ * subdomain never receives it, so every server-side session check sees an
+ * anonymous request. Pointless when every host already matches.
  */
 export function getCookieDomain(
 	env: NodeJS.ProcessEnv = process.env,

@@ -17,10 +17,6 @@ describe('getCookieDomain', () => {
 		).toBe('.example.com')
 	})
 
-	/**
-	 * The production bug: a host-only cookie on the API cannot be read by a front
-	 * on a sibling subdomain, so the sign-in succeeded and the redirect bounced.
-	 */
 	it('throws in production when the hosts differ and it is unset', () => {
 		expect(() => getCookieDomain(CROSS_HOST_PROD)).toThrow(
 			/COOKIE_DOMAIN is required/,
@@ -33,7 +29,6 @@ describe('getCookieDomain', () => {
 		)
 	})
 
-	/** Same host, e.g. one origin behind a path prefix: nothing to share. */
 	it('stays undefined in production when every host matches', () => {
 		expect(
 			getCookieDomain({
@@ -44,7 +39,7 @@ describe('getCookieDomain', () => {
 		).toBeUndefined()
 	})
 
-	/** Cookies ignore the port, so localhost:3001 and :3002 share one host. */
+	/** Cookies ignore the port, so :3001 and :3002 are one host. */
 	it('stays undefined on localhost, where the ports differ but the host does not', () => {
 		expect(
 			getCookieDomain({
