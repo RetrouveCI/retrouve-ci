@@ -81,6 +81,37 @@ describe('QrCodesController', () => {
 		})
 	})
 
+	describe('getOne', () => {
+		// It answers the whole token, owner id included; `/:code/scan` is the
+		// finder's view. Holding a code must not read the account behind it.
+		it('is restricted to admins', () => {
+			expect(Reflect.getMetadata('ROLES', controller.getOne)).toEqual(['admin'])
+		})
+
+		it('delegates to the use-case', async () => {
+			const token = buildQrToken()
+			vi.mocked(getByCode.execute).mockResolvedValue(token)
+
+			expect(await controller.getOne(token.code)).toEqual(token)
+			expect(getByCode.execute).toHaveBeenCalledWith(token.code)
+		})
+	})
+
+	describe('getPublicView', () => {
+		it('stays open to anonymous finders', () => {
+			expect(
+				Reflect.getMetadata('ROLES', controller.getPublicView),
+			).toBeUndefined()
+		})
+
+		it('delegates to the public-view use-case, never the full one', async () => {
+			await controller.getPublicView('RCI-ABC123')
+
+			expect(getPublicView.execute).toHaveBeenCalledWith('RCI-ABC123')
+			expect(getByCode.execute).not.toHaveBeenCalled()
+		})
+	})
+
 	describe('listMine', () => {
 		it('passes the session user id alongside the filter', async () => {
 			const response = { items: [], total: 0, page: 1, pageSize: 20 }

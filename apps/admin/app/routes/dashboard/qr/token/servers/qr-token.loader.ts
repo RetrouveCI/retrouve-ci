@@ -9,6 +9,6 @@ export async function qrTokenLoader({
 	params: { code: string }
 }) {
 	await requireAdminSession(request)
-	const token = await getQrTokenByCode(params.code)
+	const token = await getQrTokenByCode(params.code, request)
 	return { token }
 }

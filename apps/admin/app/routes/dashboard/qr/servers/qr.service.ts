@@ -21,8 +21,13 @@ export async function listQrTokens(
 	})
 }
 
-export async function getQrTokenByCode(code: string): Promise<QrToken> {
-	return apiFetch<QrToken>(`/qr-codes/${code}`)
+export async function getQrTokenByCode(
+	code: string,
+	request: Request,
+): Promise<QrToken> {
+	return apiFetch<QrToken>(`/qr-codes/${code}`, {
+		headers: { Cookie: request.headers.get('cookie') ?? '' },
+	})
 }
 
 export async function revokeQrToken(
