@@ -29,8 +29,8 @@ const socials = [
 const contactItems = [
 	{
 		icon: Mail,
-		label: 'contact@retrouveci.com',
-		href: 'mailto:contact@retrouveci.com',
+		label: 'support@retrouveci.com',
+		href: 'mailto:support@retrouveci.com',
 	},
 	{
 		icon: MessageSquare,

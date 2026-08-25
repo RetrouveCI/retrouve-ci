@@ -1,4 +1,7 @@
-export type UserStatus = 'active' | 'inactive'
+/** No API domain backs users, so this list is the contract. */
+export const USER_STATUSES = ['active', 'inactive'] as const
+
+export type UserStatus = (typeof USER_STATUSES)[number]
 
 export interface User {
 	id: string

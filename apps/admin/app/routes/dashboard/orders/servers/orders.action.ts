@@ -1,24 +1,16 @@
 import { data } from 'react-router'
 import { ApiError } from '@/shared/utils/api-fetch'
 import { requireAdminSession } from '@/shared/helpers/session.server'
+import { stickerOrderStatusSchema } from '@app/contracts/sticker-orders'
 import { updateOrderStatus } from './orders.service'
-import type { OrderStatus } from '../types/orders.types'
-
-const VALID_STATUSES: OrderStatus[] = [
-	'pending',
-	'processing',
-	'shipped',
-	'delivered',
-	'cancelled',
-]
 
 export async function ordersAction({ request }: { request: Request }) {
 	await requireAdminSession(request)
 	const formData = await request.formData()
 	const id = String(formData.get('id') ?? '')
-	const status = String(formData.get('status') ?? '') as OrderStatus
+	const status = stickerOrderStatusSchema.safeParse(formData.get('status')).data
 
-	if (!id || !VALID_STATUSES.includes(status)) {
+	if (!id || !status) {
 		return data({ ok: false, error: 'Paramètres invalides' }, { status: 400 })
 	}
 
