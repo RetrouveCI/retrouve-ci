@@ -349,7 +349,12 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   development, the code is logged to the console as it was before there was a
   gateway.
 - Background jobs (e.g. match notifications, OTP SMS) run on **BullMQ** backed
-  by Redis.
+  by Redis. Every queue shares one connection, built by
+  `infrastructures/queue/queue.config.ts`. `REDIS_URL` is **required in
+  production**: BullMQ's own fallback is `localhost:6379`, so an unset variable
+  let the API boot perfectly healthy while every OTP and match job piled up in a
+  queue no worker would ever read. Outside production it falls back to that same
+  localhost address, explicitly.
 - A startup **seeder** creates the super admin and a mock user from env vars
   when absent.
 - **Validation is Zod contracts, everywhere** (E6, closed). An endpoint applies
