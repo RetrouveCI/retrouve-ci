@@ -91,8 +91,12 @@ export class QrCodesController {
 		return this.getQrTokenPublicViewUseCase.execute(code)
 	}
 
+	/**
+	 * The whole token, owner id included. `/:code/scan` is what a finder gets;
+	 * this one is the backoffice's, and holding a code is not a credential.
+	 */
 	@Get(':code')
-	@AllowAnonymous()
+	@Roles(['admin'])
 	getOne(@Param('code') code: string) {
 		return this.getQrTokenByCodeUseCase.execute(code)
 	}
