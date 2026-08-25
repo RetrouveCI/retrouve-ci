@@ -1,5 +1,5 @@
 import { redirect } from 'react-router'
-import { apiFetch } from '@/shared/utils/api-fetch'
+import { ApiError, apiFetch } from '@/shared/utils/api-fetch'
 import { loginUrlWithRedirect, sanitizeRedirect, toRoutePath } from './redirect'
 
 interface ServerSession {
@@ -34,8 +34,14 @@ export async function getServerSession(
 		return await apiFetch<ServerSession | null>('/api/auth/get-session', {
 			headers: { Cookie: request.headers.get('cookie') ?? '' },
 		})
-	} catch {
-		return null
+	} catch (error) {
+		// `get-session` answers 200 with `null` when nobody is signed in, so a
+		// throw means the check could not run. Reporting that as "signed out"
+		// turns an unreachable API into a login loop with nothing in the logs.
+		if (error instanceof ApiError && error.status === 401) return null
+
+		console.error(`[session] app session check failed`, error)
+		throw error
 	}
 }
 

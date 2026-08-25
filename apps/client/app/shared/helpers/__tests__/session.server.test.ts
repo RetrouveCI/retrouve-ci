@@ -1,11 +1,15 @@
-import { apiFetch } from '@/shared/utils/api-fetch'
+import { ApiError, apiFetch } from '@/shared/utils/api-fetch'
 import {
 	getServerSession,
 	redirectIfAuthenticated,
 	requireServerSession,
 } from '../session.server'
 
-vi.mock('@/shared/utils/api-fetch', () => ({ apiFetch: vi.fn() }))
+// Only `apiFetch` is faked: the helper narrows on the real `ApiError`.
+vi.mock('@/shared/utils/api-fetch', async importOriginal => ({
+	...(await importOriginal<typeof import('@/shared/utils/api-fetch')>()),
+	apiFetch: vi.fn(),
+}))
 
 const mockedApiFetch = vi.mocked(apiFetch)
 
@@ -55,10 +59,12 @@ describe('getServerSession', () => {
 		expect(await getServerSession(request)).toBeNull()
 	})
 
-	it('reports no session when the API call fails', async () => {
+	// Was: "reports no session when the API call fails". That is what turned an
+	// unreachable API into a silent login loop.
+	it('surfaces a failed call instead of reporting no session', async () => {
 		mockedApiFetch.mockRejectedValue(new Error('network down'))
 
-		expect(await getServerSession(request)).toBeNull()
+		await expect(getServerSession(request)).rejects.toThrow('network down')
 	})
 })
 
@@ -146,5 +152,24 @@ describe('redirectIfAuthenticated', () => {
 
 		expect(thrown).toBeInstanceOf(Response)
 		expect((thrown as Response).headers.get('Location')).toBe('/publish')
+	})
+})
+
+describe('getServerSession failures', () => {
+	it('treats a 401 as signed out', async () => {
+		mockedApiFetch.mockRejectedValue(new ApiError(401, 'unauthorized'))
+
+		await expect(
+			getServerSession(new Request('https://retrouve.ci/')),
+		).resolves.toBeNull()
+	})
+
+	/** An unreachable API must not read as an anonymous visitor. */
+	it('surfaces a failed check', async () => {
+		mockedApiFetch.mockRejectedValue(new Error('fetch failed'))
+
+		await expect(
+			getServerSession(new Request('https://retrouve.ci/')),
+		).rejects.toThrow('fetch failed')
 	})
 })
