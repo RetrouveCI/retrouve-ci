@@ -24,7 +24,6 @@
 		"@app/web-kit": "workspace:*",
 		"@react-router/node": "catalog:",
 		"@react-router/serve": "catalog:",
-		"@vercel/analytics": "catalog:",
 		"better-auth": "catalog:",
 		"@fontsource-variable/geist": "catalog:",
 		"@fontsource-variable/geist-mono": "catalog:",
