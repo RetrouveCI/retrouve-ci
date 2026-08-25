@@ -1,4 +1,3 @@
-import { Analytics } from '@vercel/analytics/react'
 import {
 	isRouteErrorResponse,
 	Links,
@@ -79,7 +78,6 @@ export default function App({ loaderData }: Route.ComponentProps) {
 			<AuthProvider>
 				<Outlet />
 				<Toaster position="top-right" />
-				{import.meta.env.PROD && <Analytics />}
 			</AuthProvider>
 		</ThemeProvider>
 	)

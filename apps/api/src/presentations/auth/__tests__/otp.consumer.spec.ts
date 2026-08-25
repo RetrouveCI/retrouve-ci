@@ -6,7 +6,7 @@ import {
 	InvalidRecipientError,
 	SmsDeliveryError,
 } from '@/infrastructures/sms/sms.errors'
-import { OtpConsumer } from './otp.consumer'
+import { OtpConsumer } from '../queue-consumers/otp.consumer'
 
 function buildJob(overrides: Partial<SendOtpJobData> = {}, attemptsMade = 0) {
 	return {

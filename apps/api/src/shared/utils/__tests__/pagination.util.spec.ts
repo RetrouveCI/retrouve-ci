@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { toPaginated, toPrismaPage } from './pagination.util'
+import { toPaginated, toPrismaPage } from '../pagination.util'
 
 describe('toPrismaPage', () => {
 	// The offset the six repositories each computed by hand.
