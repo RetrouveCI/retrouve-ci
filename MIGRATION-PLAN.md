@@ -392,27 +392,27 @@ Détails et inventaire chiffré : **§5, étape E13** ci-dessous. Par app :
 
 Une ligne = une branche = une PR = une session.
 
-| #       | Étape                                       | Branche                            | Scope commit                          | Charge | Dépend de |
-| ------- | ------------------------------------------- | ---------------------------------- | ------------------------------------- | ------ | --------- |
-| **E0**  | ✅ Scope `@app/*` + outillage agents        | (fait)                             | `root/tooling`                        | —      | —         |
-| **E1**  | ✅ Socle racine & hygiène                   | (fait)                             | `root/core`                           | —      | E0        |
-| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4          | (fait)                             | `root/deps`                           | —      | E1        |
-| **E3**  | ✅ Catalog : reste des versions + nettoyage | (fait)                             | `root/deps`                           | —      | E2        |
-| **E3b** | ✅ Les 4 majors, une PR chacune             | (fait)                             | `root/deps`                           | —      | E3        |
-| **E4**  | Presets partagés (ts / vitest / eslint)     | `migration-e4-presets-partages`    | `packages/config`                     | 0,5 j  | E2        |
-| **E5**  | ✅ Création de `@app/contracts`             | (fait)                             | `packages/contracts`                  | —      | E2        |
-| **E6**  | 🟡 Contrats Zod (`contact-messages` fait)   | `migration-e6-contracts-<domaine>` | `api/<domaine>`                       | 2 j    | E5        |
-| **E7**  | ✅ Conform → RHF, catalog nettoyé (E7.G)    | (fait)                             | `ui/form`, `client/…`, `admin/…`      | —      | E3        |
-| **E8**  | Refonte structurelle `apps/api`             | `migration-e8-api-<domaine>`       | `api/<domaine>`                       | 3 j    | E6        |
-| **E9**  | Tests back : `__tests__` + couverture       | `migration-e9-tests-api`           | `api/tests`                           | 1 j    | E4, E8    |
-| **E10** | 🟡 Tests front (socle + admin faits)        | `migration-e10-tests-front`        | `client/tests`, `admin/tests`         | 0,75 j | E4, E7    |
-| **E11** | ✅ Mutualisation front (`@app/web-kit`)     | (fait)                             | `packages/web-kit`                    | —      | E7        |
-| **E12** | Docs d'architecture                         | `migration-e12-docs-architecture`  | `root/docs`                           | 0,5 j  | E8        |
-| **E13** | ✅ Structure front → `app/routes/`          | (fait)                             | `client/structure`, `admin/structure` | —      | E3b       |
+| #       | Étape                                                        | Branche                             | Scope commit                          | Charge | Dépend de |
+| ------- | ------------------------------------------------------------ | ----------------------------------- | ------------------------------------- | ------ | --------- |
+| **E0**  | ✅ Scope `@app/*` + outillage agents                         | (fait)                              | `root/tooling`                        | —      | —         |
+| **E1**  | ✅ Socle racine & hygiène                                    | (fait)                              | `root/core`                           | —      | E0        |
+| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4                           | (fait)                              | `root/deps`                           | —      | E1        |
+| **E3**  | ✅ Catalog : reste des versions + nettoyage                  | (fait)                              | `root/deps`                           | —      | E2        |
+| **E3b** | ✅ Les 4 majors, une PR chacune                              | (fait)                              | `root/deps`                           | —      | E3        |
+| **E4**  | ✅ Presets partagés (ts / vitest / eslint)                   | (fait)                              | `packages/config`                     | —      | E2        |
+| **E5**  | ✅ Création de `@app/contracts`                              | (fait)                              | `packages/contracts`                  | —      | E2        |
+| **E6**  | ✅ Contrats Zod, 7 domaines                                  | (fait)                              | `api/<domaine>`                       | —      | E5        |
+| **E7**  | ✅ Conform → RHF, catalog nettoyé (E7.G)                     | (fait)                              | `ui/form`, `client/…`, `admin/…`      | —      | E3        |
+| **E8**  | ✅ Refonte structurelle `apps/api`                           | (fait)                              | `api/<domaine>`                       | —      | E6        |
+| **E9**  | ✅ Tests back : `__tests__` + couverture                     | (fait)                              | `api/tests`                           | —      | E4, E8    |
+| **E10** | 🟡 Tests front (socles faits, `servers/` du client en cours) | `migration-e10-tests-client-<zone>` | `client/tests`, `admin/tests`         | 0,5 j  | E4, E7    |
+| **E11** | ✅ Mutualisation front (`@app/web-kit`)                      | (fait)                              | `packages/web-kit`                    | —      | E7        |
+| **E12** | Docs d'architecture                                          | `migration-e12-docs-architecture`   | `root/docs`                           | 0,5 j  | E8        |
+| **E13** | ✅ Structure front → `app/routes/`                           | (fait)                              | `client/structure`, `admin/structure` | —      | E3b       |
 
-**Total ≈ 15,75 j** en séquentiel. E6, E7 et E8 se découpent eux-mêmes **par
-domaine / par feature** — soit une PR par domaine, ce qui est le mode recommandé
-(voir plans détaillés).
+**Reste ≈ 1 j** : E10 (tests `servers/` du client) et E12 (docs). E6, E7 et E8
+se découpent eux-mêmes **par domaine / par feature** — soit une PR par domaine,
+ce qui est le mode recommandé (voir plans détaillés).
 
 ### Chemin critique
 
@@ -726,8 +726,22 @@ jetable d'E7.0 :
 Le test du `useActionFetcher` fixe l'invariant de #59 : **deux formulaires
 restent indépendants sans `key`**.
 
-**Reste à faire** : le même socle sur `apps/client` (les 4 fichiers d'infra), et
-les tests de formulaire de chaque tranche E7.
+Le socle d'`apps/client` est posé lui aussi — mêmes deux projects, même
+`testing.ts`.
+
+**Ce qui reste est de la couverture, et elle est très inégale** : au moment où
+E9 s'est fermée, `apps/admin` testait **12 de ses 24** loaders/actions, et
+`apps/client` **1 sur 24**. C'est la couche où les deux derniers bugs de
+production vivaient — le filtre de `/posts` (#120) dans un loader, le token QR
+(#119) dans un service — donc c'est par là que E10 reprend, `servers/` d'abord,
+par zone :
+
+| lot                                         | fichiers | état    |
+| ------------------------------------------- | -------- | ------- |
+| `auth/**` + `account/settings`              | 5        | ✅      |
+| `publish/**`, `q/**`, `stickers/order`      | 5        | à faire |
+| `account/{posts,orders,stickers}`           | 7        | à faire |
+| `posts/details`, `notifications`, `contact` | 4        | à faire |
 
 ### E12 — Docs d'architecture
 
