@@ -1,23 +1,11 @@
 import { getLostItems } from './lost-items.service'
+import { parsePostsFilters } from '../helpers/parse-posts-filters'
 import { toLostItem } from '@/shared/mappers/lost-item.mapper'
 
-export const POSTS_PAGE_SIZE = 12
-
 export async function postsLoader({ request }: { request: Request }) {
-	const params = new URL(request.url).searchParams
-	const page = Number(params.get('page')) || 1
+	const filters = parsePostsFilters(new URL(request.url).searchParams)
 
-	const response = await getLostItems({
-		search: params.get('q') ?? undefined,
-		type: params.get('type') ?? undefined,
-		category: params.get('category') ?? undefined,
-		ville: params.get('ville') ?? undefined,
-		commune: params.get('commune') ?? undefined,
-		dateFrom: params.get('dateFrom') ?? undefined,
-		dateTo: params.get('dateTo') ?? undefined,
-		page,
-		pageSize: POSTS_PAGE_SIZE,
-	})
+	const response = await getLostItems(filters)
 
 	return {
 		listings: response.items.map(toLostItem),

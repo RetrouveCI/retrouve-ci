@@ -4,6 +4,7 @@ import { type DateRange } from 'react-day-picker'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { LostItemType, LostItemCategory } from '@/shared/types/lost-item'
+import { toValidDate } from '../helpers/parse-posts-filters'
 
 interface UsePostsFiltersArgs {
 	total: number
@@ -28,8 +29,9 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 	const dateTo = searchParams.get('dateTo')
 	const currentPage = Number(searchParams.get('page')) || 1
 
-	const dateRange: DateRange | undefined = dateFrom
-		? { from: new Date(dateFrom), to: dateTo ? new Date(dateTo) : undefined }
+	const from = toValidDate(dateFrom)
+	const dateRange: DateRange | undefined = from
+		? { from, to: toValidDate(dateTo) }
 		: undefined
 
 	const [showFilters, setShowFilters] = useState(false)
