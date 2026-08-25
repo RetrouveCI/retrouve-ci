@@ -10,9 +10,10 @@ interface MarkNotificationAsReadInput {
 }
 
 @Injectable()
-export class MarkNotificationAsReadUseCase
-	implements IDomainUseCase<MarkNotificationAsReadInput, Notification>
-{
+export class MarkNotificationAsReadUseCase implements IDomainUseCase<
+	MarkNotificationAsReadInput,
+	Notification
+> {
 	private readonly logger = new Logger(MarkNotificationAsReadUseCase.name)
 
 	constructor(private readonly repository: NotificationRepository) {}

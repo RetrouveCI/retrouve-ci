@@ -8,9 +8,10 @@ import type {
 
 /** Notifications are raised by the app — a match, a QR scan — never posted. */
 @Injectable()
-export class CreateNotificationUseCase
-	implements IDomainUseCase<CreateNotificationData, Notification>
-{
+export class CreateNotificationUseCase implements IDomainUseCase<
+	CreateNotificationData,
+	Notification
+> {
 	private readonly logger = new Logger(CreateNotificationUseCase.name)
 
 	constructor(private readonly repository: NotificationRepository) {}

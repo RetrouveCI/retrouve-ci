@@ -5,13 +5,7 @@
  * scattered across the list pages.
  */
 export type StatusTone =
-	| 'primary'
-	| 'success'
-	| 'warning'
-	| 'danger'
-	| 'info'
-	| 'purple'
-	| 'neutral'
+	'primary' | 'success' | 'warning' | 'danger' | 'info' | 'purple' | 'neutral'
 
 export const STATUS_TONE_CLASSES: Record<StatusTone, string> = {
 	primary: 'bg-primary/10 text-primary',

@@ -11,9 +11,10 @@ interface GetStickerOrderInput {
 }
 
 @Injectable()
-export class GetStickerOrderUseCase
-	implements IDomainUseCase<GetStickerOrderInput, StickerOrder>
-{
+export class GetStickerOrderUseCase implements IDomainUseCase<
+	GetStickerOrderInput,
+	StickerOrder
+> {
 	constructor(private readonly repository: StickerOrderRepository) {}
 
 	async execute({ id, userId }: GetStickerOrderInput): Promise<StickerOrder> {

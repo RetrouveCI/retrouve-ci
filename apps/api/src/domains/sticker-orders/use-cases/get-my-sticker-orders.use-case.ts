@@ -12,9 +12,10 @@ interface GetMyStickerOrdersInput {
 }
 
 @Injectable()
-export class GetMyStickerOrdersUseCase
-	implements IDomainUseCase<GetMyStickerOrdersInput, StickerOrderListResponse>
-{
+export class GetMyStickerOrdersUseCase implements IDomainUseCase<
+	GetMyStickerOrdersInput,
+	StickerOrderListResponse
+> {
 	constructor(private readonly repository: StickerOrderRepository) {}
 
 	/** `userId` is applied last, so a filter carrying another one cannot widen the scope. */

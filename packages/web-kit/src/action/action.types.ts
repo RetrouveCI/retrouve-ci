@@ -6,5 +6,4 @@ export type FormErrors = Record<string, { type: string; message: string }>
  * only reports an outcome still answers plain `{ success: true }`.
  */
 export type ActionResult<TData = never> =
-	| { success: true; data?: TData }
-	| { success: false; errors?: FormErrors }
+	{ success: true; data?: TData } | { success: false; errors?: FormErrors }

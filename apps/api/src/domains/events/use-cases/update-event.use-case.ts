@@ -10,9 +10,10 @@ interface UpdateEventInput {
 }
 
 @Injectable()
-export class UpdateEventUseCase
-	implements IDomainUseCase<UpdateEventInput, Event>
-{
+export class UpdateEventUseCase implements IDomainUseCase<
+	UpdateEventInput,
+	Event
+> {
 	private readonly logger = new Logger(UpdateEventUseCase.name)
 
 	constructor(private readonly repository: EventRepository) {}

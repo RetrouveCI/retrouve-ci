@@ -15,9 +15,10 @@ interface ActivateQrTokenInput {
 }
 
 @Injectable()
-export class ActivateQrTokenUseCase
-	implements IDomainUseCase<ActivateQrTokenInput, QrToken>
-{
+export class ActivateQrTokenUseCase implements IDomainUseCase<
+	ActivateQrTokenInput,
+	QrToken
+> {
 	constructor(private readonly repository: QrTokenRepository) {}
 
 	/** Activation claims ownership, so it checks status rather than the owner. */

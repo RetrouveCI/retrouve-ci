@@ -10,9 +10,10 @@ interface ModerateLostItemInput {
 }
 
 @Injectable()
-export class ModerateLostItemUseCase
-	implements IDomainUseCase<ModerateLostItemInput, LostItem>
-{
+export class ModerateLostItemUseCase implements IDomainUseCase<
+	ModerateLostItemInput,
+	LostItem
+> {
 	constructor(private readonly repository: LostItemRepository) {}
 
 	async execute({

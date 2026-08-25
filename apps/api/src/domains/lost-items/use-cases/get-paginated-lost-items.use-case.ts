@@ -7,9 +7,10 @@ import type {
 } from '../types/lost-item.types'
 
 @Injectable()
-export class GetPaginatedLostItemsUseCase
-	implements IDomainUseCase<ListLostItemsFilter, LostItemListResponse>
-{
+export class GetPaginatedLostItemsUseCase implements IDomainUseCase<
+	ListLostItemsFilter,
+	LostItemListResponse
+> {
 	constructor(private readonly repository: LostItemRepository) {}
 
 	async execute(filter: ListLostItemsFilter): Promise<LostItemListResponse> {

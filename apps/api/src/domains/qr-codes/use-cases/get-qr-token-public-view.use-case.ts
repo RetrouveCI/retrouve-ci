@@ -6,9 +6,10 @@ import type { QrTokenPublicView } from '../types/qr-token.types'
 
 /** What a scan shows to a finder: the owner's first name, never the account. */
 @Injectable()
-export class GetQrTokenPublicViewUseCase
-	implements IDomainUseCase<string, QrTokenPublicView>
-{
+export class GetQrTokenPublicViewUseCase implements IDomainUseCase<
+	string,
+	QrTokenPublicView
+> {
 	constructor(private readonly repository: QrTokenRepository) {}
 
 	async execute(code: string): Promise<QrTokenPublicView> {

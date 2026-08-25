@@ -11,9 +11,10 @@ interface UpdateLostItemInput {
 }
 
 @Injectable()
-export class UpdateLostItemUseCase
-	implements IDomainUseCase<UpdateLostItemInput, LostItem>
-{
+export class UpdateLostItemUseCase implements IDomainUseCase<
+	UpdateLostItemInput,
+	LostItem
+> {
 	constructor(private readonly repository: LostItemRepository) {}
 
 	async execute({ id, userId, data }: UpdateLostItemInput): Promise<LostItem> {

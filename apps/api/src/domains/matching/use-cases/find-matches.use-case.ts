@@ -6,9 +6,10 @@ import { computeMatches } from '../helpers/compute-matches'
 import type { MatchCandidate } from '../types/match.types'
 
 @Injectable()
-export class FindMatchesUseCase
-	implements IDomainUseCase<string, MatchCandidate[]>
-{
+export class FindMatchesUseCase implements IDomainUseCase<
+	string,
+	MatchCandidate[]
+> {
 	constructor(private readonly lostItemRepository: LostItemRepository) {}
 
 	async execute(id: string): Promise<MatchCandidate[]> {

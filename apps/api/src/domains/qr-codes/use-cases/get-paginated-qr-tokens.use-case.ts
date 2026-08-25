@@ -7,9 +7,10 @@ import type {
 } from '../types/qr-token.types'
 
 @Injectable()
-export class GetPaginatedQrTokensUseCase
-	implements IDomainUseCase<ListQrTokensFilter, QrTokenListResponse>
-{
+export class GetPaginatedQrTokensUseCase implements IDomainUseCase<
+	ListQrTokensFilter,
+	QrTokenListResponse
+> {
 	constructor(private readonly repository: QrTokenRepository) {}
 
 	async execute(filter: ListQrTokensFilter): Promise<QrTokenListResponse> {

@@ -7,10 +7,10 @@ import type {
 } from '../types/contact-message.types'
 
 @Injectable()
-export class GetPaginatedContactMessagesUseCase
-	implements
-		IDomainUseCase<ListContactMessagesFilter, ContactMessageListResponse>
-{
+export class GetPaginatedContactMessagesUseCase implements IDomainUseCase<
+	ListContactMessagesFilter,
+	ContactMessageListResponse
+> {
 	constructor(private readonly repository: ContactMessageRepository) {}
 
 	async execute(

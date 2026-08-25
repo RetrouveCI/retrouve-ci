@@ -13,9 +13,10 @@ interface UpdateContactMessageStatusInput {
 }
 
 @Injectable()
-export class UpdateContactMessageStatusUseCase
-	implements IDomainUseCase<UpdateContactMessageStatusInput, ContactMessage>
-{
+export class UpdateContactMessageStatusUseCase implements IDomainUseCase<
+	UpdateContactMessageStatusInput,
+	ContactMessage
+> {
 	private readonly logger = new Logger(UpdateContactMessageStatusUseCase.name)
 
 	constructor(private readonly repository: ContactMessageRepository) {}

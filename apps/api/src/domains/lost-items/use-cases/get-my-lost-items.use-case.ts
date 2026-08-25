@@ -12,9 +12,10 @@ interface GetMyLostItemsInput {
 }
 
 @Injectable()
-export class GetMyLostItemsUseCase
-	implements IDomainUseCase<GetMyLostItemsInput, LostItemListResponse>
-{
+export class GetMyLostItemsUseCase implements IDomainUseCase<
+	GetMyLostItemsInput,
+	LostItemListResponse
+> {
 	constructor(private readonly repository: LostItemRepository) {}
 
 	/** `userId` is applied last, so a filter carrying another one cannot widen the scope. */

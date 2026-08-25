@@ -11,9 +11,10 @@ interface UpdateQrTokenDetailsInput {
 }
 
 @Injectable()
-export class UpdateQrTokenDetailsUseCase
-	implements IDomainUseCase<UpdateQrTokenDetailsInput, QrToken>
-{
+export class UpdateQrTokenDetailsUseCase implements IDomainUseCase<
+	UpdateQrTokenDetailsInput,
+	QrToken
+> {
 	constructor(private readonly repository: QrTokenRepository) {}
 
 	async execute({

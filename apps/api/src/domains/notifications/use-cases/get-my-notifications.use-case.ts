@@ -16,9 +16,10 @@ interface GetMyNotificationsInput {
  * read someone else's notifications by asking.
  */
 @Injectable()
-export class GetMyNotificationsUseCase
-	implements IDomainUseCase<GetMyNotificationsInput, NotificationListResponse>
-{
+export class GetMyNotificationsUseCase implements IDomainUseCase<
+	GetMyNotificationsInput,
+	NotificationListResponse
+> {
 	constructor(private readonly repository: NotificationRepository) {}
 
 	async execute({

@@ -7,9 +7,10 @@ import type {
 } from '../types/contact-message.types'
 
 @Injectable()
-export class CreateContactMessageUseCase
-	implements IDomainUseCase<CreateContactMessageData, ContactMessage>
-{
+export class CreateContactMessageUseCase implements IDomainUseCase<
+	CreateContactMessageData,
+	ContactMessage
+> {
 	private readonly logger = new Logger(CreateContactMessageUseCase.name)
 
 	constructor(private readonly repository: ContactMessageRepository) {}

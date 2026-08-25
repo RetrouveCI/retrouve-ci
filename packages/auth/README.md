@@ -58,11 +58,7 @@ import { phoneNumber } from 'better-auth/plugins'
 
 export function createAuth(prisma: PrismaClient) {
 	return createSharedAuth(prisma, {
-		plugins: [
-			phoneNumber({
-				/* … */
-			}),
-		],
+		plugins: [phoneNumber({/* … */})],
 	})
 }
 ```
