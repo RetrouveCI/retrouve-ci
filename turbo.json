@@ -11,8 +11,10 @@
 		"BETTER_AUTH_URL",
 		"BETTER_AUTH_TRUSTED_ORIGINS",
 		"ALLOWED_ORIGINS",
+		"ADMIN_ORIGINS",
+		"ADMIN_APP_URL",
+		"COOKIE_DOMAIN",
 		"ENABLE_SWAGGER",
-		"VITE_API_URL",
 		"SUPER_ADMIN_EMAIL",
 		"SUPER_ADMIN_NAME",
 		"SUPER_ADMIN_PASSWORD",
@@ -44,8 +46,7 @@
 			"dependsOn": ["^db:generate", "^typecheck"]
 		},
 		"test": {
-			"dependsOn": ["^build"],
-			"outputs": ["coverage/**"]
+			"dependsOn": ["^build"]
 		},
 		"db:generate": {
 			"cache": true,
@@ -59,9 +60,6 @@
 			"cache": false
 		},
 		"db:push": {
-			"cache": false
-		},
-		"db:seed": {
 			"cache": false
 		},
 		"db:studio": {

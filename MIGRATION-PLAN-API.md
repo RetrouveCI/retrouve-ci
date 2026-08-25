@@ -33,18 +33,18 @@ Features de présentation (11) : `auth`(account), `contact-messages`, `events`,
 
 ## 2. Les 10 écarts à corriger
 
-| #   | Écart                                                                                       | Étape         |
-| --- | ------------------------------------------------------------------------------------------- | ------------- |
-| 1   | ~~`use-cases/<domaine>.use-cases.ts` : une classe fourre-tout~~ ✅ 8 domaines migrés        | E8 ✅         |
-| 2   | ~~Aucun `<domaine>-domain.module.ts`~~ ✅ les 8 existent, aucun provider en présentation    | E8 ✅         |
-| 3   | ~~`domains/*/models/` : couche en trop~~ ✅ plus aucun `models/` dans `domains/`            | E8 ✅         |
-| 4   | ~~`domains/*/validators/` : couche en trop (remplacée par les contrats Zod)~~ ✅            | E6 ✅         |
-| 5   | ~~DTO `class-validator` dans `presentation/*/dto/` → schémas Zod + pipe~~ ✅                | E6 ✅         |
-| 6   | ~~`infrastructure/` → `infrastructures/`, `presentation/` → `presentations/`~~ ✅           | E8.1 ✅       |
-| 7   | ~~`libs/storage/cloudinary.ts` hors norme → `infrastructures/storage/`~~ ✅                 | E8.1 ✅       |
-| 8   | 🟡 Tests → `__tests__/` : les 8 domaines sont faits ; reste `infrastructures/` et `shared/` | E8 ✅ / E9 🟡 |
-| 9   | Aucune couche `shared/auth/{guards,decorators}` — contrôles de rôle dispersés               | E8 (partiel)  |
-| 10  | 🟡 `shared/` : pipe Zod ✅, pagination ✅ ; `IDomainUseCase` → §4.3, env écarté (§4.2)      | E8.2 🟡       |
+| #   | Écart                                                                                    | Étape        |
+| --- | ---------------------------------------------------------------------------------------- | ------------ |
+| 1   | ~~`use-cases/<domaine>.use-cases.ts` : une classe fourre-tout~~ ✅ 8 domaines migrés     | E8 ✅        |
+| 2   | ~~Aucun `<domaine>-domain.module.ts`~~ ✅ les 8 existent, aucun provider en présentation | E8 ✅        |
+| 3   | ~~`domains/*/models/` : couche en trop~~ ✅ plus aucun `models/` dans `domains/`         | E8 ✅        |
+| 4   | ~~`domains/*/validators/` : couche en trop (remplacée par les contrats Zod)~~ ✅         | E6 ✅        |
+| 5   | ~~DTO `class-validator` dans `presentation/*/dto/` → schémas Zod + pipe~~ ✅             | E6 ✅        |
+| 6   | ~~`infrastructure/` → `infrastructures/`, `presentation/` → `presentations/`~~ ✅        | E8.1 ✅      |
+| 7   | ~~`libs/storage/cloudinary.ts` hors norme → `infrastructures/storage/`~~ ✅              | E8.1 ✅      |
+| 8   | ~~Tests → `__tests__/`~~ ✅ tout `apps/api` est rangé, `domains/` compris                | E9 ✅        |
+| 9   | Aucune couche `shared/auth/{guards,decorators}` — contrôles de rôle dispersés            | E8 (partiel) |
+| 10  | 🟡 `shared/` : pipe Zod ✅, pagination ✅ ; `IDomainUseCase` → §4.3, env écarté (§4.2)   | E8.2 🟡      |
 
 ---
 
@@ -358,36 +358,50 @@ périmètre de cette migration.
 
 ## 5. E9 — Tests
 
-**Branche** `migration-e9-tests-api` · **scope** `api/tests` · **1 j** · dépend
-de E4 et E8.
+**Branche** `migration-e9-tests-api` · **scope** `api/tests` · dépend de E4 et
+E8. **Fermé.**
 
-1. Déplacer les `*.spec.ts` restants vers `__tests__/`, en miroir exact du code.
-   ⚠️ **Le compte n'est plus 30** : la convention est tranchée et chaque PR d'E8
-   la applique à son domaine au passage — `contact-messages` est fait. E9 ne
-   ramasse donc que les domaines non encore migrés et ce qui vit hors des
-   domaines (`infrastructures/`, `shared/`). L'extension reste `.spec.ts`, pas
-   `.test.ts` : c'est ce que `vitest.config.ts` collecte (`src/**/*.spec.ts`).
-   Miroir attendu :
-   ```
-   domains/events/use-cases/
-   ├── create-event.use-case.ts
-   └── __tests__/
-       └── create-event.use-case.test.ts
-   ```
-2. `vitest.config.mts` : `include: ['src/**/__tests__/*.test.ts']`.
-3. **Éclater les tests avec les use-cases** : chaque `describe('create')` de
-   `event.use-cases.spec.ts` devient `__tests__/create-event.use-case.test.ts`.
-   → À faire **pendant** E8, pas après : les tests existants sont le filet de
-   sécurité de l'éclatement. E9 ne fait alors que ranger et compléter.
-4. Combler les trous : chaque branche, chaque chemin d'erreur, chaque edge case
-   d'entrée (vide, `null`, bornes, collections à 0 et 1 élément) — cf. skill
-   `unit-tests`.
-5. Cibles sans test aujourd'hui : `infrastructures/auth`,
-   `infrastructures/queue`, `infrastructures/seeder`. ⚠️ Le SQL brut de
-   `reporting` reste non couvert, mais ce n'est pas un mapper : le domaine n'en
-   a aucun, ses dix `$queryRaw` produisent directement la forme rendue. Un test
-   ne vaudrait qu'exécuté contre Postgres, ce que ce dépôt ne fait pas — à
-   trancher en E9.
+1. ✅ **Rangement terminé.** Tout `*.spec.ts` d'`apps/api` vit dans un
+   `__tests__/` miroir de son code. Le compte final hors `domains/` était de
+   sept, chaque PR d'E8 ayant rangé son domaine au passage.
+2. ⚠️ **Écart assumé sur la référence.** Elle prescrit
+   `include: ['src/**/__tests__/*.test.ts']` ; ce dépôt garde
+   `src/**/*.spec.ts`, l'extension que ses 81 fichiers portent déjà et que
+   `apps/api/vitest.config.ts` collecte. Renommer 81 fichiers pour un suffixe
+   n'achète rien, et `.spec.ts` distingue utilement le back (`node`) des deux
+   fronts, qui eux utilisent `.test.ts` / `.test.tsx`.
+3. ✅ **Fait pendant E8**, comme prévu : chaque `describe` d'une classe
+   fourre-tout est devenu le spec du use-case extrait, les tests existants
+   servant de filet à l'éclatement.
+4. 🔁 **Continu.** Couvrir chaque branche, chaque chemin d'erreur et chaque edge
+   case d'entrée (vide, `null`, bornes, collections à 0 et 1 élément) — cf.
+   skill `unit-tests`. Ce n'est pas un jalon qu'on ferme mais une exigence que
+   chaque PR porte.
+5. ✅ **Plus aucune cible sans test.** `infrastructures/seeder` est couvert
+   depuis #107 ; `infrastructures/auth` et `infrastructures/queue` le sont par
+   la PR de couverture d'E9.
+
+   `auth.config.ts` est le morceau qui comptait : ses tests verrouillent
+   l'invariant sur lequel repose tout le découpage à deux sessions — le
+   backoffice a bien son `appName`, son `basePath` et son `cookiePrefix`, le
+   public reste sur les défauts de better-auth (le renommer déconnecterait tous
+   les comptes existants), et le plugin `phoneNumber()` n'est monté que d'un
+   côté. Les options du plugin sont assertées en simulant `createAuth` et
+   `phoneNumber` : ce fichier ne fait que **composer** des options, c'est donc
+   au niveau des options qu'il se teste.
+
+   `queue.module.ts` a dû être ouvert pour l'être : sa `useFactory` en ligne
+   n'était atteignable qu'en démarrant Nest, donc en ouvrant une vraie connexion
+   Redis. Elle vit maintenant dans `queue.config.ts`, comme
+   `sms/letexto.config.ts` et `storage/storage.config.ts` le font déjà pour leur
+   couche.
+
+6. ⛔ **Tranché : le SQL brut de `reporting` reste non couvert.** Ce n'est pas
+   un mapper — le domaine n'en a aucun, ses dix `$queryRaw` produisent
+   directement la forme rendue. Un test ne vaudrait qu'exécuté contre Postgres,
+   ce que ce dépôt ne fait pas et que personne n'a demandé. Le jour où une CI
+   monte une base, c'est un test d'intégration qu'il faudra écrire, pas un test
+   unitaire.
 
 ---
 
@@ -402,13 +416,13 @@ E6.5 qr-codes ✅         │
 E6.6 lost-items ✅       │
 E6.7 auth ✅             ─┘
         ↓
-E8.1 renommages (api/core)
-E8.2 socle shared/ (api/core)
-E8.3 contact-messages   ← PILOTE : valider le gabarit avant de continuer
+E8.1 renommages (api/core) ✅
+E8.2 socle shared/ (api/core) ✅
+E8.3 contact-messages ✅  ← PILOTE : valider le gabarit avant de continuer
 E8.4 events ✅ · E8.5 notifications ✅ · E8.6 reporting ✅
-E8.7 lost-items → E8.8 matching → E8.9 sticker-orders → E8.10 qr-codes
+E8.7 lost-items ✅ → E8.8 matching ✅ → E8.9 sticker-orders ✅ → E8.10 qr-codes ✅
         ↓
-E9 tests
+E9 tests ✅
 ```
 
 ⚠️ **Ordre corrigé le 2026-08-24 : `lost-items` passe AVANT `matching`**, à

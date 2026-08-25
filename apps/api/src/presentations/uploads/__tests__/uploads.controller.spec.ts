@@ -2,7 +2,7 @@ import { BadRequestException, PayloadTooLargeException } from '@nestjs/common'
 import type { FastifyRequest } from 'fastify'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { StorageService } from '@/infrastructures/storage/storage.service'
-import { UploadsController } from './uploads.controller'
+import { UploadsController } from '../uploads.controller'
 
 function buildStorageService(): StorageService {
 	return {

@@ -14,7 +14,6 @@
 		"db:migrate": "turbo run db:migrate",
 		"db:deploy": "turbo run db:deploy",
 		"db:push": "turbo run db:push",
-		"db:seed": "turbo run db:seed",
 		"db:studio": "turbo run db:studio",
 		"format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
 		"format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
