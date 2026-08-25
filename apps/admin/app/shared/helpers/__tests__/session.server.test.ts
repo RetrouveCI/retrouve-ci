@@ -1,7 +1,11 @@
-import { apiFetch } from '@/shared/utils/api-fetch'
-import { requireAdminSession } from '../session.server'
+import { ApiError, apiFetch } from '@/shared/utils/api-fetch'
+import { getServerSession, requireAdminSession } from '../session.server'
 
-vi.mock('@/shared/utils/api-fetch', () => ({ apiFetch: vi.fn() }))
+// Only `apiFetch` is faked: the helper narrows on the real `ApiError`.
+vi.mock('@/shared/utils/api-fetch', async importOriginal => ({
+	...(await importOriginal<typeof import('@/shared/utils/api-fetch')>()),
+	apiFetch: vi.fn(),
+}))
 
 const mockedApiFetch = vi.mocked(apiFetch)
 
@@ -60,5 +64,43 @@ describe('requireAdminSession', () => {
 				'https://bo.retrouve.ci/orders.data?_routes=x&status=pending',
 			),
 		).toBe('/auth/login?redirectTo=%2Forders%3Fstatus%3Dpending')
+	})
+})
+
+describe('getServerSession', () => {
+	it('reports no session when the API says so', async () => {
+		mockedApiFetch.mockResolvedValue(null)
+
+		await expect(
+			getServerSession(new Request('https://bo.retrouve.ci/')),
+		).resolves.toBeNull()
+	})
+
+	it('treats a 401 as signed out', async () => {
+		mockedApiFetch.mockRejectedValue(new ApiError(401, 'unauthorized'))
+
+		await expect(
+			getServerSession(new Request('https://bo.retrouve.ci/')),
+		).resolves.toBeNull()
+	})
+
+	/**
+	 * An unreachable API used to look exactly like a signed-out user, which is
+	 * how a broken deployment became a silent login loop.
+	 */
+	it('surfaces a failed check instead of reporting signed out', async () => {
+		mockedApiFetch.mockRejectedValue(new Error('fetch failed'))
+
+		await expect(
+			getServerSession(new Request('https://bo.retrouve.ci/')),
+		).rejects.toThrow('fetch failed')
+	})
+
+	it('surfaces a 500 too', async () => {
+		mockedApiFetch.mockRejectedValue(new ApiError(500, 'boom'))
+
+		await expect(
+			getServerSession(new Request('https://bo.retrouve.ci/')),
+		).rejects.toThrow()
 	})
 })
