@@ -4,11 +4,11 @@ const channels = [
 	{
 		icon: Mail,
 		title: 'Email',
-		value: 'contact@retrouveci.com',
+		value: 'support@retrouveci.com',
 		detail: 'Réponse sous 24h ouvrées',
 		color: 'text-primary-green',
 		bg: 'bg-primary-green/10',
-		href: 'mailto:contact@retrouveci.com',
+		href: 'mailto:support@retrouveci.com',
 	},
 	{
 		icon: MessageSquare,
