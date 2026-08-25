@@ -4,9 +4,10 @@ import { EventRepository } from '../repository/event.repository'
 import type { EventListResponse, ListEventsFilter } from '../types/event.types'
 
 @Injectable()
-export class GetPaginatedEventsUseCase
-	implements IDomainUseCase<ListEventsFilter, EventListResponse>
-{
+export class GetPaginatedEventsUseCase implements IDomainUseCase<
+	ListEventsFilter,
+	EventListResponse
+> {
 	constructor(private readonly repository: EventRepository) {}
 
 	async execute(filter: ListEventsFilter): Promise<EventListResponse> {

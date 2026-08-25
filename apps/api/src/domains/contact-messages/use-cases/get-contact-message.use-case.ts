@@ -10,9 +10,10 @@ import type { ContactMessage } from '../types/contact-message.types'
  * `readAt` keeps the first read rather than the latest.
  */
 @Injectable()
-export class GetContactMessageUseCase
-	implements IDomainUseCase<string, ContactMessage>
-{
+export class GetContactMessageUseCase implements IDomainUseCase<
+	string,
+	ContactMessage
+> {
 	private readonly logger = new Logger(GetContactMessageUseCase.name)
 
 	constructor(private readonly repository: ContactMessageRepository) {}

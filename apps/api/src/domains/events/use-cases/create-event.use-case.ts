@@ -4,9 +4,10 @@ import { EventRepository } from '../repository/event.repository'
 import type { CreateEventData, Event } from '../types/event.types'
 
 @Injectable()
-export class CreateEventUseCase
-	implements IDomainUseCase<CreateEventData, Event>
-{
+export class CreateEventUseCase implements IDomainUseCase<
+	CreateEventData,
+	Event
+> {
 	private readonly logger = new Logger(CreateEventUseCase.name)
 
 	constructor(private readonly repository: EventRepository) {}

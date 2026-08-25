@@ -9,9 +9,10 @@ interface DeleteLostItemInput {
 }
 
 @Injectable()
-export class DeleteLostItemUseCase
-	implements IDomainUseCase<DeleteLostItemInput, void>
-{
+export class DeleteLostItemUseCase implements IDomainUseCase<
+	DeleteLostItemInput,
+	void
+> {
 	constructor(private readonly repository: LostItemRepository) {}
 
 	async execute({ id, userId }: DeleteLostItemInput): Promise<void> {

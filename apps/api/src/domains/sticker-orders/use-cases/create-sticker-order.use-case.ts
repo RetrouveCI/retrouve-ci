@@ -10,9 +10,10 @@ import type {
 } from '../types/sticker-order.types'
 
 @Injectable()
-export class CreateStickerOrderUseCase
-	implements IDomainUseCase<CreateStickerOrderData, StickerOrder>
-{
+export class CreateStickerOrderUseCase implements IDomainUseCase<
+	CreateStickerOrderData,
+	StickerOrder
+> {
 	constructor(private readonly repository: StickerOrderRepository) {}
 
 	/** The price comes from the catalogue, never from the body. */

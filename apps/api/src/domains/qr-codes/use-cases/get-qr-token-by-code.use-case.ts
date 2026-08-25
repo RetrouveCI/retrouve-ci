@@ -5,9 +5,10 @@ import { QrTokenRepository } from '../repository/qr-token.repository'
 import type { QrToken } from '../types/qr-token.types'
 
 @Injectable()
-export class GetQrTokenByCodeUseCase
-	implements IDomainUseCase<string, QrToken>
-{
+export class GetQrTokenByCodeUseCase implements IDomainUseCase<
+	string,
+	QrToken
+> {
 	constructor(private readonly repository: QrTokenRepository) {}
 
 	async execute(code: string): Promise<QrToken> {

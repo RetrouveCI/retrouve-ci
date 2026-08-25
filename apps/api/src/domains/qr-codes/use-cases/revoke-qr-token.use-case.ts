@@ -10,9 +10,10 @@ interface RevokeQrTokenInput {
 }
 
 @Injectable()
-export class RevokeQrTokenUseCase
-	implements IDomainUseCase<RevokeQrTokenInput, QrToken>
-{
+export class RevokeQrTokenUseCase implements IDomainUseCase<
+	RevokeQrTokenInput,
+	QrToken
+> {
 	constructor(private readonly repository: QrTokenRepository) {}
 
 	async execute({ code, userId }: RevokeQrTokenInput): Promise<QrToken> {

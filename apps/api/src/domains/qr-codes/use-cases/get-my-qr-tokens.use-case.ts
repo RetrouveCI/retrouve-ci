@@ -12,9 +12,10 @@ interface GetMyQrTokensInput {
 }
 
 @Injectable()
-export class GetMyQrTokensUseCase
-	implements IDomainUseCase<GetMyQrTokensInput, QrTokenListResponse>
-{
+export class GetMyQrTokensUseCase implements IDomainUseCase<
+	GetMyQrTokensInput,
+	QrTokenListResponse
+> {
 	constructor(private readonly repository: QrTokenRepository) {}
 
 	/** `userId` last, so a filter carrying another one cannot widen the scope. */

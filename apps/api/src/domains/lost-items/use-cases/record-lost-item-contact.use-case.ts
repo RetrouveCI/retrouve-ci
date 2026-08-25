@@ -5,9 +5,10 @@ import { LostItemRepository } from '../repository/lost-item.repository'
 import type { LostItem } from '../types/lost-item.types'
 
 @Injectable()
-export class RecordLostItemContactUseCase
-	implements IDomainUseCase<string, LostItem>
-{
+export class RecordLostItemContactUseCase implements IDomainUseCase<
+	string,
+	LostItem
+> {
 	constructor(private readonly repository: LostItemRepository) {}
 
 	async execute(id: string): Promise<LostItem> {

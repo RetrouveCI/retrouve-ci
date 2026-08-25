@@ -7,9 +7,10 @@ import type {
 } from '../types/sticker-order.types'
 
 @Injectable()
-export class GetPaginatedStickerOrdersUseCase
-	implements IDomainUseCase<ListStickerOrdersFilter, StickerOrderListResponse>
-{
+export class GetPaginatedStickerOrdersUseCase implements IDomainUseCase<
+	ListStickerOrdersFilter,
+	StickerOrderListResponse
+> {
 	constructor(private readonly repository: StickerOrderRepository) {}
 
 	async execute(

@@ -13,9 +13,10 @@ interface UpdateStickerOrderStatusInput {
 }
 
 @Injectable()
-export class UpdateStickerOrderStatusUseCase
-	implements IDomainUseCase<UpdateStickerOrderStatusInput, StickerOrder>
-{
+export class UpdateStickerOrderStatusUseCase implements IDomainUseCase<
+	UpdateStickerOrderStatusInput,
+	StickerOrder
+> {
 	constructor(private readonly repository: StickerOrderRepository) {}
 
 	async execute({
