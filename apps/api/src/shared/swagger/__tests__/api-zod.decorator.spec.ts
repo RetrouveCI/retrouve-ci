@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { setInitialPasswordSchema } from '@app/contracts/auth'
 import { listNotificationsFilterSchema } from '@app/contracts/notifications'
 import { createLostItemSchema } from '@app/contracts/lost-items'
-import { toOpenApiSchema } from './api-zod.decorator'
+import { toOpenApiSchema } from '../api-zod.decorator'
 
 function propertiesOf(schema: Parameters<typeof toOpenApiSchema>[0]) {
 	return (toOpenApiSchema(schema) as { properties: Record<string, unknown> })

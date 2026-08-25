@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AuthService } from '@thallesp/nestjs-better-auth'
 import type { FastifyRequest } from 'fastify'
 import type { Auth } from '@/infrastructures/auth/auth.config'
-import { AccountController } from './account.controller'
+import { AccountController } from '../account.controller'
 
 function buildAuthService() {
 	return {
