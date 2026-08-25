@@ -429,9 +429,6 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@vercel/analytics':
-        specifier: 'catalog:'
-        version: 1.6.1(react@19.2.8)
       better-auth:
         specifier: 'catalog:'
         version: 1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.11)
@@ -758,9 +755,6 @@ importers:
       '@react-router/serve':
         specifier: 'catalog:'
         version: 7.18.2(react-router@7.18.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(supports-color@10.2.2)(typescript@5.9.2)
-      '@vercel/analytics':
-        specifier: 'catalog:'
-        version: 1.6.1(react@19.2.8)
       better-auth:
         specifier: 'catalog:'
         version: 1.6.18(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.11)
@@ -9256,10 +9250,6 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.67.0
       eslint-visitor-keys: 5.0.1
-
-  '@vercel/analytics@1.6.1(react@19.2.8)':
-    optionalDependencies:
-      react: 19.2.8
 
   '@vitejs/plugin-react@5.2.0(supports-color@10.2.2)(vite@7.3.6(@types/node@24.13.3)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.50.0))':
     dependencies:
