@@ -23,12 +23,43 @@ describe('buildQueueConnection', () => {
 		})
 	})
 
-	it('reads the address from REDIS_URL alone', () => {
-		const config = buildConfig({ REDIS_URL: 'redis://localhost:6379' })
+	it('trims a padded address', () => {
+		const config = buildConfig({ REDIS_URL: '  redis://cache.internal:6379  ' })
 
-		buildQueueConnection(config)
+		expect(buildQueueConnection(config).connection.url).toBe(
+			'redis://cache.internal:6379',
+		)
+	})
 
-		expect(config.get).toHaveBeenCalledExactlyOnceWith('REDIS_URL')
+	it('falls back to localhost outside production', () => {
+		expect(buildQueueConnection(buildConfig()).connection.url).toBe(
+			'redis://localhost:6379',
+		)
+	})
+
+	// BullMQ's own fallback is silent: the API boots healthy and every OTP job
+	// waits in a queue no worker reads.
+	it('refuses to start in production without an address', () => {
+		const config = buildConfig({ NODE_ENV: 'production' })
+
+		expect(() => buildQueueConnection(config)).toThrow(/REDIS_URL/)
+	})
+
+	it('accepts a configured address in production', () => {
+		const config = buildConfig({
+			NODE_ENV: 'production',
+			REDIS_URL: 'redis://cache.internal:6379',
+		})
+
+		expect(buildQueueConnection(config).connection.url).toBe(
+			'redis://cache.internal:6379',
+		)
+	})
+
+	it('treats a blank address as unset', () => {
+		const config = buildConfig({ NODE_ENV: 'production', REDIS_URL: '   ' })
+
+		expect(() => buildQueueConnection(config)).toThrow(/REDIS_URL/)
 	})
 })
 
