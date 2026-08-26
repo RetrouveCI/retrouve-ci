@@ -146,12 +146,23 @@ seule que le plugin `phoneNumber()` émette. `phoneNumberValidator` est enfin
 fourni au plugin : un mauvais numéro échoue immédiatement au lieu de brûler les
 trois tentatives BullMQ d'`OtpConsumer`.
 
-**Dette ouverte, non introduite par E6.7** : un champ **absent** est refusé en
-anglais (`Invalid input: expected string, received undefined`) sur les six
-domaines déjà mergés, alors que CLAUDE.md exige le français. `auth` nomme ses
-propres messages et n'est pas concerné. `z.config(z.locales.fr())` corrigerait
-tout en une ligne, mais l'instance zod est partagée avec better-auth, dont les
-messages basculeraient aussi : décision à prendre séparément.
+**Dette fermée (2026-08-26)** : un champ **absent** était refusé en anglais
+(`Invalid input: expected string, received undefined`), alors que CLAUDE.md
+exige le français. Le compte réel est de **cinq** domaines et **25** champs sur
+6 schémas, pas six domaines : `notifications` et `auth` nommaient déjà leurs
+messages (`passwordSchema` nomme son erreur de type). Le blocage annoncé —
+`z.config(z.locales.fr())` franciserait aussi better-auth, qui partage
+l'instance zod — n'était pas le seul chemin. Zod 4 accepte une error map **par
+appel**, et `ZodValidationPipe` est le **seul** site de parse de l'API :
+`safeParse(value, { error: z.locales.fr().localeError })`. Une ligne, aucun
+effet global. Vérifié à chaud sur la même instance — `POST /contact-messages`
+avec `{}` répond en français, `POST /api/auth/sign-up/email` avec `{}` répond
+toujours `[body.email] Invalid input: expected string, received undefined`. La
+précédence est la bonne : un message nommé par le schéma gagne, la locale ne
+sert que de repli. ⚠️ **Reste** : ce repli est la traduction de Zod (« Entrée
+invalide : chaîne attendu, indéfini reçu »), grammaticalement fautive. Nommer
+les 25 champs donne une meilleure copie ; le pipe garantit seulement que
+l'anglais est impossible.
 
 ---
 
