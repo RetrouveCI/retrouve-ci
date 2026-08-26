@@ -749,14 +749,14 @@ Les 6 restants sont **tous** sur des routes commentées dans `routes.ts`. Elles
 ne sont donc couvertes par aucun `build`, ce qui les rend plus fragiles, pas
 moins — mais elles ne servent personne aujourd'hui, d'où leur rang.
 
-`apps/admin` — **20 / 24** :
+`apps/admin` — **24 / 24, fermé** :
 
-| lot                                                                                    | fichiers | état    |
-| -------------------------------------------------------------------------------------- | -------- | ------- |
-| `contact-messages`, `events`, `orders`, `posts`, `qr`, `users`, `dashboard` (socle E7) | 12       | ✅      |
-| `auth/{forgot,reset}-password`, `administrators`                                       | 4        | ✅      |
-| `users.action`, `users/detail`, `qr/generate`, `qr/token`                              | 4        | ✅      |
-| `contact-messages.action`, `notifications.action`, `dashboard/home`, `profile`         | 4        | à faire |
+| lot                                                                                    | fichiers | état |
+| -------------------------------------------------------------------------------------- | -------- | ---- |
+| `contact-messages`, `events`, `orders`, `posts`, `qr`, `users`, `dashboard` (socle E7) | 12       | ✅   |
+| `auth/{forgot,reset}-password`, `administrators`                                       | 4        | ✅   |
+| `users.action`, `users/detail`, `qr/generate`, `qr/token`                              | 4        | ✅   |
+| `contact-messages.action`, `notifications.action`, `dashboard/home`, `profile`         | 4        | ✅   |
 
 L'admin passe avant les routes client en stand-by : `administrators.action` crée
 et supprime des comptes d'administrateur à travers le plugin `admin()` de
@@ -773,6 +773,30 @@ Deuxième écart, dans la même paire : `usersAction` n'a **pas** de
 `redirectOnUnauthorized`, là où `administratorsAction` et `generateQrAction`
 l'ont. Une session morte y devient donc un 500 affiché dans un tableau de bord
 que le visiteur ne peut plus voir, au lieu d'un retour à `/auth/login`.
+
+Trois constats du 4e lot, asservis tels quels et non corrigés ici :
+
+- `notificationsAction` met l'id **dans la condition** de `mark-read`
+  (`intent === 'mark-read' && id`), donc un `mark-read` sans id répond « Intent
+  inconnu » — il nomme le mauvais problème. Les trois autres actions ont une
+  branche `ID manquant`.
+- la table `CATEGORY_LABELS` de `dashboard/home/servers/dashboard.loader.ts` est
+  un `Record<string, string>` avec un repli `?? row.category`, là où
+  `posts.const.ts` type la sienne sur `LostItemCategory`. Une catégorie ajoutée
+  au contrat afficherait donc `JEWELRY` à un administrateur francophone au lieu
+  de lever une erreur de type. Le type ne peut pas s'en charger simplement (le
+  front n'a pas de type pour la casse de l'enum Prisma), donc la garde est **un
+  test** : il nourrit `LOST_ITEM_CATEGORIES` en entier et refuse toute étiquette
+  encore en `MAJUSCULES`.
+- le même loader renumérote les activités par position (`id: i + 1`) et jette
+  l'`id` que l'API envoie. Aucune conséquence tant que rien ne cible une
+  activité, mais la clé React ne survit pas à un tri.
+
+Et une exposition, pas un bug : `formatDistanceToNow(new Date(a.createdAt))`
+lèverait `RangeError` en SSR sur une date illisible — **exactement** #120. Cette
+API ne peut pas en produire (`reporting.repository.ts` envoie
+`created_at.toISOString()`), donc le loader ne porte aucune garde ; un test
+énonce le comportement pour que ce soit un choix et non un oubli.
 
 ### E12 — Docs d'architecture
 
