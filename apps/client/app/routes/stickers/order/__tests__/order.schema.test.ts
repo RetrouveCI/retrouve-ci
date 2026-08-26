@@ -1,3 +1,4 @@
+import { PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
 import { stickerOrderSchema } from '../order.schema'
 import { PACKS, PAYMENT_METHODS } from '../stickers-order.const'
 
@@ -31,13 +32,13 @@ describe('stickerOrderSchema', () => {
 	it('answers in French for every blank the form can post', () => {
 		expect(messageFor({ packId: '' })).toBe('Sélectionnez un pack')
 		expect(messageFor({ name: '' })).toBe('Votre nom est requis')
-		expect(messageFor({ phone: '' })).toBe('Numéro invalide')
+		expect(messageFor({ phone: '' })).toBe(PHONE_ERROR_MESSAGE)
 		expect(messageFor({ address: '' })).toBe('Adresse trop courte')
 		expect(messageFor({ city: '' })).toBe('La ville est requise')
 		expect(messageFor({ paymentMethod: '' })).toBe(
 			'Sélectionnez un moyen de paiement',
 		)
-		expect(messageFor({ paymentPhone: '' })).toBe('Numéro invalide')
+		expect(messageFor({ paymentPhone: '' })).toBe(PHONE_ERROR_MESSAGE)
 	})
 
 	it('rejects a pack or a payment method that is not on offer', () => {
@@ -49,14 +50,29 @@ describe('stickerOrderSchema', () => {
 		)
 	})
 
-	it('accepts a phone of 8 to 16 digits and nothing else', () => {
-		expect(
-			stickerOrderSchema.safeParse({ ...VALID, phone: '01234567' }).success,
-		).toBe(true)
-		expect(messageFor({ phone: '0123456' })).toBe('Numéro invalide')
-		expect(messageFor({ phone: '0'.repeat(17) })).toBe('Numéro invalide')
-		expect(messageFor({ phone: '07 00 00 00 00' })).toBe('Numéro invalide')
-	})
+	/**
+	 * The shared ivorian rule, as every other phone field in the app uses it.
+	 * `/^\d{8,16}$/` used to live here instead: it accepted the eight digits
+	 * below — a number nobody can be reached on — and refused the spaced form a
+	 * visitor is most likely to type.
+	 */
+	it.each(['phone', 'paymentPhone'] as const)(
+		'holds %s to the shared ten-digit rule',
+		field => {
+			expect(messageFor({ [field]: '01234567' })).toBe(PHONE_ERROR_MESSAGE)
+			expect(messageFor({ [field]: '0'.repeat(17) })).toBe(PHONE_ERROR_MESSAGE)
+			expect(messageFor({ [field]: 'pas-un-numero' })).toBe(PHONE_ERROR_MESSAGE)
+		},
+	)
+
+	it.each(['0700000000', '07 00 00 00 00', '+2250700000000', '2250700000000'])(
+		'accepts the number %p, spacing and country code included',
+		phone => {
+			expect(stickerOrderSchema.safeParse({ ...VALID, phone }).success).toBe(
+				true,
+			)
+		},
+	)
 
 	it('treats the coupon as optional, blank included', () => {
 		expect(stickerOrderSchema.safeParse(VALID).data?.couponCode).toBe('')

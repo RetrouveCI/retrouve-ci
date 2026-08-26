@@ -392,27 +392,27 @@ Détails et inventaire chiffré : **§5, étape E13** ci-dessous. Par app :
 
 Une ligne = une branche = une PR = une session.
 
-| #       | Étape                                                        | Branche                             | Scope commit                          | Charge | Dépend de |
-| ------- | ------------------------------------------------------------ | ----------------------------------- | ------------------------------------- | ------ | --------- |
-| **E0**  | ✅ Scope `@app/*` + outillage agents                         | (fait)                              | `root/tooling`                        | —      | —         |
-| **E1**  | ✅ Socle racine & hygiène                                    | (fait)                              | `root/core`                           | —      | E0        |
-| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4                           | (fait)                              | `root/deps`                           | —      | E1        |
-| **E3**  | ✅ Catalog : reste des versions + nettoyage                  | (fait)                              | `root/deps`                           | —      | E2        |
-| **E3b** | ✅ Les 4 majors, une PR chacune                              | (fait)                              | `root/deps`                           | —      | E3        |
-| **E4**  | ✅ Presets partagés (ts / vitest / eslint)                   | (fait)                              | `packages/config`                     | —      | E2        |
-| **E5**  | ✅ Création de `@app/contracts`                              | (fait)                              | `packages/contracts`                  | —      | E2        |
-| **E6**  | ✅ Contrats Zod, 7 domaines                                  | (fait)                              | `api/<domaine>`                       | —      | E5        |
-| **E7**  | ✅ Conform → RHF, catalog nettoyé (E7.G)                     | (fait)                              | `ui/form`, `client/…`, `admin/…`      | —      | E3        |
-| **E8**  | ✅ Refonte structurelle `apps/api`                           | (fait)                              | `api/<domaine>`                       | —      | E6        |
-| **E9**  | ✅ Tests back : `__tests__` + couverture                     | (fait)                              | `api/tests`                           | —      | E4, E8    |
-| **E10** | 🟡 Tests front (socles faits, `servers/` du client en cours) | `migration-e10-tests-client-<zone>` | `client/tests`, `admin/tests`         | 0,5 j  | E4, E7    |
-| **E11** | ✅ Mutualisation front (`@app/web-kit`)                      | (fait)                              | `packages/web-kit`                    | —      | E7        |
-| **E12** | Docs d'architecture                                          | `migration-e12-docs-architecture`   | `root/docs`                           | 0,5 j  | E8        |
-| **E13** | ✅ Structure front → `app/routes/`                           | (fait)                              | `client/structure`, `admin/structure` | —      | E3b       |
+| #       | Étape                                       | Branche                           | Scope commit                          | Charge | Dépend de |
+| ------- | ------------------------------------------- | --------------------------------- | ------------------------------------- | ------ | --------- |
+| **E0**  | ✅ Scope `@app/*` + outillage agents        | (fait)                            | `root/tooling`                        | —      | —         |
+| **E1**  | ✅ Socle racine & hygiène                   | (fait)                            | `root/core`                           | —      | E0        |
+| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4          | (fait)                            | `root/deps`                           | —      | E1        |
+| **E3**  | ✅ Catalog : reste des versions + nettoyage | (fait)                            | `root/deps`                           | —      | E2        |
+| **E3b** | ✅ Les 4 majors, une PR chacune             | (fait)                            | `root/deps`                           | —      | E3        |
+| **E4**  | ✅ Presets partagés (ts / vitest / eslint)  | (fait)                            | `packages/config`                     | —      | E2        |
+| **E5**  | ✅ Création de `@app/contracts`             | (fait)                            | `packages/contracts`                  | —      | E2        |
+| **E6**  | ✅ Contrats Zod, 7 domaines                 | (fait)                            | `api/<domaine>`                       | —      | E5        |
+| **E7**  | ✅ Conform → RHF, catalog nettoyé (E7.G)    | (fait)                            | `ui/form`, `client/…`, `admin/…`      | —      | E3        |
+| **E8**  | ✅ Refonte structurelle `apps/api`          | (fait)                            | `api/<domaine>`                       | —      | E6        |
+| **E9**  | ✅ Tests back : `__tests__` + couverture    | (fait)                            | `api/tests`                           | —      | E4, E8    |
+| **E10** | ✅ Tests front : 48 loaders/actions sur 48  | (fait)                            | `client/tests`, `admin/tests`         | —      | E4, E7    |
+| **E11** | ✅ Mutualisation front (`@app/web-kit`)     | (fait)                            | `packages/web-kit`                    | —      | E7        |
+| **E12** | Docs d'architecture                         | `migration-e12-docs-architecture` | `root/docs`                           | 0,5 j  | E8        |
+| **E13** | ✅ Structure front → `app/routes/`          | (fait)                            | `client/structure`, `admin/structure` | —      | E3b       |
 
-**Reste ≈ 1 j** : E10 (tests `servers/` du client) et E12 (docs). E6, E7 et E8
-se découpent eux-mêmes **par domaine / par feature** — soit une PR par domaine,
-ce qui est le mode recommandé (voir plans détaillés).
+**Reste ≈ 0,5 j** : E12 (docs) seule. E6, E7 et E8 se découpent eux-mêmes **par
+domaine / par feature** — soit une PR par domaine, ce qui est le mode recommandé
+(voir plans détaillés).
 
 ### Chemin critique
 
@@ -675,7 +675,7 @@ trancher entre régression réelle et artefact sans navigateur. Là où `sonner`
 graphiques sont du rendu pur : **un passage visuel réel sur le dashboard admin
 `/` reste nécessaire**.
 
-### E10 — Tests front — 🟡 socle + `apps/admin` faits
+### E10 — Tests front — ✅ fermée
 
 Le socle a été posé **avant E7.A**, pour que les tranches E7 de l'admin livrent
 des tests qui restent au lieu de harness jetables.
@@ -736,18 +736,44 @@ production vivaient — le filtre de `/posts` (#120) dans un loader, le token QR
 (#119) dans un service — donc c'est par là que E10 reprend, `servers/` d'abord,
 par zone.
 
-`apps/client` — **18 / 24** :
+`apps/client` — **24 / 24, fermé** :
 
-| lot                                                   | fichiers | état                   |
-| ----------------------------------------------------- | -------- | ---------------------- |
-| `auth/**` + `account/settings`                        | 5        | ✅ #121                |
-| `publish/**`, `posts/**`                              | 5        | ✅ #122                |
-| `account/posts`, `notifications`, `contact`           | 8        | ✅ #123                |
-| `q/**`, `stickers/order`, `account/{orders,stickers}` | 6        | à faire — **stand-by** |
+| lot                                                   | fichiers | état    |
+| ----------------------------------------------------- | -------- | ------- |
+| `auth/**` + `account/settings`                        | 5        | ✅ #121 |
+| `publish/**`, `posts/**`                              | 5        | ✅ #122 |
+| `account/posts`, `notifications`, `contact`           | 8        | ✅ #123 |
+| `q/**`, `stickers/order`, `account/{orders,stickers}` | 6        | ✅      |
 
-Les 6 restants sont **tous** sur des routes commentées dans `routes.ts`. Elles
-ne sont donc couvertes par aucun `build`, ce qui les rend plus fragiles, pas
-moins — mais elles ne servent personne aujourd'hui, d'où leur rang.
+Ces 6 derniers étaient **tous** sur des routes commentées dans `routes.ts` :
+aucun `build` ne les couvre, donc `typecheck` était le seul filet — et il en
+manquait la moitié. `apps/client/tsconfig.json` excluait
+`app/routes/account/orders/**`, quatre dossiers, alors que **seul `_index.tsx`**
+importe `+types/`. L'exclusion est resserrée sur ce fichier, ce qui ramène
+`servers/`, `mappers/`, `components/` et `types/` sous `tsc`. `account/stickers`
+ne portait déjà que la ligne `_index.tsx`.
+
+Trois constats du lot client :
+
+- ✅ **corrigé** : `stickerOrderSchema` était le **dernier** champ téléphone du
+  dépôt encore sur `/^\d{8,16}$/` au lieu d'`isValidLocalNumber`, pour `phone`
+  et `paymentPhone`. Il acceptait un numéro à huit chiffres — un contact de
+  livraison injoignable — et **refusait** la forme espacée `07 00 00 00 00`
+  qu'un visiteur tape le plus naturellement. Son spec asservait cette double
+  erreur
+  (`expect(messageFor({ phone: '07 00 00 00 00' })).toBe('Numéro invalide')`),
+  ce qui explique qu'elle ait survécu. Le correctif a fait tomber
+  `order-flow.test.tsx`, le test browser-mode qui monte la vraie page dans
+  Chromium : c'est lui qui a vérifié que le nouveau message atteint bien le
+  champ — la seule vérification à chaud possible sur une route que `routes.ts`
+  ne monte pas.
+- `stickersAction` se garde avec `getServerSession` + un `throw redirect` à la
+  main, là où les deux loaders voisins utilisent `requireServerSession`. Même
+  résultat, asservi par un test ; la divergence reste.
+- `qrContactLoader` et `qrContactAction` n'ont **aucune** garde de session, et
+  c'est voulu : celui qui trouve l'objet n'a pas de compte. Le loader traduit un
+  404 de l'API en 404 de route et **relaie tout le reste**, pour qu'une panne ne
+  se déguise pas en mauvais code.
 
 `apps/admin` — **24 / 24, fermé** :
 
@@ -761,6 +787,10 @@ moins — mais elles ne servent personne aujourd'hui, d'où leur rang.
 L'admin passe avant les routes client en stand-by : `administrators.action` crée
 et supprime des comptes d'administrateur à travers le plugin `admin()` de
 better-auth, et `remove-user` est irréversible.
+
+**Les deux moitiés sont couvertes : 48 loaders/actions sur 48.** Ce qui reste
+d'E10 est l'exigence continue du point 4 — couvrir chaque branche de tout code
+neuf — pas un jalon.
 
 ⚠️ **Écart de contrat relevé en couvrant le 3e lot** : `users.action` et
 `qr-token.action` ne répondent **pas** l'`ActionResult` d'E7. Elles renvoient
