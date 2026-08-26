@@ -605,7 +605,7 @@ better-auth (`adminClient()` plugin, role check `role === 'admin'`).
 
 Route structure (defined in `app/routes.ts`):
 
-- `/` — dashboard overview (mock stats and charts)
+- `/` — dashboard overview (real API: `reporting` domain, via `/stats`)
 - `/contact-messages` — contact form submissions (real API: `contact-messages`
   domain)
 - `/orders` — sticker orders (real API: `sticker-orders` domain)
