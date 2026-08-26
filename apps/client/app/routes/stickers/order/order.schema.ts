@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { stickerPackIdSchema } from '@app/contracts/sticker-orders'
+import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 import { PAYMENT_METHODS } from './stickers-order.const'
 
 const PAYMENT_METHOD_IDS = PAYMENT_METHODS.map(method => method.id)
@@ -10,7 +11,9 @@ export const stickerOrderSchema = z.object({
 		.string()
 		.min(2, 'Votre nom est requis')
 		.max(120, 'Maximum 120 caractères'),
-	phone: z.string().regex(/^\d{8,16}$/, 'Numéro invalide'),
+	// The rule every other phone field in the app uses. `/^\d{8,16}$/` let an
+	// eight-digit number through, so a delivery contact could be unreachable.
+	phone: z.string().trim().refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
 	address: z
 		.string()
 		.min(5, 'Adresse trop courte')
@@ -22,7 +25,10 @@ export const stickerOrderSchema = z.object({
 	paymentMethod: z.enum(PAYMENT_METHOD_IDS, {
 		error: 'Sélectionnez un moyen de paiement',
 	}),
-	paymentPhone: z.string().regex(/^\d{8,16}$/, 'Numéro invalide'),
+	paymentPhone: z
+		.string()
+		.trim()
+		.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
 	couponCode: z.string().max(30, 'Maximum 30 caractères').optional(),
 })
 

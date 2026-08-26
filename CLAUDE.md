@@ -9,6 +9,11 @@ code in this repository.
 listings for lost/found items and use QR-code stickers that, when scanned,
 redirect to a contact page. The UI is entirely in French.
 
+Narrative architecture documentation lives in [`docs/`](docs/README.md) —
+overview, applications, shared packages, business flows and operations. This
+file stays **normative**: where the two disagree, this one wins and `docs/` has
+a bug.
+
 ## Commands
 
 All commands are run from the repo root using pnpm and Turborepo.
