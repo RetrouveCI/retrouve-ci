@@ -1,6 +1,7 @@
 import { BullModule } from '@nestjs/bullmq'
 import { Module } from '@nestjs/common'
 import { LostItemsDomainModule } from '@/domains/lost-items/lost-items-domain.module'
+import { MatchingDispatcher } from '@/infrastructures/queue/matching-dispatcher.service'
 import { MATCHING_QUEUE } from '@/infrastructures/queue/queue.constants'
 import { LostItemsController } from './lost-items.controller'
 
@@ -10,5 +11,6 @@ import { LostItemsController } from './lost-items.controller'
 		BullModule.registerQueue({ name: MATCHING_QUEUE }),
 	],
 	controllers: [LostItemsController],
+	providers: [MatchingDispatcher],
 })
 export class LostItemsModule {}
