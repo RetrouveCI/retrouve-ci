@@ -17,7 +17,6 @@
 	},
 	"dependencies": {
 		"@fastify/multipart": "catalog:",
-		"@fastify/static": "catalog:",
 		"@nestjs/bullmq": "catalog:",
 		"@nestjs/common": "catalog:",
 		"@nestjs/config": "catalog:",
