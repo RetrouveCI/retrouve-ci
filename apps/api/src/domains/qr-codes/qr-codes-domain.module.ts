@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common'
+import { ContactMessagesDomainModule } from '@/domains/contact-messages/contact-messages-domain.module'
+import { NotificationsDomainModule } from '@/domains/notifications/notifications-domain.module'
 import { QrTokenRepository } from './repository/qr-token.repository'
 import { ActivateQrTokenUseCase } from './use-cases/activate-qr-token.use-case'
+import { ContactQrTokenOwnerUseCase } from './use-cases/contact-qr-token-owner.use-case'
 import { GenerateQrTokensUseCase } from './use-cases/generate-qr-tokens.use-case'
 import { GetMyQrTokensUseCase } from './use-cases/get-my-qr-tokens.use-case'
 import { GetPaginatedQrTokensUseCase } from './use-cases/get-paginated-qr-tokens.use-case'
@@ -19,9 +22,12 @@ const providers = [
 	UpdateQrTokenDetailsUseCase,
 	GetPaginatedQrTokensUseCase,
 	GetMyQrTokensUseCase,
+	ContactQrTokenOwnerUseCase,
 ]
 
+/** `contactOwner` writes through the two domains it notifies, as `matching` does. */
 @Module({
+	imports: [ContactMessagesDomainModule, NotificationsDomainModule],
 	providers,
 	exports: providers,
 })

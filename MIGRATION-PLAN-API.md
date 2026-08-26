@@ -343,18 +343,36 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
 - **`qr-codes`** : 8 use-cases et **deux** gardes partagés — `require-qr-token`
   (4 appelants) et `require-owned-qr-token` (`revoke`, `updateDetails`).
   L'activation ne contrôle pas la propriété : c'est elle qui l'attribue, donc
-  elle contrôle le _statut_. ✅ **Corrigé (#119)** : `GET /qr-codes/:code` était
-  `@AllowAnonymous()` et renvoyait le token complet — vérifié à chaud, il
-  exposait le `userId` du propriétaire et le `label` à quiconque détient un
-  code, alors que `/:code/scan` existe précisément pour ne montrer que la vue
-  publique (prénom seul). La route passe en `@Roles(['admin'])` : tenir un code
-  n'est pas une preuve d'identité. Le correctif imposait de corriger aussi
-  `getQrTokenByCode` côté admin, seul appel du service à ne pas transmettre le
-  cookie. ⚠️ **Un constat non corrigé** : `contactOwner` garde une règle métier
-  dans le contrôleur — le contrôle `status !== 'activated'` avec son
-  `BadRequestException`. Le déplacer en domaine est faisable (`ValidationError`
-  mappe déjà sur 400) mais ajoute un champ `error` à la réponse : changement de
-  contrat, donc décision produit.
+  elle contrôle le _statut_. **Les deux constats de cette section sont fermés.**
+  ✅ **#119** : `GET /qr-codes/:code` était `@AllowAnonymous()` et renvoyait le
+  token complet — vérifié à chaud, il exposait le `userId` du propriétaire et le
+  `label` à quiconque détient un code, alors que `/:code/scan` existe
+  précisément pour ne montrer que la vue publique (prénom seul). La route passe
+  en `@Roles(['admin'])` : tenir un code n'est pas une preuve d'identité. Le
+  correctif imposait de corriger aussi `getQrTokenByCode` côté admin, seul appel
+  du service à ne pas transmettre le cookie. ✅ **Choix produit, 2026-08-26** :
+  `contactOwner` gardait une règle métier dans le contrôleur — le contrôle
+  `status !== 'activated'` avec son `BadRequestException` — et orchestrait en
+  plus trois appels de domaine. Tout part dans `ContactQrTokenOwnerUseCase`, qui
+  écrit à travers `contact-messages` et `notifications` comme `matching` le fait
+  déjà ; le domain module importe donc les deux autres, et le module de
+  présentation n'importe plus que le sien. ⚠️ **Le coût annoncé ici était faux**
+  : cette section affirmait que le passage en `ValidationError` « ajoute un
+  champ `error` à la réponse ». Comparé à chaud, ancien contre nouveau sur le
+  même token non activé :
+
+  ```
+  avant : {"message":"Ce sticker n'est pas encore activé","error":"Bad Request","statusCode":400}
+  après : {"statusCode":400,"message":"Ce sticker n'est pas encore activé","error":"QrTokenNotActivatedError"}
+  ```
+
+  Le champ existait déjà — `BadRequestException` le remplit avec `Bad Request`.
+  Seule sa **valeur** change, et aucun front ne le lit : `ApiError` ne porte que
+  `status` et `message`, et `toApiErrorMessage` ne lit que `body.message`. Le
+  statut et le message sont identiques. `QrTokenNotActivatedError` est la seule
+  erreur de domaine du dépôt dont le message est **en français**, et
+  volontairement : le filtre renvoie `message` tel quel à un visiteur anonyme.
+
 - **`reporting`** : un seul use-case, pas d'`errors/` ni de `mappers/`. Créer
   quand même le domain module — la règle « chaque domaine est un module NestJS
   indépendant » ne souffre pas d'exception.
