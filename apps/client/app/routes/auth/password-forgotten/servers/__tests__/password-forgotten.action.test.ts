@@ -1,10 +1,9 @@
 import type { ActionResult } from '@/shared/types/action'
+import { ApiError } from '@/shared/utils/api-fetch'
 
 /** `errors` lives on the failure branch of the union only. */
 const errorsOf = (result: ActionResult) =>
 	result.success ? undefined : result.errors
-
-import { ApiError } from '@/shared/utils/api-fetch'
 
 const { requestPasswordReset } = vi.hoisted(() => ({
 	requestPasswordReset: vi.fn(),
@@ -62,7 +61,7 @@ describe('passwordForgottenAction', () => {
 				request: requestFor({ phoneNumber }),
 			})
 
-			expect(result.success).toBe(false)
+			expect(errorsOf(result)).toMatchObject({ phoneNumber: expect.anything() })
 			expect(requestPasswordReset).not.toHaveBeenCalled()
 		},
 	)
