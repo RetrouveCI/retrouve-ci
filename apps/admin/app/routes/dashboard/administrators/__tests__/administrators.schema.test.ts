@@ -97,13 +97,13 @@ describe('adminCreateSchema', () => {
 		expect(result.error?.issues[0]?.message).toBe('Au moins 8 caractères')
 	})
 
-	it('refuses a role this interface cannot hand out', () => {
-		expect(
-			adminCreateSchema.safeParse({ ...VALID, role: 'super_admin' }).success,
-		).toBe(false)
-		expect(
-			adminCreateSchema.safeParse({ ...VALID, role: 'user' }).success,
-		).toBe(false)
+	// The message matters as much as the refusal: a bare `z.enum` answered
+	// `Invalid option: expected one of …` on a form that is entirely French.
+	it.each(['super_admin', 'user'])('refuses the role %p in French', role => {
+		const result = adminCreateSchema.safeParse({ ...VALID, role })
+
+		expect(result.success).toBe(false)
+		expect(result.error?.issues[0]?.message).toBe('Rôle invalide')
 	})
 })
 
@@ -117,10 +117,10 @@ describe('adminUpdateRoleSchema', () => {
 		)
 	})
 
-	it('rejects a missing role and a role it cannot hand out', () => {
-		expect(adminUpdateRoleSchema.safeParse({}).success).toBe(false)
-		expect(
-			adminUpdateRoleSchema.safeParse({ role: 'super_admin' }).success,
-		).toBe(false)
+	it.each([{}, { role: 'super_admin' }])('rejects %j in French', value => {
+		const result = adminUpdateRoleSchema.safeParse(value)
+
+		expect(result.success).toBe(false)
+		expect(result.error?.issues[0]?.message).toBe('Rôle invalide')
 	})
 })

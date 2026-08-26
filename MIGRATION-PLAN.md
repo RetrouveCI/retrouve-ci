@@ -734,14 +734,33 @@ E9 s'est fermée, `apps/admin` testait **12 de ses 24** loaders/actions, et
 `apps/client` **1 sur 24**. C'est la couche où les deux derniers bugs de
 production vivaient — le filtre de `/posts` (#120) dans un loader, le token QR
 (#119) dans un service — donc c'est par là que E10 reprend, `servers/` d'abord,
-par zone :
+par zone.
 
-| lot                                         | fichiers | état    |
-| ------------------------------------------- | -------- | ------- |
-| `auth/**` + `account/settings`              | 5        | ✅      |
-| `publish/**`, `q/**`, `stickers/order`      | 5        | à faire |
-| `account/{posts,orders,stickers}`           | 7        | à faire |
-| `posts/details`, `notifications`, `contact` | 4        | à faire |
+`apps/client` — **18 / 24** :
+
+| lot                                                   | fichiers | état                   |
+| ----------------------------------------------------- | -------- | ---------------------- |
+| `auth/**` + `account/settings`                        | 5        | ✅ #121                |
+| `publish/**`, `posts/**`                              | 5        | ✅ #122                |
+| `account/posts`, `notifications`, `contact`           | 8        | ✅ #123                |
+| `q/**`, `stickers/order`, `account/{orders,stickers}` | 6        | à faire — **stand-by** |
+
+Les 6 restants sont **tous** sur des routes commentées dans `routes.ts`. Elles
+ne sont donc couvertes par aucun `build`, ce qui les rend plus fragiles, pas
+moins — mais elles ne servent personne aujourd'hui, d'où leur rang.
+
+`apps/admin` — **16 / 24** :
+
+| lot                                                                                    | fichiers | état    |
+| -------------------------------------------------------------------------------------- | -------- | ------- |
+| `contact-messages`, `events`, `orders`, `posts`, `qr`, `users`, `dashboard` (socle E7) | 12       | ✅      |
+| `auth/{forgot,reset}-password`, `administrators`                                       | 4        | ✅      |
+| `users.action`, `users/detail`, `qr/generate`, `qr/token`                              | 4        | à faire |
+| `contact-messages.action`, `notifications.action`, `dashboard/home`, `profile`         | 4        | à faire |
+
+L'admin passe avant les routes client en stand-by : `administrators.action` crée
+et supprime des comptes d'administrateur à travers le plugin `admin()` de
+better-auth, et `remove-user` est irréversible.
 
 ### E12 — Docs d'architecture
 

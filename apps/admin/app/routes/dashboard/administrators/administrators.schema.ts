@@ -2,8 +2,14 @@ import { z } from 'zod'
 import { passwordSchema } from '@app/contracts/shared'
 import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 
-/** The two roles this interface can hand out — `super_admin` is not one of them. */
-export const editableRoleSchema = z.enum(['admin', 'moderator'])
+/**
+ * The two roles this interface can hand out — `super_admin` is not one of them.
+ * A bare `z.enum` reports its refusal in English, and this one is rendered on
+ * the `role` field of both the create form and the role dialog.
+ */
+export const editableRoleSchema = z.enum(['admin', 'moderator'], {
+	error: 'Rôle invalide',
+})
 
 export const adminCreateSchema = z.object({
 	name: z
