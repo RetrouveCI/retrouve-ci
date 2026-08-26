@@ -325,12 +325,15 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
 - **`qr-codes`** : 8 use-cases et **deux** gardes partagés — `require-qr-token`
   (4 appelants) et `require-owned-qr-token` (`revoke`, `updateDetails`).
   L'activation ne contrôle pas la propriété : c'est elle qui l'attribue, donc
-  elle contrôle le _statut_. ⚠️ **Deux constats non corrigés.**
-  `GET /qr-codes/:code` est `@AllowAnonymous()` et renvoie le token complet :
-  vérifié à chaud, il expose le `userId` du propriétaire et le `label` à
-  quiconque détient un code, alors que `/:code/scan` existe précisément pour ne
-  montrer que la vue publique (prénom seul). Et `contactOwner` garde une règle
-  métier dans le contrôleur — le contrôle `status !== 'activated'` avec son
+  elle contrôle le _statut_. ✅ **Corrigé (#119)** : `GET /qr-codes/:code` était
+  `@AllowAnonymous()` et renvoyait le token complet — vérifié à chaud, il
+  exposait le `userId` du propriétaire et le `label` à quiconque détient un
+  code, alors que `/:code/scan` existe précisément pour ne montrer que la vue
+  publique (prénom seul). La route passe en `@Roles(['admin'])` : tenir un code
+  n'est pas une preuve d'identité. Le correctif imposait de corriger aussi
+  `getQrTokenByCode` côté admin, seul appel du service à ne pas transmettre le
+  cookie. ⚠️ **Un constat non corrigé** : `contactOwner` garde une règle métier
+  dans le contrôleur — le contrôle `status !== 'activated'` avec son
   `BadRequestException`. Le déplacer en domaine est faisable (`ValidationError`
   mappe déjà sur 400) mais ajoute un champ `error` à la réponse : changement de
   contrat, donc décision produit.
