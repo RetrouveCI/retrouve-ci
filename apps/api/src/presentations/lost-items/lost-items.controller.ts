@@ -1,4 +1,3 @@
-import { InjectQueue } from '@nestjs/bullmq'
 import {
 	Body,
 	Controller,
@@ -29,7 +28,6 @@ import {
 	Session,
 } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
-import type { Queue } from 'bullmq'
 import type { Auth } from '@/infrastructures/auth/auth.config'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
 import { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
@@ -42,10 +40,7 @@ import { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-los
 import { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
-import {
-	FIND_MATCHES_JOB,
-	MATCHING_QUEUE,
-} from '@/infrastructures/queue/queue.constants'
+import { MatchingDispatcher } from '@/infrastructures/queue/matching-dispatcher.service'
 
 @ApiTags('lost-items')
 @ApiBearerAuth()
@@ -60,7 +55,7 @@ export class LostItemsController {
 		private readonly updateLostItemUseCase: UpdateLostItemUseCase,
 		private readonly moderateLostItemUseCase: ModerateLostItemUseCase,
 		private readonly deleteLostItemUseCase: DeleteLostItemUseCase,
-		@InjectQueue(MATCHING_QUEUE) private readonly matchingQueue: Queue,
+		private readonly matchingDispatcher: MatchingDispatcher,
 	) {}
 
 	@Post()
@@ -143,7 +138,7 @@ export class LostItemsController {
 
 		/** Publication is the only moment a listing becomes matchable. */
 		if (lostItem.moderationStatus === 'published') {
-			await this.matchingQueue.add(FIND_MATCHES_JOB, { lostItemId: id })
+			await this.matchingDispatcher.dispatch(id)
 		}
 
 		return lostItem

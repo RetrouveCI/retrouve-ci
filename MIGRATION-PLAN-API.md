@@ -291,9 +291,21 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
   toujours silencieusement, et la modération vers `published` ne remettait
   **rien** en file. L'enqueue a été **déplacé** de `create` vers
   `updateModerationStatus`, conditionné à `published` — le laisser sur `create`
-  aurait gardé un appel prouvablement mort. À noter, non corrigé : sur une
-  annonce introuvable le consumer laisse BullMQ brûler ses trois tentatives, là
-  où `OtpConsumer` lève `UnrecoverableError`.
+  aurait gardé un appel prouvablement mort. ✅ **Corrigé (suivi d'E8.8, 2e
+  passe)** : l'enqueue ne portait **aucune option de job**, donc les défauts de
+  BullMQ — **une seule** tentative (et non trois comme cette section
+  l'affirmait) et aucune éviction. Vérifié à chaud : les jobs existants portent
+  `{"attempts":0}` et 25 jobs complétés s'étaient accumulés dans
+  `bull:matching:completed`. `MatchingDispatcher`
+  (`infrastructures/queue/matching-dispatcher.service.ts`) remplace le
+  `@InjectQueue` du contrôleur et fixe les options en un seul endroit, comme
+  `OtpDispatcher` le fait déjà. L'éviction, elle, **diverge volontairement** de
+  l'OTP : un job de matching ne transporte aucun secret, donc les complétés sont
+  gardés (`{ count: 100 }`) et les échoués une semaine, ce qui rend une
+  notification manquante diagnosticable — là où `OtpDispatcher` doit tout
+  supprimer. Le consumer lève désormais `UnrecoverableError` sur `NotFoundError`
+  (annonce supprimée entre la publication et le job), comme `OtpConsumer` sur un
+  destinataire invalide.
 - **`lost-items`** : trois gardes partagés dans `helpers/` —
   `require-lost-item`, `require-published-lost-item`, `require-owned-lost-item`
   — chacun ayant au moins deux appelants. Le domaine portait **`models/` et

@@ -15,7 +15,6 @@ import type { RecordLostItemContactUseCase } from '@/domains/lost-items/use-case
 import type { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
 import type { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import type { Auth } from '@/infrastructures/auth/auth.config'
-import { FIND_MATCHES_JOB } from '@/infrastructures/queue/queue.constants'
 import { LostItemsController } from '../lost-items.controller'
 
 const session = {
@@ -26,8 +25,8 @@ function buildUseCase<TUseCase>(): TUseCase {
 	return { execute: vi.fn() } as unknown as TUseCase
 }
 
-function buildMatchingQueue() {
-	return { add: vi.fn() }
+function buildMatchingDispatcher() {
+	return { dispatch: vi.fn() }
 }
 
 describe('LostItemsController', () => {
@@ -39,7 +38,7 @@ describe('LostItemsController', () => {
 	let updateLostItem: UpdateLostItemUseCase
 	let moderateLostItem: ModerateLostItemUseCase
 	let deleteLostItem: DeleteLostItemUseCase
-	let matchingQueue: ReturnType<typeof buildMatchingQueue>
+	let matchingDispatcher: ReturnType<typeof buildMatchingDispatcher>
 	let controller: LostItemsController
 
 	beforeEach(() => {
@@ -51,7 +50,7 @@ describe('LostItemsController', () => {
 		updateLostItem = buildUseCase<UpdateLostItemUseCase>()
 		moderateLostItem = buildUseCase<ModerateLostItemUseCase>()
 		deleteLostItem = buildUseCase<DeleteLostItemUseCase>()
-		matchingQueue = buildMatchingQueue()
+		matchingDispatcher = buildMatchingDispatcher()
 		controller = new LostItemsController(
 			createLostItem,
 			viewLostItem,
@@ -61,7 +60,7 @@ describe('LostItemsController', () => {
 			updateLostItem,
 			moderateLostItem,
 			deleteLostItem,
-			matchingQueue as never,
+			matchingDispatcher as never,
 		)
 	})
 
@@ -284,9 +283,7 @@ describe('LostItemsController', () => {
 				id: 'lost-item-1',
 				moderationStatus: 'published',
 			})
-			expect(matchingQueue.add).toHaveBeenCalledWith(FIND_MATCHES_JOB, {
-				lostItemId: 'lost-item-1',
-			})
+			expect(matchingDispatcher.dispatch).toHaveBeenCalledWith('lost-item-1')
 			expect(result).toEqual(moderated)
 		})
 
@@ -302,7 +299,7 @@ describe('LostItemsController', () => {
 					moderationStatus,
 				})
 
-				expect(matchingQueue.add).not.toHaveBeenCalled()
+				expect(matchingDispatcher.dispatch).not.toHaveBeenCalled()
 			},
 		)
 	})
