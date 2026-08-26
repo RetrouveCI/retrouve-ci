@@ -158,8 +158,8 @@ de check, coercition et contraintes HTML sont identiques à Zod 3.
 
 ### 3.1 Racine du monorepo
 
-Tout le socle racine a été traité en **E1** (§2.3) ; il ne reste que les docs
-d'architecture, prévues en E12.
+Tout le socle racine a été traité en **E1** (§2.3) ; les docs d'architecture ont
+suivi en **E12**.
 
 | Sujet            | Référence                                              | État                         |
 | ---------------- | ------------------------------------------------------ | ---------------------------- |
@@ -170,7 +170,7 @@ d'architecture, prévues en E12.
 | Turbo            | `2.10.5`, dans le catalog                              | ✅ E1                        |
 | `turbo.json`     | tâches `test` / `db:*` / `typecheck` complètes         | ✅ E1                        |
 | Prettier         | espaces (2), `printWidth: 85`                          | 🟠 divergence assumée (§3.7) |
-| Docs archi       | `docs/architecture/*.md` (5 docs)                      | 🔸 E12                       |
+| Docs archi       | `docs/architecture/*.md` (5 docs)                      | ✅ E12                       |
 
 ### 3.2 Dépendances — catalog pnpm
 
@@ -392,25 +392,25 @@ Détails et inventaire chiffré : **§5, étape E13** ci-dessous. Par app :
 
 Une ligne = une branche = une PR = une session.
 
-| #       | Étape                                       | Branche                           | Scope commit                          | Charge | Dépend de |
-| ------- | ------------------------------------------- | --------------------------------- | ------------------------------------- | ------ | --------- |
-| **E0**  | ✅ Scope `@app/*` + outillage agents        | (fait)                            | `root/tooling`                        | —      | —         |
-| **E1**  | ✅ Socle racine & hygiène                   | (fait)                            | `root/core`                           | —      | E0        |
-| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4          | (fait)                            | `root/deps`                           | —      | E1        |
-| **E3**  | ✅ Catalog : reste des versions + nettoyage | (fait)                            | `root/deps`                           | —      | E2        |
-| **E3b** | ✅ Les 4 majors, une PR chacune             | (fait)                            | `root/deps`                           | —      | E3        |
-| **E4**  | ✅ Presets partagés (ts / vitest / eslint)  | (fait)                            | `packages/config`                     | —      | E2        |
-| **E5**  | ✅ Création de `@app/contracts`             | (fait)                            | `packages/contracts`                  | —      | E2        |
-| **E6**  | ✅ Contrats Zod, 7 domaines                 | (fait)                            | `api/<domaine>`                       | —      | E5        |
-| **E7**  | ✅ Conform → RHF, catalog nettoyé (E7.G)    | (fait)                            | `ui/form`, `client/…`, `admin/…`      | —      | E3        |
-| **E8**  | ✅ Refonte structurelle `apps/api`          | (fait)                            | `api/<domaine>`                       | —      | E6        |
-| **E9**  | ✅ Tests back : `__tests__` + couverture    | (fait)                            | `api/tests`                           | —      | E4, E8    |
-| **E10** | ✅ Tests front : 48 loaders/actions sur 48  | (fait)                            | `client/tests`, `admin/tests`         | —      | E4, E7    |
-| **E11** | ✅ Mutualisation front (`@app/web-kit`)     | (fait)                            | `packages/web-kit`                    | —      | E7        |
-| **E12** | Docs d'architecture                         | `migration-e12-docs-architecture` | `root/docs`                           | 0,5 j  | E8        |
-| **E13** | ✅ Structure front → `app/routes/`          | (fait)                            | `client/structure`, `admin/structure` | —      | E3b       |
+| #       | Étape                                            | Branche | Scope commit                          | Charge | Dépend de |
+| ------- | ------------------------------------------------ | ------- | ------------------------------------- | ------ | --------- |
+| **E0**  | ✅ Scope `@app/*` + outillage agents             | (fait)  | `root/tooling`                        | —      | —         |
+| **E1**  | ✅ Socle racine & hygiène                        | (fait)  | `root/core`                           | —      | E0        |
+| **E2**  | ✅ Catalog : bump Zod 4 + Vitest 4               | (fait)  | `root/deps`                           | —      | E1        |
+| **E3**  | ✅ Catalog : reste des versions + nettoyage      | (fait)  | `root/deps`                           | —      | E2        |
+| **E3b** | ✅ Les 4 majors, une PR chacune                  | (fait)  | `root/deps`                           | —      | E3        |
+| **E4**  | ✅ Presets partagés (ts / vitest / eslint)       | (fait)  | `packages/config`                     | —      | E2        |
+| **E5**  | ✅ Création de `@app/contracts`                  | (fait)  | `packages/contracts`                  | —      | E2        |
+| **E6**  | ✅ Contrats Zod, 7 domaines                      | (fait)  | `api/<domaine>`                       | —      | E5        |
+| **E7**  | ✅ Conform → RHF, catalog nettoyé (E7.G)         | (fait)  | `ui/form`, `client/…`, `admin/…`      | —      | E3        |
+| **E8**  | ✅ Refonte structurelle `apps/api`               | (fait)  | `api/<domaine>`                       | —      | E6        |
+| **E9**  | ✅ Tests back : `__tests__` + couverture         | (fait)  | `api/tests`                           | —      | E4, E8    |
+| **E10** | ✅ Tests front : 48 loaders/actions sur 48       | (fait)  | `client/tests`, `admin/tests`         | —      | E4, E7    |
+| **E11** | ✅ Mutualisation front (`@app/web-kit`)          | (fait)  | `packages/web-kit`                    | —      | E7        |
+| **E12** | ✅ Docs d'architecture (`docs/`, 5 docs + index) | (fait)  | `root/docs`                           | —      | E8        |
+| **E13** | ✅ Structure front → `app/routes/`               | (fait)  | `client/structure`, `admin/structure` | —      | E3b       |
 
-**Reste ≈ 0,5 j** : E12 (docs) seule. E6, E7 et E8 se découpent eux-mêmes **par
+**Les treize étapes sont fermées.** E6, E7 et E8 se découpent eux-mêmes **par
 domaine / par feature** — soit une PR par domaine, ce qui est le mode recommandé
 (voir plans détaillés).
 
@@ -828,11 +828,37 @@ API ne peut pas en produire (`reporting.repository.ts` envoie
 `created_at.toISOString()`), donc le loader ne porte aucune garde ; un test
 énonce le comportement pour que ce soit un choix et non un oubli.
 
-### E12 — Docs d'architecture
+### E12 — Docs d'architecture — ✅ fermée
 
-Créer `docs/architecture/` sur le modèle de la référence : vue d'ensemble,
-architecture applicative, flux métier (annonces / matching / QR), exploitation &
-DevOps. `docs/README.md` en index.
+`docs/architecture/`, cinq documents plus `docs/README.md` en index :
+
+| Fichier                 | Contenu                                                                                                                                                                                      |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `01-overview.md`        | Le produit, les trois déployables, les chemins de requête, la carte du dépôt, qui possède quoi                                                                                               |
+| `02-applications.md`    | Les quatre couches de l'API et leur règle de dépendance, la forme d'un domaine, la validation, `SessionGuard`, les deux files ; la structure des deux fronts, le contrat d'action, les tests |
+| `03-shared-packages.md` | Les neuf packages, et pour chacun **la duplication qu'il empêche**                                                                                                                           |
+| `04-business-flows.md`  | Annonce → modération → matching ; cycle d'un sticker QR ; commandes ; les deux authentifications                                                                                             |
+| `05-operations.md`      | Variables d'environnement et ce que leur absence provoque, la recette, CI/CD, images, **signatures de panne**, hygiène de la base                                                            |
+
+Trois choix :
+
+- **en anglais**, comme `README.md` et `CLAUDE.md`. L'UI est française ; sa
+  documentation et ses identifiants ne le sont pas.
+- **non normatif** : `docs/README.md` le dit explicitement — si ces documents et
+  CLAUDE.md se contredisent, CLAUDE.md gagne et `docs/` a un bug. Les plans de
+  migration restent la mémoire de la dette.
+- **les diagrammes sont en Mermaid**, que GitHub rend en ligne, plutôt qu'en
+  images qui périment sans que rien ne le signale.
+
+Deux corrections tombées de la rédaction. Le tableau des packages de `README.md`
+ignorait `@app/contracts`, `@app/auth` et `@app/web-kit`, annonçait un preset
+`next` d'ESLint qui n'existe plus, disait `pnpm test` « api only » et nommait
+les couches de l'API au singulier (`presentation` / `infrastructure`), ce que
+E8.1 a pluralisé. Et la portée du stand-by était plus large que ce que la
+mémoire de travail retenait : **six** entrées sont commentées dans
+`apps/client/app/routes.ts` — `stickers`, `stickers/order`, `account/orders`,
+`account/stickers`, **`q/:code`** et `download`. Le parcours QR public est donc
+démonté lui aussi, alors que l'API et le backoffice le servent.
 
 ### E13 — Structure front → `app/routes/`
 
