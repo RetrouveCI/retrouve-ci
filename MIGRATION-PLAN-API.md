@@ -146,12 +146,23 @@ seule que le plugin `phoneNumber()` émette. `phoneNumberValidator` est enfin
 fourni au plugin : un mauvais numéro échoue immédiatement au lieu de brûler les
 trois tentatives BullMQ d'`OtpConsumer`.
 
-**Dette ouverte, non introduite par E6.7** : un champ **absent** est refusé en
-anglais (`Invalid input: expected string, received undefined`) sur les six
-domaines déjà mergés, alors que CLAUDE.md exige le français. `auth` nomme ses
-propres messages et n'est pas concerné. `z.config(z.locales.fr())` corrigerait
-tout en une ligne, mais l'instance zod est partagée avec better-auth, dont les
-messages basculeraient aussi : décision à prendre séparément.
+**Dette fermée (2026-08-26)** : un champ **absent** était refusé en anglais
+(`Invalid input: expected string, received undefined`), alors que CLAUDE.md
+exige le français. Le compte réel est de **cinq** domaines et **25** champs sur
+6 schémas, pas six domaines : `notifications` et `auth` nommaient déjà leurs
+messages (`passwordSchema` nomme son erreur de type). Le blocage annoncé —
+`z.config(z.locales.fr())` franciserait aussi better-auth, qui partage
+l'instance zod — n'était pas le seul chemin. Zod 4 accepte une error map **par
+appel**, et `ZodValidationPipe` est le **seul** site de parse de l'API :
+`safeParse(value, { error: z.locales.fr().localeError })`. Une ligne, aucun
+effet global. Vérifié à chaud sur la même instance — `POST /contact-messages`
+avec `{}` répond en français, `POST /api/auth/sign-up/email` avec `{}` répond
+toujours `[body.email] Invalid input: expected string, received undefined`. La
+précédence est la bonne : un message nommé par le schéma gagne, la locale ne
+sert que de repli. ⚠️ **Reste** : ce repli est la traduction de Zod (« Entrée
+invalide : chaîne attendu, indéfini reçu »), grammaticalement fautive. Nommer
+les 25 champs donne une meilleure copie ; le pipe garantit seulement que
+l'anglais est impossible.
 
 ---
 
@@ -329,26 +340,50 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
   ajoute le contrôle de propriété — donc il devient le garde
   `helpers/require-sticker-order.ts`, partagé par `GetStickerOrderUseCase` et
   `UpdateStickerOrderStatusUseCase`. Même pli que `contact-messages`, qui avait
-  fondu ses `getById`/`getOne` en un seul fichier. ⚠️ **Divergence non
-  corrigée** : `getOne` répond **403** pour la commande d'un tiers, là où
-  `notifications` répond **404** dans la même situation pour ne pas confirmer
-  qu'un id existe. Migré à l'identique et asservi par un test qui énonce le
-  comportement ; à harmoniser dans un choix produit, pas dans un refactor.
+  fondu ses `getById`/`getOne` en un seul fichier. ✅ **Corrigé (choix produit,
+  2026-08-26)** : `getOne` répondait **403** pour la commande d'un tiers, là où
+  `notifications` répond **404** dans la même situation. La divergence est
+  tranchée en faveur du **404**, celui des deux qui ne confirme pas l'existence
+  de l'id. Le coût est nul : **aucun front n'appelle `GET /sticker-orders/:id`**
+  — le client lit `/mine`, le backoffice n'écrit que le statut — donc le
+  changement de contrat ne casse aucun appelant. Ce qui compte autant que le
+  code de statut : le filtre renvoie `error: exception.name`, donc garder une
+  classe d'erreur distincte aurait laissé fuiter par ce champ ce que le 403
+  disait. `StickerOrderForbiddenError` est supprimée, et l'indiscernabilité des
+  deux réponses est asservie par son propre test.
 - **`qr-codes`** : 8 use-cases et **deux** gardes partagés — `require-qr-token`
   (4 appelants) et `require-owned-qr-token` (`revoke`, `updateDetails`).
   L'activation ne contrôle pas la propriété : c'est elle qui l'attribue, donc
-  elle contrôle le _statut_. ✅ **Corrigé (#119)** : `GET /qr-codes/:code` était
-  `@AllowAnonymous()` et renvoyait le token complet — vérifié à chaud, il
-  exposait le `userId` du propriétaire et le `label` à quiconque détient un
-  code, alors que `/:code/scan` existe précisément pour ne montrer que la vue
-  publique (prénom seul). La route passe en `@Roles(['admin'])` : tenir un code
-  n'est pas une preuve d'identité. Le correctif imposait de corriger aussi
-  `getQrTokenByCode` côté admin, seul appel du service à ne pas transmettre le
-  cookie. ⚠️ **Un constat non corrigé** : `contactOwner` garde une règle métier
-  dans le contrôleur — le contrôle `status !== 'activated'` avec son
-  `BadRequestException`. Le déplacer en domaine est faisable (`ValidationError`
-  mappe déjà sur 400) mais ajoute un champ `error` à la réponse : changement de
-  contrat, donc décision produit.
+  elle contrôle le _statut_. **Les deux constats de cette section sont fermés.**
+  ✅ **#119** : `GET /qr-codes/:code` était `@AllowAnonymous()` et renvoyait le
+  token complet — vérifié à chaud, il exposait le `userId` du propriétaire et le
+  `label` à quiconque détient un code, alors que `/:code/scan` existe
+  précisément pour ne montrer que la vue publique (prénom seul). La route passe
+  en `@Roles(['admin'])` : tenir un code n'est pas une preuve d'identité. Le
+  correctif imposait de corriger aussi `getQrTokenByCode` côté admin, seul appel
+  du service à ne pas transmettre le cookie. ✅ **Choix produit, 2026-08-26** :
+  `contactOwner` gardait une règle métier dans le contrôleur — le contrôle
+  `status !== 'activated'` avec son `BadRequestException` — et orchestrait en
+  plus trois appels de domaine. Tout part dans `ContactQrTokenOwnerUseCase`, qui
+  écrit à travers `contact-messages` et `notifications` comme `matching` le fait
+  déjà ; le domain module importe donc les deux autres, et le module de
+  présentation n'importe plus que le sien. ⚠️ **Le coût annoncé ici était faux**
+  : cette section affirmait que le passage en `ValidationError` « ajoute un
+  champ `error` à la réponse ». Comparé à chaud, ancien contre nouveau sur le
+  même token non activé :
+
+  ```
+  avant : {"message":"Ce sticker n'est pas encore activé","error":"Bad Request","statusCode":400}
+  après : {"statusCode":400,"message":"Ce sticker n'est pas encore activé","error":"QrTokenNotActivatedError"}
+  ```
+
+  Le champ existait déjà — `BadRequestException` le remplit avec `Bad Request`.
+  Seule sa **valeur** change, et aucun front ne le lit : `ApiError` ne porte que
+  `status` et `message`, et `toApiErrorMessage` ne lit que `body.message`. Le
+  statut et le message sont identiques. `QrTokenNotActivatedError` est la seule
+  erreur de domaine du dépôt dont le message est **en français**, et
+  volontairement : le filtre renvoie `message` tel quel à un visiteur anonyme.
+
 - **`reporting`** : un seul use-case, pas d'`errors/` ni de `mappers/`. Créer
   quand même le domain module — la règle « chaque domaine est un module NestJS
   indépendant » ne souffre pas d'exception.

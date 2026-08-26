@@ -3,11 +3,9 @@ import {
 	buildRepository,
 	buildStickerOrder,
 } from '../../__tests__/sticker-order.fixture'
-import {
-	StickerOrderForbiddenError,
-	StickerOrderNotFoundError,
-} from '../../errors/sticker-order.errors'
+import { StickerOrderNotFoundError } from '../../errors/sticker-order.errors'
 import type { StickerOrderRepository } from '../../repository/sticker-order.repository'
+import type { StickerOrder } from '../../types/sticker-order.types'
 import { GetStickerOrderUseCase } from '../get-sticker-order.use-case'
 
 describe('GetStickerOrderUseCase', () => {
@@ -29,18 +27,39 @@ describe('GetStickerOrderUseCase', () => {
 	})
 
 	/**
-	 * Current behaviour, asserted rather than implied: this answers **forbidden**
-	 * for somebody else's order, which confirms the id exists. `notifications`
-	 * answers not found in the same situation.
+	 * Not forbidden, as `notifications` already had it: a 403 tells whoever
+	 * guessed the id that it exists.
 	 */
-	it("refuses somebody else's order", async () => {
+	it("answers not found for somebody else's order", async () => {
 		vi.mocked(repository.findById).mockResolvedValue(
 			buildStickerOrder({ userId: 'user-1' }),
 		)
 
 		await expect(
 			useCase.execute({ id: 'order-1', userId: 'user-2' }),
-		).rejects.toThrow(StickerOrderForbiddenError)
+		).rejects.toThrow(StickerOrderNotFoundError)
+	})
+
+	// The filter sends `error: exception.name`, so a distinct error class would
+	// leak through the 404 the same way the 403 did.
+	it('is indistinguishable from an order that never existed', async () => {
+		const rejectionOf = async (order: StickerOrder | null) => {
+			vi.mocked(repository.findById).mockResolvedValue(order)
+			let caught: Error | undefined
+			await useCase
+				.execute({ id: 'order-1', userId: 'user-2' })
+				.catch((error: unknown) => {
+					caught = error as Error
+				})
+			return caught
+		}
+
+		const foreign = await rejectionOf(buildStickerOrder({ userId: 'user-1' }))
+		const missing = await rejectionOf(null)
+
+		expect(foreign).toBeInstanceOf(StickerOrderNotFoundError)
+		expect(foreign?.name).toBe(missing?.name)
+		expect(foreign?.message).toBe(missing?.message)
 	})
 
 	it('throws when the order does not exist', async () => {

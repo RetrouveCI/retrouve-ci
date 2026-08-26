@@ -1,10 +1,8 @@
-import { BadRequestException } from '@nestjs/common'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { CreateContactMessageUseCase } from '@/domains/contact-messages/use-cases/create-contact-message.use-case'
-import type { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
 import { buildQrToken } from '@/domains/qr-codes/__tests__/qr-token.fixture'
 import type { ActivateQrTokenUseCase } from '@/domains/qr-codes/use-cases/activate-qr-token.use-case'
+import type { ContactQrTokenOwnerUseCase } from '@/domains/qr-codes/use-cases/contact-qr-token-owner.use-case'
 import type { GenerateQrTokensUseCase } from '@/domains/qr-codes/use-cases/generate-qr-tokens.use-case'
 import type { GetMyQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-my-qr-tokens.use-case'
 import type { GetPaginatedQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-paginated-qr-tokens.use-case'
@@ -30,8 +28,7 @@ describe('QrCodesController', () => {
 	let updateDetails: UpdateQrTokenDetailsUseCase
 	let getPaginated: GetPaginatedQrTokensUseCase
 	let getMine: GetMyQrTokensUseCase
-	let createContactMessage: CreateContactMessageUseCase
-	let createNotification: CreateNotificationUseCase
+	let contactOwner: ContactQrTokenOwnerUseCase
 	let controller: QrCodesController
 
 	beforeEach(() => {
@@ -43,8 +40,7 @@ describe('QrCodesController', () => {
 		updateDetails = buildUseCase<UpdateQrTokenDetailsUseCase>()
 		getPaginated = buildUseCase<GetPaginatedQrTokensUseCase>()
 		getMine = buildUseCase<GetMyQrTokensUseCase>()
-		createContactMessage = buildUseCase<CreateContactMessageUseCase>()
-		createNotification = buildUseCase<CreateNotificationUseCase>()
+		contactOwner = buildUseCase<ContactQrTokenOwnerUseCase>()
 		controller = new QrCodesController(
 			generate,
 			getByCode,
@@ -54,8 +50,7 @@ describe('QrCodesController', () => {
 			updateDetails,
 			getPaginated,
 			getMine,
-			createContactMessage,
-			createNotification,
+			contactOwner,
 		)
 	})
 
@@ -169,61 +164,25 @@ describe('QrCodesController', () => {
 	})
 
 	describe('contactOwner', () => {
-		const body = {
-			name: 'Konan',
-			email: 'konan@example.com',
-			phone: '+2250700000001',
-			message: 'Bonjour, j’ai trouvé votre objet.',
-		}
-
-		it('writes a message and a notification addressed to the owner', async () => {
-			vi.mocked(getByCode.execute).mockResolvedValue(
-				buildQrToken({
-					status: 'activated',
-					userId: 'owner-1',
-					label: 'Mes clés',
-				}),
-			)
+		// The rule that used to live here — refusing a token that is not activated
+		// — now belongs to ContactQrTokenOwnerUseCase and is asserted there.
+		it('is open to an anonymous finder and delegates the whole operation', async () => {
+			vi.mocked(contactOwner.execute).mockResolvedValue(undefined)
+			const body = {
+				name: 'Konan',
+				email: 'konan@example.com',
+				phone: '+2250700000001',
+				message: 'Bonjour, j’ai trouvé votre objet.',
+			}
 
 			expect(await controller.contactOwner('RCI-ABC123', body)).toEqual({
 				success: true,
 			})
-			expect(createContactMessage.execute).toHaveBeenCalledWith(
-				expect.objectContaining({
-					qrTokenCode: 'RCI-ABC123',
-					recipientUserId: 'owner-1',
-					subject: 'Sticker QR — Mes clés',
-				}),
-			)
-			expect(createNotification.execute).toHaveBeenCalledWith(
-				expect.objectContaining({ type: 'qr_scan', userId: 'owner-1' }),
-			)
-		})
-
-		it.each(['generated', 'revoked'] as const)(
-			'refuses a %s token, writing nothing',
-			async status => {
-				vi.mocked(getByCode.execute).mockResolvedValue(
-					buildQrToken({ status, userId: 'owner-1' }),
-				)
-
-				await expect(
-					controller.contactOwner('RCI-ABC123', body),
-				).rejects.toThrow(BadRequestException)
-				expect(createContactMessage.execute).not.toHaveBeenCalled()
-				expect(createNotification.execute).not.toHaveBeenCalled()
-			},
-		)
-
-		it('refuses an activated token with no owner', async () => {
-			vi.mocked(getByCode.execute).mockResolvedValue(
-				buildQrToken({ status: 'activated', userId: null }),
-			)
-
-			await expect(controller.contactOwner('RCI-ABC123', body)).rejects.toThrow(
-				BadRequestException,
-			)
-			expect(createNotification.execute).not.toHaveBeenCalled()
+			expect(contactOwner.execute).toHaveBeenCalledWith({
+				code: 'RCI-ABC123',
+				...body,
+			})
+			expect(Reflect.getMetadata('PUBLIC', controller.contactOwner)).toBe(true)
 		})
 	})
 })

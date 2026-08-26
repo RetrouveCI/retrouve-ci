@@ -375,12 +375,16 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   derives the OpenAPI schema from the contract itself through Zod 4's
   `z.toJSONSchema` (`@ApiZodBody`, `@ApiZodQuery`) — no new dependency, and
   `/docs` cannot drift from what the pipe enforces. Domain errors are translated
-  to HTTP responses by `DomainExceptionFilter`. **Known debt**: a body field
-  that is simply _missing_ still answers in English on the six domains migrated
-  before `auth`, since their schemas do not name a message for the type error.
-  `z.config(z.locales.fr())` would fix all of them at once, but the zod instance
-  is shared with better-auth, whose own messages would turn French too — an open
-  decision, not an oversight.
+  to HTTP responses by `DomainExceptionFilter`. A body field that is simply
+  _missing_ used to answer in English, since a schema that names no message for
+  the type error never reaches its `.min()`. The pipe now passes
+  `z.locales.fr().localeError` as a **per-call** error map, which is what makes
+  this safe: `z.config()` would have translated better-auth's own messages too,
+  since the zod instance is shared, and the pipe is the API's only parse site. A
+  message the schema does name still wins — the locale is consulted only for an
+  issue that has none. The fallback wording is Zod's own and reads poorly, so
+  naming a field's message explicitly remains the better fix; what the pipe
+  guarantees is that English is no longer possible.
 - `apps/api` reads `@app/contracts` through its **`dist`**, so a contract change
   needs `pnpm --filter @app/contracts build` before `nest start` picks it up.
   `pnpm build` and `pnpm test` handle it via Turborepo's `^build`.
