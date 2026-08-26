@@ -68,7 +68,7 @@ catalog:
   '@vitejs/plugin-react': '^5.2.0'
   '@vitest/browser-playwright': '^4.1.11'
   '@vitest/coverage-v8': '^4.1.11'
-  'better-auth': '1.6.18'
+  'better-auth': '1.6.30'
   'bullmq': '5.78.0'
   'class-variance-authority': '^0.7.1'
   'cloudinary': '^2.10.0'
@@ -116,14 +116,14 @@ catalog:
   'vitest-mock-extended': '^5.1.0'
   'zod': '^4.4.3'
 minimumReleaseAgeExclude:
-  - '@better-auth/core@1.6.18'
-  - '@better-auth/drizzle-adapter@1.6.18'
-  - '@better-auth/kysely-adapter@1.6.18'
-  - '@better-auth/memory-adapter@1.6.18'
-  - '@better-auth/mongo-adapter@1.6.18'
-  - '@better-auth/prisma-adapter@1.6.18'
-  - '@better-auth/telemetry@1.6.18'
-  - better-auth@1.6.18
+  - '@better-auth/core@1.6.30'
+  - '@better-auth/drizzle-adapter@1.6.30'
+  - '@better-auth/kysely-adapter@1.6.30'
+  - '@better-auth/memory-adapter@1.6.30'
+  - '@better-auth/mongo-adapter@1.6.30'
+  - '@better-auth/prisma-adapter@1.6.30'
+  - '@better-auth/telemetry@1.6.30'
+  - better-auth@1.6.30
   - turbo@2.10.7
   - '@turbo/darwin-64@2.10.7'
   - '@turbo/darwin-arm64@2.10.7'

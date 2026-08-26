@@ -43,10 +43,11 @@ That split is what makes **two instances** possible: two `cookiePrefix`es mean
 two independent cookies, so one browser can hold a backoffice session and a
 public-app session at the same time.
 
-> `advanced.cookiePrefix` is documented as defaulting to `appName`, but in
-> Better Auth 1.6.18 it does not: setting only `appName` still yields
-> `better-auth.session_token`. Verified against a running instance — pass
-> `cookiePrefix` explicitly.
+> `advanced.cookiePrefix` is documented as defaulting to `appName`, but on
+> Better Auth 1.6.x it does not: setting only `appName` still yields
+> `better-auth.session_token`. Verified against a running instance on 1.6.18 —
+> pass `cookiePrefix` explicitly, whatever the version claims. Both prefixes
+> were re-checked live on the 1.6.30 bump and are unchanged.
 
 ## Usage
 
