@@ -213,48 +213,60 @@ load the relevant one **before** creating or moving files:
   shared versions.
 - `docker-conventions`, `code-quality-setup`, `code-quality-review`, `shadcn`.
 
-The in-flight conformance work is tracked in
-[MIGRATION-PLAN.md](MIGRATION-PLAN.md), declined per target in
-[MIGRATION-PLAN-API.md](MIGRATION-PLAN-API.md),
-[MIGRATION-PLAN-CLIENT.md](MIGRATION-PLAN-CLIENT.md),
-[MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md) and
-[MIGRATION-PLAN-PACKAGES.md](MIGRATION-PLAN-PACKAGES.md).
+The architecture realignment that produced this layout closed in August 2026,
+and its `MIGRATION-PLAN*.md` files were retired with it — they are in the git
+history if you need the reasoning behind a particular move. What was still open
+when they went is listed under **Known debt** in
+[CLAUDE.md](CLAUDE.md#known-debt); read it before proposing structural work.
 
-## Migration workflow
+## Contribution workflow
 
-Every migration step follows this cycle — no exceptions:
+One change, one branch, one pull request:
 
-1. Create a dedicated branch off `migration`:
-   `git switch -c migration-e<n>-<slug>`.
-2. Do the work, then verify:
-   `pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run format:check`.
+1. Create a branch off `main`: `git switch -c <type>/<slug>`.
+2. Do the work, then run the recipe in full:
+   `pnpm format:check && pnpm typecheck && pnpm lint && pnpm build && pnpm test`.
+
+   ⚠️ **Turbo's cache hides `lint` and `test`.** A run can print "7 successful"
+   with `Cached: 7 cached`, meaning nothing executed. Read the `Cached:` line,
+   and pass `--force` when the result has to be trusted.
+
 3. **Ask for permission before committing.** Commits are GPG-signed by the
-   maintainer — never run `git commit` unprompted.
-4. Open the pull request. The title is a conventional commit carrying the step
-   scope; the description **must** follow the Pull Request Message Generation
-   Rule above (`What? / Why? / How? / Testing? / Anything Else?`). Never use
-   `--fill` — it only copies the commit message. Write the body to a file, then:
+   maintainer — never run `git commit` unprompted unless the maintainer has
+   waived this for the session.
+4. Anything that changes behaviour is verified **against a running app**, not
+   only in tests. Record the row counts before touching the development
+   database, mark your own rows so they can be deleted by pattern, remove the
+   sessions your sign-ins created, and re-check the counts afterwards.
+5. Open the pull request. The title is a conventional commit; the description
+   **must** follow the Pull Request Message Generation Rule above
+   (`What? / Why? / How? / Testing? / Anything Else?`). Never use `--fill` — it
+   only copies the commit message. Write the body to a file, then:
 
    ```bash
-   gh pr create --repo RetrouveCI/retrouve-ci --base migration \
-     --head migration-e<n>-<slug> --title "<type>(<scope>): <subject>" \
-     --body-file <file>
+   gh pr create --repo RetrouveCI/retrouve-ci --base main \
+     --head <branch> --title "<type>(<scope>): <subject>" \
+     --body-file <file> --reviewer JowellDev \
+     --assignee JowellDev --assignee JoelDigbeu --label Patch
    ```
 
    `--repo` is required: the git remote still carries the former
    `JowellDev/retrouve-ci` name, and without it `gh` reports
-   `No commits between …`.
+   `No commits between …`. The semver label (`major` / `minor` / `Patch`) is
+   what `release.yml` reads to pick the next tag, so every PR needs one.
 
-5. Close with a **handoff message**: a self-contained brief (starting branch,
-   what was just done, what remains, files involved, verification commands) that
-   the maintainer pastes to start the next session.
+⚠️ **Never put `-f` in a branch name.** `.claude/hooks/guard-git.sh` blocks any
+`git push` whose command string contains `-f`, `-fastify` and `fix-…` included.
 
-One step = one session. Never chain two steps in the same session.
+⚠️ **Stacked pull requests: merge the child first.** GitHub only retargets a
+child PR while it is still open; merging the parent first and then merging the
+child into the stale parent branch succeeds into a dead branch and strands the
+child's commits while reporting MERGED.
 
 ## Package naming
 
 Every workspace package is scoped `@app/*`, applications included: `@app/api`,
-`@app/client`, `@app/admin`, `@app/database`, `@app/ui`, `@app/eslint-config`,
-`@app/typescript-config`, `@app/vitest-config`. Only the root package keeps a
-bare name (`retrouve-ci`). Turborepo and pnpm filters use the scoped name:
-`pnpm --filter @app/api dev`.
+`@app/client`, `@app/admin`, `@app/auth`, `@app/contracts`, `@app/database`,
+`@app/ui`, `@app/web-kit`, `@app/eslint-config`, `@app/typescript-config`,
+`@app/vitest-config`. Only the root package keeps a bare name (`retrouve-ci`).
+Turborepo and pnpm filters use the scoped name: `pnpm --filter @app/api dev`.
