@@ -749,18 +749,30 @@ Les 6 restants sont **tous** sur des routes commentées dans `routes.ts`. Elles
 ne sont donc couvertes par aucun `build`, ce qui les rend plus fragiles, pas
 moins — mais elles ne servent personne aujourd'hui, d'où leur rang.
 
-`apps/admin` — **16 / 24** :
+`apps/admin` — **20 / 24** :
 
 | lot                                                                                    | fichiers | état    |
 | -------------------------------------------------------------------------------------- | -------- | ------- |
 | `contact-messages`, `events`, `orders`, `posts`, `qr`, `users`, `dashboard` (socle E7) | 12       | ✅      |
 | `auth/{forgot,reset}-password`, `administrators`                                       | 4        | ✅      |
-| `users.action`, `users/detail`, `qr/generate`, `qr/token`                              | 4        | à faire |
+| `users.action`, `users/detail`, `qr/generate`, `qr/token`                              | 4        | ✅      |
 | `contact-messages.action`, `notifications.action`, `dashboard/home`, `profile`         | 4        | à faire |
 
 L'admin passe avant les routes client en stand-by : `administrators.action` crée
 et supprime des comptes d'administrateur à travers le plugin `admin()` de
 better-auth, et `remove-user` est irréversible.
+
+⚠️ **Écart de contrat relevé en couvrant le 3e lot** : `users.action` et
+`qr-token.action` ne répondent **pas** l'`ActionResult` d'E7. Elles renvoient
+`data({ ok, error }, { status })`, donc leurs composants lisent `ok` et non
+`success`, et `useActionFetcher` ne peut pas leur passer `errors` à
+react-hook-form. Le comportement est asservi tel quel par les tests ; l'aligner
+demande de toucher les composants aussi, donc c'est une tranche à part.
+
+Deuxième écart, dans la même paire : `usersAction` n'a **pas** de
+`redirectOnUnauthorized`, là où `administratorsAction` et `generateQrAction`
+l'ont. Une session morte y devient donc un 500 affiché dans un tableau de bord
+que le visiteur ne peut plus voir, au lieu d'un retour à `/auth/login`.
 
 ### E12 — Docs d'architecture
 
