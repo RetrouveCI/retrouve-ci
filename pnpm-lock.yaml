@@ -9,9 +9,6 @@ catalogs:
     '@fastify/multipart':
       specifier: ^10.0.0
       version: 10.1.1
-    '@fastify/static':
-      specifier: ^8.3.0
-      version: 8.3.0
     '@fontsource-variable/geist':
       specifier: ^5.2.8
       version: 5.3.0
@@ -559,9 +556,6 @@ importers:
       '@fastify/multipart':
         specifier: 'catalog:'
         version: 10.1.1
-      '@fastify/static':
-        specifier: 'catalog:'
-        version: 8.3.0
       '@nestjs/bullmq':
         specifier: 'catalog:'
         version: 11.0.4(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(@nestjs/core@11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(bullmq@5.78.0(supports-color@10.2.2))
@@ -7400,7 +7394,8 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@fastify/accept-negotiator@2.1.0': {}
+  '@fastify/accept-negotiator@2.1.0':
+    optional: true
 
   '@fastify/ajv-compiler@4.0.6':
     dependencies:
@@ -7454,6 +7449,7 @@ snapshots:
       fast-decode-uri-component: 1.0.1
       http-errors: 2.0.1
       mime: 3.0.0
+    optional: true
 
   '@fastify/static@8.3.0':
     dependencies:
@@ -7463,6 +7459,7 @@ snapshots:
       fastify-plugin: 5.1.0
       fastq: 1.20.1
       glob: 11.1.0
+    optional: true
 
   '@floating-ui/core@1.8.0':
     dependencies:
@@ -7652,7 +7649,8 @@ snapshots:
 
   '@ioredis/commands@1.5.1': {}
 
-  '@isaacs/cliui@9.0.0': {}
+  '@isaacs/cliui@9.0.0':
+    optional: true
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -7682,7 +7680,8 @@ snapshots:
 
   '@lukeed/csprng@1.1.0': {}
 
-  '@lukeed/ms@2.0.2': {}
+  '@lukeed/ms@2.0.2':
+    optional: true
 
   '@microsoft/tsdoc@0.16.0': {}
 
@@ -10725,6 +10724,7 @@ snapshots:
       minipass: 7.1.3
       package-json-from-dist: 1.0.1
       path-scurry: 2.0.2
+    optional: true
 
   glob@13.0.6:
     dependencies:
@@ -11035,6 +11035,7 @@ snapshots:
   jackspeak@4.2.3:
     dependencies:
       '@isaacs/cliui': 9.0.0
+    optional: true
 
   jest-worker@27.5.1:
     dependencies:
@@ -11281,7 +11282,8 @@ snapshots:
 
   mime@1.6.0: {}
 
-  mime@3.0.0: {}
+  mime@3.0.0:
+    optional: true
 
   mimic-fn@2.1.0: {}
 
@@ -11484,7 +11486,8 @@ snapshots:
 
   p-map@7.0.6: {}
 
-  package-json-from-dist@1.0.1: {}
+  package-json-from-dist@1.0.1:
+    optional: true
 
   parent-module@1.0.1:
     dependencies:
