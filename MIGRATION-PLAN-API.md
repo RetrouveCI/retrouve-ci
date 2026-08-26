@@ -329,11 +329,17 @@ Pour chaque domaine, dans l'ordre `contact-messages` (pilote) → `events` →
   ajoute le contrôle de propriété — donc il devient le garde
   `helpers/require-sticker-order.ts`, partagé par `GetStickerOrderUseCase` et
   `UpdateStickerOrderStatusUseCase`. Même pli que `contact-messages`, qui avait
-  fondu ses `getById`/`getOne` en un seul fichier. ⚠️ **Divergence non
-  corrigée** : `getOne` répond **403** pour la commande d'un tiers, là où
-  `notifications` répond **404** dans la même situation pour ne pas confirmer
-  qu'un id existe. Migré à l'identique et asservi par un test qui énonce le
-  comportement ; à harmoniser dans un choix produit, pas dans un refactor.
+  fondu ses `getById`/`getOne` en un seul fichier. ✅ **Corrigé (choix produit,
+  2026-08-26)** : `getOne` répondait **403** pour la commande d'un tiers, là où
+  `notifications` répond **404** dans la même situation. La divergence est
+  tranchée en faveur du **404**, celui des deux qui ne confirme pas l'existence
+  de l'id. Le coût est nul : **aucun front n'appelle `GET /sticker-orders/:id`**
+  — le client lit `/mine`, le backoffice n'écrit que le statut — donc le
+  changement de contrat ne casse aucun appelant. Ce qui compte autant que le
+  code de statut : le filtre renvoie `error: exception.name`, donc garder une
+  classe d'erreur distincte aurait laissé fuiter par ce champ ce que le 403
+  disait. `StickerOrderForbiddenError` est supprimée, et l'indiscernabilité des
+  deux réponses est asservie par son propre test.
 - **`qr-codes`** : 8 use-cases et **deux** gardes partagés — `require-qr-token`
   (4 appelants) et `require-owned-qr-token` (`revoke`, `updateDetails`).
   L'activation ne contrôle pas la propriété : c'est elle qui l'attribue, donc
