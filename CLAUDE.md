@@ -412,10 +412,9 @@ A domain migrated by E8 has a definite shape — `contact-messages` is the pilot
 
 For where new code belongs (domains vs presentations vs infrastructures), use
 the `backend-conventions` skill (`.claude/skills/backend-conventions/`). The
-layer **names** now match the target layout; what E8 still owes is their
-_contents_ — one use-case per file, a `<domain>-domain.module.ts` per domain,
-and `models/` folded into `types/`. See
-[MIGRATION-PLAN-API.md](MIGRATION-PLAN-API.md) §4.
+layer **names** and their _contents_ both match the target layout now: one
+use-case per file, a `<domain>-domain.module.ts` per domain, `models/` folded
+into `types/`.
 
 ### Frontend apps (React Router v7)
 
@@ -426,9 +425,9 @@ Both apps share the same stack:
   file
 - **shadcn/ui** — components imported via `@app/ui/components`
 - **Forms are react-hook-form + zod** everywhere, in both apps and in
-  `packages/ui` (E7 of [MIGRATION-PLAN.md](MIGRATION-PLAN.md), closed). The
-  `@conform-to/*` packages are gone from the catalog, including on the stand-by
-  routes whose entries are commented out of `routes.ts`.
+  `packages/ui`. The `@conform-to/*` packages are gone from the catalog,
+  including on the stand-by routes whose entries are commented out of
+  `routes.ts`.
 - The admin dialogs use `FormInputField` / `FormTextareaField` from
   `@app/ui/components/form` — `Controller` + the shadcn `Field` family,
   factored, since their fields are uniform. Bespoke fields (an icon inside the
@@ -454,8 +453,7 @@ Route structure (all under `app/`):
     `/auth/reset-password` — individual auth pages
 - `/about`, `/contact`, `/download`, `/privacy`, `/terms`
 
-> **`apps/client` now uses the target layout** (E13 of
-> [MIGRATION-PLAN.md](MIGRATION-PLAN.md)):
+> **`apps/client` uses the target layout**:
 >
 > ```text
 > app/routes/<area>/<page>/   _index.tsx, servers/, components/, hooks/,
@@ -673,17 +671,15 @@ Identical to the client app conventions above, with these admin-specific notes:
   which hands it to `DashboardProvider` as a `counts` prop;
   `useDashboard().counts` exposes it, and the sidebar and
   `components/topbar.tsx` only read it. **No component or context in `admin`
-  fetches any more** (this closed gap 6 of
-  [MIGRATION-PLAN-ADMIN.md](MIGRATION-PLAN-ADMIN.md)); the app's only remaining
-  call outside a `servers/` folder is `shared/helpers/session.server.ts`, the
-  server-side session gate every loader goes through (`client` is the same: its
-  `activity-hub` twin is closed, see below). Coming from a loader, the badge
-  also revalidates with every action instead of being read once on mount.
-  `/notifications/unread-count` answers a **bare number**, not `{ count }`: the
-  admin typed it the second way until E6.3, so `notificationsUnread` was
-  `undefined` and the badge silently never appeared. A counter the API cannot
-  serve reads zero rather than throwing — a badge must never take the shell
-  down.
+  fetches any more**; the app's only remaining call outside a `servers/` folder
+  is `shared/helpers/session.server.ts`, the server-side session gate every
+  loader goes through (`client` is the same: its `activity-hub` twin is closed,
+  see below). Coming from a loader, the badge also revalidates with every action
+  instead of being read once on mount. `/notifications/unread-count` answers a
+  **bare number**, not `{ count }`: the admin typed it the second way until
+  E6.3, so `notificationsUnread` was `undefined` and the badge silently never
+  appeared. A counter the API cannot serve reads zero rather than throwing — a
+  badge must never take the shell down.
 
 #### Front-end tests
 
@@ -760,3 +756,92 @@ groups related packages (React/Next.js, Radix UI, Tailwind, ESLint, etc.),
 auto-merges patch/minor dev dependency updates, and requires manual review for
 production dependencies and major version bumps. Activate it by installing the
 [Renovate GitHub App](https://github.com/apps/renovate) on the repository.
+
+## Known debt
+
+The architecture realignment closed in August 2026. Its five
+`MIGRATION-PLAN*.md` files were retired when `migration` merged into `main`;
+they remain in the git history if you need the reasoning behind a particular
+move. What follows is the part that was still **open** when they were deleted,
+so it does not get lost with them. Anything not listed here was either closed or
+deliberately declined.
+
+### Catalog and tooling
+
+- **`typescript` is pinned at `5.9.2`**, where the target is `^6.0.3`. Left for
+  last on purpose: it moves every workspace at once.
+- **`@app/eslint-config` has no `nest` preset.** `apps/api` extends `base`.
+  Nothing in `apps/api/src` currently needs an `eslint-disable`, so this is a
+  tidiness gap rather than a working one.
+- **`@app/vitest-config` has no `node` (SWC) preset.** Deliberate: it is only
+  needed when a spec builds a NestJS testing module and lets the container
+  inject. None of the api's 85 spec files does — they instantiate classes by
+  hand (`new XxxController(deps)`), so no decorator emission is required. Adding
+  `unplugin-swc` and `@swc/core` now would be two dependencies for a capability
+  nothing exercises.
+- **Prettier diverges from the target** (`useTabs: true`, `printWidth: 80`
+  versus spaces and 85). Reformatting was declined because it would drown every
+  diff of the realignment and break `git blame`. If it is ever done, it must be
+  one isolated commit plus a `.git-blame-ignore-revs`.
+
+### `packages/ui`
+
+- **`FieldError` drifts from the current shadcn revision** in
+  `components/ui/field.tsx`: it does not deduplicate messages by `message`, and
+  an **empty** `errors` array falls through to the `<ul>` branch, rendering an
+  empty `role="alert"`. `FormInputField` / `FormTextareaField` avoid the second
+  by rendering conditionally, so `errors` is never empty through them. Resync
+  via the shadcn CLI.
+
+### `apps/api`
+
+- **`reporting`'s ten `$queryRaw` calls are not covered**, and that is a
+  decision, not an omission. The domain has no mapper — the SQL produces the
+  rendered shape directly — so a test would only be worth anything against a
+  real Postgres, which this repo's CI does not start. The day it does, that is
+  an integration test, not a unit test.
+
+### `apps/admin`
+
+- **`users.action` and `qr-token.action` do not answer `ActionResult`.** They
+  return `data({ ok, error }, { status })`, so their components read `ok`
+  instead of `success`, and `useActionFetcher` cannot hand `errors` to
+  react-hook-form. Aligning them means touching the components too.
+- **`users.action` alone has no `redirectOnUnauthorized`**, where
+  `administratorsAction` and `generateQrAction` both do. A dead backoffice
+  session therefore surfaces as a 500 inside a dashboard the visitor can no
+  longer see, instead of a return to `/auth/login`.
+- **`notificationsAction` puts the id inside the `mark-read` condition**
+  (`intent === 'mark-read' && id`), so a `mark-read` with no id answers
+  `Intent inconnu` — naming the wrong problem. The other three admin actions
+  have an `ID manquant` branch.
+- **The dashboard's `CATEGORY_LABELS` is a `Record<string, string>`** with a
+  `?? row.category` fallback, where `posts.const.ts` types its own table against
+  `LostItemCategory`. A category added to the contract would show a French
+  administrator `JEWELRY` instead of failing to compile. The front has no type
+  for the Prisma enum's casing, so the guard is a test rather than the type.
+- **`dashboard/home`'s loader renumbers activities by position** (`id: i + 1`)
+  and discards the id the API sends. Harmless while nothing targets one
+  activity, but the React key will not survive a sort.
+
+### `apps/client`
+
+- **Six route entries are commented out of `app/routes.ts`** — `stickers`,
+  `stickers/order`, `account/orders`, `account/stickers`, `q/:code` and
+  `download`. The API serves every endpoint they need and the backoffice's `/qr`
+  and `/orders` screens are live, so the whole sticker feature including the
+  public QR journey is **built and on stand-by**, not missing. Being unmounted,
+  they are covered by no `build`, which leaves `typecheck` as their only net.
+- **`stickersAction` gates with `getServerSession` plus its own
+  `throw redirect('/auth/login')`**, where the two loaders beside it use
+  `requireServerSession`. Same outcome, different shape.
+
+### Security advisories
+
+`pnpm audit` reports nine, none reachable from what the API serves at runtime:
+four `@fastify/static` (kept in the lockfile only as
+`@nestjs/platform-fastify`'s optional peer, not installed), one `find-my-way`
+(the serving `fastify` resolves the patched release; the advisory needs HTTP/2,
+which the adapter does not enable), `deepmerge-ts` and `valibot` (reached only
+through the Prisma CLI), and two `@hono/node-server` (Windows `serveStatic`,
+unused). Re-check the reasoning before dismissing a **new** one.
