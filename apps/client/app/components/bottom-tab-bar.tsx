@@ -15,7 +15,11 @@ export function BottomTabBar() {
 	return (
 		<nav
 			className="bg-background/95 fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-md md:hidden"
-			style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+			style={{
+				paddingBottom: 'env(safe-area-inset-bottom)',
+				paddingLeft: 'env(safe-area-inset-left)',
+				paddingRight: 'env(safe-area-inset-right)',
+			}}
 			aria-label="Navigation principale"
 		>
 			<div className="flex h-16 items-center justify-around px-1">

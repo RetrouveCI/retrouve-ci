@@ -26,7 +26,10 @@ export default function QrContactPage({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<div className="flex min-h-screen flex-col bg-gray-50">
-			<header className="flex items-center justify-center py-6">
+			<header
+				className="flex items-center justify-center py-6"
+				style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))' }}
+			>
 				<Link to="/" className="flex items-center gap-2">
 					<img src="/logo.png" alt="RetrouveCI" className="h-8 w-8" />
 					<span className="font-bold">RetrouveCI</span>
