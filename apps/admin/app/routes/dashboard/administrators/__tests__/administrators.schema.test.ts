@@ -1,3 +1,4 @@
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 import {
 	adminCreateSchema,
 	adminUpdateRoleSchema,
@@ -46,11 +47,12 @@ describe('adminCreateSchema', () => {
 		['too short', '058574334'],
 		['too long', '05857433421'],
 		['letters', 'pas un numero'],
+		['a prefix no operator assigns', '0685743342'],
 	])('rejects a phone number that is %s', (_label, phone) => {
 		const result = adminCreateSchema.safeParse({ ...VALID, phone })
 
 		expect(result.error?.issues[0]?.message).toBe(
-			'Entrez un numéro à 10 chiffres',
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
 		)
 	})
 

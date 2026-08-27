@@ -5,7 +5,10 @@ import {
 	passwordSchema,
 	withPasswordConfirmation,
 } from '@app/contracts/shared'
-import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
+import {
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
+	isAssignableLocalNumber,
+} from '@/shared/utils/phone'
 
 export const updateNameSchema = z.object({
 	intent: z.literal('update-name'),
@@ -28,7 +31,7 @@ export const sendPhoneOtpSchema = z.object({
 	phone: z
 		.string({ error: 'Votre numéro est requis' })
 		.trim()
-		.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
+		.refine(isAssignableLocalNumber, ASSIGNABLE_PHONE_ERROR_MESSAGE),
 })
 
 export const deleteAccountSchema = z.object({

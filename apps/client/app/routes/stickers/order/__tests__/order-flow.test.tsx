@@ -1,5 +1,5 @@
 import { createRoutesStub } from 'react-router'
-import { PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
 import { PAYMENT_ON_DELIVERY } from '@app/contracts/sticker-orders'
 import { page, render, userEvent } from '@/shared/helpers/testing'
 import type { ActionResult } from '@/shared/types/action'
@@ -106,7 +106,7 @@ describe('CommanderPage', () => {
 			.element(page.getByText('Votre nom est requis'))
 			.toBeInTheDocument()
 		await expect
-			.element(page.getByText(PHONE_ERROR_MESSAGE))
+			.element(page.getByText(ASSIGNABLE_PHONE_ERROR_MESSAGE))
 			.toBeInTheDocument()
 		await expect
 			.element(page.getByText('Adresse trop courte'))

@@ -2,6 +2,7 @@ import {
 	LOST_ITEM_CATEGORIES,
 	MIN_DESCRIPTION_LENGTH,
 } from '@app/contracts/lost-items'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
 import { publishFormSchema } from '../publish.schema'
 import { OBJECT_TYPES } from '../publish.const'
 
@@ -46,7 +47,7 @@ describe('publishFormSchema', () => {
 		)
 		expect(messageFor({ ville: '' })).toBe('Sélectionnez une ville')
 		expect(messageFor({ name: '' })).toBe('Votre nom est requis')
-		expect(messageFor({ whatsapp: '' })).toBe('Entrez un numéro à 10 chiffres')
+		expect(messageFor({ whatsapp: '' })).toBe(ASSIGNABLE_PHONE_ERROR_MESSAGE)
 	})
 
 	// The date used to be optional here while the API required it, so the action
@@ -76,12 +77,18 @@ describe('publishFormSchema', () => {
 		},
 	)
 
-	it.each(['070000000', '07000000000', '0700000000123456'])(
-		'refuses %s, which is not ten digits',
-		whatsapp => {
-			expect(messageFor({ whatsapp })).toBe('Entrez un numéro à 10 chiffres')
-		},
-	)
+	// Ten digits is no longer enough: the number has to be one an operator
+	// assigns, or the WhatsApp link the annonce carries reaches nobody.
+	it.each([
+		'070000000',
+		'07000000000',
+		'0700000000123456',
+		'0600000000',
+		'0000000000',
+		'1234567890',
+	])('refuses %s, which is not an ivorian mobile number', whatsapp => {
+		expect(messageFor({ whatsapp })).toBe(ASSIGNABLE_PHONE_ERROR_MESSAGE)
+	})
 
 	// The form hands over what the visitor typed; `contactWhatsappSchema` is the
 	// single place the number becomes E.164, so the client no longer prefixes

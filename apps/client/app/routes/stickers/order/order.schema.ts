@@ -1,6 +1,9 @@
 import { z } from 'zod'
 import { stickerPackIdSchema } from '@app/contracts/sticker-orders'
-import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
+import {
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
+	isAssignableLocalNumber,
+} from '@/shared/utils/phone'
 
 export const stickerOrderSchema = z.object({
 	packId: z.string().min(1, 'Sélectionnez un pack').pipe(stickerPackIdSchema),
@@ -10,7 +13,10 @@ export const stickerOrderSchema = z.object({
 		.max(120, 'Maximum 120 caractères'),
 	// The rule every other phone field in the app uses. `/^\d{8,16}$/` let an
 	// eight-digit number through, so a delivery contact could be unreachable.
-	phone: z.string().trim().refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
+	phone: z
+		.string()
+		.trim()
+		.refine(isAssignableLocalNumber, ASSIGNABLE_PHONE_ERROR_MESSAGE),
 	address: z
 		.string()
 		.min(5, 'Adresse trop courte')

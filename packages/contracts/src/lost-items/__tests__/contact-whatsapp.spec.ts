@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '../../shared/phone'
 import { contactWhatsappSchema } from '../create.schema'
 
 const parse = (input: string) => contactWhatsappSchema.safeParse(input)
@@ -26,9 +27,10 @@ describe('contactWhatsappSchema', () => {
 		['too long', '07000000000'],
 		['empty', ''],
 		['letters', 'zero-seven'],
+		['a prefix no operator assigns', '0600000000'],
 	])('refuses %s, in French', (_label, input) => {
 		expect(parse(input).error?.issues[0]?.message).toBe(
-			'Entrez un numéro à 10 chiffres',
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
 		)
 	})
 })

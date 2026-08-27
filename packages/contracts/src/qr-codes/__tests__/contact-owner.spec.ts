@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '../../shared/phone'
 import { contactOwnerSchema } from '../contact-owner.schema'
 
 const VALID = {
@@ -46,12 +47,17 @@ describe('contactOwnerSchema', () => {
 		},
 	)
 
-	it.each(['', '070000000', '070000000012', '12345678', 'appelez-moi'])(
-		'refuses the phone %s, in French',
-		phone => {
-			expect(messageFor({ phone })).toBe('Entrez un numéro à 10 chiffres')
-		},
-	)
+	it.each([
+		'',
+		'070000000',
+		'070000000012',
+		'12345678',
+		'appelez-moi',
+		'0600000000',
+		'0000000000',
+	])('refuses the phone %s, in French', phone => {
+		expect(messageFor({ phone })).toBe(ASSIGNABLE_PHONE_ERROR_MESSAGE)
+	})
 
 	it('answers in French for every blank a form can post', () => {
 		expect(messageFor({ name: '' })).toBe('Veuillez entrer votre nom complet')

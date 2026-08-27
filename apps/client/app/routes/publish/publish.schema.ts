@@ -5,9 +5,9 @@ import {
 	lostItemCategorySchema,
 } from '@app/contracts/lost-items'
 import {
-	PHONE_ERROR_MESSAGE,
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
 	calendarDateSchema,
-	isValidLocalNumber,
+	isAssignableLocalNumber,
 } from '@app/contracts/shared'
 
 /**
@@ -56,7 +56,7 @@ export const publishFormSchema = z.object({
 	whatsapp: z
 		.string({ error: 'Votre numéro WhatsApp est requis' })
 		.trim()
-		.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
+		.refine(isAssignableLocalNumber, ASSIGNABLE_PHONE_ERROR_MESSAGE),
 })
 
 export type PublishFormInput = z.input<typeof publishFormSchema>
