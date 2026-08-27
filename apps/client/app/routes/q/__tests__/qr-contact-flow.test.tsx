@@ -1,4 +1,5 @@
 import { createRoutesStub } from 'react-router'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 import { page, render, userEvent } from '@/shared/helpers/testing'
 import type { ActionResult } from '@/shared/types/action'
 import QrContactPage from '../_index'
@@ -91,7 +92,7 @@ describe('QrContactPage', () => {
 			.element(page.getByText('Veuillez entrer votre nom complet'))
 			.toBeInTheDocument()
 		await expect
-			.element(page.getByText('Entrez un numéro à 10 chiffres'))
+			.element(page.getByText(ASSIGNABLE_PHONE_ERROR_MESSAGE))
 			.toBeInTheDocument()
 		await expect
 			.element(

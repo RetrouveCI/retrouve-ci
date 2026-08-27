@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { PHONE_ERROR_MESSAGE, isValidLocalNumber } from '../shared/phone'
+import {
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
+	isAssignableLocalNumber,
+} from '../shared/phone'
 
 export const contactOwnerSchema = z.object({
 	name: z
@@ -7,7 +10,10 @@ export const contactOwnerSchema = z.object({
 		.trim()
 		.min(2, 'Veuillez entrer votre nom complet')
 		.max(100, 'Maximum 100 caractères'),
-	phone: z.string().trim().refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
+	phone: z
+		.string()
+		.trim()
+		.refine(isAssignableLocalNumber, ASSIGNABLE_PHONE_ERROR_MESSAGE),
 	email: z
 		.string()
 		.trim()

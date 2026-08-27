@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '../../shared/phone'
 import { createLostItemSchema } from '../create.schema'
 import { MAX_PHOTOS, MIN_DESCRIPTION_LENGTH } from '../lost-items.const'
 
@@ -63,7 +64,7 @@ describe('createLostItemSchema', () => {
 		expect(messageFor({ contactName: '' })).toBe('Veuillez indiquer votre nom')
 		expect(messageFor({ eventDate: '' })).toBe('La date est requise')
 		expect(messageFor({ contactWhatsapp: '' })).toBe(
-			'Entrez un numéro à 10 chiffres',
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
 		)
 	})
 

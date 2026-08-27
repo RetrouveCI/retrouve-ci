@@ -1,4 +1,4 @@
-import { PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
 import type { ActionResult } from '@/shared/types/action'
 import type { Order } from '../../../../account/orders/types/orders.types'
 import { ApiError } from '@/shared/utils/api-fetch'
@@ -148,7 +148,7 @@ describe('orderAction', () => {
 	it('refuses an eight-digit phone', async () => {
 		const result = await submit({ ...VALID, phone: '07000000' })
 
-		expect(errorsOf(result).phone?.message).toBe(PHONE_ERROR_MESSAGE)
+		expect(errorsOf(result).phone?.message).toBe(ASSIGNABLE_PHONE_ERROR_MESSAGE)
 		expect(createStickerOrder).not.toHaveBeenCalled()
 	})
 

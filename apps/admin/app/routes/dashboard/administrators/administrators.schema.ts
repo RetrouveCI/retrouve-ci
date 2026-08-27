@@ -1,6 +1,9 @@
 import { z } from 'zod'
 import { passwordSchema } from '@app/contracts/shared'
-import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
+import {
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
+	isAssignableLocalNumber,
+} from '@/shared/utils/phone'
 
 /**
  * The two roles this interface can hand out — `super_admin` is not one of them.
@@ -26,8 +29,8 @@ export const adminCreateSchema = z.object({
 	phone: z
 		.string()
 		.refine(
-			value => value === '' || isValidLocalNumber(value),
-			PHONE_ERROR_MESSAGE,
+			value => value === '' || isAssignableLocalNumber(value),
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
 		)
 		.optional()
 		.transform(value => (value === '' ? undefined : value)),

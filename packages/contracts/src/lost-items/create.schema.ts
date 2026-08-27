@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import { calendarDateSchema } from '../shared/calendar-date'
 import {
-	PHONE_ERROR_MESSAGE,
-	isValidLocalNumber,
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
+	isAssignableLocalNumber,
 	toE164,
 } from '../shared/phone'
 import { lostItemCategorySchema, lostItemTypeSchema } from './enums.schema'
@@ -23,7 +23,7 @@ export const lostItemEventDateSchema = calendarDateSchema({
 export const contactWhatsappSchema = z
 	.string()
 	.trim()
-	.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE)
+	.refine(isAssignableLocalNumber, ASSIGNABLE_PHONE_ERROR_MESSAGE)
 	.transform(toE164)
 
 export const createLostItemSchema = z.object({

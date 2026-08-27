@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
 
+// Length only, like sign-in: recovery reads an existing account, so it accepts
+// whatever that account already carries. See `isValidLocalNumber`.
 export const phoneNumberSchema = z.object({
 	phoneNumber: z
 		.string()

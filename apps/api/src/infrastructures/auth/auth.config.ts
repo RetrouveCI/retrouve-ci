@@ -18,6 +18,8 @@ export function createClientAuth(prisma: PrismaClient, otp: OtpDispatcher) {
 		plugins: [
 			phoneNumber({
 				expiresIn: OTP_TTL_SECONDS,
+				// Guards /sign-in/phone-number and /phone-number/send-otp only, so it is
+				// the sign-in predicate: strict here would lock out existing accounts.
 				phoneNumberValidator: isValidLocalNumber,
 				sendOTP: ({ phoneNumber, code }) =>
 					otp.dispatch({ purpose: 'sign-in', phoneNumber, code }),
