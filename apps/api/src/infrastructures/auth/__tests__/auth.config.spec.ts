@@ -1,11 +1,10 @@
 import type { CreateAuthOptions } from '@app/auth'
 import { createAuth } from '@app/auth'
 import type { PrismaClient } from '@app/database'
-import { isValidLocalNumber } from '@app/contracts/shared'
+import { isValidLocalNumber, OTP_TTL_SECONDS } from '@app/contracts/shared'
 import { phoneNumber } from 'better-auth/plugins'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getAllowedOrigins } from '@/shared/auth/allowed-origins'
-import { OTP_TTL_SECONDS } from '@/shared/auth/otp.const'
 import type { OtpDispatcher } from '../otp-dispatcher.service'
 import {
 	ADMIN_AUTH_BASE_PATH,

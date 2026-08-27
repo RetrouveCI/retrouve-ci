@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { buildOtpMessage, type OtpPurpose } from '../otp-message'
-import { MAX_OTP_SMS_LENGTH, OTP_TTL_SECONDS } from '../otp.const'
+import { OTP_TTL_SECONDS } from '@app/contracts/shared'
+import { MAX_OTP_SMS_LENGTH } from '../otp.const'
 
 const PURPOSES: OtpPurpose[] = ['sign-in', 'password-reset']
 
@@ -29,8 +30,12 @@ describe('buildOtpMessage', () => {
 		expect(buildOtpMessage(purpose, '123456')).toMatch(/^[\x20-\x7E]+$/)
 	})
 
+	// The TTL itself is pinned in `@app/contracts/shared`, which is where both
+	// sides read it; what this asserts is that the template says the same thing
+	// the plugin enforces.
 	it('states the validity the plugin actually enforces', () => {
-		expect(OTP_TTL_SECONDS).toBe(300)
-		expect(buildOtpMessage('sign-in', '123456')).toContain('5 minutes')
+		expect(buildOtpMessage('sign-in', '123456')).toContain(
+			`${OTP_TTL_SECONDS / 60} minutes`,
+		)
 	})
 })

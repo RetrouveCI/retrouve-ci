@@ -829,17 +829,45 @@ par accident au premier refactor.
    champ et le bouton sont en `h-12` (48 px), sous les 52 px de §2.1 : adopter
    la taille que R2 pose sur `Button` et `Input` plutôt qu'une classe locale.
 
-**Fichiers** : `routes/auth/components/phone-step.tsx`, `otp-step.tsx`,
-`routes/auth/register/_index.tsx`,
+   > **Écart constaté (§1.1), moitié reportée.** Le `otp.length < 6` est
+   > corrigé. La hauteur ne l'est pas : **R2 n'a pas encore été livrée** — au
+   > moment de R27, `refonte` ne porte que R1 (#150) et R26 (#152), et
+   > `packages/ui` n'expose ni taille `touch` sur `Button` ni variante haute
+   > d'`Input`. Il n'y a donc pas de « taille que R2 pose » à adopter, et la
+   > poser ici ferait de R27 (scope `client/auth`) une PR `ui`. Les `h-12`
+   > restent : 48 px passent déjà le plancher de 44 px de R2, sous les 52 px de
+   > §2.1. **À reprendre dans R2**, qui doit convertir les `h-12` locaux de
+   > `phone-step.tsx`, `otp-step.tsx` et `login-form.tsx` en même temps que les
+   > 31 autres points d'appel.
+
+6. **Le compte créé sans mot de passe** _(constaté en session, hors plan
+   d'origine)_. Vérifier le code **connecte** le visiteur — c'est ce qui
+   autorise `set-initial-password` — et `register/_index.tsx` porte le garde
+   `isAuthenticated → navigate(redirectTo)` destiné à renvoyer un visiteur déjà
+   connecté. Il se déclenchait donc sur la session que l'étape 2/3 venait de
+   créer : le visiteur atterrissait sur `/account` **sans avoir jamais défini de
+   mot de passe**, et sans pouvoir en définir un, puisque le changement de mot
+   de passe demande l'actuel. Deux moitiés, une par couche : le garde client ne
+   s'applique plus qu'à l'étape `phone`, et la route exporte
+   `shouldRevalidate = () => false` — son loader ne porte aucune donnée, et sa
+   revalidation après chaque `fetcher.submit` rejouait `redirectIfAuthenticated`
+   au milieu du tunnel.
+
+**Fichiers** : `routes/auth/components/{phone-step,otp-step,ivorian-flag}.tsx`,
+`routes/auth/hooks/use-otp-countdown.ts`, `routes/auth/register/_index.tsx`,
 `register/components/{phone-step-section,otp-step-section}.tsx`,
+`reset-password/{_index.tsx,components/otp-step-section.tsx}`,
 `routes/auth/login/components/login-form.tsx`,
 `packages/contracts/src/shared/otp.ts`, `apps/api/src/shared/auth/otp.const.ts`.
 **Flux** : E. **Acceptation** : qui n'a rien reçu peut redemander un code au
 bout de 30 s et corriger son numéro sans le resaisir ; aucun code encore valide
-côté serveur n'est refusé par le front. **Tests** : projet `ui` sur le passage
-d'étape et la conservation du numéro au retour ; projet `node` sur la constante
-partagée (le test d'`apps/api` qui affirme `OTP_TTL_SECONDS === 300` déménage
-avec elle).
+côté serveur n'est refusé par le front ; l'étape 3/3 tient jusqu'à ce que le mot
+de passe soit posé. **Tests** : projet `ui` sur le passage d'étape, la
+conservation du numéro au retour et le maintien sur 3/3 une fois connecté
+(`register/__tests__/register-flow.test.tsx`), plus le double compte à rebours
+(`hooks/__tests__/use-otp-countdown.test.tsx`) ; projet `node` sur la constante
+partagée (le test d'`apps/api` qui affirmait `OTP_TTL_SECONDS === 300` a
+déménagé avec elle dans `packages/contracts/src/shared/__tests__/otp.spec.ts`).
 
 #### R28 — Mot de passe oublié en un écran
 

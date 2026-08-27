@@ -6,24 +6,25 @@ import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { otpSchema, type OtpData, type OtpInput } from '../register.schema'
 import { verifyPhoneOtp } from '../../helpers/phone-auth.client'
 import { OtpStep } from '../../components/otp-step'
+import { useOtpCountdown } from '../../hooks/use-otp-countdown'
 import type { action } from '../_index'
-
-const OTP_EXPIRY_SECONDS = 120
 
 interface OtpStepSectionProps {
 	phoneNumber: string
 	onVerified: () => void
+	onEditPhone: () => void
 }
 
 export function OtpStepSection({
 	phoneNumber,
 	onVerified,
+	onEditPhone,
 }: OtpStepSectionProps) {
 	const [otpError, setOtpError] = useState(false)
 	const [isVerifying, setIsVerifying] = useState(false)
-	const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS)
-	const [resendKey, setResendKey] = useState(0)
 	const [hasRequestedResend, setHasRequestedResend] = useState(false)
+
+	const countdown = useOtpCountdown()
 
 	const form = useForm<OtpInput, unknown, OtpData>({
 		resolver: standardSchemaResolver(otpSchema),
@@ -36,6 +37,8 @@ export function OtpStepSection({
 	// reported with a toast rather than through the form's own errors.
 	const resendFetcher = useActionFetcher<typeof action>()
 
+	const { restart } = countdown
+
 	useEffect(() => {
 		if (!hasRequestedResend || resendFetcher.state !== 'idle') return
 
@@ -43,7 +46,7 @@ export function OtpStepSection({
 			toast.success('Nouveau code envoyé !')
 			form.setValue('otp', '')
 			setOtpError(false)
-			setResendKey(k => k + 1)
+			restart()
 		} else {
 			toast.error('Impossible d’envoyer le code', {
 				description: resendFetcher.errors?.root?.message,
@@ -57,26 +60,8 @@ export function OtpStepSection({
 		resendFetcher.isOk,
 		resendFetcher.errors,
 		form,
+		restart,
 	])
-
-	useEffect(() => {
-		setTimeLeft(OTP_EXPIRY_SECONDS)
-		const interval = setInterval(() => {
-			setTimeLeft(prev => {
-				if (prev <= 1) {
-					clearInterval(interval)
-					return 0
-				}
-				return prev - 1
-			})
-		}, 1000)
-		return () => clearInterval(interval)
-	}, [resendKey])
-
-	const formatTime = (s: number) =>
-		`${Math.floor(s / 60)
-			.toString()
-			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
 	const onSubmit = async (values: OtpData) => {
 		setIsVerifying(true)
@@ -112,10 +97,13 @@ export function OtpStepSection({
 						setOtp={field.onChange}
 						otpError={otpError}
 						setOtpError={setOtpError}
-						timeLeft={timeLeft}
+						timeLeft={countdown.timeLeft}
+						resendIn={countdown.resendIn}
+						canResend={countdown.canResend}
 						isSubmitting={isVerifying || resendFetcher.isSubmitting}
-						formatTime={formatTime}
+						formatTime={countdown.formatTime}
 						onResend={handleResend}
+						onEditPhone={onEditPhone}
 					/>
 				)}
 			/>

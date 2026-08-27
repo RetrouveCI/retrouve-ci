@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import {
+	Link,
+	useNavigate,
+	useSearchParams,
+	type ShouldRevalidateFunction,
+} from 'react-router'
 import { ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/context/auth'
 import { redirectIfAuthenticated } from '@/shared/helpers/session.server'
@@ -25,6 +30,9 @@ export async function loader({ request }: Route.LoaderArgs) {
 	return null
 }
 
+/** The loader carries no data; revalidating it re-ran the guard above mid-flow. */
+export const shouldRevalidate: ShouldRevalidateFunction = () => false
+
 type Step = 'phone' | 'otp' | 'create-password'
 
 export default function RegisterPage() {
@@ -37,9 +45,14 @@ export default function RegisterPage() {
 	const [step, setStep] = useState<Step>('phone')
 	const [phoneNumber, setPhoneNumber] = useState('')
 
+	// Only on the first step. Verifying the code signs the visitor in — that is
+	// how `set-initial-password` is authorised — so bouncing on `isAuthenticated`
+	// past it stranded the new account on `/account` with no password ever set.
 	useEffect(() => {
-		if (isAuthenticated) navigate(redirectTo, { replace: true })
-	}, [isAuthenticated, navigate, redirectTo])
+		if (step === 'phone' && isAuthenticated) {
+			navigate(redirectTo, { replace: true })
+		}
+	}, [step, isAuthenticated, navigate, redirectTo])
 
 	const goBack = () => {
 		if (step === 'otp') setStep('phone')
@@ -96,6 +109,8 @@ export default function RegisterPage() {
 
 			{step === 'phone' && (
 				<PhoneStepSection
+					defaultPhoneNumber={phoneNumber}
+					redirectTo={redirectTo}
 					onVerified={value => {
 						setPhoneNumber(value)
 						setStep('otp')
@@ -107,6 +122,7 @@ export default function RegisterPage() {
 				<OtpStepSection
 					phoneNumber={phoneNumber}
 					onVerified={() => setStep('create-password')}
+					onEditPhone={() => setStep('phone')}
 				/>
 			)}
 
