@@ -1,4 +1,3 @@
-import { Analytics } from '@vercel/analytics/react'
 import {
 	isRouteErrorResponse,
 	Links,
@@ -9,31 +8,39 @@ import {
 	useRouteLoaderData,
 } from 'react-router'
 import { Toaster } from 'sonner'
-import { AuthProvider } from '@/shared/auth/auth-context'
-import { ThemeProvider } from '@/shared/components/theme-context'
+import { AuthProvider } from '@/context/auth'
+import { ThemeProvider } from '@/context/theme'
+import { resolveRouteMeta } from '@/shared/helpers/page-meta'
 
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
 import './app.css'
 
 import type { Route } from './+types/root'
+import { publicEnv } from '@/shared/helpers/env'
+import { PublicEnvScript } from '@/components/public-env-script'
 
 export function loader({ request }: Route.LoaderArgs) {
 	const cookie = request.headers.get('cookie') ?? ''
 	const theme = /(?:^|;\s*)theme=dark(?:;|$)/.test(cookie) ? 'dark' : 'light'
 
-	return { theme: theme as 'light' | 'dark' }
+	return { theme: theme as 'light' | 'dark', env: publicEnv() }
 }
 
-export function meta() {
-	const title = 'RetrouveCI Admin - Backoffice'
+const SITE_NAME = 'RetrouveCI Admin'
+
+export function meta({ matches }: Route.MetaArgs) {
+	const { title: pageTitle } = resolveRouteMeta(matches)
+	const title = pageTitle
+		? `${pageTitle} | ${SITE_NAME}`
+		: `${SITE_NAME} - Backoffice`
 	const description =
 		'Administration de la plateforme RetrouveCI - Gestion des QR codes, utilisateurs et posts'
 
 	return [
 		{ title },
 		{ name: 'description', content: description },
-		{ property: 'og:title', content: 'RetrouveCI Admin' },
+		{ property: 'og:title', content: title },
 		{ property: 'og:description', content: description },
 		{ property: 'og:image', content: '/logo.png' },
 	]
@@ -57,6 +64,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body className="font-sans antialiased">
 				{children}
+				<PublicEnvScript env={data?.env} />
 				<ScrollRestoration />
 				<Scripts />
 			</body>
@@ -70,7 +78,6 @@ export default function App({ loaderData }: Route.ComponentProps) {
 			<AuthProvider>
 				<Outlet />
 				<Toaster position="top-right" />
-				{import.meta.env.PROD && <Analytics />}
 			</AuthProvider>
 		</ThemeProvider>
 	)

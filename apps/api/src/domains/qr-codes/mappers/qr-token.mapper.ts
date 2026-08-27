@@ -1,9 +1,9 @@
 import {
 	QrTokenStatus as PrismaQrTokenStatus,
 	type QrToken as PrismaQrToken,
-} from '@retrouve-ci/database'
+} from '@app/database'
 
-import type { QrToken } from '../models/qr-token.model'
+import type { QrToken } from '../types/qr-token.types'
 import type { QrTokenStatus } from '../types/qr-token.types'
 
 export function toDomainQrToken(qrToken: PrismaQrToken): QrToken {

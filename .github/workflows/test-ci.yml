@@ -28,14 +28,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build shared packages
-        run: pnpm exec turbo run build --filter=@retrouve-ci/database
+        run: pnpm exec turbo run build --filter=@app/database
 
       - name: Format check
         run: pnpm format:check
@@ -56,17 +56,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build shared packages
-        run: pnpm exec turbo run build --filter=@retrouve-ci/database
+        run: pnpm exec turbo run build --filter=@app/database
 
       - name: Type check
-        run: pnpm check-types
+        run: pnpm typecheck
 
   lint:
     name: 🔬 ESLint
@@ -84,14 +84,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build shared packages
-        run: pnpm exec turbo run build --filter=@retrouve-ci/database
+        run: pnpm exec turbo run build --filter=@app/database
 
       - name: Lint
         run: pnpm lint
@@ -112,14 +112,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build shared packages
-        run: pnpm exec turbo run build --filter=@retrouve-ci/database
+        run: pnpm exec turbo run build --filter=@app/database
+
+      # Component tests run in a real browser (Vitest browser mode), so the
+      # Chromium build and its system libraries have to be present before
+      # `pnpm test`. One install is enough for both front-ends: Playwright caches
+      # browsers per machine, not per workspace.
+      - name: Install Playwright browsers
+        run: pnpm --filter @app/admin exec playwright install --with-deps chromium
 
       - name: Unit tests
         run: pnpm test

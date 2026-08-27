@@ -4,9 +4,9 @@ import {
 	ModerationStatus as PrismaModerationStatus,
 	ResolutionStatus as PrismaResolutionStatus,
 	type LostItem as PrismaLostItem,
-} from '@retrouve-ci/database'
+} from '@app/database'
 
-import type { LostItem } from '../models/lost-item.model'
+import type { LostItem } from '../types/lost-item.types'
 import type {
 	LostItemCategory,
 	LostItemType,

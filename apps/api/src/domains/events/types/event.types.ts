@@ -1,26 +1,36 @@
-export type EventStatus = 'draft' | 'published' | 'cancelled'
+import type {
+	AdminListEventsFilterData,
+	CreateEventData as CreateEventContract,
+	EventStatus,
+	UpdateEventData as UpdateEventContract,
+} from '@app/contracts/events'
+import type { Paginated } from '@/shared/utils/pagination.util'
 
-export interface CreateEventData {
+export type { EventStatus }
+
+/** The wire carries the date as a string; the domain works on a `Date`. */
+export type CreateEventData = Omit<CreateEventContract, 'eventDate'> & {
+	eventDate: Date
+}
+
+export type UpdateEventData = Omit<UpdateEventContract, 'eventDate'> & {
+	eventDate?: Date
+}
+
+/** The public list narrows the status to `published`; the admin one is free. */
+export type ListEventsFilter = AdminListEventsFilterData
+
+export interface Event {
+	id: string
 	title: string
 	description: string
 	location: string
 	ville: string
-	commune?: string
+	commune: string | null
 	eventDate: Date
+	status: EventStatus
+	createdAt: Date
+	updatedAt: Date
 }
 
-export interface UpdateEventData {
-	title?: string
-	description?: string
-	location?: string
-	ville?: string
-	commune?: string
-	eventDate?: Date
-	status?: EventStatus
-}
-
-export interface ListEventsFilter {
-	status?: EventStatus
-	page: number
-	pageSize: number
-}
+export type EventListResponse = Paginated<Event>

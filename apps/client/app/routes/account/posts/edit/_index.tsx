@@ -1,0 +1,238 @@
+import { Link } from 'react-router'
+import { Controller } from 'react-hook-form'
+import {
+	AlertCircle,
+	CheckCircle,
+	ArrowLeft,
+	Loader2,
+	Package,
+} from 'lucide-react'
+import { Button, FieldError, Input, Textarea } from '@app/ui/components'
+import { FormRootError, InputLabel } from '@app/ui/components/form'
+import { cn } from '@app/ui/utils'
+import { SectionHeader } from '@/routes/publish/components/section-header'
+import { LocationDateSection } from '@/routes/publish/components/location-date-section'
+import { ContactSection } from '@/routes/publish/components/contact-section'
+import { PublishPageHeader } from '@/routes/publish/components/publish-page-header'
+import { PhotosUpload } from '@/routes/publish/components/photos-upload'
+import { usePublishForm } from '@/routes/publish/hooks/use-publish-form'
+import { MIN_DESCRIPTION_LENGTH } from '@app/contracts/lost-items'
+import { toLocalDigits } from '@/shared/utils/phone'
+import { OBJECT_TYPES } from '@/routes/publish/publish.const'
+import { editPostLoader } from './servers/edit-post.loader'
+import { editPostAction } from './servers/edit-post.action'
+import type { Route } from './+types/_index'
+import { pageMeta } from '@/shared/helpers/page-meta'
+
+export const loader = ({ request, params }: Route.LoaderArgs) =>
+	editPostLoader(request, params.id)
+
+export const action = ({ request, params }: Route.ActionArgs) =>
+	editPostAction(request, params.id)
+
+export function meta() {
+	return pageMeta({
+		title: "Modifier l'annonce",
+		description: 'Mettez à jour les informations de votre annonce.',
+	})
+}
+
+export default function EditPostPage({ loaderData }: Route.ComponentProps) {
+	const { item } = loaderData
+	const isLost = item.type === 'lost'
+	const accentColor = isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
+	const categoryLabel =
+		OBJECT_TYPES.find(type => type.value === item.category)?.label ??
+		item.category
+
+	const { form, onSubmit, isSubmitting } = usePublishForm({
+		title: item.title,
+		objectType: item.category,
+		description: item.description,
+		ville: item.ville,
+		commune: item.commune ?? '',
+		date: item.eventDate.slice(0, 10),
+		name: item.contactName,
+		whatsapp: toLocalDigits(item.contactWhatsapp),
+	})
+
+	return (
+		<main className="bg-muted/20 flex-1">
+			<div className="container mx-auto px-4 py-8 md:py-12">
+				<Link
+					to="/account/posts"
+					className="text-muted-foreground hover:text-foreground mb-8 inline-flex items-center gap-2 text-sm transition-colors"
+				>
+					<ArrowLeft className="h-4 w-4" />
+					Mes annonces
+				</Link>
+
+				<div className="mx-auto max-w-2xl space-y-6">
+					<PublishPageHeader
+						icon={isLost ? AlertCircle : CheckCircle}
+						iconBgClass={isLost ? 'bg-accent-orange/10' : 'bg-primary-green/10'}
+						iconColorClass={
+							isLost ? 'text-accent-orange' : 'text-primary-green'
+						}
+						title="Modifier l'annonce"
+						description="Corrigez les informations avant validation par l'administrateur."
+					/>
+
+					<form onSubmit={onSubmit} noValidate className="space-y-5">
+						<div className="bg-background space-y-5 rounded-2xl border p-6">
+							<SectionHeader
+								icon={Package}
+								title="Informations sur l'objet"
+								accentColor={accentColor}
+							/>
+
+							<Controller
+								control={form.control}
+								name="title"
+								render={({ field, fieldState }) => (
+									<div className="space-y-2">
+										<InputLabel htmlFor={field.name} required>
+											Titre
+										</InputLabel>
+										<Input
+											{...field}
+											id={field.name}
+											value={field.value ?? ''}
+											placeholder="Ex : iPhone 14 Pro noir"
+											className="h-11"
+											aria-invalid={fieldState.invalid || undefined}
+										/>
+										{fieldState.error && (
+											<FieldError
+												errors={[fieldState.error]}
+												className="text-xs"
+											/>
+										)}
+									</div>
+								)}
+							/>
+
+							<div className="space-y-2">
+								<InputLabel>Type d&apos;objet</InputLabel>
+								<div className="bg-muted/50 text-muted-foreground flex h-11 items-center rounded-md border px-3 text-sm">
+									{categoryLabel}
+								</div>
+							</div>
+
+							<Controller
+								control={form.control}
+								name="description"
+								render={({ field, fieldState }) => {
+									const length = field.value?.length ?? 0
+									const isLongEnough = length >= MIN_DESCRIPTION_LENGTH
+
+									return (
+										<div className="space-y-2">
+											<InputLabel htmlFor={field.name} required>
+												Description
+											</InputLabel>
+											<Textarea
+												{...field}
+												id={field.name}
+												value={field.value ?? ''}
+												placeholder={
+													isLost
+														? 'Couleur, marque, signes distinctifs, contenu...'
+														: "Couleur, marque, signes distinctifs, état de l'objet..."
+												}
+												className="min-h-27.5 resize-none"
+												aria-invalid={fieldState.invalid || undefined}
+											/>
+											<p
+												className={cn(
+													'text-xs',
+													isLongEnough
+														? isLost
+															? 'text-accent-orange'
+															: 'text-primary-green'
+														: 'text-muted-foreground',
+												)}
+											>
+												{isLongEnough
+													? '✓ Suffisant'
+													: `Minimum ${MIN_DESCRIPTION_LENGTH} caractères (${length}/${MIN_DESCRIPTION_LENGTH})`}
+											</p>
+											{fieldState.error && (
+												<FieldError
+													errors={[fieldState.error]}
+													className="text-xs"
+												/>
+											)}
+										</div>
+									)
+								}}
+							/>
+
+							<div className="space-y-2">
+								<InputLabel>
+									Photos{' '}
+									{isLost ? (
+										<span className="text-muted-foreground text-xs font-normal">
+											(optionnel)
+										</span>
+									) : (
+										<span className="border-primary-green/20 bg-primary-green/10 text-primary-green ml-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold">
+											Recommandé
+										</span>
+									)}
+								</InputLabel>
+								<PhotosUpload
+									initialPhotos={item.photos}
+									variant={isLost ? 'optional' : 'recommended'}
+									accentColor={accentColor}
+								/>
+							</div>
+						</div>
+
+						<LocationDateSection
+							control={form.control}
+							dateLabel={isLost ? 'Date de perte' : 'Date de la trouvaille'}
+							sectionTitle={
+								isLost ? 'Lieu & date de perte' : 'Lieu & date de la trouvaille'
+							}
+							accentColor={accentColor}
+						/>
+
+						<ContactSection
+							control={form.control}
+							accentColor={accentColor}
+							showPrivacyNote={!isLost}
+						/>
+
+						<FormRootError message={form.formState.errors.root?.message} />
+
+						<div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
+							<Button type="button" variant="outline" asChild>
+								<Link to="/account/posts">Annuler</Link>
+							</Button>
+							<Button
+								type="submit"
+								className={cn(
+									'h-12 text-white sm:flex-1',
+									isLost
+										? 'bg-accent-orange hover:bg-accent-orange-dark'
+										: 'bg-primary-green hover:bg-primary-green-dark',
+								)}
+								disabled={isSubmitting}
+							>
+								{isSubmitting ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Enregistrement...
+									</>
+								) : (
+									'Enregistrer les modifications'
+								)}
+							</Button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</main>
+	)
+}

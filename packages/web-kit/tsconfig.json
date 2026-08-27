@@ -1,0 +1,8 @@
+{
+	"extends": "@app/typescript-config/react-router.json",
+	"compilerOptions": {
+		"types": ["vite/client"]
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules"]
+}

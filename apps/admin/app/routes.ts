@@ -6,25 +6,25 @@ import {
 } from '@react-router/dev/routes'
 
 export default [
-	layout('shared/components/dashboard-layout.tsx', [
-		index('features/dashboard/index.tsx'),
-		route('contact-messages', 'features/contact-messages/index.tsx'),
-		route('orders', 'features/orders/index.tsx'),
-		route('qr', 'features/qr/list/index.tsx'),
-		route('qr/generate', 'features/qr/generate/index.tsx'),
-		route('qr/:code', 'features/qr/token/index.tsx'),
-		route('events', 'features/events/index.tsx'),
-		route('notifications', 'features/notifications/index.tsx'),
-		route('posts', 'features/posts/index.tsx'),
-		route('users', 'features/users/list/index.tsx'),
-		route('users/:id', 'features/users/detail/index.tsx'),
-		route('administrators', 'features/administrators/index.tsx'),
-		route('profile', 'features/profile/index.tsx'),
+	layout('routes/dashboard/layout.tsx', [
+		index('routes/dashboard/home/_index.tsx'),
+		route('contact-messages', 'routes/dashboard/contact-messages/_index.tsx'),
+		route('orders', 'routes/dashboard/orders/_index.tsx'),
+		route('qr', 'routes/dashboard/qr/_index.tsx'),
+		route('qr/generate', 'routes/dashboard/qr/generate/_index.tsx'),
+		route('qr/:code', 'routes/dashboard/qr/token/_index.tsx'),
+		route('events', 'routes/dashboard/events/_index.tsx'),
+		route('notifications', 'routes/dashboard/notifications/_index.tsx'),
+		route('posts', 'routes/dashboard/posts/_index.tsx'),
+		route('users', 'routes/dashboard/users/_index.tsx'),
+		route('users/:id', 'routes/dashboard/users/detail/_index.tsx'),
+		route('administrators', 'routes/dashboard/administrators/_index.tsx'),
+		route('profile', 'routes/dashboard/profile/_index.tsx'),
 	]),
-	route('auth', 'features/auth/layout.tsx', [
-		route('login', 'features/auth/login/index.tsx'),
-		route('forgot-password', 'features/auth/forgot-password/index.tsx'),
-		route('reset-password', 'features/auth/reset-password/index.tsx'),
+	route('auth', 'routes/auth/layout.tsx', [
+		route('login', 'routes/auth/login/_index.tsx'),
+		route('forgot-password', 'routes/auth/forgot-password/_index.tsx'),
+		route('reset-password', 'routes/auth/reset-password/_index.tsx'),
 	]),
-	route('*', 'shared/components/not-found.tsx'),
+	route('*', 'routes/not-found.tsx'),
 ] satisfies RouteConfig

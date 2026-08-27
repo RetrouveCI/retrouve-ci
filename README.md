@@ -8,6 +8,9 @@ This repository is a [Turborepo](https://turbo.build/repo) monorepo containing
 two React Router v7 web applications, a NestJS API, and a set of shared
 packages.
 
+📖 **Architecture documentation lives in [`docs/`](docs/README.md)** — overview,
+applications, shared packages, business flows and operations.
+
 ## Apps
 
 | App                             | Port | Stack            | Description                |
@@ -18,17 +21,22 @@ packages.
 
 ## Packages
 
-| Package                          | Description                                        |
-| -------------------------------- | -------------------------------------------------- |
-| `@retrouve-ci/database`          | Prisma schema, migrations & generated client       |
-| `@retrouve-ci/ui`                | Shared shadcn/ui component library (source-only)   |
-| `@retrouve-ci/eslint-config`     | Shared ESLint configs (base, next, react-internal) |
-| `@retrouve-ci/typescript-config` | Shared `tsconfig` presets                          |
-| `@retrouve-ci/vitest-config`     | Shared Vitest presets (base, react)                |
+| Package                  | Description                                              |
+| ------------------------ | -------------------------------------------------------- |
+| `@app/contracts`         | Zod schemas shared by the API and both fronts (sub-path) |
+| `@app/auth`              | Shared better-auth core, framework-agnostic              |
+| `@app/database`          | Prisma schema, migrations & generated client             |
+| `@app/ui`                | Shared shadcn/ui component library (source-only)         |
+| `@app/web-kit`           | Front code shared client ↔ admin (source-only, sub-path) |
+| `@app/eslint-config`     | Shared ESLint configs (base, react-internal)             |
+| `@app/typescript-config` | Shared `tsconfig` presets                                |
+| `@app/vitest-config`     | Shared Vitest presets (base, react)                      |
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 18+ (CI and Docker images use Node 22)
+- [Node.js](https://nodejs.org/) 24.x — enforced by `engines` +
+  `engine-strict=true`; `.nvmrc` and `.npmrc` (`use-node-version`) pin the exact
+  version, and CI and the Docker images use Node 24
 - [pnpm](https://pnpm.io/) 11 (pinned via `packageManager`)
 - [Docker](https://www.docker.com/) — for local Postgres and Redis
 
@@ -57,8 +65,8 @@ All commands are run from the repo root.
 pnpm dev           # Start all apps in parallel
 pnpm build         # Build all packages and apps (packages build first)
 pnpm lint          # Lint all workspaces
-pnpm check-types   # Type-check all workspaces
-pnpm test          # Run unit tests (Vitest — currently the api app only)
+pnpm typecheck     # Type-check all workspaces
+pnpm test          # Run unit tests (Vitest — api, client and admin)
 pnpm format        # Format with Prettier
 pnpm format:check  # Verify formatting without writing (used by CI)
 ```
@@ -75,10 +83,10 @@ pnpm db:studio     # Open Prisma Studio
 To run a single app or package in isolation:
 
 ```bash
-pnpm --filter client dev
-pnpm --filter admin dev
-pnpm --filter api dev
-pnpm --filter @retrouve-ci/ui build
+pnpm --filter @app/client dev
+pnpm --filter @app/admin dev
+pnpm --filter @app/api dev
+pnpm --filter @app/ui build
 ```
 
 ## Tech Stack
@@ -87,18 +95,19 @@ pnpm --filter @retrouve-ci/ui build
 
 - **React Router v7** (Vite, SSR) with React 19 and TypeScript 5.9
 - **Tailwind CSS v4** — configured via CSS `@theme` directives
-- **shadcn/ui** — components from `@retrouve-ci/ui`, Lucide icons
-- **`@conform-to/react` + `@conform-to/zod`** for all forms
+- **shadcn/ui** — components from `@app/ui`, Lucide icons
+- **react-hook-form + zod** for forms, in both apps and in `packages/ui`
 - **better-auth** for authentication (phone number on client, email/password on
   admin)
 
 **Backend (`api`)**
 
 - **NestJS 11** on the **Fastify** adapter, REST + Swagger (`/docs`)
-- **Domain-Driven / Clean Architecture** (`domains` / `presentation` /
-  `infrastructure` / `shared`)
+- **Domain-Driven / Clean Architecture** (`domains` / `presentations` /
+  `infrastructures` / `shared`)
 - **Prisma 7** over Postgres via driver adapters (`@prisma/adapter-pg`)
-- **BullMQ** (Redis) for background jobs, **better-auth** for auth
+- **BullMQ** (Redis) for background jobs — match notifications and OTP SMS — and
+  **better-auth** for auth (phone OTPs delivered over SMS via Letexto)
 - **Vitest** for unit tests
 
 ## CI/CD & Docker
@@ -134,12 +143,12 @@ installed, Renovate will:
 
 ## Architecture Notes
 
-- `@retrouve-ci/ui` is consumed directly from source via TypeScript path aliases
-  — no build step is required before starting the apps. Turborepo's
+- `@app/ui` is consumed directly from source via TypeScript path aliases — no
+  build step is required before starting the apps. Turborepo's
   `"dependsOn": ["^build"]` only applies to packages that have a `build` script.
-- `@retrouve-ci/database` **does** have a build step (`prisma generate` + `tsc`)
-  and is built before the `api` via `^build`.
+- `@app/database` **does** have a build step (`prisma generate` + `tsc`) and is
+  built before the `api` via `^build`.
 - All shadcn/ui components live in `packages/ui/src/components/ui/` and are
-  imported by apps via the `@retrouve-ci/ui/components` barrel export.
+  imported by apps via the `@app/ui/components` barrel export.
 
 See [`CLAUDE.md`](CLAUDE.md) for detailed architecture and conventions.

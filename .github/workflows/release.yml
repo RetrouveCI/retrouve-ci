@@ -3,6 +3,9 @@ name: Release
 on:
   pull_request:
     types: [closed]
+    # Filters the base branch. `release_branch` below does not: without this the
+    # workflow ran on every merged PR and failed on the empty tag.
+    branches: [main]
 
 concurrency:
   group:

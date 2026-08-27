@@ -1,0 +1,28 @@
+import { PublishHero } from './components/publish-hero'
+import { PublishTypeCards } from './components/publish-type-cards'
+import { PublishSteps } from './components/publish-steps'
+import { TrustBadges } from './components/trust-badges'
+import { pageMeta } from '@/shared/helpers/page-meta'
+
+export function meta() {
+	return pageMeta({
+		title: 'Publier une annonce',
+		description:
+			"Publiez une annonce pour un objet perdu ou retrouvé en Côte d'Ivoire.",
+	})
+}
+
+export default function PublierPage() {
+	return (
+		<main className="flex-1">
+			<PublishHero />
+			<section className="py-10 md:py-16">
+				<div className="container mx-auto px-4">
+					<PublishTypeCards />
+					<PublishSteps />
+					<TrustBadges />
+				</div>
+			</section>
+		</main>
+	)
+}

@@ -1,30 +1,16 @@
 {
+	"extends": "@app/typescript-config/react-router.json",
 	"compilerOptions": {
-		"lib": ["dom", "dom.iterable", "esnext"],
-		"types": ["vite/client"],
-		"allowJs": true,
-		"target": "ES2022",
-		"skipLibCheck": true,
-		"strict": true,
-		"noEmit": true,
-		"esModuleInterop": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
-		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"jsx": "react-jsx",
 		"rootDirs": [".", "./.react-router/types"],
 		"paths": {
 			"@/*": ["./app/*"],
-			"@retrouve-ci/ui": ["../../packages/ui/src/index.ts"],
-			"@retrouve-ci/ui/components": [
-				"../../packages/ui/src/components/index.ts"
-			],
-			"@retrouve-ci/ui/components/form": [
+			"@app/ui": ["../../packages/ui/src/index.ts"],
+			"@app/ui/components": ["../../packages/ui/src/components/index.ts"],
+			"@app/ui/components/form": [
 				"../../packages/ui/src/components/form/index.ts"
 			],
-			"@retrouve-ci/ui/utils": ["../../packages/ui/src/utils/cn.ts"],
-			"@retrouve-ci/ui/hooks": ["../../packages/ui/src/hooks/index.ts"]
+			"@app/ui/utils": ["../../packages/ui/src/utils/cn.ts"],
+			"@app/ui/hooks": ["../../packages/ui/src/hooks/index.ts"]
 		}
 	},
 	"include": [

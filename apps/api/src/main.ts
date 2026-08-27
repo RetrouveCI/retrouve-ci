@@ -3,7 +3,6 @@ import { config } from 'dotenv'
 
 config()
 
-import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import {
 	FastifyAdapter,
@@ -12,29 +11,13 @@ import {
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import fastifyMultipart from '@fastify/multipart'
 import { DomainExceptionFilter } from '@/shared/filters/domain-exception.filter'
-import { MAX_PHOTO_SIZE } from '@/infrastructure/storage/storage.service'
+import { MAX_PHOTO_SIZE } from '@/infrastructures/storage/storage.service'
 import { AppModule } from './app.module'
+import { getAllowedOrigins } from '@/shared/auth/allowed-origins'
 
 const DEFAULT_PORT = 3002
 const DEFAULT_HOST = '0.0.0.0'
 const SWAGGER_PATH = 'docs'
-const DEFAULT_ALLOWED_ORIGINS = [
-	'http://localhost:3000',
-	'http://localhost:3001',
-]
-
-function getAllowedOrigins(): string[] {
-	const configuredOrigins = process.env.ALLOWED_ORIGINS?.split(',')
-		.map(origin => origin.trim())
-		.filter(Boolean)
-
-	if (configuredOrigins?.length) {
-		return configuredOrigins
-	}
-
-	return process.env.NODE_ENV === 'production' ? [] : DEFAULT_ALLOWED_ORIGINS
-}
-
 function shouldExposeSwagger(): boolean {
 	return (
 		process.env.NODE_ENV !== 'production' ||
@@ -69,14 +52,6 @@ async function bootstrap(): Promise<void> {
 		throwFileSizeLimit: false,
 		limits: { fileSize: MAX_PHOTO_SIZE, files: 1 },
 	})
-
-	app.useGlobalPipes(
-		new ValidationPipe({
-			whitelist: true,
-			transform: true,
-			forbidNonWhitelisted: true,
-		}),
-	)
 
 	app.useGlobalFilters(new DomainExceptionFilter())
 

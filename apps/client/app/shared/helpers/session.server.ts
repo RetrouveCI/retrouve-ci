@@ -1,0 +1,71 @@
+import { redirect } from 'react-router'
+import { ApiError, apiFetch } from '@/shared/utils/api-fetch'
+import { loginUrlWithRedirect, sanitizeRedirect, toRoutePath } from './redirect'
+
+interface ServerSession {
+	session: { id: string; userId: string }
+	user: {
+		id: string
+		name: string
+		email: string
+		role: string
+		phoneNumber: string | null
+		phoneNumberVerified: boolean | null
+		city: string | null
+		commune: string | null
+		createdAt: string
+	}
+}
+
+/**
+ * An admin is also a person who can lose their phone, so a backoffice role is
+ * **not** a reason to refuse a session here: the role says who the user is, not
+ * what the session was created for.
+ *
+ * Telling the two apart needs the audience to be carried by the session itself,
+ * which is what the two-instance work does. Until then the two apps share one
+ * better-auth cookie, so an admin signed in on the backoffice does appear signed
+ * in here — see the note in CLAUDE.md.
+ */
+export async function getServerSession(
+	request: Request,
+): Promise<ServerSession | null> {
+	try {
+		return await apiFetch<ServerSession | null>('/api/auth/get-session', {
+			headers: { Cookie: request.headers.get('cookie') ?? '' },
+		})
+	} catch (error) {
+		// `get-session` answers 200 with `null` when nobody is signed in, so a
+		// throw means the check could not run. Reporting that as "signed out"
+		// turns an unreachable API into a login loop with nothing in the logs.
+		if (error instanceof ApiError && error.status === 401) return null
+
+		console.error(`[session] app session check failed`, error)
+		throw error
+	}
+}
+
+export async function requireServerSession(
+	request: Request,
+): Promise<ServerSession> {
+	const session = await getServerSession(request)
+	if (!session) {
+		throw redirect(loginUrlWithRedirect(toRoutePath(request.url)))
+	}
+
+	return session
+}
+
+/**
+ * Guard for auth pages (login, register, …): an already-authenticated user
+ * should never see them — send them back to where they came from (or the
+ * default landing page). Call from each auth route's loader.
+ */
+export async function redirectIfAuthenticated(request: Request): Promise<void> {
+	const session = await getServerSession(request)
+
+	if (session) {
+		const url = new URL(request.url)
+		throw redirect(sanitizeRedirect(url.searchParams.get('redirectTo')))
+	}
+}

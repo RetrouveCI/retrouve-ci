@@ -1,17 +1,6 @@
 {
-	"extends": "@retrouve-ci/typescript-config/base.json",
+	"extends": "@app/typescript-config/nest.json",
 	"compilerOptions": {
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
-		"target": "ES2023",
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"allowSyntheticDefaultImports": true,
-		"noFallthroughCasesInSwitch": true,
-		"declaration": false,
-		"declarationMap": false,
-		"removeComments": true,
-		"sourceMap": true,
 		"rootDir": "./src",
 		"outDir": "./dist",
 		"paths": {

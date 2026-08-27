@@ -1,0 +1,82 @@
+import { Button } from '@app/ui/components'
+import { FieldError } from '@app/ui/components/form'
+import {
+	PASSWORD_HINT,
+	PASSWORD_MIN_LENGTH,
+	PASSWORD_PLACEHOLDER,
+} from '@app/contracts/shared'
+import { Loader2 } from 'lucide-react'
+import { PasswordInput } from './password-input'
+
+type PasswordStepMode = 'create-password' | 'new-password'
+
+interface PasswordStepProps {
+	step: PasswordStepMode
+	newPassword: string
+	setNewPassword: (v: string) => void
+	confirmPassword: string
+	setConfirmPassword: (v: string) => void
+	newPasswordErrors?: string[]
+	confirmPasswordErrors?: string[]
+	isSubmitting: boolean
+}
+
+export function PasswordStep({
+	step,
+	newPassword,
+	setNewPassword,
+	confirmPassword,
+	setConfirmPassword,
+	newPasswordErrors,
+	confirmPasswordErrors,
+	isSubmitting,
+}: PasswordStepProps) {
+	const isCreate = step === 'create-password'
+
+	return (
+		<div className="space-y-6">
+			<PasswordInput
+				id="new-password"
+				name="newPassword"
+				label={isCreate ? 'Choisir un mot de passe' : 'Nouveau mot de passe'}
+				value={newPassword}
+				onChange={setNewPassword}
+				placeholder={PASSWORD_PLACEHOLDER}
+				hint={PASSWORD_HINT}
+				disabled={isSubmitting}
+				autoFocus
+			/>
+			<FieldError errors={newPasswordErrors} />
+			<PasswordInput
+				id="confirm-password"
+				name="confirmPassword"
+				label={
+					isCreate
+						? 'Confirmer le mot de passe'
+						: 'Confirmer le nouveau mot de passe'
+				}
+				value={confirmPassword}
+				onChange={setConfirmPassword}
+				disabled={isSubmitting}
+			/>
+			<FieldError errors={confirmPasswordErrors} />
+
+			<Button
+				type="submit"
+				className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
+				disabled={isSubmitting || newPassword.length < PASSWORD_MIN_LENGTH}
+			>
+				{isSubmitting ? (
+					<>
+						<Loader2 className="h-4 w-4 animate-spin" />{' '}
+						{isCreate ? 'Creation du compte...' : 'Reinitialisation...'}
+					</>
+				) : isCreate ? (
+					'Creer mon compte'
+				) : (
+					'Reinitialiser le mot de passe'
+				)}
+			</Button>
+		</div>
+	)
+}
