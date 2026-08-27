@@ -194,7 +194,7 @@ sequenceDiagram
   API->>Q: OtpDispatcher (3 attempts, removed on success and failure)
   Q->>API: OtpConsumer
   API->>SMS: LetextoService.send (225 + exactly 10 digits)
-  SMS-->>U: SMS, 6 digits, valid 120 s
+  SMS-->>U: SMS, 6 digits, valid 300 s
   U->>B: code
   B->>API: POST /api/auth/phone-number/verify (client-side — needs Set-Cookie)
   API-->>B: Set-Cookie better-auth.session_token
@@ -202,7 +202,7 @@ sequenceDiagram
 
 better-auth's `phoneNumber()` plugin owns the code itself — it generates, stores
 and verifies it, so there is **no parallel OTP store**. The app sets only
-`expiresIn` (`OTP_TTL_SECONDS`, 120 s), the length (six, `OTP_LENGTH` in
+`expiresIn` (`OTP_TTL_SECONDS`, 300 s), the length (six, `OTP_LENGTH` in
 `@app/contracts/shared`) and `phoneNumberValidator`. Without that validator a
 malformed number only failed at delivery, after `OtpConsumer` had burnt its
 three attempts.

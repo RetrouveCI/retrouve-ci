@@ -2,9 +2,9 @@ export type OtpPurpose = 'sign-in' | 'password-reset'
 
 const TEMPLATES: Record<OtpPurpose, (code: string) => string> = {
 	'sign-in': code =>
-		`RetrouveCI : votre code de verification est ${code}. Il expire dans 2 minutes. Ne le partagez avec personne.`,
+		`Votre code de verification est ${code}. Il expire dans 5 minutes. Ne le partagez avec personne.`,
 	'password-reset': code =>
-		`RetrouveCI : votre code de reinitialisation est ${code}. Il expire dans 2 minutes. Ne le partagez avec personne.`,
+		`Votre code de reinitialisation est ${code}. Il expire dans 5 minutes. Ne le partagez avec personne.`,
 }
 
 /**

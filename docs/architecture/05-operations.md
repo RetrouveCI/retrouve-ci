@@ -90,8 +90,16 @@ pnpm test
 flowchart LR
   pr[Pull request] -->|test-ci.yml| checks[format · typecheck · lint · test]
   merge[Merge to main] -->|release.yml| tag[semver tag from PR labels]
-  tag -->|docker.yml| images[api · client · admin images<br/>version + latest]
+  tag --> record[A record, not a trigger]
+  dokploy[Dokploy builds each app<br/>from apps/&lt;app&gt;/Dockerfile] --> live[Deployed]
 ```
+
+**CI neither builds nor deploys.** Dokploy builds from the `Dockerfile`s and
+deploys on its own, so there is no registry in the loop and no Docker Hub
+credentials to hold. A `docker.yml` used to push three images to Docker Hub; it
+was removed once Dokploy took the build, because a second build only publishes
+artefacts nothing pulls. **No workflow listens to a version tag** — the tag
+records what was released, and the deploy is triggered from Dokploy.
 
 ### [`test-ci.yml`](../../.github/workflows/test-ci.yml)
 
@@ -106,19 +114,16 @@ fronts' `ui` project runs in a real browser.
 On a **merged** PR into `main`. `K-Phoen/semver-release-action` creates the next
 tag; the bump comes from the merged PR's labels, defaulting to patch.
 
-> ⚠️ It must push the tag with a **PAT** (`secrets.PAT_RETROUVECI`). A tag
-> pushed with the default `GITHUB_TOKEN` does not trigger `docker.yml`.
-
-### [`docker.yml`](../../.github/workflows/docker.yml)
-
-On a new version tag (`*.*.*`). Builds and pushes the `api`, `client` and
-`admin` images to Docker Hub as a matrix, tagged with the version and `latest`.
-Needs `secrets.DOCKER_USERNAME` and `secrets.DOCKER_ACCESS_TOKEN`.
+> It pushes the tag with a **PAT** (`secrets.PAT_RETROUVECI`), originally
+> required because a tag pushed with the default `GITHUB_TOKEN` triggers no
+> workflow. Nothing listens to tags any more, so the PAT is no longer
+> load-bearing — left in place rather than swapped mid-release.
 
 ## Images
 
 Each app has a multi-stage `Dockerfile` whose **build context is the repository
-root**. The build runs `turbo run build --filter=<app>` then `pnpm deploy` to
+root**, and **Dokploy is what runs it** — the same file that used to be built in
+CI. The build runs `turbo run build --filter=<app>` then `pnpm deploy` to
 produce a self-contained runtime bundle.
 
 Two things bite here:
