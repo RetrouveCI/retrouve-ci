@@ -9,6 +9,8 @@ vi.mock('@/context/auth', () => ({ useAuth }))
 
 const SUMMARY: ActivitySummary = {
 	posts: { total: 7, active: 5, pending: 2 },
+	stickers: { total: 4, activated: 2 },
+	orders: { total: 3, inProgress: 1 },
 	unreadNotifications: 3,
 }
 
@@ -73,6 +75,8 @@ describe('ActivityHub', () => {
 		await expect
 			.element(page.getByText('5 actives, 2 en attente'))
 			.toBeInTheDocument()
+		await expect.element(page.getByText('2 actifs')).toBeInTheDocument()
+		await expect.element(page.getByText('1 en cours')).toBeInTheDocument()
 		await expect.element(page.getByText('3 non lues')).toBeInTheDocument()
 	})
 

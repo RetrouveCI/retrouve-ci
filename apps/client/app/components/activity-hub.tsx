@@ -3,12 +3,12 @@ import { Link } from 'react-router'
 import {
 	Zap,
 	FileText,
-	// QrCode, // stickers on stand-by
-	// Package, // stickers on stand-by
+	QrCode,
+	Package,
 	Bell,
 	Plus,
 	Search,
-	// ShoppingCart, // stickers on stand-by
+	ShoppingCart,
 	X,
 	Loader2,
 } from 'lucide-react'
@@ -38,8 +38,9 @@ export function ActivityHub() {
 
 	const hasActivity =
 		summary !== null &&
-		// stand-by: summary.orders.inProgress > 0 (stickers on stand-by)
-		(summary.unreadNotifications > 0 || summary.posts.pending > 0)
+		(summary.unreadNotifications > 0 ||
+			summary.posts.pending > 0 ||
+			summary.orders.inProgress > 0)
 
 	return (
 		<Popover open={open} onOpenChange={handleOpenChange}>
@@ -99,7 +100,6 @@ export function ActivityHub() {
 								highlight={summary.posts.pending > 0}
 								onClick={() => setOpen(false)}
 							/>
-							{/* Stickers/orders rows on stand-by until we have a reliable printer/logistics partner
 							<SummaryRow
 								icon={QrCode}
 								label="Stickers QR"
@@ -125,7 +125,6 @@ export function ActivityHub() {
 								highlight={summary.orders.inProgress > 0}
 								onClick={() => setOpen(false)}
 							/>
-							*/}
 							<SummaryRow
 								icon={Bell}
 								label="Notifications"
@@ -158,14 +157,12 @@ export function ActivityHub() {
 									href="/publish/found"
 									onClick={() => setOpen(false)}
 								/>
-								{/* Stickers on stand-by until we have a reliable printer/logistics partner
 								<QuickAction
 									icon={ShoppingCart}
 									label="Commander des stickers"
 									href="/stickers/order"
 									onClick={() => setOpen(false)}
 								/>
-								*/}
 							</div>
 						</div>
 					</>

@@ -19,10 +19,5 @@
 		"**/*.tsx",
 		"vite.config.ts"
 	],
-	"exclude": [
-		"node_modules",
-		"build",
-		"app/routes/account/stickers/_index.tsx",
-		"app/routes/account/orders/_index.tsx"
-	]
+	"exclude": ["node_modules", "build"]
 }

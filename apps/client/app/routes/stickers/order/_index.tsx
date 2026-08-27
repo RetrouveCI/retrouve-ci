@@ -23,9 +23,9 @@ import {
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import type { Order } from '../../account/orders/types/orders.types'
 import { pageMeta } from '@/shared/helpers/page-meta'
+import type { Route } from './+types/_index'
 
-export const action = ({ request }: { request: Request }) =>
-	orderAction(request)
+export const action = ({ request }: Route.ActionArgs) => orderAction(request)
 
 export function meta() {
 	return pageMeta({

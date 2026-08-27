@@ -1,9 +1,6 @@
 import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
-import {
-	ArrowRight,
-	// QrCode, // stickers on stand-by
-} from 'lucide-react'
+import { ArrowRight, QrCode } from 'lucide-react'
 import { useAuth } from '@/context/auth'
 
 export function CtaSection() {
@@ -45,7 +42,6 @@ export function CtaSection() {
 									<ArrowRight className="h-4 w-4" />
 								</Link>
 							</Button>
-							{/* Stickers on stand-by until we have a reliable printer/logistics partner
 							<Button
 								asChild
 								variant="outline"
@@ -57,7 +53,6 @@ export function CtaSection() {
 									Découvrir les stickers QR
 								</Link>
 							</Button>
-							*/}
 						</div>
 					</div>
 				</div>

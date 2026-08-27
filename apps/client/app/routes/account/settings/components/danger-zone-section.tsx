@@ -91,8 +91,8 @@ export function DangerZoneSection() {
 							<AlertDialogHeader>
 								<AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
 								<AlertDialogDescription>
-									Cette action supprimera définitivement votre compte et vos
-									annonces. Cette action est irréversible.
+									Cette action supprimera définitivement votre compte, vos
+									annonces et vos stickers. Cette action est irréversible.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<form

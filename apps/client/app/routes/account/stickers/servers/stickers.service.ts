@@ -4,14 +4,18 @@ import type {
 	QrTokenListApiResponse,
 } from '../types/stickers.types'
 
+export async function getMyQrCodesPage(
+	request: Request,
+): Promise<QrTokenListApiResponse> {
+	return apiFetch<QrTokenListApiResponse>('/qr-codes/mine?pageSize=50', {
+		headers: { Cookie: request.headers.get('cookie') ?? '' },
+	})
+}
+
 export async function getMyStickers(
 	request: Request,
 ): Promise<QrTokenApiDto[]> {
-	const response = await apiFetch<QrTokenListApiResponse>(
-		'/qr-codes/mine?pageSize=50',
-		{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
-	)
-	return response.items
+	return (await getMyQrCodesPage(request)).items
 }
 
 export async function activateSticker(

@@ -2,13 +2,13 @@ import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { User, LogIn } from 'lucide-react'
 import type { UserLostItem } from '@/shared/types/lost-item'
-// import type { Sticker } from '@/shared/types/sticker' // stickers on stand-by
+import type { Sticker } from '@/shared/types/sticker'
 import { getServerSession } from '@/shared/helpers/session.server'
 import { toUserLostItem } from '@/shared/mappers/lost-item.mapper'
 import { getMyLostItems } from '@/routes/account/posts/servers/account-posts.service'
-// import { toSticker } from '@/routes/account/stickers/mappers/sticker.mapper' // stickers on stand-by
-// import { getMyStickers } from '@/routes/account/stickers/servers/stickers.service' // stickers on stand-by
-// import { getMyStickerOrders } from '@/routes/account/orders/servers/orders.service' // stickers on stand-by
+import { toSticker } from '@/routes/account/stickers/mappers/sticker.mapper'
+import { getMyStickers } from '@/routes/account/stickers/servers/stickers.service'
+import { getMyStickerOrders } from '@/routes/account/orders/servers/orders.service'
 import { ProfileHeader } from './components/profile-header'
 import { AccountStats } from './components/account-stats'
 import { RecentListings } from './components/recent-listings'
@@ -26,20 +26,19 @@ export function meta() {
 
 export async function loader({ request }: Route.LoaderArgs) {
 	const session = await getServerSession(request)
-	if (!session) return { listings: [] }
-	// Stickers/orders fetching on stand-by until we have a reliable printer/logistics partner
-	// const [items, stickerItems, orders] = await Promise.all([
-	// 	getMyLostItems(request),
-	// 	getMyStickers(request),
-	// 	getMyStickerOrders(request),
-	// ])
-	// return {
-	// 	listings: items.map(toUserLostItem),
-	// 	stickers: stickerItems.map(toSticker),
-	// 	ordersCount: orders.length,
-	// }
-	const items = await getMyLostItems(request)
-	return { listings: items.map(toUserLostItem) }
+	if (!session) return { listings: [], stickers: [], ordersCount: 0 }
+
+	const [items, stickerItems, orders] = await Promise.all([
+		getMyLostItems(request),
+		getMyStickers(request),
+		getMyStickerOrders(request),
+	])
+
+	return {
+		listings: items.map(toUserLostItem),
+		stickers: stickerItems.map(toSticker),
+		ordersCount: orders.length,
+	}
 }
 
 function NotLoggedInView() {
@@ -87,12 +86,12 @@ function NotLoggedInView() {
 
 function DashboardView({
 	listings,
-	// stickers, // stickers on stand-by
-	// ordersCount, // stickers on stand-by
+	stickers,
+	ordersCount,
 }: {
 	listings: UserLostItem[]
-	// stickers: Sticker[] // stickers on stand-by
-	// ordersCount: number // stickers on stand-by
+	stickers: Sticker[]
+	ordersCount: number
 }) {
 	const { user, logout } = useAuth()
 
@@ -101,12 +100,17 @@ function DashboardView({
 	return (
 		<main className="flex-1">
 			<ProfileHeader user={user} onLogout={logout} />
-			<AccountStats listings={listings} />
+			<AccountStats listings={listings} stickers={stickers} />
 			<section className="pb-12">
 				<div className="container mx-auto px-4">
 					<div className="grid gap-6 lg:grid-cols-3">
 						<RecentListings listings={listings} className="lg:col-span-2" />
-						<AccountNav listings={listings} className="lg:col-span-1" />
+						<AccountNav
+							listings={listings}
+							stickers={stickers}
+							ordersCount={ordersCount}
+							className="lg:col-span-1"
+						/>
 					</div>
 				</div>
 			</section>
@@ -126,7 +130,11 @@ export default function ComptePage({ loaderData }: Route.ComponentProps) {
 	}
 
 	return isAuthenticated ? (
-		<DashboardView listings={loaderData.listings} />
+		<DashboardView
+			listings={loaderData.listings}
+			stickers={loaderData.stickers}
+			ordersCount={loaderData.ordersCount}
+		/>
 	) : (
 		<NotLoggedInView />
 	)
