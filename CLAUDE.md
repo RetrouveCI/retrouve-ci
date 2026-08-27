@@ -14,6 +14,12 @@ overview, applications, shared packages, business flows and operations. This
 file stays **normative**: where the two disagree, this one wins and `docs/` has
 a bug.
 
+An interface overhaul of `apps/client` is under way — mobile-first, with a QR
+scanner, a completed dark theme and a PWA build-out. Its plan is
+[`REFONTE-PLAN.md`](REFONTE-PLAN.md): one step, one branch, one PR, one session,
+the same cycle the migration used. Read its §2 before touching any screen — it
+holds the interface and flow invariants every step is reviewed against.
+
 ## Commands
 
 All commands are run from the repo root using pnpm and Turborepo.
