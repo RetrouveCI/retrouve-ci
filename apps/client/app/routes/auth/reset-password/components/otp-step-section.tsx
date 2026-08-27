@@ -9,25 +9,26 @@ import {
 	type OtpInput,
 } from '../reset-password.schema'
 import { OtpStep } from '../../components/otp-step'
+import { useOtpCountdown } from '../../hooks/use-otp-countdown'
 import type { action } from '../_index'
-
-const OTP_EXPIRY_SECONDS = 120
 
 interface OtpStepSectionProps {
 	phoneNumber: string
 	initialError?: boolean
 	onVerified: (otp: string) => void
+	onEditPhone: () => void
 }
 
 export function OtpStepSection({
 	phoneNumber,
 	initialError = false,
 	onVerified,
+	onEditPhone,
 }: OtpStepSectionProps) {
 	const [otpError, setOtpError] = useState(initialError)
-	const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS)
-	const [resendKey, setResendKey] = useState(0)
 	const [hasRequestedResend, setHasRequestedResend] = useState(false)
+
+	const countdown = useOtpCountdown()
 
 	const form = useForm<OtpInput, unknown, OtpData>({
 		resolver: standardSchemaResolver(otpSchema),
@@ -41,6 +42,8 @@ export function OtpStepSection({
 	// reports through a toast.
 	const resendFetcher = useActionFetcher<typeof action>()
 
+	const { restart } = countdown
+
 	useEffect(() => {
 		if (!hasRequestedResend || resendFetcher.state !== 'idle') return
 
@@ -48,7 +51,7 @@ export function OtpStepSection({
 			toast.success('Nouveau code envoyé !')
 			form.setValue('otp', '')
 			setOtpError(false)
-			setResendKey(k => k + 1)
+			restart()
 		} else {
 			toast.error('Impossible d’envoyer le code', {
 				description: resendFetcher.errors?.root?.message,
@@ -62,26 +65,8 @@ export function OtpStepSection({
 		resendFetcher.isOk,
 		resendFetcher.errors,
 		form,
+		restart,
 	])
-
-	useEffect(() => {
-		setTimeLeft(OTP_EXPIRY_SECONDS)
-		const interval = setInterval(() => {
-			setTimeLeft(prev => {
-				if (prev <= 1) {
-					clearInterval(interval)
-					return 0
-				}
-				return prev - 1
-			})
-		}, 1000)
-		return () => clearInterval(interval)
-	}, [resendKey])
-
-	const formatTime = (s: number) =>
-		`${Math.floor(s / 60)
-			.toString()
-			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
 
 	const handleResend = () => {
 		setHasRequestedResend(true)
@@ -105,10 +90,13 @@ export function OtpStepSection({
 						setOtp={field.onChange}
 						otpError={otpError}
 						setOtpError={setOtpError}
-						timeLeft={timeLeft}
+						timeLeft={countdown.timeLeft}
+						resendIn={countdown.resendIn}
+						canResend={countdown.canResend}
 						isSubmitting={resendFetcher.isSubmitting}
-						formatTime={formatTime}
+						formatTime={countdown.formatTime}
 						onResend={handleResend}
+						onEditPhone={onEditPhone}
 					/>
 				)}
 			/>

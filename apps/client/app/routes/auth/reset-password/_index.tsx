@@ -78,6 +78,7 @@ export default function ResetPasswordPage() {
 						setOtp(value)
 						setStep('new-password')
 					}}
+					onEditPhone={() => navigate('/auth/password-forgotten')}
 				/>
 			)}
 

@@ -10,6 +10,7 @@ import { Button, Input, Label } from '@app/ui/components'
 import { FieldError } from '@app/ui/components/form'
 import { loginSchema, type LoginData, type LoginInput } from '../login.schema'
 import { PasswordInput } from '../../components/password-input'
+import { IvorianFlag } from '../../components/ivorian-flag'
 
 export function LoginForm({ redirectTo }: { redirectTo: string }) {
 	const navigate = useNavigate()
@@ -53,13 +54,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 						</Label>
 						<div className="flex gap-2">
 							<div className="bg-muted/50 text-muted-foreground flex h-12 shrink-0 items-center rounded-xl border-2 px-4 text-sm font-medium">
-								<img
-									src="/logo.png"
-									alt=""
-									width={18}
-									height={18}
-									className="mr-2 rounded-sm"
-								/>
+								<IvorianFlag className="mr-2 h-3 w-4.5 rounded-[2px] ring-1 ring-black/10" />
 								+225
 							</div>
 							<Input
@@ -91,7 +86,6 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 								label="Mot de passe"
 								value={field.value}
 								onChange={field.onChange}
-								placeholder="••••••••"
 								disabled={isSubmitting}
 							/>
 							<FieldError errors={toErrorList(fieldState.error)} />

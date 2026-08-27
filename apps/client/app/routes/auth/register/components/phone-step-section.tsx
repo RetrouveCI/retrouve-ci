@@ -6,6 +6,7 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
 import { FormRootError } from '@app/ui/components/form'
 import { toErrorList } from '../../helpers/field-errors'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { withRedirect } from '@/shared/helpers/redirect'
 import {
 	phoneNumberSchema,
 	type PhoneNumberData,
@@ -15,10 +16,17 @@ import { PhoneStep } from '../../components/phone-step'
 import type { action } from '../_index'
 
 interface PhoneStepSectionProps {
+	/** What was typed last, so coming back does not mean retyping it. */
+	defaultPhoneNumber: string
+	redirectTo: string
 	onVerified: (phoneNumber: string) => void
 }
 
-export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
+export function PhoneStepSection({
+	defaultPhoneNumber,
+	redirectTo,
+	onVerified,
+}: PhoneStepSectionProps) {
 	const submittedPhoneRef = useRef('')
 	const [hasSubmitted, setHasSubmitted] = useState(false)
 
@@ -29,7 +37,7 @@ export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
 		mode: 'onSubmit',
 		errors: fetcher.errors,
 		reValidateMode: 'onChange',
-		defaultValues: { phoneNumber: '' },
+		defaultValues: { phoneNumber: defaultPhoneNumber },
 	})
 
 	const onSubmit = (values: PhoneNumberData) => {
@@ -75,7 +83,7 @@ export function PhoneStepSection({ onVerified }: PhoneStepSectionProps) {
 			<p className="text-muted-foreground mt-6 text-center text-sm">
 				Déjà un compte ?{' '}
 				<Link
-					to="/auth/login"
+					to={withRedirect('/auth/login', redirectTo)}
 					className="text-primary-green font-semibold hover:underline"
 				>
 					Se connecter
