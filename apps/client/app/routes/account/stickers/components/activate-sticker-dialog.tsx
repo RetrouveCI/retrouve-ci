@@ -14,12 +14,10 @@ import { useEffect, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
-import type { ActionResult } from '@/shared/types/action'
+import type { stickersAction } from '../servers/stickers.action'
 
 export function ActivateStickerDialog() {
-	// Typed on `ActionResult` rather than `typeof action`: this route is on
-	// stand-by, so its generated types do not exist.
-	const fetcher = useActionFetcher<ActionResult>()
+	const fetcher = useActionFetcher<typeof stickersAction>()
 	const [hasSubmitted, setHasSubmitted] = useState(false)
 	const [open, setOpen] = useState(false)
 	const [code, setCode] = useState('')

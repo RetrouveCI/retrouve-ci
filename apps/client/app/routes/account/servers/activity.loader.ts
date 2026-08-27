@@ -1,7 +1,9 @@
 import { getServerSession } from '@/shared/helpers/session.server'
 import type { ActivitySummary } from '@/shared/types/activity'
 import { getUnreadNotificationsCount } from '../../notifications/servers/notifications.service'
+import { getMyStickerOrdersPage } from '../orders/servers/orders.service'
 import { getMyLostItemsPage } from '../posts/servers/account-posts.service'
+import { getMyQrCodesPage } from '../stickers/servers/stickers.service'
 
 export interface ActivityLoaderData {
 	summary: ActivitySummary | null
@@ -24,16 +26,10 @@ export async function loader({
 	if (!session) return { summary: null }
 
 	try {
-		// Stickers/orders on stand-by until we have a reliable printer/logistics
-		// partner:
-		// const [posts, stickers, orders, unreadNotifications] = await Promise.all([
-		// 	getMyLostItemsPage(request),
-		// 	getMyQrCodes(request),
-		// 	getMyStickerOrders(request),
-		// 	getUnreadNotificationsCount(request),
-		// ])
-		const [posts, unreadNotifications] = await Promise.all([
+		const [posts, stickers, orders, unreadNotifications] = await Promise.all([
 			getMyLostItemsPage(request),
+			getMyQrCodesPage(request),
+			getMyStickerOrdersPage(request),
 			getUnreadNotificationsCount(request),
 		])
 
@@ -50,20 +46,20 @@ export async function loader({
 						item => item.moderationStatus === 'pending',
 					).length,
 				},
-				// stickers: {
-				// 	total: stickers.total,
-				// 	activated: stickers.items.filter(i => i.status === 'activated')
-				// 		.length,
-				// },
-				// orders: {
-				// 	total: orders.total,
-				// 	inProgress: orders.items.filter(
-				// 		i =>
-				// 			i.status === 'pending' ||
-				// 			i.status === 'processing' ||
-				// 			i.status === 'shipped',
-				// 	).length,
-				// },
+				stickers: {
+					total: stickers.total,
+					activated: stickers.items.filter(i => i.status === 'activated')
+						.length,
+				},
+				orders: {
+					total: orders.total,
+					inProgress: orders.items.filter(
+						i =>
+							i.status === 'pending' ||
+							i.status === 'processing' ||
+							i.status === 'shipped',
+					).length,
+				},
 				unreadNotifications,
 			},
 		}

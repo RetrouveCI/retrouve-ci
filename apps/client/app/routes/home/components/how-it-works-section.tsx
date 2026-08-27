@@ -1,4 +1,4 @@
-import { Search, Bell, CheckCircle, ChevronRight, Sparkles } from 'lucide-react'
+import { Search, Bell, CheckCircle, ChevronRight } from 'lucide-react'
 
 const STEPS = [
 	{
@@ -33,7 +33,6 @@ export function HowItWorksSection() {
 			<div className="container mx-auto px-4">
 				<div className="mb-16 space-y-4 text-center">
 					<div className="bg-primary-green/10 text-primary-green inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium">
-						<Sparkles className="h-4 w-4" />
 						Comment ça marche
 					</div>
 					<h2 className="text-3xl font-bold tracking-tight md:text-4xl">

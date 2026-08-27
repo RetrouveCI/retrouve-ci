@@ -1,6 +1,5 @@
 import { Link } from 'react-router'
 import {
-	Sparkles,
 	MapPin,
 	Clock,
 	ArrowRight,
@@ -62,7 +61,6 @@ export function MatchingSuggestions({
 					background: `color-mix(in srgb, ${accentColor} 5%, transparent)`,
 				}}
 			>
-				<Sparkles className="h-4 w-4 shrink-0" style={{ color: accentColor }} />
 				<div className="min-w-0 flex-1">
 					<p className="text-sm leading-tight font-semibold">
 						{formType === 'perdu'

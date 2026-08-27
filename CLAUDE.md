@@ -430,9 +430,7 @@ Both apps share the same stack:
   file
 - **shadcn/ui** — components imported via `@app/ui/components`
 - **Forms are react-hook-form + zod** everywhere, in both apps and in
-  `packages/ui`. The `@conform-to/*` packages are gone from the catalog,
-  including on the stand-by routes whose entries are commented out of
-  `routes.ts`.
+  `packages/ui`. The `@conform-to/*` packages are gone from the catalog.
 - The admin dialogs use `FormInputField` / `FormTextareaField` from
   `@app/ui/components/form` — `Controller` + the shadcn `Field` family,
   factored, since their fields are uniform. Bespoke fields (an icon inside the
@@ -476,12 +474,10 @@ Route structure (all under `app/`):
 >
 > A route whose entry is commented out of `routes.ts` gets **no `+types/`
 > module** — React Router only generates them for mounted routes — so it must
-> spell its loader/action args out (`({ request }: { request: Request })`),
-> which is what every action in the repo does anyway. That is what keeps
-> `stickers/**` and `q/**` inside `typecheck`, the only gate that covers them
-> since `build` never bundles them. `account/orders/**` and
-> `account/stickers/_index.tsx` are still excluded in
-> `apps/client/tsconfig.json` for exactly that missing module.
+> spell its loader/action args out (`({ request }: { request: Request })`). Only
+> `download` is in that position now: the sticker and QR routes were remounted,
+> so they read `./+types/_index` again and `apps/client/tsconfig.json` excludes
+> nothing but `node_modules` and `build`.
 
 Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
 `AuthContext` (`app/context/auth.tsx`) wraps `authClient.useSession()` for
@@ -836,12 +832,11 @@ deliberately declined.
 
 ### `apps/client`
 
-- **Six route entries are commented out of `app/routes.ts`** — `stickers`,
-  `stickers/order`, `account/orders`, `account/stickers`, `q/:code` and
-  `download`. The API serves every endpoint they need and the backoffice's `/qr`
-  and `/orders` screens are live, so the whole sticker feature including the
-  public QR journey is **built and on stand-by**, not missing. Being unmounted,
-  they are covered by no `build`, which leaves `typecheck` as their only net.
+- **`download` is the one route entry still commented out of `app/routes.ts`**,
+  along with the footer link, the home bento tile and the `Smartphone` import
+  that point at it: there is no mobile app to download yet. The five sticker/QR
+  entries — `stickers`, `stickers/order`, `account/orders`, `account/stickers`
+  and `q/:code` — were remounted, so `build` covers them again.
 - **`stickersAction` gates with `getServerSession` plus its own
   `throw redirect('/auth/login')`**, where the two loaders beside it use
   `requireServerSession`. Same outcome, different shape.

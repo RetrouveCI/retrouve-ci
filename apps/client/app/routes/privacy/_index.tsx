@@ -40,7 +40,7 @@ const sections = [
 		color: 'text-blue-500',
 		bg: 'bg-blue-500/10',
 		content: [
-			'Vos données sont utilisées pour faire fonctionner la plateforme : afficher vos annonces et faciliter le contact entre utilisateurs.',
+			'Vos données sont utilisées pour faire fonctionner la plateforme : afficher vos annonces, gérer vos stickers QR et faciliter le contact entre utilisateurs.',
 			'Nous pouvons utiliser votre adresse email ou numéro de téléphone pour vous envoyer des notifications relatives à vos annonces (correspondance trouvée, messages reçus).',
 			'Les données agrégées et anonymisées peuvent être utilisées pour améliorer nos services, sans jamais permettre de vous identifier individuellement.',
 		],

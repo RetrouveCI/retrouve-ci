@@ -1,5 +1,3 @@
-import { Sparkles } from 'lucide-react'
-
 export function PublishHero() {
 	return (
 		<section className="relative overflow-hidden border-b">
@@ -9,7 +7,6 @@ export function PublishHero() {
 			</div>
 			<div className="relative container mx-auto px-4 pt-12 pb-10 text-center">
 				<div className="border-primary-green/20 bg-primary-green/10 text-primary-green mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
-					<Sparkles className="h-3.5 w-3.5" />
 					Publier est 100 % gratuit
 				</div>
 				<h1 className="mb-3 text-4xl font-bold tracking-tight text-balance md:text-5xl">

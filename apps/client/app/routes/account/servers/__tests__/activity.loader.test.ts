@@ -1,15 +1,26 @@
 import type { ActivitySummary } from '@/shared/types/activity'
 
-const { getServerSession, getMyLostItemsPage, getUnreadNotificationsCount } =
-	vi.hoisted(() => ({
-		getServerSession: vi.fn(),
-		getMyLostItemsPage: vi.fn(),
-		getUnreadNotificationsCount: vi.fn(),
-	}))
+const {
+	getServerSession,
+	getMyLostItemsPage,
+	getMyQrCodesPage,
+	getMyStickerOrdersPage,
+	getUnreadNotificationsCount,
+} = vi.hoisted(() => ({
+	getServerSession: vi.fn(),
+	getMyLostItemsPage: vi.fn(),
+	getMyQrCodesPage: vi.fn(),
+	getMyStickerOrdersPage: vi.fn(),
+	getUnreadNotificationsCount: vi.fn(),
+}))
 
 vi.mock('@/shared/helpers/session.server', () => ({ getServerSession }))
 vi.mock('../../posts/servers/account-posts.service', () => ({
 	getMyLostItemsPage,
+}))
+vi.mock('../../stickers/servers/stickers.service', () => ({ getMyQrCodesPage }))
+vi.mock('../../orders/servers/orders.service', () => ({
+	getMyStickerOrdersPage,
 }))
 vi.mock('../../../notifications/servers/notifications.service', () => ({
 	getUnreadNotificationsCount,
@@ -27,6 +38,8 @@ const item = (
 beforeEach(() => {
 	getServerSession.mockReset().mockResolvedValue({ user: { id: 'u1' } })
 	getMyLostItemsPage.mockReset().mockResolvedValue({ items: [], total: 0 })
+	getMyQrCodesPage.mockReset().mockResolvedValue({ items: [], total: 0 })
+	getMyStickerOrdersPage.mockReset().mockResolvedValue({ items: [], total: 0 })
 	getUnreadNotificationsCount.mockReset().mockResolvedValue(0)
 })
 
@@ -42,6 +55,8 @@ describe('the activity loader', () => {
 
 		expect(await loader({ request: request() })).toEqual({ summary: null })
 		expect(getMyLostItemsPage).not.toHaveBeenCalled()
+		expect(getMyQrCodesPage).not.toHaveBeenCalled()
+		expect(getMyStickerOrdersPage).not.toHaveBeenCalled()
 		expect(getUnreadNotificationsCount).not.toHaveBeenCalled()
 	})
 
@@ -86,7 +101,45 @@ describe('the activity loader', () => {
 		expect(summary?.posts.total).toBe(137)
 	})
 
-	it('reads both sources concurrently', async () => {
+	// Only an activated sticker is "actif"; a generated or revoked one is not.
+	it('counts activated stickers, and takes the total from the API', async () => {
+		getMyQrCodesPage.mockResolvedValue({
+			total: 12,
+			items: [
+				{ status: 'activated' },
+				{ status: 'activated' },
+				{ status: 'generated' },
+				{ status: 'revoked' },
+			],
+		})
+
+		const { summary } = await loader({ request: request() })
+
+		const expected: ActivitySummary['stickers'] = { total: 12, activated: 2 }
+		expect(summary?.stickers).toEqual(expected)
+	})
+
+	// "En cours" is everything before delivery: a delivered or cancelled order is
+	// done, and must not keep the button's dot lit.
+	it('counts orders in progress as pending, processing or shipped', async () => {
+		getMyStickerOrdersPage.mockResolvedValue({
+			total: 5,
+			items: [
+				{ status: 'pending' },
+				{ status: 'processing' },
+				{ status: 'shipped' },
+				{ status: 'delivered' },
+				{ status: 'cancelled' },
+			],
+		})
+
+		const { summary } = await loader({ request: request() })
+
+		const expected: ActivitySummary['orders'] = { total: 5, inProgress: 3 }
+		expect(summary?.orders).toEqual(expected)
+	})
+
+	it('reads every source concurrently', async () => {
 		const order: string[] = []
 		getMyLostItemsPage.mockImplementation(async () => {
 			order.push('posts:start')
@@ -110,6 +163,11 @@ describe('the activity loader', () => {
 	// A convenience panel must not surface as a broken route.
 	it.each([
 		['posts', () => getMyLostItemsPage.mockRejectedValue(new Error('boom'))],
+		['stickers', () => getMyQrCodesPage.mockRejectedValue(new Error('boom'))],
+		[
+			'orders',
+			() => getMyStickerOrdersPage.mockRejectedValue(new Error('boom')),
+		],
 		[
 			'the unread count',
 			() => getUnreadNotificationsCount.mockRejectedValue(new Error('boom')),

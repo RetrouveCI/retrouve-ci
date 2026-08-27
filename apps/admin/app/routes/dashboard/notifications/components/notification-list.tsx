@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { Button, Badge } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
-import { BellOff, Check, ArrowRight, Sparkles } from 'lucide-react'
+import { BellOff, Check, ArrowRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { Notification } from '../types/notifications.types'
@@ -42,10 +42,6 @@ export function NotificationList({
 					{!notif.read && (
 						<span className="bg-primary absolute top-1/2 left-2 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
 					)}
-
-					<div className="bg-primary/10 mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-						<Sparkles className="text-primary h-5 w-5" />
-					</div>
 
 					<div className="min-w-0 flex-1">
 						<div className="mb-0.5 flex flex-wrap items-center gap-2">

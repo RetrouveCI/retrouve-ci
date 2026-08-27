@@ -1,6 +1,6 @@
 import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
-import { ArrowRight, Sparkles, QrCode, Zap } from 'lucide-react'
+import { ArrowRight, QrCode, Zap } from 'lucide-react'
 import { useAuth } from '@/context/auth'
 export function StickersHero() {
 	const { isAuthenticated } = useAuth()
@@ -17,7 +17,6 @@ export function StickersHero() {
 					<div className="flex flex-col items-center gap-10 md:flex-row md:gap-16">
 						<div className="flex-1 text-center md:text-left">
 							<div className="bg-primary-green/10 text-primary-green mb-5 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium">
-								<Sparkles className="h-3.5 w-3.5" />
 								Technologie QR intelligente
 							</div>
 							<h1 className="mb-4 text-4xl font-bold tracking-tight text-balance md:text-5xl">
@@ -56,7 +55,6 @@ export function StickersHero() {
 								<span className="text-foreground font-semibold">
 									1 500 FCFA
 								</span>{' '}
-								· Livraison gratuite
 							</p>
 						</div>
 

@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react'
 import { QrCode, Edit2, PowerOff, Calendar, Package } from 'lucide-react'
 import { toast } from 'sonner'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
-import type { ActionResult } from '@/shared/types/action'
+import type { stickersAction } from '../servers/stickers.action'
 import type { Sticker } from '@/shared/types/sticker'
 import { cn } from '@app/ui/utils'
 
@@ -41,10 +41,8 @@ interface StickerCardProps {
 }
 
 export function StickerCard({ sticker }: StickerCardProps) {
-	// Typed on `ActionResult` rather than `typeof action`: this route is on
-	// stand-by, so its generated types do not exist.
-	const updateFetcher = useActionFetcher<ActionResult>()
-	const revokeFetcher = useActionFetcher<ActionResult>()
+	const updateFetcher = useActionFetcher<typeof stickersAction>()
+	const revokeFetcher = useActionFetcher<typeof stickersAction>()
 	const [hasSubmittedUpdate, setHasSubmittedUpdate] = useState(false)
 	const [hasSubmittedRevoke, setHasSubmittedRevoke] = useState(false)
 	const [isEditing, setIsEditing] = useState(false)
