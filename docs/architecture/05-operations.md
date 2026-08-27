@@ -113,7 +113,20 @@ tag; the bump comes from the merged PR's labels, defaulting to patch.
 
 On a new version tag (`*.*.*`). Builds and pushes the `api`, `client` and
 `admin` images to Docker Hub as a matrix, tagged with the version and `latest`.
-Needs `secrets.DOCKER_USERNAME` and `secrets.DOCKER_ACCESS_TOKEN`.
+Needs `secrets.DOCKER_USERNAME` and `secrets.DOCKER_ACCESS_TOKEN` —
+`DOCKER_USERNAME` is the login **and** the image namespace.
+
+> 🔴 **Neither secret exists on the repository yet.** `gh secret list` returns
+> `PAT_RETROUVECI` alone, which is why every image failed on `v0.7.0` with
+> `Username and password required`. A preflight step now names the missing
+> secrets instead of letting `docker/login-action` say that; create them under
+> Settings → Secrets and variables → Actions, then **re-run the workflow — the
+> tag does not need recreating.**
+
+The optional `Trigger Dokploy deployment` job is guarded by
+`if: vars.DOKPLOY_WEBHOOK_URL != ''`, so it skips silently while that
+**variable** (not secret) is unset. That is deliberate, but it does mean a
+successful build deploys nothing until the webhook is configured.
 
 ## Images
 
@@ -140,17 +153,18 @@ Per service: `Build Path = /`, `Docker File = apps/<app>/Dockerfile`,
 
 The ones seen in this system, and what each actually means.
 
-| Symptom                                                       | Cause                                                                                                                                                                                  |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| API boots healthy, no OTP ever arrives, no match notification | `REDIS_URL` unset — jobs queued where no worker reads them (now refused at boot)                                                                                                       |
-| Every browser call fails CORS, API looks fine                 | `ALLOWED_ORIGINS` unset or listing the wrong origins (now refused at boot)                                                                                                             |
-| Reloading a backoffice page redirects to login                | `COOKIE_DOMAIN` absent while the API and fronts are on different hosts — the cookie is host-only                                                                                       |
-| Reloading a backoffice page answers 500                       | `API_URL` unreachable from the container. The container logs name the cause                                                                                                            |
-| A backoffice call answers 401 that should work                | It went to `/api/auth/*` instead of `/api/admin-auth/*`. Both instances expose the `admin()` routes, so the wrong base path does not 404 — it validates against the other app's cookie |
-| The emailed reset link 404s                                   | `ADMIN_APP_URL` unset, so a relative `redirectTo` resolved against `BETTER_AUTH_URL` — the API's origin, where nothing serves that page                                                |
-| SMS arrives truncated or costs double                         | An accent slipped into a template: GSM-7 → UCS-2 halves the segment from 160 to 70 characters                                                                                          |
-| The unread badge never appears                                | The counter endpoint answers a bare number; typing it as `{ count }` yields `undefined` and the badge silently never renders                                                           |
-| A page 500s on a date                                         | `new Date(<unparseable>)` in SSR raises `RangeError`. Validate the boundary, or let the API be the only producer                                                                       |
+| Symptom                                                       | Cause                                                                                                                                                                                         |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API boots healthy, no OTP ever arrives, no match notification | `REDIS_URL` unset — jobs queued where no worker reads them (now refused at boot)                                                                                                              |
+| A version tag is created but no image appears on Docker Hub   | `DOCKER_USERNAME` / `DOCKER_ACCESS_TOKEN` missing — `docker/login-action` reports `Username and password required`, naming neither the secret nor where to set it (a preflight step now does) |
+| Every browser call fails CORS, API looks fine                 | `ALLOWED_ORIGINS` unset or listing the wrong origins (now refused at boot)                                                                                                                    |
+| Reloading a backoffice page redirects to login                | `COOKIE_DOMAIN` absent while the API and fronts are on different hosts — the cookie is host-only                                                                                              |
+| Reloading a backoffice page answers 500                       | `API_URL` unreachable from the container. The container logs name the cause                                                                                                                   |
+| A backoffice call answers 401 that should work                | It went to `/api/auth/*` instead of `/api/admin-auth/*`. Both instances expose the `admin()` routes, so the wrong base path does not 404 — it validates against the other app's cookie        |
+| The emailed reset link 404s                                   | `ADMIN_APP_URL` unset, so a relative `redirectTo` resolved against `BETTER_AUTH_URL` — the API's origin, where nothing serves that page                                                       |
+| SMS arrives truncated or costs double                         | An accent slipped into a template: GSM-7 → UCS-2 halves the segment from 160 to 70 characters                                                                                                 |
+| The unread badge never appears                                | The counter endpoint answers a bare number; typing it as `{ count }` yields `undefined` and the badge silently never renders                                                                  |
+| A page 500s on a date                                         | `new Date(<unparseable>)` in SSR raises `RangeError`. Validate the boundary, or let the API be the only producer                                                                              |
 
 ## Health and observability
 
