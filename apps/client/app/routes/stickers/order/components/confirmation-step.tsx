@@ -1,7 +1,7 @@
 import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { CheckCircle2, Tag } from 'lucide-react'
-import { PAYMENT_ON_DELIVERY_LABEL } from '@app/contracts/sticker-orders'
+import { stickerPaymentMethodLabel } from '@app/contracts/sticker-orders'
 import type { Order } from '../../../account/orders/types/orders.types'
 
 interface ConfirmationStepProps {
@@ -60,7 +60,7 @@ export function ConfirmationStep({
 					</div>
 					<div className="flex justify-between">
 						<span className="text-muted-foreground">Paiement</span>
-						<span>{PAYMENT_ON_DELIVERY_LABEL}</span>
+						<span>{stickerPaymentMethodLabel(order.paymentMethod)}</span>
 					</div>
 					<div className="flex justify-between border-t pt-3">
 						<span className="text-muted-foreground">Livraison</span>

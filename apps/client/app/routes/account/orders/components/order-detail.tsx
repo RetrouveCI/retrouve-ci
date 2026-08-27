@@ -10,6 +10,7 @@ import {
 	Calendar,
 } from 'lucide-react'
 import { cn } from '@app/ui/utils'
+import { stickerPaymentMethodLabel } from '@app/contracts/sticker-orders'
 import type { Order, OrderStatus } from '../types/orders.types'
 
 const STATUS_CONFIG: Record<
@@ -183,7 +184,9 @@ export function OrderDetail({ order, onClose }: OrderDetailProps) {
 							<CreditCard className="text-muted-foreground mt-0.5 h-4 w-4" />
 							<div className="flex-1">
 								<p className="text-muted-foreground">Mode de paiement</p>
-								<p className="font-medium">{order.paymentMethod}</p>
+								<p className="font-medium">
+									{stickerPaymentMethodLabel(order.paymentMethod)}
+								</p>
 							</div>
 						</div>
 						{order.trackingNumber && (
