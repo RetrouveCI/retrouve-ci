@@ -5,8 +5,14 @@
 > le mode sombre, et rendre l'application installable.
 >
 > Documents de travail : l'**audit** (31 constats priorisés, mesures de
-> contraste, plan par lots) et le **canevas de wireframes** (39 écrans sur 7
+> contraste, plan par lots) et le **canevas de wireframes** (48 écrans sur 8
 > pages) — liens en §9.
+>
+> Le **lot 9 (authentification)** a été ajouté après l'écriture initiale : les
+> écrans de connexion, d'inscription et de récupération n'étaient pas dans le
+> périmètre de départ. Il porte les numéros R26 à R30 et ne renumérote rien — R1
+> est déjà mergée (PR #150) et R2–R25 sont référencées dans tout ce document,
+> dans les messages de passation et dans l'historique git.
 
 ---
 
@@ -82,7 +88,7 @@ Un même rôle, une même forme. Ces primitives sont posées par R2 et R3 ; aucu
 boutons-icônes sous 44 px, le texte blanc sur orange, le texte vert de marque
 sur fond sombre, `text-[10px]` et `text-[11px]`.
 
-### 2.2 Les quatre flux de bout en bout
+### 2.2 Les cinq flux de bout en bout
 
 Chaque étape déclare le ou les flux qu'elle touche. Avant de merger, dérouler le
 flux **entier** sur un téléphone, pas seulement l'écran modifié.
@@ -132,6 +138,28 @@ Compte → Mes annonces → [bannière modération] → carte → menu ⋯
 Étapes concernées : R11, R12, R13, R14. Invariant : les deux axes d'état ne se
 mélangent jamais (§2.3).
 
+#### Flux E — « Je crée mon compte »
+
+```
+Action protégée (publier, commander, activer) → /auth/login
+        → « Créer un compte » → Inscription 1/3 (numéro) → 2/3 (code SMS)
+        → 3/3 (mot de passe) → retour à l'action d'origine (redirectTo)
+
+Oubli : /auth/login → Mot de passe oublié (numéro)
+        → Code + nouveau mot de passe (un seul écran) → Connexion
+```
+
+Étapes concernées : R26, R27, R28, R29, R30. Deux invariants :
+
+1. **Un numéro saisi vaut un SMS livrable.** La règle ivoirienne
+   (`^0[157]\d{8}$`, §3) s'applique partout où un numéro est saisi pour la
+   première fois — inscription, changement de numéro, contact d'annonce,
+   commande, contact QR. La **connexion** et la **récupération de compte**, à
+   l'inverse, acceptent ce qui est déjà en base : resserrer la règle sur ces
+   deux chemins verrouillerait dehors un compte existant.
+2. **Le `redirectTo` traverse les trois étapes.** Qui arrive sur l'inscription
+   depuis « Publier » revient à « Publier », pas à l'accueil.
+
 ### 2.3 Règles de cohérence à vérifier à chaque PR
 
 1. **Un état, une source.** `moderationStatus` (subi) s'affiche en bannière et
@@ -158,20 +186,24 @@ mélangent jamais (§2.3).
 
 ## 3. Décisions déjà prises
 
-| Sujet                      | Décision                                                                                            |
-| -------------------------- | --------------------------------------------------------------------------------------------------- |
-| Barre d'onglets mobile     | **Option C** : Accueil · Annonces · (+) · **Scanner** · Compte                                      |
-| Point focal                | « Publier » le garde — c'est le moteur de contenu                                                   |
-| Onglet Stickers            | **Supprimé.** « Mes stickers » va dans Compte, l'acquisition passe par le bloc produit de l'accueil |
-| Icône scanner du header    | Retirée : l'onglet la rend redondante                                                               |
-| Menu latéral (`MobileNav`) | Supprimé ; les liens légaux redescendent au pied de page                                            |
-| `ActivityHub`              | Fusionné dans l'écran Compte                                                                        |
-| Bascule de navigation      | `md` → **`lg`** : la tablette garde les onglets                                                     |
-| Scanner sur desktop        | **Aucun.** L'équivalent est la saisie du code, sur la page Stickers                                 |
-| Vert de marque en sombre   | `--primary-green-light` (#2A9D54), 5,71:1 — le token existe déjà                                    |
-| Orange en texte, en clair  | Nouveau token `--accent-orange-text` (#B35600), 4,94:1                                              |
-| Aplat orange               | Encre foncée, jamais du blanc (2,70:1 contre 6,23:1)                                                |
-| Thème                      | Troisième valeur `system`, qui devient le **défaut**                                                |
+| Sujet                      | Décision                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Barre d'onglets mobile     | **Option C** : Accueil · Annonces · (+) · **Scanner** · Compte                                        |
+| Point focal                | « Publier » le garde — c'est le moteur de contenu                                                     |
+| Onglet Stickers            | **Supprimé.** « Mes stickers » va dans Compte, l'acquisition passe par le bloc produit de l'accueil   |
+| Icône scanner du header    | Retirée : l'onglet la rend redondante                                                                 |
+| Menu latéral (`MobileNav`) | Supprimé ; les liens légaux redescendent au pied de page                                              |
+| `ActivityHub`              | Fusionné dans l'écran Compte                                                                          |
+| Bascule de navigation      | `md` → **`lg`** : la tablette garde les onglets                                                       |
+| Scanner sur desktop        | **Aucun.** L'équivalent est la saisie du code, sur la page Stickers                                   |
+| Vert de marque en sombre   | `--primary-green-light` (#2A9D54), 5,71:1 — le token existe déjà                                      |
+| Orange en texte, en clair  | Nouveau token `--accent-orange-text` (#B35600), 4,94:1                                                |
+| Aplat orange               | Encre foncée, jamais du blanc (2,70:1 contre 6,23:1)                                                  |
+| Thème                      | Troisième valeur `system`, qui devient le **défaut**                                                  |
+| Règle du numéro            | `^0[157]\d{8}$`, et **deux prédicats** : strict à la saisie, longueur seule à la connexion (R26)      |
+| Durée de vie de l'OTP      | Une seule constante, `OTP_TTL_SECONDS` remontée dans `@app/contracts/shared` (front : 120, API : 300) |
+| Panneau de marque auth     | Se couche en bandeau entre `md` et `lg` au lieu de disparaître — même bascule que la navigation       |
+| Compteurs du panneau       | Branchés sur des données réelles, ou rien du tout. Jamais de chiffre écrit en dur                     |
 
 **Écarté, conservé comme trace** : option A (le scanner au centre, « Publier »
 déplacé) et option B (capsule à deux actions). À rouvrir si les stickers
@@ -211,12 +243,19 @@ Une ligne = une branche = une PR = une session.
 | **R23** | PWA      | Manifeste, icônes et couleurs de thème      | `refonte-r23-manifest`               | `client/pwa`        | 1 j    | R1           |
 | **R24** | PWA      | Service worker, coquille et page hors-ligne | `refonte-r24-service-worker`         | `client/pwa`        | 1,5 j  | R4, R23      |
 | **R25** | PWA      | Invite et page d'installation               | `refonte-r25-install`                | `client/pwa`        | 1 j    | R23          |
+| **R26** | Auth     | Règle du numéro ivoirien                    | `refonte-r26-phone-rule`             | `contracts`         | 0,5 j  | —            |
+| **R27** | Auth     | Connexion et inscription                    | `refonte-r27-login-register`         | `client/auth`       | 1,5 j  | R2, R26      |
+| **R28** | Auth     | Mot de passe oublié en un écran             | `refonte-r28-password-reset`         | `client/auth`       | 1 j    | R26, R27     |
+| **R29** | Auth     | Layout auth aux trois largeurs              | `refonte-r29-auth-layout`            | `client/auth`       | 0,5 j  | —            |
+| **R30** | Auth     | Copie et chiffres du panneau de marque      | `refonte-r30-auth-copy`              | `client/auth`       | 0,5 j  | R29          |
 | **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`       | `api/lost-items`    | 1 j    | —            |
 | **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`        | `api/storage`       | 0,5 j  | —            |
 | **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                | `api/notifications` | 3 j    | R23          |
 
-**Total ≈ 30 j** en séquentiel, dont ≈ 4,5 j côté API. R2/R3 et R11/R12 se
-parallélisent ; les lots 3 à 6 s'ouvrent ensemble une fois la coquille posée.
+**Total ≈ 34 j** en séquentiel, dont ≈ 4,5 j côté API et ≈ 4 j pour le lot 9.
+R2/R3, R11/R12 et R26/R29 se parallélisent ; les lots 3 à 6 s'ouvrent ensemble
+une fois la coquille posée, et le lot 9 s'ouvre indépendamment d'eux — il ne
+partage que `Button` et `Input` (R2) avec le reste du chantier.
 
 ### Chemin critique
 
@@ -227,12 +266,22 @@ R3 → R5 → R6 → R20 → R21
      ↘         ↘ R22
 R4 ────────→ R17
 R2 → R8, R10, R18
+R2 → R27
 R11 + R12 → R13 → R14
+R26 → R27 → R28
+R29 → R30
 ```
 
 **R6 est la seule étape à portée globale** : elle supprime `MobileNav`, déplace
 `ActivityHub` et change la bascule `md` → `lg`. Toutes les autres sont locales à
 une route ou à un paquet.
+
+**R26 doit précéder R27 et R28.** Le lot 9 redessine des formulaires dont les
+schémas lisent le prédicat que R26 pose ; les redessiner d'abord obligerait à
+les rouvrir. R26 est aussi la seule étape du lot à sortir d'`apps/client` : elle
+touche `packages/contracts` et se répercute sur `apps/api` comme sur
+`apps/admin`. C'est donc la seule à devoir rebâtir le paquet avant que l'api ne
+voie le contrat — `apps/api` lit `@app/contracts` par son `dist`.
 
 **R5 doit précéder R6.** R6 supprime le menu latéral, qui est le seul accès
 mobile au sélecteur de thème tant que R5 ne l'a pas posé dans Réglages.
@@ -668,6 +717,217 @@ déclarée installable par le navigateur.
 `app/components/`. **Flux** : tous. **Acceptation** : l'invite n'apparaît jamais
 avant une action réussie.
 
+### Lot 9 — Authentification
+
+> Neuf écrans du canevas (page « Authentification ») : connexion, inscription en
+> trois étapes, mot de passe oublié en deux écrans, la feuille « règle du numéro
+> », plus la connexion et le code SMS en 1440 px et la variante tablette.
+>
+> Le lot s'ouvre par **R26**, la seule étape à toucher `packages/contracts` :
+> les quatre suivantes redessinent des formulaires dont les schémas lisent le
+> prédicat qu'elle pose.
+
+#### R26 — Règle du numéro ivoirien
+
+**Mesuré (§1.1).** `isValidLocalNumber` ne vérifie **que la longueur** : dix
+chiffres, aucun préfixe contrôlé nulle part dans le dépôt. Vérifié en exécutant
+le validateur réel :
+
+| Saisie       | Aujourd'hui | Stocké           |
+| ------------ | ----------- | ---------------- |
+| `0612345678` | accepté     | `+2250612345678` |
+| `0000000000` | accepté     | `+2250000000000` |
+| `1234567890` | accepté     | `+2251234567890` |
+
+Un numéro étranger devient un faux numéro ivoirien, aucun SMS ne part, et
+l'utilisateur reste bloqué sur l'écran du code — sans qu'aucun message ne lui
+dise pourquoi.
+
+**Règle confirmée** : `+22501`, `+22505` ou `+22507` suivis de huit chiffres,
+soit `^0[157]\d{8}$` en forme locale.
+
+**Décision — deux prédicats.** Vérifié dans `better-auth@1.6.30`
+(`dist/plugins/phone-number/routes.mjs`, lignes 53 et 145) : le
+`phoneNumberValidator` du greffon `phoneNumber()` garde exactement **deux**
+routes, `/sign-in/phone-number` et `/phone-number/send-otp`. Il n'existe donc
+aucun moyen d'être strict à l'inscription et laxiste à la connexion avec un
+prédicat unique : le resserrer verrouillerait dehors tout compte existant dont
+le numéro stocké ne s'y conforme pas. C'est l'arbitrage déjà retenu pour le mot
+de passe, dont aucune des deux routes de connexion ne borne la valeur reçue.
+
+1. `packages/contracts/src/shared/phone.ts` : ajouter `isAssignableLocalNumber`
+   (`^0[157]\d{8}$` appliqué à `toLocalDigits`) et son message,
+   `ASSIGNABLE_PHONE_ERROR_MESSAGE` — « Entrez un numéro ivoirien : 01, 05 ou 07
+   suivi de 8 chiffres ». `isValidLocalNumber` **ne change pas**.
+2. Basculer sur le prédicat strict les sept points où un numéro est **saisi** ;
+   laisser les trois autres sur la longueur seule.
+3. Vérifier que `toE164` reste inchangé : il n'a jamais été le problème.
+
+**Les dix points d'appel**, recomptés (l'audit en annonçait treize ; il comptait
+les deux barils de ré-export `apps/{client,admin}/app/shared/utils/phone.ts` et
+les fichiers de test) :
+
+| Fichier                                                      | Rôle du numéro                    | Prédicat                                     |
+| ------------------------------------------------------------ | --------------------------------- | -------------------------------------------- |
+| `apps/api/src/infrastructures/auth/auth.config.ts:21`        | connexion **et** envoi d'OTP      | longueur, inchangé                           |
+| `apps/client/…/routes/auth/login/login.schema.ts:9`          | connexion                         | longueur, inchangé                           |
+| `apps/client/…/auth/password-forgotten/…schema.ts:8`         | récupération d'un compte existant | longueur, inchangé                           |
+| `apps/client/…/routes/auth/register/register.schema.ts:13`   | création de compte                | **strict**                                   |
+| `apps/client/…/account/settings/settings.schema.ts:31`       | changement de numéro              | **strict**                                   |
+| `apps/client/…/routes/publish/publish.schema.ts:59`          | contact WhatsApp d'une annonce    | **strict**                                   |
+| `apps/client/…/routes/stickers/order/order.schema.ts:13`     | téléphone du destinataire         | **strict**                                   |
+| `packages/contracts/src/qr-codes/contact-owner.schema.ts:10` | numéro de qui a trouvé            | **strict**                                   |
+| `packages/contracts/src/lost-items/create.schema.ts:26`      | contact WhatsApp, côté API        | **strict**                                   |
+| `apps/admin/…/administrators/administrators.schema.ts:29`    | téléphone administrateur          | **strict**, branche `value === ''` conservée |
+
+> Les deux dernières lignes de `packages/contracts` sont les jumelles serveur de
+> `publish.schema.ts` et du formulaire QR : les resserrer côté front seul
+> laisserait l'API accepter ce que le front refuse.
+
+**Fichiers** : `packages/contracts/src/shared/phone.ts`, les sept schémas
+ci-dessus, et les deux barils de ré-export si le nouveau nom doit y transiter.
+**Flux** : E, et A, B, C par les champs de contact. **Acceptation** : `06…`,
+`00…` et `12…` sont refusés à la saisie avec un message qui nomme les préfixes ;
+un compte existant portant un numéro non conforme se connecte toujours.
+**Tests** : projet `node` sur
+`packages/contracts/src/shared/__tests__/phone.spec.ts` — accepter `01`, `05`,
+`07` suivis de huit chiffres ; refuser `02`, `04`, `06`, `08`, `09`, `00`, un
+neuf-chiffres et un onze-chiffres ; et **un test qui assure
+qu'`isValidLocalNumber` reste laxiste**, sans quoi la connexion se resserrerait
+par accident au premier refactor.
+
+#### R27 — Connexion et inscription
+
+**Objectif** : rendre l'inscription franchissable quand le SMS n'arrive pas.
+
+1. **Le drapeau.** `phone-step.tsx` affiche `/logo.png` — le logo de
+   l'application — comme drapeau à côté de `+225`. Le remplacer par un drapeau
+   ivoirien en SVG inline (trois bandes, aucun fichier à ajouter dans
+   `public/`), ou ne garder que `+225`.
+2. **La durée de vie du code.** `OTP_EXPIRY_SECONDS = 120` est écrit **en dur,
+   deux fois** (`register/components/otp-step-section.tsx:11`,
+   `reset-password/components/otp-step-section.tsx:14`), là où le serveur
+   accorde `OTP_TTL_SECONDS = 300` (`apps/api/src/shared/auth/otp.const.ts`).
+   Conséquence mesurée : à deux minutes le compte à rebours tombe à zéro, le
+   bouton « Confirmer » se désactive (`timeLeft === 0` dans `otp-step.tsx:89`),
+   et **un code encore valide trois minutes devient inutilisable**. Remonter
+   `OTP_TTL_SECONDS` dans `@app/contracts/shared/otp.ts`, à côté d'`OTP_LENGTH`
+   qui y est déjà pour exactement la même raison, et le lire des deux côtés.
+3. **Le renvoi anticipé.** « Renvoyer le code » n'apparaît qu'une fois le compte
+   à rebours à zéro. Le proposer après **30 s**. Le compte à rebours dit
+   l'expiration du code, pas la disponibilité du renvoi : deux informations
+   distinctes, deux affichages.
+4. **La correction du numéro.** Le bouton « Retour » existe déjà (`goBack` dans
+   `register/_index.tsx:42` et `reset-password/_index.tsx:37`) — **mais il perd
+   le numéro** : `PhoneStepSection` est démonté puis remonté avec
+   `defaultValues: { phoneNumber: '' }`, et il faut le resaisir en entier.
+   Remonter `phoneNumber` dans l'état de la page et le passer en valeur par
+   défaut. Ajouter en plus, sous les cases du code, un lien « Modifier le numéro
+   » : le « Retour » en tête de page ne se lit pas comme une correction.
+5. **Deux constantes qui traînent.** `otp-step.tsx:89` teste `otp.length < 6` en
+   dur, quand le `maxLength` du même composant lit déjà `OTP_LENGTH`. Et le
+   champ et le bouton sont en `h-12` (48 px), sous les 52 px de §2.1 : adopter
+   la taille que R2 pose sur `Button` et `Input` plutôt qu'une classe locale.
+
+**Fichiers** : `routes/auth/components/phone-step.tsx`, `otp-step.tsx`,
+`routes/auth/register/_index.tsx`,
+`register/components/{phone-step-section,otp-step-section}.tsx`,
+`routes/auth/login/components/login-form.tsx`,
+`packages/contracts/src/shared/otp.ts`, `apps/api/src/shared/auth/otp.const.ts`.
+**Flux** : E. **Acceptation** : qui n'a rien reçu peut redemander un code au
+bout de 30 s et corriger son numéro sans le resaisir ; aucun code encore valide
+côté serveur n'est refusé par le front. **Tests** : projet `ui` sur le passage
+d'étape et la conservation du numéro au retour ; projet `node` sur la constante
+partagée (le test d'`apps/api` qui affirme `OTP_TTL_SECONDS === 300` déménage
+avec elle).
+
+#### R28 — Mot de passe oublié en un écran
+
+**Mesuré.** Le parcours compte aujourd'hui **trois** écrans :
+`/auth/password-forgotten` (numéro) puis `/auth/reset-password?phone=…` avec
+deux étapes internes, code puis nouveau mot de passe. Le code n'est vérifié qu'à
+la soumission du mot de passe : `NewPasswordStepSection` échoue, appelle
+`onFail()`, `reset-password/_index.tsx:80` renvoie à l'étape du code — dont le
+compte à rebours a été relancé à 120 s par le remontage — et **le mot de passe
+saisi est perdu**.
+
+1. Fusionner code et nouveau mot de passe sur un seul écran : les cases du code,
+   le champ, sa confirmation, une soumission.
+2. Une seule requête `/phone-number/reset-password`, ce qui est déjà le cas — la
+   découpe en deux étapes n'apporte rien qu'un aller-retour.
+3. Un code refusé s'affiche sur les cases, sur place, sans changer d'écran et
+   sans effacer le mot de passe saisi.
+4. Le numéro reste affiché et modifiable (retour à l'écran précédent).
+
+**Fichiers** : `routes/auth/reset-password/_index.tsx`,
+`components/otp-step-section.tsx` et `new-password-step-section.tsx`
+(fusionnés), `reset-password.schema.ts`. **Flux** : E. **Acceptation** : un code
+faux ne coûte plus la saisie du mot de passe. **Tests** : projet `ui` — code
+correct, code refusé, mot de passe non conforme.
+
+#### R29 — Layout auth aux trois largeurs
+
+**Mesuré.** `branding-panel.tsx:6` est `hidden … lg:flex` et la colonne de
+formulaire est `max-w-md`, soit 448 px. Entre 768 et 1023 px — une tablette en
+portrait fait exactement 768 px — le panneau disparaît et laisse 448 px de
+formulaire au milieu d'une page vide. C'est la même bascule `md` → `lg` que R6
+applique à la navigation, et pour la même raison.
+
+1. Entre `md` et `lg` : coucher le panneau en bandeau horizontal au-dessus du
+   formulaire — identité, titre, les trois arguments en ligne. Il ne disparaît
+   plus.
+2. Sous `md` : l'en-tête compact actuel, inchangé.
+3. À partir de `lg` : la composition à deux colonnes actuelle.
+4. `min-h-screen` imbriqué : `root.tsx:112` (le `body`), `auth/layout.tsx:6` (la
+   racine) et `auth/layout.tsx:9` (la colonne de formulaire) le portent tous les
+   trois. N'en garder qu'un, sur la racine du layout.
+5. Passer ce `min-h-screen` en `min-h-dvh` : `100vh` compte la barre d'URL du
+   navigateur mobile, qui n'y est pas. Le dépôt n'emploie `dvh` nulle part ; les
+   deux autres occurrences (`root.tsx`, `routes/q/_index.tsx`) sont hors de ce
+   lot — `routes/q` revient à R19, `root.tsx` à R23.
+
+**Fichiers** : `routes/auth/layout.tsx`, `components/branding-panel.tsx`.
+**Flux** : E. **Acceptation** : à 768, 1024 et 1440 px, la page porte une
+identité de marque et aucune zone vide dominante. **Non couvert en CI** : le
+critère est visuel aux trois largeurs, comme celui de R1.
+
+#### R30 — Copie et chiffres du panneau de marque
+
+Deux défauts distincts sur les mêmes écrans.
+
+**Les accents.** Treize chaînes sans accents dans trois fichiers, et deux
+d'entre elles cohabitent sur le même écran avec leur version correctement
+accentuée :
+
+| Fichier                         | Chaînes                                                                                                                                                                | Voisine accentuée, même écran            |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `components/branding-panel.tsx` | « Cote d'Ivoire » ×2, « Alertes instantanees », « Soyez notifie des qu'un objet correspond », « 100% securise », « Vos donnees restent privees », « Objets retrouves » | —                                        |
+| `components/otp-step.tsx`       | « Code incorrect. Verifiez et reessayez. », « Verification... »                                                                                                        | le titre de la page, « Vérification »    |
+| `components/password-step.tsx`  | « Creation du compte... », « Reinitialisation... », « Creer mon compte », « Reinitialiser le mot de passe »                                                            | le titre de la page, « Créer un compte » |
+
+> **Recompté (§1.1).** L'audit en annonçait neuf et citait « Utilisateurs actifs
+> » et « Villes couvertes », qui n'en demandent aucun. Il manquait en revanche
+> les quatre de `password-step.tsx` et « Verification... ».
+
+**Les chiffres.** « 2,500+ objets retrouvés », « 15,000+ utilisateurs actifs »
+et « 50+ villes couvertes » sont **écrits en dur** (`branding-panel.tsx:74-86`)
+et le pilote Abidjan n'a pas démarré : trois affirmations fausses sur l'écran
+même qui demande la confiance. Le séparateur de milliers est de surcroît la
+virgule anglaise, là où le français emploie l'espace insécable.
+
+1. Corriger les treize chaînes.
+2. Brancher la bande sur des données réelles, ou la supprimer. **Ne rien
+   afficher tant qu'il n'y a rien** : la bande disparaît entièrement plutôt que
+   d'annoncer zéro — un compteur à zéro sur un écran de confiance est pire qu'un
+   compteur absent. La source reste à trancher (§8).
+3. Séparateur de milliers : `Intl.NumberFormat('fr-FR')`.
+
+**Fichiers** : `routes/auth/components/branding-panel.tsx`, `otp-step.tsx`,
+`password-step.tsx`, et le loader de `routes/auth/layout.tsx` si la bande est
+branchée. **Flux** : E. **Acceptation** : aucun chiffre inventé sur un écran
+d'authentification ; aucun mot français amputé de ses accents. **Tests** :
+projet `node` sur le formateur (zéro → rien, `1234` → « 1 234 »).
+
 ### Étapes API
 
 #### A1 — Motif de masquage d'une annonce
@@ -706,7 +966,9 @@ notifications à personne n'a pas d'intérêt.
 
 ## 6. Ce qui ne bouge pas
 
-- **`@app/contracts`** : aucun schéma n'a besoin de changer, sauf A1.
+- **`@app/contracts`** : aucun schéma n'a besoin de changer, sauf A1 (motif de
+  masquage) et R26 (le prédicat strict du numéro, et la remontée
+  d'`OTP_TTL_SECONDS` depuis `apps/api`).
 - **Les endpoints de l'API** : tout le front se sert de ce qui existe, y compris
   les correspondances (`/lost-items?type&category&ville`).
 - **Le découpage `servers/*.loader.ts` / `*.action.ts`** : aucun composant
@@ -733,12 +995,14 @@ notifications à personne n'a pas d'intérêt.
 
 ## 8. Points à trancher
 
-| Sujet                      | Question                                                                                         | À trancher avant |
-| -------------------------- | ------------------------------------------------------------------------------------------------ | ---------------- |
-| Pagination                 | Chargement continu ou pagination compacte ? Le second garde une position partageable dans l'URL. | R9               |
-| Motif de masquage          | A1 avant ou après R13 ? Avant, si la modération masque déjà des annonces en production.          | R13              |
-| Bloc stickers de l'accueil | Quelle mesure décide qu'il convertit ? À instrumenter dès R17.                                   | R17              |
-| Web push                   | A3 vaut-elle son coût ? Le lot 8 se livre sans.                                                  | R25              |
+| Sujet                        | Question                                                                                                                               | À trancher avant |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| Pagination                   | Chargement continu ou pagination compacte ? Le second garde une position partageable dans l'URL.                                       | R9               |
+| Motif de masquage            | A1 avant ou après R13 ? Avant, si la modération masque déjà des annonces en production.                                                | R13              |
+| Bloc stickers de l'accueil   | Quelle mesure décide qu'il convertit ? À instrumenter dès R17.                                                                         | R17              |
+| Web push                     | A3 vaut-elle son coût ? Le lot 8 se livre sans.                                                                                        | R25              |
+| Récupération de mot de passe | La règle stricte s'y applique-t-elle ? Non par défaut, comme la connexion — mais un numéro non conforme ne recevra jamais son SMS.     | R26              |
+| Compteurs du panneau auth    | Quelle source ? `/stats` est réservé au backoffice ; faut-il un endpoint public, ou le layout auth compte-t-il les annonces en ligne ? | R30              |
 
 ---
 
@@ -747,7 +1011,7 @@ notifications à personne n'a pas d'intérêt.
 | Document                 | Contenu                                                                         |
 | ------------------------ | ------------------------------------------------------------------------------- |
 | Audit UX/UI mobile & PWA | 31 constats priorisés P0/P1/P2, mesures de contraste, plan par lots             |
-| Canevas de wireframes    | 39 écrans sur 7 pages, une note de décision par groupe                          |
+| Canevas de wireframes    | 48 écrans sur 8 pages, une note de décision par groupe                          |
 | `CLAUDE.md`              | Normatif sur l'architecture — en cas de désaccord, il l'emporte sur ce document |
 | `AGENTS.md`              | Format de commit, de PR et de tests                                             |
 | `.claude/skills/`        | `frontend-conventions`, `unit-tests`, `code-quality-review`                     |
