@@ -8,6 +8,9 @@ This repository is a [Turborepo](https://turbo.build/repo) monorepo containing
 two React Router v7 web applications, a NestJS API, and a set of shared
 packages.
 
+📖 **Architecture documentation lives in [`docs/`](docs/README.md)** — overview,
+applications, shared packages, business flows and operations.
+
 ## Apps
 
 | App                             | Port | Stack            | Description                |
@@ -18,13 +21,16 @@ packages.
 
 ## Packages
 
-| Package                  | Description                                        |
-| ------------------------ | -------------------------------------------------- |
-| `@app/database`          | Prisma schema, migrations & generated client       |
-| `@app/ui`                | Shared shadcn/ui component library (source-only)   |
-| `@app/eslint-config`     | Shared ESLint configs (base, next, react-internal) |
-| `@app/typescript-config` | Shared `tsconfig` presets                          |
-| `@app/vitest-config`     | Shared Vitest presets (base, react)                |
+| Package                  | Description                                              |
+| ------------------------ | -------------------------------------------------------- |
+| `@app/contracts`         | Zod schemas shared by the API and both fronts (sub-path) |
+| `@app/auth`              | Shared better-auth core, framework-agnostic              |
+| `@app/database`          | Prisma schema, migrations & generated client             |
+| `@app/ui`                | Shared shadcn/ui component library (source-only)         |
+| `@app/web-kit`           | Front code shared client ↔ admin (source-only, sub-path) |
+| `@app/eslint-config`     | Shared ESLint configs (base, react-internal)             |
+| `@app/typescript-config` | Shared `tsconfig` presets                                |
+| `@app/vitest-config`     | Shared Vitest presets (base, react)                      |
 
 ## Prerequisites
 
@@ -60,7 +66,7 @@ pnpm dev           # Start all apps in parallel
 pnpm build         # Build all packages and apps (packages build first)
 pnpm lint          # Lint all workspaces
 pnpm typecheck     # Type-check all workspaces
-pnpm test          # Run unit tests (Vitest — currently the api app only)
+pnpm test          # Run unit tests (Vitest — api, client and admin)
 pnpm format        # Format with Prettier
 pnpm format:check  # Verify formatting without writing (used by CI)
 ```
@@ -97,8 +103,8 @@ pnpm --filter @app/ui build
 **Backend (`api`)**
 
 - **NestJS 11** on the **Fastify** adapter, REST + Swagger (`/docs`)
-- **Domain-Driven / Clean Architecture** (`domains` / `presentation` /
-  `infrastructure` / `shared`)
+- **Domain-Driven / Clean Architecture** (`domains` / `presentations` /
+  `infrastructures` / `shared`)
 - **Prisma 7** over Postgres via driver adapters (`@prisma/adapter-pg`)
 - **BullMQ** (Redis) for background jobs — match notifications and OTP SMS — and
   **better-auth** for auth (phone OTPs delivered over SMS via Letexto)
