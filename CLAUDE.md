@@ -248,6 +248,15 @@ what is genuinely presentational: `stickers-order.const.ts` holds the sales copy
 (`description`, `popular`, `features`) and composes it onto the contract's
 packs.
 
+It also owns `PAYMENT_ON_DELIVERY` / `PAYMENT_ON_DELIVERY_LABEL`. Stickers are
+paid in cash to the courier, so `createStickerOrderSchema` accepts **no**
+payment field and `CreateStickerOrderUseCase` stamps the constant on every row,
+the way it already prices the order from the catalogue rather than from the
+body. The column stays, so a mobile-money gateway later is a new value here and
+not a migration; the backoffice's order dialog names the constant and shows any
+other stored value as it was recorded. The client's mobile-money catalogue and
+its `components/payment-step.tsx` are parked in comments for that day.
+
 A query string carries everything as a string, so a filter that is not a string
 needs the same union `paginationQuerySchema` uses for its numbers:
 `notifications/list-filter.schema.ts` reads `read` as

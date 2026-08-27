@@ -3,7 +3,6 @@ import { requireServerSession } from '@/shared/helpers/session.server'
 import type { ActionResult } from '@/shared/types/action'
 import { withApiOperationData } from '@/shared/utils/api-operation'
 import { stickerOrderSchema } from '../order.schema'
-import { PAYMENT_METHODS } from '../stickers-order.const'
 import { createStickerOrder } from './order.service'
 import { toOrder } from '../../../account/orders/mappers/order.mapper'
 import type { Order } from '../../../account/orders/types/orders.types'
@@ -21,9 +20,6 @@ export async function orderAction(
 	}
 
 	const order = submission.data
-	const paymentMethodLabel =
-		PAYMENT_METHODS.find(method => method.id === order.paymentMethod)?.name ??
-		order.paymentMethod
 
 	return withApiOperationData(
 		async () =>
@@ -31,10 +27,9 @@ export async function orderAction(
 				await createStickerOrder(
 					{
 						packId: order.packId,
-						paymentMethod: order.paymentMethod,
 						deliveryAddress: order.address,
 						deliveryCity: order.city,
-						deliveryNotes: `Contact: ${order.name} (${order.phone}). Paiement ${paymentMethodLabel} - ${order.paymentPhone}.`,
+						deliveryNotes: `Contact: ${order.name} (${order.phone}).`,
 						...(order.couponCode ? { couponCode: order.couponCode } : {}),
 					},
 					request,

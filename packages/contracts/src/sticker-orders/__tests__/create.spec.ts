@@ -3,7 +3,6 @@ import { createStickerOrderSchema } from '../create.schema'
 
 const VALID = {
 	packId: 'pack-8',
-	paymentMethod: 'orange-money',
 	deliveryAddress: 'Cocody Riviera 3, Abidjan',
 	deliveryCity: 'Abidjan',
 	deliveryNotes: 'Portail bleu, deuxième étage',
@@ -20,7 +19,6 @@ describe('createStickerOrderSchema', () => {
 	it('accepts a complete order and trims every field', () => {
 		const result = createStickerOrderSchema.safeParse({
 			packId: 'pack-8',
-			paymentMethod: '  orange-money  ',
 			deliveryAddress: '  Cocody Riviera 3, Abidjan  ',
 			deliveryCity: '  Abidjan  ',
 			deliveryNotes: '  Portail bleu, deuxième étage  ',
@@ -51,16 +49,25 @@ describe('createStickerOrderSchema', () => {
 		},
 	)
 
+	// Stickers are paid to the courier, so the body carries no payment choice:
+	// the use-case stamps `PAYMENT_ON_DELIVERY` itself. A stale client posting one
+	// is stripped by the pipe, not refused.
+	it('strips a payment method rather than accepting one', () => {
+		const result = createStickerOrderSchema.safeParse({
+			...VALID,
+			paymentMethod: 'orange-money',
+		})
+
+		expect(result.success).toBe(true)
+		expect(result.data).not.toHaveProperty('paymentMethod')
+	})
+
 	it('answers in French for every blank a form can post', () => {
-		expect(messageFor({ paymentMethod: '' })).toBe(
-			'Sélectionnez un moyen de paiement',
-		)
 		expect(messageFor({ deliveryAddress: '' })).toBe('Adresse trop courte')
 		expect(messageFor({ deliveryCity: '' })).toBe('La ville est requise')
 	})
 
 	it.each([
-		['paymentMethod', 60, 'Maximum 60 caractères'],
 		['deliveryAddress', 200, 'Maximum 200 caractères'],
 		['deliveryCity', 120, 'Maximum 120 caractères'],
 		['deliveryNotes', 500, 'Maximum 500 caractères'],

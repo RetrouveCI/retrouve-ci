@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 
-const STEPS = ['Pack', 'Livraison', 'Paiement', 'Confirmation']
+const STEPS = ['Pack', 'Livraison', 'Confirmation']
 
 export function OrderProgressBar({ stepNumber }: { stepNumber: number }) {
 	return (
@@ -32,7 +32,9 @@ export function OrderProgressBar({ stepNumber }: { stepNumber: number }) {
 							>
 								{label}
 							</span>
-							{i < 3 && <div className="bg-border mx-2 h-px w-8 md:w-16" />}
+							{i < STEPS.length - 1 && (
+								<div className="bg-border mx-2 h-px w-8 md:w-16" />
+							)}
 						</div>
 					))}
 				</div>

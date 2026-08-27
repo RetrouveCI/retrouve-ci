@@ -1,6 +1,6 @@
 import { PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
 import { stickerOrderSchema } from '../order.schema'
-import { PACKS, PAYMENT_METHODS } from '../stickers-order.const'
+import { PACKS } from '../stickers-order.const'
 
 const VALID = {
 	packId: PACKS[0]!.id,
@@ -8,8 +8,6 @@ const VALID = {
 	phone: '0700000000',
 	address: 'Cocody Riviera 2, près de la pharmacie',
 	city: 'Abidjan',
-	paymentMethod: PAYMENT_METHODS[0]!.id,
-	paymentPhone: '0700000000',
 	couponCode: '',
 }
 
@@ -35,19 +33,24 @@ describe('stickerOrderSchema', () => {
 		expect(messageFor({ phone: '' })).toBe(PHONE_ERROR_MESSAGE)
 		expect(messageFor({ address: '' })).toBe('Adresse trop courte')
 		expect(messageFor({ city: '' })).toBe('La ville est requise')
-		expect(messageFor({ paymentMethod: '' })).toBe(
-			'Sélectionnez un moyen de paiement',
-		)
-		expect(messageFor({ paymentPhone: '' })).toBe(PHONE_ERROR_MESSAGE)
 	})
 
-	it('rejects a pack or a payment method that is not on offer', () => {
+	it('rejects a pack that is not on offer', () => {
 		expect(messageFor({ packId: 'pack-inexistant' })).toBe(
 			'Sélectionnez un pack',
 		)
-		expect(messageFor({ paymentMethod: 'bitcoin' })).toBe(
-			'Sélectionnez un moyen de paiement',
-		)
+	})
+
+	// Payment moved to delivery: the form collects nothing about it, and a field
+	// the schema does not know is stripped rather than validated.
+	it('ignores a payment method a stale form might still post', () => {
+		const result = stickerOrderSchema.safeParse({
+			...VALID,
+			paymentMethod: 'orange-money',
+		})
+
+		expect(result.success).toBe(true)
+		expect(result.data).not.toHaveProperty('paymentMethod')
 	})
 
 	/**
@@ -56,14 +59,11 @@ describe('stickerOrderSchema', () => {
 	 * below — a number nobody can be reached on — and refused the spaced form a
 	 * visitor is most likely to type.
 	 */
-	it.each(['phone', 'paymentPhone'] as const)(
-		'holds %s to the shared ten-digit rule',
-		field => {
-			expect(messageFor({ [field]: '01234567' })).toBe(PHONE_ERROR_MESSAGE)
-			expect(messageFor({ [field]: '0'.repeat(17) })).toBe(PHONE_ERROR_MESSAGE)
-			expect(messageFor({ [field]: 'pas-un-numero' })).toBe(PHONE_ERROR_MESSAGE)
-		},
-	)
+	it('holds the delivery phone to the shared ten-digit rule', () => {
+		expect(messageFor({ phone: '01234567' })).toBe(PHONE_ERROR_MESSAGE)
+		expect(messageFor({ phone: '0'.repeat(17) })).toBe(PHONE_ERROR_MESSAGE)
+		expect(messageFor({ phone: 'pas-un-numero' })).toBe(PHONE_ERROR_MESSAGE)
+	})
 
 	it.each(['0700000000', '07 00 00 00 00', '+2250700000000', '2250700000000'])(
 		'accepts the number %p, spacing and country code included',

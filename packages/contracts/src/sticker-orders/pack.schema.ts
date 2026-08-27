@@ -17,8 +17,8 @@ export interface StickerPack {
 // Keyed by id, so resolving a pack the schema already accepted needs no runtime
 // check and no non-null assertion.
 export const STICKER_PACKS_BY_ID: Record<StickerPackId, StickerPack> = {
-	'pack-4': { id: 'pack-4', name: 'Starter', quantity: 4, price: 1500 },
-	'pack-8': { id: 'pack-8', name: 'Famille', quantity: 8, price: 2500 },
+	'pack-4': { id: 'pack-4', name: 'Starter', quantity: 4, price: 2000 },
+	'pack-8': { id: 'pack-8', name: 'Famille', quantity: 8, price: 3500 },
 	'pack-20': { id: 'pack-20', name: 'Pro', quantity: 20, price: 7000 },
 }
 

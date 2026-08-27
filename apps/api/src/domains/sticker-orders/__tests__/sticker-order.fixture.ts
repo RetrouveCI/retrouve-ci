@@ -1,4 +1,5 @@
 import { vi } from 'vitest'
+import { PAYMENT_ON_DELIVERY } from '@app/contracts/sticker-orders'
 import type { StickerOrderRepository } from '../repository/sticker-order.repository'
 import type { StickerOrder } from '../types/sticker-order.types'
 
@@ -11,11 +12,11 @@ export function buildStickerOrder(
 		packId: 'pack-4',
 		packName: 'Starter',
 		quantity: 4,
-		unitPrice: 1500,
+		unitPrice: 2000,
 		deliveryFee: 1000,
-		total: 2500,
+		total: 3000,
 		status: 'pending',
-		paymentMethod: 'Orange Money',
+		paymentMethod: PAYMENT_ON_DELIVERY,
 		deliveryAddress: 'Cocody Riviera 3, Abidjan',
 		deliveryCity: 'Abidjan',
 		deliveryNotes: null,

@@ -53,8 +53,8 @@ export function StickersHero() {
 							<p className="text-muted-foreground mt-4 text-sm">
 								À partir de{' '}
 								<span className="text-foreground font-semibold">
-									1 500 FCFA
-								</span>{' '}
+									2 000 FCFA
+								</span>
 							</p>
 						</div>
 
