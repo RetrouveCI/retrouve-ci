@@ -262,11 +262,27 @@ revu et validé pour les autres refontes de liste.
    se décalent bien sur un appareil à encoche.
 3. Ajouter le retrait haut là où un écran plein cadre en a besoin
    (`routes/q/_index.tsx`).
+4. **Ajouté à l'exécution.** Faire grandir de l'inset l'espace qui dégage la
+   barre dans `routes/layout.tsx` : il valait `pb-16`, soit exactement la
+   hauteur de la barre _avant_ l'inset. Activer les zones sûres sans corriger ce
+   calage aurait fait passer les dernières lignes de chaque page derrière la
+   barre — le bug même que l'étape supprime.
+5. **Ajouté à l'exécution.** Prendre aussi les insets gauche et droit sur la
+   barre, qui est `fixed inset-x-0` : en paysage sur un appareil à encoche, elle
+   passe sinon sous la découpe.
 
-**Fichiers** : `apps/client/app/root.tsx`,
-`apps/client/app/components/bottom-tab-bar.tsx`. **Flux** : tous.
+> **Vérifié** : `calc(4rem+env(…))` sans espace autour du `+` serait du CSS
+> invalide, et c'est la forme qu'employait déjà `ActivityHub`. Le CSS généré
+> montre que Tailwind v4 la normalise en
+> `calc(4rem + env(safe-area-inset-bottom))` — les deux écritures sont donc
+> correctes. La question se repose à chaque valeur arbitraire contenant un
+> opérateur.
+
+**Fichiers** : `apps/client/app/root.tsx`, `app/routes/layout.tsx`,
+`app/components/bottom-tab-bar.tsx`, `app/routes/q/_index.tsx`. **Flux** : tous.
 **Acceptation** : sur iPhone à encoche, la barre d'onglets ne passe plus sous la
-barre gestuelle ; aucun décalage introduit sur un appareil sans encoche.
+barre gestuelle ; aucun décalage introduit sur un appareil sans encoche. **Non
+vérifiable en CI** : le critère est visuel, il demande un appareil réel.
 
 #### R2 — Cibles tactiles 44 px sous `lg`
 
