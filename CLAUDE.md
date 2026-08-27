@@ -799,6 +799,19 @@ deliberately declined.
   diff of the realignment and break `git blame`. If it is ever done, it must be
   one isolated commit plus a `.git-blame-ignore-revs`.
 
+### `packages/web-kit`
+
+- **The API's field errors never reach a form.** `ApiErrorBody` in
+  `src/api/api-error.ts` declares `statusCode`, `message` and `error`, and
+  `ApiError` carries only a status and a message — so the `errors` map the
+  `ZodValidationPipe` answers a 400 with is read by nobody, and
+  `withApiOperationData` can only ever build a `root` error holding
+  `Validation failed`. No form in either app can land a server-side message on
+  the field it belongs to; the front's own schema is the only thing that ever
+  does. Fixing it means deciding how to map the API's names onto each form's —
+  the sticker order posts `address` where the contract says `deliveryAddress` —
+  so it is a `@app/web-kit` change that touches both apps.
+
 ### `packages/ui`
 
 - **`FieldError` drifts from the current shadcn revision** in
