@@ -90,8 +90,15 @@ pnpm test
 flowchart LR
   pr[Pull request] -->|test-ci.yml| checks[format · typecheck · lint · test]
   merge[Merge to main] -->|release.yml| tag[semver tag from PR labels]
-  tag -->|docker.yml| images[api · client · admin images<br/>version + latest]
+  tag -->|deploy.yml| hook[Dokploy webhook]
+  hook --> dokploy[Dokploy builds each app<br/>from apps/&lt;app&gt;/Dockerfile]
 ```
+
+**No image is built in CI.** Dokploy builds from the `Dockerfile`s at deploy
+time, so there is no registry in the loop and no Docker Hub credentials to hold.
+A `docker.yml` used to push three images to Docker Hub; it was removed once
+Dokploy took the build, because a second build only publishes artefacts nothing
+pulls.
 
 ### [`test-ci.yml`](../../.github/workflows/test-ci.yml)
 
@@ -107,18 +114,26 @@ On a **merged** PR into `main`. `K-Phoen/semver-release-action` creates the next
 tag; the bump comes from the merged PR's labels, defaulting to patch.
 
 > ⚠️ It must push the tag with a **PAT** (`secrets.PAT_RETROUVECI`). A tag
-> pushed with the default `GITHUB_TOKEN` does not trigger `docker.yml`.
+> pushed with the default `GITHUB_TOKEN` triggers no workflow at all, so
+> `deploy.yml` would never see the release.
 
-### [`docker.yml`](../../.github/workflows/docker.yml)
+### [`deploy.yml`](../../.github/workflows/deploy.yml)
 
-On a new version tag (`*.*.*`). Builds and pushes the `api`, `client` and
-`admin` images to Docker Hub as a matrix, tagged with the version and `latest`.
-Needs `secrets.DOCKER_USERNAME` and `secrets.DOCKER_ACCESS_TOKEN`.
+On a new version tag (`*.*.*`). Its only job announces the tag to Dokploy by
+POSTing the `DOKPLOY_WEBHOOK_URL` **variable** — a variable, not a secret, so it
+is readable in logs.
+
+The step is deliberately **not** `if:`-guarded. When the variable is unset it
+says so, emits a `::notice`, and exits 0: a tag that deploys nothing should
+explain itself rather than show a skipped job. `v0.7.0` is the reason — three
+image builds failed on absent credentials and the run summary named neither the
+secret nor where to set it.
 
 ## Images
 
 Each app has a multi-stage `Dockerfile` whose **build context is the repository
-root**. The build runs `turbo run build --filter=<app>` then `pnpm deploy` to
+root**, and **Dokploy is what runs it** — the same file that used to be built in
+CI. The build runs `turbo run build --filter=<app>` then `pnpm deploy` to
 produce a self-contained runtime bundle.
 
 Two things bite here:
@@ -135,6 +150,13 @@ Two things bite here:
 
 Per service: `Build Path = /`, `Docker File = apps/<app>/Dockerfile`,
 `Docker Context Path` empty.
+
+> ⚠️ `docker-compose.prod.yml` at the repository root is a **different** path,
+> and it is inert on this pipeline: it pulls
+> `${DOCKER_USERNAME}/retrouveci-{api,client,admin}:latest`, images nothing
+> publishes any more. Nothing in the repository references it. If a self-hosted
+> compose deployment is ever wanted, its three `image:` keys need to become
+> `build:` blocks pointing at the same `Dockerfile`s Dokploy uses.
 
 ## Failure signatures
 

@@ -736,15 +736,20 @@ GitHub Actions workflows live in `.github/workflows/`:
   `K-Phoen/semver-release-action` to create the next semver tag; the bump is
   derived from the merged PR's labels (defaults to patch). It must push the tag
   with a **PAT** (`secrets.PAT_RETROUVECI`), because a tag pushed with the
-  default `GITHUB_TOKEN` would not trigger `docker.yml`.
-- **`docker.yml`** — on a new version tag (`*.*.*`). Builds and pushes the
-  `api`, `client` and `admin` images to Docker Hub (matrix), tagged with the
-  version and `latest`. Requires `secrets.DOCKER_USERNAME` and
-  `secrets.DOCKER_ACCESS_TOKEN`.
+  default `GITHUB_TOKEN` triggers no workflow at all.
+- **`deploy.yml`** — on a new version tag (`*.*.*`). Announces the tag to
+  Dokploy through the `DOKPLOY_WEBHOOK_URL` **variable**, and says so in the log
+  when that variable is unset rather than skipping silently.
 
-Each app has a multi-stage **`Dockerfile`** (build context = repo root). The
-build runs `turbo run build --filter=<app>` then `pnpm deploy` to produce a
-self-contained runtime bundle. Notes:
+**CI builds no images.** Dokploy builds each app from its own
+`apps/<app>/Dockerfile` at deploy time, so there is no registry in the loop and
+no Docker Hub credentials to hold. A `docker.yml` used to push three images to
+Docker Hub; it was removed once Dokploy took the build, because a second build
+publishes artefacts nothing pulls.
+
+Each app still has a multi-stage **`Dockerfile`** (build context = repo root),
+and it is what Dokploy runs. The build does `turbo run build --filter=<app>`
+then `pnpm deploy` to produce a self-contained runtime bundle. Notes:
 
 - `pnpm deploy` needs `--legacy` (pnpm v10+) and only includes files listed in
   each package's `files` field — this is why the apps and `packages/database`
