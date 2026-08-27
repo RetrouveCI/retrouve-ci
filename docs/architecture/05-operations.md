@@ -90,15 +90,16 @@ pnpm test
 flowchart LR
   pr[Pull request] -->|test-ci.yml| checks[format · typecheck · lint · test]
   merge[Merge to main] -->|release.yml| tag[semver tag from PR labels]
-  tag -->|deploy.yml| hook[Dokploy webhook]
-  hook --> dokploy[Dokploy builds each app<br/>from apps/&lt;app&gt;/Dockerfile]
+  tag --> record[A record, not a trigger]
+  dokploy[Dokploy builds each app<br/>from apps/&lt;app&gt;/Dockerfile] --> live[Deployed]
 ```
 
-**No image is built in CI.** Dokploy builds from the `Dockerfile`s at deploy
-time, so there is no registry in the loop and no Docker Hub credentials to hold.
-A `docker.yml` used to push three images to Docker Hub; it was removed once
-Dokploy took the build, because a second build only publishes artefacts nothing
-pulls.
+**CI neither builds nor deploys.** Dokploy builds from the `Dockerfile`s and
+deploys on its own, so there is no registry in the loop and no Docker Hub
+credentials to hold. A `docker.yml` used to push three images to Docker Hub; it
+was removed once Dokploy took the build, because a second build only publishes
+artefacts nothing pulls. **No workflow listens to a version tag** — the tag
+records what was released, and the deploy is triggered from Dokploy.
 
 ### [`test-ci.yml`](../../.github/workflows/test-ci.yml)
 
@@ -113,21 +114,10 @@ fronts' `ui` project runs in a real browser.
 On a **merged** PR into `main`. `K-Phoen/semver-release-action` creates the next
 tag; the bump comes from the merged PR's labels, defaulting to patch.
 
-> ⚠️ It must push the tag with a **PAT** (`secrets.PAT_RETROUVECI`). A tag
-> pushed with the default `GITHUB_TOKEN` triggers no workflow at all, so
-> `deploy.yml` would never see the release.
-
-### [`deploy.yml`](../../.github/workflows/deploy.yml)
-
-On a new version tag (`*.*.*`). Its only job announces the tag to Dokploy by
-POSTing the `DOKPLOY_WEBHOOK_URL` **variable** — a variable, not a secret, so it
-is readable in logs.
-
-The step is deliberately **not** `if:`-guarded. When the variable is unset it
-says so, emits a `::notice`, and exits 0: a tag that deploys nothing should
-explain itself rather than show a skipped job. `v0.7.0` is the reason — three
-image builds failed on absent credentials and the run summary named neither the
-secret nor where to set it.
+> It pushes the tag with a **PAT** (`secrets.PAT_RETROUVECI`), originally
+> required because a tag pushed with the default `GITHUB_TOKEN` triggers no
+> workflow. Nothing listens to tags any more, so the PAT is no longer
+> load-bearing — left in place rather than swapped mid-release.
 
 ## Images
 
@@ -150,13 +140,6 @@ Two things bite here:
 
 Per service: `Build Path = /`, `Docker File = apps/<app>/Dockerfile`,
 `Docker Context Path` empty.
-
-> ⚠️ `docker-compose.prod.yml` at the repository root is a **different** path,
-> and it is inert on this pipeline: it pulls
-> `${DOCKER_USERNAME}/retrouveci-{api,client,admin}:latest`, images nothing
-> publishes any more. Nothing in the repository references it. If a self-hosted
-> compose deployment is ever wanted, its three `image:` keys need to become
-> `build:` blocks pointing at the same `Dockerfile`s Dokploy uses.
 
 ## Failure signatures
 

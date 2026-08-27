@@ -118,15 +118,12 @@ GitHub Actions workflows are defined in
 - **`test-ci.yml`** — runs format, type-check, lint and tests on every push to
   `main` and every pull request.
 - **`release.yml`** — on a merged PR into `main`, creates the next semver tag
-  (bump derived from PR labels). Requires a `PAT_RETROUVECI` PAT, since a tag
-  pushed with the default `GITHUB_TOKEN` triggers no workflow.
-- **`deploy.yml`** — on a new version tag, announces it to Dokploy through the
-  `DOKPLOY_WEBHOOK_URL` variable.
+  (bump derived from PR labels) and the matching GitHub release.
 
-**Images are built by Dokploy, not by CI.** Each app ships a multi-stage
-`Dockerfile` (build context = repo root) and Dokploy builds from it at deploy
-time. The api image runs `prisma migrate deploy` on startup via its
-`entrypoint.sh`.
+There is no build or deploy workflow: **Dokploy builds and deploys**, and the
+version tag is a record rather than a trigger. Each app ships a multi-stage
+`Dockerfile` (build context = repo root) and Dokploy builds from it. The api
+image runs `prisma migrate deploy` on startup via its `entrypoint.sh`.
 
 ## Dependency Updates
 

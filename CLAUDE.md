@@ -325,7 +325,7 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
 - **Phone OTPs go out over SMS through Letexto, on their own BullMQ queue.**
   better-auth's `phoneNumber()` plugin still owns the code itself — it generates
   it, stores it and verifies it, so there is no parallel OTP store; the app only
-  sets `expiresIn` (`OTP_TTL_SECONDS`, **120 s**), the code's length (six, the
+  sets `expiresIn` (`OTP_TTL_SECONDS`, **300 s**), the code's length (six, the
   plugin's own default, named `OTP_LENGTH` in `@app/contracts/shared`) and
   `phoneNumberValidator`, which is `isValidLocalNumber` — without it a malformed
   number only failed at delivery, after `OtpConsumer` had burnt its three BullMQ
@@ -735,17 +735,17 @@ GitHub Actions workflows live in `.github/workflows/`:
 - **`release.yml`** — when a PR is **merged** into `main`. Uses
   `K-Phoen/semver-release-action` to create the next semver tag; the bump is
   derived from the merged PR's labels (defaults to patch). It must push the tag
-  with a **PAT** (`secrets.PAT_RETROUVECI`), because a tag pushed with the
-  default `GITHUB_TOKEN` triggers no workflow at all.
-- **`deploy.yml`** — on a new version tag (`*.*.*`). Announces the tag to
-  Dokploy through the `DOKPLOY_WEBHOOK_URL` **variable**, and says so in the log
-  when that variable is unset rather than skipping silently.
+  with a **PAT** (`secrets.PAT_RETROUVECI`). That was originally because a tag
+  pushed with the default `GITHUB_TOKEN` triggers no workflow; no workflow
+  listens to tags any more, so the PAT is now belt-and-braces rather than
+  load-bearing. **Nothing listens to a version tag.** The tag is a record, not a
+  trigger.
 
-**CI builds no images.** Dokploy builds each app from its own
-`apps/<app>/Dockerfile` at deploy time, so there is no registry in the loop and
-no Docker Hub credentials to hold. A `docker.yml` used to push three images to
-Docker Hub; it was removed once Dokploy took the build, because a second build
-publishes artefacts nothing pulls.
+**CI builds and deploys nothing.** Dokploy builds each app from its own
+`apps/<app>/Dockerfile` and deploys on its own, so there is no registry in the
+loop and no Docker Hub credentials to hold. A `docker.yml` used to push three
+images to Docker Hub; it was removed once Dokploy took the build, because a
+second build publishes artefacts nothing pulls.
 
 Each app still has a multi-stage **`Dockerfile`** (build context = repo root),
 and it is what Dokploy runs. The build does `turbo run build --filter=<app>`

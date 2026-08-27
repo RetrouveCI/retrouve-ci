@@ -1,5 +1,5 @@
-/** Two minutes, as agreed. better-auth's own default is 300 seconds. */
-export const OTP_TTL_SECONDS = 500
+/** Five minutes, which is also better-auth's own default. */
+export const OTP_TTL_SECONDS = 300
 
 /**
  * One SMS segment. Past it Letexto bills — and may split — the message, so the
