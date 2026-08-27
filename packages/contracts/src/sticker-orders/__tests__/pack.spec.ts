@@ -24,8 +24,8 @@ describe('the pack catalogue', () => {
 	// two separate literals. One list now, so a change cannot land on one side.
 	it('prices every pack the schema accepts', () => {
 		expect(STICKER_PACKS.map(pack => [pack.id, pack.price])).toEqual([
-			['pack-4', 1500],
-			['pack-8', 2500],
+			['pack-4', 2000],
+			['pack-8', 3500],
 			['pack-20', 7000],
 		])
 	})

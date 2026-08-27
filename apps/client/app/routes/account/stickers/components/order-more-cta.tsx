@@ -15,7 +15,7 @@ export function OrderMoreCta() {
 				<div>
 					<p className="font-semibold">Besoin de plus de stickers ?</p>
 					<p className="text-muted-foreground text-sm">
-						À partir de 1 500 FCFA · Livraison gratuite
+						À partir de 2 000 FCFA
 					</p>
 				</div>
 			</div>

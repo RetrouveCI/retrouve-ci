@@ -19,8 +19,6 @@ const VALID = {
 	phone: '0700000001',
 	address: 'Rue 12, Cocody',
 	city: 'Abidjan',
-	paymentMethod: 'orange-money',
-	paymentPhone: '0700000002',
 }
 
 const DTO = {
@@ -29,11 +27,11 @@ const DTO = {
 	packId: 'pack-4',
 	packName: 'Starter',
 	quantity: 4,
-	unitPrice: 1500,
+	unitPrice: 2000,
 	deliveryFee: 1000,
-	total: 2500,
+	total: 3000,
 	status: 'pending',
-	paymentMethod: 'orange-money',
+	paymentMethod: 'cash-on-delivery',
 	deliveryAddress: 'Rue 12, Cocody',
 	deliveryCity: 'Abidjan',
 	deliveryNotes: null,
@@ -86,30 +84,26 @@ describe('orderAction', () => {
 		expect(result.success).toBe(true)
 		expect(payloadOf()).toMatchObject({
 			packId: 'pack-4',
-			paymentMethod: 'orange-money',
 			deliveryAddress: 'Rue 12, Cocody',
 			deliveryCity: 'Abidjan',
 		})
 	})
 
-	/**
-	 * The API has no field for the buyer's name, their phone or the number they
-	 * paid from, so all three are folded into the delivery note — with the
-	 * payment method's **label**, not its id.
-	 */
-	it('folds the contact and the payment into the delivery note', async () => {
-		await submit(VALID)
+	// The API stamps the method itself, so posting one must change nothing.
+	it('sends no payment method, even when the body carries one', async () => {
+		await submit({ ...VALID, paymentMethod: 'orange-money' })
 
-		expect(payloadOf().deliveryNotes).toBe(
-			'Contact: Awa Traoré (0700000001). Paiement Orange Money - 0700000002.',
-		)
+		expect(payloadOf()).not.toHaveProperty('paymentMethod')
 	})
 
-	it('falls back to the raw id when a method has no label', async () => {
-		await submit({ ...VALID, paymentMethod: 'wave' })
+	/**
+	 * The API has no field for the buyer's name or their phone, so the courier
+	 * reaches them through the delivery note.
+	 */
+	it('folds the contact into the delivery note', async () => {
+		await submit(VALID)
 
-		const notes = payloadOf()?.deliveryNotes
-		if (notes) expect(notes).toContain('Paiement ')
+		expect(payloadOf().deliveryNotes).toBe('Contact: Awa Traoré (0700000001).')
 	})
 
 	// The API rejects an empty coupon, so the key is omitted rather than blanked.
@@ -135,11 +129,11 @@ describe('orderAction', () => {
 				id: 'order-1',
 				orderNumber: 'CMD-2026-000001',
 				date: '2026-08-01T10:00:00.000Z',
-				pack: { name: 'Starter', quantity: 4, price: 1500 },
+				pack: { name: 'Starter', quantity: 4, price: 2000 },
 				deliveryFee: 1000,
-				total: 2500,
+				total: 3000,
 				status: 'pending',
-				paymentMethod: 'orange-money',
+				paymentMethod: 'cash-on-delivery',
 				deliveryAddress: 'Rue 12, Cocody, Abidjan',
 				trackingNumber: undefined,
 			},
@@ -149,17 +143,14 @@ describe('orderAction', () => {
 	/**
 	 * The rule every other phone field in the app uses. The former
 	 * `/^\d{8,16}$/` accepted an eight-digit number, so a delivery contact could
-	 * be unreachable.
+	 * be unreachable — and the courier has no other way to reach the buyer.
 	 */
-	it.each(['phone', 'paymentPhone'] as const)(
-		'refuses an eight-digit %s',
-		async field => {
-			const result = await submit({ ...VALID, [field]: '07000000' })
+	it('refuses an eight-digit phone', async () => {
+		const result = await submit({ ...VALID, phone: '07000000' })
 
-			expect(errorsOf(result)[field]?.message).toBe(PHONE_ERROR_MESSAGE)
-			expect(createStickerOrder).not.toHaveBeenCalled()
-		},
-	)
+		expect(errorsOf(result).phone?.message).toBe(PHONE_ERROR_MESSAGE)
+		expect(createStickerOrder).not.toHaveBeenCalled()
+	})
 
 	it.each(['0700000001', '07 00 00 00 01', '+2250700000001', '2250700000001'])(
 		'accepts the number %p, spacing and country code included',
@@ -172,15 +163,6 @@ describe('orderAction', () => {
 		const result = await submit({ ...VALID, packId: 'pack-999' })
 
 		expect(result.success).toBe(false)
-		expect(createStickerOrder).not.toHaveBeenCalled()
-	})
-
-	it('refuses a payment method the page does not offer', async () => {
-		const result = await submit({ ...VALID, paymentMethod: 'bitcoin' })
-
-		expect(errorsOf(result).paymentMethod?.message).toBe(
-			'Sélectionnez un moyen de paiement',
-		)
 		expect(createStickerOrder).not.toHaveBeenCalled()
 	})
 

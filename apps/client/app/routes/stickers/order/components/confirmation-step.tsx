@@ -1,8 +1,8 @@
 import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { CheckCircle2, Tag } from 'lucide-react'
+import { PAYMENT_ON_DELIVERY_LABEL } from '@app/contracts/sticker-orders'
 import type { Order } from '../../../account/orders/types/orders.types'
-import { PAYMENT_METHODS } from '../stickers-order.const'
 
 interface ConfirmationStepProps {
 	order: Order
@@ -15,10 +15,6 @@ export function ConfirmationStep({
 	phone,
 	formatPrice,
 }: ConfirmationStepProps) {
-	const paymentMethodLabel =
-		PAYMENT_METHODS.find(p => p.id === order.paymentMethod)?.name ??
-		order.paymentMethod
-
 	return (
 		<div className="mx-auto max-w-lg py-12 text-center">
 			<div className="bg-primary-green/10 mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full">
@@ -27,7 +23,8 @@ export function ConfirmationStep({
 			<h1 className="mb-3 text-3xl font-bold">Commande confirmée!</h1>
 			<p className="text-muted-foreground mb-8">
 				Merci pour votre commande. Vous recevrez vos {order.pack.quantity}{' '}
-				stickers QR dans les prochains jours.
+				stickers QR dans les prochains jours, et réglerez{' '}
+				{formatPrice(order.total)} FCFA en espèces au livreur.
 			</p>
 
 			<div className="bg-background mb-8 rounded-2xl border p-6 text-left">
@@ -58,12 +55,12 @@ export function ConfirmationStep({
 						)}
 					</div>
 					<div className="flex justify-between font-semibold">
-						<span className="text-muted-foreground">Total payé</span>
+						<span className="text-muted-foreground">Total à payer</span>
 						<span>{formatPrice(order.total)} FCFA</span>
 					</div>
 					<div className="flex justify-between">
 						<span className="text-muted-foreground">Paiement</span>
-						<span>{paymentMethodLabel}</span>
+						<span>{PAYMENT_ON_DELIVERY_LABEL}</span>
 					</div>
 					<div className="flex justify-between border-t pt-3">
 						<span className="text-muted-foreground">Livraison</span>

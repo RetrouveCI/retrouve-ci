@@ -1,7 +1,7 @@
 import { DELIVERY_FEE } from '@app/contracts/sticker-orders'
 import { Button, Input, Label } from '@app/ui/components'
 import type { Control } from 'react-hook-form'
-import { ArrowLeft, ArrowRight, Tag, Check, X } from 'lucide-react'
+import { ArrowLeft, Banknote, Tag, Check, X, Loader2 } from 'lucide-react'
 import { FormInputField, FormTextareaField } from '@app/ui/components/form'
 import { OrderSummaryCard } from './order-summary-card'
 import type { StickerOrderData, StickerOrderInput } from '../order.schema'
@@ -25,8 +25,8 @@ interface DeliveryStepProps {
 	deliveryFee: number
 	totalPrice: number
 	formatPrice: (n: number) => string
+	isProcessing: boolean
 	onBack: () => void
-	onNext: () => void
 }
 
 export function DeliveryStep({
@@ -41,8 +41,8 @@ export function DeliveryStep({
 	deliveryFee,
 	totalPrice,
 	formatPrice,
+	isProcessing,
 	onBack,
-	onNext,
 }: DeliveryStepProps) {
 	return (
 		<div className="grid gap-8 md:grid-cols-5">
@@ -156,14 +156,28 @@ export function DeliveryStep({
 					</div>
 				</div>
 
+				<div className="border-accent-orange/20 bg-accent-orange/10 rounded-xl border p-4">
+					<p className="text-accent-orange flex items-center gap-2 text-sm font-medium">
+						<Banknote className="h-4 w-4 shrink-0" />
+						Vous payez {formatPrice(totalPrice)} FCFA en espèces au livreur, à
+						la réception de vos stickers.
+					</p>
+				</div>
+
 				<Button
-					type="button"
+					type="submit"
 					size="lg"
-					onClick={onNext}
+					disabled={isProcessing}
 					className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-white"
 				>
-					Continuer vers le paiement
-					<ArrowRight className="ml-2 h-4 w-4" />
+					{isProcessing ? (
+						<>
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							Traitement en cours...
+						</>
+					) : (
+						'Confirmer la commande'
+					)}
 				</Button>
 			</div>
 

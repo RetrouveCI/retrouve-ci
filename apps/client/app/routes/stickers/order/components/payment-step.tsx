@@ -1,3 +1,9 @@
+// Online payment parked: stickers are paid in cash to the courier, so the
+// order flow is Pack -> Livraison -> Confirmation and nothing renders this
+// step. Kept intact — with `PAYMENT_METHODS` in `stickers-order.const.ts` and
+// the icons in `public/payments/` — for the day a mobile-money gateway is
+// wired in.
+/*
 import {
 	Button,
 	Field,
@@ -182,3 +188,4 @@ export function PaymentStep({
 		</div>
 	)
 }
+*/

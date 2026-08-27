@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { PAYMENT_ON_DELIVERY } from '@app/contracts/sticker-orders'
 import {
 	buildRepository,
 	buildStickerOrder,
@@ -9,7 +10,6 @@ import { CreateStickerOrderUseCase } from '../create-sticker-order.use-case'
 
 const data: CreateStickerOrderData = {
 	packId: 'pack-4',
-	paymentMethod: 'Orange Money',
 	deliveryAddress: 'Cocody Riviera 3, Abidjan',
 	deliveryCity: 'Abidjan',
 	userId: 'user-1',
@@ -24,7 +24,7 @@ describe('CreateStickerOrderUseCase', () => {
 		useCase = new CreateStickerOrderUseCase(repository)
 	})
 
-	/** The price comes from the catalogue: a body cannot set it. */
+	/** The price and the payment method come from the code, not from a body. */
 	it('prices the order from the pack and stores it', async () => {
 		const created = buildStickerOrder()
 		vi.mocked(repository.create).mockResolvedValue(created)
@@ -36,10 +36,10 @@ describe('CreateStickerOrderUseCase', () => {
 			packId: 'pack-4',
 			packName: 'Starter',
 			quantity: 4,
-			unitPrice: 1500,
+			unitPrice: 2000,
 			deliveryFee: 1000,
-			total: 2500,
-			paymentMethod: 'Orange Money',
+			total: 3000,
+			paymentMethod: PAYMENT_ON_DELIVERY,
 			deliveryAddress: 'Cocody Riviera 3, Abidjan',
 			deliveryCity: 'Abidjan',
 			deliveryNotes: undefined,
@@ -50,13 +50,13 @@ describe('CreateStickerOrderUseCase', () => {
 
 	it('applies a free-delivery coupon', async () => {
 		vi.mocked(repository.create).mockResolvedValue(
-			buildStickerOrder({ deliveryFee: 0, total: 1500 }),
+			buildStickerOrder({ deliveryFee: 0, total: 2000 }),
 		)
 
 		await useCase.execute({ ...data, couponCode: 'RETROUVECI' })
 
 		expect(repository.create).toHaveBeenCalledWith(
-			expect.objectContaining({ deliveryFee: 0, total: 1500 }),
+			expect.objectContaining({ deliveryFee: 0, total: 2000 }),
 		)
 	})
 })

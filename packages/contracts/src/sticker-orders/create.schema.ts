@@ -3,11 +3,6 @@ import { stickerPackIdSchema } from './pack.schema'
 
 export const createStickerOrderSchema = z.object({
 	packId: stickerPackIdSchema,
-	paymentMethod: z
-		.string()
-		.trim()
-		.min(2, 'Sélectionnez un moyen de paiement')
-		.max(60, 'Maximum 60 caractères'),
 	deliveryAddress: z
 		.string()
 		.trim()

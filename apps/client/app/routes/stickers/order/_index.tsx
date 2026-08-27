@@ -6,7 +6,6 @@ import { FormRootError } from '@app/ui/components/form'
 import { OrderProgressBar } from './components/order-progress-bar'
 import { PackSelectionStep } from './components/pack-selection-step'
 import { DeliveryStep } from './components/delivery-step'
-import { PaymentStep } from './components/payment-step'
 import { ConfirmationStep } from './components/confirmation-step'
 import {
 	stickerOrderSchema,
@@ -18,7 +17,6 @@ import {
 	DELIVERY_FEE,
 	FREE_DELIVERY_COUPONS,
 	PACKS,
-	PAYMENT_METHODS,
 } from './stickers-order.const'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import type { Order } from '../../account/orders/types/orders.types'
@@ -34,7 +32,7 @@ export function meta() {
 	})
 }
 
-type Step = 'select' | 'delivery' | 'payment' | 'confirmation'
+type Step = 'select' | 'delivery' | 'confirmation'
 
 const EMPTY_VALUES: StickerOrderInput = {
 	packId: '',
@@ -42,16 +40,11 @@ const EMPTY_VALUES: StickerOrderInput = {
 	phone: '',
 	address: '',
 	city: 'Abidjan',
-	paymentMethod: '',
-	paymentPhone: '',
 	couponCode: '',
 }
 
-/** Validated before leaving each step, so an error lands on its field. */
-const STEP_FIELDS = {
-	select: ['packId'],
-	delivery: ['name', 'phone', 'address', 'city'],
-} as const
+/** Validated before leaving the first step, so an error lands on its field. */
+const PACK_FIELDS = ['packId'] as const
 
 export default function CommanderPage() {
 	const fetcher = useActionFetcher<typeof action, StickerOrderInput, Order>()
@@ -82,9 +75,6 @@ export default function CommanderPage() {
 	}, [hasSubmitted, fetcher.isOk, fetcher.data])
 
 	const selectedPackData = PACKS.find(pack => pack.id === values.packId)
-	const selectedPaymentData = PAYMENT_METHODS.find(
-		method => method.id === values.paymentMethod,
-	)
 	const deliveryFee = appliedCoupon ? 0 : DELIVERY_FEE
 	const totalPrice = (selectedPackData?.price ?? 0) + deliveryFee
 
@@ -113,16 +103,15 @@ export default function CommanderPage() {
 	}
 
 	const handleNext = async () => {
-		if (step !== 'select' && step !== 'delivery') return
-		if (!(await form.trigger(STEP_FIELDS[step]))) return
+		if (step !== 'select') return
+		if (!(await form.trigger(PACK_FIELDS))) return
 
-		setStep(step === 'select' ? 'delivery' : 'payment')
+		setStep('delivery')
 	}
 
 	const handleBack = () => {
 		if (step === 'delivery') setStep('select')
-		else if (step === 'payment') setStep('delivery')
-		else if (step === 'confirmation') setStep('payment')
+		else if (step === 'confirmation') setStep('delivery')
 	}
 
 	const onSubmit = (submitted: StickerOrderData) => {
@@ -133,8 +122,7 @@ export default function CommanderPage() {
 		)
 	}
 
-	const stepNumber =
-		step === 'select' ? 1 : step === 'delivery' ? 2 : step === 'payment' ? 3 : 4
+	const stepNumber = step === 'select' ? 1 : step === 'delivery' ? 2 : 3
 
 	return (
 		<main className="bg-muted/30 flex-1">
@@ -177,25 +165,7 @@ export default function CommanderPage() {
 									deliveryFee={deliveryFee}
 									totalPrice={totalPrice}
 									formatPrice={formatPrice}
-									onBack={handleBack}
-									onNext={handleNext}
-								/>
-							)}
-						</div>
-
-						<div className={step === 'payment' ? '' : 'hidden'}>
-							{selectedPackData && (
-								<PaymentStep
-									control={form.control}
-									paymentMethods={PAYMENT_METHODS}
-									paymentMethod={values.paymentMethod ?? ''}
-									paymentPhone={values.paymentPhone ?? ''}
 									isProcessing={fetcher.isSubmitting}
-									selectedPackData={selectedPackData}
-									selectedPaymentData={selectedPaymentData}
-									deliveryFee={deliveryFee}
-									totalPrice={totalPrice}
-									formatPrice={formatPrice}
 									onBack={handleBack}
 								/>
 							)}

@@ -10,8 +10,23 @@ import {
 import { Package } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import {
+	PAYMENT_ON_DELIVERY,
+	PAYMENT_ON_DELIVERY_LABEL,
+} from '@app/contracts/sticker-orders'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import type { StickerOrder, OrderStatus } from '../types/orders.types'
+
+/**
+ * Every order placed since payment moved to delivery carries the same stored
+ * id; an older row still holds the mobile-money method it was paid with, and is
+ * shown as it was recorded.
+ */
+function paymentMethodLabel(paymentMethod: string) {
+	return paymentMethod === PAYMENT_ON_DELIVERY
+		? PAYMENT_ON_DELIVERY_LABEL
+		: paymentMethod
+}
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; className: string }> =
 	{
@@ -66,7 +81,7 @@ export function OrderDetailDialog({
 								{order.quantity} sticker{order.quantity > 1 ? 's' : ''}
 							</p>
 							<p className="text-muted-foreground text-sm">
-								Mode de paiement : {order.paymentMethod}
+								Mode de paiement : {paymentMethodLabel(order.paymentMethod)}
 							</p>
 						</div>
 					</div>

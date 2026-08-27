@@ -1,5 +1,6 @@
 import { createRoutesStub } from 'react-router'
 import { PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
+import { PAYMENT_ON_DELIVERY } from '@app/contracts/sticker-orders'
 import { page, render, userEvent } from '@/shared/helpers/testing'
 import type { ActionResult } from '@/shared/types/action'
 import CommanderPage from '../_index'
@@ -21,11 +22,11 @@ const placedOrder: Order = {
 	id: 'ord-1',
 	orderNumber: 'RCI-0001',
 	date: '2026-08-20T10:00:00.000Z',
-	pack: { name: 'Famille', quantity: 8, price: 2500 },
+	pack: { name: 'Famille', quantity: 8, price: 3500 },
 	deliveryFee: 1000,
-	total: 3500,
+	total: 4500,
 	status: 'pending',
-	paymentMethod: 'Orange Money',
+	paymentMethod: PAYMENT_ON_DELIVERY,
 	deliveryAddress: 'Cocody Riviera 2',
 }
 
@@ -41,8 +42,8 @@ const pack = (name: string) =>
 	page.getByRole('button', { name: new RegExp(name) })
 const continueToDelivery = () =>
 	page.getByRole('button', { name: 'Continuer', exact: true })
-const continueToPayment = () =>
-	page.getByRole('button', { name: 'Continuer vers le paiement' })
+const confirmOrder = () =>
+	page.getByRole('button', { name: 'Confirmer la commande' })
 
 const name = () => page.getByLabelText(/^Nom complet/)
 const phone = () => page.getByLabelText(/^Téléphone/)
@@ -60,21 +61,6 @@ async function fillDelivery() {
 	await userEvent.fill(name(), 'Kouadio Jean')
 	await userEvent.fill(phone(), '0700000000')
 	await userEvent.fill(address(), 'Cocody Riviera 2, près de la pharmacie')
-}
-
-async function reachPaymentStep() {
-	await reachDeliveryStep()
-	await fillDelivery()
-	await userEvent.click(continueToPayment())
-}
-
-async function payWith(method: string, paymentPhone = '0700000000') {
-	await userEvent.click(page.getByRole('radio', { name: method }))
-	await userEvent.fill(
-		page.getByLabelText(new RegExp(`^Numéro ${method}`)),
-		paymentPhone,
-	)
-	await userEvent.click(page.getByRole('button', { name: /^Payer/ }))
 }
 
 beforeEach(() => {
@@ -97,12 +83,24 @@ describe('CommanderPage', () => {
 		await expect.element(continueToDelivery()).toBeEnabled()
 	})
 
+	// Payment moved to the courier, so delivery is the last step a buyer fills.
+	it('names the amount owed to the courier on the delivery step', async () => {
+		renderPage(ok)
+
+		await reachDeliveryStep()
+
+		// `Intl` groups with a narrow no-break space, not a plain one.
+		await expect
+			.element(page.getByText(/4\s500\sFCFA en espèces au livreur/))
+			.toBeInTheDocument()
+	})
+
 	it('reports the delivery fields on their own fields, without reaching the action', async () => {
 		const action = vi.fn(ok)
 		renderPage(action)
 
 		await reachDeliveryStep()
-		await userEvent.click(continueToPayment())
+		await userEvent.click(confirmOrder())
 
 		await expect
 			.element(page.getByText('Votre nom est requis'))
@@ -114,7 +112,7 @@ describe('CommanderPage', () => {
 			.element(page.getByText('Adresse trop courte'))
 			.toBeInTheDocument()
 		// Still on the delivery step, and nothing was posted.
-		await expect.element(continueToPayment()).toBeInTheDocument()
+		await expect.element(confirmOrder()).toBeInTheDocument()
 		expect(action).not.toHaveBeenCalled()
 		// The step used to gate on a toast instead of the fields themselves.
 		expect(error).not.toHaveBeenCalled()
@@ -129,42 +127,43 @@ describe('CommanderPage', () => {
 			return ok()
 		})
 
-		await reachPaymentStep()
-		await payWith('Orange Money')
+		await reachDeliveryStep()
+		await fillDelivery()
+		await userEvent.click(confirmOrder())
 
 		await vi.waitFor(() => expect(received.packId).toBe('pack-8'))
 		expect(received.name).toBe('Kouadio Jean')
 		expect(received.address).toBe('Cocody Riviera 2, près de la pharmacie')
 		expect(received.city).toBe('Abidjan')
-		expect(received.paymentMethod).toBe('orange-money')
-		expect(received.paymentPhone).toBe('0700000000')
+		expect(received).not.toHaveProperty('paymentMethod')
+		expect(received).not.toHaveProperty('paymentPhone')
 
 		await expect.element(page.getByText('RCI-0001')).toBeInTheDocument()
+		await expect
+			.element(page.getByText('Paiement à la livraison'))
+			.toBeInTheDocument()
 	})
 
-	it('renders a root error and stays on the payment step', async () => {
+	it('renders a root error and stays on the delivery step', async () => {
 		renderPage(
 			() =>
 				({
 					success: false,
 					errors: {
-						root: {
-							type: 'custom',
-							message: 'Paiement refusé par Orange Money',
-						},
+						root: { type: 'custom', message: 'Coupon expiré' },
 					},
 				}) as ActionResult<Order>,
 		)
 
-		await reachPaymentStep()
-		await payWith('Orange Money')
+		await reachDeliveryStep()
+		await fillDelivery()
+		await userEvent.click(confirmOrder())
 
 		await expect
 			.element(page.getByText('Impossible de finaliser la commande'))
 			.toBeInTheDocument()
-		await expect
-			.element(page.getByText('Paiement refusé par Orange Money'))
-			.toBeInTheDocument()
+		await expect.element(page.getByText('Coupon expiré')).toBeInTheDocument()
+		await expect.element(confirmOrder()).toBeInTheDocument()
 	})
 
 	it('sends a valid coupon with the order and drops the delivery fee', async () => {
@@ -186,8 +185,7 @@ describe('CommanderPage', () => {
 		expect(success).toHaveBeenCalledWith('Coupon appliqué ! Livraison offerte.')
 
 		await fillDelivery()
-		await userEvent.click(continueToPayment())
-		await payWith('Orange Money')
+		await userEvent.click(confirmOrder())
 
 		await vi.waitFor(() => expect(received.couponCode).toBe('RETROUVECI'))
 	})
