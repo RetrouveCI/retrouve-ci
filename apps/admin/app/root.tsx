@@ -14,6 +14,8 @@ import { resolveRouteMeta } from '@/shared/helpers/page-meta'
 
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
+import geistMonoLatin from '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url'
 import './app.css'
 
 import type { Route } from './+types/root'
@@ -47,7 +49,20 @@ export function meta({ matches }: Route.MetaArgs) {
 }
 
 export function links() {
-	return [{ rel: 'icon', href: '/logo.png' }]
+	return [
+		{ rel: 'icon', href: '/logo.png' },
+		// The stylesheet only reveals the font file once parsed, so the first paint
+		// swaps. Preload the latin subset — the only one a French page matches.
+		// `crossOrigin` is required even same-origin: a font is fetched in CORS
+		// mode, and without it the preload is discarded and the file fetched twice.
+		...[geistLatin, geistMonoLatin].map(href => ({
+			rel: 'preload',
+			as: 'font',
+			type: 'font/woff2',
+			href,
+			crossOrigin: 'anonymous',
+		})),
+	]
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
