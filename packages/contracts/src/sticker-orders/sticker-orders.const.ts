@@ -19,6 +19,18 @@ export const DELIVERY_FEE = 1000
 export const PAYMENT_ON_DELIVERY = 'cash-on-delivery'
 export const PAYMENT_ON_DELIVERY_LABEL = 'Paiement à la livraison'
 
+/**
+ * What a screen shows for a stored payment method. Every order placed since
+ * payment moved to delivery carries the same id, which is not French and must
+ * never reach a reader; an order predating the change still holds the
+ * mobile-money method it was paid with, and is shown as it was recorded.
+ */
+export function stickerPaymentMethodLabel(paymentMethod: string): string {
+	return paymentMethod === PAYMENT_ON_DELIVERY
+		? PAYMENT_ON_DELIVERY_LABEL
+		: paymentMethod
+}
+
 export const FREE_DELIVERY_COUPONS: readonly string[] = [
 	'RETROUVECI',
 	'LIVRAISON0',
