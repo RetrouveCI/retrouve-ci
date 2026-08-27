@@ -30,7 +30,7 @@ describe('buildOtpMessage', () => {
 	})
 
 	it('states the validity the plugin actually enforces', () => {
-		expect(OTP_TTL_SECONDS).toBe(120)
-		expect(buildOtpMessage('sign-in', '123456')).toContain('2 minutes')
+		expect(OTP_TTL_SECONDS).toBe(300)
+		expect(buildOtpMessage('sign-in', '123456')).toContain('5 minutes')
 	})
 })
