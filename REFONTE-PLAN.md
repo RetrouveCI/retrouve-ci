@@ -836,9 +836,9 @@ par accident au premier refactor.
    > d'`Input`. Il n'y a donc pas de « taille que R2 pose » à adopter, et la
    > poser ici ferait de R27 (scope `client/auth`) une PR `ui`. Les `h-12`
    > restent : 48 px passent déjà le plancher de 44 px de R2, sous les 52 px de
-   > §2.1. **À reprendre dans R2**, qui doit convertir les `h-12` locaux de
-   > `phone-step.tsx`, `otp-step.tsx` et `login-form.tsx` en même temps que les
-   > 31 autres points d'appel.
+   > §2.1. **Repris par R28**, finalement, et non par R2 : l'habillage sur la
+   > maquette y impose les 52 px sur ces trois fichiers. R2 garde les 31 autres
+   > points d'appel et la pose de la taille dans `packages/ui`.
 
 6. **Le compte créé sans mot de passe** _(constaté en session, hors plan
    d'origine)_. Vérifier le code **connecte** le visiteur — c'est ce qui
@@ -869,29 +869,127 @@ conservation du numéro au retour et le maintien sur 3/3 une fois connecté
 partagée (le test d'`apps/api` qui affirmait `OTP_TTL_SECONDS === 300` a
 déménagé avec elle dans `packages/contracts/src/shared/__tests__/otp.spec.ts`).
 
-#### R28 — Mot de passe oublié en un écran
+#### R28 — Mot de passe oublié, et l'habillage du lot auth
 
-**Mesuré.** Le parcours compte aujourd'hui **trois** écrans :
-`/auth/password-forgotten` (numéro) puis `/auth/reset-password?phone=…` avec
-deux étapes internes, code puis nouveau mot de passe. Le code n'est vérifié qu'à
-la soumission du mot de passe : `NewPasswordStepSection` échoue, appelle
-`onFail()`, `reset-password/_index.tsx:80` renvoie à l'étape du code — dont le
-compte à rebours a été relancé à 120 s par le remontage — et **le mot de passe
-saisi est perdu**.
+**Mesuré.** Le parcours comptait **trois** écrans : `/auth/password-forgotten`
+(numéro) puis `/auth/reset-password?phone=…` avec deux étapes internes, code
+puis nouveau mot de passe. Le code n'était vérifié qu'à la soumission du mot de
+passe : `NewPasswordStepSection` échouait, appelait `onFail()`,
+`reset-password/_index.tsx:80` renvoyait à l'étape du code — dont le compte à
+rebours repartait à zéro au remontage — et **le mot de passe saisi était
+perdu**.
 
-1. Fusionner code et nouveau mot de passe sur un seul écran : les cases du code,
-   le champ, sa confirmation, une soumission.
-2. Une seule requête `/phone-number/reset-password`, ce qui est déjà le cas — la
-   découpe en deux étapes n'apporte rien qu'un aller-retour.
-3. Un code refusé s'affiche sur les cases, sur place, sans changer d'écran et
-   sans effacer le mot de passe saisi.
-4. Le numéro reste affiché et modifiable (retour à l'écran précédent).
+1. Une seule requête `/phone-number/reset-password`, ce qui était déjà le cas.
+2. Un code refusé s'affiche sur les cases et **n'efface plus le mot de passe
+   saisi**.
+3. Le numéro reste affiché et modifiable, et revient prérempli sur l'écran
+   précédent.
+4. Le `redirectTo` traverse désormais tout le parcours de récupération
+   (`helpers/recovery-url.ts`), qui le perdait entièrement : le lien « Mot de
+   passe oublié ? » de la connexion, les deux écrans, et le retour à la
+   connexion après succès.
 
-**Fichiers** : `routes/auth/reset-password/_index.tsx`,
-`components/otp-step-section.tsx` et `new-password-step-section.tsx`
-(fusionnés), `reset-password.schema.ts`. **Flux** : E. **Acceptation** : un code
-faux ne coûte plus la saisie du mot de passe. **Tests** : projet `ui` — code
-correct, code refusé, mot de passe non conforme.
+> **Écart assumé (§1.1) — deux écrans, pas un.** Le plan d'origine et la
+> maquette (`AuthRecuperation`, note de planche : « Le second écran fusionne
+> code et nouveau mot de passe […] Un seul envoi, une seule validation »)
+> demandaient **un** écran. Arbitrage de séance : **deux** écrans, code puis mot
+> de passe, le mot de passe n'étant demandé qu'après la saisie du code. La
+> propriété que la fusion visait est tenue autrement — un seul `useForm` reste
+> **monté** derrière les deux étapes (`div` masqué, jamais démonté), donc un
+> code refusé ramène à l'étape du code sans rien effacer.
+>
+> **Contrainte d'API à connaître** : better-auth 1.6.18 ne sait pas valider un
+> code de reset seul. Il est rangé sous l'identifiant
+> `${phoneNumber}-request-password-reset` et n'est consommé que par
+> `/phone-number/reset-password`, qui exige le code **et** le mot de passe dans
+> le même appel. `set-initial-password` ne sert qu'un compte sans mot de passe
+> et ne peut donc pas servir de second temps. Une vraie vérification au bout de
+> l'étape 1 demanderait une étape API (§ Étapes API).
+
+**Bug corrigé, hors plan d'origine — la soumission conclue avant d'être
+partie.** Signalé en séance : « la vérification de l'otp échoue toujours la 1ère
+fois ; en resaisissant le même code, tout marche ». La garde
+`if (!hasSubmitted || fetcher.state !== 'idle') return`, avec `hasSubmitted`
+levé à côté de `fetcher.submit()`, est fausse deux fois : `submit()` ne fait pas
+sortir le fetcher de `idle` dans le lot de rendu qui l'appelle, donc l'effet
+s'exécute sur un rendu où rien n'a été demandé et sa branche `else` annonce un
+refus que l'API n'a jamais envoyé ; et se raccrocher au rendu `submitting` ne
+marche pas non plus, ce rendu n'étant **pas garanti** (vérifié : le fetcher
+passe de `idle` à `idle` avec la réponse déjà là). Le seul signal honnête est
+l'identité de la réponse — React Router en rend un objet neuf par soumission
+réglée. D'où `useActionFetcher` qui expose `response` (ajout purement additif
+dans `@app/web-kit`) et `routes/auth/hooks/use-settled-submission.ts`, couvert
+par `hooks/__tests__/use-settled-submission.test.tsx`.
+
+> **Même défaut encore ouvert ailleurs** : `account/stickers/components/`
+> `activate-sticker-dialog.tsx` et `account/posts/components/listing-card.tsx`
+> portent la même garde à deux branches. Non traités ici (hors scope
+> `client/auth`) — à reprendre, `useSettledSubmission` étant déjà écrit.
+
+**Habillage sur la maquette, absorbé dans cette étape** (arbitrage de séance : «
+tout dans R28 »). Les cinq écrans du lot auth sont alignés sur les planches
+`AuthConnexion`, `AuthNumero`, `AuthCode`, `AuthMotDePasse` et
+`AuthRecuperation` du canevas :
+
+- `components/auth-page-header.tsx` — la barre de 56 px (retour, nom du
+  parcours, « 2 / 3 ») plus la jauge à segments et le titre. Elle remplace le
+  lien « Retour » et le `h2` que chaque page portait en propre.
+- `components/password-checklist.tsx` — la règle de mot de passe en trois lignes
+  qui se cochent, à la place de `PASSWORD_HINT`. Elle lit les mêmes constantes
+  que `passwordSchema`.
+- `components/phone-rule-card.tsx` — « Numéros ivoiriens uniquement ». Posée
+  **seulement** sur l'inscription : la connexion et la récupération lisent un
+  compte existant et ne doivent pas annoncer une règle qu'elles n'appliquent
+  délibérément pas (§2.2, flux E, invariant 1).
+- `components/auth-note.tsx` — la carte grise d'attente (« Le SMS met parfois
+  une minute à arriver. Le code reste valable 5 minutes », la TTL venant de
+  `OTP_TTL_SECONDS`, pas d'un chiffre en dur).
+- `components/auth-submit-button.tsx` — le bouton unique, sorti de `otp-step` et
+  de `password-step` : deux blocs sur un écran, une seule soumission.
+- **L'étape code n'a plus de bouton** : la maquette n'en met aucun, les six
+  chiffres _sont_ la soumission (`onComplete`). La valeur est passée
+  directement, la relire sur le formulaire courrait après le changement qui
+  vient de la produire.
+
+> **Trois conséquences à consigner.**
+>
+> 1. **La pastille d'expiration disparaît.** R27 l'avait posée ; la maquette la
+>    remplace par la carte d'attente et le compte à rebours du renvoi («
+>    Possible dans 24 s »). `useOtpCountdown` expose toujours `timeLeft` et
+>    `formatTime`, désormais sans appelant — son test reste vert. L'invariant de
+>    R27 (« aucun code encore valide côté serveur n'est refusé par le front »)
+>    est tenu plus fortement : il n'y a plus de porte à fermer.
+> 2. **Les 52 px de §2.1 sont adoptés ici** (`h-13`, rayon 14 px) sur les
+>    champs, les boutons et les cases du code. C'était le travail de **R2**, que
+>    R27 avait dû reporter faute de taille `touch` dans `packages/ui` : les
+>    `h-12` de `phone-step.tsx`, `otp-step.tsx` et `login-form.tsx` ne sont donc
+>    **plus** à reprendre. Les 31 autres points d'appel du reste de l'app le
+>    restent, et R2 doit toujours poser la taille dans `packages/ui` — après
+>    quoi ces classes locales deviendront la variante partagée.
+> 3. **Une partie de R30 est consommée.** Les chaînes déplacées ou réécrites ici
+>    sont accentuées correctement : les quatre de `password-step.tsx`, «
+>    Verification… » et « Code incorrect. Vérifiez et réessayez. » de
+>    `otp-step.tsx`. Il reste à R30 les **sept** de `branding-panel.tsx` et ses
+>    trois chiffres inventés.
+
+**Non fait, et pourquoi** : le champ « Votre prénom » de `AuthMotDePasse` («
+Affiché à la personne qui trouve votre objet »). Il n'existe ni dans
+`@app/contracts/auth` ni en base, et `set-initial-password` ne porte que
+`newPassword` : c'est une étape API (contrat + migration + use-case), pas un
+habillage. Voir § Étapes API.
+
+**Fichiers** :
+`routes/auth/components/{auth-page-header,auth-note, auth-submit-button,password-checklist,phone-rule-card,otp-step,otp-slots, password-step,password-input,phone-step}.tsx`,
+`routes/auth/helpers/recovery-url.ts`,
+`routes/auth/hooks/use-settled-submission.ts`,
+`routes/auth/{login,register,password-forgotten,reset-password}/`,
+`packages/web-kit/src/action/use-action-fetcher.ts`. **Flux** : E.
+**Acceptation** : un code faux ne coûte plus la saisie du mot de passe ; aucune
+soumission n'est conclue avant que l'API ait répondu ; les cinq écrans suivent
+la maquette. **Tests** : projet `ui` sur les deux parcours
+(`reset-password/__tests__/reset-password-flow.test.tsx`, 6 cas ;
+`register/__tests__/register-flow.test.tsx`, 11 cas) et sur le hook de
+soumission (4 cas) ; projet `node` sur `recoveryUrl` (6 cas).
 
 #### R29 — Layout auth aux trois largeurs
 
@@ -914,10 +1012,18 @@ applique à la navigation, et pour la même raison.
    deux autres occurrences (`root.tsx`, `routes/q/_index.tsx`) sont hors de ce
    lot — `routes/q` revient à R19, `root.tsx` à R23.
 
-**Fichiers** : `routes/auth/layout.tsx`, `components/branding-panel.tsx`.
-**Flux** : E. **Acceptation** : à 768, 1024 et 1440 px, la page porte une
-identité de marque et aucune zone vide dominante. **Non couvert en CI** : le
-critère est visuel aux trois largeurs, comme celui de R1.
+6. **Deux barres empilées sous `md`**, depuis R28 : celle du layout (le logo)
+   puis celle de `auth-page-header.tsx` (retour, parcours, « 2 / 3 »). La
+   maquette n'en montre qu'une, qui porte les deux rôles — sur `AuthConnexion`
+   c'est retour + logo, sur `AuthNumero` retour + « Créer un compte » + le
+   compteur. Réconcilier les deux ici, le layout étant le fichier de cette étape
+   : la barre du layout accueille le contenu que la page lui passe.
+
+**Fichiers** : `routes/auth/layout.tsx`, `components/branding-panel.tsx`,
+`components/auth-page-header.tsx`. **Flux** : E. **Acceptation** : à 768, 1024
+et 1440 px, la page porte une identité de marque, une seule barre de tête et
+aucune zone vide dominante. **Non couvert en CI** : le critère est visuel aux
+trois largeurs, comme celui de R1.
 
 #### R30 — Copie et chiffres du panneau de marque
 
@@ -927,11 +1033,11 @@ Deux défauts distincts sur les mêmes écrans.
 d'entre elles cohabitent sur le même écran avec leur version correctement
 accentuée :
 
-| Fichier                         | Chaînes                                                                                                                                                                | Voisine accentuée, même écran            |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `components/branding-panel.tsx` | « Cote d'Ivoire » ×2, « Alertes instantanees », « Soyez notifie des qu'un objet correspond », « 100% securise », « Vos donnees restent privees », « Objets retrouves » | —                                        |
-| `components/otp-step.tsx`       | « Code incorrect. Verifiez et reessayez. », « Verification... »                                                                                                        | le titre de la page, « Vérification »    |
-| `components/password-step.tsx`  | « Creation du compte... », « Reinitialisation... », « Creer mon compte », « Reinitialiser le mot de passe »                                                            | le titre de la page, « Créer un compte » |
+| Fichier                            | Chaînes                                                                                                                                                                | Voisine accentuée, même écran            |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `components/branding-panel.tsx`    | « Cote d'Ivoire » ×2, « Alertes instantanees », « Soyez notifie des qu'un objet correspond », « 100% securise », « Vos donnees restent privees », « Objets retrouves » | —                                        |
+| ~~`components/otp-step.tsx`~~      | ~~« Code incorrect. Verifiez et reessayez. », « Verification... »~~ — **corrigées par R28**                                                                            | le titre de la page, « Vérification »    |
+| ~~`components/password-step.tsx`~~ | ~~« Creation du compte... », « Reinitialisation... », « Creer mon compte », « Reinitialiser le mot de passe »~~ — **corrigées par R28**                                | le titre de la page, « Créer un compte » |
 
 > **Recompté (§1.1).** L'audit en annonçait neuf et citait « Utilisateurs actifs
 > » et « Villes couvertes », qui n'en demandent aucun. Il manquait en revanche
@@ -943,7 +1049,8 @@ et le pilote Abidjan n'a pas démarré : trois affirmations fausses sur l'écran
 même qui demande la confiance. Le séparateur de milliers est de surcroît la
 virgule anglaise, là où le français emploie l'espace insécable.
 
-1. Corriger les treize chaînes.
+1. Corriger les chaînes restantes — **sept**, toutes dans `branding-panel.tsx` :
+   R28 a traité les six autres en déplaçant leurs composants.
 2. Brancher la bande sur des données réelles, ou la supprimer. **Ne rien
    afficher tant qu'il n'y a rien** : la bande disparaît entièrement plutôt que
    d'annoncer zéro — un compteur à zéro sur un écran de confiance est pire qu'un
@@ -975,6 +1082,28 @@ raison.** C'est la seule migration du chantier.
 `apps/admin/app/routes/dashboard/posts/`. **Flux** : D. **Acceptation** :
 masquer sans motif reste possible ; la carte n'affiche le bloc que s'il y en a
 un.
+
+#### A4 — Prénom au compte, et vérification du code de reset
+
+Deux besoins découverts par R28, tous deux impossibles côté front seul.
+
+1. **Le prénom.** `AuthMotDePasse` demande « Votre prénom » en 3/3 de
+   l'inscription, « affiché à la personne qui trouve votre objet ». Le champ
+   n'existe ni dans `@app/contracts/auth` ni en base, et
+   `/account/set-initial-password` ne porte que `newPassword`. Colonne,
+   migration, contrat, use-case, puis le champ dans
+   `create-password-step-section.tsx`.
+2. **La vérification du code de reset** _(facultatif)_. better-auth ne l'expose
+   pas : le code est rangé sous `${phoneNumber}-request-password-reset` et n'est
+   consommé que par `/phone-number/reset-password`, avec le mot de passe. Un
+   endpoint qui le vérifie **sans le consommer** permettrait de refuser un
+   mauvais code au bout de l'étape 1 plutôt qu'au bout de l'étape 2. À ne faire
+   que si le contrôle final se révèle gênant à l'usage — R28 tient déjà
+   l'essentiel, le mot de passe n'étant jamais perdu.
+
+**Fichiers** : `packages/database/prisma/schema.prisma`,
+`packages/contracts/src/auth/`, `apps/api/src/presentations/auth/`,
+`apps/client/app/routes/auth/register/`. **Flux** : E.
 
 #### A2 — Transformations Cloudinary à l'upload _(facultatif)_
 

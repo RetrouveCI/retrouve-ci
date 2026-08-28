@@ -5,12 +5,15 @@ import {
 	withPasswordConfirmation,
 } from '@app/contracts/shared'
 
-export const otpSchema = z.object({
-	otp: otpCodeSchema,
-})
-
-export const newPasswordSchema = withPasswordConfirmation(
+/**
+ * One screen, one schema: the code and the new password are checked together
+ * because they travel in the single `/phone-number/reset-password` call. Split
+ * over two steps, a code the API refused cost the visitor the password they had
+ * already typed.
+ */
+export const resetPasswordFormSchema = withPasswordConfirmation(
 	z.object({
+		otp: otpCodeSchema,
 		newPassword: passwordSchema,
 		confirmPassword: z.string(),
 	}),
@@ -28,8 +31,5 @@ export const resetPasswordActionSchema = z.object({
 	newPassword: passwordSchema,
 })
 
-export type OtpInput = z.input<typeof otpSchema>
-export type OtpData = z.output<typeof otpSchema>
-
-export type NewPasswordInput = z.input<typeof newPasswordSchema>
-export type NewPasswordData = z.output<typeof newPasswordSchema>
+export type ResetPasswordFormInput = z.input<typeof resetPasswordFormSchema>
+export type ResetPasswordFormData = z.output<typeof resetPasswordFormSchema>

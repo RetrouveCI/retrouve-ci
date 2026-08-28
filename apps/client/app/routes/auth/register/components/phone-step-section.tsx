@@ -13,6 +13,7 @@ import {
 	type PhoneNumberInput,
 } from '../register.schema'
 import { PhoneStep } from '../../components/phone-step'
+import { PhoneRuleCard } from '../../components/phone-rule-card'
 import type { action } from '../_index'
 
 interface PhoneStepSectionProps {
@@ -76,12 +77,14 @@ export function PhoneStepSection({
 							setPhoneNumber={field.onChange}
 							errors={toErrorList(fieldState.error)}
 							isSubmitting={fetcher.isSubmitting}
-						/>
+						>
+							<PhoneRuleCard />
+						</PhoneStep>
 					)}
 				/>
 			</form>
-			<p className="text-muted-foreground mt-6 text-center text-sm">
-				Déjà un compte ?{' '}
+			<p className="text-muted-foreground mt-6 text-center text-xs">
+				Vous avez déjà un compte ?{' '}
 				<Link
 					to={withRedirect('/auth/login', redirectTo)}
 					className="text-primary-green font-semibold hover:underline"

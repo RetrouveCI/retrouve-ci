@@ -21,16 +21,19 @@ vi.mock('@/context/auth', () => ({
 	}),
 }))
 
-vi.mock('../../helpers/phone-auth.client', () => ({
+const { verifyPhoneOtp } = vi.hoisted(() => ({
 	verifyPhoneOtp: vi.fn(async () => true),
 }))
 
+vi.mock('../../helpers/phone-auth.client', () => ({ verifyPhoneOtp }))
+
 const PHONE = '0700000000'
+const CODE = '123456'
 
 type Action = (args: { request: Request }) => unknown
 
 function renderPage(
-	action: Action = () => ({ success: true }) as ActionResult,
+	action: Action = async () => ({ success: true }) as ActionResult,
 ) {
 	const Stub = createRoutesStub([
 		{
@@ -48,23 +51,29 @@ function renderPage(
 }
 
 const phoneField = () => page.getByLabelText('Numéro de téléphone')
-const submitPhone = () => page.getByRole('button', { name: 'Continuer' })
+const codeField = () => page.getByLabelText('Code de vérification')
+const submitPhone = () =>
+	page.getByRole('button', { name: 'Recevoir mon code' })
 const goBack = () => page.getByRole('button', { name: 'Retour' })
-const editPhone = () => page.getByRole('button', { name: 'Modifier le numéro' })
-const resend = () => page.getByRole('button', { name: /Renvoyer le code/ })
-const confirm = () => page.getByRole('button', { name: /Confirmer/ })
-// By role, because the phone step's hint also carries the word "vérification".
+const editPhone = () =>
+	page.getByRole('button', { name: /Ce n’est pas le bon numéro/ })
+const resend = () => page.getByRole('button', { name: 'Renvoyer le code' })
+// By role, because the phone step's rule card also carries the word "code".
 const heading = (name: string) => page.getByRole('heading', { name })
+
+const CODE_HEADING = 'Le code reçu par SMS'
+const PASSWORD_HEADING = 'Votre mot de passe'
 
 async function reachOtpStep() {
 	renderPage()
 	await userEvent.fill(phoneField(), PHONE)
 	await userEvent.click(submitPhone())
-	await expect.element(heading('Vérification')).toBeInTheDocument()
+	await expect.element(heading(CODE_HEADING)).toBeInTheDocument()
 }
 
 beforeEach(() => {
 	auth.signedIn = false
+	verifyPhoneOtp.mockClear().mockResolvedValue(true)
 })
 
 describe('RegisterPage, the phone step', () => {
@@ -77,7 +86,7 @@ describe('RegisterPage, the phone step', () => {
 		await expect
 			.element(page.getByText(ASSIGNABLE_PHONE_ERROR_MESSAGE))
 			.toBeInTheDocument()
-		expect(heading('Vérification').elements()).toHaveLength(0)
+		expect(heading(CODE_HEADING).elements()).toHaveLength(0)
 	})
 
 	// Invariant 2 of flow E: whoever came from "Publier" goes back to "Publier",
@@ -88,6 +97,15 @@ describe('RegisterPage, the phone step', () => {
 		await expect
 			.element(page.getByRole('link', { name: 'Se connecter' }))
 			.toHaveAttribute('href', '/auth/login?redirectTo=%2Fpublish')
+	})
+
+	// The rule is advertised only where a number is written for the first time.
+	it('names the Ivorian rule it enforces', async () => {
+		renderPage()
+
+		await expect
+			.element(page.getByText('Numéros ivoiriens uniquement'))
+			.toBeInTheDocument()
 	})
 })
 
@@ -102,7 +120,7 @@ describe('RegisterPage, the code step', () => {
 	// correcting a typo meant retyping all ten digits.
 	it.each([
 		['Retour', goBack],
-		['Modifier le numéro', editPhone],
+		['Ce n’est pas le bon numéro', editPhone],
 	])('keeps the number when going back through %s', async (_label, control) => {
 		await reachOtpStep()
 
@@ -119,18 +137,33 @@ describe('RegisterPage, the code step', () => {
 
 		await expect.element(resend()).toBeDisabled()
 		await expect
-			.element(resend())
-			.toHaveTextContent(`(${OTP_RESEND_DELAY_SECONDS} s)`)
+			.element(page.getByText(/Possible dans/))
+			.toHaveTextContent(`${OTP_RESEND_DELAY_SECONDS} s`)
 	})
 
-	it('holds Confirmer until the code is complete', async () => {
+	// The mockup gives this step no button: the six digits are the submission.
+	it('verifies the code only once all six digits are in', async () => {
 		await reachOtpStep()
 
-		await expect.element(confirm()).toBeDisabled()
+		await userEvent.fill(codeField(), '1234')
+		expect(verifyPhoneOtp).not.toHaveBeenCalled()
 
-		await userEvent.fill(page.getByRole('textbox'), '123456')
+		await userEvent.fill(codeField(), CODE)
 
-		await expect.element(confirm()).toBeEnabled()
+		await expect.element(heading(PASSWORD_HEADING)).toBeInTheDocument()
+		expect(verifyPhoneOtp).toHaveBeenCalledWith(PHONE, CODE)
+	})
+
+	it('marks a refused code on the boxes and stays put', async () => {
+		await reachOtpStep()
+		verifyPhoneOtp.mockResolvedValue(false)
+
+		await userEvent.fill(codeField(), CODE)
+
+		await expect
+			.element(page.getByText('Code incorrect. Vérifiez et réessayez.'))
+			.toBeInTheDocument()
+		expect(heading(PASSWORD_HEADING).elements()).toHaveLength(0)
 	})
 })
 
@@ -142,11 +175,10 @@ describe('RegisterPage, once the code is verified', () => {
 	it('stays on the password step even though the visitor is now signed in', async () => {
 		await reachOtpStep()
 
-		await userEvent.fill(page.getByRole('textbox'), '123456')
 		auth.signedIn = true
-		await userEvent.click(confirm())
+		await userEvent.fill(codeField(), CODE)
 
-		await expect.element(heading('Sécurisez votre compte')).toBeInTheDocument()
+		await expect.element(heading(PASSWORD_HEADING)).toBeInTheDocument()
 		expect(page.getByText('Page du compte').elements()).toHaveLength(0)
 		expect(page.getByText('Page de publication').elements()).toHaveLength(0)
 	})

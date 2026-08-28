@@ -1,6 +1,6 @@
-import { Button, Input, Label } from '@app/ui/components'
+import { Input, Label } from '@app/ui/components'
 import { FieldError } from '@app/ui/components/form'
-import { Loader2 } from 'lucide-react'
+import { AuthSubmitButton } from './auth-submit-button'
 import { IvorianFlag } from './ivorian-flag'
 
 interface PhoneStepProps {
@@ -10,6 +10,7 @@ interface PhoneStepProps {
 	isSubmitting: boolean
 	hint?: string
 	submitLabel?: string
+	children?: React.ReactNode
 }
 
 export function PhoneStep({
@@ -17,18 +18,19 @@ export function PhoneStep({
 	setPhoneNumber,
 	errors,
 	isSubmitting,
-	hint = 'Un code de vérification vous sera envoyé.',
-	submitLabel = 'Continuer',
+	hint = 'Les espaces sont ajoutés à la saisie. Le clavier s’ouvre en mode numérique.',
+	submitLabel = 'Recevoir mon code',
+	children,
 }: PhoneStepProps) {
 	return (
 		<div className="space-y-5">
 			<div className="space-y-2">
-				<Label htmlFor="phone" className="text-sm font-medium">
+				<Label htmlFor="phone" className="text-sm font-semibold">
 					Numéro de téléphone
 				</Label>
-				<div className="flex gap-2">
-					<div className="bg-muted/50 text-muted-foreground flex h-12 shrink-0 items-center rounded-xl border-2 px-4 text-sm font-medium">
-						<IvorianFlag className="mr-2 h-3 w-4.5 rounded-[2px] ring-1 ring-black/10" />
+				<div className="flex gap-2.5">
+					<div className="bg-muted/50 text-foreground flex h-13 shrink-0 items-center gap-2 rounded-xl border-[1.5px] px-3.5 text-sm font-semibold">
+						<IvorianFlag className="h-3.5 w-5 rounded-[2px] ring-1 ring-black/10" />
 						+225
 					</div>
 					<Input
@@ -37,10 +39,10 @@ export function PhoneStep({
 						type="tel"
 						inputMode="numeric"
 						maxLength={14}
-						placeholder="07 XX XX XX XX"
+						placeholder="07 00 00 00 00"
 						value={phoneNumber}
 						onChange={e => setPhoneNumber(e.target.value)}
-						className="border-border bg-background focus:border-primary-green focus:ring-primary-green/20 h-12 flex-1 rounded-xl border-2 transition-all focus:ring-2"
+						className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-13 flex-1 rounded-xl border-[1.5px] text-[17px] tracking-[0.06em] tabular-nums transition-all focus:ring-[3px]"
 						autoComplete="tel"
 						autoFocus
 					/>
@@ -49,19 +51,14 @@ export function PhoneStep({
 				<p className="text-muted-foreground text-xs">{hint}</p>
 			</div>
 
-			<Button
-				type="submit"
-				className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
-				disabled={isSubmitting}
+			{children}
+
+			<AuthSubmitButton
+				isSubmitting={isSubmitting}
+				pendingLabel="Envoi en cours..."
 			>
-				{isSubmitting ? (
-					<>
-						<Loader2 className="h-4 w-4 animate-spin" /> Envoi en cours...
-					</>
-				) : (
-					submitLabel
-				)}
-			</Button>
+				{submitLabel}
+			</AuthSubmitButton>
 		</div>
 	)
 }

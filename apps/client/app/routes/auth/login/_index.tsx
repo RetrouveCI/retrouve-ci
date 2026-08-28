@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
-import { ArrowLeft } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router'
 import { useAuth } from '@/context/auth'
 import { redirectIfAuthenticated } from '@/shared/helpers/session.server'
 import { sanitizeRedirect } from '@/shared/helpers/redirect'
+import { AuthPageHeader } from '../components/auth-page-header'
 import { LoginForm } from './components/login-form'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
@@ -33,22 +33,12 @@ export default function LoginPage() {
 
 	return (
 		<>
-			<div className="mb-6">
-				<Link
-					to="/"
-					className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
-				>
-					<ArrowLeft className="h-4 w-4" />
-					Retour à l&apos;accueil
-				</Link>
-			</div>
-
-			<div className="mb-8">
-				<h2 className="mb-2 text-2xl font-bold lg:text-3xl">Bon retour !</h2>
-				<p className="text-muted-foreground">
-					Connectez-vous pour accéder à votre compte.
-				</p>
-			</div>
+			<AuthPageHeader
+				flow="Connexion"
+				heading="Bon retour"
+				description="Connectez-vous avec le numéro utilisé à l’inscription."
+				backTo="/"
+			/>
 
 			<LoginForm redirectTo={redirectTo} />
 		</>

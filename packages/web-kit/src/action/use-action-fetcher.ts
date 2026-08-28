@@ -12,6 +12,13 @@ import { useFetcher } from 'react-router'
  * never sees the previous run's value. Name the payload type through `TData` to
  * get it typed; it stays `undefined` otherwise.
  *
+ * `response` is the raw answer object, exposed for one purpose: React Router
+ * hands back a new one per settled submission, so its identity is the only
+ * reliable way to run an effect once per answer. Neither `state` nor a flag
+ * raised beside `submit()` can do that job — `submit()` does not leave `idle`
+ * inside the batch that calls it, and the `submitting` render is not guaranteed
+ * to happen at all.
+ *
  * A `key` is **not** needed to keep two forms apart: `useFetcher` falls back to
  * `useId()`, so every call already owns its own fetcher — verified against the
  * five settings dialogs, which post to one action and stay independent without
@@ -35,6 +42,7 @@ export function useActionFetcher<
 
 	return {
 		data: isOk ? (record?.data as TData | undefined) : undefined,
+		response: fetcher.data,
 		isOk,
 		errors: record?.errors as FieldErrors<TFormInput> | undefined,
 		isSubmitting: fetcher.state !== 'idle',

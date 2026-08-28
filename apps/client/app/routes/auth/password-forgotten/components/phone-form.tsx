@@ -12,9 +12,15 @@ import {
 	type PhoneNumberInput,
 } from '../password-forgotten.schema'
 import { PhoneStep } from '../../components/phone-step'
+import { recoveryUrl } from '../../helpers/recovery-url'
 import type { action } from '../_index'
 
-export function PhoneForm() {
+interface PhoneFormProps {
+	defaultPhoneNumber: string
+	redirectTo: string
+}
+
+export function PhoneForm({ defaultPhoneNumber, redirectTo }: PhoneFormProps) {
 	const navigate = useNavigate()
 
 	const submittedPhoneRef = useRef('')
@@ -27,7 +33,7 @@ export function PhoneForm() {
 		mode: 'onSubmit',
 		errors: fetcher.errors,
 		reValidateMode: 'onChange',
-		defaultValues: { phoneNumber: '' },
+		defaultValues: { phoneNumber: defaultPhoneNumber },
 	})
 
 	const onSubmit = (values: PhoneNumberData) => {
@@ -45,9 +51,13 @@ export function PhoneForm() {
 		})
 
 		void navigate(
-			`/auth/reset-password?phone=${encodeURIComponent(submittedPhoneRef.current)}`,
+			recoveryUrl(
+				'/auth/reset-password',
+				submittedPhoneRef.current,
+				redirectTo,
+			),
 		)
-	}, [hasSubmitted, fetcher.isOk, navigate])
+	}, [hasSubmitted, fetcher.isOk, navigate, redirectTo])
 
 	return (
 		<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
@@ -65,8 +75,7 @@ export function PhoneForm() {
 						setPhoneNumber={field.onChange}
 						errors={toErrorList(fieldState.error)}
 						isSubmitting={fetcher.isSubmitting}
-						hint="Entrez votre numéro pour recevoir un code de vérification."
-						submitLabel="Envoyer le code"
+						submitLabel="Recevoir un code"
 					/>
 				)}
 			/>
