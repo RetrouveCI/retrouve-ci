@@ -906,20 +906,42 @@ perdu**.
 > et ne peut donc pas servir de second temps. Une vraie vérification au bout de
 > l'étape 1 demanderait une étape API (§ Étapes API).
 
-**Bug corrigé, hors plan d'origine — la soumission conclue avant d'être
-partie.** Signalé en séance : « la vérification de l'otp échoue toujours la 1ère
-fois ; en resaisissant le même code, tout marche ». La garde
-`if (!hasSubmitted || fetcher.state !== 'idle') return`, avec `hasSubmitted`
-levé à côté de `fetcher.submit()`, est fausse deux fois : `submit()` ne fait pas
-sortir le fetcher de `idle` dans le lot de rendu qui l'appelle, donc l'effet
-s'exécute sur un rendu où rien n'a été demandé et sa branche `else` annonce un
-refus que l'API n'a jamais envoyé ; et se raccrocher au rendu `submitting` ne
-marche pas non plus, ce rendu n'étant **pas garanti** (vérifié : le fetcher
-passe de `idle` à `idle` avec la réponse déjà là). Le seul signal honnête est
-l'identité de la réponse — React Router en rend un objet neuf par soumission
-réglée. D'où `useActionFetcher` qui expose `response` (ajout purement additif
-dans `@app/web-kit`) et `routes/auth/hooks/use-settled-submission.ts`, couvert
-par `hooks/__tests__/use-settled-submission.test.tsx`.
+**Bug corrigé, hors plan d'origine — une réussite lue comme un refus.** Signalé
+en séance : « la vérification de l'OTP échoue toujours la 1ère fois ; en
+resaisissant le même code, tout marche ». **Deux défauts distincts**, le second
+n'ayant été trouvé qu'en reproduisant le parcours dans le navigateur contre
+l'API réelle — la lecture du code seule menait à la mauvaise conclusion.
+
+1. **La soumission conclue avant d'être partie.** La garde
+   `if (!hasSubmitted || fetcher.state !== 'idle') return`, avec `hasSubmitted`
+   levé à côté de `fetcher.submit()`, est fausse deux fois : `submit()` ne fait
+   pas sortir le fetcher de `idle` dans le lot de rendu qui l'appelle, donc
+   l'effet s'exécute sur un rendu où rien n'a été demandé et sa branche `else`
+   annonce un refus que l'API n'a jamais envoyé ; et se raccrocher au rendu
+   `submitting` ne marche pas non plus, ce rendu n'étant **pas garanti** (mesuré
+   : le fetcher passe de `idle` à `idle` avec la réponse déjà là).
+2. **`isOk` veut dire « réussi **et** au repos ».** Or le fetcher n'est
+   justement pas encore au repos quand sa réponse arrive. Consulter `isOk` dans
+   la branche revenait donc à traiter **toute réinitialisation réussie** comme
+   un code refusé. Mesuré de bout en bout : l'API répond `{"status":true}`, la
+   ligne de vérification est bien consommée, et l'écran affiche « Code incorrect
+   ou expiré ».
+
+Le seul signal honnête est **la réponse elle-même** : React Router en rend un
+objet neuf par soumission réglée, et cet objet porte son propre `success`. D'où
+`useActionFetcher` qui expose `response` (ajout purement additif dans
+`@app/web-kit`) et `routes/auth/hooks/use-settled-submission.ts`, qui passe la
+réponse réglée à son appelant plutôt que de laisser relire le fetcher. Couvert
+par `hooks/__tests__/use-settled-submission.test.tsx`, un cas par défaut.
+
+> **Méthode, pour la prochaine fois.** Le premier correctif a été livré sur la
+> foi de la lecture du code et d'un test à double de l'action ; il ne traitait
+> que la moitié du problème. Ce qui a tranché : poser une ligne de vérification
+> à la main en base (aucun SMS envoyé, Letexto étant configuré), rejouer
+> `/phone-number/reset-password` en curl — succès du premier coup, donc serveur
+> hors de cause — puis piloter l'écran réel avec Playwright et lire à la fois le
+> POST, la réponse et l'écran final. Pour un défaut de ce genre, reproduire
+> d'abord.
 
 > **Même défaut encore ouvert ailleurs** : `account/stickers/components/`
 > `activate-sticker-dialog.tsx` et `account/posts/components/listing-card.tsx`

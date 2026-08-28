@@ -82,8 +82,8 @@ export function ResetPasswordForm({
 		)
 	})
 
-	useSettledSubmission(fetcher.response, () => {
-		if (fetcher.isOk) {
+	useSettledSubmission(fetcher.response, result => {
+		if (result.success) {
 			toast.success('Mot de passe réinitialisé !', {
 				description: 'Vous pouvez maintenant vous connecter.',
 			})
@@ -99,10 +99,10 @@ export function ResetPasswordForm({
 		onStepChange('otp')
 	})
 
-	useSettledSubmission(resendFetcher.response, () => {
-		if (!resendFetcher.isOk) {
+	useSettledSubmission(resendFetcher.response, result => {
+		if (!result.success) {
 			toast.error('Impossible d’envoyer le code', {
-				description: resendFetcher.errors?.root?.message,
+				description: result.errors?.root?.message,
 			})
 			return
 		}
