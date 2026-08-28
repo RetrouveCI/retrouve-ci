@@ -1,9 +1,15 @@
-import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
-import { ArrowLeft } from 'lucide-react'
+import { useCallback, useState } from 'react'
+import {
+	useNavigate,
+	useSearchParams,
+	type ShouldRevalidateFunction,
+} from 'react-router'
 import { redirectIfAuthenticated } from '@/shared/helpers/session.server'
-import { OtpStepSection } from './components/otp-step-section'
-import { NewPasswordStepSection } from './components/new-password-step-section'
+import { sanitizeRedirect } from '@/shared/helpers/redirect'
+import { recoveryUrl } from '../helpers/recovery-url'
+import { AuthPageHeader } from '../components/auth-page-header'
+import { ResetPasswordForm } from './components/reset-password-form'
+import type { ResetPasswordStep } from './reset-password.types'
 import { resetPasswordAction } from './servers/reset-password.action'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
@@ -23,76 +29,70 @@ export async function loader({ request }: Route.LoaderArgs) {
 	return null
 }
 
-type Step = 'otp' | 'new-password'
+/** The loader carries no data; revalidating it only re-runs the guard above. */
+export const shouldRevalidate: ShouldRevalidateFunction = () => false
 
 export default function ResetPasswordPage() {
 	const navigate = useNavigate()
 	const [searchParams] = useSearchParams()
 
 	const phoneNumber = searchParams.get('phone') ?? ''
+	const redirectTo = sanitizeRedirect(searchParams.get('redirectTo'))
 
-	const [step, setStep] = useState<Step>('otp')
-	const [otp, setOtp] = useState('')
-	const [otpError, setOtpError] = useState(false)
+	const [step, setStep] = useState<ResetPasswordStep>('otp')
+
+	const backToPhone = useCallback(
+		() =>
+			void navigate(
+				recoveryUrl('/auth/password-forgotten', phoneNumber, redirectTo),
+			),
+		[navigate, phoneNumber, redirectTo],
+	)
 
 	const goBack = () => {
-		if (step === 'otp') navigate('/auth/password-forgotten')
+		if (step === 'otp') backToPhone()
 		else setStep('otp')
 	}
 
-	const title = step === 'otp' ? 'Vérification' : 'Nouveau mot de passe'
-	const description =
-		step === 'otp' ? (
-			<>
-				Code envoyé au{' '}
-				<span className="text-foreground font-semibold">
-					+225 {phoneNumber}
-				</span>
-			</>
-		) : (
-			'Choisissez un nouveau mot de passe.'
-		)
-
 	return (
 		<>
-			<div className="mb-6">
-				<button
-					onClick={goBack}
-					className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
-				>
-					<ArrowLeft className="h-4 w-4" />
-					Retour
-				</button>
-			</div>
+			<AuthPageHeader
+				flow="Mot de passe oublié"
+				heading={
+					step === 'otp' ? 'Le code reçu par SMS' : 'Votre nouveau mot de passe'
+				}
+				description={
+					step === 'otp' ? (
+						<>
+							Envoyé au{' '}
+							<b className="text-foreground font-semibold">
+								+225 {phoneNumber}
+							</b>
+							.
+							<br />
+							<button
+								type="button"
+								onClick={backToPhone}
+								className="text-primary-green font-semibold underline-offset-4 hover:underline"
+							>
+								Ce n’est pas le bon numéro ?
+							</button>
+						</>
+					) : (
+						'Il remplacera celui que vous avez oublié.'
+					)
+				}
+				step={step === 'otp' ? 1 : 2}
+				totalSteps={2}
+				onBack={goBack}
+			/>
 
-			<div className="mb-8">
-				<h2 className="mb-2 text-2xl font-bold lg:text-3xl">{title}</h2>
-				<p className="text-muted-foreground">{description}</p>
-			</div>
-
-			{step === 'otp' && (
-				<OtpStepSection
-					phoneNumber={phoneNumber}
-					initialError={otpError}
-					onVerified={value => {
-						setOtp(value)
-						setStep('new-password')
-					}}
-					onEditPhone={() => navigate('/auth/password-forgotten')}
-				/>
-			)}
-
-			{step === 'new-password' && (
-				<NewPasswordStepSection
-					phoneNumber={phoneNumber}
-					otp={otp}
-					onSuccess={() => navigate('/auth/login')}
-					onFail={() => {
-						setOtpError(true)
-						setStep('otp')
-					}}
-				/>
-			)}
+			<ResetPasswordForm
+				phoneNumber={phoneNumber}
+				redirectTo={redirectTo}
+				step={step}
+				onStepChange={setStep}
+			/>
 		</>
 	)
 }

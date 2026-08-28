@@ -1,6 +1,7 @@
-import { Link } from 'react-router'
-import { ArrowLeft } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router'
 import { redirectIfAuthenticated } from '@/shared/helpers/session.server'
+import { sanitizeRedirect, withRedirect } from '@/shared/helpers/redirect'
+import { AuthPageHeader } from '../components/auth-page-header'
 import { PhoneForm } from './components/phone-form'
 import { passwordForgottenAction } from './servers/password-forgotten.action'
 import type { Route } from './+types/_index'
@@ -21,36 +22,33 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function PasswordForgottenPage() {
+	const [searchParams] = useSearchParams()
+
+	// Both come back when the reset screen sends someone here to correct their
+	// number: the number so it need not be retyped, the destination so the flow
+	// still ends where it started.
+	const phoneNumber = searchParams.get('phone') ?? ''
+	const redirectTo = sanitizeRedirect(searchParams.get('redirectTo'))
+	const loginUrl = withRedirect('/auth/login', redirectTo)
+
 	return (
 		<>
-			<div className="mb-6">
+			<AuthPageHeader
+				flow="Mot de passe oublié"
+				heading="On vous renvoie un code"
+				description="Entrez le numéro de votre compte. Un code de vérification vous sera envoyé par SMS."
+				backTo={loginUrl}
+			/>
+
+			<PhoneForm defaultPhoneNumber={phoneNumber} redirectTo={redirectTo} />
+
+			<p className="text-muted-foreground mt-6 text-center text-xs">
+				Vous vous souvenez ?{' '}
 				<Link
-					to="/auth/login"
-					className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
-				>
-					<ArrowLeft className="h-4 w-4" />
-					Retour
-				</Link>
-			</div>
-
-			<div className="mb-8">
-				<h2 className="mb-2 text-2xl font-bold lg:text-3xl">
-					Mot de passe oublié
-				</h2>
-				<p className="text-muted-foreground">
-					Réinitialisez votre mot de passe.
-				</p>
-			</div>
-
-			<PhoneForm />
-
-			<p className="text-muted-foreground mt-6 text-center text-sm">
-				Retour à{' '}
-				<Link
-					to="/auth/login"
+					to={loginUrl}
 					className="text-primary-green font-semibold hover:underline"
 				>
-					la connexion
+					Se connecter
 				</Link>
 			</p>
 		</>

@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react'
 import {
-	Link,
 	useNavigate,
 	useSearchParams,
 	type ShouldRevalidateFunction,
 } from 'react-router'
-import { ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/context/auth'
 import { redirectIfAuthenticated } from '@/shared/helpers/session.server'
 import { sanitizeRedirect } from '@/shared/helpers/redirect'
+import { AuthPageHeader } from '../components/auth-page-header'
 import { PhoneStepSection } from './components/phone-step-section'
 import { OtpStepSection } from './components/otp-step-section'
 import { CreatePasswordStepSection } from './components/create-password-step-section'
@@ -35,6 +34,12 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => false
 
 type Step = 'phone' | 'otp' | 'create-password'
 
+const STEP_NUMBER: Record<Step, number> = {
+	phone: 1,
+	otp: 2,
+	'create-password': 3,
+}
+
 export default function RegisterPage() {
 	const navigate = useNavigate()
 	const [searchParams] = useSearchParams()
@@ -59,53 +64,43 @@ export default function RegisterPage() {
 		else if (step === 'create-password') setStep('otp')
 	}
 
-	const title =
+	const heading =
 		step === 'phone'
-			? 'Créer un compte'
+			? 'Votre numéro'
 			: step === 'otp'
-				? 'Vérification'
-				: 'Sécurisez votre compte'
+				? 'Le code reçu par SMS'
+				: 'Votre mot de passe'
 
 	const description =
 		step === 'phone' ? (
-			'Rejoignez la communauté RetrouveCI.'
+			'Il sert à vous connecter, et à vous joindre quand quelqu’un retrouve votre objet.'
 		) : step === 'otp' ? (
 			<>
-				Code envoyé au{' '}
-				<span className="text-foreground font-semibold">
-					+225 {phoneNumber}
-				</span>
+				Envoyé au{' '}
+				<b className="text-foreground font-semibold">+225 {phoneNumber}</b>.
+				<br />
+				<button
+					type="button"
+					onClick={() => setStep('phone')}
+					className="text-primary-green font-semibold underline-offset-4 hover:underline"
+				>
+					Ce n’est pas le bon numéro ?
+				</button>
 			</>
 		) : (
-			'Choisissez un mot de passe sécurisé.'
+			'Il vous servira à vous reconnecter sans attendre de SMS.'
 		)
 
 	return (
 		<>
-			<div className="mb-6">
-				{step === 'phone' ? (
-					<Link
-						to="/"
-						className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
-					>
-						<ArrowLeft className="h-4 w-4" />
-						Retour
-					</Link>
-				) : (
-					<button
-						onClick={goBack}
-						className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
-					>
-						<ArrowLeft className="h-4 w-4" />
-						Retour
-					</button>
-				)}
-			</div>
-
-			<div className="mb-8">
-				<h2 className="mb-2 text-2xl font-bold lg:text-3xl">{title}</h2>
-				<p className="text-muted-foreground">{description}</p>
-			</div>
+			<AuthPageHeader
+				flow="Créer un compte"
+				heading={heading}
+				description={description}
+				step={STEP_NUMBER[step]}
+				totalSteps={3}
+				{...(step === 'phone' ? { backTo: '/' } : { onBack: goBack })}
+			/>
 
 			{step === 'phone' && (
 				<PhoneStepSection
@@ -122,7 +117,6 @@ export default function RegisterPage() {
 				<OtpStepSection
 					phoneNumber={phoneNumber}
 					onVerified={() => setStep('create-password')}
-					onEditPhone={() => setStep('phone')}
 				/>
 			)}
 

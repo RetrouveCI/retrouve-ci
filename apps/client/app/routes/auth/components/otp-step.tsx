@@ -1,7 +1,8 @@
-import { Button, InputOTP, InputOTPGroup } from '@app/ui/components'
-import { OTP_LENGTH } from '@app/contracts/shared'
-import { Loader2, CheckCircle2, RefreshCw } from 'lucide-react'
+import { InputOTP, InputOTPGroup } from '@app/ui/components'
+import { OTP_LENGTH, OTP_TTL_SECONDS } from '@app/contracts/shared'
+import { RefreshCw } from 'lucide-react'
 import { cn } from '@app/ui/utils'
+import { AuthNote } from './auth-note'
 import { OtpSlots } from './otp-slots'
 
 interface OtpStepProps {
@@ -9,39 +10,42 @@ interface OtpStepProps {
 	setOtp: (v: string) => void
 	otpError: boolean
 	setOtpError: (v: boolean) => void
-	timeLeft: number
+	errorMessage?: string
+	/** Fired as soon as the six digits are in — the step carries no button. */
+	onComplete: (otp: string) => void
 	resendIn: number
 	canResend: boolean
 	isSubmitting: boolean
-	formatTime: (s: number) => string
 	onResend: () => void
-	onEditPhone: () => void
 }
+
+const TTL_MINUTES = Math.round(OTP_TTL_SECONDS / 60)
 
 export function OtpStep({
 	otp,
 	setOtp,
 	otpError,
 	setOtpError,
-	timeLeft,
+	errorMessage = 'Code incorrect. Vérifiez et réessayez.',
+	onComplete,
 	resendIn,
 	canResend,
 	isSubmitting,
-	formatTime,
 	onResend,
-	onEditPhone,
 }: OtpStepProps) {
 	return (
 		<div className="space-y-6">
-			<div className="space-y-4">
+			<div className="space-y-3">
 				<div className="flex justify-center">
 					<InputOTP
 						name="otp"
+						aria-label="Code de vérification"
 						maxLength={OTP_LENGTH}
 						value={otp}
 						onChange={val => {
 							setOtp(val)
 							setOtpError(false)
+							if (val.length === OTP_LENGTH) onComplete(val)
 						}}
 						disabled={isSubmitting}
 						containerClassName="gap-2"
@@ -52,71 +56,34 @@ export function OtpStep({
 					</InputOTP>
 				</div>
 				{otpError && (
-					<p className="text-destructive text-center text-sm">
-						Code incorrect. Verifiez et reessayez.
-					</p>
+					<p className="text-destructive text-center text-sm">{errorMessage}</p>
 				)}
 			</div>
 
-			<div className="flex flex-col items-center gap-3">
-				{timeLeft > 0 ? (
-					<div
-						className={cn(
-							'flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium',
-							timeLeft <= 30
-								? 'text-destructive bg-destructive/10'
-								: 'bg-primary-green/10 text-primary-green',
-						)}
-					>
-						<span className="text-base tabular-nums">
-							{formatTime(timeLeft)}
-						</span>
-						<span className="text-muted-foreground text-xs font-normal">
-							avant expiration
-						</span>
-					</div>
-				) : (
-					<p className="text-destructive text-center text-sm font-medium">
-						Code expiré. Demandez-en un nouveau.
-					</p>
-				)}
-
+			<div className="flex flex-col items-center gap-2.5">
 				<button
 					type="button"
 					onClick={onResend}
 					disabled={isSubmitting || !canResend}
-					className="text-primary-green hover:text-primary-green-dark inline-flex min-h-11 items-center gap-2 text-sm font-semibold transition-colors disabled:opacity-50"
+					className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] px-4.5 text-sm font-semibold transition-colors disabled:opacity-50"
 				>
 					<RefreshCw
 						className={cn('h-4 w-4', isSubmitting && 'animate-spin')}
 					/>
-					{canResend ? 'Renvoyer le code' : `Renvoyer le code (${resendIn} s)`}
+					Renvoyer le code
 				</button>
-
-				<button
-					type="button"
-					onClick={onEditPhone}
-					className="text-muted-foreground hover:text-foreground inline-flex min-h-11 items-center text-sm underline-offset-4 transition-colors hover:underline"
-				>
-					Modifier le numéro
-				</button>
+				{!canResend && (
+					<p className="text-muted-foreground text-xs">
+						Possible dans{' '}
+						<b className="text-foreground tabular-nums">{resendIn} s</b>
+					</p>
+				)}
 			</div>
 
-			<Button
-				type="submit"
-				className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-base font-semibold text-white transition-all hover:scale-[1.02]"
-				disabled={isSubmitting || otp.length < OTP_LENGTH || timeLeft === 0}
-			>
-				{isSubmitting ? (
-					<>
-						<Loader2 className="h-4 w-4 animate-spin" /> Verification...
-					</>
-				) : (
-					<>
-						<CheckCircle2 className="h-4 w-4" /> Confirmer
-					</>
-				)}
-			</Button>
+			<AuthNote>
+				Le SMS met parfois une minute à arriver. Le code reste valable{' '}
+				{TTL_MINUTES} minutes.
+			</AuthNote>
 		</div>
 	)
 }

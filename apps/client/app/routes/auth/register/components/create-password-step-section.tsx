@@ -11,6 +11,7 @@ import {
 	type NewPasswordData,
 	type NewPasswordInput,
 } from '../register.schema'
+import { AuthSubmitButton } from '../../components/auth-submit-button'
 import { PasswordStep } from '../../components/password-step'
 import type { action } from '../_index'
 
@@ -60,14 +61,14 @@ export function CreatePasswordStepSection({
 	}, [hasSubmitted, fetcher.isOk, navigate, redirectTo])
 
 	return (
-		<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-			<FormRootError
-				message={form.formState.errors.root?.message}
-				className="mb-5"
-			/>
+		<form
+			onSubmit={form.handleSubmit(onSubmit)}
+			noValidate
+			className="space-y-6"
+		>
+			<FormRootError message={form.formState.errors.root?.message} />
 
 			<PasswordStep
-				step="create-password"
 				newPassword={newPassword.field.value}
 				setNewPassword={newPassword.field.onChange}
 				confirmPassword={confirmPassword.field.value}
@@ -76,6 +77,13 @@ export function CreatePasswordStepSection({
 				confirmPasswordErrors={toErrorList(confirmPassword.fieldState.error)}
 				isSubmitting={fetcher.isSubmitting}
 			/>
+
+			<AuthSubmitButton
+				isSubmitting={fetcher.isSubmitting}
+				pendingLabel="Création du compte..."
+			>
+				Créer mon compte
+			</AuthSubmitButton>
 		</form>
 	)
 }
