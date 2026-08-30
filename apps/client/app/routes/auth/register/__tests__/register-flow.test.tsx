@@ -37,17 +37,17 @@ function renderPage(
 ) {
 	const Stub = createRoutesStub([
 		{
-			path: '/auth/register',
+			path: '/register',
 			Component: RegisterPage,
 			loader: () => null,
 			action,
 		},
-		{ path: '/auth/login', Component: () => <p>Page de connexion</p> },
+		{ path: '/login', Component: () => <p>Page de connexion</p> },
 		{ path: '/publish', Component: () => <p>Page de publication</p> },
 		{ path: '/account', Component: () => <p>Page du compte</p> },
 	])
 
-	render(<Stub initialEntries={['/auth/register?redirectTo=%2Fpublish']} />)
+	render(<Stub initialEntries={['/register?redirectTo=%2Fpublish']} />)
 }
 
 const phoneField = () => page.getByLabelText('Numéro de téléphone')
@@ -96,7 +96,7 @@ describe('RegisterPage, the phone step', () => {
 
 		await expect
 			.element(page.getByRole('link', { name: 'Se connecter' }))
-			.toHaveAttribute('href', '/auth/login?redirectTo=%2Fpublish')
+			.toHaveAttribute('href', '/login?redirectTo=%2Fpublish')
 	})
 
 	// The rule is advertised only where a number is written for the first time.

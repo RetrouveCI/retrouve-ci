@@ -16,7 +16,7 @@ import {
 	unbanAdminUser,
 } from './administrators.service'
 
-const API_OPTIONS = { redirectOnUnauthorized: '/auth/login' }
+const API_OPTIONS = { redirectOnUnauthorized: '/login' }
 
 export async function administratorsAction({
 	request,
@@ -93,11 +93,7 @@ export async function administratorsAction({
 
 		return withApiOperationError(
 			() =>
-				sendPasswordReset(
-					headers,
-					email,
-					appUrl('/auth/reset-password', request),
-				),
+				sendPasswordReset(headers, email, appUrl('/reset-password', request)),
 			API_OPTIONS,
 		)
 	}

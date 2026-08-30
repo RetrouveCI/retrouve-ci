@@ -87,7 +87,7 @@ export function ResetPasswordForm({
 			toast.success('Mot de passe réinitialisé !', {
 				description: 'Vous pouvez maintenant vous connecter.',
 			})
-			void navigate(withRedirect('/auth/login', redirectTo), { replace: true })
+			void navigate(withRedirect('/login', redirectTo), { replace: true })
 			return
 		}
 

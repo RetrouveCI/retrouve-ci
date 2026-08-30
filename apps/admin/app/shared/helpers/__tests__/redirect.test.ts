@@ -1,6 +1,7 @@
 import {
 	appUrl,
 	DEFAULT_REDIRECT,
+	AUTH_PATHS,
 	loginUrlWithRedirect,
 	sanitizeRedirect,
 	toRoutePath,
@@ -41,36 +42,36 @@ describe('sanitizeRedirect', () => {
 		expect(sanitizeRedirect('//evil.example')).toBe(DEFAULT_REDIRECT)
 	})
 
-	it('refuses an auth destination, so signing in cannot loop', () => {
-		expect(sanitizeRedirect('/auth')).toBe(DEFAULT_REDIRECT)
-		expect(sanitizeRedirect('/auth/login')).toBe(DEFAULT_REDIRECT)
+	// Walks AUTH_PATHS on purpose: the guard used to be a prefix test on `/auth`,
+	// and a path added to the app without being added there would be a redirect
+	// straight back into the login screen.
+	it.each(AUTH_PATHS)('refuses %s, which would loop', path => {
+		expect(sanitizeRedirect(path)).toBe(DEFAULT_REDIRECT)
+		expect(sanitizeRedirect(`${path}?redirectTo=%2F`)).toBe(DEFAULT_REDIRECT)
+		expect(sanitizeRedirect(`${path}/`)).toBe(DEFAULT_REDIRECT)
 	})
 })
 
 describe('withRedirect', () => {
 	it('appends the destination, encoded', () => {
-		expect(withRedirect('/auth/login', '/qr/generate?count=5')).toBe(
-			'/auth/login?redirectTo=%2Fqr%2Fgenerate%3Fcount%3D5',
+		expect(withRedirect('/login', '/qr/generate?count=5')).toBe(
+			'/login?redirectTo=%2Fqr%2Fgenerate%3Fcount%3D5',
 		)
 	})
 
 	it('leaves the path untouched when the destination is the default', () => {
-		expect(withRedirect('/auth/login', DEFAULT_REDIRECT)).toBe('/auth/login')
-		expect(withRedirect('/auth/login', null)).toBe('/auth/login')
+		expect(withRedirect('/login', DEFAULT_REDIRECT)).toBe('/login')
+		expect(withRedirect('/login', null)).toBe('/login')
 	})
 
 	it('drops a destination that did not survive sanitizing', () => {
-		expect(withRedirect('/auth/login', 'https://evil.example')).toBe(
-			'/auth/login',
-		)
+		expect(withRedirect('/login', 'https://evil.example')).toBe('/login')
 	})
 })
 
 describe('loginUrlWithRedirect', () => {
 	it('builds the login URL that remembers where the admin was headed', () => {
-		expect(loginUrlWithRedirect('/orders')).toBe(
-			'/auth/login?redirectTo=%2Forders',
-		)
+		expect(loginUrlWithRedirect('/orders')).toBe('/login?redirectTo=%2Forders')
 	})
 })
 
@@ -82,32 +83,32 @@ describe('appUrl', () => {
 	})
 
 	it("falls back to the request's own origin when nothing is configured", () => {
-		expect(appUrl('/auth/reset-password', request)).toBe(
-			'http://localhost:3001/auth/reset-password',
+		expect(appUrl('/reset-password', request)).toBe(
+			'http://localhost:3001/reset-password',
 		)
 	})
 
 	it('prefers the configured public URL, which is what a proxy needs', () => {
 		process.env['ADMIN_APP_URL'] = 'https://admin.retrouveci.com'
 
-		expect(appUrl('/auth/reset-password', request)).toBe(
-			'https://admin.retrouveci.com/auth/reset-password',
+		expect(appUrl('/reset-password', request)).toBe(
+			'https://admin.retrouveci.com/reset-password',
 		)
 	})
 
 	it('tolerates a trailing slash and surrounding whitespace', () => {
 		process.env['ADMIN_APP_URL'] = '  https://admin.retrouveci.com/  '
 
-		expect(appUrl('/auth/reset-password', request)).toBe(
-			'https://admin.retrouveci.com/auth/reset-password',
+		expect(appUrl('/reset-password', request)).toBe(
+			'https://admin.retrouveci.com/reset-password',
 		)
 	})
 
 	it('ignores a blank value rather than building an unusable URL', () => {
 		process.env['ADMIN_APP_URL'] = '   '
 
-		expect(appUrl('/auth/reset-password', request)).toBe(
-			'http://localhost:3001/auth/reset-password',
+		expect(appUrl('/reset-password', request)).toBe(
+			'http://localhost:3001/reset-password',
 		)
 	})
 })

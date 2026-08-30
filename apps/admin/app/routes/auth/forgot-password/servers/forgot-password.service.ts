@@ -9,7 +9,7 @@ export async function requestPasswordReset(
 		method: 'POST',
 		body: JSON.stringify({
 			email,
-			redirectTo: appUrl('/auth/reset-password', request),
+			redirectTo: appUrl('/reset-password', request),
 		}),
 		headers: { Origin: new URL(request.url).origin },
 	})

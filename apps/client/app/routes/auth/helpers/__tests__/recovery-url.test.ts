@@ -1,6 +1,6 @@
 import { recoveryUrl } from '../recovery-url'
 
-const RESET = '/auth/reset-password'
+const RESET = '/reset-password'
 
 describe('recoveryUrl', () => {
 	it('carries the number alone when the destination is the default', () => {
@@ -25,7 +25,7 @@ describe('recoveryUrl', () => {
 	})
 
 	// `withRedirect` sanitises, and an auth path would loop the visitor back here.
-	it.each(['https://evil.test', '//evil.test', '/auth/login'])(
+	it.each(['https://evil.test', '//evil.test', '/login'])(
 		'refuses %p as a destination',
 		destination => {
 			expect(recoveryUrl(RESET, '0700000000', destination)).toBe(

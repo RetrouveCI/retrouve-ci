@@ -88,7 +88,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 							disabled={isSubmitting}
 							action={
 								<Link
-									to={withRedirect('/auth/password-forgotten', redirectTo)}
+									to={withRedirect('/password-forgotten', redirectTo)}
 									className="text-primary-green text-xs font-semibold hover:underline"
 								>
 									Oublié ?
@@ -116,7 +116,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 			</div>
 
 			<Link
-				to={withRedirect('/auth/register', redirectTo)}
+				to={withRedirect('/register', redirectTo)}
 				className="hover:bg-muted/50 flex h-13 w-full items-center justify-center rounded-[14px] border-[1.5px] text-[15px] font-semibold transition-colors"
 			>
 				Créer un compte

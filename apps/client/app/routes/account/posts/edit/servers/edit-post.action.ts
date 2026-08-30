@@ -45,6 +45,6 @@ export async function editPostAction(
 
 			throw redirect('/account/posts')
 		},
-		{ redirectOnUnauthorized: '/auth/login' },
+		{ redirectOnUnauthorized: '/login' },
 	)
 }

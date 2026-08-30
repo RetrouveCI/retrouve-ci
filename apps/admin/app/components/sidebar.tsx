@@ -168,7 +168,7 @@ function SidebarContent({
 
 	const handleLogout = async () => {
 		await logout()
-		void navigate('/auth/login')
+		void navigate('/login')
 	}
 
 	return (

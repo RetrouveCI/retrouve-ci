@@ -61,7 +61,7 @@ describe('stickersAction', () => {
 		}).catch((error: unknown) => error as Response)
 
 		expect(thrown).toBeInstanceOf(Response)
-		expect((thrown as Response).headers.get('location')).toBe('/auth/login')
+		expect((thrown as Response).headers.get('location')).toBe('/login')
 		expect(revokeSticker).not.toHaveBeenCalled()
 	})
 

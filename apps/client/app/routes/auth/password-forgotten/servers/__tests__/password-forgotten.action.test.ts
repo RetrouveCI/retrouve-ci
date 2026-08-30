@@ -16,7 +16,7 @@ const { passwordForgottenAction } = await import('../password-forgotten.action')
 function requestFor(fields: Record<string, string>) {
 	const body = new FormData()
 	for (const [key, value] of Object.entries(fields)) body.append(key, value)
-	return new Request('http://localhost:3000/auth/password-forgotten', {
+	return new Request('http://localhost:3000/password-forgotten', {
 		method: 'POST',
 		body,
 	})

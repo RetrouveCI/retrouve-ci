@@ -22,7 +22,7 @@ const { registerAction } = await import('../register.action')
 function requestFor(fields: Record<string, string>) {
 	const body = new FormData()
 	for (const [key, value] of Object.entries(fields)) body.append(key, value)
-	return new Request('http://localhost:3000/auth/register', {
+	return new Request('http://localhost:3000/register', {
 		method: 'POST',
 		body,
 	})

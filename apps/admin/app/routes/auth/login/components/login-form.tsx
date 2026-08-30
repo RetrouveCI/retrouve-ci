@@ -87,7 +87,7 @@ export function LoginForm() {
 							{fieldState.error && <FieldError errors={[fieldState.error]} />}
 							<div className="flex justify-end">
 								<Link
-									to="/auth/forgot-password"
+									to="/forgot-password"
 									className="text-muted-foreground hover:text-foreground text-xs transition-colors"
 								>
 									Mot de passe oublié ?

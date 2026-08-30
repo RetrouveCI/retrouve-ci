@@ -51,11 +51,7 @@ export function PhoneForm({ defaultPhoneNumber, redirectTo }: PhoneFormProps) {
 		})
 
 		void navigate(
-			recoveryUrl(
-				'/auth/reset-password',
-				submittedPhoneRef.current,
-				redirectTo,
-			),
+			recoveryUrl('/reset-password', submittedPhoneRef.current, redirectTo),
 		)
 	}, [hasSubmitted, fetcher.isOk, navigate, redirectTo])
 

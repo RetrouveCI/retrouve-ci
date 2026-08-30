@@ -6,13 +6,13 @@ import { ResetPasswordForm } from '../reset-password-form'
 function renderForm(action: (args: { request: Request }) => unknown) {
 	const Stub = createRoutesStub([
 		{
-			path: '/auth/reset-password',
+			path: '/reset-password',
 			Component: () => <ResetPasswordForm token="valid-token" />,
 			action,
 		},
 	])
 
-	render(<Stub initialEntries={['/auth/reset-password']} />)
+	render(<Stub initialEntries={['/reset-password']} />)
 }
 
 // `exact` matters: each eye toggle is labelled after its field, so a loose

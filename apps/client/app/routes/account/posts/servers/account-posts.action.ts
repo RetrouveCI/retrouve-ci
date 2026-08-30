@@ -24,7 +24,7 @@ export async function accountPostsAction({
 	request: Request
 }): Promise<ActionResult> {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth/login')
+	if (!session) throw redirect('/login')
 
 	const submission = actionSchema.safeParse(
 		Object.fromEntries(await request.formData()),
@@ -37,7 +37,7 @@ export async function accountPostsAction({
 		const { id } = submission.data
 
 		return withApiOperationError(() => deleteLostItem(id, request), {
-			redirectOnUnauthorized: '/auth/login',
+			redirectOnUnauthorized: '/login',
 		})
 	}
 
@@ -45,6 +45,6 @@ export async function accountPostsAction({
 
 	return withApiOperationError(
 		() => updateLostItemResolution(id, status, request),
-		{ redirectOnUnauthorized: '/auth/login' },
+		{ redirectOnUnauthorized: '/login' },
 	)
 }

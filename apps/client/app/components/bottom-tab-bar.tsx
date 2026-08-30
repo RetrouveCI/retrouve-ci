@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router'
 import { Home, Newspaper, Plus, Bell, User, LogIn } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { useAuth } from '@/context/auth'
+import { AUTH_PATHS } from '@/shared/helpers/redirect'
 
 function isActiveTab(pathname: string, href: string) {
 	if (href === '/') return pathname === '/'
@@ -59,10 +60,10 @@ export function BottomTabBar() {
 					/>
 				) : (
 					<TabLink
-						href="/auth/login"
+						href="/login"
 						label="Connexion"
 						icon={LogIn}
-						active={isActiveTab(pathname, '/auth')}
+						active={AUTH_PATHS.some(path => pathname === path)}
 					/>
 				)}
 			</div>

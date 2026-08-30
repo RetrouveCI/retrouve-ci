@@ -63,9 +63,7 @@ function errorsOf(result: ActionResult): FormErrors {
 
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
-	appUrl
-		.mockReset()
-		.mockReturnValue('http://localhost:3001/auth/reset-password')
+	appUrl.mockReset().mockReturnValue('http://localhost:3001/reset-password')
 	for (const fn of [
 		banAdminUser,
 		removeAdminUser,
@@ -277,13 +275,13 @@ describe('administratorsAction', () => {
 
 			expect(result).toEqual({ success: true })
 			expect(appUrl).toHaveBeenCalledWith(
-				'/auth/reset-password',
+				'/reset-password',
 				expect.any(Request),
 			)
 			expect(sendPasswordReset).toHaveBeenCalledWith(
 				HEADERS,
 				'awa@retrouveci.com',
-				'http://localhost:3001/auth/reset-password',
+				'http://localhost:3001/reset-password',
 			)
 		})
 

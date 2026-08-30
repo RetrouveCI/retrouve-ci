@@ -42,23 +42,21 @@ function renderPage(
 ) {
 	const Stub = createRoutesStub([
 		{
-			path: '/auth/reset-password',
+			path: '/reset-password',
 			Component: ResetPasswordPage,
 			loader: () => null,
 			action,
 		},
 		{
-			path: '/auth/password-forgotten',
+			path: '/password-forgotten',
 			Component: () => <ParamsProbe label="Numéro" />,
 		},
-		{ path: '/auth/login', Component: () => <ParamsProbe label="Connexion" /> },
+		{ path: '/login', Component: () => <ParamsProbe label="Connexion" /> },
 	])
 
 	render(
 		<Stub
-			initialEntries={[
-				`/auth/reset-password?redirectTo=%2Fpublish&phone=${PHONE}`,
-			]}
+			initialEntries={[`/reset-password?redirectTo=%2Fpublish&phone=${PHONE}`]}
 		/>,
 	)
 }

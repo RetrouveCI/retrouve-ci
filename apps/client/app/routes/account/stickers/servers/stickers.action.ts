@@ -31,7 +31,7 @@ const actionSchema = z.discriminatedUnion('intent', [
 	z.object({ intent: z.literal('revoke'), code: z.string() }),
 ])
 
-const UNAUTHORIZED = { redirectOnUnauthorized: '/auth/login' }
+const UNAUTHORIZED = { redirectOnUnauthorized: '/login' }
 
 export async function stickersAction({
 	request,
@@ -39,7 +39,7 @@ export async function stickersAction({
 	request: Request
 }): Promise<ActionResult> {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth/login')
+	if (!session) throw redirect('/login')
 
 	const submission = actionSchema.safeParse(
 		Object.fromEntries(await request.formData()),

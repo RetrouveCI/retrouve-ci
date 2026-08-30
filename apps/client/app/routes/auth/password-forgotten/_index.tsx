@@ -29,7 +29,7 @@ export default function PasswordForgottenPage() {
 	// still ends where it started.
 	const phoneNumber = searchParams.get('phone') ?? ''
 	const redirectTo = sanitizeRedirect(searchParams.get('redirectTo'))
-	const loginUrl = withRedirect('/auth/login', redirectTo)
+	const loginUrl = withRedirect('/login', redirectTo)
 
 	return (
 		<>

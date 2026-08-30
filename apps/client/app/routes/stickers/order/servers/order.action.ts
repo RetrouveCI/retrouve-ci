@@ -35,6 +35,6 @@ export async function orderAction(
 					request,
 				),
 			),
-		{ redirectOnUnauthorized: '/auth/login' },
+		{ redirectOnUnauthorized: '/login' },
 	)
 }
