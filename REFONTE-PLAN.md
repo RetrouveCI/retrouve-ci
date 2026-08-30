@@ -1015,37 +1015,71 @@ soumission (4 cas) ; projet `node` sur `recoveryUrl` (6 cas).
 
 #### R29 — Layout auth aux trois largeurs
 
-**Mesuré.** `branding-panel.tsx:6` est `hidden … lg:flex` et la colonne de
-formulaire est `max-w-md`, soit 448 px. Entre 768 et 1023 px — une tablette en
-portrait fait exactement 768 px — le panneau disparaît et laisse 448 px de
-formulaire au milieu d'une page vide. C'est la même bascule `md` → `lg` que R6
-applique à la navigation, et pour la même raison.
+**Mesuré.** `branding-panel.tsx:6` était `hidden … lg:flex` et la colonne de
+formulaire `max-w-md`, soit 448 px. Entre 768 et 1023 px — une tablette en
+portrait fait exactement 768 px — le panneau disparaissait et laissait 448 px de
+formulaire au milieu d'une page vide, surmontés d'une barre à un seul logo.
 
-1. Entre `md` et `lg` : coucher le panneau en bandeau horizontal au-dessus du
-   formulaire — identité, titre, les trois arguments en ligne. Il ne disparaît
-   plus.
-2. Sous `md` : l'en-tête compact actuel, inchangé.
-3. À partir de `lg` : la composition à deux colonnes actuelle.
-4. `min-h-screen` imbriqué : `root.tsx:112` (le `body`), `auth/layout.tsx:6` (la
-   racine) et `auth/layout.tsx:9` (la colonne de formulaire) le portent tous les
-   trois. N'en garder qu'un, sur la racine du layout.
-5. Passer ce `min-h-screen` en `min-h-dvh` : `100vh` compte la barre d'URL du
-   navigateur mobile, qui n'y est pas. Le dépôt n'emploie `dvh` nulle part ; les
-   deux autres occurrences (`root.tsx`, `routes/q/_index.tsx`) sont hors de ce
-   lot — `routes/q` revient à R19, `root.tsx` à R23.
+1. **Un composant, trois largeurs**, comme le dit la planche `AuthTablette` : «
+   C'est le même contenu à chaque fois — pas trois écrans à maintenir. » Sous
+   `md` le panneau ne s'affiche pas (la barre de la page porte l'identité) ; de
+   `md` à `lg` il se couche en bandeau au-dessus du formulaire ; à partir de
+   `lg` il se redresse en colonne.
+2. **Une seule barre de tête.** Sous `lg`, la barre pleine largeur de la
+   maquette mobile ; à partir de `lg`, la ligne en ligne de `AuthDesktopCode` —
+   bouton retour contouré, « Étape 2 sur 3 », jauge courte — car une barre en
+   travers de la colonne couperait la composition à deux colonnes en deux.
+3. **Une seule hauteur**, en `min-h-dvh` : `100vh` compte la barre d'URL du
+   navigateur mobile, qui n'y est pas.
 
-6. **Deux barres empilées sous `md`**, depuis R28 : celle du layout (le logo)
-   puis celle de `auth-page-header.tsx` (retour, parcours, « 2 / 3 »). La
-   maquette n'en montre qu'une, qui porte les deux rôles — sur `AuthConnexion`
-   c'est retour + logo, sur `AuthNumero` retour + « Créer un compte » + le
-   compteur. Réconcilier les deux ici, le layout étant le fichier de cette étape
-   : la barre du layout accueille le contenu que la page lui passe.
+**Vérifié au rendu**, ce qu'aucun test ne couvre : capture des trois écrans
+(connexion, inscription, mot de passe oublié) à 390, 768, 1024 et 1440 px, avec
+contrôle qu'aucune page ne déborde horizontalement et que le bandeau est présent
+dès 768. C'est le critère d'acceptation de cette étape et il reste **hors CI**.
+
+> **Quatre écarts consignés.**
+>
+> 1. **La réconciliation des deux barres va dans l'autre sens** que ne le
+>    suggérait la note laissée par R28 (« la barre du layout accueille le
+>    contenu que la page lui passe »). C'est l'inverse : le layout perd sa barre
+>    à logo, et `auth-page-header.tsx` reste la seule, portée par la page. Faire
+>    remonter le titre, l'étape et le retour jusqu'au layout aurait demandé un
+>    `handle` ou un contexte pour un résultat identique, contre la règle qui
+>    veut les layouts minces.
+> 2. **`root.tsx` garde son `min-h-screen`.** Le point 4 d'origine demandait de
+>    n'en garder qu'un sur les **trois** occurrences, `root.tsx:112` comprise —
+>    mais ce `body` sert toutes les autres pages, et le point 5 range lui-même
+>    `root.tsx` sous **R23**. Seules les deux d'`auth/layout.tsx` sont réduites
+>    à une.
+> 3. **La copie du panneau passe à la maquette**, correctement accentuée : les
+>    trois arguments deviennent « Alertes instantanées », « Stickers QR » et «
+>    Votre numéro reste privé » — `AuthDesktop` a remplacé « Couverture
+>    nationale » et « 100 % sécurisé ». Réécrire la moitié du bloc en gardant
+>    l'autre moitié sans accents aurait été pire. **R30 n'a donc plus d'accents
+>    à corriger** : il ne lui reste que les chiffres.
+> 4. **Les trois chiffres inventés ne sont pas repris** (« 2,500+ objets », «
+>    15,000+ utilisateurs », « 50+ villes »). Ils ne sont pas remplacés non plus
+>    : la planche les badge « CHIFFRES RÉELS », et R30 tranche entre les
+>    brancher et laisser la bande absente. Un commentaire marque l'emplacement.
+>    Écrire à nouveau à la main trois affirmations fausses sur l'écran qui
+>    demande la confiance n'était pas une option.
+>
+> 5. **La connexion ne porte pas le logo que montre `AuthConnexion`.** La
+>    planche donne à sa barre « retour + marque », là où les quatre autres
+>    portent « retour + nom du parcours ». Arbitrage de séance : un seul motif
+>    pour les cinq écrans, donc « Connexion » comme les autres. L'identité reste
+>    portée par le bandeau, qui est justement ce que R29 rend visible dès 768
+>    px.
+>
+> Accessoirement : le panneau passe de `xl:w-[55%]` à `xl:w-[44%]`, la
+> proportion de la planche (640 sur 1440), et la colonne de formulaire de
+> `max-w-md` à `lg:max-w-105` (420 px), sa largeur de lecture dans la maquette.
 
 **Fichiers** : `routes/auth/layout.tsx`, `components/branding-panel.tsx`,
-`components/auth-page-header.tsx`. **Flux** : E. **Acceptation** : à 768, 1024
-et 1440 px, la page porte une identité de marque, une seule barre de tête et
-aucune zone vide dominante. **Non couvert en CI** : le critère est visuel aux
-trois largeurs, comme celui de R1.
+`components/auth-page-header.tsx`, `login/_index.tsx`. **Flux** : E.
+**Acceptation** : à 768, 1024 et 1440 px, la page porte une identité de marque,
+une seule barre de tête et aucune zone vide dominante. **Non couvert en CI** :
+le critère est visuel aux trois largeurs, comme celui de R1.
 
 #### R30 — Copie et chiffres du panneau de marque
 
