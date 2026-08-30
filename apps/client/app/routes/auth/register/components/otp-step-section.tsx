@@ -37,10 +37,10 @@ export function OtpStepSection({
 
 	const { restart } = countdown
 
-	useSettledSubmission(resendFetcher.response, () => {
-		if (!resendFetcher.isOk) {
+	useSettledSubmission(resendFetcher.response, result => {
+		if (!result.success) {
 			toast.error('Impossible d’envoyer le code', {
-				description: resendFetcher.errors?.root?.message,
+				description: result.errors?.root?.message,
 			})
 			return
 		}
