@@ -1,92 +1,83 @@
 import { Link } from 'react-router'
-import { Smartphone, MapPin, Shield } from 'lucide-react'
+import { Search, BellRing, QrCode, ShieldCheck } from 'lucide-react'
 
+const ARGUMENTS = [
+	{
+		icon: BellRing,
+		title: 'Alertes instantanées',
+		detail: 'Soyez notifié dès qu’un objet correspond au vôtre',
+	},
+	{
+		icon: QrCode,
+		title: 'Stickers QR',
+		detail: 'Collez-les sur vos objets, on vous joint sans voir votre numéro',
+	},
+	{
+		icon: ShieldCheck,
+		title: 'Votre numéro reste privé',
+		detail: 'Le contact passe par l’application, jamais en clair',
+	},
+]
+
+/**
+ * One panel, three widths. Below `md` it does not show at all — the page's own
+ * bar carries the identity there. Between `md` and `lg` it lies down as a strip
+ * above the form, which is the whole point: it used to be `hidden lg:flex`, so a
+ * 768 px tablet — the commonest one, in portrait — got a 448 px form marooned in
+ * an empty page. From `lg` it stands back up as the left column.
+ */
 export function BrandingPanel() {
 	return (
-		<div className="from-primary-green to-primary-green-dark relative hidden overflow-hidden bg-linear-to-br lg:flex lg:w-1/2 xl:w-[55%]">
-			<div className="absolute inset-0 opacity-10">
-				<div className="absolute top-20 left-20 h-64 w-64 rounded-full bg-white/20 blur-3xl" />
-				<div className="absolute right-20 bottom-20 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
-				<div className="absolute top-1/2 left-1/3 h-48 w-48 rounded-full bg-white/15 blur-2xl" />
+		<div className="from-primary-green to-primary-green-dark relative hidden overflow-hidden bg-linear-to-br text-white md:flex md:items-center md:gap-5 md:px-6 md:py-5 lg:w-1/2 lg:flex-col lg:items-stretch lg:gap-10 lg:p-12 xl:w-[44%] xl:p-16">
+			<div className="pointer-events-none absolute inset-0" aria-hidden>
+				<div className="absolute -top-10 -left-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+				<div className="absolute -right-10 -bottom-16 h-80 w-80 rounded-full bg-white/8 blur-3xl" />
 			</div>
 
-			<div className="relative z-10 flex w-full flex-col justify-between p-12 text-white xl:p-16">
-				<Link to="/" className="group flex w-fit items-center gap-3">
-					<img
-						src="/logo.png"
-						alt="RetrouveCI"
-						width={48}
-						height={48}
-						className="rounded-xl transition-transform group-hover:scale-105"
-					/>
-					<span className="text-2xl font-bold">
-						Retrouve<span className="text-white/80">CI</span>
-					</span>
-				</Link>
+			<Link
+				to="/"
+				className="relative flex shrink-0 items-center gap-3 lg:w-fit"
+			>
+				<span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-white/15 lg:h-[42px] lg:w-[42px]">
+					<Search className="h-5 w-5" />
+				</span>
+				<span className="hidden text-[22px] font-bold tracking-tight lg:inline">
+					Retrouve<span className="text-white/65">CI</span>
+				</span>
+			</Link>
 
-				<div className="space-y-8">
-					<div>
-						<h1 className="mb-4 text-4xl leading-tight font-bold text-balance xl:text-5xl">
-							Retrouvez ce qui compte pour vous
-						</h1>
-						<p className="max-w-md text-lg leading-relaxed text-white/80 xl:text-xl">
-							La plateforme de confiance pour retrouver vos objets perdus en
-							Cote d&apos;Ivoire.
-						</p>
-					</div>
-
-					<div className="space-y-4">
-						<div className="flex items-center gap-4">
-							<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-								<Smartphone className="h-6 w-6" />
-							</div>
-							<div>
-								<p className="font-semibold">Alertes instantanees</p>
-								<p className="text-sm text-white/70">
-									Soyez notifie des qu&apos;un objet correspond
-								</p>
-							</div>
-						</div>
-						<div className="flex items-center gap-4">
-							<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-								<MapPin className="h-6 w-6" />
-							</div>
-							<div>
-								<p className="font-semibold">Couverture nationale</p>
-								<p className="text-sm text-white/70">
-									Toutes les villes de Cote d&apos;Ivoire
-								</p>
-							</div>
-						</div>
-						<div className="flex items-center gap-4">
-							<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-								<Shield className="h-6 w-6" />
-							</div>
-							<div>
-								<p className="font-semibold">100% securise</p>
-								<p className="text-sm text-white/70">
-									Vos donnees restent privees
-								</p>
-							</div>
-						</div>
-					</div>
+			<div className="relative flex-1 lg:flex lg:flex-col lg:justify-center lg:gap-8">
+				<div>
+					<p className="text-[19px] leading-tight font-bold tracking-tight text-balance lg:mb-3.5 lg:text-[40px]">
+						Retrouvez ce qui compte pour vous
+					</p>
+					<p className="hidden max-w-md text-[17px] leading-relaxed text-white/70 lg:block">
+						La plateforme d’objets perdus et retrouvés en Côte d’Ivoire.
+					</p>
 				</div>
 
-				<div className="flex gap-8">
-					<div>
-						<p className="text-3xl font-bold xl:text-4xl">2,500+</p>
-						<p className="text-sm text-white/70">Objets retrouves</p>
-					</div>
-					<div>
-						<p className="text-3xl font-bold xl:text-4xl">15,000+</p>
-						<p className="text-sm text-white/70">Utilisateurs actifs</p>
-					</div>
-					<div>
-						<p className="text-3xl font-bold xl:text-4xl">50+</p>
-						<p className="text-sm text-white/70">Villes couvertes</p>
-					</div>
-				</div>
+				<ul className="hidden flex-col gap-4 lg:flex">
+					{ARGUMENTS.map(({ icon: Icon, title, detail }) => (
+						<li key={title} className="flex items-center gap-4">
+							<span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/12">
+								<Icon className="h-5 w-5" />
+							</span>
+							<span>
+								<span className="block text-[15px] font-semibold">{title}</span>
+								<span className="block text-[13.5px] text-white/65">
+									{detail}
+								</span>
+							</span>
+						</li>
+					))}
+				</ul>
 			</div>
+
+			{/* The canvas closes the panel with two live counters, badged CHIFFRES
+			    RÉELS. R30 wires them, or leaves the band out: the three that stood
+			    here — 2,500+ objets, 15,000+ utilisateurs, 50+ villes — were written
+			    by hand before the Abidjan pilot had started, on the very screen that
+			    asks for trust. They are not carried over. */}
 		</div>
 	)
 }
