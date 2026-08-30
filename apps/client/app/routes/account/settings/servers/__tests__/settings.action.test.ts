@@ -51,7 +51,7 @@ describe('settingsAction', () => {
 			request: requestFor({ intent: 'update-name', name: 'Awa' }),
 		}).catch((error: unknown) => error)
 
-		expect(isRedirectTo(thrown, '/auth/login')).toBe(true)
+		expect(isRedirectTo(thrown, '/login')).toBe(true)
 		expect(updateProfile).not.toHaveBeenCalled()
 	})
 
@@ -205,6 +205,6 @@ describe('settingsAction', () => {
 			request: requestFor({ intent: 'update-name', name: 'Awa' }),
 		}).catch((error: unknown) => error)
 
-		expect(isRedirectTo(thrown, '/auth/login')).toBe(true)
+		expect(isRedirectTo(thrown, '/login')).toBe(true)
 	})
 })

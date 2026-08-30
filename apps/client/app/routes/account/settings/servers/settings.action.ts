@@ -16,7 +16,7 @@ export async function settingsAction({
 	request: Request
 }): Promise<ActionResult> {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth/login')
+	if (!session) throw redirect('/login')
 
 	const submission = settingsActionSchema.safeParse(
 		Object.fromEntries(await request.formData()),
@@ -47,6 +47,6 @@ export async function settingsAction({
 					break
 			}
 		},
-		{ redirectOnUnauthorized: '/auth/login' },
+		{ redirectOnUnauthorized: '/login' },
 	)
 }

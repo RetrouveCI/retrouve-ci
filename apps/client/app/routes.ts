@@ -32,8 +32,7 @@ export default [
 		route('notifications', 'routes/notifications/_index.tsx'),
 	]),
 	route('q/:code', 'routes/q/_index.tsx'),
-	route('auth', 'routes/auth/layout.tsx', [
-		index('routes/auth/_index.tsx'),
+	layout('routes/auth/layout.tsx', [
 		route('login', 'routes/auth/login/_index.tsx'),
 		route('register', 'routes/auth/register/_index.tsx'),
 		route('password-forgotten', 'routes/auth/password-forgotten/_index.tsx'),

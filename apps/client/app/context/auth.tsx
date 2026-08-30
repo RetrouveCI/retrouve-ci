@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	const logout = useCallback(() => {
 		void authClient.signOut()
-		navigate('/auth/login')
+		navigate('/login')
 	}, [navigate])
 
 	return (

@@ -46,13 +46,13 @@ describe('withApiOperationError', () => {
 			async () => {
 				throw new ApiError(401, 'Unauthorized')
 			},
-			{ redirectOnUnauthorized: '/auth/login' },
+			{ redirectOnUnauthorized: '/login' },
 		).catch((error: unknown) => error)
 
 		expect(thrown).toBeInstanceOf(Response)
 		const response = thrown as Response
 		expect(response.status).toBe(302)
-		expect(response.headers.get('Location')).toBe('/auth/login')
+		expect(response.headers.get('Location')).toBe('/login')
 	})
 
 	it('reports a 401 as a form error when no redirect target is given', async () => {
@@ -71,7 +71,7 @@ describe('withApiOperationError', () => {
 			async () => {
 				throw new ApiError(403, 'Accès refusé.')
 			},
-			{ redirectOnUnauthorized: '/auth/login' },
+			{ redirectOnUnauthorized: '/login' },
 		)
 
 		expect(result).toEqual({
@@ -116,11 +116,11 @@ describe('withApiOperationData', () => {
 			async () => {
 				throw new ApiError(401, 'Unauthorized')
 			},
-			{ redirectOnUnauthorized: '/auth/login' },
+			{ redirectOnUnauthorized: '/login' },
 		).catch((error: unknown) => error)
 
 		expect(thrown).toBeInstanceOf(Response)
-		expect((thrown as Response).headers.get('Location')).toBe('/auth/login')
+		expect((thrown as Response).headers.get('Location')).toBe('/login')
 	})
 
 	it('rethrows anything that is not an ApiError', async () => {

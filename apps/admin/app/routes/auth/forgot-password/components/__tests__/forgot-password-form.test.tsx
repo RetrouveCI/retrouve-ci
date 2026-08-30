@@ -6,13 +6,13 @@ import { ForgotPasswordForm } from '../forgot-password-form'
 function renderForm(action: () => ActionResult) {
 	const Stub = createRoutesStub([
 		{
-			path: '/auth/forgot-password',
+			path: '/forgot-password',
 			Component: () => <ForgotPasswordForm />,
 			action,
 		},
 	])
 
-	render(<Stub initialEntries={['/auth/forgot-password']} />)
+	render(<Stub initialEntries={['/forgot-password']} />)
 }
 
 const submit = () =>

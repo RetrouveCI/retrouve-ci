@@ -129,7 +129,7 @@ export function Header() {
 							variant="outline"
 							className="hidden h-9 rounded-full px-4 md:inline-flex"
 						>
-							<Link to="/auth/login" className="gap-2">
+							<Link to="/login" className="gap-2">
 								<LogIn className="h-4 w-4" />
 								Connexion
 							</Link>

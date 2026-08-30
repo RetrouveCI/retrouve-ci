@@ -13,7 +13,7 @@ export async function publishAction(
 	type: LostItemType,
 ): Promise<ActionResult> {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth/login')
+	if (!session) throw redirect('/login')
 
 	const formData = await request.formData()
 	const submission = publishFormSchema.safeParse(Object.fromEntries(formData))
@@ -49,6 +49,6 @@ export async function publishAction(
 
 			throw redirect(`/posts/${created.id}`)
 		},
-		{ redirectOnUnauthorized: '/auth/login' },
+		{ redirectOnUnauthorized: '/login' },
 	)
 }

@@ -32,7 +32,7 @@ export function StickersCta() {
 						</Button>
 						{!isAuthenticated && (
 							<Button asChild size="lg" variant="outline" className="h-12 px-6">
-								<Link to="/auth/register">Créer un compte</Link>
+								<Link to="/register">Créer un compte</Link>
 							</Button>
 						)}
 					</div>

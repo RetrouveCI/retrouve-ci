@@ -33,7 +33,7 @@ export function CtaSection() {
 								className="h-12 rounded-full bg-white px-6 text-neutral-900 hover:bg-white/90"
 							>
 								<Link
-									to={isAuthenticated ? '/publish' : '/auth/register'}
+									to={isAuthenticated ? '/publish' : '/register'}
 									className="flex items-center gap-2"
 								>
 									{isAuthenticated

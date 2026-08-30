@@ -248,6 +248,7 @@ Une ligne = une branche = une PR = une session.
 | **R28** | Auth     | Mot de passe oublié en un écran             | `refonte-r28-password-reset`         | `client/auth`       | 1 j    | R26, R27     |
 | **R29** | Auth     | Layout auth aux trois largeurs              | `refonte-r29-auth-layout`            | `client/auth`       | 0,5 j  | —            |
 | **R30** | Auth     | Copie et chiffres du panneau de marque      | `refonte-r30-auth-copy`              | `client/auth`       | 0,5 j  | R29          |
+| **R31** | Auth     | Routes d'authentification sans préfixe      | `refonte-r31-auth-routes`            | `client/admin`      | 0,5 j  | —            |
 | **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`       | `api/lost-items`    | 1 j    | —            |
 | **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`        | `api/storage`       | 0,5 j  | —            |
 | **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                | `api/notifications` | 3 j    | R23          |
@@ -1080,6 +1081,55 @@ dès 768. C'est le critère d'acceptation de cette étape et il reste **hors CI*
 **Acceptation** : à 768, 1024 et 1440 px, la page porte une identité de marque,
 une seule barre de tête et aucune zone vide dominante. **Non couvert en CI** :
 le critère est visuel aux trois largeurs, comme celui de R1.
+
+#### R31 — Routes d'authentification sans préfixe
+
+**Demandé en séance**, hors plan d'origine : les pages d'authentification
+servaient sous `/auth/…` dans les deux applications ; elles servent désormais à
+la racine — `/login`, `/register`, `/password-forgotten`, `/reset-password` côté
+client, `/login`, `/forgot-password`, `/reset-password` côté backoffice.
+
+**Mesuré** : 101 points d'appel, 58 côté client et 43 côté backoffice, zéro côté
+API — aucune route de `apps/api` ne porte ce préfixe, `/api/auth` et
+`/api/admin-auth` étant les chemins de better-auth et non des pages.
+
+1. **Le layout devient sans chemin.** `route('auth', layout, […])` devient
+   `layout(…, […])` : les pages partagent une mise en page, plus un segment
+   d'URL. **Le dossier `routes/auth/` ne bouge pas** — c'est là que vivent leurs
+   composants partagés, et la convention `app/routes/<zone>/<page>/` reste
+   respectée. Seules les URLs changent.
+2. **`sanitizeRedirect` perd son préfixe, et c'est le point sensible.** La garde
+   anti-boucle était `value === '/auth' || value.startsWith('/auth/')`. Sans
+   préfixe il n'y a plus rien à tester : chaque application nomme désormais son
+   `AUTH_PATHS`, et `isAuthPath` le compare au chemin nu, requête et barre
+   oblique finale retirées. Les deux specs **parcourent `AUTH_PATHS`**
+   (`it.each`), de sorte qu'une page ajoutée à `routes.ts` sans l'être à la
+   liste fasse tomber le test au lieu de devenir une redirection vers l'écran de
+   connexion.
+3. **`routes/auth/_index.tsx` disparaît** : il servait `/auth` et n'y
+   redirigeait que vers la connexion. Sans préfixe, cette URL n'existe plus.
+4. Le lien de réinitialisation envoyé par courriel au backoffice est bâti par
+   `appUrl('/reset-password', request)` — il pointait sur
+   `/auth/reset-password`.
+
+> **Aucune redirection de compatibilité.** Les anciennes `/auth/*`
+> répondent 404. C'est délibéré : les rétablir remettrait des chemins que
+> `sanitizeRedirect` ne refuse plus, donc une boucle de connexion possible par
+> `redirectTo`, et le pilote d'Abidjan n'a pas démarré. **Une conséquence à
+> connaître** : un courriel de réinitialisation déjà parti vers une boîte
+> d'administrateur pointe sur `/auth/reset-password` et ne résout plus. Ces
+> liens expirent vite ; il suffit d'en redemander un.
+
+**Fichiers** : `apps/{client,admin}/app/routes.ts`,
+`apps/{client,admin}/app/shared/helpers/redirect.ts` et leurs specs,
+`apps/client/app/components/bottom-tab-bar.tsx`,
+`apps/admin/app/routes/auth/forgot-password/servers/forgot-password.service.ts`,
+plus les 54 fichiers portant un littéral. **Flux** : E. **Acceptation** : les
+nouvelles URLs répondent, les anciennes ne répondent plus, et aucun `redirectTo`
+ne ramène sur une page d'authentification. **Vérifié** : `build` des deux
+applications — `routes.ts` résout ses modules par chemin et lui seul le contrôle
+— puis les six URLs et cinq `redirectTo` hostiles exercés sur l'application qui
+tourne.
 
 #### R30 — Copie et chiffres du panneau de marque
 

@@ -45,7 +45,7 @@ describe('the notifications action', () => {
 			request: requestFor({ intent: 'mark-all-read' }),
 		}).catch((error: unknown) => error)
 
-		expect(redirectTo(thrown)).toBe('/auth/login')
+		expect(redirectTo(thrown)).toBe('/login')
 		expect(markAllNotificationsAsRead).not.toHaveBeenCalled()
 	})
 
@@ -116,6 +116,6 @@ describe('the notifications action', () => {
 			request: requestFor({ intent: 'mark-all-read' }),
 		}).catch((error: unknown) => error)
 
-		expect(redirectTo(thrown)).toBe('/auth/login')
+		expect(redirectTo(thrown)).toBe('/login')
 	})
 })

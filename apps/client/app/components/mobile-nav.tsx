@@ -120,7 +120,7 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
 							className="h-12 w-full gap-2 rounded-xl"
 							asChild
 						>
-							<Link to="/auth/login" onClick={close}>
+							<Link to="/login" onClick={close}>
 								<LogIn className="h-4 w-4" />
 								Se connecter
 							</Link>

@@ -62,7 +62,7 @@ describe('publishAction', () => {
 			(error: unknown) => error,
 		)
 
-		expect(redirectTo(thrown)).toBe('/auth/login')
+		expect(redirectTo(thrown)).toBe('/login')
 		expect(collectPhotoUrls).not.toHaveBeenCalled()
 		expect(createLostItem).not.toHaveBeenCalled()
 	})
@@ -166,7 +166,7 @@ describe('publishAction', () => {
 			(error: unknown) => error,
 		)
 
-		expect(redirectTo(thrown)).toBe('/auth/login')
+		expect(redirectTo(thrown)).toBe('/login')
 	})
 
 	// A failed upload must not leave a listing with missing photos behind.

@@ -22,7 +22,7 @@ const { resetPasswordAction } = await import('../reset-password.action')
 function requestFor(fields: Record<string, string>) {
 	const body = new FormData()
 	for (const [key, value] of Object.entries(fields)) body.append(key, value)
-	return new Request('http://localhost:3000/auth/reset-password', {
+	return new Request('http://localhost:3000/reset-password', {
 		method: 'POST',
 		body,
 	})

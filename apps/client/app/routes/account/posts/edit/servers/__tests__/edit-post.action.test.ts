@@ -152,6 +152,6 @@ describe('editPostAction', () => {
 			(error: unknown) => error,
 		)
 
-		expect(redirectTo(thrown)).toBe('/auth/login')
+		expect(redirectTo(thrown)).toBe('/login')
 	})
 })

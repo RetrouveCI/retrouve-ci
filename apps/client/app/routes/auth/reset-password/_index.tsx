@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
 	const backToPhone = useCallback(
 		() =>
 			void navigate(
-				recoveryUrl('/auth/password-forgotten', phoneNumber, redirectTo),
+				recoveryUrl('/password-forgotten', phoneNumber, redirectTo),
 			),
 		[navigate, phoneNumber, redirectTo],
 	)
