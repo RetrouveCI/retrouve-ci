@@ -17,7 +17,8 @@ export interface LostItemFilters {
 }
 
 export interface LostItemDetail extends LostItem {
-	contact: { name: string; method: string }
+	/** `whatsapp` is the stored `contactWhatsapp`, in whatever shape the row holds. */
+	contact: { name: string; whatsapp: string }
 }
 
 export interface LostItemApiDto {

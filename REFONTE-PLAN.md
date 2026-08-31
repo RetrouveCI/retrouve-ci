@@ -1019,6 +1019,98 @@ Mes annonces » en veut une.
 3. Conserver l'encadré de sécurité (« ne versez jamais d'argent… ») dans le
    flux, sous la description.
 
+> **Le bouton de contact ne contactait personne.** « Envoyer un message »
+> n'avait pas de gestionnaire, et la carte annonçait sous lui « tout contact se
+> fait via notre messagerie sécurisée » — une messagerie qui n'existe pas, à
+> côté du numéro du posteur affiché en clair deux lignes plus bas, précédé de «
+> Contact préféré : ». R10 branche l'action sur `wa.me` et retire la phrase. Le
+> champ que le mappeur appelait `contact.method` est un numéro, pas un moyen :
+> il devient `contact.whatsapp`.
+>
+> **Un numéro sur trois formes, et une quatrième qui n'en est pas une.**
+> `buildWhatsAppContactUrl` accepte l'E.164 que le contrat écrit désormais, le
+> numéro local nu et l'un ou l'autre espacé, et répond **`null`** au reste —
+> dont le `+2252250700000000` que `CLAUDE.md` donne comme réellement stocké. Un
+> `wa.me` construit sur dix mauvais chiffres ouvre WhatsApp sur « ce numéro
+> n'est pas sur WhatsApp », ce qui se lit comme une panne de l'application ; la
+> barre dit « Numéro de contact indisponible » à la place. C'est le quatrième
+> état de §2.3 règle 5, pas une précaution.
+
+> **Une colonne unique à toutes les largeurs, et le rail de bureau disparaît.**
+> Le plan dit « `ContactCard` devient une barre collée en bas » sans nommer de
+> point de rupture, et aucun artboard ne dessine cet écran au-dessus de 390 px.
+> Or les trois blocs que le rail portait s'en vont ailleurs : le posteur et
+> l'encadré de sécurité descendent dans le flux (point 3), l'action monte dans
+> la barre. Le rail resterait avec rien. La page devient donc **une colonne
+> `max-w-2xl` centrée**, la barre collée au bas de cette colonne — mesurée
+> visible sans défilement à 320, 360, 390, 768, 1023 et 1280 px, y compris sur
+> un écran de **500 px de haut**.
+>
+> La barre est `sticky` et non `fixed` : elle ne coûte aucune bande permanente
+> de fenêtre, se décroche à la fin de l'article et s'y repose au-dessus du pied
+> de page. Son décalage bas vaut `4rem + env(safe-area-inset-bottom)`, soit la
+> hauteur exacte de la barre d'onglets, dont elle recouvre le filet de 1 px —
+> volontairement, sinon les deux bordures dessinent un double trait.
+
+> **Les indicateurs de position ne sont pas des boutons.** Écrits d'abord en
+> `<button>` avec `.touch-target`, ils étaient **inatteignables** : trois cibles
+> de 44 px espacées de 16 se recouvrent de 28 px, et la dernière remporte chaque
+> tap — Playwright a refusé de cliquer la deuxième pendant vingt secondes en
+> nommant la troisième. C'est le recouvrement que R2 et R9 avaient mesuré à 0 px
+> ailleurs. La maquette les dessine en `<span>` ; ils redeviennent des `<span>`
+> `aria-hidden`, et la navigation reste entière : la piste est un **scroll-snap
+> horizontal**, donc le geste natif du téléphone, et chaque photo est un bouton
+> nommé (« Agrandir la photo N ») accessible au clavier. Mesuré : l'indicateur
+> suit le geste (20/6/6 → 6/20/6 → 6/6/20) et la flèche de la visionneuse ramène
+> la piste avec elle, si bien qu'on ressort sur la photo qu'on regardait.
+>
+> Les diapositives après la première portent `loading="lazy"` : elles sont hors
+> fenêtre **horizontalement**, ce que `lazy` diffère, sinon une annonce à cinq
+> photos en téléchargerait cinq de 1600 px pour en montrer une.
+
+> **« Signaler » est mis en commentaire, pas supprimé.** C'était un
+> `variant="ghost"` sans gestionnaire, et l'API n'a **aucun** point d'entrée de
+> signalement : le bouton promettait un chemin de modération inexistant. Il
+> revient le jour où il en existe un.
+>
+> **Le partage n'est dessiné qu'une fois.** L'artboard le montre deux fois — en
+> pastille flottante sur la photo **et** en action secondaire de la barre. §5 ne
+> nomme que la seconde ; la flottante est retirée, et le coin haut gauche de la
+> photo garde le seul disque, celui du retour. Le lien texte « Retour aux
+> annonces » disparaît au profit de ce disque, à toutes les largeurs : mesuré,
+> il remporte bien le tap sur le bouton de photo qu'il recouvre.
+
+> **Mesuré dans les deux thèmes.** Aux six largeurs et sur un écran de 500 px de
+> haut, `document.scrollWidth` égale exactement la largeur de fenêtre — **y
+> compris à 320 px**, où `/posts` débordait encore (345 pour 320) : cet écran
+> n'a pas de hero. Aucune cible sous 44 px sous `lg`, et le pire recouvrement
+> entre deux zones est le disque de retour sur sa photo, qui est voulu. Encre la
+> plus basse : **4,97** en clair (l'encadré de sécurité, `--accent-orange-text`
+> sur `bg-accent-orange/10`) et **5,87** en sombre ; le bouton dominant vaut
+> **5,03** dans les deux, la même paire que « Voir N résultats » de R8 et que la
+> pagination de R9. Le **2,70:1** relevé sur le « CI » du logo est antérieur et
+> sur toutes les pages — dette, pas régression.
+
+> **Trois tables de catégories, dont une non typée.** `posts.const.ts` nommait
+> les catégories au pluriel pour les filtres, `components/listing-card.tsx` au
+> singulier dans un `Record<string, string>` avec deux `??`, et le détail
+> n'affichait **rien du tout** : il rendait `listing.category` brut, donc «
+> phone » à un lecteur francophone. Une seule table typée
+> `Record<LostItemCategory, …>` porte les deux formes, et `categoryLabel` /
+> `categoryIcon` la lisent — une catégorie ajoutée au contrat redevient une
+> erreur de compilation. La pastille « Perdu » passe de `text-red-600` à
+> `text-red-700` **des deux côtés** : à 10 px gras, 4,6 était juste, 5,87 ne
+> l'est plus, et l'invariant du flux A veut la même pastille sur les deux
+> écrans.
+
+**Portée réelle** : `contact-card.tsx` devient `contact-bar.tsx` ; s'ajoutent
+`helpers/contact-links.ts` et deux suites de tests. Touche aussi
+`components/post-content.tsx` (composition de l'artboard),
+`components/share-menu.tsx` (déclencheur en icône seule), `posts.const.ts` et
+`components/listing-card.tsx` (table de catégories), et le couple
+`shared/types/lost-items.types.ts` / `shared/mappers/lost-item.mapper.ts` pour
+le renommage du champ. `routes.ts` ne bouge pas : pas de `build` obligatoire.
+
 **Fichiers** : `routes/posts/details/_index.tsx`, `components/contact-card.tsx`,
 `components/post-gallery.tsx`. **Flux** : A, B. **Acceptation** : l'action de
 contact est visible sans défilement, à toute hauteur d'écran.

@@ -22,7 +22,7 @@ export function toLostItem(dto: LostItemApiDto): LostItem {
 export function toLostItemDetail(dto: LostItemApiDto): LostItemDetail {
 	return {
 		...toLostItem(dto),
-		contact: { name: dto.contactName, method: dto.contactWhatsapp },
+		contact: { name: dto.contactName, whatsapp: dto.contactWhatsapp },
 	}
 }
 

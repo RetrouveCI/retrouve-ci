@@ -1,49 +1,13 @@
 import { Link } from 'react-router'
-import {
-	MapPin,
-	Clock,
-	ArrowRight,
-	Package,
-	Smartphone,
-	Key,
-	Wallet,
-	Briefcase,
-	Laptop,
-	Shirt,
-	Gem,
-	FileText,
-} from 'lucide-react'
+import { MapPin, Clock, ArrowRight } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import type { LostItem } from '@/shared/types/lost-item'
 import { imageUrl } from '@/shared/utils/image'
+import { categoryIcon, categoryLabel } from '../posts.const'
 
 interface ListingCardProps {
 	listing: LostItem
 	variant?: 'grid' | 'list'
-}
-
-const CATEGORY_ICONS: Record<string, React.ElementType> = {
-	phone: Smartphone,
-	keys: Key,
-	wallet: Wallet,
-	bag: Briefcase,
-	electronics: Laptop,
-	clothing: Shirt,
-	jewelry: Gem,
-	documents: FileText,
-	other: Package,
-}
-
-const CATEGORY_LABELS: Record<string, string> = {
-	phone: 'Téléphone',
-	keys: 'Clés',
-	wallet: 'Portefeuille',
-	bag: 'Sac',
-	electronics: 'Électronique',
-	clothing: 'Vêtement',
-	jewelry: 'Bijoux',
-	documents: 'Documents',
-	other: 'Autre',
 }
 
 function ListingThumbnail({
@@ -95,7 +59,7 @@ function ListingImage({
 				<div className="from-muted to-muted/70 absolute inset-0 flex flex-col items-center justify-center gap-2 bg-linear-to-br">
 					<CategoryIcon className="text-muted-foreground/25 h-10 w-10" />
 					<span className="text-muted-foreground/50 text-[10px] font-medium tracking-widest uppercase">
-						{CATEGORY_LABELS[listing.category] ?? 'Objet'}
+						{categoryLabel(listing.category)}
 					</span>
 				</div>
 			)}
@@ -114,7 +78,7 @@ function ListingImage({
 
 			<div className="bg-background/90 text-muted-foreground absolute top-3 right-3 flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium shadow-sm backdrop-blur-sm">
 				<CategoryIcon className="h-3 w-3" />
-				{CATEGORY_LABELS[listing.category] ?? 'Autre'}
+				{categoryLabel(listing.category)}
 			</div>
 		</div>
 	)
@@ -122,7 +86,7 @@ function ListingImage({
 
 export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 	const isLost = listing.type === 'lost'
-	const CategoryIcon = CATEGORY_ICONS[listing.category] ?? Package
+	const CategoryIcon = categoryIcon(listing.category)
 
 	if (variant === 'list') {
 		return (
@@ -140,7 +104,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 									className={cn(
 										'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase',
 										isLost
-											? 'bg-red-50 text-red-600'
+											? 'bg-red-50 text-red-700'
 											: // `bg-green-50` does not follow the theme, so its ink must not either.
 												'text-primary-green bg-green-50',
 									)}
