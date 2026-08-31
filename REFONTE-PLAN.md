@@ -648,6 +648,74 @@ l'URL.
 > entièrement sur le bloc produit de l'accueil (R17). Si ce bloc ne convertit
 > pas, c'est lui qu'il faut reprendre — pas la barre.
 
+> **`/scan` n'existait pas, et R20 en dépend.** C'est R20 qui crée
+> `routes/scan/`, et R20 **dépend de R6** : posée telle quelle, la barre aurait
+> mené à `route('*')`. R6 ouvre donc une route `/scan` **minimale** — la saisie
+> du code, qui envoie sur `/q/:code`. Ce n'est pas un bouche-trou : §3 la
+> désigne comme l'équivalent desktop d'un scan, et R21.3 la garde comme repli
+> universel. **R20 remplace l'écran** par la caméra et son amorce de permission
+> ; la saisie reste.
+
+> **Le point 4 est sans objet.** Aucun en-tête ne porte d'icône scanner — ni
+> `header.tsx`, ni nulle part ailleurs dans `app/components`. Comme R30, cette
+> partie se clôt sans travail propre.
+
+> **Le point 2 était déjà à moitié fait.** Les quatre liens légaux (`/about`,
+> `/contact`, `/terms`, `/privacy`) sont dans le pied de page depuis toujours,
+> et le pied de page est rendu sur tous les écrans applicatifs. Seule la
+> suppression du burger était du travail réel.
+
+> **Le point 6 dit trois liens ; il en part quatre.** Une fois le burger
+> supprimé, ces quatre-là sont **chacun le seul chemin** vers leur route sur un
+> téléphone. En retirer un ferait échouer le critère d'acceptation de cette
+> étape même — « aucune route n'a perdu d'accès ». Le critère l'emporte sur le
+> compte.
+
+> **La cloche devait bouger, et c'est le vrai risque de l'étape.** Le critère
+> dit « les notifications restent atteignables par la cloche » — mais la cloche
+> était `hidden md:flex`, donc sur un téléphone les notifications n'étaient
+> atteignables que par l'onglet « Alertes », celui que cette étape supprime.
+> Exactement le piège déjà payé deux fois sur le logo des écrans d'auth : _ce
+> qui est masqué sous un point de rupture disparaît pour de bon_. La cloche est
+> désormais rendue à **toutes** les largeurs, en **une seule instance** — elle
+> sonde `/notifications` toutes les 60 s, une seconde doublerait le trafic. Un
+> test la garde à 390, 768 et 1280.
+
+> **`/notifications` est délibérément perdu pour un visiteur anonyme**, et c'est
+> un correctif : le loader appelle `requireServerSession`, donc l'ancien onglet
+> « Alertes » offrait à un visiteur non connecté un lien vers une redirection.
+
+> **La bulle d'activité change de source, pas seulement de place.** Elle lisait
+> une route-ressource `account/activity` en `fetcher.load`, précisément pour ne
+> pas coûter un aller-retour de session à chaque navigation depuis le loader
+> racine. L'écran Compte, lui, **a déjà un loader et exige déjà une session** :
+> le résumé voyage avec, et l'appel côté client disparaît. `activity.loader.ts`
+> devient `activity.service.ts`, l'entrée de `routes.ts` est retirée, et
+> `use-activity-summary.ts` est supprimé. Il ne reste **aucun composant du
+> client qui appelle l'API** — le jumeau de la règle déjà tenue par `admin`.
+
+> **Recouvrement assumé avec `AccountStats`.** Les trois tuiles de la planche
+> comptent « annonces en ligne », ce que `AccountStats` affiche déjà en «
+> Annonces actives ». La planche `Compte` n'a pas d'équivalent d'`AccountStats`
+> — elle le remplace. Réconcilier les deux blocs est une refonte de l'écran
+> Compte, dont aucune étape du plan ne porte le nom. **À ouvrir.**
+
+> **Pas d'icône de recherche.** `NavC` dessine une loupe à côté de la cloche
+> dans le bandeau mobile. R6 n'en parle pas et la recherche a sa propre barre
+> sur `/posts` : non ajoutée.
+
+> **Mesuré, pas raisonné.** Les liens internes **visibles** ont été collectés à
+> 390 et 1280 px sur huit routes, burger ouvert compris, avant et après. À 390
+> px, avant : les onze liens du menu étaient **tous** déjà atteignables
+> ailleurs. Après : l'ensemble est identique **moins** `/notifications` (le
+> correctif ci-dessus, visiteur anonyme) et **plus** `/scan`. À 1280 px :
+> inchangé. La géométrie a été relevée aux trois largeurs — la barre est
+> présente à 390 et 768, absente à 1280 ; le pied de page compact l'inverse.
+
+**Portée réelle** : ajoute `app/root.tsx`, `app/routes.ts`, `app/routes/scan/`
+(nouveau) et `app/routes/account/`. `pnpm build` est obligatoire ici,
+`routes.ts` résolvant ses modules par chaîne de caractères.
+
 #### R7 — En-tête desktop en trois zones
 
 **Objectif** : donner l'espace libre à la recherche, qui manquait par ailleurs.

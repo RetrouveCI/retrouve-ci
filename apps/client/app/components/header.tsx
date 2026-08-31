@@ -6,8 +6,7 @@ import {
 	DropdownMenuTrigger,
 } from '@app/ui/components'
 import { Link, useLocation } from 'react-router'
-import { Menu, LogIn, Plus, ChevronDown } from 'lucide-react'
-import { MobileNav } from '@/components/mobile-nav'
+import { LogIn, Plus, ChevronDown } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { UserMenu } from '@/components/user-menu'
 import { NotificationBell } from '@/routes/notifications/components/notification-bell'
@@ -28,14 +27,11 @@ function isActivePath(pathname: string, href: string) {
 }
 
 export function Header() {
-	const [mobileNavOpen, setMobileNavOpen] = useState(false)
-	const [mounted, setMounted] = useState(false)
 	const [scrolled, setScrolled] = useState(false)
 	const { pathname } = useLocation()
 	const { user, isAuthenticated, logout } = useAuth()
 
 	useEffect(() => {
-		setMounted(true)
 		const handleScroll = () => setScrolled(window.scrollY > 10)
 		window.addEventListener('scroll', handleScroll)
 		return () => window.removeEventListener('scroll', handleScroll)
@@ -53,16 +49,6 @@ export function Header() {
 			<div className="mx-auto flex h-16 w-full max-w-400 items-center justify-between gap-6 px-6 lg:px-10">
 				<div className="flex min-w-0 shrink items-center gap-8">
 					<div className="flex shrink-0 items-center gap-2">
-						<Button
-							variant="ghost"
-							size="icon"
-							className="h-9 w-9 md:hidden"
-							onClick={() => setMobileNavOpen(true)}
-							aria-label="Ouvrir le menu"
-						>
-							<Menu className="h-5 w-5" />
-						</Button>
-
 						<Link
 							to="/"
 							className="touch-target group flex items-center gap-2.5"
@@ -71,7 +57,7 @@ export function Header() {
 						</Link>
 					</div>
 
-					<nav className="hidden min-w-0 items-center md:flex">
+					<nav className="hidden min-w-0 items-center lg:flex">
 						<div className="bg-muted/50 flex items-center gap-1 rounded-full p-1">
 							{navLinks.map(link => (
 								<Link
@@ -92,13 +78,13 @@ export function Header() {
 				</div>
 
 				<div className="flex shrink-0 items-center gap-1.5">
-					<ThemeToggle className="hidden h-9 w-9 rounded-full md:inline-flex" />
+					<ThemeToggle className="hidden h-9 w-9 rounded-full lg:inline-flex" />
 
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
 								size="sm"
-								className="bg-primary-green hover:bg-primary-green-dark hidden h-11 gap-1.5 rounded-full px-4 text-white md:inline-flex lg:h-9"
+								className="bg-primary-green hover:bg-primary-green-dark hidden h-11 gap-1.5 rounded-full px-4 text-white lg:inline-flex lg:h-9"
 							>
 								<Plus className="h-4 w-4" />
 								Publier
@@ -116,21 +102,23 @@ export function Header() {
 					</DropdownMenu>
 
 					{isAuthenticated ? (
-						<div className="bg-muted/50 hidden items-center gap-1 rounded-full p-1 md:flex">
+						<div className="bg-muted/50 flex items-center gap-1 rounded-full p-1">
 							<NotificationBell />
-							<div className="bg-border h-5 w-px" />
-							<UserMenu
-								name={user?.name ?? ''}
-								phone={user?.phone}
-								onLogout={logout}
-							/>
+							<div className="bg-border hidden h-5 w-px lg:block" />
+							<div className="hidden lg:block">
+								<UserMenu
+									name={user?.name ?? ''}
+									phone={user?.phone}
+									onLogout={logout}
+								/>
+							</div>
 						</div>
 					) : (
 						<Button
 							asChild
 							size="sm"
 							variant="outline"
-							className="hidden h-11 rounded-full px-4 md:inline-flex lg:h-9"
+							className="hidden h-11 rounded-full px-4 lg:inline-flex lg:h-9"
 						>
 							<Link to="/login" className="gap-2">
 								<LogIn className="h-4 w-4" />
@@ -140,10 +128,6 @@ export function Header() {
 					)}
 				</div>
 			</div>
-
-			{mounted && (
-				<MobileNav open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
-			)}
 		</header>
 	)
 }

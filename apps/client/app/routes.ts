@@ -18,10 +18,11 @@ export default [
 		route('publish/lost', 'routes/publish/lost/_index.tsx'),
 		route('publish/found', 'routes/publish/found/_index.tsx'),
 		route('publish/matches', 'routes/publish/servers/matching.loader.ts'),
-		route('account/activity', 'routes/account/servers/activity.loader.ts'),
 		route('stickers', 'routes/stickers/_index.tsx'),
 		route('stickers/order', 'routes/stickers/order/_index.tsx'),
 		route('posts', 'routes/posts/_index.tsx'),
+		// Minimal screen: R20 replaces it with the camera and keeps the code entry.
+		route('scan', 'routes/scan/_index.tsx'),
 		route('posts/:id', 'routes/posts/details/_index.tsx'),
 		route('account', 'routes/account/_index.tsx'),
 		route('account/posts', 'routes/account/posts/_index.tsx'),

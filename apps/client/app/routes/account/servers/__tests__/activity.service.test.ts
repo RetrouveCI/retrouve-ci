@@ -26,9 +26,9 @@ vi.mock('../../../notifications/servers/notifications.service', () => ({
 	getUnreadNotificationsCount,
 }))
 
-const { loader } = await import('../activity.loader')
+const { getActivitySummary } = await import('../activity.service')
 
-const request = () => new Request('http://localhost:3000/account/activity')
+const request = () => new Request('http://localhost:3000/account')
 
 const item = (
 	moderationStatus: string,
@@ -47,13 +47,13 @@ afterEach(() => {
 	vi.restoreAllMocks()
 })
 
-describe('the activity loader', () => {
-	// The button is background furniture: an anonymous visitor must get an answer,
-	// not a redirect.
+describe('getActivitySummary', () => {
+	// The summary is a convenience on a screen that gates itself: an anonymous
+	// visitor must get an answer, not a redirect, and must cost no API call.
 	it('answers with no summary for an anonymous visitor, and reads nothing', async () => {
 		getServerSession.mockResolvedValue(null)
 
-		expect(await loader({ request: request() })).toEqual({ summary: null })
+		expect(await getActivitySummary(request())).toBeNull()
 		expect(getMyLostItemsPage).not.toHaveBeenCalled()
 		expect(getMyQrCodesPage).not.toHaveBeenCalled()
 		expect(getMyStickerOrdersPage).not.toHaveBeenCalled()
@@ -63,7 +63,7 @@ describe('the activity loader', () => {
 	it('reports the unread count the API gives', async () => {
 		getUnreadNotificationsCount.mockResolvedValue(4)
 
-		const { summary } = await loader({ request: request() })
+		const summary = await getActivitySummary(request())
 
 		expect(summary?.unreadNotifications).toBe(4)
 	})
@@ -79,7 +79,7 @@ describe('the activity loader', () => {
 			],
 		})
 
-		const { summary } = await loader({ request: request() })
+		const summary = await getActivitySummary(request())
 
 		const expected: ActivitySummary['posts'] = {
 			total: 4,
@@ -96,7 +96,7 @@ describe('the activity loader', () => {
 			items: [item('published', 'active')],
 		})
 
-		const { summary } = await loader({ request: request() })
+		const summary = await getActivitySummary(request())
 
 		expect(summary?.posts.total).toBe(137)
 	})
@@ -113,7 +113,7 @@ describe('the activity loader', () => {
 			],
 		})
 
-		const { summary } = await loader({ request: request() })
+		const summary = await getActivitySummary(request())
 
 		const expected: ActivitySummary['stickers'] = { total: 12, activated: 2 }
 		expect(summary?.stickers).toEqual(expected)
@@ -133,7 +133,7 @@ describe('the activity loader', () => {
 			],
 		})
 
-		const { summary } = await loader({ request: request() })
+		const summary = await getActivitySummary(request())
 
 		const expected: ActivitySummary['orders'] = { total: 5, inProgress: 3 }
 		expect(summary?.orders).toEqual(expected)
@@ -152,7 +152,7 @@ describe('the activity loader', () => {
 			return 0
 		})
 
-		await loader({ request: request() })
+		await getActivitySummary(request())
 
 		// The second call starts before the first resolves.
 		expect(order.indexOf('unread:start')).toBeLessThan(
@@ -175,6 +175,6 @@ describe('the activity loader', () => {
 	])('answers with no summary when %s fails', async (_label, arrange) => {
 		arrange()
 
-		expect(await loader({ request: request() })).toEqual({ summary: null })
+		expect(await getActivitySummary(request())).toBeNull()
 	})
 })

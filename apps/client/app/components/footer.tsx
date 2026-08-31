@@ -73,7 +73,32 @@ export function Footer() {
 
 	return (
 		<footer className="bg-muted/30 border-t">
-			<div className="container mx-auto px-4 py-12 md:py-16">
+			{/**
+			 * Below `lg` the tab bar carries the shell, and a four-column footer under
+			 * it is furniture. What stays is what the tab bar cannot reach — and it is
+			 * four links, not the three the plan asked for: the burger menu left with
+			 * R6, so each of these is the only way to its route on a phone, and
+			 * dropping one would fail this very step's own acceptance criterion.
+			 */}
+			<div className="container mx-auto px-4 py-8 lg:hidden">
+				<ul className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+					{footerLinks.legal.map(link => (
+						<li key={link.href}>
+							<Link
+								to={link.href}
+								className="text-muted-foreground hover:text-primary-green-text touch-target text-sm transition-colors"
+							>
+								{link.label}
+							</Link>
+						</li>
+					))}
+				</ul>
+				<p className="text-muted-foreground mt-5 text-center text-xs">
+					&copy; {currentYear} RetrouveCI. Tous droits réservés.
+				</p>
+			</div>
+
+			<div className="container mx-auto hidden px-4 py-12 lg:block lg:py-16">
 				<div className="grid gap-10 md:grid-cols-12">
 					<div className="flex flex-col space-y-4 md:col-span-4">
 						<Link to="/" className="touch-target w-fit">
