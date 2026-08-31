@@ -777,6 +777,18 @@ liens** et non un menu ; ni l'un ni l'autre n'est visible au `typecheck`.
 > `icon` : à 1024 px un bouton libellé mangerait la largeur que la recherche
 > vient de gagner.
 
+> **Un défaut de R3 trouvé ici, et corrigé ici.** Signalé sur capture par le
+> commanditaire : le bouton « Connexion » devenait un pavé **noir sur noir** au
+> survol en thème sombre. Mesuré : **1,01:1**. La cause n'est pas dans les
+> tokens mais dans une paire disloquée du paquet — `Button` remplace son fond de
+> survol pour le thème sombre (`dark:hover:bg-input/50`) **sans** remplacer
+> l'encre qui va avec (`hover:text-accent-foreground`). Or R3 a passé
+> `--accent-foreground` en encre foncée, ce qui est juste sur l'aplat orange et
+> illisible sur ce gris. `ghost` avait le même défaut, à 2,27. Réparé en nommant
+> l'encre à côté du fond (`dark:hover:text-foreground`) : 16,34 et 7,29. Le
+> garde de R3 couvre désormais la **règle** — une variante qui renomme son fond
+> de survol en sombre doit y nommer son encre — et il a été vérifié qu'il mord.
+
 > **Mesuré aux six largeurs**, au repos et défilé : 390, 768, 1024, 1280, 1440
 > et 1920. Et la seconde moitié du critère vérifiée pour de bon — la recherche
 > soumise depuis `/`, `/about`, `/stickers` et `/contact` atterrit bien sur

@@ -1,3 +1,4 @@
+import { buttonVariants } from '@app/ui/components'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
@@ -193,6 +194,38 @@ describe.each([
 
 			expect(contrast(ink, parse(token(name, dark)))).toBeGreaterThanOrEqual(
 				AA_TEXT,
+			)
+		},
+	)
+})
+
+/**
+ * A pairing the token guard above cannot see, and that shipped broken: a variant
+ * may override its hover **background** for the dark theme without overriding
+ * the **ink** that goes with it. `--accent` is a saturated orange here, so R3
+ * gave `--accent-foreground` dark ink — right on the orange flat, and invisible
+ * on the grey `dark:hover:bg-input/50` that replaces it. `outline` measured
+ * **1.01:1** on hover in the dark theme; the sign-in button read as a black pill
+ * on a black bar.
+ */
+describe('hover pairs in the dark theme', () => {
+	const VARIANTS = [
+		'default',
+		'destructive',
+		'outline',
+		'secondary',
+		'ghost',
+		'link',
+	] as const
+
+	it.each(VARIANTS)(
+		'%s names its ink wherever it renames its background',
+		variant => {
+			const classes = buttonVariants({ variant })
+			const overridesBackground = /dark:hover:bg-/.test(classes)
+
+			expect(overridesBackground && !/dark:hover:text-/.test(classes)).toBe(
+				false,
 			)
 		},
 	)
