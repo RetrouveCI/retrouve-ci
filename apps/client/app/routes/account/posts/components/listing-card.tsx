@@ -11,7 +11,8 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@app/ui/components'
-import { Link, useFetcher } from 'react-router'
+import { Link } from 'react-router'
+import { useState } from 'react'
 import {
 	Eye,
 	MessageCircle,
@@ -28,11 +29,14 @@ import { toast } from 'sonner'
 import type { UserLostItem } from '@/shared/types/lost-item'
 import { cn } from '@app/ui/utils'
 import { imageUrl } from '@/shared/utils/image'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import type { accountPostsAction } from '../servers/account-posts.action'
 
 const STATUS_CONFIG = {
 	pending: {
 		label: 'En attente',
-		color: 'bg-yellow-500 text-white',
+		color: 'bg-yellow-700 text-white',
 		border: 'border-yellow-500/20',
 	},
 	hidden: {
@@ -41,17 +45,17 @@ const STATUS_CONFIG = {
 		border: 'border-muted',
 	},
 	active: {
-		label: 'Active',
+		label: 'En ligne',
 		color: 'bg-primary-green text-white',
 		border: 'border-primary-green/20',
 	},
 	resolved: {
-		label: 'Résolue',
-		color: 'bg-blue-500 text-white',
+		label: 'Retrouvée',
+		color: 'bg-blue-600 text-white',
 		border: 'border-blue-500/20',
 	},
 	expired: {
-		label: 'Expirée',
+		label: 'Archivée',
 		color: 'bg-muted text-muted-foreground',
 		border: 'border-muted',
 	},
@@ -69,15 +73,46 @@ interface ListingCardProps {
 	listing: UserLostItem
 }
 
+/** What the pending action promises, so its answer can be reported in its own words. */
+const OUTCOMES = {
+	resolved: {
+		done: 'Annonce marquée retrouvée',
+		failed: 'Impossible de marquer cette annonce retrouvée',
+	},
+	active: {
+		done: 'Annonce remise en ligne',
+		failed: 'Impossible de remettre cette annonce en ligne',
+	},
+	deleted: {
+		done: 'Annonce supprimée',
+		failed: 'Impossible de supprimer cette annonce',
+	},
+} as const
+
+type Outcome = keyof typeof OUTCOMES
+
 export function ListingCard({ listing }: ListingCardProps) {
-	const fetcher = useFetcher()
-	const isUpdating = fetcher.state !== 'idle'
+	const fetcher = useActionFetcher<typeof accountPostsAction>()
+	const [pending, setPending] = useState<Outcome | null>(null)
+	const isUpdating = fetcher.isSubmitting
 	const displayStatus = getDisplayStatus(listing)
 
+	useSettledSubmission(fetcher.response, result => {
+		if (!pending) return
+
+		const outcome = OUTCOMES[pending]
+		setPending(null)
+
+		if (result.success) {
+			toast.success(outcome.done)
+			return
+		}
+
+		toast.error(result.errors?.root?.message ?? outcome.failed)
+	})
+
 	const handleStatusChange = (status: UserLostItem['status']) => {
-		toast.success(
-			status === 'resolved' ? 'Annonce marquée résolue' : 'Annonce réactivée',
-		)
+		setPending(status === 'resolved' ? 'resolved' : 'active')
 		void fetcher.submit(
 			{ intent: 'update-status', id: listing.id, status },
 			{ method: 'post' },
@@ -85,7 +120,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 	}
 
 	const handleDelete = () => {
-		toast.success('Annonce supprimée')
+		setPending('deleted')
 		void fetcher.submit(
 			{ intent: 'delete', id: listing.id },
 			{ method: 'post' },
@@ -167,17 +202,19 @@ export function ListingCard({ listing }: ListingCardProps) {
 					<div className="text-muted-foreground mt-2 flex items-center gap-4 text-xs">
 						<span className="flex items-center gap-1">
 							<Eye className="h-3.5 w-3.5" />
-							{listing.views} vues
+							{listing.views} vue{listing.views > 1 ? 's' : ''}
 						</span>
 						<span className="flex items-center gap-1">
 							<MessageCircle className="h-3.5 w-3.5" />
-							{listing.contacts} contacts
+							{listing.contacts} contact{listing.contacts > 1 ? 's' : ''}
 						</span>
 					</div>
 				</div>
 			</div>
 
-			<div className="bg-muted/30 flex items-center justify-between border-t px-4 py-3">
+			{/* Wraps on purpose: with « Modifier » always present the four controls
+			    outgrow a 390 px card, and the card clips what overflows. */}
+			<div className="bg-muted/30 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t px-4 py-3">
 				<div className="flex items-center gap-2">
 					{listing.moderationStatus === 'published' &&
 						listing.status === 'active' && (
@@ -189,7 +226,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 								onClick={() => handleStatusChange('resolved')}
 							>
 								<CheckCircle className="h-3.5 w-3.5" />
-								Marquer résolue
+								Marquer retrouvée
 							</Button>
 						)}
 					{listing.moderationStatus === 'published' &&
@@ -207,19 +244,17 @@ export function ListingCard({ listing }: ListingCardProps) {
 						)}
 				</div>
 				<div className="flex items-center gap-1">
-					{listing.moderationStatus === 'pending' && (
-						<Button
-							asChild
-							variant="ghost"
-							size="sm"
-							className="h-8 gap-1.5 rounded-lg text-xs"
-						>
-							<Link to={`/account/posts/${listing.id}`}>
-								<Pencil className="h-3.5 w-3.5" />
-								Modifier
-							</Link>
-						</Button>
-					)}
+					<Button
+						asChild
+						variant="ghost"
+						size="sm"
+						className="h-8 gap-1.5 rounded-lg text-xs"
+					>
+						<Link to={`/account/posts/${listing.id}`}>
+							<Pencil className="h-3.5 w-3.5" />
+							Modifier
+						</Link>
+					</Button>
 					<Button
 						asChild
 						variant="ghost"
@@ -235,6 +270,8 @@ export function ListingCard({ listing }: ListingCardProps) {
 							<Button
 								variant="ghost"
 								size="icon"
+								aria-label="Supprimer l'annonce"
+								disabled={isUpdating}
 								className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 w-8 rounded-lg"
 							>
 								<Trash2 className="h-3.5 w-3.5" />

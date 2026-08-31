@@ -7,7 +7,7 @@ import { otpSchema, type OtpData, type OtpInput } from '../register.schema'
 import { verifyPhoneOtp } from '../../helpers/phone-auth.client'
 import { OtpStep } from '../../components/otp-step'
 import { useOtpCountdown } from '../../hooks/use-otp-countdown'
-import { useSettledSubmission } from '../../hooks/use-settled-submission'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import type { action } from '../_index'
 
 interface OtpStepSectionProps {

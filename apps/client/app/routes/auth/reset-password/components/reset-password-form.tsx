@@ -16,7 +16,7 @@ import { AuthSubmitButton } from '../../components/auth-submit-button'
 import { OtpStep } from '../../components/otp-step'
 import { PasswordStep } from '../../components/password-step'
 import { useOtpCountdown } from '../../hooks/use-otp-countdown'
-import { useSettledSubmission } from '../../hooks/use-settled-submission'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import type { ResetPasswordStep } from '../reset-password.types'
 import type { action } from '../_index'
 

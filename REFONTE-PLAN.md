@@ -1226,7 +1226,7 @@ arrière. **Tests** : projet `node` sur le parseur de filtres.
 > **Deux fautes de vocabulaire restent dans la carte**, hors portée : la
 > pastille dit « Active » / « Expirée » / « Résolue » là où §2.3 règle 2 dit «
 > En ligne » / « Archivée » / « Retrouvé », et « 1 contacts » n'est pas accordé.
-> `listing-card.tsx` appartient à R12 et R13.
+> `listing-card.tsx` appartient à R12 et R13. — **Refermé par R12.**
 
 #### R12 — Retours honnêtes sur les actions d'annonce
 
@@ -1243,6 +1243,79 @@ arrière. **Tests** : projet `node` sur le parseur de filtres.
 **Fichiers** : `routes/account/posts/components/listing-card.tsx`. **Flux** : D.
 **Acceptation** : une action qui échoue affiche une erreur et ne prétend pas
 avoir réussi. **Tests** : projet `ui` — succès, échec API, erreur de champ.
+
+> **Le troisième point demandait de lever DEUX gardes, pas une.** La condition
+> `moderationStatus === 'pending'` de la carte n'était que la moitié : le loader
+> d'édition redirigeait vers `/posts/:id` sur exactement le même test, donc
+> lever l'une sans l'autre ne donnait rien. `UpdateLostItemUseCase` ne vérifie
+> que la propriété (`requireOwnedLostItem`), les deux sont donc parties.
+
+> **La maquette demandait une bannière qui aurait menti — deux fois.**
+> `ModifierAnnonce` dessine « Toute modification renvoie l'annonce en
+> validation. Elle restera visible en attendant. », et `note-comptesuite` en
+> fait l'objet même de l'écran. Or `repository.update()` n'écrit jamais
+> `moderationStatus` : aucune modification de contenu ne repasse en validation.
+> La deuxième phrase est fausse pour une raison plus grave : une annonce
+> `pending` est exclue de la liste publique (`moderationStatus: 'published'` en
+> dur dans le contrôleur) et répond 404 à tout le monde sauf à son auteur. Tenir
+> la promesse dessinée aurait donc **dépublié** une annonce en ligne parce que
+> son auteur corrige une faute de frappe — sur une plateforme dont la
+> joignabilité est tout l'intérêt. La voie « faire dire vrai à l'API » a été
+> ouverte puis **abandonnée** pour cette raison : elle demande de découpler « en
+> attente de relecture » de « non publiée » (une colonne `reviewPending`, une
+> migration, une file de modération côté backoffice), ce qui est une étape à
+> elle seule. R12 livre donc un `EDIT_NOTICES` à trois entrées qui dit ce qui se
+> passe vraiment, par état de modération — dont « la corriger ne la remet pas en
+> ligne » pour une annonce masquée, qui reste modifiable sans effet visible.
+
+> **Une régression introduite puis mesurée puis corrigée.** « Modifier » rendu
+> permanent ajoute 89 px à une rangée qui en faisait déjà 281, dans une carte en
+> `overflow-hidden` : mesuré au navigateur, la corbeille était **coupée à 390
+> px** (la largeur de téléphone la plus courante) et « Voir » **et** la
+> corbeille disparaissaient à 320 px. Ce qui est coupé là est perdu pour de bon.
+> Réponse : `flex-wrap` avec `gap-x-2 gap-y-1` sur la rangée d'actions — les
+> quatre contrôles sont visibles de 320 à 1280 px, `scrollWidth` égale la
+> fenêtre partout, et le recouvrement pire cas entre les deux lignes vaut **0**.
+
+> **La corbeille n'avait aucun nom accessible** : un bouton d'icône seule, sans
+> `aria-label`, que seul un test l'a révélé en ne le trouvant pas. Nommé «
+> Supprimer l'annonce », et désactivé pendant une soumission comme ses voisins.
+
+> **Deux pastilles échouaient au contraste, mesurées dans les deux thèmes.** «
+> En attente » valait **1,91:1** en `bg-yellow-500 text-white` sur du 10 px, et
+> « Retrouvée » **3,76:1** en `bg-blue-500` — le même `blue-500` que R11 avait
+> déjà corrigé sur la puce de filtre juste au-dessus, qui aurait donc annoncé
+> 5,25 pendant que la pastille du même concept restait à 3,76. Passées à
+> `yellow-700` (4,93) et `blue-600` (5,25) ; les cinq pastilles passent
+> maintenant 4,5:1 dans les deux thèmes, la plus basse à **4,93**.
+
+> **Écart de vocabulaire refermé, celui que R11 avait laissé ouvert.** La
+> pastille disait « Active » / « Résolue » / « Expirée » là où §2.3 règle 2 — et
+> les puces de filtre livrées par R11 — disent « En ligne » / « Retrouvée » / «
+> Archivée ». Le bouton « Marquer résolue » suit. « 1 contacts » et « 1 vues »
+> sont accordés. Le tableau `STATUS_CONFIG` lui-même reste à R13, qui le
+> réécrit.
+
+> **`useSettledSubmission` remonte dans `shared/hooks/`.** Le hook vivait dans
+> `routes/auth/hooks/` et R12 est le premier appelant hors de cette zone. C'est
+> lui et non un drapeau posé à côté de `submit()` qui rend le point 2 correct :
+> `submit()` ne quitte pas `idle` dans le lot de rendu qui l'appelle. Vérifié au
+> navigateur : à 120 ms d'un écrit de 700 ms, **aucun** toast n'est affiché, là
+> où l'ancien code en montrait un vert immédiatement ; l'échec donne un toast
+> d'erreur et la pastille ne change pas.
+
+> **Une fausse piste, notée pour ne pas la repayer.** `account/` redirige vers
+> `/login` et non `/auth/login`, ce qui ressemble à un lien mort puisque les
+> pages d'auth vivent dans `routes/auth/`. C'est correct : `layout()` est **sans
+> chemin** en React Router, donc `route('login', …)` imbriqué donne bien
+> `/login`. `AUTH_PATHS` le consigne déjà. Aucun changement. En revanche la
+> liste de routes de `CLAUDE.md` annonce `/auth/login` et se trompe.
+
+> **Une fragilité laissée à R13** : `STATUS_CONFIG[displayStatus]` n'a pas de
+> repli, donc un statut hors énumération fait tomber la page entière en 500 —
+> constaté pour de vrai en servant les valeurs Prisma en majuscules depuis le
+> stub. Le contrat l'interdit côté API, c'est donc défensif ; R13 réécrit ce
+> tableau et devrait le fermer.
 
 #### R13 — Refonte de la carte d'annonce _(pilote)_
 

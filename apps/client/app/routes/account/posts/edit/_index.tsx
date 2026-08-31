@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { Controller } from 'react-hook-form'
 import {
 	AlertCircle,
+	AlertTriangle,
 	CheckCircle,
 	ArrowLeft,
 	Loader2,
@@ -17,6 +18,7 @@ import { PublishPageHeader } from '@/routes/publish/components/publish-page-head
 import { PhotosUpload } from '@/routes/publish/components/photos-upload'
 import { usePublishForm } from '@/routes/publish/hooks/use-publish-form'
 import { MIN_DESCRIPTION_LENGTH } from '@app/contracts/lost-items'
+import type { ModerationStatus } from '@/shared/types/lost-item'
 import { toLocalDigits } from '@/shared/utils/phone'
 import { OBJECT_TYPES } from '@/routes/publish/publish.const'
 import { editPostLoader } from './servers/edit-post.loader'
@@ -35,6 +37,21 @@ export function meta() {
 		title: "Modifier l'annonce",
 		description: 'Mettez à jour les informations de votre annonce.',
 	})
+}
+
+/**
+ * What editing actually does, per moderation state. The artboard promised a
+ * return to validation; the API resets no moderation status, and a listing sent
+ * back to `pending` would drop off the public list altogether — so the screen
+ * says what happens instead of what was drawn.
+ */
+const EDIT_NOTICES: Record<ModerationStatus, string> = {
+	published:
+		'Votre annonce est en ligne : vos corrections seront visibles immédiatement, sans repasser par la validation.',
+	pending:
+		'Votre annonce attend sa validation : vos corrections seront prises en compte avant sa mise en ligne.',
+	hidden:
+		'Votre annonce a été masquée par la modération. La corriger ne la remet pas en ligne.',
 }
 
 export default function EditPostPage({ loaderData }: Route.ComponentProps) {
@@ -75,8 +92,16 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 							isLost ? 'text-accent-orange-text' : 'text-primary-green-text'
 						}
 						title="Modifier l'annonce"
-						description="Corrigez les informations avant validation par l'administrateur."
+						description="Mettez à jour les informations de votre annonce."
 					/>
+
+					<div
+						role="status"
+						className="flex gap-3 rounded-2xl border border-yellow-500/30 bg-yellow-50 p-4 text-yellow-900 dark:border-yellow-500/25 dark:bg-yellow-950/40 dark:text-yellow-100"
+					>
+						<AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+						<p className="text-sm">{EDIT_NOTICES[item.moderationStatus]}</p>
+					</div>
 
 					<form onSubmit={onSubmit} noValidate className="space-y-5">
 						<div className="bg-background space-y-5 rounded-2xl border p-6">
