@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
 import { cn } from '@app/ui/utils'
-import { buildResponsiveWindow } from '../helpers/page-window'
+import { buildResponsiveWindow } from '@/shared/helpers/page-window'
 
 interface PaginationBarProps {
 	currentPage: number

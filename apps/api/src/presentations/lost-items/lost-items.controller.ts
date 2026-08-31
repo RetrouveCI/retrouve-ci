@@ -13,11 +13,13 @@ import {
 	adminListLostItemsFilterSchema,
 	createLostItemSchema,
 	listLostItemsFilterSchema,
+	myLostItemsFilterSchema,
 	updateLostItemSchema,
 	updateModerationStatusSchema,
 	type AdminListLostItemsFilterData,
 	type CreateLostItemData,
 	type ListLostItemsFilterData,
+	type MyLostItemsFilterData,
 	type UpdateLostItemData,
 	type UpdateModerationStatusData,
 } from '@app/contracts/lost-items'
@@ -85,11 +87,11 @@ export class LostItemsController {
 	}
 
 	@Get('mine')
-	@ApiZodQuery(listLostItemsFilterSchema)
+	@ApiZodQuery(myLostItemsFilterSchema)
 	listMine(
 		@Session() session: UserSession<Auth>,
-		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
-		filter: ListLostItemsFilterData,
+		@Query(new ZodValidationPipe(myLostItemsFilterSchema))
+		filter: MyLostItemsFilterData,
 	) {
 		return this.getMyLostItemsUseCase.execute({
 			userId: session.user.id,
@@ -97,8 +99,9 @@ export class LostItemsController {
 		})
 	}
 
+	/** Both audiences' extra axis, so one translation serves the three routes. */
 	private toListFilter(
-		filter: AdminListLostItemsFilterData,
+		filter: AdminListLostItemsFilterData & MyLostItemsFilterData,
 	): ListLostItemsFilter {
 		const { dateFrom, dateTo, ...rest } = filter
 

@@ -1,7 +1,7 @@
 import { SlidersHorizontal, LayoutGrid, List, X } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { PostsHero } from './components/posts-hero'
-import { FilterPill } from './components/filter-pill'
+import { FilterPill } from '@/components/filter-pill'
 import { FilterSheet } from './components/filter-sheet'
 import { ListingsContent } from './components/listings-content'
 import { usePostsFilters } from './hooks/use-posts-filters'

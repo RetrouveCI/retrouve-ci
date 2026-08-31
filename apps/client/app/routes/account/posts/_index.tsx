@@ -1,9 +1,11 @@
 import { Button, Input } from '@app/ui/components'
 import { Link } from 'react-router'
 import { FileText, Plus, ArrowLeft, Search } from 'lucide-react'
-import { cn } from '@app/ui/utils'
-import { useState, useMemo } from 'react'
+import { FilterPill } from '@/components/filter-pill'
+import { PaginationBar } from '@/components/pagination-bar'
 import { ListingCard } from './components/listing-card'
+import { useAccountPostsFilters } from './hooks/use-account-posts-filters'
+import { LIFECYCLE_FILTERS } from './account-posts.const'
 import { accountPostsLoader } from './servers/account-posts.loader'
 import { accountPostsAction } from './servers/account-posts.action'
 import type { Route } from './+types/_index'
@@ -21,20 +23,18 @@ export const loader = accountPostsLoader
 export const action = accountPostsAction
 
 export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
-	const { listings } = loaderData
-	const [search, setSearch] = useState('')
-	const [filter, setFilter] = useState<'all' | 'active' | 'resolved'>('all')
+	const { listings, total, pageSize } = loaderData
 
-	const filteredListings = useMemo(() => {
-		return listings.filter(l => {
-			const matchesSearch = l.title.toLowerCase().includes(search.toLowerCase())
-			const matchesFilter = filter === 'all' || l.status === filter
-			return matchesSearch && matchesFilter
-		})
-	}, [listings, search, filter])
-
-	const activeCount = listings.filter(l => l.status === 'active').length
-	const resolvedCount = listings.filter(l => l.status === 'resolved').length
+	const {
+		searchQuery,
+		setSearchQuery,
+		status,
+		setStatus,
+		currentPage,
+		setCurrentPage,
+		hasActiveFilters,
+		totalPages,
+	} = useAccountPostsFilters({ total, pageSize })
 
 	return (
 		<main className="flex-1">
@@ -57,9 +57,12 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 							</div>
 							<div>
 								<h1 className="text-2xl font-bold">Mes Annonces</h1>
+								{/* `total` is what the API counted, never what the browser
+								    worked out from a truncated page. */}
 								<p className="text-muted-foreground">
-									{listings.length} annonce{listings.length > 1 ? 's' : ''} ·{' '}
-									{activeCount} active{activeCount > 1 ? 's' : ''}
+									{hasActiveFilters
+										? `${total} résultat${total > 1 ? 's' : ''}`
+										: `${total} annonce${total > 1 ? 's' : ''}`}
 								</p>
 							</div>
 						</div>
@@ -83,45 +86,27 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 							<Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 							<Input
 								placeholder="Rechercher..."
-								value={search}
-								onChange={e => setSearch(e.target.value)}
+								value={searchQuery}
+								onChange={e => setSearchQuery(e.target.value)}
 								className="h-10 rounded-xl pl-9"
+								aria-label="Rechercher dans mes annonces"
 							/>
 						</div>
-						<div className="flex items-center gap-2">
-							<button
-								onClick={() => setFilter('all')}
-								className={cn(
-									'rounded-full px-3 py-1.5 text-xs font-medium transition-all',
-									filter === 'all'
-										? 'bg-foreground text-background'
-										: 'bg-muted text-muted-foreground hover:bg-muted/80',
-								)}
-							>
-								Toutes ({listings.length})
-							</button>
-							<button
-								onClick={() => setFilter('active')}
-								className={cn(
-									'rounded-full px-3 py-1.5 text-xs font-medium transition-all',
-									filter === 'active'
-										? 'bg-primary-green text-white'
-										: 'bg-muted text-muted-foreground hover:bg-muted/80',
-								)}
-							>
-								Actives ({activeCount})
-							</button>
-							<button
-								onClick={() => setFilter('resolved')}
-								className={cn(
-									'rounded-full px-3 py-1.5 text-xs font-medium transition-all',
-									filter === 'resolved'
-										? 'bg-blue-500 text-white'
-										: 'bg-muted text-muted-foreground hover:bg-muted/80',
-								)}
-							>
-								Résolues ({resolvedCount})
-							</button>
+						<div
+							className="flex flex-wrap items-center gap-2"
+							role="group"
+							aria-label="Cycle de vie de l'annonce"
+						>
+							{LIFECYCLE_FILTERS.map(({ id, label, activeClassName }) => (
+								<FilterPill
+									key={id}
+									active={status === id}
+									onClick={() => setStatus(id)}
+									className={status === id ? activeClassName : undefined}
+								>
+									{label}
+								</FilterPill>
+							))}
 						</div>
 					</div>
 				</div>
@@ -129,13 +114,20 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 
 			<section className="py-8">
 				<div className="container mx-auto px-4">
-					{filteredListings.length > 0 ? (
-						<div className="grid gap-4 lg:grid-cols-2">
-							{filteredListings.map(listing => (
-								<ListingCard key={listing.id} listing={listing} />
-							))}
-						</div>
-					) : listings.length > 0 ? (
+					{listings.length > 0 ? (
+						<>
+							<div className="grid gap-4 lg:grid-cols-2">
+								{listings.map(listing => (
+									<ListingCard key={listing.id} listing={listing} />
+								))}
+							</div>
+							<PaginationBar
+								currentPage={currentPage}
+								totalPages={totalPages}
+								onPageChange={setCurrentPage}
+							/>
+						</>
+					) : hasActiveFilters ? (
 						<div className="bg-muted/30 rounded-2xl border-2 border-dashed py-12 text-center">
 							<Search className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
 							<h3 className="mb-2 text-lg font-semibold">Aucun résultat</h3>

@@ -7,7 +7,7 @@ import {
 	userEvent,
 } from '@/shared/helpers/testing'
 import { usePostsFilters } from '../../hooks/use-posts-filters'
-import { PaginationBar } from '../pagination-bar'
+import { PaginationBar } from '@/components/pagination-bar'
 
 const PAGE_SIZE = 12
 // 40 pages: the count the plan's « 1 … 7 8 9 … 40 » is written against.

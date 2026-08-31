@@ -1133,6 +1133,101 @@ annonce.
 utilisateur à 60 annonces les voit toutes ; l'état de filtre survit à un retour
 arrière. **Tests** : projet `node` sur le parseur de filtres.
 
+> **Le statut de cycle de vie n'était pas filtrable côté API — c'est ce que
+> l'étape a d'abord dû ouvrir.** `LostItemRepository.list` honore
+> `resolutionStatus` depuis toujours et `ListLostItemsFilter` le déclare, mais
+> **aucun schéma ne le laissait passer** : `listLostItemsFilterSchema` ne le
+> porte pas, et `/lost-items/mine` validait avec celui-là. Le front n'avait donc
+> pas le choix — il lisait 50 annonces et filtrait en `useMemo`. R11 ajoute
+> `myLostItemsFilterSchema` dans `@app/contracts/lost-items` (le calque exact de
+> `adminListLostItemsFilterSchema`, une ligne d'`extend`) et le branche sur
+> `listMine`. Le champ reste **hors** du schéma public : « Annonces » montre
+> tout ce qui est publié, résolu compris. **Écart de portée assumé** : le plan
+> annonce R11 en `client/account` et ne liste que des fichiers client ; l'étape
+> touche aussi `packages/contracts` et `apps/api`, sans quoi son point 2 (« le
+> loader appelle l'API avec ») est infaisable.
+
+> **Les compteurs des puces tombent, et R13 les relèvera depuis le serveur.** La
+> planche mobile écrit « Toutes · 6 | En ligne · 3 | Résolues · 2 » et la
+> version large « 6 au total, 3 en ligne » : des nombres agrégés sur **toutes**
+> les annonces, que le navigateur calculait jusqu'ici sur les 50 qu'il avait
+> sous la main — donc faux au-delà. Une fois la pagination côté API, ils
+> demandent une source serveur (un `groupBy` par statut), et c'est exactement ce
+> dont R13 a besoin pour sa bannière de modération (« 1 annonce en attente, 1
+> masquée »). Les deux vont ensemble, dans l'étape qui porte les puces. R11
+> garde le seul nombre honnête qu'il ait : le `total` que l'API vient de compter
+> pour les filtres de l'URL, affiché « 63 annonces » sans filtre et « 12
+> résultats » avec.
+
+> **Quatre puces au lieu de trois, et le vocabulaire de §2.3.** La règle 2 fixe
+> « En ligne » / « Retrouvé » / « Archivée » ; l'écran disait « Actives » / «
+> Résolues », et la planche mobile écrit « Résolues » là où la planche large
+> écrit « Retrouvées ». **§2.3 tranche, contre l'artboard mobile.** Et «
+> Archivées » n'existait pas du tout : une annonce `expired` n'était joignable
+> que par « Toutes ». Les libellés et la quatrième puce arrivent donc ici, sans
+> restyler quoi que ce soit ; le dessin des puces reste à R13.
+
+> **`PaginationBar` et `FilterPill` remontent dans `app/components/`.** R9
+> l'avait prévu pour la barre (« R11–R14 la remonteront si Mes annonces en veut
+> une ») : c'est le cas, avec la même réponse qu'à R9 — pagination compacte,
+> pour la position partageable dans l'URL, contre le chargement continu que la
+> planche dessine. `helpers/page-window.ts` et son test suivent dans
+> `app/shared/helpers/`. La puce suit pour une raison mesurée, pas par symétrie
+> : les puces de l'écran étaient dessinées à `px-3 py-1.5 text-xs`, soit **28
+> px** de haut, et `.touch-target` y ajoute 8 px de débord de chaque côté — deux
+> rangées séparées par `gap-2` (8 px) se recouvrent alors de 16 px et **la
+> dernière du DOM remporte les taps**, le piège exact payé à R10. `FilterPill`
+> est dessinée à 38 px : 3 px de débord dans un écart de 8 px. À 320 px les
+> quatre puces passent effectivement sur deux rangées, et le recouvrement mesuré
+> vaut **0**.
+
+> **La page au-delà de la liste se corrige dans l'adresse.** Supprimer la
+> dernière annonce d'une dernière page laissait `?page=3` devant une liste de
+> deux pages : écran vide, sans rien qui l'explique. Le loader compare `page` au
+> `total` que l'API vient de rendre et `throw redirect` vers la dernière page
+> réelle — l'adresse est l'état, donc c'est l'adresse qu'on corrige. Sept cas de
+> test couvrent le calcul, dont la disparition complète du paramètre quand la
+> liste tient sur une page.
+
+> **Trois balayages restent sous plafond, et ce sont trois dettes.** Le
+> `?pageSize=50` en dur disparaît de « Mes annonces », mais trois appelants
+> lisaient la même fonction pour tout charger d'un coup : l'écran Compte
+> (`account/_index.tsx`), son résumé d'activité (`activity.service.ts`, qui
+> compte `active` et `pending` sur les éléments rendus) et le loader d'édition
+> (`edit-post.loader.ts`, qui trouve son annonce par `.find` dans la liste). Le
+> plafond est nommé — `SWEEP_PAGE_SIZE` dans `account-posts.service.ts`, exposé
+> par `sweepMyLostItems` — au lieu d'être caché dans une URL, mais il reste : à
+> 51 annonces, le résumé du compte se trompe et la 51ᵉ n'est pas modifiable.
+> `GET /lost-items/:id` ne peut pas dépanner le second cas, il incrémente les
+> vues. Les trois relèvent de la refonte de l'écran Compte et de R12.
+
+> **Mesuré au navigateur, dans les deux thèmes.** Un stub d'API sur :3011 a
+> servi 63 annonces à un utilisateur factice (`get-session` compris) sans rien
+> écrire en base. À 320, 360, 390, 768, 1024 et 1280 px, sur sept états d'URL
+> (page 1, 3, 6, chaque puce, aucun résultat) : `document.scrollWidth` égale
+> exactement la largeur de la fenêtre — **y compris à 320 px**, où `/posts`
+> déborde encore par son hero ; la plus petite cible tactile vaut **44 px** sous
+> `lg` (38 au-dessus, où `.touch-target` s'éteint) ; le recouvrement pire cas
+> vaut **0** entre puces comme entre pages. Les paires encre/fond des puces
+> passent 4,5:1 dans les deux thèmes, la plus basse à **5,03** (blanc sur
+> `--primary-green`), « Retrouvées » à 5,25 (`blue-600`) et « Archivées » à 7,81
+> (`neutral-600`) — l'ancienne « Résolues » était en `blue-500`, soit **3,68**,
+> sous le seuil pour du 12 px. Comportement vérifié : la puce écrit l'URL et
+> remet `page` à 1, la recherche débattue écrit `q` **sans allonger
+> l'historique** (`replace: true` : deux saisies successives laissent
+> `history.length` inchangé et le retour arrière quitte l'écran), `?page=99` se
+> corrige en `?page=6`, et l'annonce **n°51 est à l'écran** en page 5.
+
+> **Une seule mesure à charge, héritée de R9** : la flèche « Page précédente »
+> désactivée mesure 1,8:1 en clair. Un contrôle désactivé est formellement
+> dispensé et R9 n'avait mesuré que l'état actif ; ce n'est pas une régression
+> de R11, mais c'est noté.
+
+> **Deux fautes de vocabulaire restent dans la carte**, hors portée : la
+> pastille dit « Active » / « Expirée » / « Résolue » là où §2.3 règle 2 dit «
+> En ligne » / « Archivée » / « Retrouvé », et « 1 contacts » n'est pas accordé.
+> `listing-card.tsx` appartient à R12 et R13.
+
 #### R12 — Retours honnêtes sur les actions d'annonce
 
 **Objectif** : corriger trois défauts de confiance, sans toucher au visuel.

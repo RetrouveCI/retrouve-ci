@@ -2,7 +2,7 @@ import { getServerSession } from '@/shared/helpers/session.server'
 import type { ActivitySummary } from '@/shared/types/activity'
 import { getUnreadNotificationsCount } from '../../notifications/servers/notifications.service'
 import { getMyStickerOrdersPage } from '../orders/servers/orders.service'
-import { getMyLostItemsPage } from '../posts/servers/account-posts.service'
+import { sweepMyLostItems } from '../posts/servers/account-posts.service'
 import { getMyQrCodesPage } from '../stickers/servers/stickers.service'
 
 /**
@@ -23,7 +23,7 @@ export async function getActivitySummary(
 
 	try {
 		const [posts, stickers, orders, unreadNotifications] = await Promise.all([
-			getMyLostItemsPage(request),
+			sweepMyLostItems(request),
 			getMyQrCodesPage(request),
 			getMyStickerOrdersPage(request),
 			getUnreadNotificationsCount(request),
