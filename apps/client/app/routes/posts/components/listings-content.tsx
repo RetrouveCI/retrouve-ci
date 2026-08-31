@@ -1,8 +1,8 @@
 import { Button } from '@app/ui/components'
-import { Inbox, ChevronLeft, ChevronRight } from 'lucide-react'
-import { cn } from '@app/ui/utils'
+import { Inbox } from 'lucide-react'
 import type { LostItem } from '@/shared/types/lost-item'
 import { ListingCard } from './listing-card'
+import { PaginationBar } from './pagination-bar'
 
 interface ListingsContentProps {
 	paginatedListings: LostItem[]
@@ -72,47 +72,11 @@ export function ListingsContent({
 				</div>
 			)}
 
-			{totalPages > 1 && (
-				<div className="mt-10 flex items-center justify-center gap-2">
-					<Button
-						variant="outline"
-						size="icon"
-						className="h-10 w-10 rounded-xl"
-						onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-						disabled={currentPage === 1}
-						aria-label="Page précédente"
-					>
-						<ChevronLeft className="h-4 w-4" />
-					</Button>
-					<div className="flex items-center gap-1">
-						{Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-							<button
-								key={page}
-								onClick={() => onPageChange(page)}
-								className={cn(
-									'h-10 w-10 rounded-xl text-sm font-medium transition-all',
-									page === currentPage
-										? 'bg-primary-green text-white shadow-sm'
-										: 'hover:bg-muted text-muted-foreground',
-								)}
-								aria-current={page === currentPage ? 'page' : undefined}
-							>
-								{page}
-							</button>
-						))}
-					</div>
-					<Button
-						variant="outline"
-						size="icon"
-						className="h-10 w-10 rounded-xl"
-						onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-						disabled={currentPage === totalPages}
-						aria-label="Page suivante"
-					>
-						<ChevronRight className="h-4 w-4" />
-					</Button>
-				</div>
-			)}
+			<PaginationBar
+				currentPage={currentPage}
+				totalPages={totalPages}
+				onPageChange={onPageChange}
+			/>
 		</>
 	)
 }

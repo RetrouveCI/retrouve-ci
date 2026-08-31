@@ -44,7 +44,15 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 		: undefined
 	const dateFilter = matchDateFilter(dateFrom, dateTo)
 
-	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+	/**
+	 * The row density, not the photo grid. Below `sm` the grid is a single column,
+	 * so the toggle chose between two densities rather than between two layouts —
+	 * the wireframe's decision note asks for one density on a phone and drops the
+	 * control there. The row is also the cheaper of the two: it paints a 160 px
+	 * thumbnail where a grid card paints 1000 px, so it is the right default at
+	 * every width, and above `sm` the photo grid is one tap away.
+	 */
+	const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
 
 	const [searchQuery, setSearchQuery] = useState(urlQuery)
 

@@ -918,6 +918,99 @@ jamais repoussés hors écran ; les filtres restent dans l'URL.
 **Fichiers** : `routes/posts/components/listings-content.tsx`. **Flux** : A.
 **Acceptation** : aucun débordement quel que soit le nombre de pages.
 
+> **La maquette et le plan se contredisaient ; le commanditaire a tranché pour
+> la pagination.** La note de décision de la planche `Annonces` dit « la
+> pagination à un bouton par page est remplacée par un **chargement continu** »,
+> et l'artboard dessine un squelette à 45 % suivi de « Chargement des annonces
+> suivantes… ». §8 laissait le choix ouvert en notant ce que la pagination seule
+> garde : une position partageable dans l'URL. C'est cet argument qui l'a
+> emporté. **Écart assumé vis-à-vis de la maquette**, le premier du chantier :
+> la planche `Annonces` et `AnnoncesSombre` ne décrivent plus le bas de cet
+> écran, et `MesAnnonces` (R11–R14) dessine le même chargement continu — la même
+> question se reposera là, avec la même réponse par défaut.
+
+> **`packages/ui/pagination.tsx` a été évalué et écarté**, pour trois raisons
+> mesurées et non par goût : ses libellés `Previous`, `Next`, `More pages` et
+> `Go to previous page` sont écrits **en dur comme enfants JSX**, donc
+> inatteignables par `props.children`, dans une interface entièrement en
+> français ; `PaginationLink` est un `<a>` **sans `href`**, ni focalisable ni
+> bouton, là où la barre appelle un rappel qui écrit `page` dans l'URL avec
+> `replace` et `preventScrollReset` ; et ses cibles sont à `size-9`, 36 px, sous
+> le plancher de 44 px de §2.1. Y ajouter du français ferait dériver le
+> composant partagé de sa révision shadcn, ce que la dette de `FieldError`
+> documente déjà comme un piège.
+
+> **Une seule liste de créneaux, deux fenêtres.** `helpers/page-window.ts`
+> expose `buildPageWindow(page, total, span)` — la primitive, `span` étant le
+> nombre de voisins — et `buildResponsiveWindow`, qui fusionne les deux fenêtres
+> en une liste où chaque créneau porte les points de rupture qui l'affichent :
+> `1 … 8 … 40` sous `sm`, `1 … 7 8 9 … 40` au-dessus. Deux `<ul>` auraient été
+> plus simples à écrire et mettaient **deux boutons « Page 8 »** dans le
+> document, dont un caché — un lecteur d'écran trouve les deux. Et c'est CSS qui
+> choisit, jamais `matchMedia` : lu en JavaScript, le serveur rendrait la
+> mauvaise fenêtre et la bonne apparaîtrait en sautant à l'hydratation. Une
+> ellipse appartient parfois à une seule vue — à la page 3, le mobile a besoin
+> d'un trou entre 1 et 3 là où le bureau affiche `2` — donc chaque créneau de
+> trou porte `mobile` et `desktop` séparément. Le test compare les deux vues à
+> `buildPageWindow` pour **chaque page de chaque total de 1 à 60**.
+
+> **44 px de cible pour 40 px de dessin — §2.1 ne peut pas être pris au mot
+> ici.** Cinq numéros et deux flèches à 44 px de large demandent 388 px, quand
+> le conteneur en offre 328 à 360 px. Les boutons sont donc dessinés à `size-10`
+> avec `.touch-target`, l'utilitaire posé par R3 pour exactement ce cas : mesuré
+> au navigateur, la cible fait **44 × 44 partout sous `lg`** et le recouvrement
+> pire cas entre deux zones voisines vaut **0 px** — les débords de 2 px se
+> rejoignent au milieu de chaque écart de 4 px sans jamais se chevaucher.
+
+> **Mesuré, pas raisonné.** Un stub d'API a gonflé `total` à 480 (40 pages) sans
+> rien écrire en base — la table n'en contient que 7. À 360, 390, 768, 1023 et
+> 1280 px, dans les **deux thèmes**, aux pages 1, 3, 8, 38 et 40 :
+> `document.scrollWidth` égale exactement la largeur de la fenêtre, le
+> débordement propre de la barre vaut 0, et la barre tient dans `16 → 344` à 360
+> px. Le pire cas mobile n'est pas la fenêtre à trous mais la liste **complète**
+> (≤ 5 pages, donc 7 cibles) : **304 px pour 328 disponibles**. Les fenêtres
+> relevées sont celles attendues, `1 … 8 … 40` sous `sm` et `1 … 7 8 9 … 40`
+> au-dessus. Neuf paires encre/fond passent 4,5:1 dans les deux thèmes, la plus
+> basse à **5,03** (blanc sur `--primary-green`, la même paire que « Voir N
+> résultats » de R8).
+
+> **Une fausse mesure attrapée en la refaisant.** L'ellipse était à
+> `text-muted-foreground/60`. Lue sans composition alpha elle annonçait 5,94:1 ;
+> composée sur son fond réel elle valait **2,56:1 en clair**, sous le seuil de
+> 3:1 des éléments non textuels. `aria-hidden` la dispense formellement, mais
+> c'est le glyphe qui dit « il y a des pages entre ces deux nombres ». L'opacité
+> est retirée : 5,96 en clair, 7,67 en sombre. **Le piège d'`oklch` a un
+> jumeau** : lire une encre translucide à pleine opacité fabrique un faux
+> positif exactement comme un parseur `rgb`-seul fabriquait des faux négatifs.
+
+> **À 320 px, la page débordait déjà — pas la barre.** `document.scrollWidth`
+> vaut 345 pour 320 de fenêtre, et les coupables relevés sont les cercles
+> décoratifs de `PostsHero` (`-right-40`) et le rail de catégories, tous deux
+> antérieurs ; la barre, elle, tient dans `8 → 312`. R9 ne le corrige pas : son
+> critère est 360 px, et la dette du hero de `/posts` (ouverte par R8) couvre le
+> premier.
+
+> **La bascule grille/liste est traitée ici, faute d'étape qui la porte.** La
+> même note de la planche `Annonces` ajoute « une seule densité de carte sur
+> mobile : la bascule grille/liste ne veut rien dire sur une colonne », et
+> aucune étape du plan ne la nomme. Sous `sm` la grille **est** une colonne —
+> `grid sm:grid-cols-2 lg:grid-cols-3` — donc le contrôle y choisissait entre
+> deux densités et non entre deux mises en page. Il passe en `hidden sm:flex`,
+> et le défaut de `viewMode` passe de `grid` à `list` : c'est la densité que la
+> planche dessine (vignette carrée de 92 px, rangée `flex`), et c'est aussi la
+> moins chère — 160 px de photo contre 1000 px pour une carte de grille, l'écart
+> que R4 avait déjà mesuré. Un seul DOM par densité, donc pas de `srcset` à
+> inventer. Aucun artboard ne dessine `/posts` au-dessus de 390 px, donc aucun
+> rendu de référence n'est contredit au-dessus de `sm`, où la grille photo reste
+> à un geste.
+
+**Portée réelle** : ajoute `routes/posts/helpers/page-window.ts` et
+`routes/posts/components/pagination-bar.tsx`, et touche
+`routes/posts/hooks/use-posts-filters.ts` et `routes/posts/_index.tsx` pour la
+densité. `routes.ts` ne bouge pas : pas de `build` obligatoire. La barre reste
+locale à `routes/posts/` ; R11–R14 la remonteront dans `app/components/` si «
+Mes annonces » en veut une.
+
 #### R10 — Barre d'action basse sur le détail
 
 1. `ContactCard` devient une barre collée en bas : « Contacter par WhatsApp »
@@ -1772,14 +1865,14 @@ notifications à personne n'a pas d'intérêt.
 
 ## 8. Points à trancher
 
-| Sujet                         | Question                                                                                                                                      | À trancher avant |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| Pagination                    | Chargement continu ou pagination compacte ? Le second garde une position partageable dans l'URL.                                              | R9               |
-| Motif de masquage             | A1 avant ou après R13 ? Avant, si la modération masque déjà des annonces en production.                                                       | R13              |
-| Bloc stickers de l'accueil    | Quelle mesure décide qu'il convertit ? À instrumenter dès R17.                                                                                | R17              |
-| Web push                      | A3 vaut-elle son coût ? Le lot 8 se livre sans.                                                                                               | R25              |
-| Récupération de mot de passe  | La règle stricte s'y applique-t-elle ? Non par défaut, comme la connexion — mais un numéro non conforme ne recevra jamais son SMS.            | R26              |
-| ~~Compteurs du panneau auth~~ | **Tranché** : ni l'un ni l'autre pour l'instant. R30 se clôt sans bande, et la question part en **A5**, à traiter une fois le pilote démarré. | ~~R30~~          |
+| Sujet                         | Question                                                                                                                                               | À trancher avant |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- |
+| ~~Pagination~~                | **Tranché** : pagination compacte, pour la position partageable dans l'URL — contre la note de décision de la maquette, qui disait chargement continu. | ~~R9~~           |
+| Motif de masquage             | A1 avant ou après R13 ? Avant, si la modération masque déjà des annonces en production.                                                                | R13              |
+| Bloc stickers de l'accueil    | Quelle mesure décide qu'il convertit ? À instrumenter dès R17.                                                                                         | R17              |
+| Web push                      | A3 vaut-elle son coût ? Le lot 8 se livre sans.                                                                                                        | R25              |
+| Récupération de mot de passe  | La règle stricte s'y applique-t-elle ? Non par défaut, comme la connexion — mais un numéro non conforme ne recevra jamais son SMS.                     | R26              |
+| ~~Compteurs du panneau auth~~ | **Tranché** : ni l'un ni l'autre pour l'instant. R30 se clôt sans bande, et la question part en **A5**, à traiter une fois le pilote démarré.          | ~~R30~~          |
 
 ---
 
