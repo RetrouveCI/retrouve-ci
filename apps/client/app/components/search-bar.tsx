@@ -8,31 +8,42 @@ type Size = 'xs' | 'sm' | 'md' | 'lg'
 
 const SIZE: Record<
 	Size,
-	{ shell: string; input: string; icon: string; button: string }
+	{
+		shell: string
+		input: string
+		icon: string
+		button: string
+		/** Round submit, kept a touch smaller than the shell it sits inside. */
+		iconButton: string
+	}
 > = {
 	xs: {
 		shell: 'py-0.5 pl-3.5 pr-1.5',
 		input: 'h-9 text-sm',
 		icon: 'h-4 w-4',
 		button: 'h-8 px-4 text-sm',
+		iconButton: 'size-7',
 	},
 	sm: {
 		shell: 'py-1 pl-3.5 pr-1.5',
 		input: 'h-10 text-sm',
 		icon: 'h-4 w-4',
 		button: 'h-8 px-4 text-sm',
+		iconButton: 'size-8',
 	},
 	md: {
 		shell: 'py-1.5 pl-4 pr-1.5',
 		input: 'h-11 text-sm md:text-base',
 		icon: 'h-5 w-5',
 		button: 'h-9 px-5',
+		iconButton: 'size-9',
 	},
 	lg: {
 		shell: 'py-1.5 pl-5 pr-1.5',
 		input: 'h-12 text-base',
 		icon: 'h-5 w-5',
 		button: 'h-12 px-6',
+		iconButton: 'size-9',
 	},
 }
 
@@ -50,7 +61,12 @@ type SearchBarProps = BaseProps &
 				action?: string
 				defaultValue?: string
 				autoFocus?: boolean
-				showSubmit?: boolean
+				/**
+				 * `icon` is the header's: at 1024 px the search takes the free space
+				 * the layout used to waste, and a worded button would eat the width it
+				 * just gained.
+				 */
+				submit?: 'label' | 'icon' | 'none'
 				onSubmit?: () => void
 		  }
 		| {
@@ -105,7 +121,7 @@ export function SearchBar(props: SearchBarProps) {
 		)
 	}
 
-	const showSubmit = props.showSubmit ?? true
+	const submit = props.submit ?? 'label'
 
 	return (
 		<Form
@@ -128,7 +144,7 @@ export function SearchBar(props: SearchBarProps) {
 					placeholder={props.placeholder ?? 'Quel objet recherchez-vous ?'}
 					className={inputClass}
 				/>
-				{showSubmit && (
+				{submit === 'label' && (
 					<Button
 						type="submit"
 						className={cn(
@@ -137,6 +153,19 @@ export function SearchBar(props: SearchBarProps) {
 						)}
 					>
 						Rechercher
+					</Button>
+				)}
+				{submit === 'icon' && (
+					<Button
+						type="submit"
+						size="icon"
+						aria-label="Rechercher"
+						className={cn(
+							'bg-primary-green hover:bg-primary-green-dark shrink-0 rounded-full text-white',
+							size.iconButton,
+						)}
+					>
+						<Search className={size.icon} />
 					</Button>
 				)}
 			</div>
