@@ -222,7 +222,7 @@ Une ligne = une branche = une PR = une session.
 | **R2**  | Socle    | Cibles tactiles 44 px sous `lg`             | `refonte-r2-touch-targets`           | `ui` + les deux apps | 0,5 j  | —            |
 | **R3**  | Socle    | Tokens de couleur accessibles               | `refonte-r3-colour-tokens`           | `ui` + `client`      | 1 j    | —            |
 | **R4**  | Socle    | Photos servies à la taille d'affichage      | `refonte-r4-image-sizes`             | `client`             | 1 j    | —            |
-| **R5**  | Coquille | Thème dans Réglages + option `system`       | `refonte-r5-theme-settings`          | `client/account`     | 1 j    | R3           |
+| **R5**  | Coquille | Thème dans Réglages + option `system`       | `refonte-r5-theme-settings`          | `client`             | 1 j    | R3           |
 | **R6**  | Coquille | Barre d'onglets à 4 entrées + Scanner       | `refonte-r6-tab-bar`                 | `client`             | 1,5 j  | R2, R5       |
 | **R7**  | Coquille | En-tête desktop en trois zones              | `refonte-r7-desktop-header`          | `client`             | 1 j    | R2           |
 | **R8**  | Annonces | Filtres en feuille inférieure               | `refonte-r8-filters-sheet`           | `client/posts`       | 1 j    | R2           |
@@ -551,11 +551,76 @@ supprime le menu latéral.
 3. Section « Apparence » dans Réglages : trois aperçus, pas un interrupteur.
 4. Laisser `ThemeToggle` en place dans le header desktop.
 
-**Fichiers** : `app/shared/helpers/theme.server.ts`, `app/context/theme.tsx`,
+**Fichiers** : `app/shared/helpers/theme.ts`, `theme.server.ts`,
+`app/context/theme.tsx`, **`app/root.tsx`** (le script de tête, voir plus bas),
 `app/routes/account/settings/`. **Flux** : tous. **Acceptation** : un appareil
 réglé en sombre ouvre l'app en sombre à la première visite, sans flash blanc.
-**Tests** : projet `node` sur `getThemeFromRequest` (cookie absent, `system`,
-valeur inconnue).
+**Tests** : projet `node` sur `getThemePreferenceFromRequest` (cookie absent,
+`system`, valeur inconnue, cookie voisin), **plus un projet `ui`** sur la
+section Apparence — trois choix, le courant marqué comme tel, un clic qui peint
+_et_ persiste.
+
+> **Le point 1 n'est pas réalisable tel qu'écrit.** « En consultant
+> `prefers-color-scheme` » côté serveur est impossible : c'est une **requête
+> média**, que le serveur n'évalue pas. L'indice client qui la reflète
+> (`Sec-CH-Prefers-Color-Scheme`) n'est envoyé qu'**après** qu'une réponse
+> précédente l'a demandé — donc jamais sur la première requête, précisément
+> celle que le critère vise, et Safari comme Firefox ne l'implémentent pas. Ce
+> qui ferme l'écart est un **script classique bloquant en `<head>`**, qui lit le
+> cookie et la requête média puis pose la classe avant le premier rendu. Le
+> serveur n'envoie donc plus qu'une **préférence** : `light` et `dark` sont
+> rendus directement, `system` part neutre (`class=""`,
+> `color-scheme: light dark`) et le script tranche.
+
+> **Mesuré image par image, pas supposé.** Le premier rendu a été capturé en
+> `Page.startScreencast` (CDP) sur les cinq combinaisons cookie × appareil.
+> Premier passage, appareil sombre, aucun cookie : **0 image claire sur 88**.
+> L'A/B qui le prouve : le même cas **JavaScript désactivé**, où le script ne
+> peut plus agir, donne **57 images claires sur 58**. Le script est donc bien ce
+> qui supprime le flash, et le critère est vérifié par la mesure.
+
+> **Limite connue, assumée.** Sans JavaScript et en préférence `system`, un
+> appareil sombre ouvre en clair. Un choix explicite, lui, reste servi par le
+> SSR et fonctionne sans JS. La fermer demanderait un bloc
+> `@media (prefers-color-scheme: dark)` dans `globals.css` — mais la variante
+> `dark:` du paquet est `&:is(.dark *)`, donc seules les valeurs de tokens
+> basculeraient et pas les utilitaires `dark:` des composants : un demi-état
+> pire que le manque. Hors périmètre de R5 (`client/account`), à rouvrir avec
+> `packages/ui`.
+
+> **`theme` veut dire deux choses, et le code les sépare maintenant.**
+> `ThemePreference` (`light | dark | system`) est ce que la personne a choisi ;
+> `Theme` (`light | dark`) est ce qui est peint. Le contexte expose les deux, ce
+> qui laisse `ThemeToggle` et `MobileNav` **inchangés** — ils lisent `theme` et
+> `toggleTheme`, dont le sens n'a pas bougé. Depuis `system`, la bascule
+> s'engage sur l'inverse de ce qui est à l'écran, ce que demande quelqu'un qui
+> clique un soleil ou une lune.
+
+> **Écarts à la planche `Reglages`.** Trois, tous consignés plutôt que subis.
+> (a) Les aperçus sont repris **au pixel** — 62 px, la grille à trois colonnes,
+> la page miniature avec sa barre de titre, ses deux lignes et son bouton vert,
+> et l'aperçu `Système` **coupé en deux**. Ils sont peints en **couleurs fixes**
+> et non en tokens : l'aperçu « Clair » doit rester clair quand l'application
+> est sombre, exactement la leçon de R3 sur les surfaces fixes. (b) La planche
+> dessine la section en `.sec` nue avec un `h2`, là où la page Réglages actuelle
+> encadre chaque section (`bg-background rounded-2xl border` + en-tête
+> `bg-muted/30`). La section adopte **la coquille de la page existante** : R5
+> ajoute un bloc, elle ne redessine pas l'écran. (c) La légende de la planche
+> dit « C'est le nouveau défaut » ; la mention est datée le jour où elle est
+> livrée, et la version sombre y ajoute une phrase qui s'adresse au lecteur de
+> la maquette, pas à l'utilisateur. Gardée : « « Système » suit le réglage de
+> votre téléphone. »
+
+> **Ordre de la page.** La planche place Apparence **en tête** de Réglages, et
+> c'est ce qui est fait. Elle place ensuite Alertes avant Vos informations, là
+> où la page garde Informations avant Notifications — non touché : R5 ajoute une
+> section, réordonner le reste n'est l'objet d'aucune étape.
+
+> **Le contrôle est un `<input type="radio">` masqué**, pas un bouton stylé : il
+> apporte la navigation aux flèches, la sémantique de groupe et l'annonce au
+> lecteur d'écran, qu'un bouton devrait chacune reconstruire. `RadioGroupItem`
+> du paquet dessine une pastille et ne convenait pas — la maquette fait de la
+> **carte entière** le contrôle.
 
 #### R6 — Barre d'onglets à 4 entrées + Scanner
 

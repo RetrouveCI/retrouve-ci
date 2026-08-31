@@ -11,7 +11,12 @@ import { Toaster } from 'sonner'
 import { AuthProvider } from '@/context/auth'
 import { ActivityHub } from '@/components/activity-hub'
 import { ThemeProvider } from '@/context/theme'
-import { getThemeFromRequest } from '@/shared/helpers/theme.server'
+import {
+	DEFAULT_THEME_PREFERENCE,
+	THEME_COOKIE,
+	type ThemePreference,
+} from '@/shared/helpers/theme'
+import { getThemePreferenceFromRequest } from '@/shared/helpers/theme.server'
 import { publicEnv } from '@/shared/helpers/env'
 import { PublicEnvScript } from '@/components/public-env-script'
 import { Header } from '@/components/header'
@@ -33,7 +38,10 @@ import {
 } from '@/shared/helpers/page-meta'
 
 export function loader({ request }: Route.LoaderArgs) {
-	return { theme: getThemeFromRequest(request), env: publicEnv() }
+	return {
+		themePreference: getThemePreferenceFromRequest(request),
+		env: publicEnv(),
+	}
 }
 
 export function meta() {
@@ -88,16 +96,43 @@ export function links() {
 	]
 }
 
+/**
+ * Resolves the theme **before the first paint**, which is the only place it can
+ * be done without a flash: `system` depends on `prefers-color-scheme`, a media
+ * query the server cannot evaluate. The client hint that mirrors it is not sent
+ * on a first request — the very visit that has to be right — so a blocking
+ * classic script in `<head>` is what closes the gap.
+ *
+ * It reads the cookie itself rather than being handed a value, so the same code
+ * is correct whether the preference is stored or absent.
+ */
+const THEME_SCRIPT = `(function(){try{
+var m=document.cookie.match(/(?:^|;\\s*)${THEME_COOKIE}=(light|dark|system)/);
+var p=m?m[1]:'${DEFAULT_THEME_PREFERENCE}';
+var d=p==='dark'||(p==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);
+var r=document.documentElement;
+r.classList.toggle('dark',d);
+r.style.colorScheme=p==='system'?'light dark':p;
+}catch(e){}})()`
+
 export function Layout({ children }: { children: React.ReactNode }) {
 	const data = useRouteLoaderData<typeof loader>('root')
 
-	const theme = data?.theme ?? 'light'
+	const preference: ThemePreference =
+		data?.themePreference ?? DEFAULT_THEME_PREFERENCE
 
+	/**
+	 * Server-side, `system` cannot be resolved, so the document goes out neutral
+	 * and the script above settles it. An explicit choice is rendered here, which
+	 * saves the script any work at all.
+	 */
 	return (
 		<html
 			lang="fr"
-			className={theme === 'dark' ? 'dark' : ''}
-			style={{ colorScheme: theme }}
+			className={preference === 'dark' ? 'dark' : ''}
+			style={{
+				colorScheme: preference === 'system' ? 'light dark' : preference,
+			}}
 			suppressHydrationWarning
 		>
 			<head>
@@ -106,6 +141,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					name="viewport"
 					content="width=device-width, initial-scale=1, viewport-fit=cover"
 				/>
+				<script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
 				<Meta />
 				<Links />
 			</head>
@@ -121,7 +157,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App({ loaderData }: Route.ComponentProps) {
 	return (
-		<ThemeProvider initialTheme={loaderData.theme}>
+		<ThemeProvider initialPreference={loaderData.themePreference}>
 			<AuthProvider>
 				<Outlet />
 				<ActivityHub />
@@ -143,7 +179,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	if (isRouteErrorResponse(error) && error.status === 404) {
 		return (
-			<ThemeProvider initialTheme="light">
+			<ThemeProvider initialPreference={DEFAULT_THEME_PREFERENCE}>
 				<AuthProvider>
 					<Header />
 					<NotFoundContent />
