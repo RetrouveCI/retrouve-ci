@@ -79,11 +79,11 @@ export function StickersHero() {
 			<div className="relative container mx-auto px-4 py-16 md:py-24 lg:py-28">
 				<div className="mx-auto max-w-xl text-center">
 					<h1 className="text-4xl font-bold tracking-tight text-balance md:text-5xl lg:text-[56px] lg:leading-[1.05]">
-						Les stickers qui ramènent vos objets
+						Le sticker qui ramène vos objets
 					</h1>
 					<p className="text-muted-foreground mx-auto mt-5 max-w-md text-base text-pretty md:text-lg">
-						Collez-le sur ce qui compte. Celui qui trouve scanne, vous êtes
-						prévenu — sans jamais donner votre numéro.
+						Collez-le sur ce qui compte. Celui qui trouve scanne et vous êtes
+						prévenu.
 					</p>
 
 					<div className="mt-8 flex flex-wrap items-center justify-center gap-3">
