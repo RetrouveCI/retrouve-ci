@@ -63,17 +63,16 @@ describe('editPostLoader', () => {
 		expect(redirectTo(thrown)).toBe('/account/posts')
 	})
 
-	// Editing is only open while moderation has not passed yet.
-	it.each(['published', 'hidden'])(
-		'sends a %s listing to its public page instead',
+	// Editing is open whatever moderation decided: the API checks ownership and
+	// nothing else, and a published listing simply goes back for review.
+	it.each(['pending', 'published', 'hidden'])(
+		'opens a %s listing for editing',
 		async moderationStatus => {
 			getMyLostItems.mockResolvedValue([dto('post-1', moderationStatus)])
 
-			const thrown = await editPostLoader(request(), 'post-1').catch(
-				(error: unknown) => error,
-			)
+			const { item } = await editPostLoader(request(), 'post-1')
 
-			expect(redirectTo(thrown)).toBe('/posts/post-1')
+			expect(item).toMatchObject({ id: 'post-1', moderationStatus })
 		},
 	)
 })
