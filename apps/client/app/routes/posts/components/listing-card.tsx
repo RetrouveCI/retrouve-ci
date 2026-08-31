@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import type { LostItem } from '@/shared/types/lost-item'
+import { imageUrl } from '@/shared/utils/image'
 
 interface ListingCardProps {
 	listing: LostItem
@@ -56,8 +57,10 @@ function ListingThumbnail({
 		<div className="bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
 			{listing.image ? (
 				<img
-					src={listing.image}
+					src={imageUrl(listing.image, { width: 160 })}
 					alt={listing.title}
+					loading="lazy"
+					decoding="async"
 					className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
 				/>
 			) : (
@@ -82,8 +85,10 @@ function ListingImage({
 		<div className="bg-muted relative aspect-video shrink-0 overflow-hidden">
 			{listing.image ? (
 				<img
-					src={listing.image}
+					src={imageUrl(listing.image, { width: 1000 })}
 					alt={listing.title}
+					loading="lazy"
+					decoding="async"
 					className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 				/>
 			) : (

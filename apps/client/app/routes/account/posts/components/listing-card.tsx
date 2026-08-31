@@ -27,6 +27,7 @@ import {
 import { toast } from 'sonner'
 import type { UserLostItem } from '@/shared/types/lost-item'
 import { cn } from '@app/ui/utils'
+import { imageUrl } from '@/shared/utils/image'
 
 const STATUS_CONFIG = {
 	pending: {
@@ -115,8 +116,10 @@ export function ListingCard({ listing }: ListingCardProps) {
 				<div className="bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-xl sm:h-24 sm:w-24">
 					{listing.image ? (
 						<img
-							src={listing.image}
+							src={imageUrl(listing.image, { width: 192 })}
 							alt={listing.title}
+							loading="lazy"
+							decoding="async"
 							className="absolute inset-0 h-full w-full object-cover"
 						/>
 					) : (
