@@ -9,7 +9,6 @@ import {
 } from 'react-router'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/context/auth'
-import { ActivityHub } from '@/components/activity-hub'
 import { ThemeProvider } from '@/context/theme'
 import {
 	DEFAULT_THEME_PREFERENCE,
@@ -160,7 +159,6 @@ export default function App({ loaderData }: Route.ComponentProps) {
 		<ThemeProvider initialPreference={loaderData.themePreference}>
 			<AuthProvider>
 				<Outlet />
-				<ActivityHub />
 				<Toaster
 					position="bottom-right"
 					richColors

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router'
-import { Home, Newspaper, Plus, Bell, User, LogIn } from 'lucide-react'
+import { Home, Newspaper, Plus, ScanLine, User, LogIn } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { useAuth } from '@/context/auth'
 import { AUTH_PATHS } from '@/shared/helpers/redirect'
@@ -9,13 +9,21 @@ function isActiveTab(pathname: string, href: string) {
 	return pathname === href || pathname.startsWith(`${href}/`)
 }
 
+/**
+ * The shell's navigation below `lg` — a tablet keeps the tabs (§3). Five slots,
+ * and the two that are not destinations are drawn as such: « Publier » is the
+ * raised disc at the centre, « Scanner » carries a filled pill behind its icon.
+ *
+ * « Alertes » left the bar to make room. The bell moved into the header for
+ * every width, which is what keeps notifications reachable on a phone.
+ */
 export function BottomTabBar() {
 	const { pathname } = useLocation()
 	const { isAuthenticated } = useAuth()
 
 	return (
 		<nav
-			className="bg-background/95 fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-md md:hidden"
+			className="bg-background/95 fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur-md lg:hidden"
 			style={{
 				paddingBottom: 'env(safe-area-inset-bottom)',
 				paddingLeft: 'env(safe-area-inset-left)',
@@ -46,10 +54,13 @@ export function BottomTabBar() {
 				</Link>
 
 				<TabLink
-					href="/notifications"
-					label="Alertes"
-					icon={Bell}
-					active={isActiveTab(pathname, '/notifications')}
+					href="/scan"
+					label="Scanner"
+					icon={ScanLine}
+					active={isActiveTab(pathname, '/scan')}
+					// Scanning is an action, not a place. The pill says so at rest,
+					// which is why it does not wait for the tab to be active.
+					accent
 				/>
 				{isAuthenticated ? (
 					<TabLink
@@ -76,18 +87,25 @@ interface TabLinkProps {
 	label: string
 	icon: React.ElementType
 	active: boolean
+	accent?: boolean
 }
 
-function TabLink({ href, label, icon: Icon, active }: TabLinkProps) {
+function TabLink({ href, label, icon: Icon, active, accent }: TabLinkProps) {
 	return (
 		<Link
 			to={href}
 			className={cn(
 				'flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-medium transition-colors',
-				active ? 'text-primary-green-text' : 'text-muted-foreground',
+				active || accent ? 'text-primary-green-text' : 'text-muted-foreground',
 			)}
 		>
-			<Icon className={cn('h-5 w-5', active && 'fill-primary-green/15')} />
+			{accent ? (
+				<span className="bg-primary-green/10 flex h-6.5 w-8.5 items-center justify-center rounded-full">
+					<Icon className="h-[19px] w-[19px]" />
+				</span>
+			) : (
+				<Icon className={cn('h-5 w-5', active && 'fill-primary-green/15')} />
+			)}
 			{label}
 		</Link>
 	)

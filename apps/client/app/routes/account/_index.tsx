@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { User, LogIn } from 'lucide-react'
 import type { UserLostItem } from '@/shared/types/lost-item'
 import type { Sticker } from '@/shared/types/sticker'
+import type { ActivitySummary as Summary } from '@/shared/types/activity'
 import { getServerSession } from '@/shared/helpers/session.server'
 import { toUserLostItem } from '@/shared/mappers/lost-item.mapper'
 import { getMyLostItems } from '@/routes/account/posts/servers/account-posts.service'
@@ -13,6 +14,8 @@ import { ProfileHeader } from './components/profile-header'
 import { AccountStats } from './components/account-stats'
 import { RecentListings } from './components/recent-listings'
 import { AccountNav } from './components/account-nav'
+import { ActivitySummary } from './components/activity-summary'
+import { getActivitySummary } from './servers/activity.service'
 import { useAuth } from '@/context/auth'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
@@ -26,18 +29,21 @@ export function meta() {
 
 export async function loader({ request }: Route.LoaderArgs) {
 	const session = await getServerSession(request)
-	if (!session) return { listings: [], stickers: [], ordersCount: 0 }
+	if (!session)
+		return { listings: [], stickers: [], ordersCount: 0, summary: null }
 
-	const [items, stickerItems, orders] = await Promise.all([
+	const [items, stickerItems, orders, summary] = await Promise.all([
 		getMyLostItems(request),
 		getMyStickers(request),
 		getMyStickerOrders(request),
+		getActivitySummary(request),
 	])
 
 	return {
 		listings: items.map(toUserLostItem),
 		stickers: stickerItems.map(toSticker),
 		ordersCount: orders.length,
+		summary,
 	}
 }
 
@@ -88,10 +94,12 @@ function DashboardView({
 	listings,
 	stickers,
 	ordersCount,
+	summary,
 }: {
 	listings: UserLostItem[]
 	stickers: Sticker[]
 	ordersCount: number
+	summary: Summary | null
 }) {
 	const { user, logout } = useAuth()
 
@@ -100,6 +108,7 @@ function DashboardView({
 	return (
 		<main className="flex-1">
 			<ProfileHeader user={user} onLogout={logout} />
+			<ActivitySummary summary={summary} />
 			<AccountStats listings={listings} stickers={stickers} />
 			<section className="pb-12">
 				<div className="container mx-auto px-4">
@@ -134,6 +143,7 @@ export default function ComptePage({ loaderData }: Route.ComponentProps) {
 			listings={loaderData.listings}
 			stickers={loaderData.stickers}
 			ordersCount={loaderData.ordersCount}
+			summary={loaderData.summary}
 		/>
 	) : (
 		<NotLoggedInView />
