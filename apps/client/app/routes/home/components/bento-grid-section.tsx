@@ -58,7 +58,7 @@ export function BentoGridSection() {
 								</p>
 								<Link
 									to="/posts"
-									className="group/link mt-4 inline-flex items-center gap-2 font-medium text-white"
+									className="touch-target group/link mt-4 inline-flex items-center gap-2 font-medium text-white"
 								>
 									Explorer
 									<ArrowRight className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />
@@ -205,7 +205,7 @@ export function BentoGridSection() {
 									</p>
 									<Link
 										to="/stickers"
-										className="group/link text-accent-orange inline-flex items-center gap-2 text-sm font-medium"
+										className="touch-target group/link text-accent-orange inline-flex items-center gap-2 text-sm font-medium"
 									>
 										Découvrir
 										<ArrowRight className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />

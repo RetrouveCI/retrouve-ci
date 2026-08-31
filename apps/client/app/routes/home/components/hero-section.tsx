@@ -89,7 +89,7 @@ export function HeroSection() {
 						Vous avez trouvé un objet ?{' '}
 						<Link
 							to="/publish"
-							className="text-primary-green inline-flex items-center gap-1 font-medium hover:underline"
+							className="touch-target text-primary-green inline-flex items-center gap-1 font-medium hover:underline"
 						>
 							Signalez-le
 							<ArrowRight className="h-3.5 w-3.5" />

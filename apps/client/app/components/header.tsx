@@ -63,7 +63,10 @@ export function Header() {
 							<Menu className="h-5 w-5" />
 						</Button>
 
-						<Link to="/" className="group flex items-center gap-2.5">
+						<Link
+							to="/"
+							className="touch-target group flex items-center gap-2.5"
+						>
 							<LogoRetrouveCI />
 						</Link>
 					</div>
@@ -95,7 +98,7 @@ export function Header() {
 						<DropdownMenuTrigger asChild>
 							<Button
 								size="sm"
-								className="bg-primary-green hover:bg-primary-green-dark hidden h-9 gap-1.5 rounded-full px-4 text-white md:inline-flex"
+								className="bg-primary-green hover:bg-primary-green-dark hidden h-11 gap-1.5 rounded-full px-4 text-white md:inline-flex lg:h-9"
 							>
 								<Plus className="h-4 w-4" />
 								Publier
@@ -127,7 +130,7 @@ export function Header() {
 							asChild
 							size="sm"
 							variant="outline"
-							className="hidden h-9 rounded-full px-4 md:inline-flex"
+							className="hidden h-11 rounded-full px-4 md:inline-flex lg:h-9"
 						>
 							<Link to="/login" className="gap-2">
 								<LogIn className="h-4 w-4" />

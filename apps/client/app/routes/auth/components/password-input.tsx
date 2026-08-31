@@ -53,7 +53,7 @@ export function PasswordInput({
 				<button
 					type="button"
 					onClick={() => setShow(v => !v)}
-					className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3.5 -translate-y-1/2 p-1 transition-colors"
+					className="touch-target text-muted-foreground hover:text-foreground absolute top-1/2 right-3.5 -translate-y-1/2 p-1 transition-colors"
 					aria-label={
 						show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'
 					}

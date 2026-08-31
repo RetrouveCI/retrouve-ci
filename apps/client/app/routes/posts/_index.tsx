@@ -121,7 +121,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 									<button
 										onClick={toggleFilters}
 										className={cn(
-											'flex h-10 items-center gap-1.5 rounded-xl border px-3.5 text-sm font-medium transition-all',
+											'flex h-11 items-center gap-1.5 rounded-xl border px-3.5 text-sm font-medium transition-all lg:h-10',
 											showFilters || activeFiltersCount > 0
 												? 'border-primary-green/40 bg-primary-green/10 text-primary-green'
 												: 'bg-background border-border text-muted-foreground hover:border-primary-green/30',
@@ -141,7 +141,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 											onClick={() => setViewMode('grid')}
 											aria-label="Vue grille"
 											className={cn(
-												'flex h-9 w-9 items-center justify-center rounded-lg transition-all',
+												'flex size-11 items-center justify-center rounded-lg transition-all lg:size-9',
 												viewMode === 'grid'
 													? 'bg-primary-green text-white shadow-sm'
 													: 'text-muted-foreground hover:text-foreground',
@@ -153,7 +153,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 											onClick={() => setViewMode('list')}
 											aria-label="Vue liste"
 											className={cn(
-												'flex h-9 w-9 items-center justify-center rounded-lg transition-all',
+												'flex size-11 items-center justify-center rounded-lg transition-all lg:size-9',
 												viewMode === 'list'
 													? 'bg-primary-green text-white shadow-sm'
 													: 'text-muted-foreground hover:text-foreground',
@@ -172,7 +172,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 											key={id}
 											onClick={() => setActiveCategory(id)}
 											className={cn(
-												'flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-all',
+												'touch-target flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-all',
 												activeCategory === id
 													? 'bg-foreground text-background border-foreground scale-[1.02] shadow-sm'
 													: 'bg-background border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',
