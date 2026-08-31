@@ -40,7 +40,7 @@ export function BrandingPanel() {
 			>
 				<img
 					src="/logo.png"
-					alt=""
+					alt="RetrouveCI"
 					width={42}
 					height={42}
 					className="h-10 w-10 rounded-[13px] lg:h-[42px] lg:w-[42px]"
