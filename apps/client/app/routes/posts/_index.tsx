@@ -114,7 +114,12 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 									)}
 								</button>
 
-								<div className="bg-background flex items-center gap-0 overflow-hidden rounded-xl border p-0.5">
+								{/**
+								 * Below `sm` the grid is one column, so this chose between two
+								 * densities and not between two layouts. The phone keeps the
+								 * single density the wireframe draws.
+								 */}
+								<div className="bg-background hidden items-center gap-0 overflow-hidden rounded-xl border p-0.5 sm:flex">
 									<button
 										onClick={() => setViewMode('grid')}
 										aria-label="Vue grille"
