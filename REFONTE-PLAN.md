@@ -249,6 +249,7 @@ Une ligne = une branche = une PR = une session.
 | **R29** | Auth     | Layout auth aux trois largeurs              | `refonte-r29-auth-layout`            | `client/auth`        | 0,5 j  | —            |
 | **R30** | Auth     | Copie et chiffres du panneau de marque      | `refonte-r30-auth-copy`              | `client/auth`        | 0,5 j  | R29          |
 | **R31** | Auth     | Routes d'authentification sans préfixe      | `refonte-r31-auth-routes`            | `client/admin`       | 0,5 j  | —            |
+| **R32** | Stickers | Hero produit de la page Stickers            | `refonte-stickers-hero`              | `client/stickers`    | 0,5 j  | R2           |
 | **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`       | `api/lost-items`     | 1 j    | —            |
 | **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`        | `api/storage`        | 0,5 j  | —            |
 | **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                | `api/notifications`  | 3 j    | R23          |
@@ -1120,6 +1121,47 @@ dès 768. C'est le critère d'acceptation de cette étape et il reste **hors CI*
 **Acceptation** : à 768, 1024 et 1440 px, la page porte une identité de marque,
 une seule barre de tête et aucune zone vide dominante. **Non couvert en CI** :
 le critère est visuel aux trois largeurs, comme celui de R1.
+
+#### R32 — Hero produit de la page Stickers
+
+**Demandé en séance**, hors plan d'origine, sur une référence apportée par le
+commanditaire (le hero de Troov) : fond très clair, titre lourd centré, une
+seule action, et des objets portant le sticker en périphérie.
+
+1. Le sticker est **dessiné** (`components/sticker-mark.tsx`), en blanc, vert et
+   orange d'après les trois variantes réelles : carré arrondi, trois carrés de
+   repérage, pastille de localisation, bandeau « Scanner si trouvé ». Son motif
+   QR est **délibérément décoratif** — il se lit comme un code sans en être un,
+   pour que personne ne pointe une caméra sur une promesse que l'image ne peut
+   pas tenir.
+2. Les objets qui le portent (`components/tagged-objects.tsx`) sont des
+   silhouettes plates, chacune traitée comme **un emplacement** : une photo
+   détourée peut en prendre la place sans que la composition bouge.
+3. Le fond reprend les **trois couches de l'accueil et des annonces** — sol
+   blanc, grille fine, nébuleuse verte et nébuleuse orange. La page se lit comme
+   une page RetrouveCI, pas comme un décalque de la référence.
+4. La copie est celle de la maquette (« Le sticker qui ramène vos objets »), pas
+   une invention.
+
+> **Écart assumé à la maquette.** La planche `Stickers` du canevas dessine un
+> hero **sombre** orienté produit — bloc `#12201A`, prix en gros, pastille «
+> Payez à la livraison ». La demande de séance va vers le clair et l'aéré.
+> Arbitrage : le clair. La planche reste la référence pour le reste de la page
+> (packs, étapes, barre d'action basse), qui n'est pas touchée ici.
+
+> **Ce qui manque, et qui n'est pas un défaut de mise en page.**
+> `apps/client/public/` ne contient que `logo.png` : **aucune photographie
+> produit**. Les silhouettes tiennent la composition mais se lisent comme
+> dessinées à côté de la photo studio de la référence. Le trousseau de clés a
+> d'ailleurs été retiré — il ne fonctionnait pas en vectoriel plat. Trois photos
+> d'objets portant les stickers réels suffiraient à combler l'écart, sans
+> retoucher le code.
+
+**Fichiers** :
+`routes/stickers/components/{stickers-hero,sticker-mark, tagged-objects}.tsx`.
+**Flux** : C. **Acceptation** : la page ouvre sur le produit porté par les
+objets qu'il protège, aux trois largeurs, sans photographie et sans chiffre
+inventé. **Non couvert en CI** : le critère est visuel.
 
 #### R31 — Routes d'authentification sans préfixe
 
