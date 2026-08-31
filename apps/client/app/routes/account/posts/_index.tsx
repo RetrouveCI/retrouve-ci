@@ -53,7 +53,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 					<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 						<div className="flex items-center gap-4">
 							<div className="bg-accent-orange/10 flex h-14 w-14 items-center justify-center rounded-2xl">
-								<FileText className="text-accent-orange h-7 w-7" />
+								<FileText className="text-accent-orange-text h-7 w-7" />
 							</div>
 							<div>
 								<h1 className="text-2xl font-bold">Mes Annonces</h1>
@@ -65,7 +65,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 						</div>
 						<Button
 							asChild
-							className="bg-accent-orange hover:bg-accent-orange-dark gap-2 rounded-xl text-white"
+							className="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark gap-2 rounded-xl"
 						>
 							<Link to="/publish">
 								<Plus className="h-4 w-4" />
@@ -155,7 +155,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 							</p>
 							<Button
 								asChild
-								className="bg-accent-orange hover:bg-accent-orange-dark gap-2 rounded-xl text-white"
+								className="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark gap-2 rounded-xl"
 							>
 								<Link to="/publish">
 									<Plus className="h-4 w-4" />

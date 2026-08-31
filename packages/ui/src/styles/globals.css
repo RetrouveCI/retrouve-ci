@@ -14,6 +14,25 @@
 	--accent-orange-light: #ff9800;
 	--accent-orange-dark: #e65100;
 
+	/**
+	 * Brand green and brand orange are *flats*. As ink they miss 4.5:1, each in
+	 * the opposite theme, so the ink carries its own token and the flats are left
+	 * alone. Both are measured against every surface they land on -- background,
+	 * card, muted, and the /5 /10 /20 tints of their own hue that the badges use,
+	 * which is where the flat colours failed first.
+	 *
+	 * Light: green 4.73:1 at worst, orange 4.52:1. See the contrast guard test.
+	 */
+	--primary-green-text: #1a6f3a;
+	--accent-orange-text: #a85000;
+
+	/**
+	 * Ink for the orange flat, dark in *both* themes. It cannot be `--foreground`:
+	 * the flat does not follow the theme, so the near-white dark-theme foreground
+	 * would put white back on orange at 2.70:1 -- the very pairing §2.1 forbids.
+	 */
+	--accent-orange-foreground: #181b1f;
+
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.22 0.01 256);
 	--card: oklch(1 0 0);
@@ -27,7 +46,8 @@
 	--muted: oklch(0.97 0.005 90);
 	--muted-foreground: oklch(0.5 0.01 256);
 	--accent: oklch(0.68 0.18 55);
-	--accent-foreground: oklch(1 0 0);
+	/* Dark ink: `--accent` is an orange flat, and white on it reads 3.05:1. */
+	--accent-foreground: oklch(0.22 0.01 256);
 	--destructive: oklch(0.577 0.245 27.325);
 	--destructive-foreground: oklch(1 0 0);
 	--border: oklch(0.92 0.005 90);
@@ -50,20 +70,33 @@
 }
 
 .dark {
+	/* Light enough to clear `--muted` (4.94:1), where #2a9d54 fell to 4.35. */
+	--primary-green-text: #2fa85b;
+	/* Brand orange already reads at 5.59:1 at worst on dark surfaces. */
+	--accent-orange-text: #f57c00;
+
 	--background: oklch(0.145 0.01 256);
 	--foreground: oklch(0.985 0 0);
 	--card: oklch(0.18 0.01 256);
 	--card-foreground: oklch(0.985 0 0);
 	--popover: oklch(0.18 0.01 256);
 	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.58 0.15 145);
-	--primary-foreground: oklch(1 0 0);
+	/**
+	 * `--primary` is read two ways in the dark theme: as a flat under its own
+	 * foreground, and as ink through `text-primary`. At 0.58 the flat held only
+	 * 4.03:1 under white; deepening it to satisfy the flat pushed the ink down to
+	 * 3.99:1 instead. Lifting the flat and darkening its ink clears both roles --
+	 * 4.96:1 as ink at worst, 5.67:1 as a flat.
+	 */
+	--primary: oklch(0.65 0.15 145);
+	--primary-foreground: oklch(0.22 0.01 256);
 	--secondary: oklch(0.269 0.01 256);
 	--secondary-foreground: oklch(0.985 0 0);
 	--muted: oklch(0.269 0.01 256);
 	--muted-foreground: oklch(0.708 0 0);
 	--accent: oklch(0.72 0.18 55);
-	--accent-foreground: oklch(1 0 0);
+	/* Same flat, same ink: the dark theme's white would read 2.62:1. */
+	--accent-foreground: oklch(0.22 0.01 256);
 	--destructive: oklch(0.5 0.2 25);
 	--destructive-foreground: oklch(1 0 0);
 	--border: oklch(0.3 0.01 256);
@@ -76,8 +109,8 @@
 	--chart-5: oklch(0.645 0.246 16.439);
 	--sidebar: oklch(0.18 0.01 256);
 	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.58 0.15 145);
-	--sidebar-primary-foreground: oklch(1 0 0);
+	--sidebar-primary: oklch(0.65 0.15 145);
+	--sidebar-primary-foreground: oklch(0.22 0.01 256);
 	--sidebar-accent: oklch(0.269 0.01 256);
 	--sidebar-accent-foreground: oklch(0.985 0 0);
 	--sidebar-border: oklch(0.3 0.01 256);
@@ -94,6 +127,9 @@
 	--color-accent-orange: var(--accent-orange);
 	--color-accent-orange-light: var(--accent-orange-light);
 	--color-accent-orange-dark: var(--accent-orange-dark);
+	--color-primary-green-text: var(--primary-green-text);
+	--color-accent-orange-text: var(--accent-orange-text);
+	--color-accent-orange-foreground: var(--accent-orange-foreground);
 
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -139,6 +175,26 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+	}
+}
+
+/**
+ * A visitor who asks the system for less motion gets it everywhere, including
+ * from the decorative utilities below and from Tailwind's own transitions.
+ *
+ * The animations are collapsed rather than removed: `.scroll-trigger` and
+ * `.animate-reveal` start at `opacity: 0` and are only made visible by their own
+ * keyframes, so cancelling them outright would hide the content they reveal.
+ * Running them to their end instantly keeps the final frame.
+ */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 1ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 1ms !important;
+		scroll-behavior: auto !important;
 	}
 }
 

@@ -72,7 +72,7 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 						icon={isLost ? AlertCircle : CheckCircle}
 						iconBgClass={isLost ? 'bg-accent-orange/10' : 'bg-primary-green/10'}
 						iconColorClass={
-							isLost ? 'text-accent-orange' : 'text-primary-green'
+							isLost ? 'text-accent-orange-text' : 'text-primary-green-text'
 						}
 						title="Modifier l'annonce"
 						description="Corrigez les informations avant validation par l'administrateur."
@@ -148,8 +148,8 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 													'text-xs',
 													isLongEnough
 														? isLost
-															? 'text-accent-orange'
-															: 'text-primary-green'
+															? 'text-accent-orange-text'
+															: 'text-primary-green-text'
 														: 'text-muted-foreground',
 												)}
 											>
@@ -176,7 +176,7 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 											(optionnel)
 										</span>
 									) : (
-										<span className="border-primary-green/20 bg-primary-green/10 text-primary-green ml-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold">
+										<span className="border-primary-green/20 bg-primary-green/10 text-primary-green-text ml-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold">
 											Recommandé
 										</span>
 									)}
@@ -213,10 +213,10 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 							<Button
 								type="submit"
 								className={cn(
-									'h-12 text-white sm:flex-1',
+									'h-12 sm:flex-1',
 									isLost
-										? 'bg-accent-orange hover:bg-accent-orange-dark'
-										: 'bg-primary-green hover:bg-primary-green-dark',
+										? 'bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark'
+										: 'bg-primary-green hover:bg-primary-green-dark text-white',
 								)}
 								disabled={isSubmitting}
 							>

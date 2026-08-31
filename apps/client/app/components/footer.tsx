@@ -57,7 +57,7 @@ function FooterLinkGroup({
 					<li key={link.href}>
 						<Link
 							to={link.href}
-							className="text-muted-foreground hover:text-primary-green text-sm transition-colors"
+							className="text-muted-foreground hover:text-primary-green-text text-sm transition-colors"
 						>
 							{link.label}
 						</Link>
@@ -91,7 +91,7 @@ export function Footer() {
 									aria-label={label}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="bg-background text-muted-foreground hover:border-primary-green/40 hover:text-primary-green flex size-11 items-center justify-center rounded-full border transition-colors lg:size-9"
+									className="bg-background text-muted-foreground hover:border-primary-green/40 hover:text-primary-green-text flex size-11 items-center justify-center rounded-full border transition-colors lg:size-9"
 								>
 									<Icon className="h-4 w-4" />
 								</a>
@@ -120,7 +120,7 @@ export function Footer() {
 							{contactItems.map(({ icon: Icon, label, href }) => {
 								const content = (
 									<span className="text-muted-foreground flex items-start gap-2.5 text-sm">
-										<Icon className="text-primary-green mt-0.5 h-4 w-4 shrink-0" />
+										<Icon className="text-primary-green-text mt-0.5 h-4 w-4 shrink-0" />
 										<span>{label}</span>
 									</span>
 								)

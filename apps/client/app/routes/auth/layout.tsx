@@ -21,14 +21,14 @@ export default function AuthLayout() {
 							En continuant, vous acceptez nos{' '}
 							<Link
 								to="/terms"
-								className="text-primary-green font-semibold hover:underline"
+								className="text-primary-green-text font-semibold hover:underline"
 							>
 								conditions d&apos;utilisation
 							</Link>{' '}
 							et notre{' '}
 							<Link
 								to="/privacy"
-								className="text-primary-green font-semibold hover:underline"
+								className="text-primary-green-text font-semibold hover:underline"
 							>
 								politique de confidentialité
 							</Link>

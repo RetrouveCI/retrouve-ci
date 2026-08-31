@@ -82,7 +82,7 @@ export function NotificationsPage({
 					<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
 						<div className="flex items-center gap-4">
 							<div className="bg-primary-green/10 flex h-14 w-14 items-center justify-center rounded-2xl">
-								<Bell className="text-primary-green h-7 w-7" />
+								<Bell className="text-primary-green-text h-7 w-7" />
 							</div>
 							<div>
 								<h1 className="text-2xl font-bold">Notifications</h1>

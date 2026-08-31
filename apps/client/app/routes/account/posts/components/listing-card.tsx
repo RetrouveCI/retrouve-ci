@@ -128,7 +128,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 						className={cn(
 							'absolute top-1.5 left-1.5 rounded px-1.5 py-0.5 text-[10px] font-medium',
 							listing.type === 'lost'
-								? 'bg-red-500 text-white'
+								? 'bg-red-600 text-white'
 								: 'bg-primary-green text-white',
 						)}
 					>

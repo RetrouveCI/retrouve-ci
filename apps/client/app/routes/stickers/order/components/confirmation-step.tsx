@@ -18,7 +18,7 @@ export function ConfirmationStep({
 	return (
 		<div className="mx-auto max-w-lg py-12 text-center">
 			<div className="bg-primary-green/10 mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full">
-				<CheckCircle2 className="text-primary-green h-10 w-10" />
+				<CheckCircle2 className="text-primary-green-text h-10 w-10" />
 			</div>
 			<h1 className="mb-3 text-3xl font-bold">Commande confirmée!</h1>
 			<p className="text-muted-foreground mb-8">
@@ -47,7 +47,7 @@ export function ConfirmationStep({
 					<div className="flex justify-between">
 						<span className="text-muted-foreground">Livraison</span>
 						{order.deliveryFee === 0 ? (
-							<span className="text-primary-green flex items-center gap-1">
+							<span className="text-primary-green-text flex items-center gap-1">
 								<Tag className="h-3 w-3" /> Gratuite (coupon)
 							</span>
 						) : (

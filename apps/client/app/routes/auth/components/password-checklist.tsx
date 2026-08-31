@@ -28,7 +28,7 @@ export function PasswordChecklist({ value }: { value: string }) {
 				return (
 					<li key={rule.label} className="flex items-center gap-2.5">
 						{met ? (
-							<Check className="text-primary-green h-4 w-4 shrink-0" />
+							<Check className="text-primary-green-text h-4 w-4 shrink-0" />
 						) : (
 							<Circle className="text-muted-foreground/50 h-4 w-4 shrink-0" />
 						)}

@@ -7,7 +7,7 @@ export function MissionBento() {
 				<div className="grid gap-4 md:grid-cols-12">
 					<div className="bg-background flex min-h-64 flex-col justify-between rounded-2xl border p-8 md:col-span-7">
 						<div className="bg-primary-green/10 mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl">
-							<Heart className="text-primary-green h-6 w-6" />
+							<Heart className="text-primary-green-text h-6 w-6" />
 						</div>
 						<div>
 							<h2 className="mb-3 text-2xl font-bold">Notre mission</h2>
@@ -21,12 +21,12 @@ export function MissionBento() {
 					</div>
 
 					<div className="bg-primary-green flex min-h-48 flex-col justify-between rounded-2xl border p-8 text-white md:col-span-5">
-						<p className="text-sm font-medium tracking-wider text-white/70 uppercase">
+						<p className="text-sm font-medium tracking-wider text-white uppercase">
 							Fondée en
 						</p>
 						<div>
 							<p className="text-6xl font-bold">2026</p>
-							<p className="mt-1 text-sm text-white/80">
+							<p className="mt-1 text-sm text-white">
 								Abidjan, Côte d&apos;Ivoire
 							</p>
 						</div>
@@ -34,7 +34,7 @@ export function MissionBento() {
 
 					<div className="bg-background flex flex-col gap-4 rounded-2xl border p-8 md:col-span-4">
 						<div className="bg-accent-orange/10 inline-flex h-12 w-12 items-center justify-center rounded-xl">
-							<QrCode className="text-accent-orange h-6 w-6" />
+							<QrCode className="text-accent-orange-text h-6 w-6" />
 						</div>
 						<div>
 							<h3 className="mb-1.5 text-lg font-bold">Stickers QR</h3>
@@ -48,7 +48,7 @@ export function MissionBento() {
 
 					<div className="bg-background flex flex-col gap-4 rounded-2xl border p-8 md:col-span-4">
 						<div className="bg-primary-green/10 inline-flex h-12 w-12 items-center justify-center rounded-xl">
-							<MapPin className="text-primary-green h-6 w-6" />
+							<MapPin className="text-primary-green-text h-6 w-6" />
 						</div>
 						<div>
 							<h3 className="mb-1.5 text-lg font-bold">Couverture nationale</h3>
@@ -62,7 +62,7 @@ export function MissionBento() {
 
 					<div className="bg-muted/30 flex flex-col gap-4 rounded-2xl border p-8 md:col-span-4">
 						<div className="bg-accent-orange/10 inline-flex h-12 w-12 items-center justify-center rounded-xl">
-							<Users className="text-accent-orange h-6 w-6" />
+							<Users className="text-accent-orange-text h-6 w-6" />
 						</div>
 						<div>
 							<h3 className="mb-1.5 text-lg font-bold">Communauté active</h3>

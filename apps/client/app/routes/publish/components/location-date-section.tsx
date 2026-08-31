@@ -113,7 +113,7 @@ export function LocationDateSection({
 
 			<div className="space-y-1.5">
 				<InputLabel htmlFor="date" className="text-sm">
-					{dateLabel} <span className="text-accent-orange">*</span>
+					{dateLabel} <span className="text-accent-orange-text">*</span>
 				</InputLabel>
 				<Input
 					{...date.field}

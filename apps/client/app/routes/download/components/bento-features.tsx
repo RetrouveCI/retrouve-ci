@@ -18,7 +18,7 @@ export function BentoFeatures() {
 					<div className="group bg-background hover:border-primary-green/40 rounded-2xl border p-8 transition-all duration-300 hover:shadow-lg sm:col-span-2">
 						<div className="mb-6 flex items-start justify-between">
 							<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
-								<QrCode className="text-primary-green h-6 w-6" />
+								<QrCode className="text-primary-green-text h-6 w-6" />
 							</div>
 							<span className="text-muted-foreground rounded-full border px-2 py-1 text-xs">
 								Phare
@@ -34,7 +34,7 @@ export function BentoFeatures() {
 
 					<div className="group bg-background hover:border-accent-orange/40 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
 						<div className="bg-accent-orange/10 mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
-							<Bell className="text-accent-orange h-6 w-6" />
+							<Bell className="text-accent-orange-text h-6 w-6" />
 						</div>
 						<h3 className="mb-2 font-bold">Alertes push</h3>
 						<p className="text-muted-foreground text-sm leading-relaxed">
@@ -44,7 +44,7 @@ export function BentoFeatures() {
 
 					<div className="group bg-background hover:border-primary-green/40 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
 						<div className="bg-primary-green/10 mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
-							<Shield className="text-primary-green h-6 w-6" />
+							<Shield className="text-primary-green-text h-6 w-6" />
 						</div>
 						<h3 className="mb-2 font-bold">Contact sécurisé</h3>
 						<p className="text-muted-foreground text-sm leading-relaxed">
@@ -54,7 +54,7 @@ export function BentoFeatures() {
 
 					<div className="group bg-background hover:border-primary-green/40 rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg">
 						<div className="bg-primary-green/10 mb-5 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110">
-							<Zap className="text-primary-green h-6 w-6" />
+							<Zap className="text-primary-green-text h-6 w-6" />
 						</div>
 						<h3 className="mb-2 font-bold">Mode hors-ligne</h3>
 						<p className="text-muted-foreground text-sm leading-relaxed">
@@ -67,7 +67,7 @@ export function BentoFeatures() {
 							<MapPin className="h-6 w-6 text-white" />
 						</div>
 						<h3 className="mb-2 font-bold">Toute la Côte d&apos;Ivoire</h3>
-						<p className="text-sm leading-relaxed text-white/80">
+						<p className="text-sm leading-relaxed text-white">
 							Couverture nationale, de Abidjan à Bouaké.
 						</p>
 					</div>
@@ -77,7 +77,7 @@ export function BentoFeatures() {
 							{[...Array(5)].map((_, i) => (
 								<Star
 									key={i}
-									className="fill-accent-orange text-accent-orange h-5 w-5"
+									className="fill-accent-orange-text text-accent-orange-text h-5 w-5"
 								/>
 							))}
 						</div>

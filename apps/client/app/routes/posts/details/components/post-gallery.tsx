@@ -58,7 +58,7 @@ export function PostGallery({ images, title, isLost }: PostGalleryProps) {
 					className={cn(
 						'absolute top-4 left-4 px-3 py-1 text-sm',
 						isLost
-							? 'bg-accent-orange border-0 text-white'
+							? 'bg-accent-orange text-accent-orange-foreground border-0'
 							: 'bg-primary-green border-0 text-white',
 					)}
 				>

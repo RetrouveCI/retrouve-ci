@@ -62,7 +62,7 @@ export default function PublishLostPage() {
 						<PublishPageHeader
 							icon={AlertCircle}
 							iconBgClass="bg-accent-orange/10"
-							iconColorClass="text-accent-orange"
+							iconColorClass="text-accent-orange-text"
 							title="Objet perdu"
 							description="Décrivez votre objet pour que quelqu'un puisse vous aider."
 						/>
@@ -74,7 +74,7 @@ export default function PublishLostPage() {
 								step={1}
 								control={form.control}
 								accentColor={ACCENT}
-								counterAccentClass="text-accent-orange"
+								counterAccentClass="text-accent-orange-text"
 								descriptionPlaceholder="Couleur, marque, signes distinctifs, contenu..."
 								photoVariant="optional"
 							/>
@@ -95,7 +95,7 @@ export default function PublishLostPage() {
 
 							<PublishFormActions
 								isSubmitting={isSubmitting}
-								submitClassName="bg-accent-orange hover:bg-accent-orange-dark"
+								submitClassName="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark"
 							/>
 						</form>
 					</div>

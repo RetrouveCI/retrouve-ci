@@ -100,7 +100,7 @@ function ListingImage({
 			<div
 				className={cn(
 					'absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold shadow-sm',
-					isLost ? 'bg-red-500 text-white' : 'bg-primary-green text-white',
+					isLost ? 'bg-red-600 text-white' : 'bg-primary-green text-white',
 				)}
 			>
 				<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/80" />
@@ -128,7 +128,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 					<div className="flex min-w-0 flex-1 flex-col justify-between">
 						<div>
 							<div className="mb-1 flex items-start justify-between gap-2">
-								<h3 className="group-hover:text-primary-green line-clamp-1 text-sm leading-snug font-semibold transition-colors">
+								<h3 className="group-hover:text-primary-green-text line-clamp-1 text-sm leading-snug font-semibold transition-colors">
 									{listing.title}
 								</h3>
 								<span
@@ -136,7 +136,8 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 										'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase',
 										isLost
 											? 'bg-red-50 text-red-600'
-											: 'text-primary-green bg-green-50',
+											: // `bg-green-50` does not follow the theme, so its ink must not either.
+												'text-primary-green bg-green-50',
 									)}
 								>
 									{isLost ? 'Perdu' : 'Retrouvé'}
@@ -157,7 +158,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 								<Clock className="h-3 w-3 shrink-0" />
 								{listing.date}
 							</span>
-							<span className="text-primary-green ml-auto flex items-center gap-1 font-medium opacity-0 transition-opacity group-hover:opacity-100">
+							<span className="text-primary-green-text ml-auto flex items-center gap-1 font-medium opacity-0 transition-opacity group-hover:opacity-100">
 								Voir <ArrowRight className="h-3 w-3" />
 							</span>
 						</div>
@@ -177,7 +178,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 				/>
 
 				<div className="flex flex-1 flex-col p-3">
-					<h3 className="group-hover:text-primary-green mb-1 line-clamp-1 text-sm leading-snug font-semibold transition-colors">
+					<h3 className="group-hover:text-primary-green-text mb-1 line-clamp-1 text-sm leading-snug font-semibold transition-colors">
 						{listing.title}
 					</h3>
 					<p className="text-muted-foreground mb-2.5 line-clamp-2 flex-1 text-xs leading-relaxed">
@@ -195,7 +196,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 								{listing.date}
 							</span>
 						</div>
-						<span className="text-primary-green flex translate-x-0 items-center gap-1 text-xs font-semibold transition-transform group-hover:translate-x-0.5">
+						<span className="text-primary-green-text flex translate-x-0 items-center gap-1 text-xs font-semibold transition-transform group-hover:translate-x-0.5">
 							Voir
 							<ArrowRight className="h-3.5 w-3.5" />
 						</span>

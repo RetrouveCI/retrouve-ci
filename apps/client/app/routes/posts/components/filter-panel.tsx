@@ -41,7 +41,7 @@ export function FilterPanel({
 		<div className="border-primary-green/20 bg-primary-green/3 mb-5 rounded-2xl border-2 border-dashed p-5">
 			<div className="mb-4 flex items-center justify-between">
 				<p className="flex items-center gap-2 text-sm font-semibold">
-					<SlidersHorizontal className="text-primary-green h-4 w-4" />
+					<SlidersHorizontal className="text-primary-green-text h-4 w-4" />
 					Filtres avancés
 				</p>
 				{activeFiltersCount > 0 && (

@@ -79,7 +79,7 @@ export function ContactSection({
 
 			{showPrivacyNote && (
 				<div className="bg-muted/50 text-muted-foreground flex items-start gap-2 rounded-xl border p-3 text-xs">
-					<Lock className="text-primary-green mt-0.5 h-3.5 w-3.5 shrink-0" />
+					<Lock className="text-primary-green-text mt-0.5 h-3.5 w-3.5 shrink-0" />
 					<span>
 						Votre numéro ne sera jamais affiché publiquement. Le contact se fait
 						via notre messagerie sécurisée.

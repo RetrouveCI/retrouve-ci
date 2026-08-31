@@ -21,7 +21,7 @@ export function OrderMoreCta() {
 			</div>
 			<Button
 				variant="outline"
-				className="border-primary-green/30 text-primary-green hover:bg-primary-green/10 shrink-0 rounded-xl"
+				className="border-primary-green/30 text-primary-green-text hover:bg-primary-green/10 shrink-0 rounded-xl"
 			>
 				Commander
 			</Button>

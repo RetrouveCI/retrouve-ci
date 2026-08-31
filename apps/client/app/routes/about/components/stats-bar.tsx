@@ -18,7 +18,7 @@ export function StatsBar() {
 							className="flex items-center justify-center gap-2.5"
 						>
 							<div className="bg-primary-green/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
-								<Icon className="text-primary-green h-4.5 w-4.5" />
+								<Icon className="text-primary-green-text h-4.5 w-4.5" />
 							</div>
 							<span className="text-sm font-semibold">{label}</span>
 						</div>

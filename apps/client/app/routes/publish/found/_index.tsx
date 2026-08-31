@@ -62,7 +62,7 @@ export default function PublishFoundPage() {
 						<PublishPageHeader
 							icon={CheckCircle}
 							iconBgClass="bg-primary-green/10"
-							iconColorClass="text-primary-green"
+							iconColorClass="text-primary-green-text"
 							title="Objet retrouvé"
 							description="Aidez le propriétaire à récupérer son bien."
 						/>
@@ -74,11 +74,11 @@ export default function PublishFoundPage() {
 								step={1}
 								control={form.control}
 								accentColor={ACCENT}
-								counterAccentClass="text-primary-green"
+								counterAccentClass="text-primary-green-text"
 								descriptionPlaceholder="Couleur, marque, signes distinctifs, état de l'objet..."
 								photoVariant="recommended"
 								photoBadge="Recommandé"
-								photoBadgeClassName="border-primary-green/20 bg-primary-green/10 text-primary-green"
+								photoBadgeClassName="border-primary-green/20 bg-primary-green/10 text-primary-green-text"
 							/>
 
 							<LocationDateSection
@@ -98,7 +98,7 @@ export default function PublishFoundPage() {
 
 							<PublishFormActions
 								isSubmitting={isSubmitting}
-								submitClassName="bg-primary-green hover:bg-primary-green-dark"
+								submitClassName="bg-primary-green text-white hover:bg-primary-green-dark"
 							/>
 						</form>
 					</div>

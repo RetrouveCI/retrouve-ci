@@ -34,7 +34,7 @@ const STATUS_CONFIG: Record<
 	delivered: {
 		label: 'Livrée',
 		icon: CheckCircle2,
-		color: 'text-primary-green',
+		color: 'text-primary-green-text',
 		bgColor: 'bg-primary-green/10',
 	},
 	cancelled: {
@@ -73,7 +73,7 @@ export function OrderCard({ order, onClick }: OrderCardProps) {
 		>
 			<div className="flex items-start gap-4">
 				<div className="bg-primary-green/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-					<QrCode className="text-primary-green h-6 w-6" />
+					<QrCode className="text-primary-green-text h-6 w-6" />
 				</div>
 
 				<div className="min-w-0 flex-1">

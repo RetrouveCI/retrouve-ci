@@ -29,15 +29,15 @@ export function PostContent({ listing }: { listing: LostItem }) {
 
 				<div className="mb-6 flex flex-wrap gap-4">
 					<div className="text-muted-foreground flex items-center gap-2">
-						<MapPin className="text-primary-green h-4 w-4" />
+						<MapPin className="text-primary-green-text h-4 w-4" />
 						<span>{listing.location}</span>
 					</div>
 					<div className="text-muted-foreground flex items-center gap-2">
-						<Calendar className="text-primary-green h-4 w-4" />
+						<Calendar className="text-primary-green-text h-4 w-4" />
 						<span>{listing.date}</span>
 					</div>
 					<div className="text-muted-foreground flex items-center gap-2">
-						<Tag className="text-primary-green h-4 w-4" />
+						<Tag className="text-primary-green-text h-4 w-4" />
 						<span>{listing.category}</span>
 					</div>
 				</div>

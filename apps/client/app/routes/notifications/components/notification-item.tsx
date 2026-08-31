@@ -40,7 +40,9 @@ export function NotificationItem({
 				<Icon
 					className={cn(
 						'h-4 w-4',
-						notification.read ? 'text-muted-foreground' : 'text-primary-green',
+						notification.read
+							? 'text-muted-foreground'
+							: 'text-primary-green-text',
 					)}
 				/>
 			</div>

@@ -26,7 +26,7 @@ export function TeamSection() {
 							className="bg-background group flex flex-col items-center rounded-2xl border p-6 text-center transition-transform duration-300 hover:-translate-y-1"
 						>
 							<div className="bg-primary-green/10 group-hover:bg-primary-green/20 mb-4 flex h-16 w-16 items-center justify-center rounded-full transition-colors">
-								<span className="text-primary-green text-xl font-bold">
+								<span className="text-primary-green-text text-xl font-bold">
 									{member.initials}
 								</span>
 							</div>

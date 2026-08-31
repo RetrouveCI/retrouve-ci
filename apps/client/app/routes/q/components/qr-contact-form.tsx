@@ -91,7 +91,7 @@ export function QrContactForm() {
 		return (
 			<div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
 				<div className="bg-primary-green/10 flex h-16 w-16 items-center justify-center rounded-full">
-					<CheckCircle2 className="text-primary-green h-8 w-8" />
+					<CheckCircle2 className="text-primary-green-text h-8 w-8" />
 				</div>
 				<div>
 					<p className="mb-1 text-lg font-semibold">Message envoyé !</p>

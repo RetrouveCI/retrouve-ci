@@ -50,13 +50,13 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 		>
 			<div className="flex items-center justify-between border-b px-5 py-4">
 				<div className="flex items-center gap-2">
-					<FileText className="text-primary-green h-5 w-5" />
+					<FileText className="text-primary-green-text h-5 w-5" />
 					<h2 className="font-bold">Mes annonces récentes</h2>
 				</div>
 				{listings.length > 0 && (
 					<Link
 						to="/account/posts"
-						className="text-primary-green inline-flex items-center gap-1 text-sm font-medium hover:underline"
+						className="text-primary-green-text inline-flex items-center gap-1 text-sm font-medium hover:underline"
 					>
 						Voir tout
 						<ArrowRight className="h-3.5 w-3.5" />
@@ -119,7 +119,7 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 												'text-[10px] font-medium',
 												listing.type === 'lost'
 													? 'text-red-500'
-													: 'text-primary-green',
+													: 'text-primary-green-text',
 											)}
 										>
 											{listing.type === 'lost' ? 'Perdu' : 'Trouvé'}

@@ -63,7 +63,9 @@ export function AccountStats({ stickers, listings }: AccountStatsProps) {
 									<Icon
 										className={cn(
 											'h-5 w-5',
-											isGreen ? 'text-primary-green' : 'text-accent-orange',
+											isGreen
+												? 'text-primary-green-text'
+												: 'text-accent-orange-text',
 										)}
 									/>
 								</div>

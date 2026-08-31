@@ -84,7 +84,7 @@ function TabLink({ href, label, icon: Icon, active }: TabLinkProps) {
 			to={href}
 			className={cn(
 				'flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-medium transition-colors',
-				active ? 'text-primary-green' : 'text-muted-foreground',
+				active ? 'text-primary-green-text' : 'text-muted-foreground',
 			)}
 		>
 			<Icon className={cn('h-5 w-5', active && 'fill-primary-green/15')} />

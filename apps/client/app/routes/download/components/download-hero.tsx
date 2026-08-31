@@ -31,7 +31,7 @@ export function DownloadHero() {
 						</div>
 						<h1 className="mb-5 text-4xl font-bold tracking-tight text-balance md:text-5xl">
 							Retrouvez vos objets{' '}
-							<span className="text-primary-green">plus vite</span>
+							<span className="text-primary-green-text">plus vite</span>
 						</h1>
 						<p className="text-muted-foreground mx-auto mb-8 max-w-md text-base leading-relaxed md:mx-0 md:text-lg">
 							Scannez les stickers QR, recevez des alertes instantanées et gérez
@@ -71,7 +71,7 @@ export function DownloadHero() {
 									key={label}
 									className="text-muted-foreground flex items-center gap-2 text-sm font-medium"
 								>
-									<Icon className="text-primary-green h-4.5 w-4.5" />
+									<Icon className="text-primary-green-text h-4.5 w-4.5" />
 									{label}
 								</div>
 							))}
@@ -99,7 +99,7 @@ export function DownloadHero() {
 										</div>
 										<div className="bg-muted/40 border-primary-green/30 flex flex-1 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed">
 											<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-xl">
-												<QrCode className="text-primary-green h-6 w-6" />
+												<QrCode className="text-primary-green-text h-6 w-6" />
 											</div>
 											<p className="text-muted-foreground text-[10px]">
 												Scanner un QR code
@@ -108,7 +108,7 @@ export function DownloadHero() {
 											<div className="border-primary-green pointer-events-none absolute top-16 right-16 h-16 w-16 rounded-tr-lg border-t-2 border-r-2" />
 										</div>
 										<div className="border-primary-green/20 bg-primary-green/10 flex items-center gap-2 rounded-xl border px-3 py-2">
-											<CheckCircle2 className="text-primary-green h-4 w-4 shrink-0" />
+											<CheckCircle2 className="text-primary-green-text h-4 w-4 shrink-0" />
 											<p className="text-[10px] font-medium">
 												Objet retrouvé à Cocody !
 											</p>
@@ -131,7 +131,7 @@ export function DownloadHero() {
 							<div className="bg-background animate-float absolute top-24 -left-14 rounded-xl border p-2.5 shadow-lg">
 								<div className="flex items-center gap-2">
 									<div className="bg-primary-green/10 flex h-7 w-7 items-center justify-center rounded-lg">
-										<CheckCircle2 className="text-primary-green h-3.5 w-3.5" />
+										<CheckCircle2 className="text-primary-green-text h-3.5 w-3.5" />
 									</div>
 									<div>
 										<p className="text-[10px] font-semibold">Retrouvé !</p>
@@ -144,7 +144,7 @@ export function DownloadHero() {
 							<div className="bg-background animate-float-delayed absolute -right-12 bottom-28 rounded-xl border p-2.5 shadow-lg">
 								<div className="flex items-center gap-2">
 									<div className="bg-accent-orange/10 flex h-7 w-7 items-center justify-center rounded-lg">
-										<Bell className="text-accent-orange h-3.5 w-3.5" />
+										<Bell className="text-accent-orange-text h-3.5 w-3.5" />
 									</div>
 									<div>
 										<p className="text-[10px] font-semibold">Alerte</p>

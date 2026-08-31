@@ -14,7 +14,7 @@ export function QrOwnerCard({ token }: QrOwnerCardProps) {
 		<div className="rounded-2xl border bg-white p-6 shadow-sm">
 			<div className="mb-4 flex items-center gap-3">
 				<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-full">
-					<span className="text-primary-green text-2xl">📦</span>
+					<span className="text-primary-green-text text-2xl">📦</span>
 				</div>
 				<div>
 					<p className="text-muted-foreground text-sm">Sticker RetrouveCI</p>

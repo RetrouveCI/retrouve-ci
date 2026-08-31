@@ -87,7 +87,7 @@ export function PhoneStepSection({
 				Vous avez déjà un compte ?{' '}
 				<Link
 					to={withRedirect('/login', redirectTo)}
-					className="text-primary-green font-semibold hover:underline"
+					className="text-primary-green-text font-semibold hover:underline"
 				>
 					Se connecter
 				</Link>

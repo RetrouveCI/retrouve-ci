@@ -6,7 +6,7 @@ export function SecuritySection() {
 		<div className="bg-background overflow-hidden rounded-2xl border">
 			<div className="bg-muted/30 border-b p-5">
 				<h2 className="flex items-center gap-2 font-semibold">
-					<Shield className="text-primary-green h-4 w-4" />
+					<Shield className="text-primary-green-text h-4 w-4" />
 					Sécurité
 				</h2>
 			</div>
