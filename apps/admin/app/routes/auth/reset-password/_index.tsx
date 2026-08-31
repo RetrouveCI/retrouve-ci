@@ -18,7 +18,7 @@ function AuthBackLink({ to, children }: { to: string; children: string }) {
 	return (
 		<Link
 			to={to}
-			className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
+			className="touch-target text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
 		>
 			<ArrowLeft className="h-4 w-4" />
 			{children}

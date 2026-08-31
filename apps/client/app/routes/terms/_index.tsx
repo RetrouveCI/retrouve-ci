@@ -213,7 +213,7 @@ export default function TermsPage() {
 								</div>
 								<Link
 									to="/contact"
-									className="bg-primary-green hover:bg-primary-green-dark inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white transition-colors"
+									className="bg-primary-green hover:bg-primary-green-dark inline-flex h-11 shrink-0 items-center gap-2 rounded-xl px-5 text-sm font-medium text-white transition-colors lg:h-auto lg:py-2.5"
 								>
 									Nous contacter
 									<ArrowRight className="h-4 w-4" />

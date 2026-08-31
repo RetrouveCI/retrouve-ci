@@ -89,7 +89,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 							action={
 								<Link
 									to={withRedirect('/password-forgotten', redirectTo)}
-									className="text-primary-green text-xs font-semibold hover:underline"
+									className="touch-target text-primary-green text-xs font-semibold hover:underline"
 								>
 									Oublié ?
 								</Link>

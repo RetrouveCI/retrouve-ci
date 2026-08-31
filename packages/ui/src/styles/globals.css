@@ -429,3 +429,34 @@
 .link-underline:hover::after {
 	width: 100%;
 }
+
+@layer components {
+	/**
+	 * Widens a control's hit area to the 44 px floor without changing how big it
+	 * looks. §2.1 asks for both at once and cannot have them literally: a filter
+	 * chip is specified at 34–38 px, a status toggle is smaller still. The visual
+	 * box stays, an invisible overlay carries the touch.
+	 *
+	 * Above `lg` there is a pointer and the floor no longer applies, so the overlay
+	 * is dropped rather than left to swallow neighbouring clicks.
+	 */
+	.touch-target {
+		position: relative;
+	}
+
+	.touch-target::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		translate: -50% -50%;
+		width: max(100%, 44px);
+		height: max(100%, 44px);
+	}
+
+	@media (min-width: 64rem) {
+		.touch-target::before {
+			content: none;
+		}
+	}
+}

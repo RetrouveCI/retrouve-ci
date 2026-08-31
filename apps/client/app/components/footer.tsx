@@ -76,7 +76,7 @@ export function Footer() {
 			<div className="container mx-auto px-4 py-12 md:py-16">
 				<div className="grid gap-10 md:grid-cols-12">
 					<div className="flex flex-col space-y-4 md:col-span-4">
-						<Link to="/" className="w-fit">
+						<Link to="/" className="touch-target w-fit">
 							<LogoRetrouveCI />
 						</Link>
 						<p className="text-muted-foreground max-w-xs text-sm leading-relaxed">
@@ -91,7 +91,7 @@ export function Footer() {
 									aria-label={label}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="bg-background text-muted-foreground hover:border-primary-green/40 hover:text-primary-green flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
+									className="bg-background text-muted-foreground hover:border-primary-green/40 hover:text-primary-green flex size-11 items-center justify-center rounded-full border transition-colors lg:size-9"
 								>
 									<Icon className="h-4 w-4" />
 								</a>

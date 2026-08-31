@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { Search, BellRing, QrCode, ShieldCheck } from 'lucide-react'
+import { BellRing, QrCode, ShieldCheck } from 'lucide-react'
 
 const ARGUMENTS = [
 	{
@@ -38,9 +38,13 @@ export function BrandingPanel() {
 				to="/"
 				className="relative flex shrink-0 items-center gap-3 lg:w-fit"
 			>
-				<span className="flex h-10 w-10 items-center justify-center rounded-[13px] bg-white/15 lg:h-[42px] lg:w-[42px]">
-					<Search className="h-5 w-5" />
-				</span>
+				<img
+					src="/logo.png"
+					alt=""
+					width={42}
+					height={42}
+					className="h-10 w-10 rounded-[13px] lg:h-[42px] lg:w-[42px]"
+				/>
 				<span className="hidden text-[22px] font-bold tracking-tight lg:inline">
 					Retrouve<span className="text-white/65">CI</span>
 				</span>
