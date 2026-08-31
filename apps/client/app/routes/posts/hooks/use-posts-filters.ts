@@ -5,6 +5,12 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { LostItemType, LostItemCategory } from '@/shared/types/lost-item'
 import { toValidDate } from '../helpers/parse-posts-filters'
+import {
+	DATE_PRESET_CHIP_LABELS,
+	matchDateFilter,
+	presetDateFrom,
+	type DateFilterMode,
+} from '../helpers/date-presets'
 
 interface UsePostsFiltersArgs {
 	total: number
@@ -20,9 +26,12 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 	const [searchParams, setSearchParams] = useSearchParams()
 
 	const urlQuery = searchParams.get('q') ?? ''
-	const activeTab = (searchParams.get('type') as LostItemType) ?? 'all'
-	const activeCategory =
-		(searchParams.get('category') as LostItemCategory) ?? 'all'
+	// The cast has to come *after* the fallback: `get() as LostItemType` asserts
+	// away the `null`, which made `?? 'all'` dead code and hid « all » from the
+	// type — so nothing downstream could be told the filter was off.
+	const activeTab = (searchParams.get('type') ?? 'all') as LostItemType | 'all'
+	const activeCategory = (searchParams.get('category') ?? 'all') as
+		LostItemCategory | 'all'
 	const filterVille = searchParams.get('ville') ?? 'all'
 	const filterCommune = searchParams.get('commune') ?? 'all'
 	const dateFrom = searchParams.get('dateFrom')
@@ -33,8 +42,8 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 	const dateRange: DateRange | undefined = from
 		? { from, to: toValidDate(dateTo) }
 		: undefined
+	const dateFilter = matchDateFilter(dateFrom, dateTo)
 
-	const [showFilters, setShowFilters] = useState(false)
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
 	const [searchQuery, setSearchQuery] = useState(urlQuery)
@@ -96,6 +105,16 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 		})
 	}
 
+	/** The three one-tap periods. `custom` only reveals the calendar. */
+	const setDateFilter = (mode: DateFilterMode) => {
+		if (mode === 'custom') return
+		setParams(next => {
+			next.delete('dateTo')
+			if (mode === 'all') next.delete('dateFrom')
+			else next.set('dateFrom', presetDateFrom(mode))
+		})
+	}
+
 	const setCurrentPage = (page: number) => {
 		setParams(next => {
 			if (page > 1) next.set('page', String(page))
@@ -103,22 +122,61 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 		}, false)
 	}
 
+	/**
+	 * « Réinitialiser » empties the sheet, so it covers the five groups the sheet
+	 * draws — not only the three that carry a chip.
+	 */
 	const resetFilters = () => {
 		setParams(next => {
-			next.delete('ville')
-			next.delete('commune')
-			next.delete('dateFrom')
-			next.delete('dateTo')
+			for (const key of [
+				'type',
+				'category',
+				'ville',
+				'commune',
+				'dateFrom',
+				'dateTo',
+			])
+				next.delete(key)
 		})
 	}
 
+	/**
+	 * The badge and the chips cover the three filters with no permanent control
+	 * on the page. Type and category are always visible as pills, so counting
+	 * them would send someone into the sheet to find what is already on screen.
+	 */
 	const activeFiltersCount = [
 		filterVille !== 'all',
 		filterCommune !== 'all',
 		!!dateFrom,
 	].filter(Boolean).length
 
+	const hasActiveFilters =
+		activeFiltersCount > 0 || activeTab !== 'all' || activeCategory !== 'all'
+
 	const totalPages = Math.max(1, Math.ceil(total / pageSize))
+
+	const [isFilterSheetOpen, setFilterSheetOpen] = useState(false)
+	const [snapshot, setSnapshot] = useState('')
+
+	/**
+	 * Filters apply live — « Voir N résultats » could not count anything
+	 * otherwise — so « Annuler » has to restore what the URL held when the sheet
+	 * opened. Dismissing the sheet any other way keeps the changes, as a bottom
+	 * sheet does.
+	 */
+	const openFilterSheet = () => {
+		setSnapshot(searchParams.toString())
+		setFilterSheetOpen(true)
+	}
+
+	const cancelFilters = () => {
+		setSearchParams(new URLSearchParams(snapshot), {
+			replace: true,
+			preventScrollReset: true,
+		})
+		setFilterSheetOpen(false)
+	}
 
 	const activeChips: { label: string; onRemove: () => void }[] = []
 	if (filterVille !== 'all')
@@ -133,9 +191,12 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 		})
 	if (dateRange?.from)
 		activeChips.push({
-			label: dateRange.to
-				? `${format(dateRange.from, 'd MMM', { locale: fr })} — ${format(dateRange.to, 'd MMM', { locale: fr })}`
-				: `À partir du ${format(dateRange.from, 'd MMM', { locale: fr })}`,
+			label:
+				dateFilter === '7d' || dateFilter === '30d'
+					? DATE_PRESET_CHIP_LABELS[dateFilter]
+					: dateRange.to
+						? `${format(dateRange.from, 'd MMM', { locale: fr })} — ${format(dateRange.to, 'd MMM', { locale: fr })}`
+						: `À partir du ${format(dateRange.from, 'd MMM', { locale: fr })}`,
 			onRemove: () => setDateRange(undefined),
 		})
 
@@ -154,11 +215,16 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 		setFilterCommune,
 		dateRange,
 		setDateRange,
-		showFilters,
-		toggleFilters: () => setShowFilters(v => !v),
+		dateFilter,
+		setDateFilter,
+		isFilterSheetOpen,
+		setFilterSheetOpen,
+		openFilterSheet,
+		cancelFilters,
 		viewMode,
 		setViewMode,
 		activeFiltersCount,
+		hasActiveFilters,
 		totalPages,
 		resetFilters,
 		activeChips,

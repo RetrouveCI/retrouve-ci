@@ -809,6 +809,105 @@ liens** et non un menu ; ni l'un ni l'autre n'est visible au `typecheck`.
 `routes/posts/_index.tsx`. **Flux** : A. **Acceptation** : les résultats ne sont
 jamais repoussés hors écran ; les filtres restent dans l'URL.
 
+> **Le panneau ne couvrait que trois filtres sur cinq**, pas cinq : `ville`,
+> `commune` et `période`. Le type et la catégorie vivaient sur la page. Le point
+> 2 est donc une extension réelle — la feuille gagne « Type d'annonce » et «
+> Catégorie » — et non un déplacement. Les deux défauts du point 3 sont
+> confirmés : **trois** libellés sans `htmlFor`, **une** croix interactive
+> imbriquée dans le `PopoverTrigger` de la période.
+
+> **`FilterPanel` devient `FilterSheet`.** « Panel » est précisément ce qui
+> n'est plus vrai. Le fichier est renommé, et `components/filter-pill.tsx` sort
+> la capsule que la page et la feuille dessinaient toutes les deux.
+
+> **La croix imbriquée est supprimée, pas contournée.** La planche `Filtres`
+> dessine la période en quatre capsules — « 7 jours », « 30 jours », « Tout », «
+> Dates… » — et « Tout » **est** l'effacement. Il n'y a plus de bouton dans un
+> bouton parce qu'il n'y a plus de croix. `helpers/date-presets.ts` reconnaît et
+> écrit les bornes **dans l'espace de chaînes de l'URL** (`yyyy-MM-dd`), jamais
+> via un `Date` : `new Date('2026-08-24')` est minuit UTC, que `format()` rend
+> comme la veille à l'ouest de Greenwich, et la capsule cesserait de reconnaître
+> la borne qu'elle vient d'écrire.
+
+> **Les filtres s'appliquent en direct, donc « Annuler » restaure un
+> instantané.** « Voir N résultats » ne peut pas compter un filtre qui n'a pas
+> encore tourné : la feuille écrit dans l'URL à chaque geste. `openFilterSheet`
+> mémorise donc la chaîne de recherche à l'ouverture, et « Annuler » la remet.
+> Fermer autrement — glissement, superposition, `Échap` — conserve les choix,
+> comme le fait une feuille inférieure. Vérifié au navigateur : `?type=found` →
+> « Perdus » → « Annuler » redonne `?type=found`.
+
+> **Une seule portée, un seul mot.** Le badge et les pastilles couvrent les
+> **trois** filtres sans commande permanente sur la page (ville, commune,
+> période) — c'est ce que dessine la planche `Annonces`, badge « 2 » pour «
+> Abidjan » et « 7 derniers jours ». Compter le type et la catégorie enverrait
+> chercher dans la feuille ce qui est déjà à l'écran. « Réinitialiser », lui,
+> vide la **feuille** : les cinq groupes. Le lien à côté des pastilles disait «
+> Tout effacer » ; il dit « Réinitialiser », le même mot pour la même action
+> (§2.3, règle 3).
+
+> **Le type d'annonce quitte `Tabs` pour la capsule de filtre.** Un `TabsList` à
+> côté d'une rangée de capsules, c'était deux formes pour un même rôle (§2.1),
+> et `TabsContent` n'enveloppait qu'une liste toujours rendue. La planche
+> `Annonces` dessine bien les deux rangées dans le même vocabulaire.
+
+> **Un bouton sans nom accessible, trouvé à la mesure.** Sous `sm`, le mot «
+> Filtres » du déclencheur est `hidden` : Playwright ne trouvait aucun bouton de
+> ce nom à 390 px, parce qu'il n'en avait aucun. `aria-label` ajouté.
+
+> **Au-dessus de `lg`, la feuille cesse de traverser la fenêtre.** Mesuré à 1280
+> px : « Annuler » s'étirait à 484 px, ce qui se lit comme un mur et non comme
+> le panneau de §2.1. Plafond `lg:max-w-2xl` centré — 672 px, barre à 250 / 378.
+> En dessous, pleine largeur : c'est le téléphone et la tablette que la planche
+> dessine.
+
+> **Mesuré, pas raisonné.** Aux trois largeurs (390, 768, 1280) et dans les deux
+> thèmes : le haut du compteur de résultats vaut **626 / 532 / 536 px avant
+> l'ouverture et exactement les mêmes après** — le critère d'acceptation, relevé
+> plutôt qu'affirmé. Aucun débordement horizontal. Les capsules sont dessinées à
+> 38 px avec une cible de 44 px sous `lg` (§2.1). Dix paires encre/fond de la
+> feuille passent 4,5:1 dans les deux thèmes, la plus basse à 5,03 (« Voir N
+> résultats »). Le `Select` de Radix dans le `Drawer` de vaul a été vérifié au
+> navigateur : choisir une ville ne referme pas la feuille.
+
+> **Une bascule de test, pas de contournement.** La suite `ui` échouait une fois
+> sur deux au niveau de la racine, jamais seule : Playwright refuse de cliquer
+> un élément dont la boîte bouge encore, et la transition d'ouverture de la
+> feuille survit au délai du clic dès que les deux suites navigateur tournent
+> côte à côte. `stopAnimations()` rejoint `shared/helpers/testing.ts` et coupe
+> transitions et animations dans le document de test. Deux exécutions complètes
+> de la chaîne, vertes.
+
+> **Les deux dettes que R7 a léguées sont tranchées, toutes les deux par la
+> négative — avec une troisième ouverte à la place.**
+>
+> 1. **Pas de puce de ville dans la recherche de l'en-tête.** La planche
+>    `NavDesktop` la dessine, mais l'en-tête est posé sur **toutes** les routes,
+>    où une ville ne resserre aucune liste. Le filtre a désormais son groupe «
+>    Ville » dans la feuille et sa pastille sur `/posts` ; lui donner un second
+>    domicile ferait deux sources pour un état.
+> 2. **Pas de loupe dans l'en-tête mobile.** `NavC` en dessine une, mais la
+>    destination qui lui manquait est `/posts` — que l'onglet « Annonces » ouvre
+>    déjà, et dont la planche `Annonces` place la recherche en tête de page, pas
+>    dans l'en-tête. Une loupe à côté de cet onglet serait une seconde porte
+>    vers la même pièce, et la navigation mobile appartient à la barre d'onglets
+>    (§2.1).
+> 3. **À ouvrir : le hero de `/posts`.** Ce qui repousse vraiment la recherche
+>    sur un téléphone, ce n'est pas l'absence de loupe, c'est `PostsHero` :
+>    mesuré à 390 px, le champ arrive à ~340 px et le compteur de résultats à
+>    626 px. La planche `Annonces` ne dessine **aucun** hero — en-tête, puis
+>    recherche et filtres, puis les cartes. Aucune étape du plan ne porte ce nom
+>    (R16 et R32 sont les hero de l'accueil et des stickers), et le remplacer
+>    demande de décider ce qui tient sa place au-dessus de `md`, ce que la
+>    maquette ne dit pas. **Hors du périmètre de R8**, dont le critère est tenu
+>    et mesuré.
+
+**Portée réelle** : ajoute `routes/posts/posts.const.ts`,
+`routes/posts/components/filter-pill.tsx`,
+`routes/posts/helpers/date-presets.ts`,
+`routes/posts/hooks/use-posts-filters.ts` et `shared/helpers/testing.ts`.
+`routes.ts` ne bouge pas : pas de `build` obligatoire.
+
 #### R9 — Pagination compacte
 
 1. Remplacer le bouton-par-page de `ListingsContent`
