@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { Settings, ArrowLeft } from 'lucide-react'
+import { AppearanceSection } from './components/appearance-section'
 import { PersonalInfoSection } from './components/personal-info-section'
 import { NotificationsSection } from './components/notifications-section'
 import { SecuritySection } from './components/security-section'
@@ -53,6 +54,7 @@ export default function ParametresPage({ loaderData }: Route.ComponentProps) {
 
 			<section className="py-8">
 				<div className="container mx-auto max-w-2xl space-y-6 px-4">
+					<AppearanceSection />
 					<PersonalInfoSection user={user} />
 					<NotificationsSection />
 					<SecuritySection />
