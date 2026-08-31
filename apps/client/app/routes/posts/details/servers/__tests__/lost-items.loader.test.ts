@@ -62,7 +62,7 @@ describe('postDetailLoader', () => {
 
 		expect(listing.contact).toEqual({
 			name: 'Awa Traoré',
-			method: '+2250700000000',
+			whatsapp: '+2250700000000',
 		})
 	})
 

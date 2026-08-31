@@ -33,6 +33,7 @@ function renderIn(ui: React.ReactNode) {
 }
 
 const photo = () => page.getByAltText('Téléphone perdu')
+const slide = (n: number) => page.getByAltText(`Téléphone perdu — photo ${n}`)
 
 afterEach(cleanup)
 
@@ -56,20 +57,25 @@ describe('listing photos are served at the size they are painted', () => {
 
 	// The detail photo is the page's LCP: deferring it is the one place lazy hurts.
 	it('fetches the detail photo eagerly, at priority and at w_1600', async () => {
-		renderIn(<PostGallery images={[PHOTO]} title="Téléphone perdu" isLost />)
+		renderIn(<PostGallery images={[PHOTO]} title="Téléphone perdu" />)
+		const first = slide(1)
 
-		await expect.element(photo()).toHaveAttribute('src', served(1600))
-		await expect.element(photo()).toHaveAttribute('fetchpriority', 'high')
-		await expect.element(photo()).not.toHaveAttribute('loading', 'lazy')
+		await expect.element(first).toHaveAttribute('src', served(1600))
+		await expect.element(first).toHaveAttribute('fetchpriority', 'high')
+		await expect.element(first).not.toHaveAttribute('loading', 'lazy')
 	})
 
-	it('defers the gallery thumbnails, which sit below it', async () => {
-		renderIn(
-			<PostGallery images={[PHOTO, PHOTO]} title="Téléphone perdu" isLost />,
-		)
-		const thumb = page.getByAltText('Téléphone perdu — photo 1')
+	/**
+	 * R10 turned the gallery into a scroll-snap track, so every photo is in the
+	 * DOM from the first paint. `lazy` on the slides after the first is what stops
+	 * a five-photo listing from fetching five 1600 px images to show one — they
+	 * sit outside the viewport horizontally, which is what `lazy` defers.
+	 */
+	it('defers the slides after the first, which sit off screen', async () => {
+		renderIn(<PostGallery images={[PHOTO, PHOTO]} title="Téléphone perdu" />)
 
-		await expect.element(thumb).toHaveAttribute('src', served(128))
-		await expect.element(thumb).toHaveAttribute('loading', 'lazy')
+		await expect.element(slide(2)).toHaveAttribute('src', served(1600))
+		await expect.element(slide(2)).toHaveAttribute('loading', 'lazy')
+		await expect.element(slide(1)).not.toHaveAttribute('loading', 'lazy')
 	})
 })

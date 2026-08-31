@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { Badge } from '@app/ui/components'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Package, X } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { imageUrl } from '@/shared/utils/image'
@@ -7,94 +6,123 @@ import { imageUrl } from '@/shared/utils/image'
 interface PostGalleryProps {
 	images: string[]
 	title: string
-	isLost: boolean
 }
 
-export function PostGallery({ images, title, isLost }: PostGalleryProps) {
+/**
+ * The photos are a horizontal scroll-snap track rather than one image swapped by
+ * an index, because on a phone the gesture that changes a photo is a swipe. Each
+ * slide is a named button, so the track is navigable by keyboard too.
+ *
+ * `active` is derived from the scroll offset rather than driving it: the browser
+ * owns the position, and reading it back is what keeps the indicators honest when
+ * the move came from the user's thumb.
+ */
+export function PostGallery({ images, title }: PostGalleryProps) {
+	const trackRef = useRef<HTMLDivElement>(null)
 	const [active, setActive] = useState(0)
 	const [lightboxOpen, setLightboxOpen] = useState(false)
 	const hasImages = images.length > 0
+	const hasSeveral = images.length > 1
 	const current = images[active] ?? ''
 
-	const go = (direction: number) =>
-		setActive(i => (i + direction + images.length) % images.length)
+	function goTo(index: number) {
+		const next = (index + images.length) % images.length
+		setActive(next)
+
+		const track = trackRef.current
+		if (!track || track.clientWidth === 0) return
+
+		track.scrollTo({ left: next * track.clientWidth, behavior: 'smooth' })
+	}
+
+	function onTrackScroll() {
+		const track = trackRef.current
+		if (!track || track.clientWidth === 0) return
+
+		setActive(Math.round(track.scrollLeft / track.clientWidth))
+	}
 
 	useEffect(() => {
 		if (!lightboxOpen) return
 
 		const onKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') setLightboxOpen(false)
-			if (e.key === 'ArrowLeft') go(-1)
-			if (e.key === 'ArrowRight') go(1)
+			if (e.key === 'ArrowLeft') goTo(active - 1)
+			if (e.key === 'ArrowRight') goTo(active + 1)
 		}
 
 		window.addEventListener('keydown', onKeyDown)
 		return () => window.removeEventListener('keydown', onKeyDown)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [lightboxOpen, images.length])
+	}, [lightboxOpen, active, images.length])
 
 	return (
-		<div className="space-y-3">
-			<div className="bg-muted relative aspect-4/3 overflow-hidden rounded-2xl">
+		<>
+			<div className="bg-muted relative overflow-hidden sm:rounded-2xl">
 				{hasImages ? (
-					<button
-						type="button"
-						onClick={() => setLightboxOpen(true)}
-						className="absolute inset-0 h-full w-full cursor-zoom-in"
-						aria-label="Agrandir la photo"
+					<div
+						ref={trackRef}
+						onScroll={onTrackScroll}
+						className="scrollbar-hide flex snap-x snap-mandatory overflow-x-auto"
 					>
-						<img
-							src={imageUrl(current, { width: 1600 })}
-							alt={title}
-							decoding="async"
-							fetchPriority="high"
-							className="h-full w-full object-cover"
-						/>
-					</button>
+						{images.map((url, i) => (
+							<button
+								key={i}
+								type="button"
+								onClick={() => setLightboxOpen(true)}
+								className="relative aspect-4/3 w-full shrink-0 basis-full cursor-zoom-in snap-center"
+								aria-label={`Agrandir la photo ${i + 1}`}
+							>
+								<img
+									src={imageUrl(url, { width: 1600 })}
+									alt={`${title} — photo ${i + 1}`}
+									decoding="async"
+									// Only the first slide is on screen; the rest sit outside the
+									// viewport, which is exactly what `lazy` defers.
+									{...(i === 0
+										? { fetchPriority: 'high' as const }
+										: { loading: 'lazy' as const })}
+									className="h-full w-full object-cover"
+								/>
+							</button>
+						))}
+					</div>
 				) : (
-					<div className="from-muted to-muted/50 absolute inset-0 flex items-center justify-center bg-linear-to-br">
-						<Package className="text-muted-foreground/30 h-24 w-24" />
+					<div className="from-muted to-muted/50 flex aspect-4/3 items-center justify-center bg-linear-to-br">
+						<Package className="text-muted-foreground/30 h-20 w-20" />
 					</div>
 				)}
 
-				<Badge
-					className={cn(
-						'absolute top-4 left-4 px-3 py-1 text-sm',
-						isLost
-							? 'bg-accent-orange text-accent-orange-foreground border-0'
-							: 'bg-primary-green border-0 text-white',
-					)}
-				>
-					{isLost ? 'Objet perdu' : 'Objet retrouvé'}
-				</Badge>
-			</div>
-
-			{images.length > 1 && (
-				<div className="flex gap-2 overflow-x-auto pb-1">
-					{images.map((url, i) => (
-						<button
-							key={i}
-							type="button"
-							onClick={() => setActive(i)}
-							className={cn(
-								'relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors',
-								i === active
-									? 'border-primary-green'
-									: 'border-transparent opacity-70 hover:opacity-100',
-							)}
-							aria-label={`Voir la photo ${i + 1}`}
+				{hasSeveral && (
+					<>
+						{/* A photo is any colour, so the dots need a ground of their own. */}
+						<div
+							className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-black/45 to-transparent"
+							aria-hidden
+						/>
+						{/*
+						 * Indicators, not controls — which is what the maquette draws and
+						 * what saves them from being unreachable: 44 px targets six pixels
+						 * apart overlap by 28, and the last one wins every tap. The gesture
+						 * moves the track, and each slide is a named button of its own.
+						 */}
+						<div
+							className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-1.5"
+							aria-hidden
 						>
-							<img
-								src={imageUrl(url, { width: 128 })}
-								alt={`${title} — photo ${i + 1}`}
-								loading="lazy"
-								decoding="async"
-								className="h-full w-full object-cover"
-							/>
-						</button>
-					))}
-				</div>
-			)}
+							{images.map((_, i) => (
+								<span
+									key={i}
+									className={cn(
+										'h-1.5 rounded-full transition-all',
+										i === active ? 'w-5 bg-white' : 'w-1.5 bg-white/60',
+									)}
+								/>
+							))}
+						</div>
+					</>
+				)}
+			</div>
 
 			{lightboxOpen && hasImages && (
 				<div
@@ -110,12 +138,12 @@ export function PostGallery({ images, title, isLost }: PostGalleryProps) {
 						<X className="h-5 w-5" />
 					</button>
 
-					{images.length > 1 && (
+					{hasSeveral && (
 						<button
 							type="button"
 							onClick={e => {
 								e.stopPropagation()
-								go(-1)
+								goTo(active - 1)
 							}}
 							className="absolute left-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
 							aria-label="Photo précédente"
@@ -132,12 +160,12 @@ export function PostGallery({ images, title, isLost }: PostGalleryProps) {
 						onClick={e => e.stopPropagation()}
 					/>
 
-					{images.length > 1 && (
+					{hasSeveral && (
 						<button
 							type="button"
 							onClick={e => {
 								e.stopPropagation()
-								go(1)
+								goTo(active + 1)
 							}}
 							className="absolute right-4 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
 							aria-label="Photo suivante"
@@ -146,13 +174,13 @@ export function PostGallery({ images, title, isLost }: PostGalleryProps) {
 						</button>
 					)}
 
-					{images.length > 1 && (
+					{hasSeveral && (
 						<span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1 text-sm text-white">
 							{active + 1} / {images.length}
 						</span>
 					)}
 				</div>
 			)}
-		</div>
+		</>
 	)
 }
