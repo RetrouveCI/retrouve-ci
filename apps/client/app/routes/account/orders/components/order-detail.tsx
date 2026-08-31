@@ -38,7 +38,7 @@ const STATUS_CONFIG: Record<
 	delivered: {
 		label: 'Livrée',
 		icon: CheckCircle2,
-		color: 'text-primary-green',
+		color: 'text-primary-green-text',
 		bgColor: 'bg-primary-green/10',
 	},
 	cancelled: {
@@ -153,7 +153,7 @@ export function OrderDetail({ order, onClose }: OrderDetailProps) {
 					<div className="rounded-2xl border p-4">
 						<div className="flex items-center gap-4">
 							<div className="bg-primary-green/10 flex h-14 w-14 items-center justify-center rounded-xl">
-								<QrCode className="text-primary-green h-7 w-7" />
+								<QrCode className="text-primary-green-text h-7 w-7" />
 							</div>
 							<div className="flex-1">
 								<p className="font-semibold">Pack {order.pack.name}</p>
@@ -210,7 +210,7 @@ export function OrderDetail({ order, onClose }: OrderDetailProps) {
 						<div className="flex justify-between text-sm">
 							<span className="text-muted-foreground">Livraison</span>
 							{order.deliveryFee === 0 ? (
-								<span className="text-primary-green">Gratuite</span>
+								<span className="text-primary-green-text">Gratuite</span>
 							) : (
 								<span>{formatPrice(order.deliveryFee)} FCFA</span>
 							)}

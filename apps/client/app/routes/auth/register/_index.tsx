@@ -82,7 +82,7 @@ export default function RegisterPage() {
 				<button
 					type="button"
 					onClick={() => setStep('phone')}
-					className="text-primary-green font-semibold underline-offset-4 hover:underline"
+					className="text-primary-green-text font-semibold underline-offset-4 hover:underline"
 				>
 					Ce n’est pas le bon numéro ?
 				</button>

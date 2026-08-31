@@ -109,7 +109,7 @@ export function DeliveryStep({
 						</Label>
 						{appliedCoupon ? (
 							<div className="border-primary-green bg-primary-green/5 flex h-12 items-center justify-between rounded-xl border-2 px-4">
-								<span className="text-primary-green flex items-center gap-2 text-sm font-medium">
+								<span className="text-primary-green-text flex items-center gap-2 text-sm font-medium">
 									<Check className="h-4 w-4" />
 									{appliedCoupon} — Livraison offerte
 								</span>
@@ -157,7 +157,7 @@ export function DeliveryStep({
 				</div>
 
 				<div className="border-accent-orange/20 bg-accent-orange/10 rounded-xl border p-4">
-					<p className="text-accent-orange flex items-center gap-2 text-sm font-medium">
+					<p className="text-accent-orange-text flex items-center gap-2 text-sm font-medium">
 						<Banknote className="h-4 w-4 shrink-0" />
 						Vous payez {formatPrice(totalPrice)} FCFA en espèces au livreur, à
 						la réception de vos stickers.

@@ -51,7 +51,7 @@ function NotLoggedInView() {
 			<div className="relative container mx-auto px-4">
 				<div className="mx-auto max-w-md text-center">
 					<div className="bg-primary-green/10 mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl">
-						<User className="text-primary-green h-10 w-10" />
+						<User className="text-primary-green-text h-10 w-10" />
 					</div>
 					<h1 className="mb-3 text-2xl font-bold md:text-3xl">
 						Connectez-vous
@@ -73,7 +73,7 @@ function NotLoggedInView() {
 						Pas encore de compte ?{' '}
 						<Link
 							to="/register"
-							className="text-primary-green font-medium hover:underline"
+							className="text-primary-green-text font-medium hover:underline"
 						>
 							Créer un compte
 						</Link>

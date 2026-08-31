@@ -33,7 +33,7 @@ export function NotificationsSection() {
 		<div className="bg-background overflow-hidden rounded-2xl border">
 			<div className="bg-muted/30 border-b p-5">
 				<h2 className="flex items-center gap-2 font-semibold">
-					<Bell className="text-primary-green h-4 w-4" />
+					<Bell className="text-primary-green-text h-4 w-4" />
 					Notifications
 					<Badge variant="secondary">Bientôt disponible</Badge>
 				</h2>

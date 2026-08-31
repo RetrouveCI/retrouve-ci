@@ -9,7 +9,7 @@ export function AvailabilityCard() {
 				</div>
 				<h3 className="font-semibold">Disponibilité</h3>
 			</div>
-			<div className="space-y-1.5 text-sm text-white/90">
+			<div className="space-y-1.5 text-sm text-white">
 				<div className="flex justify-between">
 					<span>Lundi – Vendredi</span>
 					<span className="font-medium">8h – 18h</span>
@@ -20,10 +20,10 @@ export function AvailabilityCard() {
 				</div>
 				<div className="flex justify-between">
 					<span>Dimanche</span>
-					<span className="font-medium text-white/60">Fermé</span>
+					<span className="font-medium text-white">Fermé</span>
 				</div>
 			</div>
-			<div className="mt-4 flex items-center gap-2 border-t border-white/20 pt-4 text-xs text-white/70">
+			<div className="mt-4 flex items-center gap-2 border-t border-white/20 pt-4 text-xs text-white">
 				<span className="animate-pulse-soft h-2 w-2 rounded-full bg-emerald-300" />
 				Temps de réponse moyen : 2h
 			</div>

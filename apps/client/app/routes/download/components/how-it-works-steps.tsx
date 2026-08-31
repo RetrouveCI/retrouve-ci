@@ -41,7 +41,7 @@ export function HowItWorksSteps() {
 								{item.step}
 							</div>
 							<div className="bg-primary-green/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
-								<item.icon className="text-primary-green h-6 w-6" />
+								<item.icon className="text-primary-green-text h-6 w-6" />
 							</div>
 							<h3 className="mb-2 font-semibold">{item.title}</h3>
 							<p className="text-muted-foreground text-sm">{item.desc}</p>

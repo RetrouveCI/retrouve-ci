@@ -35,7 +35,7 @@ export function ContactCard({ listing }: { listing: LostItem }) {
 					</Button>
 
 					<div className="bg-muted/50 flex items-start gap-3 rounded-xl p-4">
-						<Lock className="text-primary-green mt-0.5 h-5 w-5 shrink-0" />
+						<Lock className="text-primary-green-text mt-0.5 h-5 w-5 shrink-0" />
 						<p className="text-muted-foreground text-sm">
 							Vos coordonnées restent privées. Tout contact se fait via notre
 							messagerie sécurisée.

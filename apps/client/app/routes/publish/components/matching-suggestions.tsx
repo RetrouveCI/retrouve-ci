@@ -126,14 +126,14 @@ export function MatchingSuggestions({
 											className={cn(
 												'h-4 w-4',
 												item.type === 'found'
-													? 'text-primary-green'
+													? 'text-primary-green-text'
 													: 'text-red-500',
 											)}
 										/>
 									</div>
 
 									<div className="min-w-0 flex-1">
-										<p className="group-hover:text-primary-green line-clamp-1 text-sm leading-tight font-medium transition-colors">
+										<p className="group-hover:text-primary-green-text line-clamp-1 text-sm leading-tight font-medium transition-colors">
 											{item.title}
 										</p>
 										<div className="mt-0.5 flex items-center gap-2">

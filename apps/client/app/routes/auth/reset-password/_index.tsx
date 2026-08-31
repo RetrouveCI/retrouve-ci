@@ -73,7 +73,7 @@ export default function ResetPasswordPage() {
 							<button
 								type="button"
 								onClick={backToPhone}
-								className="text-primary-green font-semibold underline-offset-4 hover:underline"
+								className="text-primary-green-text font-semibold underline-offset-4 hover:underline"
 							>
 								Ce n’est pas le bon numéro ?
 							</button>

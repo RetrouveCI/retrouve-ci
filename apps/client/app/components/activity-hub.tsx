@@ -213,7 +213,7 @@ function SummaryRow({
 				className={cn(
 					'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
 					highlight
-						? 'bg-accent-orange/10 text-accent-orange'
+						? 'bg-accent-orange/10 text-accent-orange-text'
 						: 'bg-muted text-muted-foreground',
 				)}
 			>
@@ -226,7 +226,8 @@ function SummaryRow({
 						variant={highlight ? 'default' : 'secondary'}
 						className={cn(
 							'h-5 min-w-5 px-1.5 text-[10px]',
-							highlight && 'bg-accent-orange hover:bg-accent-orange/90',
+							highlight &&
+								'bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange/90',
 						)}
 					>
 						{count}
@@ -236,7 +237,7 @@ function SummaryRow({
 					<p
 						className={cn(
 							'text-xs',
-							highlight ? 'text-accent-orange' : 'text-muted-foreground',
+							highlight ? 'text-accent-orange-text' : 'text-muted-foreground',
 						)}
 					>
 						{detail}

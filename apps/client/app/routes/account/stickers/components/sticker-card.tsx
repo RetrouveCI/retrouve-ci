@@ -139,7 +139,9 @@ export function StickerCard({ sticker }: StickerCardProps) {
 								<QrCode
 									className={cn(
 										'h-5 w-5',
-										isActive ? 'text-primary-green' : 'text-muted-foreground',
+										isActive
+											? 'text-primary-green-text'
+											: 'text-muted-foreground',
 									)}
 								/>
 							</div>
@@ -153,7 +155,7 @@ export function StickerCard({ sticker }: StickerCardProps) {
 								className={cn(
 									'ml-auto text-[10px]',
 									isActive
-										? 'border-primary-green/30 bg-primary-green/5 text-primary-green'
+										? 'border-primary-green/30 bg-primary-green/5 text-primary-green-text'
 										: 'border-muted text-muted-foreground',
 								)}
 							>

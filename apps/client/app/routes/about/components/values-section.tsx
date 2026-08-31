@@ -6,7 +6,7 @@ const values = [
 		title: 'Solidarité',
 		description:
 			'Nous croyons que chaque objet retrouvé est un acte de générosité envers un inconnu.',
-		color: 'text-accent-orange',
+		color: 'text-accent-orange-text',
 		bg: 'bg-accent-orange/10',
 	},
 	{
@@ -14,7 +14,7 @@ const values = [
 		title: 'Confiance',
 		description:
 			'La sécurité des données et la confidentialité de nos utilisateurs sont au cœur de tout ce que nous faisons.',
-		color: 'text-primary-green',
+		color: 'text-primary-green-text',
 		bg: 'bg-primary-green/10',
 	},
 	{
@@ -22,7 +22,7 @@ const values = [
 		title: 'Simplicité',
 		description:
 			'Une interface pensée pour tous, accessible même sans expertise technologique.',
-		color: 'text-accent-orange',
+		color: 'text-accent-orange-text',
 		bg: 'bg-accent-orange/10',
 	},
 	{
@@ -30,7 +30,7 @@ const values = [
 		title: 'Inclusion',
 		description:
 			"RetrouveCI est conçu pour chaque habitant de Côte d'Ivoire, en ville comme en région.",
-		color: 'text-primary-green',
+		color: 'text-primary-green-text',
 		bg: 'bg-primary-green/10',
 	},
 ]

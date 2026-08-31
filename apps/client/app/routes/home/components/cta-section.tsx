@@ -14,7 +14,7 @@ export function CtaSection() {
 					<div className="bg-primary-green/20 absolute -top-20 -right-20 h-60 w-60 rounded-full blur-3xl" />
 
 					<div className="relative z-10 space-y-6 text-center">
-						<span className="bg-primary-green/20 text-primary-green inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
+						<span className="bg-primary-green/20 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold text-white">
 							Gratuit, simple et solidaire
 						</span>
 						<h2 className="text-2xl font-bold text-white md:text-3xl">

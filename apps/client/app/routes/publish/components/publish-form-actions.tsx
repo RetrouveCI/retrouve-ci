@@ -27,7 +27,7 @@ export function PublishFormActions({
 			<Button
 				type="submit"
 				className={cn(
-					'h-12 gap-2 rounded-xl text-white transition-all hover:shadow-lg sm:flex-1',
+					'h-12 gap-2 rounded-xl transition-all hover:shadow-lg sm:flex-1',
 					submitClassName,
 				)}
 				disabled={isSubmitting}

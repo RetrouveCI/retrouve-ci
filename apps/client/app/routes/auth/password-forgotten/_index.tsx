@@ -46,7 +46,7 @@ export default function PasswordForgottenPage() {
 				Vous vous souvenez ?{' '}
 				<Link
 					to={loginUrl}
-					className="text-primary-green font-semibold hover:underline"
+					className="text-primary-green-text font-semibold hover:underline"
 				>
 					Se connecter
 				</Link>

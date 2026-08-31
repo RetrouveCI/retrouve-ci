@@ -67,7 +67,7 @@ export function HeroSection() {
 						</span>
 						<span className="mt-2 block">
 							n&apos;est plus{' '}
-							<span className="text-primary-green">une fatalité</span>
+							<span className="text-primary-green-text">une fatalité</span>
 						</span>
 					</h1>
 
@@ -89,7 +89,7 @@ export function HeroSection() {
 						Vous avez trouvé un objet ?{' '}
 						<Link
 							to="/publish"
-							className="touch-target text-primary-green inline-flex items-center gap-1 font-medium hover:underline"
+							className="touch-target text-primary-green-text inline-flex items-center gap-1 font-medium hover:underline"
 						>
 							Signalez-le
 							<ArrowRight className="h-3.5 w-3.5" />
@@ -102,7 +102,7 @@ export function HeroSection() {
 								key={label}
 								className="text-muted-foreground flex items-center gap-2 text-sm font-medium"
 							>
-								<Icon className="text-primary-green h-5 w-5" />
+								<Icon className="text-primary-green-text h-5 w-5" />
 								{label}
 							</div>
 						))}

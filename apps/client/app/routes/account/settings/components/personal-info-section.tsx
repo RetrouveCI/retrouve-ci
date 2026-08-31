@@ -10,7 +10,7 @@ export function PersonalInfoSection({ user }: { user: UserProfile }) {
 		<div className="bg-background overflow-hidden rounded-2xl border">
 			<div className="bg-muted/30 border-b p-5">
 				<h2 className="flex items-center gap-2 font-semibold">
-					<User className="text-primary-green h-4 w-4" />
+					<User className="text-primary-green-text h-4 w-4" />
 					Informations personnelles
 				</h2>
 			</div>
@@ -18,7 +18,7 @@ export function PersonalInfoSection({ user }: { user: UserProfile }) {
 				<div className="flex items-center justify-between gap-3 py-4">
 					<div className="flex min-w-0 items-center gap-3">
 						<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-							<User className="text-primary-green h-5 w-5" />
+							<User className="text-primary-green-text h-5 w-5" />
 						</div>
 						<div className="min-w-0">
 							<Label className="text-sm font-medium">Nom et prénoms</Label>
@@ -33,14 +33,14 @@ export function PersonalInfoSection({ user }: { user: UserProfile }) {
 				<div className="flex items-center justify-between gap-3 border-t py-4">
 					<div className="flex min-w-0 items-center gap-3">
 						<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-							<Smartphone className="text-primary-green h-5 w-5" />
+							<Smartphone className="text-primary-green-text h-5 w-5" />
 						</div>
 						<div className="min-w-0">
 							<Label className="text-sm font-medium">Numéro de téléphone</Label>
 							<p className="text-muted-foreground flex items-center gap-1.5 truncate text-sm">
 								{user.phone ?? 'Non renseigné'}
 								{user.phone && user.phoneVerified && (
-									<span className="text-primary-green inline-flex items-center gap-0.5 text-xs font-medium">
+									<span className="text-primary-green-text inline-flex items-center gap-0.5 text-xs font-medium">
 										<Check className="h-3 w-3" />
 										Vérifié
 									</span>
@@ -54,7 +54,7 @@ export function PersonalInfoSection({ user }: { user: UserProfile }) {
 				<div className="flex items-center justify-between gap-3 border-t py-4">
 					<div className="flex min-w-0 items-center gap-3">
 						<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-							<MapPin className="text-primary-green h-5 w-5" />
+							<MapPin className="text-primary-green-text h-5 w-5" />
 						</div>
 						<div className="min-w-0">
 							<Label className="text-sm font-medium">Zone</Label>

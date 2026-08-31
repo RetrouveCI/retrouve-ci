@@ -55,7 +55,7 @@ export function BrandingPanel() {
 					<p className="text-[19px] leading-tight font-bold tracking-tight text-balance lg:mb-3.5 lg:text-[40px]">
 						Retrouvez ce qui compte pour vous
 					</p>
-					<p className="hidden max-w-md text-[17px] leading-relaxed text-white/70 lg:block">
+					<p className="text-white0 hidden max-w-md text-[17px] leading-relaxed lg:block">
 						La plateforme d’objets perdus et retrouvés en Côte d’Ivoire.
 					</p>
 				</div>
@@ -68,9 +68,7 @@ export function BrandingPanel() {
 							</span>
 							<span>
 								<span className="block text-[15px] font-semibold">{title}</span>
-								<span className="block text-[13.5px] text-white/65">
-									{detail}
-								</span>
+								<span className="block text-[13.5px] text-white">{detail}</span>
 							</span>
 						</li>
 					))}

@@ -123,7 +123,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 										className={cn(
 											'flex h-11 items-center gap-1.5 rounded-xl border px-3.5 text-sm font-medium transition-all lg:h-10',
 											showFilters || activeFiltersCount > 0
-												? 'border-primary-green/40 bg-primary-green/10 text-primary-green'
+												? 'border-primary-green/40 bg-primary-green/10 text-primary-green-text'
 												: 'bg-background border-border text-muted-foreground hover:border-primary-green/30',
 										)}
 									>
@@ -194,7 +194,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 								{activeChips.map(chip => (
 									<span
 										key={chip.label}
-										className="border-primary-green/20 bg-primary-green/10 text-primary-green inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium"
+										className="border-primary-green/20 bg-primary-green/10 text-primary-green-text inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium"
 									>
 										{chip.label}
 										<button

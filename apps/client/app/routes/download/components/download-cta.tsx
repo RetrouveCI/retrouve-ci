@@ -8,7 +8,7 @@ export function DownloadCta() {
 			<div className="container mx-auto px-4">
 				<div className="bg-background relative mx-auto max-w-2xl overflow-hidden rounded-2xl border p-10 text-center">
 					<div className="bg-primary-green/5 pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full blur-2xl" />
-					<div className="border-accent-orange/20 bg-accent-orange/10 text-accent-orange mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium">
+					<div className="border-accent-orange/20 bg-accent-orange/10 text-accent-orange-text mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium">
 						<Clock className="h-3.5 w-3.5" />
 						En attendant l&apos;application mobile
 					</div>

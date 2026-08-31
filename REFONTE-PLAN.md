@@ -196,9 +196,9 @@ Oubli : /auth/login → Mot de passe oublié (numéro)
 | `ActivityHub`              | Fusionné dans l'écran Compte                                                                          |
 | Bascule de navigation      | `md` → **`lg`** : la tablette garde les onglets                                                       |
 | Scanner sur desktop        | **Aucun.** L'équivalent est la saisie du code, sur la page Stickers                                   |
-| Vert de marque en sombre   | `--primary-green-light` (#2A9D54), 5,71:1 — le token existe déjà                                      |
-| Orange en texte, en clair  | Nouveau token `--accent-orange-text` (#B35600), 4,94:1                                                |
-| Aplat orange               | Encre foncée, jamais du blanc (2,70:1 contre 6,23:1)                                                  |
+| Vert de marque en sombre   | `--primary-green-text` **#2FA85B** (R3 : #2A9D54 tombait à 4,35 sur `--muted`)                        |
+| Orange en texte, en clair  | `--accent-orange-text` **#A85000** (R3 : #B35600 tombait à 4,06 sur `bg-accent-orange/20`)            |
+| Aplat orange               | `--accent-orange-foreground` #181B1F, **fixe dans les deux thèmes**, jamais du blanc (2,70:1)         |
 | Thème                      | Troisième valeur `system`, qui devient le **défaut**                                                  |
 | Règle du numéro            | `^0[157]\d{8}$`, et **deux prédicats** : strict à la saisie, longueur seule à la connexion (R26)      |
 | Durée de vie de l'OTP      | Une seule constante, `OTP_TTL_SECONDS` remontée dans `@app/contracts/shared` (front : 120, API : 300) |
@@ -220,7 +220,7 @@ Une ligne = une branche = une PR = une session.
 | ------- | -------- | ------------------------------------------- | ------------------------------------ | -------------------- | ------ | ------------ |
 | **R1**  | Socle    | Zones sûres de l'appareil                   | `refonte-r1-safe-areas`              | `client`             | 0,2 j  | —            |
 | **R2**  | Socle    | Cibles tactiles 44 px sous `lg`             | `refonte-r2-touch-targets`           | `ui` + les deux apps | 0,5 j  | —            |
-| **R3**  | Socle    | Tokens de couleur accessibles               | `refonte-r3-colour-tokens`           | `ui`                 | 1 j    | —            |
+| **R3**  | Socle    | Tokens de couleur accessibles               | `refonte-r3-colour-tokens`           | `ui` + `client`      | 1 j    | —            |
 | **R4**  | Socle    | Photos servies à la taille d'affichage      | `refonte-r4-image-sizes`             | `client`             | 1 j    | —            |
 | **R5**  | Coquille | Thème dans Réglages + option `system`       | `refonte-r5-theme-settings`          | `client/account`     | 1 j    | R3           |
 | **R6**  | Coquille | Barre d'onglets à 4 entrées + Scanner       | `refonte-r6-tab-bar`                 | `client`             | 1,5 j  | R2, R5       |
@@ -406,6 +406,69 @@ clair — plus le respect de `prefers-reduced-motion`.
 tous. **Acceptation** : tout texte atteint 4,5:1 dans les deux thèmes. **Tests**
 : projet `node`, un test qui calcule les ratios des couples de tokens et échoue
 sous 4,5 — garde de non-régression.
+
+> **Les deux valeurs de §3 ne survivent pas à la mesure.** Elles n'avaient été
+> vérifiées que contre `--background`. Contre les autres surfaces réelles :
+> #2A9D54 tombe à **4,35** sur `--muted` en sombre, et le motif de pastille
+> `bg-primary-green/10 + text-primary-green` — une quinzaine d'appels — tombe à
+> **4,41** en clair, `/20` à **3,83** ; côté orange, #B35600 donne **4,48** sur
+> `bg-accent-orange/10` et **4,06** sur `/20`. Les tokens retenus tiennent sur
+> **toutes** ces surfaces, aplats teintés compris : encre verte **#1A6F3A** en
+> clair (4,73 au pire) / **#2FA85B** en sombre (4,94), encre orange **#A85000**
+> en clair (4,52) / **#F57C00 inchangé** en sombre (5,59 — l'orange de marque
+> n'a jamais eu de problème en sombre, le plan ne le disait pas). §3 est corrigé
+> en conséquence.
+
+> **L'encre de l'aplat orange ne peut pas être `--foreground`.** Le point 3
+> l'écrivait ainsi ; `--foreground` bascule au quasi-blanc en thème sombre,
+> alors que l'aplat, lui, ne bascule pas — le blanc sur orange à 2,70:1 que §2.1
+> interdit revenait donc par la porte de derrière. D'où un token dédié,
+> `--accent-orange-foreground` (#181B1F), **identique dans les deux thèmes**, et
+> un test qui vérifie précisément cette identité.
+
+> **Quatre couples de la palette shadcn échouaient, hors périmètre annoncé.** La
+> rampe de marque cachait le reste : `--accent` est ici un **orange saturé** et
+> non le neutre de shadcn, donc son encre blanche lisait **3,05** en clair et
+> **2,62** en sombre — atteint par chaque `hover:bg-accent` du paquet ;
+> `--primary` et `--sidebar-primary`, éclaircis pour le thème sombre, lisaient
+> **4,03** sous leur propre blanc. `--primary` s'est révélé être le piège du
+> chantier : c'est **à la fois un aplat et une encre** (`text-primary`, 118
+> appels). L'assombrir corrigeait l'aplat (4,95) et cassait l'encre (3,99).
+> Réglé en séparant les rôles comme partout ailleurs — aplat éclairci à
+> `oklch(0.65 0.15 145)` et encre foncée : 4,96 au pire comme encre, 5,67 comme
+> aplat. Le test couvre désormais **tous** les couples `--x` / `--x-foreground`.
+
+> **Trois défauts de contraste hors tokens, trouvés au navigateur.** Un texte ne
+> se corrige pas toujours dans la feuille de style. (a) Le blanc **fondu** sur
+> l'aplat vert : `text-white/60` à `/80` lit 2,85 à 3,83 — sur ce vert, même
+> `/90` ne passe pas (4,41), donc le corps de texte reprend le blanc plein (13
+> appels ; icônes et logotype gardent leur fondu). (b) `bg-red-500` sous du
+> blanc lit **3,81** — passé en `red-600` (4,77) sur les deux pastilles « Perdu
+> » ; le point de 2 px à côté n'est pas du texte et ne bouge pas. (c) Le bandeau
+> d'appel de l'accueil est un `bg-neutral-900`, **sombre dans les deux thèmes**
+> : une encre qui suit le thème y lit 2,38 en clair. Même piège que `bg-white`
+> et `bg-green-50` ailleurs — une surface fixe demande une encre fixe, et les
+> trois emplacements portent désormais un commentaire qui le dit.
+
+> **Portée réelle : `ui` **et** `client`.** Le tableau §4 annonce `ui` seul, ce
+> qui ne pouvait pas tenir dès lors que le point 2 demande de reprendre les
+> usages : 78 fichiers de `apps/client`, pour 110 encres vertes et 35 oranges.
+> `apps/admin` n'est pas touché — son seul appel est le « CI » du logo.
+
+> **Le logotype garde l'orange de marque.** `text-accent-orange` reste sur le «
+> CI » de `logo-retrouveci.tsx`, `mobile-nav.tsx` et l'écran d'auth du
+> backoffice, à 2,70:1. WCAG 1.4.3 exempte explicitement les logotypes, et la
+> marque ne doit pas changer de teinte selon le thème. Arbitrage de séance.
+
+> **Mesuré, pas compté.** Les 15 routes servies ont été parcourues aux deux
+> thèmes et aux deux largeurs (390 et 1280), chaque nœud de texte mesuré contre
+> son fond réel — fond composité couche par couche, teintes `/NN`, opacité
+> d'ancêtre et dégradés compris. 27 couples distincts sous le seuil au départ,
+> **0 à l'arrivée** : le reliquat est du texte décoratif (numéros d'étape en
+> `opacity-10`, numérotation de sections), un bouton **désactivé**, et le
+> logotype — les trois catégories que 1.4.3 exempte. **Non couvert en CI** : la
+> mesure demande un navigateur et l'application servie ; le test garde les
+> tokens, pas les points d'appel.
 
 #### R4 — Photos servies à la taille d'affichage
 

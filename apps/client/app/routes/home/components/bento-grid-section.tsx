@@ -52,7 +52,7 @@ export function BentoGridSection() {
 								<h3 className="mb-3 text-2xl font-bold text-white md:text-3xl">
 									Recherche intelligente
 								</h3>
-								<p className="max-w-md flex-1 text-base text-white/80">
+								<p className="max-w-md flex-1 text-base text-white">
 									Filtres avancés par catégorie, lieu et date pour trouver
 									rapidement parmi des milliers d&apos;annonces.
 								</p>
@@ -72,7 +72,7 @@ export function BentoGridSection() {
 							<div className="flex h-full flex-col justify-between">
 								<div>
 									<div className="bg-accent-orange/10 mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-										<TrendingUp className="text-accent-orange h-6 w-6" />
+										<TrendingUp className="text-accent-orange-text h-6 w-6" />
 									</div>
 									<h3 className="mb-1 text-lg font-bold">
 										Couverture nationale
@@ -92,7 +92,7 @@ export function BentoGridSection() {
 									].map(city => (
 										<span
 											key={city}
-											className="bg-primary-green/10 text-primary-green rounded-full px-3 py-1 text-xs font-medium"
+											className="bg-primary-green/10 text-primary-green-text rounded-full px-3 py-1 text-xs font-medium"
 										>
 											{city}
 										</span>
@@ -106,7 +106,7 @@ export function BentoGridSection() {
 						<div className="bg-background border-border/50 hover:border-border relative h-full min-h-100 overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-lg">
 							<div className="flex h-full flex-col">
 								<div className="bg-accent-orange/10 mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-									<Bell className="text-accent-orange h-6 w-6" />
+									<Bell className="text-accent-orange-text h-6 w-6" />
 								</div>
 								<h3 className="mb-1 text-lg font-bold">
 									Alertes en temps réel
@@ -193,7 +193,7 @@ export function BentoGridSection() {
 							<div className="bg-accent-orange/10 absolute -right-10 -bottom-10 h-40 w-40 rounded-full blur-2xl" />
 							<div className="relative z-10 flex h-full flex-col items-start gap-6 md:flex-row md:items-center">
 								<div className="bg-accent-orange/10 flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl transition-transform group-hover:scale-110">
-									<QrCode className="text-accent-orange h-8 w-8" />
+									<QrCode className="text-accent-orange-text h-8 w-8" />
 								</div>
 								<div className="flex-1">
 									<h3 className="mb-2 text-xl font-bold">
@@ -205,7 +205,7 @@ export function BentoGridSection() {
 									</p>
 									<Link
 										to="/stickers"
-										className="touch-target group/link text-accent-orange inline-flex items-center gap-2 text-sm font-medium"
+										className="touch-target group/link text-accent-orange-text inline-flex items-center gap-2 text-sm font-medium"
 									>
 										Découvrir
 										<ArrowRight className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />
@@ -224,7 +224,7 @@ export function BentoGridSection() {
 								<div className="relative z-10 flex h-full flex-col">
 									<div className="mb-4 flex items-center gap-2">
 										<Smartphone className="h-5 w-5 text-white/70" />
-										<span className="bg-primary-green/20 text-primary-green rounded-full px-2 py-0.5 text-xs font-medium">
+										<span className="bg-primary-green/20 text-primary-green-text rounded-full px-2 py-0.5 text-xs font-medium">
 											Bientôt
 										</span>
 									</div>

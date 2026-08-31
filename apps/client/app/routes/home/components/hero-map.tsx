@@ -343,21 +343,21 @@ function PersonMarker({
 }) {
 	const scale = hub ? 1.5 : minor ? 0.85 : 1.15
 	const haloR = hub ? 9 : minor ? 5.5 : 7.5
-	const colorClass = hub ? 'fill-accent-orange' : 'fill-primary-green'
+	const colorClass = hub ? 'fill-accent-orange-text' : 'fill-primary-green'
 
 	return (
 		<g transform={`translate(${x} ${y})`}>
 			{hub && (
 				<circle
 					r={11}
-					className="fill-accent-orange animate-ping"
+					className="fill-accent-orange-text animate-ping"
 					opacity={0.3}
 					style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
 				/>
 			)}
 			<circle
 				r={haloR}
-				className={hub ? 'fill-accent-orange/15' : 'fill-primary-green/12'}
+				className={hub ? 'fill-accent-orange-text/15' : 'fill-primary-green/12'}
 			/>
 			<g transform={`scale(${scale})`} className={colorClass}>
 				<circle cy={-3} r={1.9} />
@@ -446,7 +446,7 @@ export function HeroMap() {
 								cx={from.x}
 								cy={from.y}
 								r={2.4}
-								className="fill-accent-orange"
+								className="fill-accent-orange-text"
 								filter="url(#map-glow)"
 							>
 								<animateMotion

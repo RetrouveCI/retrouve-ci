@@ -50,7 +50,7 @@ export function ProcessStepsSection() {
 						>
 							<div className="mb-4 flex items-center gap-3">
 								<div className="bg-primary-green/10 group-hover:bg-primary-green flex h-10 w-10 items-center justify-center rounded-xl transition-colors">
-									<step.icon className="text-primary-green h-5 w-5 transition-colors group-hover:text-white" />
+									<step.icon className="text-primary-green-text h-5 w-5 transition-colors group-hover:text-white" />
 								</div>
 								<span className="text-muted-foreground/30 text-3xl font-bold">
 									{step.number}
