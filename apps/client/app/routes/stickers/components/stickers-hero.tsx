@@ -1,12 +1,15 @@
 import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { ArrowRight } from 'lucide-react'
+import { useAuth } from '@/context/auth'
 import { StickerMark } from './sticker-mark'
 import { CurvedArrow, TAGGED_OBJECTS } from './tagged-objects'
 
 const { Phone, Bottle, Wallet } = TAGGED_OBJECTS
 
 export function StickersHero() {
+	const { isAuthenticated } = useAuth()
+
 	return (
 		<section className="relative overflow-hidden border-b">
 			{/* The same three layers the home and listings pages use: a white
@@ -26,11 +29,16 @@ export function StickersHero() {
 			/>
 
 			{/* Left: the product on its own, at two sizes, as the reference does. */}
-			<div
-				className="pointer-events-none absolute top-10 -left-10 hidden w-72 md:block lg:left-4 xl:left-16"
-				aria-hidden
-			>
+			<div className="pointer-events-none absolute top-10 -left-10 hidden w-72 md:block lg:left-4 xl:left-16">
 				<StickerMark tone="green" tilt={-9} className="w-32 lg:w-40" />
+				{/* Each sticker carries a code, and activating it is a real step of
+				    the journey. Saying so here costs a line. */}
+				<p className="text-muted-foreground mt-3 ml-2 text-xs">
+					Chaque sticker porte son code
+					<span className="text-foreground block font-semibold tracking-[0.14em] tabular-nums">
+						RCI-4A7F-2K91
+					</span>
+				</p>
 				<div className="mt-8 ml-16 flex items-end gap-4">
 					<StickerMark tone="light" tilt={7} className="w-20 lg:w-24" />
 					<CurvedArrow className="text-foreground/25 mb-2 w-20" />
@@ -74,19 +82,32 @@ export function StickersHero() {
 						Les stickers qui ramènent vos objets
 					</h1>
 					<p className="text-muted-foreground mx-auto mt-5 max-w-md text-base text-pretty md:text-lg">
-						Collez, scannez, récupérez. Nos stickers QR permettent à quiconque
-						trouve votre objet de vous contacter en toute sécurité.
+						Collez-le sur ce qui compte. Celui qui trouve scanne, vous êtes
+						prévenu — sans jamais donner votre numéro.
 					</p>
 
-					<Button
-						asChild
-						className="bg-foreground text-background hover:bg-foreground/90 mt-8 rounded-full px-8 text-base font-semibold"
-					>
-						<Link to="/stickers/order">
-							Je commande
-							<ArrowRight className="ml-1 h-4 w-4" />
-						</Link>
-					</Button>
+					<div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+						<Button
+							asChild
+							className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-8 text-base font-semibold"
+						>
+							<Link to="/stickers/order">
+								Je commande
+								<ArrowRight className="ml-1 h-4 w-4" />
+							</Link>
+						</Button>
+						{/* The funnel's other door: ordering needs an account, and this
+						    hero dropped the only link to one. */}
+						{!isAuthenticated && (
+							<Button
+								asChild
+								variant="outline"
+								className="rounded-full px-8 text-base font-semibold"
+							>
+								<Link to="/register">Créer un compte</Link>
+							</Button>
+						)}
+					</div>
 
 					<p className="text-muted-foreground mt-5 text-sm">
 						À partir de{' '}
@@ -108,6 +129,12 @@ export function StickersHero() {
 						/>
 					</div>
 				</div>
+				<p className="text-muted-foreground mt-5 text-center text-xs md:hidden">
+					Chaque sticker porte son code
+					<span className="text-foreground block font-semibold tracking-[0.14em] tabular-nums">
+						RCI-4A7F-2K91
+					</span>
+				</p>
 			</div>
 		</section>
 	)

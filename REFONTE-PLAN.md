@@ -1140,8 +1140,14 @@ seule action, et des objets portant le sticker en périphérie.
 3. Le fond reprend les **trois couches de l'accueil et des annonces** — sol
    blanc, grille fine, nébuleuse verte et nébuleuse orange. La page se lit comme
    une page RetrouveCI, pas comme un décalque de la référence.
-4. La copie est celle de la maquette (« Le sticker qui ramène vos objets »), pas
-   une invention.
+4. La copie est celle de la maquette, au titre près : « **Les** stickers qui
+   ramènent vos objets », au pluriel, arbitrage de séance — on vend des packs,
+   pas une unité.
+5. Le second bouton « Créer un compte » et le code d'activation `RCI-4A7F-2K91`
+   sont **conservés de l'ancien hero**. La première réécriture les avait perdus
+   sans que ce soit une décision : commander demande un compte, et l'activation
+   par code est une étape réelle du parcours. Le code est du texte, pas un
+   ornement — il est lu par les lecteurs d'écran.
 
 > **Écart assumé à la maquette.** La planche `Stickers` du canevas dessine un
 > hero **sombre** orienté produit — bloc `#12201A`, prix en gros, pastille «
