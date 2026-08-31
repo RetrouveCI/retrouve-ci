@@ -69,9 +69,20 @@ export function AuthPageHeader({
 			<div className="-mx-6 flex h-14 items-center gap-2 border-b px-2 lg:mx-0 lg:h-auto lg:gap-2.5 lg:border-b-0 lg:px-0">
 				{back}
 
-				<p className="flex-1 text-base font-bold tracking-tight lg:hidden">
-					{flow}
-				</p>
+				{/* The brand lives here below `lg`, where the panel that carries it
+				    is hidden: without it these screens showed no mark at all. It sits
+				    beside the flow name rather than replacing it, so the five screens
+				    keep the one pattern. */}
+				<span className="flex flex-1 items-center gap-2 lg:hidden">
+					<img
+						src="/logo.png"
+						alt="RetrouveCI"
+						width={28}
+						height={28}
+						className="h-7 w-7 rounded-[9px]"
+					/>
+					<span className="text-base font-bold tracking-tight">{flow}</span>
+				</span>
 
 				{hasProgress && (
 					<>
