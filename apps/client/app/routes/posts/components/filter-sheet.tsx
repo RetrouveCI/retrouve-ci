@@ -23,7 +23,7 @@ import { ABIDJAN_COMMUNES, CI_VILLES } from '@/shared/constants/locations'
 import type { LostItemCategory, LostItemType } from '@/shared/types/lost-item'
 import type { DateFilterMode } from '../helpers/date-presets'
 import { CATEGORY_FILTERS, TYPE_FILTERS } from '../posts.const'
-import { FilterPill } from './filter-pill'
+import { FilterPill } from '@/components/filter-pill'
 
 interface FilterSheetProps {
 	open: boolean

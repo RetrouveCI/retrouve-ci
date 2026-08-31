@@ -2,13 +2,13 @@ import type { ActivitySummary } from '@/shared/types/activity'
 
 const {
 	getServerSession,
-	getMyLostItemsPage,
+	sweepMyLostItems,
 	getMyQrCodesPage,
 	getMyStickerOrdersPage,
 	getUnreadNotificationsCount,
 } = vi.hoisted(() => ({
 	getServerSession: vi.fn(),
-	getMyLostItemsPage: vi.fn(),
+	sweepMyLostItems: vi.fn(),
 	getMyQrCodesPage: vi.fn(),
 	getMyStickerOrdersPage: vi.fn(),
 	getUnreadNotificationsCount: vi.fn(),
@@ -16,7 +16,7 @@ const {
 
 vi.mock('@/shared/helpers/session.server', () => ({ getServerSession }))
 vi.mock('../../posts/servers/account-posts.service', () => ({
-	getMyLostItemsPage,
+	sweepMyLostItems,
 }))
 vi.mock('../../stickers/servers/stickers.service', () => ({ getMyQrCodesPage }))
 vi.mock('../../orders/servers/orders.service', () => ({
@@ -37,7 +37,7 @@ const item = (
 
 beforeEach(() => {
 	getServerSession.mockReset().mockResolvedValue({ user: { id: 'u1' } })
-	getMyLostItemsPage.mockReset().mockResolvedValue({ items: [], total: 0 })
+	sweepMyLostItems.mockReset().mockResolvedValue({ items: [], total: 0 })
 	getMyQrCodesPage.mockReset().mockResolvedValue({ items: [], total: 0 })
 	getMyStickerOrdersPage.mockReset().mockResolvedValue({ items: [], total: 0 })
 	getUnreadNotificationsCount.mockReset().mockResolvedValue(0)
@@ -54,7 +54,7 @@ describe('getActivitySummary', () => {
 		getServerSession.mockResolvedValue(null)
 
 		expect(await getActivitySummary(request())).toBeNull()
-		expect(getMyLostItemsPage).not.toHaveBeenCalled()
+		expect(sweepMyLostItems).not.toHaveBeenCalled()
 		expect(getMyQrCodesPage).not.toHaveBeenCalled()
 		expect(getMyStickerOrdersPage).not.toHaveBeenCalled()
 		expect(getUnreadNotificationsCount).not.toHaveBeenCalled()
@@ -69,7 +69,7 @@ describe('getActivitySummary', () => {
 	})
 
 	it('counts active posts as published *and* unresolved', async () => {
-		getMyLostItemsPage.mockResolvedValue({
+		sweepMyLostItems.mockResolvedValue({
 			total: 4,
 			items: [
 				item('published', 'active'),
@@ -91,7 +91,7 @@ describe('getActivitySummary', () => {
 
 	// `total` is the API's count, not the page length — the page is capped at 50.
 	it('takes the total from the API rather than the returned page', async () => {
-		getMyLostItemsPage.mockResolvedValue({
+		sweepMyLostItems.mockResolvedValue({
 			total: 137,
 			items: [item('published', 'active')],
 		})
@@ -141,7 +141,7 @@ describe('getActivitySummary', () => {
 
 	it('reads every source concurrently', async () => {
 		const order: string[] = []
-		getMyLostItemsPage.mockImplementation(async () => {
+		sweepMyLostItems.mockImplementation(async () => {
 			order.push('posts:start')
 			await Promise.resolve()
 			order.push('posts:end')
@@ -162,7 +162,7 @@ describe('getActivitySummary', () => {
 
 	// A convenience panel must not surface as a broken route.
 	it.each([
-		['posts', () => getMyLostItemsPage.mockRejectedValue(new Error('boom'))],
+		['posts', () => sweepMyLostItems.mockRejectedValue(new Error('boom'))],
 		['stickers', () => getMyQrCodesPage.mockRejectedValue(new Error('boom'))],
 		[
 			'orders',

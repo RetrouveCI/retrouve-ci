@@ -2,7 +2,7 @@ import { Button } from '@app/ui/components'
 import { Inbox } from 'lucide-react'
 import type { LostItem } from '@/shared/types/lost-item'
 import { ListingCard } from './listing-card'
-import { PaginationBar } from './pagination-bar'
+import { PaginationBar } from '@/components/pagination-bar'
 
 interface ListingsContentProps {
 	paginatedListings: LostItem[]

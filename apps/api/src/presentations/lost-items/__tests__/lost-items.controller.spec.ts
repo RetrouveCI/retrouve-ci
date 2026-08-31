@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type {
 	CreateLostItemData,
 	ListLostItemsFilterData,
+	MyLostItemsFilterData,
 	UpdateLostItemData,
 } from '@app/contracts/lost-items'
 import { buildLostItem } from '@/domains/lost-items/__tests__/lost-item.fixture'
@@ -157,6 +158,33 @@ describe('LostItemsController', () => {
 				filter: query,
 			})
 			expect(result).toEqual(response)
+		})
+
+		/**
+		 * The lifecycle filter is what « Mes annonces » puts in the URL, and the
+		 * repository has always honoured it — until R11 no schema let it through,
+		 * so the front had to fetch everything and filter in the browser.
+		 */
+		it('forwards the lifecycle status the owner filtered on', async () => {
+			const query: MyLostItemsFilterData = {
+				page: 2,
+				pageSize: 12,
+				resolutionStatus: 'resolved',
+				search: 'sac',
+			}
+			vi.mocked(getMyLostItems.execute).mockResolvedValue({
+				items: [],
+				total: 0,
+				page: 2,
+				pageSize: 12,
+			})
+
+			await controller.listMine(session, query)
+
+			expect(getMyLostItems.execute).toHaveBeenCalledWith({
+				userId: 'user-1',
+				filter: query,
+			})
 		})
 	})
 

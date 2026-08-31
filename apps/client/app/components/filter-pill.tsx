@@ -1,9 +1,10 @@
 import { cn } from '@app/ui/utils'
 
 /**
- * The one shape a filter takes on this page (§2.1) — in the sheet and on the
- * page alike. `touch-target` widens the tap zone to 44 px without changing what
- * is drawn, so the capsule keeps the 34–38 px the vocabulary asks for.
+ * The one shape a filter takes (§2.1) — on « Annonces », in its sheet and on
+ * « Mes annonces » alike. `touch-target` widens the tap zone to 44 px without
+ * changing the 38 px drawn, which is also what keeps two wrapped rows from
+ * stealing each other's taps: 3 px of overhang inside an 8 px gap.
  */
 export function FilterPill({
 	active,
