@@ -1031,8 +1031,8 @@ tout dans R28 »). Les cinq écrans du lot auth sont alignés sur les planches
 > 3. **Une partie de R30 est consommée.** Les chaînes déplacées ou réécrites ici
 >    sont accentuées correctement : les quatre de `password-step.tsx`, «
 >    Verification… » et « Code incorrect. Vérifiez et réessayez. » de
->    `otp-step.tsx`. Il reste à R30 les **sept** de `branding-panel.tsx` et ses
->    trois chiffres inventés.
+>    `otp-step.tsx`. Les **sept** de `branding-panel.tsx` et ses trois chiffres
+>    inventés sont partis avec R29 : R30 s'est donc close sans travail propre.
 
 **Non fait, et pourquoi** : le champ « Votre prénom » de `AuthMotDePasse` («
 Affiché à la personne qui trouve votre objet »). Il n'existe ni dans
@@ -1170,43 +1170,43 @@ applications — `routes.ts` résout ses modules par chemin et lui seul le contr
 — puis les six URLs et cinq `redirectTo` hostiles exercés sur l'application qui
 tourne.
 
-#### R30 — Copie et chiffres du panneau de marque
+#### R30 — Copie et chiffres du panneau de marque — **CLOSE, sans travail propre**
 
-Deux défauts distincts sur les mêmes écrans.
+**Ses deux critères d'acceptation étaient remplis avant qu'elle ne commence**,
+par les étapes qui l'ont précédée. Elle est close telle quelle : inventer du
+travail pour justifier une entrée du plan serait pire que de la refermer.
 
-**Les accents.** Treize chaînes sans accents dans trois fichiers, et deux
-d'entre elles cohabitent sur le même écran avec leur version correctement
-accentuée :
+| Critère d'origine                                     | Rempli par                                                                                                        |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Aucun mot français amputé de ses accents              | R28 (six chaînes, `otp-step` et `password-step`) puis R29 (les sept de `branding-panel`, réécrit sur la maquette) |
+| Aucun chiffre inventé sur un écran d'authentification | R29, qui n'a pas repris « 2,500+ objets », « 15,000+ utilisateurs » ni « 50+ villes »                             |
 
-| Fichier                            | Chaînes                                                                                                                                                                | Voisine accentuée, même écran            |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `components/branding-panel.tsx`    | « Cote d'Ivoire » ×2, « Alertes instantanees », « Soyez notifie des qu'un objet correspond », « 100% securise », « Vos donnees restent privees », « Objets retrouves » | —                                        |
-| ~~`components/otp-step.tsx`~~      | ~~« Code incorrect. Verifiez et reessayez. », « Verification... »~~ — **corrigées par R28**                                                                            | le titre de la page, « Vérification »    |
-| ~~`components/password-step.tsx`~~ | ~~« Creation du compte... », « Reinitialisation... », « Creer mon compte », « Reinitialiser le mot de passe »~~ — **corrigées par R28**                                | le titre de la page, « Créer un compte » |
+> **Correction.** Cette entrée réclamait encore, jusqu'ici, « sept chaînes
+> restantes dans `branding-panel.tsx` ». C'était faux depuis R29 : la mise à
+> jour faite alors n'avait pas pris sur ce point précis, le retour à la ligne de
+> Prettier ayant déplacé la coupure que le remplacement visait. Vérifié cette
+> fois par recherche sur l'arborescence, pas par édition à l'aveugle.
 
-> **Recompté (§1.1).** L'audit en annonçait neuf et citait « Utilisateurs actifs
-> » et « Villes couvertes », qui n'en demandent aucun. Il manquait en revanche
-> les quatre de `password-step.tsx` et « Verification... ».
+**Le troisième point — brancher des compteurs réels — devient une étape API**
+(A5), et non une dette du lot 9. Ce qui a été mesuré pour trancher :
 
-**Les chiffres.** « 2,500+ objets retrouvés », « 15,000+ utilisateurs actifs »
-et « 50+ villes couvertes » sont **écrits en dur** (`branding-panel.tsx:74-86`)
-et le pilote Abidjan n'a pas démarré : trois affirmations fausses sur l'écran
-même qui demande la confiance. Le séparateur de milliers est de surcroît la
-virgule anglaise, là où le français emploie l'espace insécable.
+- `GET /lost-items` est `@AllowAnonymous()` et rend un `total`, donc « annonces
+  publiées » est disponible **sans aucun travail API**. Mais son filtre public
+  n'exclut pas les annonces résolues, et l'en exclure changerait `/posts` pour
+  tout le monde — une décision produit, pas un habillage.
+- « Objets rendus ce mois » demande `resolutionStatus` et une fenêtre de dates,
+  qu'aucun contrat public n'expose. `/stats` sert le backoffice.
+- **Le pilote d'Abidjan n'a pas démarré.** La règle du lot est « ne rien
+  afficher tant qu'il n'y a rien » : branchée aujourd'hui, la bande resterait
+  masquée. Construire l'endpoint maintenant serait bâtir pour des chiffres qui
+  liront zéro.
 
-1. Corriger les chaînes restantes — **sept**, toutes dans `branding-panel.tsx` :
-   R28 a traité les six autres en déplaçant leurs composants.
-2. Brancher la bande sur des données réelles, ou la supprimer. **Ne rien
-   afficher tant qu'il n'y a rien** : la bande disparaît entièrement plutôt que
-   d'annoncer zéro — un compteur à zéro sur un écran de confiance est pire qu'un
-   compteur absent. La source reste à trancher (§8).
-3. Séparateur de milliers : `Intl.NumberFormat('fr-FR')`.
+`branding-panel.tsx` porte un commentaire à l'emplacement de la bande. Le
+formateur `Intl.NumberFormat('fr-FR')` et son test partiront avec A5, quand il y
+aura un nombre à formater.
 
-**Fichiers** : `routes/auth/components/branding-panel.tsx`, `otp-step.tsx`,
-`password-step.tsx`, et le loader de `routes/auth/layout.tsx` si la bande est
-branchée. **Flux** : E. **Acceptation** : aucun chiffre inventé sur un écran
-d'authentification ; aucun mot français amputé de ses accents. **Tests** :
-projet `node` sur le formateur (zéro → rien, `1234` → « 1 234 »).
+**Acceptation** : vérifiée par recherche — aucun littéral de chiffre et aucun
+mot français sans accents dans `routes/auth/`, hors commentaires.
 
 ### Étapes API
 
@@ -1249,6 +1249,28 @@ Deux besoins découverts par R28, tous deux impossibles côté front seul.
 **Fichiers** : `packages/database/prisma/schema.prisma`,
 `packages/contracts/src/auth/`, `apps/api/src/presentations/auth/`,
 `apps/client/app/routes/auth/register/`. **Flux** : E.
+
+#### A5 — Compteurs publics du panneau d'authentification _(facultatif)_
+
+Repris de R30, qui s'est close sans eux. La maquette (`AuthDesktop`) ferme le
+panneau sur deux compteurs badgés « CHIFFRES RÉELS » : annonces en ligne, objets
+rendus ce mois. Aucun n'est servi publiquement aujourd'hui.
+
+1. Endpoint public rendant les deux nombres — le second demande
+   `resolutionStatus` et une fenêtre de dates, hors du contrat public actuel.
+2. Loader sur `routes/auth/layout.tsx`, **tolérant à la panne** : un compteur
+   que l'API ne peut pas servir ne doit pas emporter l'écran de connexion, comme
+   la pastille de notifications du backoffice qui lit zéro plutôt que de lever.
+3. `Intl.NumberFormat('fr-FR')` — la virgule anglaise des anciens chiffres n'est
+   pas le séparateur français. Test projet `node` : zéro → rien, `1234` → « 1
+   234 ».
+4. **Ne rien afficher tant qu'il n'y a rien** : la bande disparaît entièrement
+   plutôt que d'annoncer zéro.
+
+**À ne faire qu'une fois le pilote démarré**, sans quoi on livre une bande qui
+reste masquée. **Fichiers** : `packages/contracts/src/`, `apps/api/src/`,
+`apps/client/app/routes/auth/{layout.tsx,components/branding-panel.tsx}`.
+**Flux** : E.
 
 #### A2 — Transformations Cloudinary à l'upload _(facultatif)_
 
@@ -1297,14 +1319,14 @@ notifications à personne n'a pas d'intérêt.
 
 ## 8. Points à trancher
 
-| Sujet                        | Question                                                                                                                               | À trancher avant |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| Pagination                   | Chargement continu ou pagination compacte ? Le second garde une position partageable dans l'URL.                                       | R9               |
-| Motif de masquage            | A1 avant ou après R13 ? Avant, si la modération masque déjà des annonces en production.                                                | R13              |
-| Bloc stickers de l'accueil   | Quelle mesure décide qu'il convertit ? À instrumenter dès R17.                                                                         | R17              |
-| Web push                     | A3 vaut-elle son coût ? Le lot 8 se livre sans.                                                                                        | R25              |
-| Récupération de mot de passe | La règle stricte s'y applique-t-elle ? Non par défaut, comme la connexion — mais un numéro non conforme ne recevra jamais son SMS.     | R26              |
-| Compteurs du panneau auth    | Quelle source ? `/stats` est réservé au backoffice ; faut-il un endpoint public, ou le layout auth compte-t-il les annonces en ligne ? | R30              |
+| Sujet                         | Question                                                                                                                                      | À trancher avant |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| Pagination                    | Chargement continu ou pagination compacte ? Le second garde une position partageable dans l'URL.                                              | R9               |
+| Motif de masquage             | A1 avant ou après R13 ? Avant, si la modération masque déjà des annonces en production.                                                       | R13              |
+| Bloc stickers de l'accueil    | Quelle mesure décide qu'il convertit ? À instrumenter dès R17.                                                                                | R17              |
+| Web push                      | A3 vaut-elle son coût ? Le lot 8 se livre sans.                                                                                               | R25              |
+| Récupération de mot de passe  | La règle stricte s'y applique-t-elle ? Non par défaut, comme la connexion — mais un numéro non conforme ne recevra jamais son SMS.            | R26              |
+| ~~Compteurs du panneau auth~~ | **Tranché** : ni l'un ni l'autre pour l'instant. R30 se clôt sans bande, et la question part en **A5**, à traiter une fois le pilote démarré. | ~~R30~~          |
 
 ---
 
