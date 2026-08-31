@@ -483,9 +483,58 @@ sous 4,5 — garde de non-régression.
 **Fichiers** : `apps/client/app/shared/utils/image.ts` (nouveau),
 `routes/posts/components/listing-card.tsx`,
 `routes/account/posts/components/listing-card.tsx`,
-`routes/posts/details/components/post-gallery.tsx`. **Flux** : A, D.
+`routes/posts/details/components/post-gallery.tsx`,
+**`routes/account/components/recent-listings.tsx`** (oublié de la liste
+d'origine — c'est la cinquième photo d'annonce du client). **Flux** : A, D.
 **Acceptation** : plus aucune URL Cloudinary brute dans un `<img>`. **Tests** :
-projet `node` sur le helper, URL Cloudinary et non-Cloudinary.
+projet `node` sur le helper (URL Cloudinary et non-Cloudinary), **plus un test
+`ui`** qui vérifie que les photos arrivent au DOM par le helper, à la largeur
+mesurée — le câblage est invisible au `typecheck`, une URL brute se type
+parfaitement.
+
+> **`c_limit`, pas `c_fill`.** Mesuré sur `res.cloudinary.com/demo` : avec une
+> largeur et **sans hauteur**, les deux se comportent identiquement, sauf que
+> `c_fill` **agrandit**. Sur un original de 864 px, `c_fill,w_3000` renvoie
+> **105 588 o** contre **43 278 o** pour `c_limit` — 2,4 fois plus lourd, pour
+> une image que personne n'a demandée plus grande. Le recadrage dont les cartes
+> ont besoin est celui de CSS (`object-cover`), que ni l'un ni l'autre ne
+> change.
+
+> **Pas d'attributs `width` / `height`, contrairement au point 2.** Le décalage
+> de mise en page ne vient pas de leur absence ici : les sept `<img>` sont
+> `h-full w-full` (la plupart en `absolute inset-0`) dans un conteneur que le
+> CSS dimensionne déjà — `h-20 w-20`, `aspect-video`, `aspect-4/3`. La boîte est
+> donc réservée avant que la photo n'arrive, et il n'y a pas de décalage à
+> corriger. Déclarer une taille intrinsèque que l'on ne connaît pas serait un
+> mensonge dont hériterait le premier refactor qui retire `h-full`. À la place :
+> `loading="lazy"` et `decoding="async"` partout, et `fetchPriority="high"` sur
+> la photo de détail, qui est le LCP de sa page — c'est le seul endroit où
+> `lazy` nuirait.
+
+> **Largeurs mesurées, pas devinées.** Boîtes relevées au navigateur de 390 à
+> 1920 px : la photo de grille plafonne à **489** px CSS (et non « pleine
+> largeur »), celle du détail à **890**, les vignettes sont fixes à 80, 96, 64
+> et 56. Chaque appel demande le **double** — des pixels d'appareil, pour un
+> écran 2× : 1000, 1600, 160, 192, 128, 112. La visionneuse **réutilise l'URL de
+> la photo principale** au lieu d'en demander une plus grande : 1600 px
+> d'appareil couvrent déjà une vue à 85 vh, et une seconde largeur voudrait dire
+> un second téléchargement d'une photo déjà en cache.
+
+> **Le poids, mesuré sur le réseau.** La base de développement ne contient
+> **aucune** photo (7 annonces, 0 image), donc le point 3 a été mesuré contre le
+> cloud de démonstration de Cloudinary, sur `dog.jpg` — 3000 × 2000, 537 666 o,
+> l'ordre de grandeur d'une photo de téléphone. Une **grille de douze annonces**
+> passe de **6,15 Mio à 447 Kio, soit −92,9 %** (38 165 o par carte au lieu de
+> 537 666). Le détail : 71 447 o (−86,7 %). Une vignette de liste : 3 252 o
+> (−99,4 %). L'essentiel du gain vient de `f_auto` — Cloudinary renvoie de
+> l'AVIF — avant même le redimensionnement.
+
+> **Le backoffice porte le même défaut, et n'est pas corrigé ici.**
+> `apps/admin/app/routes/dashboard/posts/components/post-photos.tsx` est un
+> quasi-jumeau de `post-gallery.tsx` et sert trois URL Cloudinary brutes à un
+> modérateur. R4 est scopée `client` et le corriger voudrait dire promouvoir
+> `imageUrl` dans `@app/web-kit` — une modification d'API de paquet, qui mérite
+> son étape. **À ouvrir**, ce n'est pas un oubli.
 
 ### Lot 2 — Coquille
 

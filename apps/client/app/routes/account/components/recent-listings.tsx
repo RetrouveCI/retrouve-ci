@@ -11,6 +11,7 @@ import {
 import { Badge } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
 import type { UserLostItem } from '@/shared/types/lost-item'
+import { imageUrl } from '@/shared/utils/image'
 
 const STATUS_CONFIG = {
 	pending: { label: 'En attente', color: 'bg-yellow-500 text-white' },
@@ -94,8 +95,10 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 								<div className="bg-muted relative h-14 w-14 shrink-0 overflow-hidden rounded-xl">
 									{listing.image ? (
 										<img
-											src={listing.image}
+											src={imageUrl(listing.image, { width: 112 })}
 											alt={listing.title}
+											loading="lazy"
+											decoding="async"
 											className="absolute inset-0 h-full w-full object-cover"
 										/>
 									) : (

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Badge } from '@app/ui/components'
 import { ChevronLeft, ChevronRight, Package, X } from 'lucide-react'
 import { cn } from '@app/ui/utils'
+import { imageUrl } from '@/shared/utils/image'
 
 interface PostGalleryProps {
 	images: string[]
@@ -43,8 +44,10 @@ export function PostGallery({ images, title, isLost }: PostGalleryProps) {
 						aria-label="Agrandir la photo"
 					>
 						<img
-							src={current}
+							src={imageUrl(current, { width: 1600 })}
 							alt={title}
+							decoding="async"
+							fetchPriority="high"
 							className="h-full w-full object-cover"
 						/>
 					</button>
@@ -82,8 +85,10 @@ export function PostGallery({ images, title, isLost }: PostGalleryProps) {
 							aria-label={`Voir la photo ${i + 1}`}
 						>
 							<img
-								src={url}
+								src={imageUrl(url, { width: 128 })}
 								alt={`${title} — photo ${i + 1}`}
+								loading="lazy"
+								decoding="async"
 								className="h-full w-full object-cover"
 							/>
 						</button>
@@ -120,8 +125,9 @@ export function PostGallery({ images, title, isLost }: PostGalleryProps) {
 					)}
 
 					<img
-						src={current}
+						src={imageUrl(current, { width: 1600 })}
 						alt={title}
+						decoding="async"
 						className="max-h-[85vh] max-w-full rounded-lg object-contain"
 						onClick={e => e.stopPropagation()}
 					/>
