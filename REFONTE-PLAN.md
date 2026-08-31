@@ -731,7 +731,56 @@ l'URL.
 
 **Fichiers** : `app/components/header.tsx`, `app/components/search-bar.tsx`.
 **Flux** : tous. **Acceptation** : composition stable de 1024 à 1920 px ; la
-recherche est atteignable depuis n'importe quelle page.
+recherche est atteignable depuis n'importe quelle page. **Tests** : projet `ui`
+— où la recherche envoie, et que « J'ai perdu » / « J'ai trouvé » sont **deux
+liens** et non un menu ; ni l'un ni l'autre n'est visible au `typecheck`.
+
+> **La mesure a imposé un arbitrage que le plan ne prévoyait pas.** Première
+> version posée telle qu'écrite : à **1024 px la recherche tombait à 208 px** au
+> repos, et bondissait à 382 une fois défilée — le logo, les liens, la bascule
+> de thème et le bouton scindé consommaient tout. Ce n'est pas une « composition
+> stable de 1024 à 1920 ». Trois corrections : la bascule de thème passe à `xl`,
+> les espacements se resserrent entre `lg` et `xl`, et la zone centrale reçoit
+> un **plancher** (`lg:min-w-80`). Mesuré après : **340 px à 1024**, 464 à 1280,
+> 620 (le plafond) à 1440 et 1920, les trois zones présentes à chaque largeur.
+
+> **La bascule de thème n'apparaît qu'à 1280**, là où R5 demandait de la laisser
+> « dans l'en-tête desktop ». C'est elle qui cède parce que **R5 a précisément
+> donné au thème un domicile durable dans Réglages**, alors que les liens sont
+> la seule navigation qui reste au-dessus de `lg` — la barre d'onglets est
+> `lg:hidden`. Elle est toujours là de 1280 à 1920.
+
+> **Pas de sélecteur de ville dans la recherche.** La planche `NavDesktop`
+> dessine une puce « Abidjan ▾ » dans le champ. C'est un **filtre**, et les
+> filtres sont l'objet de R8. Non ajouté.
+
+> **Le bouton scindé ne se replie pas au défilement**, là où la planche le
+> remplace par une pastille « Publier » unique. Le point 3 énumère ce qui change
+> — « les liens s'effacent, la recherche reste » — et le bouton tient dans les
+> 58 px. Surtout, §2.3 règle 3 demande **ces deux libellés-là** partout où ils
+> paraissent ; les remplacer par un mot générique à mi-page les affaiblirait.
+
+> **« Accueil » quitte les liens**, comme sur la planche : la marque y mène
+> déjà, et un lien qui répète le logo posé à côté dépense un emplacement pour
+> rien. Aucune route perdue. La pastille grise à trois onglets devient deux
+> liens soulignés à l'actif, également d'après la planche.
+
+> **Sous 768 px, l'en-tête ne porte toujours pas de recherche.** Les quatre
+> points de R7 sont tous ≥ 768, et la planche `NavC` dessine bien une loupe dans
+> le bandeau mobile — mais il lui faut une destination (un écran de recherche,
+> ou un champ qui se déploie) qu'aucune étape ne spécifie. Sur un téléphone la
+> recherche reste à un geste : l'onglet Annonces, qui ouvre `/posts` et sa
+> propre barre. **À ouvrir** avec R8.
+
+> **`SearchBar` gagne `submit: 'label' | 'icon' | 'none'`**, qui remplace
+> `showSubmit` — un booléen qu'aucun point d'appel n'utilisait. L'en-tête prend
+> `icon` : à 1024 px un bouton libellé mangerait la largeur que la recherche
+> vient de gagner.
+
+> **Mesuré aux six largeurs**, au repos et défilé : 390, 768, 1024, 1280, 1440
+> et 1920. Et la seconde moitié du critère vérifiée pour de bon — la recherche
+> soumise depuis `/`, `/about`, `/stickers` et `/contact` atterrit bien sur
+> `/posts?q=…`, la requête préservée.
 
 ### Lot 3 — Annonces publiques
 
