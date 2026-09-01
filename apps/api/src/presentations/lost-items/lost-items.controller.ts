@@ -34,6 +34,7 @@ import type { Auth } from '@/infrastructures/auth/auth.config'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
 import { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
 import { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
+import { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
 import { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
 import { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
@@ -54,6 +55,7 @@ export class LostItemsController {
 		private readonly recordLostItemContactUseCase: RecordLostItemContactUseCase,
 		private readonly getPaginatedLostItemsUseCase: GetPaginatedLostItemsUseCase,
 		private readonly getMyLostItemsUseCase: GetMyLostItemsUseCase,
+		private readonly getMyLostItemsSummaryUseCase: GetMyLostItemsSummaryUseCase,
 		private readonly updateLostItemUseCase: UpdateLostItemUseCase,
 		private readonly moderateLostItemUseCase: ModerateLostItemUseCase,
 		private readonly deleteLostItemUseCase: DeleteLostItemUseCase,
@@ -97,6 +99,16 @@ export class LostItemsController {
 			userId: session.user.id,
 			filter: this.toListFilter(filter),
 		})
+	}
+
+	/**
+	 * The counts « Mes annonces » puts on its filter pills and in its moderation
+	 * banner. They are deliberately unfiltered: a pill says how many the visitor
+	 * owns in that bucket, and an exception must not be hidden by a search.
+	 */
+	@Get('mine/summary')
+	listMineSummary(@Session() session: UserSession<Auth>) {
+		return this.getMyLostItemsSummaryUseCase.execute(session.user.id)
 	}
 
 	/** Both audiences' extra axis, so one translation serves the three routes. */

@@ -12,22 +12,7 @@ import { Badge } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
 import type { UserLostItem } from '@/shared/types/lost-item'
 import { imageUrl } from '@/shared/utils/image'
-
-const STATUS_CONFIG = {
-	pending: { label: 'En attente', color: 'bg-yellow-500 text-white' },
-	hidden: { label: 'Masquée', color: 'bg-muted text-muted-foreground' },
-	active: { label: 'Active', color: 'bg-primary-green text-white' },
-	resolved: { label: 'Résolue', color: 'bg-blue-500 text-white' },
-	expired: { label: 'Expirée', color: 'bg-muted text-muted-foreground' },
-} as const
-
-type DisplayStatus = keyof typeof STATUS_CONFIG
-
-function getDisplayStatus(listing: UserLostItem): DisplayStatus {
-	if (listing.moderationStatus === 'pending') return 'pending'
-	if (listing.moderationStatus === 'hidden') return 'hidden'
-	return listing.status
-}
+import { listingStatusFor } from '@/routes/account/posts/helpers/listing-status'
 
 interface RecentListingsProps {
 	listings: UserLostItem[]
@@ -85,7 +70,7 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 			) : (
 				<div className="divide-y">
 					{recent.map(listing => {
-						const status = getDisplayStatus(listing)
+						const status = listingStatusFor(listing)
 						return (
 							<Link
 								key={listing.id}
@@ -109,14 +94,13 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 								</div>
 								<div className="min-w-0 flex-1">
 									<div className="mb-1 flex items-center gap-2">
-										<Badge
-											className={cn(
-												'text-[10px] font-medium',
-												STATUS_CONFIG[status].color,
-											)}
-										>
-											{STATUS_CONFIG[status].label}
-										</Badge>
+										{status.label && (
+											<Badge
+												className={cn('text-[10px] font-medium', status.badge)}
+											>
+												{status.label}
+											</Badge>
+										)}
 										<span
 											className={cn(
 												'text-[10px] font-medium',

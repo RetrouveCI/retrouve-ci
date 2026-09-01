@@ -1,15 +1,29 @@
 import { redirect } from 'react-router'
 import { requireServerSession } from '@/shared/helpers/session.server'
 import { toUserLostItem } from '@/shared/mappers/lost-item.mapper'
+import type { MyLostItemsSummaryApiResponse } from '@/shared/types/lost-items.types'
 import { parseAccountPostsFilters } from '../helpers/parse-account-posts-filters'
-import { getMyLostItemsPage } from './account-posts.service'
+import {
+	getMyLostItemsPage,
+	getMyLostItemsSummary,
+} from './account-posts.service'
+
+/** A counter the API cannot serve reads zero: a badge must not take a page down. */
+const EMPTY_SUMMARY: MyLostItemsSummaryApiResponse = {
+	total: 0,
+	lifecycle: { active: 0, resolved: 0, expired: 0 },
+	moderation: { pending: 0, published: 0, hidden: 0 },
+}
 
 export async function accountPostsLoader({ request }: { request: Request }) {
 	await requireServerSession(request)
 
 	const filters = parseAccountPostsFilters(new URL(request.url).searchParams)
 
-	const response = await getMyLostItemsPage(request, filters)
+	const [response, summary] = await Promise.all([
+		getMyLostItemsPage(request, filters),
+		getMyLostItemsSummary(request).catch(() => EMPTY_SUMMARY),
+	])
 
 	/**
 	 * Deleting the last listing of a last page leaves `?page=3` pointing past a
@@ -23,6 +37,7 @@ export async function accountPostsLoader({ request }: { request: Request }) {
 		total: response.total,
 		page: response.page,
 		pageSize: response.pageSize,
+		summary,
 	}
 }
 

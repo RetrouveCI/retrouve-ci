@@ -1,10 +1,15 @@
-const { requireServerSession, getMyLostItemsPage } = vi.hoisted(() => ({
-	requireServerSession: vi.fn(),
-	getMyLostItemsPage: vi.fn(),
-}))
+const { requireServerSession, getMyLostItemsPage, getMyLostItemsSummary } =
+	vi.hoisted(() => ({
+		requireServerSession: vi.fn(),
+		getMyLostItemsPage: vi.fn(),
+		getMyLostItemsSummary: vi.fn(),
+	}))
 
 vi.mock('@/shared/helpers/session.server', () => ({ requireServerSession }))
-vi.mock('../account-posts.service', () => ({ getMyLostItemsPage }))
+vi.mock('../account-posts.service', () => ({
+	getMyLostItemsPage,
+	getMyLostItemsSummary,
+}))
 
 const { accountPostsLoader } = await import('../account-posts.loader')
 
@@ -29,6 +34,19 @@ const dto = (overrides: Record<string, unknown> = {}) => ({
 	...overrides,
 })
 
+const summary = (overrides: Record<string, unknown> = {}) => ({
+	total: 6,
+	lifecycle: { active: 3, resolved: 2, expired: 1 },
+	moderation: { pending: 1, published: 4, hidden: 1 },
+	...overrides,
+})
+
+const EMPTY_SUMMARY = {
+	total: 0,
+	lifecycle: { active: 0, resolved: 0, expired: 0 },
+	moderation: { pending: 0, published: 0, hidden: 0 },
+}
+
 const page = (items: unknown[], total = items.length, current = 1) => ({
 	items,
 	total,
@@ -39,6 +57,7 @@ const page = (items: unknown[], total = items.length, current = 1) => ({
 beforeEach(() => {
 	requireServerSession.mockReset().mockResolvedValue({ user: { id: 'u1' } })
 	getMyLostItemsPage.mockReset().mockResolvedValue(page([]))
+	getMyLostItemsSummary.mockReset().mockResolvedValue(summary())
 })
 
 afterEach(() => {
@@ -62,15 +81,44 @@ describe('accountPostsLoader', () => {
 			redirect,
 		)
 		expect(getMyLostItemsPage).not.toHaveBeenCalled()
+		expect(getMyLostItemsSummary).not.toHaveBeenCalled()
 	})
 
 	it('reports an empty account as no listing', async () => {
+		getMyLostItemsSummary.mockResolvedValue(summary(EMPTY_SUMMARY))
+
 		expect(await accountPostsLoader({ request: request() })).toEqual({
 			listings: [],
 			total: 0,
 			page: 1,
 			pageSize: 12,
+			summary: EMPTY_SUMMARY,
 		})
+	})
+
+	/**
+	 * The counters the pills and the banner read come from the API, over every
+	 * listing the visitor owns — not from the twelve the page happens to hold.
+	 */
+	it('carries the owner-wide counts alongside the page', async () => {
+		const result = await accountPostsLoader({
+			request: request('?status=active'),
+		})
+
+		expect(getMyLostItemsSummary).toHaveBeenCalledWith(expect.any(Request))
+		expect(result.summary).toEqual(summary())
+	})
+
+	// A badge must never take the screen down: the list is the page, the counts
+	// are decoration on it.
+	it('reads the counters as zero when the API cannot serve them', async () => {
+		getMyLostItemsSummary.mockRejectedValue(new Error('down'))
+		getMyLostItemsPage.mockResolvedValue(page([dto()]))
+
+		const result = await accountPostsLoader({ request: request() })
+
+		expect(result.summary).toEqual(EMPTY_SUMMARY)
+		expect(result.listings).toHaveLength(1)
 	})
 
 	// The account page shows what the public listing does not: moderation state,
