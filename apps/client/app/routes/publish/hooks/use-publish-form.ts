@@ -1,8 +1,7 @@
 import { useActionData, useNavigation, useSubmit } from 'react-router'
 import type { FieldErrors } from 'react-hook-form'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
-import { MIN_DESCRIPTION_LENGTH } from '@app/contracts/lost-items'
 import type { ActionResult } from '@/shared/types/action'
 import {
 	publishFormSchema,
@@ -20,8 +19,6 @@ const EMPTY_VALUES: PublishFormInput = {
 	name: '',
 	whatsapp: '',
 }
-
-const REQUIRED_FIELD_COUNT = 7
 
 /**
  * The publish form, shared by `/publish/lost`, `/publish/found` and
@@ -52,18 +49,6 @@ export function usePublishForm(defaultValues?: Partial<PublishFormInput>) {
 		defaultValues: { ...EMPTY_VALUES, ...defaultValues },
 	})
 
-	const values = useWatch({ control: form.control })
-
-	const completedFieldCount = [
-		values.title,
-		values.objectType,
-		(values.description?.length ?? 0) >= MIN_DESCRIPTION_LENGTH,
-		values.ville,
-		values.date,
-		values.name,
-		values.whatsapp,
-	].filter(Boolean).length
-
 	const onSubmit = form.handleSubmit((data, event) => {
 		const formElement = event?.target as HTMLFormElement
 		const formData = new FormData(formElement)
@@ -77,9 +62,7 @@ export function usePublishForm(defaultValues?: Partial<PublishFormInput>) {
 
 	return {
 		form,
-		values,
 		onSubmit,
-		progress: Math.round((completedFieldCount / REQUIRED_FIELD_COUNT) * 100),
 		isSubmitting: navigation.state === 'submitting',
 	}
 }

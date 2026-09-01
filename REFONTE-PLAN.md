@@ -252,12 +252,14 @@ Une ligne = une branche = une PR = une session.
 | **R32** | Stickers | Hero produit de la page Stickers            | `refonte-stickers-hero`              | `client/stickers`    | 0,5 j  | R2           |
 | **R33** | Socle    | Échelle typographique et boutons mobiles    | `refonte-r33-mobile-type-scale`      | `ui` + `client`      | 1,5 j  | R2, R17      |
 | **R34** | Socle    | Gouttière de zones sûres unique             | `refonte-r34-safe-area-gutter`       | `client`             | 0,5 j  | R1           |
+| **R35** | Publier  | Publication guidée d'une pièce              | `refonte-r35-document-publish`       | `client/publish`     | 1,5 j  | R18, A7      |
 | **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`       | `api/lost-items`     | 1 j    | —            |
 | **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`        | `api/storage`        | 0,5 j  | —            |
 | **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                | `api/notifications`  | 3 j    | R23          |
 | **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`            | `api/sticker-orders` | 0,5 j  | R17          |
+| **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`         | `api/lost-items`     | 1,5 j  | R18          |
 
-**Total ≈ 34 j** en séquentiel, dont ≈ 4,5 j côté API et ≈ 4 j pour le lot 9.
+**Total ≈ 37 j** en séquentiel, dont ≈ 6 j côté API et ≈ 4 j pour le lot 9.
 R2/R3, R11/R12 et R26/R29 se parallélisent ; les lots 3 à 6 s'ouvrent ensemble
 une fois la coquille posée, et le lot 9 s'ouvre indépendamment d'eux — il ne
 partage que `Button` et `Input` (R2) avec le reste du chantier.
@@ -1970,8 +1972,9 @@ sur tous les autres écrans.
 
 1. **Une gouttière unique dans `routes/layout.tsx`**, pas un `env()` par écran :
    c'est ce qui empêche le prochain écran d'oublier.
-2. **Retirer les `env()` locaux** que R16 et R17 ont posés sur l'accueil, une
-   fois la gouttière en place — sinon la marge est comptée deux fois.
+2. **Retirer les `env()` locaux** que R16 et R17 ont posés sur l'accueil et que
+   R18 a posés sur le tunnel de publication (en-tête, barre d'action, colonne),
+   une fois la gouttière en place — sinon la marge est comptée deux fois.
 3. **Vérifier en paysage**, pas seulement en portrait : c'est l'orientation où
    les insets latéraux ne valent pas zéro.
 
@@ -1997,6 +2000,89 @@ sous la découpe en paysage, et un seul point du code lit les insets latéraux.
 **Acceptation** : la publication aboutit avec le même corps de requête
 qu'aujourd'hui ; le brouillon survit à un rechargement. **Tests** : projet `ui`
 sur le passage d'étape et la restauration.
+
+> **Quatre arbitrages posés avant d'écrire une ligne**, la maquette contredisant
+> le plan ou le dépôt sur chacun. (a) La bascule « J'ai perdu / J'ai trouvé »
+> passe **dans** l'étape 1 et navigue entre les deux routes, qui gardent leur
+> accent et leur action. (b) Le tunnel sort de `routes/layout.tsx`, comme
+> `q/:code` : les planches n'ont ni header d'app ni barre d'onglets, et une
+> barre d'action basse posée sous la barre d'onglets se volerait le tap avec
+> elle. (c) Les trois étapes valent à **toutes** les largeurs — le canevas ne
+> dessine aucun Publier desktop, et c'est le précédent de R10 (détail en une
+> colonne partout) et de R17 (bento retiré partout) ; la barre latérale (jauge
+> de complétion, conseils, correspondances) est abandonnée, ses trois rôles
+> étant repris par les segments, l'étape 2 et la copie des planches. (d) Le
+> champ « Repère (facultatif) » de `Publier2` n'est **pas** dessiné : aucune
+> colonne ne le stocke, et §3 dit « données réelles ou rien ».
+
+> ⚠️ **`/publish` reste montée**, contre l'arbitrage (a) tel qu'il avait d'abord
+> été pris. La page de choix est la cible du (+) et de neuf autres liens ; la
+> commenter transformait chacun en 404, ce que la relecture a vu tout de suite.
+> La bascule de l'étape 1 reste : elle sert à changer d'avis sans revenir en
+> arrière, au prix d'un choix offert deux fois.
+
+> **La publication ne redirige plus vers l'annonce** mais vers **Mes annonces**.
+> Une annonce naît `pending`, donc sa page publique répond 404 à la personne qui
+> vient de l'écrire ; Mes annonces est le seul écran où elle existe, et la
+> bannière que R11 y a posée dit déjà qu'un modérateur doit passer. Le corps de
+> la requête, lui, est **inchangé** — c'est ce que l'acceptation demandait.
+
+> **Huit écarts de rendu, consignés plutôt que subis.** (1) Neuf puces de
+> catégorie, pas les six des planches, et « Documents » et non « Papiers » —
+> §2.3 règle 2, R13 et R17. (2) Cinq photos, pas trois : `MAX_PHOTOS` est dans
+> le contrat. (3) Le brouillon ne restaure **pas** les photos : un `File` meurt
+> avec la page qui l'a choisi, aucun stockage ne le ressuscite. (4) Les trois
+> étapes restent **montées**, l'inactive portant `hidden`, pour la même raison :
+> démonter l'étape 1 détruirait les `<input type="file">` avant que l'étape 3
+> n'envoie le formulaire. (5) Le raccourci de date (Aujourd'hui / Hier / Autre
+> date) écrit le même `YYYY-MM-DD` que le sélecteur natif. (6) La carte de
+> correspondances a **quatre** états, dont l'échec : `matching.loader` répond
+> `null` quand l'API est injoignable, parce qu'une API muette lue comme « aucune
+> correspondance » sert au posteur la réponse rassurante sans aucune preuve. (7)
+> Le tunnel pose ses propres `env(safe-area-inset-*)` — **R34 doit les retirer
+> avec ceux de R16 et R17**. (8) Les composants que la barre latérale employait
+> restent sur disque sans être appelés (`publish-sidebar`, `form-progress`,
+> `tips-panel`, `publish-form-actions`, `object-info-section`,
+> `matching-suggestions`) : la jauge et les conseils sont des fonctions qui
+> disparaissent, et la règle du dépôt est de commenter, jamais de supprimer.
+
+> ⚠️ **Deux pièges payés dans le navigateur, tous deux invisibles au test.** (a)
+> **Radix répond `onValueChange('')` au montage** d'un `Select` contrôlé qui
+> part sans valeur. Pris au mot, le gestionnaire de ville lisait « la ville a
+> changé » et vidait ville **et** commune d'un brouillon qu'on venait de
+> restaurer. Garde posée sur les deux `Select` ; `location-date-section`, dont
+> la valeur initiale n'est jamais vide, n'est pas touché et un test le prouve.
+> (b) **`data-[size=default]:h-9` de shadcn ne cède pas à `h-13`** :
+> tailwind-merge ne voit pas le conflit entre une classe à variante et une
+> classe nue, donc les deux s'appliquent et la variante gagne. Mesuré à **36
+> px**, sous le plancher de 44. Corrigé par `data-[size=default]:h-13`. ⚠️
+> **`location-date-section` reste à 36 px** (`h-11`) sur la page de modification
+> — dette antérieure, à reprendre avec R33.
+
+> **Mesures.** Aucun débordement à 320/360/390/430/768/1024/1440 px, dans les
+> deux thèmes, aux trois étapes et pour les deux types — soit 84 relevés. Aucune
+> cible sous 44 px hors pied de page, sur 868 relevées. Plancher de contraste
+> **4,56:1** hors dette. Les 126 relevés sous plancher sont **tous** la dette
+> R13 — `text-destructive` à **2,98:1 en sombre**, sur l'astérisque de
+> `InputLabel` et les messages de `FieldError`, communs à tous les formulaires
+> du dépôt : `--destructive-text` manque toujours dans `packages/ui`, et c'est
+> R33 qui touche ce paquet.
+
+> ⚠️ **La sonde de contraste a encore menti**, d'une troisième façon, et ses
+> autotests l'ont attrapée : un fond semi-transparent doit être **composité**
+> sur ce qu'il y a derrière, et son alpha doit venir du **canal alpha du
+> canvas**, jamais d'une regex — Chromium sérialise `oklab(1 0 0 / 0.95)`, où
+> compter les nombres lit la clarté comme un canal et perd l'alpha. Signature :
+> tous les ratios écrasés sur **1,22 et 3,52**, et l'en-tête à 95 % lu comme un
+> noir opaque. La sonde porte désormais **trois** autotests — 17,28/18,98 (clair
+> / sombre), 6,39 (aplat orange) et **5,24** (noir sur 50 % de noir au-dessus de
+> blanc) — plus un compteur de couleurs que le canvas a refusées, qui doit
+> valoir zéro.
+
+> **Ouvert par R18 :** la publication des **documents d'identité**. La Côte
+> d'Ivoire perd surtout des CNI, des permis de conduire, des cartes bancaires et
+> des cartes d'assurance, et le formulaire n'a rien pour eux — voir **A7** et
+> **R35**.
 
 #### R19 — Refonte de la page de scan publique
 
@@ -2695,6 +2781,92 @@ donnée que rien n'affiche. **Fichiers** : `packages/database/prisma/`,
 `packages/contracts/src/sticker-orders/`,
 `apps/api/src/domains/sticker-orders/`, `apps/client/app/routes/stickers/`,
 `apps/admin/app/routes/dashboard/orders/`. **Flux** : C.
+
+#### A7 — Champs de document sur une annonce
+
+Ouvert par R18. En Côte d'Ivoire, les objets perdus les plus fréquents sont des
+**pièces** : carte nationale d'identité, permis de conduire, carte bancaire,
+carte d'assurance. Le formulaire ne connaît qu'une catégorie `documents` et un
+texte libre, alors que ces pièces portent un nom de titulaire et un numéro que
+ni un titre ni une description ne rapprocheront jamais.
+
+Les deux spécimens fournis donnent la liste utile : sur la CNI, le **NNI** et le
+numéro de carte, le nom et les prénoms, la date de naissance ; sur le permis, le
+**numéro de permis**, le nom, les prénoms, la date et le lieu de délivrance.
+
+1. **Un énuméré fermé `documentType`** — `national_id`, `driver_licence`,
+   `bank_card`, `insurance_card`, `passport`, `student_card`, `other` — dans
+   `@app/contracts/lost-items`, avec ses libellés côté fronts, comme
+   `LOST_ITEM_CATEGORIES`. Un nouveau type doit être une erreur de compilation,
+   pas un libellé manquant.
+2. **Le nom est obligatoire, le numéro ne l'est pas.** Les deux personnes de ce
+   formulaire ne peuvent pas fournir la même chose : celle qui **trouve** la
+   pièce l'a en main et lit le numéro ; celle qui l'a **perdue** ne le connaît
+   presque jamais, puisque sa pièce est justement ce qui le portait. L'exiger
+   fermerait la porte à celle que la fonction sert. Il est donc demandé avec
+   insistance côté trouvaille, et facultatif partout.
+3. **Le rapprochement porte donc sur le nom**, plus le type de pièce et la
+   ville. Le numéro, quand les deux côtés l'ont donné, fait passer une
+   correspondance probable à **certaine** ; il ne peut pas être la condition qui
+   ouvre le contact, sinon il exclut exactement ceux qu'il devait servir.
+4. **Le numéro n'est jamais public.** Une annonce est une page indexable :
+   publier un NNI avec un nom et une date de naissance, c'est livrer le jeu
+   complet d'une usurpation. La colonne est écrite mais **exclue du schéma de
+   lecture publique**, comme `resolutionStatus` l'est depuis R11. Elle sert au
+   rapprochement et à la **vérification à la remise** — qui rend la pièce
+   demande son numéro à qui la réclame.
+5. **Aucun numéro de carte bancaire.** Le PAN suffit à la fraude en ligne et
+   ferait entrer PCI-DSS dans le dépôt pour un service qui n'en a pas besoin :
+   la seule action utile est de faire opposition auprès de sa banque. Pour une
+   carte bancaire, la banque émettrice et les **quatre derniers chiffres**
+   suffisent à se reconnaître, et l'écran dit d'appeler sa banque d'abord.
+6. **Comparer sur une forme normalisée**, sans quoi rien ne se rapproche. Le
+   numéro : capitales, sans espaces ni tirets — `5811403-13-0015703713RC` et
+   `581140313 0015703713 RC` sont le même permis. Le **nom**, qui porte
+   désormais le rapprochement : capitales, accents retirés, espaces réduits, et
+   **ordre indifférent** entre nom et prénoms — les pièces impriment en
+   capitales sans accents, les noms ivoiriens s'écrivent de plusieurs façons, et
+   les deux champs s'inversent d'un formulaire à l'autre.
+7. **Le back-office l'affiche**, puisque c'est lui qui modère, et le journal ne
+   doit jamais écrire le numéro — même règle que le code OTP.
+
+**Fichiers** : `packages/database/prisma/`,
+`packages/contracts/src/lost-items/`, `apps/api/src/domains/lost-items/`,
+`apps/admin/app/routes/dashboard/posts/`. **Flux** : A, B. **Acceptation** : une
+pièce se publie **sans** numéro, aucun numéro saisi n'apparaît dans une réponse
+publique, et deux écritures différentes du même nom se rapprochent.
+
+#### R35 — Publication guidée d'une pièce
+
+Ouvert par R18, dépend d'**A7**. Côté formulaire, une pièce se décrit autrement
+qu'un téléphone : ce qui compte n'est ni la couleur ni la marque, mais le type
+de pièce et le nom du titulaire.
+
+1. **Choisir `Documents` ouvre un second choix** — CNI, permis, carte bancaire,
+   carte d'assurance, passeport — au lieu d'un champ de description vide.
+2. **Les champs suivent le type choisi** : nom du titulaire et numéro pour une
+   CNI ou un permis ; banque et quatre derniers chiffres pour une carte bancaire
+   ; assureur et numéro de police pour une carte d'assurance. **Seul le nom est
+   requis** (A7) : qui a perdu sa pièce ne connaît pas son numéro.
+3. **Le numéro est demandé différemment des deux côtés.** Sur `/publish/found`
+   la pièce est en main : le champ est en avant et le texte dit de le recopier.
+   Sur `/publish/lost` il est replié derrière « Je le connais », pour ne pas
+   laisser croire qu'on ne peut pas déclarer sans lui.
+4. **Dire pourquoi le numéro est demandé, à l'endroit où il est demandé** : il
+   n'apparaîtra sur aucune page, il sert à rapprocher et à vérifier à la remise.
+   Un champ qui réclame un numéro d'identité sans se justifier ne sera pas
+   rempli — ou le sera par les mauvaises personnes.
+5. **La description devient facultative** pour une pièce : le type et le nom la
+   remplacent, et `MIN_DESCRIPTION_LENGTH` n'a plus de sens ici.
+6. **Pas d'écran de revendication qui compare un numéro** : le contact passe par
+   WhatsApp comme pour toute annonce. Un formulaire qui compare un numéro sans
+   plafond est un oracle, et un formulaire qui l'exige exclut celui qui a perdu
+   sa pièce. La vérification se fait entre les deux personnes, à la remise.
+
+**Fichiers** : `apps/client/app/routes/publish/`,
+`apps/client/app/routes/posts/details/`, `apps/client/app/routes/q/`. **Flux** :
+A, B. **Acceptation** : publier une CNI perdue n'exige que le type et le nom du
+titulaire, et aucun numéro saisi n'apparaît sur la page publique.
 
 #### A2 — Transformations Cloudinary à l'upload _(facultatif)_
 
