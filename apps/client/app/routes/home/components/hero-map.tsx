@@ -371,7 +371,7 @@ export function HeroMap() {
 	return (
 		<div
 			aria-hidden
-			className="animate-scale-in pointer-events-none absolute top-1/2 -right-10 hidden h-136 w-128 -translate-y-1/2 xl:block 2xl:-right-4"
+			className="animate-scale-in pointer-events-none h-full w-full"
 		>
 			<svg
 				viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}

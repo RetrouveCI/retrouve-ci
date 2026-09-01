@@ -1688,6 +1688,84 @@ utilisent le même vocabulaire de carte et de pastille que R13.
 **Flux** : A, B, C. **Acceptation** : même composition à toutes les largeurs ;
 le visuel apparaît dès `md`.
 
+> **Le mot défilant ne survit pas à la maquette.** Le point 5 laissait le choix
+> entre le sortir du `h1` et le figer sous `md` — les deux supposent qu'il
+> reste. Les quatre planches (`Main`, `AccueilSombre`, `Tablette`, `Desktop`)
+> portent le même titre statique en deux lignes, « Perdu quelque chose ? / La
+> communauté cherche avec vous. », et aucune ne montre de mot qui tourne.
+> Tranché en faveur de la maquette : `CyclingWord`, `CYCLING_WORDS`, le
+> `setInterval` et les réserves `min-w-45/60/75` qu'il imposait au titre
+> disparaissent. C'est la lecture la plus forte du point 5.
+
+> **~1 000 cercles, en fait 841.** Le point 4 annonçait l'ordre de grandeur ;
+> `generateDots()` en produit **841** sur 1 368 points de grille testés, et le
+> SVG en compte **897** en tout (841 points, 47 marqueurs de ville, 9 paquets
+> animés). Mesuré, pas estimé. Le HTML rendu côté serveur en portait **905**,
+> marqueurs des autres sections compris.
+
+> **Le test de largeur, pas le `.svg` statique.** Des deux options du point 4,
+> la première : `useMediaQuery('(min-width: 768px)')`
+> (`shared/hooks/use-media-query.ts`), qui répond `false` sur le serveur **et**
+> pendant l'hydratation, donc la carte n'entre jamais dans la charge SSR. Un
+> `.svg` figé aurait coûté l'animation des flux, qui est ce que la carte
+> raconte. **Mesure** : la page d'accueil rendue côté serveur passe de **187 029
+> à 50 667 octets** (−73 %) et de **905 à 11** cercles.
+
+> **La carte descend à 768 px**, comme `note-formats` le demande (« le visuel du
+> hero descend à 768 px au lieu d'attendre 1280 ») : elle était derrière
+> `hidden xl:block`, donc un iPad portrait n'avait ni la carte ni, avant R2, la
+> navigation basse. Mesurée absente à 320 et 390 px, présente à 768, 1024
+> et 1440.
+
+> **Trois écarts de contenu laissés à R17, qui les possède.** Les planches
+> montrent une pastille « 412 annonces · 37 objets rendus ce mois » à la place
+> des trois points de réassurance : c'est le point 2 de R17 (« compteur réel à
+> la place des points de réassurance déclaratifs »), donc `TRUST_POINTS` reste
+> une étape de plus plutôt que de laisser un trou. Les planches montrent aussi
+> une rangée de puces de catégories sous les deux actions : **aucune étape du
+> plan ne la possède**, et §2.1 la range dans les listes secondaires — laissée à
+> R17 avec la bande d'annonces récentes. Le sous-titre, lui, n'apparaît que sur
+> `Desktop` : il est donc en `hidden lg:block`, avec la phrase de la planche,
+> qui nomme le sticker QR et sert le flux C.
+
+> **La barre de recherche n'est pas au format de la planche sur téléphone.**
+> `Main` montre un bouton rond à icône ; le code garde le bouton « Rechercher »
+> écrit, parce que `submit` est une prop de `components/search-bar.tsx`, partagé
+> avec l'en-tête et `/posts`, et qu'aucun des cinq points de R16 ne le vise.
+> Conséquence mesurée à 390 px : le champ ne fait plus que **167 px** et son
+> texte d'invite est tronqué. **Antérieur à R16** — l'ancien hero avait la même
+> largeur — mais à corriger, et cela demande une option responsive dans
+> `SearchBar`. Le champ mesure par ailleurs **48 px** là où §2.1 en demande 52 ;
+> même cause, même fichier.
+
+> **Deux corrections venues de la relecture du rendu, hors des cinq points.**
+> (a) **Zones sûres** : la section pose
+> `pl-[max(1rem,env(safe-area-inset-left))]` et son symétrique à droite. En
+> paysage sur un téléphone à encoche, la découpe mange une gouttière entière, et
+> rien dans le contenu des pages ne lisait ces deux insets — seuls la barre
+> d'onglets, les feuilles et `/q` le font. **Le reste des écrans est dans le
+> même cas** : dette ouverte ci-dessous. (b) **La grille est plafonnée à
+> `max-w-7xl`** et la carte grandit en `2xl:h-125` : la mesure du texte s'arrête
+> à 620 px, donc au-delà toute la largeur gagnée tombait **entre** les deux
+> colonnes. Mesuré à 1 600 px : le vide central passe de **352 à 178 px**, et il
+> ne bouge plus jusqu'à 2 560 px.
+
+> **Cibles et contrastes mesurés au navigateur**, à 320 / 390 / 768 / 1024 /
+> 1440 px et dans les deux thèmes : aucun débordement horizontal (320 px
+> compris), quatre cibles par écran toutes à 44 px ou plus, aucun recouvrement,
+> et aucun texte sous son plancher — le plus bas est **5,03:1** (« J'ai trouvé »
+> en blanc sur le vert, et le bouton « Rechercher »). L'aplat orange porte
+> `--accent-orange-foreground` à **6,39:1**, jamais du blanc. La sonde a d'abord
+> rendu des ratios identiques en clair et en sombre : le thème se pose par un
+> **cookie** `theme`, pas par `localStorage`, et elle affiche désormais le thème
+> réellement appliqué pour que l'oubli ne repasse plus.
+
+> **`min-h-[85vh]` retiré, et le bloc suivant dépasse bien dans l'écran
+> d'ouverture** (point 2) : à 390 px le hero mesure 419 px sous un en-tête de 65
+> px, donc « Tout pour retrouver vos objets » commence à **484 px** — visible
+> sans défiler sur tout téléphone. L'indicateur de défilement du bas a disparu
+> avec le `85vh` qui le justifiait.
+
 #### R17 — Annonces récentes et bloc stickers
 
 1. Bande d'annonces récentes sous la recherche, alimentée par le loader existant
@@ -1797,6 +1875,17 @@ stickers ne demande jamais de saisir un code.
 **Fichiers** : `apps/client/public/`, `app/root.tsx`,
 `app/shared/helpers/page-meta.ts`. **Flux** : tous. **Acceptation** : l'app est
 déclarée installable par le navigateur.
+
+> **À reprendre ici : les insets latéraux.** R16 a posé
+> `pl-[max(1rem,env(safe-area-inset-left))]` et son symétrique sur le hero de
+> l'accueil, parce qu'en paysage sur un téléphone à encoche la découpe mange une
+> gouttière de 44 px entière. **Aucun autre contenu de page ne lit ces deux
+> insets** : seuls `components/bottom-tab-bar.tsx`, les quatre feuilles
+> inférieures, `routes/layout.tsx` (bas seulement) et `routes/q/_index.tsx`
+> (haut seulement) le font. Le bon geste est une gouttière unique posée une fois
+> dans `routes/layout.tsx`, pas répétée écran par écran — mais elle touche les
+> quinze écrans déjà validés, donc elle appartient au lot PWA et non à une étape
+> d'écran.
 
 #### R24 — Service worker, coquille et page hors-ligne
 
