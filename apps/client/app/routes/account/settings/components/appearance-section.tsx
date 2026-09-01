@@ -84,15 +84,13 @@ export function AppearanceSection() {
 	const { preference, setTheme } = useTheme()
 
 	return (
-		<div className="bg-background overflow-hidden rounded-2xl border">
-			<div className="bg-muted/30 border-b p-5">
-				<h2 className="flex items-center gap-2 font-semibold">
-					<Palette className="text-primary-green-text h-4 w-4" />
-					Apparence
-				</h2>
-			</div>
+		<section className="space-y-2">
+			<h2 className="flex items-center gap-2 text-[15px] font-bold tracking-tight">
+				<Palette className="text-primary-green-text h-4 w-4" />
+				Apparence
+			</h2>
 
-			<div className="space-y-3 p-5">
+			<div className="space-y-3">
 				<fieldset className="grid grid-cols-3 gap-2.5">
 					<legend className="sr-only">Thème de l&apos;interface</legend>
 
@@ -143,9 +141,10 @@ export function AppearanceSection() {
 				</fieldset>
 
 				<p className="text-muted-foreground text-xs">
-					« Système » suit le réglage de votre téléphone.
+					« Système » suit le réglage de votre téléphone. C&apos;est le nouveau
+					défaut.
 				</p>
 			</div>
-		</div>
+		</section>
 	)
 }

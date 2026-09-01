@@ -22,7 +22,7 @@ const placedOrder: Order = {
 	id: 'ord-1',
 	orderNumber: 'RCI-0001',
 	date: '2026-08-20T10:00:00.000Z',
-	pack: { name: 'Famille', quantity: 8, price: 3500 },
+	pack: { id: 'pack-8', name: 'Famille', quantity: 8, price: 3500 },
 	deliveryFee: 1000,
 	total: 4500,
 	status: 'pending',

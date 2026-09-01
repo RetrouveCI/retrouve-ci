@@ -1,59 +1,55 @@
 import { Badge, Switch } from '@app/ui/components'
-import { Bell } from 'lucide-react'
 
-const NOTIFICATION_ITEMS: {
-	key: string
-	label: string
-	description: string
-}[] = [
-	{
-		key: 'whatsapp',
-		label: 'Notifications WhatsApp',
-		description: 'Recevez des alertes directement sur WhatsApp',
-	},
-	{
-		key: 'email',
-		label: 'Notifications Email',
-		description: 'Recevez un résumé par email',
-	},
-	{
-		key: 'stickerScans',
-		label: 'Scans de stickers',
-		description: "Soyez alerté quand quelqu'un scanne vos stickers",
-	},
+/**
+ * The artboard draws both switches **on**. Nothing backs them: `User` carries
+ * no preference column and the API exposes no endpoint, so a switch that moved
+ * would promise a setting no one stores. They stay off and disabled until
+ * there is something to save.
+ */
+const ALERTS = [
 	{
 		key: 'matches',
-		label: 'Correspondances trouvées',
-		description: 'Alertes pour les objets correspondant à vos recherches',
+		label: 'Objets qui correspondent',
+		description: "Quand un objet trouvé ressemble à l'un des vôtres.",
+	},
+	{
+		key: 'scans',
+		label: 'Scans de mes stickers',
+		description: "Quand quelqu'un scanne un de vos QR codes.",
 	},
 ]
 
 export function NotificationsSection() {
 	return (
-		<div className="bg-background overflow-hidden rounded-2xl border">
-			<div className="bg-muted/30 border-b p-5">
-				<h2 className="flex items-center gap-2 font-semibold">
-					<Bell className="text-primary-green-text h-4 w-4" />
-					Notifications
-					<Badge variant="secondary">Bientôt disponible</Badge>
-				</h2>
-			</div>
-			<div className="space-y-1 p-5">
-				{NOTIFICATION_ITEMS.map((item, i) => (
+		<section className="space-y-2">
+			<h2 className="flex items-center gap-2 text-[15px] font-bold tracking-tight">
+				Alertes
+				<Badge variant="secondary" className="font-medium">
+					Bientôt disponible
+				</Badge>
+			</h2>
+
+			<div className="space-y-2">
+				{ALERTS.map(alert => (
 					<div
-						key={item.key}
-						className={`flex items-center justify-between py-4 ${i > 0 ? 'border-t' : ''}`}
+						key={alert.key}
+						className="bg-background flex items-center gap-3.5 rounded-2xl border p-4"
 					>
 						<div className="flex-1">
-							<p className="text-sm font-medium">{item.label}</p>
-							<p className="text-muted-foreground text-xs">
-								{item.description}
+							<p className="text-sm font-semibold">{alert.label}</p>
+							<p className="text-muted-foreground mt-0.5 text-[12.5px]">
+								{alert.description}
 							</p>
 						</div>
-						<Switch checked={false} disabled />
+						<Switch
+							checked={false}
+							disabled
+							aria-label={alert.label}
+							className="shrink-0"
+						/>
 					</div>
 				))}
 			</div>
-		</div>
+		</section>
 	)
 }

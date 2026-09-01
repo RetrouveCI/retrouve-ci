@@ -1556,6 +1556,119 @@ croisements d'état de la matrice rendent correctement, dans les deux thèmes.
 `routes/account/settings/`. **Flux** : C. **Acceptation** : les trois écrans
 utilisent le même vocabulaire de carte et de pastille que R13.
 
+> **« Scanner un sticker » n'est pas l'action dominante, et ne peut pas
+> l'être.** Le point 1 et l'artboard mettent ce bouton en tête. Or `/scan`
+> navigue vers `/q/:code`, qui affiche « Sticker non activé » pour un jeton
+> encore `generated` : le scan ne sait rien activer avant R20/R22, qui posent le
+> couple caméra + activation du flux C. Le geste dominant serait donc une
+> impasse. R15 inverse le couple que la maquette dessine : le bouton plein 52 px
+> ouvre le dialogue d'activation — le seul chemin qui aboutit — et « ou scanner
+> un sticker » est le lien secondaire dessous. **R20 remet le scanner en tête**
+> une fois qu'il active.
+
+> **« Scanné il y a 2 h · 1 message » est indérivable.** La maquette met en
+> avant une carte de sticker fraîchement scanné, avec le nombre de messages
+> reçus. `QrToken` ne porte ni horodatage de scan ni compteur : ses seules dates
+> sont `createdAt`, `activatedAt` et `revokedAt`. Une `Notification` de type
+> `QR_SCAN` existe, mais elle ne référence le jeton que par un `link` textuel,
+> ce qui n'est pas une jointure. C'est la même cause que le rail « 30 derniers
+> jours » de `note-carte` et que « signalés cette semaine » de R14 : il manque
+> une table d'événements. La carte de mise en avant est écartée.
+
+> **Les deux interrupteurs d'Alertes restent éteints.** L'artboard `Reglages`
+> les dessine **actifs**, en vert. Rien ne les porte : `User` n'a aucune colonne
+> de préférence et l'API n'expose aucun point d'entrée. Un interrupteur qui
+> bouge promettrait un réglage que personne ne stocke — la faute que R12 a
+> nommée. La section reprend le vocabulaire de la maquette (« Alertes », «
+> Objets qui correspondent », « Scans de mes stickers ») et garde le badge «
+> Bientôt disponible » avec les interrupteurs désactivés.
+
+> **Un quatrième filtre, « Désactivés ».** L'artboard en dessine trois — Tous /
+> Actifs / En attente. Un sticker révoqué n'est ni l'un ni l'autre : il serait
+> joignable depuis « Tous » et nulle part ailleurs, exactement le trou que R13 a
+> fermé sur « Archivées ». « Tous » compte tout, révoqués inclus, comme « Toutes
+> » sur « Mes annonces ».
+
+> **« 9 restants » devient « 8 en attente ».** La phrase de la maquette suppose
+> que tout sticker est actif ou en attente, donc que le reste vaut
+> `total − activés`. Un sticker révoqué n'est ni l'un ni l'autre, et cette
+> soustraction le compterait comme activable. Le compteur nomme donc ce qui
+> reste réellement à activer, et se tait quand il n'y en a aucun plutôt que
+> d'afficher « 0 restants ».
+
+> **Les filtres des stickers sont locaux, pas dans l'URL.** R11 a mis ceux de «
+> Mes annonces » dans la query string parce que sa pagination est serveur. Ici
+> le loader ramène la page entière (`pageSize=50`) et le filtrage est en mémoire
+> : passer par l'URL coûterait un aller-retour API à chaque clic de puce, pour
+> un tri que le navigateur fait déjà.
+
+> **Un seul jeu de mots pour l'état d'une commande** (§2.3 règle 2) : Reçue,
+> Préparée, En route, Livrée, Annulée — ceux de la maquette, qui tiennent dans
+> les quatre colonnes du rail. Ils remplacent « En attente / En préparation / En
+> livraison », qui disaient la même chose plus longuement et divergeaient du
+> rail. La pastille, le rail et l'écran nomment désormais le même état du même
+> mot. Le suivi se dérive du seul `status` : il n'y a pas de `processedAt`, donc
+> une étape est franchie parce que la commande l'a dépassée, non parce qu'une
+> date le dit.
+
+> **Pas de filtres sur « Mes commandes ».** L'écran en portait six ; ni le plan
+> ni l'artboard n'en demandent. La maquette sépare autrement, et mieux : la
+> commande en cours est dépliée en tête — c'est ce qu'on vient chercher — et le
+> reste tombe sous « HISTORIQUE ». Le détail en `fixed` fait main disparaît avec
+> eux : la carte active montre déjà l'adresse, le suivi et le montant.
+
+> **« Le coursier vous appelle avant de passer » n'est pas repris.** C'est une
+> promesse opérationnelle que rien dans le code ne garantit. La carte affiche
+> l'adresse et, quand la commande en porte une, la note de livraison que
+> l'acheteur a lui-même écrite.
+
+> **« Même pack, même adresse, en deux taps » devient le pack seul.** «
+> Commander à nouveau » ouvre `/stickers/order?pack=<id>`, et le tunnel
+> préremplit ce pack s'il est au catalogue. L'adresse n'est pas portée : une
+> adresse dans une URL partageable est une donnée personnelle qui fuit, et le
+> coursier la redemande de toute façon. C'est le seul fichier hors des trois
+> dossiers que le plan nomme — `routes/stickers/order/_index.tsx` plus un
+> helper.
+
+> **Le montant ne dit « Paiement à la livraison » que si c'est vrai.** La carte
+> lit `stickerPaymentMethodLabel(order.paymentMethod)` : une commande antérieure
+> au paiement à la livraison porte encore son mode mobile-money, et l'annoncer «
+> à payer au coursier » serait faux. Le prix et le libellé du pack viennent de
+> `@app/contracts/sticker-orders`, y compris le « Dès 2 000 F » de la bande, qui
+> est le minimum du catalogue et non une constante d'écran.
+
+> **Le numéro de téléphone est enfin lisible.** Les réglages affichaient
+> `+2250700000000` d'un bloc. `formatPhoneForDisplay` le rend
+> `+225 07 00 00 00 00` — la forme de la maquette et celle qu'on dicte — et
+> laisse tel quel un numéro que la règle ivoirienne ne reconnaît pas, pour ne
+> pas défigurer un compte antérieur à cette règle.
+
+> **`tracking-tight` mange l'espace des milliers.** Sur le montant en 17 px, la
+> fine insécable qu'`Intl` place entre les milliers disparaissait : « 4 500 » se
+> lisait « 4500 ». Mesuré au navigateur, corrigé en retirant le resserrement sur
+> ce seul nombre.
+
+> **Deux gardes de soumission fautives, pas une.** La dette n'en nommait qu'une,
+> dans `activate-sticker-dialog.tsx` ; `sticker-card.tsx` en portait deux autres
+> (`hasSubmittedUpdate`, `hasSubmittedRevoke`). Les trois passent à
+> `useSettledSubmission`. Au passage, les deux dialogues de sticker abandonnent
+> la validation `useState` faite main pour react-hook-form + un schéma que
+> **l'action lit aussi** : elle acceptait jusqu'ici n'importe quel `label`.
+
+> **Un échec de formulaire ne toaste plus.** `FormRootError` porte déjà le
+> message, dans le dialogue que le lecteur regarde ; le toast le répétait mot
+> pour mot. La révocation, qui n'a pas de formulaire, garde le sien.
+
+> **Le lien « Retour au compte » passe à 44 px** sur `account/stickers` et
+> `account/settings`, les deux écrans de la dette que R15 traverse. Il reste à
+> 20 px sur `notifications`.
+
+> **Cibles et contrastes mesurés au navigateur**, sur les trois écrans, dans les
+> deux thèmes et à 320 / 390 / 768 px : aucun texte sous son plancher (le plus
+> bas est 4,93:1, la pastille « En attente »), aucune cible sous 44 px, aucun
+> recouvrement — après avoir écarté « Activer un sticker » de « scanner un
+> sticker », qui se recouvraient de 5 px par le débordement de `.touch-target`.
+
 ### Lot 5 — Accueil
 
 #### R16 — Hero reconstruit sur une grille

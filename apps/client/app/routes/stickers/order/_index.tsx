@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { useForm, useWatch } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
@@ -18,6 +19,7 @@ import {
 	FREE_DELIVERY_COUPONS,
 	PACKS,
 } from './stickers-order.const'
+import { readPackParam } from './helpers/read-pack-param'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import type { Order } from '../../account/orders/types/orders.types'
 import { pageMeta } from '@/shared/helpers/page-meta'
@@ -48,6 +50,7 @@ const PACK_FIELDS = ['packId'] as const
 
 export default function CommanderPage() {
 	const fetcher = useActionFetcher<typeof action, StickerOrderInput, Order>()
+	const [searchParams] = useSearchParams()
 
 	const [step, setStep] = useState<Step>('select')
 	const [order, setOrder] = useState<Order | null>(null)
@@ -60,7 +63,12 @@ export default function CommanderPage() {
 		resolver: standardSchemaResolver(stickerOrderSchema),
 		mode: 'onSubmit',
 		reValidateMode: 'onChange',
-		defaultValues: EMPTY_VALUES,
+		// « Commander à nouveau » lands here with the pack it wants; anything the
+		// catalogue does not sell is ignored rather than shown as a dead choice.
+		defaultValues: {
+			...EMPTY_VALUES,
+			packId: readPackParam(searchParams.get('pack')),
+		},
 		errors: fetcher.errors,
 	})
 

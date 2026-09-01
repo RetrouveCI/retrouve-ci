@@ -29,7 +29,7 @@ import {
 import { verifyPhoneChange } from '../helpers/settings.client'
 import type { action } from '../_index'
 
-export function EditPhoneDialog() {
+export function EditPhoneDialog({ trigger }: { trigger: React.ReactNode }) {
 	const revalidator = useRevalidator()
 	const [open, setOpen] = useState(false)
 	const [step, setStep] = useState<'phone' | 'code'>('phone')
@@ -105,11 +105,7 @@ export function EditPhoneDialog() {
 				if (!next) resetAll()
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="sm" className="rounded-lg text-xs">
-					Modifier
-				</Button>
-			</DialogTrigger>
+			<DialogTrigger asChild>{trigger}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Numéro de téléphone</DialogTitle>

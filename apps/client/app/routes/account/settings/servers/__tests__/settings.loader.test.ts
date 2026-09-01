@@ -53,7 +53,7 @@ describe('settingsLoader', () => {
 		expect(user).toMatchObject<Partial<UserProfile>>({
 			name: 'Awa Traoré',
 			email: 'awa@example.com',
-			phone: '+2250700000000',
+			phone: '+225 07 00 00 00 00',
 			phoneVerified: true,
 			city: 'Abidjan',
 			commune: 'Cocody',
