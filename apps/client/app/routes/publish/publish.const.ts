@@ -2,6 +2,7 @@ import {
 	LOST_ITEM_CATEGORIES,
 	MAX_PHOTOS,
 	type LostItemCategory,
+	type LostItemType,
 } from '@app/contracts/lost-items'
 
 export { MAX_PHOTOS }
@@ -41,3 +42,26 @@ export const FOUND_TIPS = [
 	"Précisez où vous conservez l'objet",
 	'Répondez rapidement aux messages',
 ]
+
+/**
+ * The two accents §2.1 assigns, kept together so no screen of the tunnel picks
+ * one on its own: a lost object is the orange flat with dark ink — never white,
+ * which measures 2,70:1 — and a found one the brand green with white.
+ */
+export const PUBLISH_ACCENT: Record<
+	LostItemType,
+	{ cssVar: string; fill: string; segment: string; ring: string }
+> = {
+	lost: {
+		cssVar: 'var(--accent-orange)',
+		fill: 'bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark',
+		segment: 'bg-accent-orange',
+		ring: 'focus-visible:ring-accent-orange/40',
+	},
+	found: {
+		cssVar: 'var(--primary-green)',
+		fill: 'bg-primary-green text-white hover:bg-primary-green-dark',
+		segment: 'bg-primary-green',
+		ring: 'focus-visible:ring-primary-green/40',
+	},
+}

@@ -15,9 +15,6 @@ export default [
 		route('terms', 'routes/terms/_index.tsx'),
 		route('privacy', 'routes/privacy/_index.tsx'),
 		route('publish', 'routes/publish/_index.tsx'),
-		route('publish/lost', 'routes/publish/lost/_index.tsx'),
-		route('publish/found', 'routes/publish/found/_index.tsx'),
-		route('publish/matches', 'routes/publish/servers/matching.loader.ts'),
 		route('stickers', 'routes/stickers/_index.tsx'),
 		route('stickers/order', 'routes/stickers/order/_index.tsx'),
 		route('posts', 'routes/posts/_index.tsx'),
@@ -37,6 +34,13 @@ export default [
 		route('notifications', 'routes/notifications/_index.tsx'),
 	]),
 	route('q/:code', 'routes/q/_index.tsx'),
+	// The three-step tunnel carries its own 56 px bar and its own low action bar,
+	// so it sits outside the shell: the tab bar and that action bar would
+	// otherwise stack at the foot of the screen and steal each other's taps. The
+	// chooser above stays in the shell, and stays the entry point.
+	route('publish/lost', 'routes/publish/lost/_index.tsx'),
+	route('publish/found', 'routes/publish/found/_index.tsx'),
+	route('publish/matches', 'routes/publish/servers/matching.loader.ts'),
 	layout('routes/auth/layout.tsx', [
 		route('login', 'routes/auth/login/_index.tsx'),
 		route('register', 'routes/auth/register/_index.tsx'),

@@ -69,11 +69,22 @@ describe('the matching loader', () => {
 		const { items } = await loader({ request: requestFor(VALID) })
 
 		expect(items).toHaveLength(1)
-		expect(items[0]).toMatchObject({
+		expect(items?.[0]).toMatchObject({
 			id: 'post-1',
 			title: 'Sac noir',
 			location: 'Cocody, Abidjan',
 			dateISO: '2026-08-01',
+		})
+	})
+
+	// `null` is the failure state and `[]` the empty one: read as « aucune
+	// correspondance », an unreachable API would tell the poster the one thing
+	// that reassures them, on no evidence at all.
+	it('answers null when the API cannot be reached', async () => {
+		findMatchingLostItems.mockRejectedValue(new Error('boom'))
+
+		expect(await loader({ request: requestFor(VALID) })).toEqual({
+			items: null,
 		})
 	})
 })

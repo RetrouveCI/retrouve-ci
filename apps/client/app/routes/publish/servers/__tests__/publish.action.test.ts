@@ -68,12 +68,13 @@ describe('publishAction', () => {
 	})
 
 	// The success path is a redirect, so it leaves through the throw channel.
-	it('redirects to the created listing', async () => {
+	// A new listing is `pending`, so its public page would 404 on the poster.
+	it('redirects to the listings of the person who wrote it', async () => {
 		const thrown = await publishAction(requestFor(), 'lost').catch(
 			(error: unknown) => error,
 		)
 
-		expect(redirectTo(thrown)).toBe('/posts/post-1')
+		expect(redirectTo(thrown)).toBe('/account/posts')
 	})
 
 	it('publishes under the type the route chose, not a form field', async () => {

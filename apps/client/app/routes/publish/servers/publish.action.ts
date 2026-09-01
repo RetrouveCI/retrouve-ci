@@ -31,7 +31,7 @@ export async function publishAction(
 		async () => {
 			const photos = await collectPhotoUrls(formData, request)
 
-			const created = await createLostItem(
+			await createLostItem(
 				{
 					type,
 					category: values.objectType,
@@ -47,7 +47,11 @@ export async function publishAction(
 				request,
 			)
 
-			throw redirect(`/posts/${created.id}`)
+			// Not the listing itself: a new one is `pending`, so its public page
+			// would answer 404 to the person who just wrote it. « Mes annonces »
+			// is where it exists, and where the banner explains that a moderator
+			// has to pass before anyone else can see it.
+			throw redirect('/account/posts')
 		},
 		{ redirectOnUnauthorized: '/login' },
 	)
