@@ -2,7 +2,7 @@ import { Button } from '@app/ui/components'
 import { Link } from 'react-router'
 import { ArrowRight } from 'lucide-react'
 import { useAuth } from '@/context/auth'
-import { StickerMark } from './sticker-mark'
+import { StickerMark } from '@/components/sticker-mark'
 import { CurvedArrow, TAGGED_OBJECTS } from './tagged-objects'
 
 const { Phone, Bottle, Wallet } = TAGGED_OBJECTS

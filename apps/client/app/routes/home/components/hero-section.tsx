@@ -1,16 +1,28 @@
 import { Link } from 'react-router'
-import { CircleAlert, Check, ShieldCheck, Users, MapPin } from 'lucide-react'
+import { CircleAlert, Check } from 'lucide-react'
+import type { LostItemCategory } from '@app/contracts/lost-items'
 import { SearchBar } from '@/components/search-bar'
+import { filterPillClassName } from '@/components/filter-pill'
 import { useMediaQuery } from '@/shared/hooks/use-media-query'
+import { CATEGORY_FILTERS } from '../../posts/posts.const'
 import { HeroMap } from './hero-map'
 
-const TRUST_POINTS = [
-	{ icon: ShieldCheck, label: 'Contact 100 % sécurisé' },
-	{ icon: Users, label: "Une communauté d'entraide" },
-	{ icon: MapPin, label: 'Partout en Côte d’Ivoire' },
+// A category dropped from the contract is a type error here; `flatMap` keeps the
+// drawn order without asserting the lookup cannot miss.
+const SHORTCUT_IDS: readonly LostItemCategory[] = [
+	'phone',
+	'keys',
+	'documents',
+	'bag',
 ]
 
-export function HeroSection() {
+const SHORTCUTS = SHORTCUT_IDS.flatMap(id => {
+	const filter = CATEGORY_FILTERS.find(entry => entry.id === id)
+
+	return filter ? [filter] : []
+})
+
+export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 	// The map's column exists from `md`; below it, the map is never mounted.
 	const showMap = useMediaQuery('(min-width: 768px)')
 
@@ -24,7 +36,15 @@ export function HeroSection() {
 			<div className="relative z-10 container mx-auto py-8 pr-[max(1rem,env(safe-area-inset-right))] pl-[max(1rem,env(safe-area-inset-left))] md:py-12 lg:py-16">
 				{/* Uncapped, every pixel past 620 fell between the two columns. */}
 				<div className="mx-auto grid max-w-7xl items-center gap-8 md:grid-cols-[1.05fr_0.95fr] md:gap-7 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
-					<div className="flex flex-col items-start gap-4 lg:max-w-155 lg:gap-5">
+					<div className="flex min-w-0 flex-col items-start gap-4 lg:max-w-155 lg:gap-5">
+						{/* Real or absent — §3 forbids a reassurance figure written by hand. */}
+						{publishedCount !== undefined && publishedCount > 0 && (
+							<span className="bg-primary-green/12 text-primary-green-text flex h-7 items-center gap-2 rounded-full px-3 text-xs font-semibold">
+								<span className="bg-primary-green h-1.5 w-1.5 rounded-full" />
+								{publishedCount} annonces en ligne
+							</span>
+						)}
+
 						<h1 className="text-3xl leading-[1.14] font-bold tracking-tight text-balance md:text-4xl lg:text-5xl xl:text-[3.375rem] xl:leading-[1.06]">
 							Perdu quelque chose&nbsp;?
 							<br />
@@ -45,6 +65,7 @@ export function HeroSection() {
 								mode="navigate"
 								action="/posts"
 								size="lg"
+								submit="responsive"
 								className="shadow-lg"
 							/>
 						</div>
@@ -67,15 +88,19 @@ export function HeroSection() {
 							</Link>
 						</div>
 
-						<div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-1">
-							{TRUST_POINTS.map(({ icon: Icon, label }) => (
-								<div
-									key={label}
-									className="text-muted-foreground flex items-center gap-2 text-sm font-medium"
+						{/* A secondary list, so it may scroll (§2.1); `gap-2` clears the
+						    3 px each pill's tap zone overhangs. No negative margin: it
+						    widens the flex column, which the grid item cannot shrink. */}
+						<div className="scrollbar-hide flex w-full gap-2 overflow-x-auto pt-0.5 lg:flex-wrap">
+							{SHORTCUTS.map(({ id, label, icon: Icon }) => (
+								<Link
+									key={id}
+									to={`/posts?category=${id}`}
+									className={filterPillClassName(false)}
 								>
-									<Icon className="text-primary-green-text h-5 w-5" />
+									<Icon className="h-4 w-4 shrink-0" />
 									{label}
-								</div>
+								</Link>
 							))}
 						</div>
 					</div>

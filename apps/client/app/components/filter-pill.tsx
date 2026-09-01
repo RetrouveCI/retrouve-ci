@@ -1,10 +1,24 @@
 import { cn } from '@app/ui/utils'
 
 /**
- * The one shape a filter takes (§2.1) — on « Annonces », in its sheet and on
- * « Mes annonces » alike. `touch-target` widens the tap zone to 44 px without
- * changing the 38 px drawn, which is also what keeps two wrapped rows from
- * stealing each other's taps: 3 px of overhang inside an 8 px gap.
+ * The one shape a filter takes (§2.1). Exported on its own because the home
+ * hero's category chips navigate instead of toggling, so they are a `Link` and
+ * cannot go through the button below — but they must not be a second shape.
+ */
+export function filterPillClassName(active: boolean, className?: string) {
+	return cn(
+		'touch-target inline-flex h-9.5 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium whitespace-nowrap transition-colors',
+		active
+			? 'bg-foreground text-background border-foreground'
+			: 'bg-background border-border text-foreground hover:border-foreground/30',
+		className,
+	)
+}
+
+/**
+ * `touch-target` widens the tap zone to 44 px without changing the 38 px drawn,
+ * which is also what keeps two wrapped rows from stealing each other's taps:
+ * 3 px of overhang inside an 8 px gap.
  */
 export function FilterPill({
 	active,
@@ -15,13 +29,7 @@ export function FilterPill({
 		<button
 			type="button"
 			aria-pressed={active}
-			className={cn(
-				'touch-target inline-flex h-9.5 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium whitespace-nowrap transition-colors',
-				active
-					? 'bg-foreground text-background border-foreground'
-					: 'bg-background border-border text-foreground hover:border-foreground/30',
-				className,
-			)}
+			className={filterPillClassName(active, className)}
 			{...props}
 		/>
 	)

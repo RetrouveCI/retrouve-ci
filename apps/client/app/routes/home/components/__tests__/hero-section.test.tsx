@@ -2,8 +2,13 @@ import { createRoutesStub } from 'react-router'
 import { cleanup, page, render, stopAnimations } from '@/shared/helpers/testing'
 import { HeroSection } from '../hero-section'
 
-function renderHero() {
-	const Stub = createRoutesStub([{ path: '/', Component: HeroSection }])
+function renderHero(publishedCount?: number) {
+	const Stub = createRoutesStub([
+		{
+			path: '/',
+			Component: () => <HeroSection publishedCount={publishedCount} />,
+		},
+	])
 	render(<Stub initialEntries={['/']} />)
 }
 
@@ -45,5 +50,40 @@ describe('HeroSection', () => {
 		await expect
 			.element(page.getByRole('search'))
 			.toHaveAttribute('action', '/posts')
+	})
+
+	it('announces the count the loader measured', async () => {
+		renderHero(412)
+
+		await expect
+			.element(page.getByText('412 annonces en ligne'))
+			.toBeInTheDocument()
+	})
+
+	it('stays silent rather than inventing a figure', async () => {
+		renderHero()
+
+		await expect
+			.element(page.getByText(/annonces en ligne/))
+			.not.toBeInTheDocument()
+	})
+
+	it('says nothing when the count is zero', async () => {
+		renderHero(0)
+
+		await expect
+			.element(page.getByText(/annonces en ligne/))
+			.not.toBeInTheDocument()
+	})
+
+	it("shortcuts to a pre-filtered listing, in the categories' own words", async () => {
+		renderHero()
+
+		await expect
+			.element(page.getByRole('link', { name: 'Téléphones' }))
+			.toHaveAttribute('href', '/posts?category=phone')
+		await expect
+			.element(page.getByRole('link', { name: 'Documents' }))
+			.toHaveAttribute('href', '/posts?category=documents')
 	})
 })
