@@ -1,15 +1,28 @@
 import { HeroSection } from './components/hero-section'
-import { BentoGridSection } from './components/bento-grid-section'
+import { RecentListingsStrip } from './components/recent-listings-strip'
+import { StickersSection } from './components/stickers-section'
 import { HowItWorksSection } from './components/how-it-works-section'
-import { CtaSection } from './components/cta-section'
+import { homeLoader } from './servers/home.loader'
+import type { Route } from './+types/_index'
+// Bento grid and closing CTA on stand-by: the four home artboards draw neither,
+// and both pushed the product block five screens down (kept intact, see
+// components/bento-grid-section.tsx and components/cta-section.tsx)
+// import { BentoGridSection } from './components/bento-grid-section'
+// import { CtaSection } from './components/cta-section'
 
-export default function Home() {
+export const loader = homeLoader
+
+export default function Home({ loaderData }: Route.ComponentProps) {
+	const { recent } = loaderData
+
 	return (
 		<main>
-			<HeroSection />
-			<BentoGridSection />
+			<HeroSection publishedCount={recent?.total} />
+			<RecentListingsStrip recent={recent} />
+			<StickersSection />
+			{/* <BentoGridSection /> */}
 			<HowItWorksSection />
-			<CtaSection />
+			{/* <CtaSection /> */}
 		</main>
 	)
 }

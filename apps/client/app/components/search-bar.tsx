@@ -40,10 +40,11 @@ const SIZE: Record<
 	},
 	lg: {
 		shell: 'py-1.5 pl-5 pr-1.5',
-		input: 'h-12 text-base',
+		// 52 px, the §2.1 field. 48 truncated the hero's own placeholder.
+		input: 'h-13 text-base',
 		icon: 'h-5 w-5',
 		button: 'h-12 px-6',
-		iconButton: 'size-9',
+		iconButton: 'size-11',
 	},
 }
 
@@ -64,9 +65,11 @@ type SearchBarProps = BaseProps &
 				/**
 				 * `icon` is the header's: at 1024 px the search takes the free space
 				 * the layout used to waste, and a worded button would eat the width it
-				 * just gained.
+				 * just gained. `responsive` is the hero's — the artboards word the
+				 * button only on desktop, because at 390 px « Rechercher » left the
+				 * field 167 px and truncated its own placeholder.
 				 */
-				submit?: 'label' | 'icon' | 'none'
+				submit?: 'label' | 'icon' | 'none' | 'responsive'
 				onSubmit?: () => void
 		  }
 		| {
@@ -144,18 +147,19 @@ export function SearchBar(props: SearchBarProps) {
 					placeholder={props.placeholder ?? 'Quel objet recherchez-vous ?'}
 					className={inputClass}
 				/>
-				{submit === 'label' && (
+				{(submit === 'label' || submit === 'responsive') && (
 					<Button
 						type="submit"
 						className={cn(
 							'bg-primary-green hover:bg-primary-green-dark shrink-0 rounded-full text-white',
 							size.button,
+							submit === 'responsive' && 'hidden lg:inline-flex',
 						)}
 					>
 						Rechercher
 					</Button>
 				)}
-				{submit === 'icon' && (
+				{(submit === 'icon' || submit === 'responsive') && (
 					<Button
 						type="submit"
 						size="icon"
@@ -163,6 +167,7 @@ export function SearchBar(props: SearchBarProps) {
 						className={cn(
 							'bg-primary-green hover:bg-primary-green-dark shrink-0 rounded-full text-white',
 							size.iconButton,
+							submit === 'responsive' && 'lg:hidden',
 						)}
 					>
 						<Search className={size.icon} />
