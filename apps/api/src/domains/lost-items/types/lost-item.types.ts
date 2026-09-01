@@ -72,3 +72,15 @@ export interface LostItem {
 }
 
 export type LostItemListResponse = Paginated<LostItem>
+
+/**
+ * The two state axes counted over everything one owner has posted. The browser
+ * used to work these out from the page it happened to hold, so they were wrong
+ * past the first page — and the moderation axis was not countable at all, being
+ * filtered out of the list the front reads.
+ */
+export interface LostItemOwnerSummary {
+	total: number
+	lifecycle: Record<ResolutionStatus, number>
+	moderation: Record<ModerationStatus, number>
+}

@@ -1336,6 +1336,132 @@ avoir réussi. **Tests** : projet `ui` — succès, échec API, erreur de champ.
 croisements d'état de la matrice rendent correctement, dans les deux thèmes.
 **Tests** : projet `ui`, un cas par croisement.
 
+> **Les trois chiffres de l'étape n'avaient aucune source, et c'est le vrai
+> travail de R13.** Les compteurs par puce (retirés par R11), la bannière de
+> modération et le rail de la planche large veulent tous la même chose : des
+> nombres agrégés sur **toutes** les annonces du propriétaire. Aucun n'existait,
+> et la modération n'était même pas comptable côté front — elle n'est pas un
+> filtre du schéma. R13 ouvre donc `GET /lost-items/mine/summary` : deux
+> `groupBy` narrowés par `userId`, rendant `{ total, lifecycle, moderation }`.
+> **Écart de portée assumé**, la même forme qu'à R11 : le plan annonce R13 en
+> `client/account` et ne liste que deux fichiers client, alors que ses points 1
+> et 2 sont infaisables sans `apps/api`.
+
+> **Le rail « ces 30 derniers jours » n'est pas dérivable, et il est reporté.**
+> `note-carte` le décrit — vues, personnes qui ont écrit, objets récupérés — et
+> `AnnonceCarte` affirme que « tout le reste de cette maquette tient sur les
+> données existantes ». C'est faux pour ce rail : `views` et `contactsCount`
+> sont des **compteurs sans horodatage**, il n'y a pas de `resolvedAt`, et
+> `updatedAt` bouge à chaque modification. Deux des trois chiffres sont donc
+> impossibles à fenêtrer sur 30 jours sans une table d'événements. Le rail
+> attend cette migration ; l'endpoint s'arrête volontairement aux comptages
+> plutôt que de servir des sommes que rien n'affiche.
+
+> **Les compteurs sont non filtrés, et c'est un choix.** Une puce dit combien le
+> visiteur en possède dans ce compartiment, pas combien la recherche en a trouvé
+> : une exception de modération masquée par une recherche serait pire
+> qu'absente. L'en-tête garde le nombre filtré que R11 a rendu honnête (« 12
+> résultats »), donc les deux lectures coexistent sans se contredire.
+
+> **Le rail vertical de filtres à `lg` est écarté.** `MesAnnoncesDesktop`
+> remplace la rangée de puces par une liste verticale à compteurs alignés. R11 a
+> mesuré cette rangée à six largeurs et deux thèmes ; une seconde implémentation
+> du même filtre pour les mêmes données est un risque de régression sans
+> bénéfice pour le visiteur. La carte à correspondances sur deux colonnes, elle,
+> appartient à R14.
+
+> **« Toutes » continue de tout compter.** La matrice écrit qu'une annonce
+> archivée est « repliée derrière la puce Archivé, hors de la liste par défaut
+> ». L'appliquer rouvrirait exactement le trou que R11 a fermé — une annonce
+> `expired` joignable par aucune puce — et demanderait un filtre API de plus.
+
+> **Le menu dessiné perdait « Voir l'annonce » ; il est gardé.** `AnnonceCarte`
+> liste quatre entrées : Marquer retrouvé, Modifier, Partager, Supprimer. Sans «
+> Voir », la page publique de l'annonce devient inatteignable depuis la carte,
+> et la carte n'est pas un lien — le piège payé six fois. Cinq entrées donc, et
+> **« Partager » n'apparaît que sur une annonce publiée** : une annonce en
+> attente ou masquée répond 404 à tout autre que son auteur, donc en partager le
+> lien serait une promesse fausse.
+
+> **La date de l'objet cède la place à la date de publication**, contre le «
+> couple lieu/date » du flux A (§2.2). Sur cet écran la question du propriétaire
+> est « depuis quand est-elle en ligne », pas « quand l'ai-je perdu » — et une
+> annonce en attente n'a pas été publiée du tout, elle a été _envoyée_, ce que
+> la carte dit. La reconnaissance de l'annonce reste portée par le titre, la
+> photo, le lieu et la pastille, identiques aux autres écrans. La planche écrit
+> en plus « Récupéré le 12 août · 8 jours en ligne » sur une annonce retrouvée :
+> rien n'enregistre cette date, donc la carte dit sa date de publication comme
+> les autres.
+
+> **Le cas normal perd sa pastille**, comme la matrice le demande : « Publiée +
+> En ligne » est le cas ordinaire et n'a pas à s'annoncer. Le garde de
+> vocabulaire que R12 avait posé porte donc désormais sur les quatre autres
+> croisements.
+
+> **Aucune puce n'est atténuée.** `MesAnnonces` met « Archivé » à `opacity: .5`
+> quand le compartiment est vide. Atténuer un contrôle **actif** casse son
+> contraste — c'est la mesure à 1,8:1 de la flèche désactivée, qui n'est
+> dispensée que parce qu'elle est désactivée. Le compteur est affiché à la place
+> et, sur un compte vide, aucun compteur n'est affiché du tout : quatre zéros ne
+> renseignent personne.
+
+> **Le tableau d'états existait en double, et c'est ce qui a fermé la dette de
+> R12.** `STATUS_CONFIG[displayStatus]` n'avait pas de repli côté « Mes annonces
+> » ; mais `account/components/recent-listings.tsx` en portait une **copie**,
+> restée au vocabulaire d'avant R12 (« Active » / « Résolue » / « Expirée ») et
+> aux deux fautes de contraste que R12 avait corrigées sur l'autre exemplaire —
+> « En attente » à 1,91:1 et « Résolue » à 3,76:1. Les deux cartes lisent
+> maintenant `helpers/listing-status.ts`, qui rend `UNKNOWN_LISTING_STATUS` pour
+> un statut hors énumération : le tableau reste exhaustif à la compilation, la
+> lecture est élargie par affectation et non par un `as`, et la page ne tombe
+> plus en 500.
+
+> **`text-destructive` mesure 2,98:1 en sombre.** La ligne « Supprimer l'annonce
+> » de la feuille est du **texte** là où R12 n'avait qu'une icône, donc le seuil
+> passe à 4,5:1 : mesurée à 4,77 en clair et **2,98 en sombre**, elle nomme sa
+> propre paire (`text-red-700 dark:text-red-400`, 6,42 et 6,86). Le jeton
+> lui-même reste inutilisable comme encre en sombre, et **17 points d'appel du
+> client** s'en servent — dont tous les messages d'erreur de formulaire. Il
+> manque un `--destructive-text`, exactement la forme que R3 a donnée au vert et
+> à l'orange : c'est une dette `packages/ui`.
+
+> **La bannière ne promet ni tri ni motif.** La planche large écrit « Les deux
+> sont en tête de liste, avec le motif quand il y en a un » : l'API trie par
+> `createdAt desc` et aucune colonne ne porte de motif (A1). Chaque phrase de
+> `buildModerationNotice` décrit donc la visibilité, et celle d'une annonce
+> masquée reprend le constat de R12 — « la corriger ne la remet pas en ligne ».
+
+> **Le lien « Retour au compte » mesurait 20 px** sous `lg`, sans `touch-target`
+> — la plus petite cible de l'écran, que R11 n'avait pas relevée. Corrigé ici ;
+> **trois autres écrans portent le même lien** (`account/stickers`,
+> `account/settings`, `notifications`), et R15 en touche deux.
+
+> **Mesuré au navigateur, aux deux bouts et dans les deux thèmes.** Stub sur
+> :3011 servant les six annonces des cinq croisements plus le résumé, à 320,
+> 360, 390, 768, 1024 et 1280 px : `document.scrollWidth` égale exactement la
+> fenêtre partout, les six cartes rendent partout, **la plus petite cible
+> tactile vaut 44 px sous `lg`** et le recouvrement pire cas entre contrôles de
+> la page vaut **0** — le menu `⋯` ne vole aucun tap. Les cinq lignes de la
+> feuille mesurent 52 px. Contraste : tout ce que l'étape ajoute passe 4,5:1
+> dans les deux thèmes, le plus bas à **4,93** (« En attente », 10 px) ;
+> bannière à 8,38 / 16,9, « 3 personnes vous ont écrit » à 6,22 / 6,48,
+> pastilles de 5,25 à 6,86. Seul le logotype « CI » reste sous le seuil (2,63 /
+> 2,70), dette connue et dispensée. Les quatre états de §2.3 règle 5 sont
+> vérifiés un par un : compte vide (« Aucune annonce », aucune bannière, aucun
+> compteur), filtre sans résultat (« Aucun résultat » avec « 0 résultat » en
+> tête et les compteurs intacts), chargement (quatre squelettes sous
+> `aria-busy`, sur un stub ralenti à 2,5 s) et panne (l'API en 500 rend la
+> bannière d'erreur avec « Réessayer » et le retour au compte, au lieu de faire
+> remonter l'échec à la racine qui perdait la coquille). Enchaînement vérifié
+> dans les deux thèmes : la feuille se démonte, la confirmation s'ouvre et le
+> focus tombe sur « Annuler ».
+
+> **Un recouvrement pré-existant, hors portée.** Deux liens de pied de page, « À
+> propos » et « Politique de confidentialité », se recouvrent de 12 px à 390 px
+> et de 6 px à 768 px — le débord de `.touch-target` dans un écart de rangée
+> trop court. Reproduit sur `/about`, donc antérieur à R13 : c'est le `Footer`
+> partagé, pas cet écran.
+
 #### R14 — Correspondances sur une annonce
 
 1. Bande verte dans la carte : « N objets trouvés pourraient correspondre ».
@@ -2100,7 +2226,12 @@ notifications à personne n'a pas d'intérêt.
   masquage) et R26 (le prédicat strict du numéro, et la remontée
   d'`OTP_TTL_SECONDS` depuis `apps/api`).
 - **Les endpoints de l'API** : tout le front se sert de ce qui existe, y compris
-  les correspondances (`/lost-items?type&category&ville`).
+  les correspondances (`/lost-items?type&category&ville`). **Deux exceptions
+  mesurées** : R11 a dû laisser passer `resolutionStatus` sur
+  `/lost-items/mine`, et R13 a dû ouvrir `/lost-items/mine/summary` — les
+  compteurs par puce et la bannière de modération sont des agrégats que la liste
+  paginée ne peut pas rendre, et la modération n'est pas un axe filtrable côté
+  public.
 - **Le découpage `servers/*.loader.ts` / `*.action.ts`** : aucun composant
   n'appelle `apiFetch`.
 - **Le style Prettier** (tabulations, 80 colonnes) : pas de reformatage

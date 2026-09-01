@@ -32,6 +32,7 @@ export function buildRepository(): LostItemRepository {
 		create: vi.fn(),
 		findById: vi.fn(),
 		list: vi.fn(),
+		summarizeByOwner: vi.fn(),
 		findMatchCandidates: vi.fn(),
 		update: vi.fn(),
 		updateModerationStatus: vi.fn(),

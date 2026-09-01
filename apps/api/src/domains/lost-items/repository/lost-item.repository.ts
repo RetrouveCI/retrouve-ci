@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
 import {
 	toDomainLostItem,
+	toDomainModerationStatus,
+	toDomainResolutionStatus,
 	toPrismaCategory,
 	toPrismaModerationStatus,
 	toPrismaResolutionStatus,
@@ -13,10 +15,24 @@ import type {
 	ListLostItemsFilter,
 	LostItem,
 	LostItemListResponse,
+	LostItemOwnerSummary,
 	MatchCandidatesFilter,
 	ModerationStatus,
+	ResolutionStatus,
 	UpdateLostItemData,
 } from '../types/lost-item.types'
+
+const EMPTY_LIFECYCLE: Record<ResolutionStatus, number> = {
+	active: 0,
+	resolved: 0,
+	expired: 0,
+}
+
+const EMPTY_MODERATION: Record<ModerationStatus, number> = {
+	pending: 0,
+	published: 0,
+	hidden: 0,
+}
 
 @Injectable()
 export class LostItemRepository {
@@ -90,6 +106,42 @@ export class LostItemRepository {
 		])
 
 		return toPaginated(items.map(toDomainLostItem), total, filter)
+	}
+
+	/**
+	 * Two `groupBy` calls rather than a scan: the owner's page is capped, so any
+	 * count taken from it stops being true at the cap. Both are narrowed by
+	 * `userId`, which is the whole authorisation of this route.
+	 */
+	async summarizeByOwner(userId: string): Promise<LostItemOwnerSummary> {
+		const [byLifecycle, byModeration] = await Promise.all([
+			this.prisma.lostItem.groupBy({
+				by: ['resolutionStatus'],
+				where: { userId },
+				_count: { _all: true },
+			}),
+			this.prisma.lostItem.groupBy({
+				by: ['moderationStatus'],
+				where: { userId },
+				_count: { _all: true },
+			}),
+		])
+
+		const lifecycle = { ...EMPTY_LIFECYCLE }
+		let total = 0
+		for (const row of byLifecycle) {
+			lifecycle[toDomainResolutionStatus(row.resolutionStatus)] =
+				row._count._all
+			total += row._count._all
+		}
+
+		const moderation = { ...EMPTY_MODERATION }
+		for (const row of byModeration) {
+			moderation[toDomainModerationStatus(row.moderationStatus)] =
+				row._count._all
+		}
+
+		return { total, lifecycle, moderation }
 	}
 
 	async findMatchCandidates(

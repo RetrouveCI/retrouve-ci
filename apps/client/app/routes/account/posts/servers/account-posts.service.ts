@@ -6,6 +6,7 @@ import { apiFetch } from '@/shared/utils/api-fetch'
 import type {
 	LostItemApiDto,
 	LostItemListApiResponse,
+	MyLostItemsSummaryApiResponse,
 } from '@/shared/types/lost-items.types'
 import type { LostItemStatus } from '@/shared/types/lost-item'
 
@@ -34,6 +35,15 @@ export async function getMyLostItemsPage(
 		`/lost-items/mine?${params.toString()}`,
 		{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
 	)
+}
+
+/** The counts the filter pills and the moderation banner read. */
+export async function getMyLostItemsSummary(
+	request: Request,
+): Promise<MyLostItemsSummaryApiResponse> {
+	return apiFetch<MyLostItemsSummaryApiResponse>('/lost-items/mine/summary', {
+		headers: { Cookie: request.headers.get('cookie') ?? '' },
+	})
 }
 
 /** Every listing in one call, up to `SWEEP_PAGE_SIZE`. */

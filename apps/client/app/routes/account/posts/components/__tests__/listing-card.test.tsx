@@ -58,6 +58,13 @@ function renderCard(
 	render(<Stub initialEntries={['/account/posts']} />)
 }
 
+/** Every action lives behind the one 44 px target that replaced four buttons. */
+async function openMenu() {
+	await userEvent.click(
+		page.getByRole('button', { name: 'Actions sur cette annonce' }),
+	)
+}
+
 beforeEach(() => {
 	stopAnimations()
 	success.mockReset()
@@ -77,8 +84,9 @@ describe('ListingCard', () => {
 			return { success: true }
 		})
 
+		await openMenu()
 		await userEvent.click(
-			page.getByRole('button', { name: /Marquer retrouvée/ }),
+			page.getByRole('button', { name: 'Marquer retrouvée' }),
 		)
 
 		expect(success).not.toHaveBeenCalled()
@@ -88,8 +96,9 @@ describe('ListingCard', () => {
 	it('confirms once the action succeeds', async () => {
 		renderCard()
 
+		await openMenu()
 		await userEvent.click(
-			page.getByRole('button', { name: /Marquer retrouvée/ }),
+			page.getByRole('button', { name: 'Marquer retrouvée' }),
 		)
 
 		await vi.waitFor(() =>
@@ -104,8 +113,9 @@ describe('ListingCard', () => {
 			errors: { root: { message: 'Service indisponible' } },
 		}))
 
+		await openMenu()
 		await userEvent.click(
-			page.getByRole('button', { name: /Marquer retrouvée/ }),
+			page.getByRole('button', { name: 'Marquer retrouvée' }),
 		)
 
 		await vi.waitFor(() =>
@@ -122,8 +132,9 @@ describe('ListingCard', () => {
 			errors: { status: { message: 'Statut invalide' } },
 		}))
 
+		await openMenu()
 		await userEvent.click(
-			page.getByRole('button', { name: /Marquer retrouvée/ }),
+			page.getByRole('button', { name: 'Marquer retrouvée' }),
 		)
 
 		await vi.waitFor(() =>
@@ -134,12 +145,16 @@ describe('ListingCard', () => {
 		expect(success).not.toHaveBeenCalled()
 	})
 
-	it('reports a failed deletion instead of claiming it worked', async () => {
+	it('keeps deletion behind a confirmation', async () => {
 		renderCard({}, async () => ({ success: false }))
 
+		await openMenu()
 		await userEvent.click(
 			page.getByRole('button', { name: "Supprimer l'annonce" }),
 		)
+
+		expect(error).not.toHaveBeenCalled()
+
 		await userEvent.click(page.getByRole('button', { name: 'Supprimer' }))
 
 		await vi.waitFor(() =>
@@ -156,32 +171,102 @@ describe('ListingCard', () => {
 		'offers Modifier on a %s listing',
 		async moderationStatus => {
 			renderCard({ moderationStatus })
+			await openMenu()
 
 			await expect
-				.element(page.getByRole('link', { name: /Modifier/ }))
+				.element(page.getByRole('link', { name: "Modifier l'annonce" }))
 				.toHaveAttribute('href', '/account/posts/post-1')
 		},
 	)
 
-	it.each([
-		['active', 'En ligne'],
-		['resolved', 'Retrouvée'],
-		['expired', 'Archivée'],
-	] as const)(
-		'says %s as « %s », the words the filters use',
-		async (status, label) => {
-			renderCard({ status })
+	describe('the five crossings of the two state axes', () => {
+		// « Publiée + En ligne » is the normal case, so it carries no exception
+		// badge — only the numbers the owner came for.
+		it('badges nothing on a published, live listing', async () => {
+			renderCard({ views: 48, contacts: 3 })
 
-			await expect.element(page.getByText(label, { exact: true })).toBeVisible()
-		},
-	)
+			await expect
+				.element(page.getByText('48 vues', { exact: true }))
+				.toBeVisible()
+			await expect
+				.element(page.getByText('3 personnes vous ont écrit', { exact: true }))
+				.toBeVisible()
+			expect(page.getByText('En attente').elements()).toHaveLength(0)
+			expect(page.getByText('Masquée').elements()).toHaveLength(0)
+		})
+
+		it('says why a listing awaiting validation has no audience', async () => {
+			renderCard({ moderationStatus: 'pending', views: 0, contacts: 0 })
+
+			await expect
+				.element(page.getByText('En attente', { exact: true }))
+				.toBeVisible()
+			await expect
+				.element(
+					page.getByText("Pas encore de vue : elle n'est visible que de vous."),
+				)
+				.toBeVisible()
+		})
+
+		it('badges a hidden listing and offers no sharing', async () => {
+			renderCard({ moderationStatus: 'hidden' })
+
+			await expect
+				.element(page.getByText('Masquée', { exact: true }))
+				.toBeVisible()
+
+			await openMenu()
+			expect(
+				page.getByRole('button', { name: "Partager l'annonce" }).elements(),
+			).toHaveLength(0)
+		})
+
+		it.each([
+			['resolved', 'Retrouvée'],
+			['expired', 'Archivée'],
+		] as const)(
+			'offers a closed %s listing its way back',
+			async (status, label) => {
+				renderCard({ status })
+
+				await expect
+					.element(page.getByText(label, { exact: true }))
+					.toBeVisible()
+
+				await openMenu()
+				await expect
+					.element(page.getByRole('button', { name: 'Remettre en ligne' }))
+					.toBeVisible()
+			},
+		)
+	})
+
+	it('lets a published listing be shared and viewed', async () => {
+		renderCard()
+		await openMenu()
+
+		await expect
+			.element(page.getByRole('button', { name: "Partager l'annonce" }))
+			.toBeVisible()
+		await expect
+			.element(page.getByRole('link', { name: "Voir l'annonce" }))
+			.toHaveAttribute('href', '/posts/post-1')
+	})
 
 	it('agrees the counters in the singular', async () => {
 		renderCard({ views: 1, contacts: 1 })
 
 		await expect.element(page.getByText('1 vue', { exact: true })).toBeVisible()
 		await expect
-			.element(page.getByText('1 contact', { exact: true }))
+			.element(page.getByText('1 personne vous a écrit', { exact: true }))
+			.toBeVisible()
+	})
+
+	it('says plainly when nobody has written', async () => {
+		renderCard({ contacts: 0 })
+
+		await expect
+			.element(page.getByText('Personne ne vous a écrit', { exact: true }))
 			.toBeVisible()
 	})
 })

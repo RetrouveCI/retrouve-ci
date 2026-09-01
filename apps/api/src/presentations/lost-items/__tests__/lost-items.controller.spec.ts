@@ -9,6 +9,7 @@ import type {
 import { buildLostItem } from '@/domains/lost-items/__tests__/lost-item.fixture'
 import type { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
 import type { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
+import type { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
 import type { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import type { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
 import type { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
@@ -36,6 +37,7 @@ describe('LostItemsController', () => {
 	let recordLostItemContact: RecordLostItemContactUseCase
 	let getPaginatedLostItems: GetPaginatedLostItemsUseCase
 	let getMyLostItems: GetMyLostItemsUseCase
+	let getMyLostItemsSummary: GetMyLostItemsSummaryUseCase
 	let updateLostItem: UpdateLostItemUseCase
 	let moderateLostItem: ModerateLostItemUseCase
 	let deleteLostItem: DeleteLostItemUseCase
@@ -48,6 +50,7 @@ describe('LostItemsController', () => {
 		recordLostItemContact = buildUseCase<RecordLostItemContactUseCase>()
 		getPaginatedLostItems = buildUseCase<GetPaginatedLostItemsUseCase>()
 		getMyLostItems = buildUseCase<GetMyLostItemsUseCase>()
+		getMyLostItemsSummary = buildUseCase<GetMyLostItemsSummaryUseCase>()
 		updateLostItem = buildUseCase<UpdateLostItemUseCase>()
 		moderateLostItem = buildUseCase<ModerateLostItemUseCase>()
 		deleteLostItem = buildUseCase<DeleteLostItemUseCase>()
@@ -58,6 +61,7 @@ describe('LostItemsController', () => {
 			recordLostItemContact,
 			getPaginatedLostItems,
 			getMyLostItems,
+			getMyLostItemsSummary,
 			updateLostItem,
 			moderateLostItem,
 			deleteLostItem,
@@ -185,6 +189,24 @@ describe('LostItemsController', () => {
 				userId: 'user-1',
 				filter: query,
 			})
+		})
+	})
+
+	describe('listMineSummary', () => {
+		it('scopes the counts to the session user and nothing else', async () => {
+			const summary = {
+				total: 6,
+				lifecycle: { active: 3, resolved: 2, expired: 1 },
+				moderation: { pending: 1, published: 4, hidden: 1 },
+			}
+			vi.mocked(getMyLostItemsSummary.execute).mockResolvedValue(summary)
+
+			const result = await controller.listMineSummary(session)
+
+			expect(getMyLostItemsSummary.execute).toHaveBeenCalledExactlyOnceWith(
+				'user-1',
+			)
+			expect(result).toEqual(summary)
 		})
 	})
 

@@ -40,6 +40,18 @@ export interface LostItemApiDto {
 	createdAt: string
 }
 
+/**
+ * The two state axes counted over every listing the visitor owns, not over the
+ * page the browser happens to hold. Unfiltered on purpose: a pill counter says
+ * how many there are in that bucket, and a moderation exception must not be
+ * hidden by a search.
+ */
+export interface MyLostItemsSummaryApiResponse {
+	total: number
+	lifecycle: Record<LostItemStatus, number>
+	moderation: Record<ModerationStatus, number>
+}
+
 export interface LostItemListApiResponse {
 	items: LostItemApiDto[]
 	total: number

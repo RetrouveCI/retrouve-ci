@@ -1,10 +1,13 @@
 import { Button, Input } from '@app/ui/components'
-import { Link } from 'react-router'
-import { FileText, Plus, ArrowLeft, Search } from 'lucide-react'
+import { Link, useLocation, useNavigation } from 'react-router'
+import { FileText, Plus, ArrowLeft, Search, TriangleAlert } from 'lucide-react'
 import { FilterPill } from '@/components/filter-pill'
 import { PaginationBar } from '@/components/pagination-bar'
 import { ListingCard } from './components/listing-card'
+import { ListingCardSkeleton } from './components/listing-card-skeleton'
+import { ModerationBanner } from './components/moderation-banner'
 import { useAccountPostsFilters } from './hooks/use-account-posts-filters'
+import { buildModerationNotice } from './helpers/moderation-notice'
 import { LIFECYCLE_FILTERS } from './account-posts.const'
 import { accountPostsLoader } from './servers/account-posts.loader'
 import { accountPostsAction } from './servers/account-posts.action'
@@ -23,7 +26,7 @@ export const loader = accountPostsLoader
 export const action = accountPostsAction
 
 export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
-	const { listings, total, pageSize } = loaderData
+	const { listings, total, pageSize, summary } = loaderData
 
 	const {
 		searchQuery,
@@ -36,6 +39,20 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 		totalPages,
 	} = useAccountPostsFilters({ total, pageSize })
 
+	const navigation = useNavigation()
+	const location = useLocation()
+	// A filter or a page is a navigation to this very path: what changes is the
+	// query string, so that is what the list waits on.
+	const isLoading =
+		navigation.state === 'loading' &&
+		navigation.location.pathname === location.pathname
+
+	const notice = buildModerationNotice(summary.moderation)
+	const counts: Record<string, number> = {
+		all: summary.total,
+		...summary.lifecycle,
+	}
+
 	return (
 		<main className="flex-1">
 			<section className="relative overflow-hidden border-b">
@@ -45,7 +62,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 				<div className="relative container mx-auto px-4 py-8">
 					<Link
 						to="/account"
-						className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition-colors"
+						className="text-muted-foreground hover:text-foreground touch-target mb-4 inline-flex items-center gap-1.5 text-sm transition-colors"
 					>
 						<ArrowLeft className="h-4 w-4" />
 						Retour au compte
@@ -79,6 +96,12 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 				</div>
 			</section>
 
+			{notice && (
+				<div className="container mx-auto px-4 pt-4">
+					<ModerationBanner {...notice} />
+				</div>
+			)}
+
 			<section className="border-b py-4">
 				<div className="container mx-auto px-4">
 					<div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
@@ -105,6 +128,14 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 									className={status === id ? activeClassName : undefined}
 								>
 									{label}
+									{/* The count is what the API holds for that bucket, over every
+									    listing — never over the page on screen. An empty account has
+									    nothing to count, so it is not counted at four zeros. */}
+									{summary.total > 0 && (
+										<span className="tabular-nums opacity-70">
+											<span aria-hidden>·</span> {counts[id] ?? 0}
+										</span>
+									)}
 								</FilterPill>
 							))}
 						</div>
@@ -114,7 +145,17 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 
 			<section className="py-8">
 				<div className="container mx-auto px-4">
-					{listings.length > 0 ? (
+					{isLoading ? (
+						<div
+							className="grid gap-4 lg:grid-cols-2"
+							aria-busy="true"
+							aria-label="Chargement des annonces"
+						>
+							{Array.from({ length: 4 }, (_, index) => (
+								<ListingCardSkeleton key={index} />
+							))}
+						</div>
+					) : listings.length > 0 ? (
 						<>
 							<div className="grid gap-4 lg:grid-cols-2">
 								{listings.map(listing => (
@@ -158,6 +199,41 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 					)}
 				</div>
 			</section>
+		</main>
+	)
+}
+
+/**
+ * The fourth state of §2.3 rule 5. Without one the failure climbed to the root
+ * boundary, which drops the whole shell for a bare « Une erreur est survenue »
+ * and offers no way back.
+ */
+export function ErrorBoundary() {
+	return (
+		<main className="flex-1">
+			<div className="container mx-auto px-4 py-16">
+				<div className="bg-muted/30 mx-auto max-w-md rounded-2xl border-2 border-dashed py-12 text-center">
+					<TriangleAlert className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
+					<h1 className="mb-2 text-lg font-semibold">
+						Impossible d&apos;afficher vos annonces
+					</h1>
+					<p className="text-muted-foreground mx-auto mb-6 max-w-xs text-sm">
+						Le service est momentanément indisponible. Vos annonces, elles, sont
+						intactes.
+					</p>
+					<div className="flex flex-wrap items-center justify-center gap-3">
+						<Button
+							onClick={() => window.location.reload()}
+							className="bg-primary-green hover:bg-primary-green-dark rounded-xl text-white"
+						>
+							Réessayer
+						</Button>
+						<Button asChild variant="outline" className="rounded-xl">
+							<Link to="/account">Retour au compte</Link>
+						</Button>
+					</div>
+				</div>
+			</div>
 		</main>
 	)
 }
