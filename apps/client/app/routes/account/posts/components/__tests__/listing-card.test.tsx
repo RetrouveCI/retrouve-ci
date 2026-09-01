@@ -8,6 +8,7 @@ import {
 } from '@/shared/helpers/testing'
 import type { ActionResult } from '@/shared/types/action'
 import type { UserLostItem } from '@/shared/types/lost-item'
+import type { ListingMatches } from '../../types/matches'
 import { ListingCard } from '../listing-card'
 
 const { success, error } = vi.hoisted(() => ({
@@ -47,15 +48,44 @@ type Action = (args: { request: Request }) => unknown
 function renderCard(
 	listing: Partial<UserLostItem> = {},
 	action: Action = async () => ({ success: true }) as ActionResult,
+	matches?: ListingMatches,
 ) {
 	const Stub = createRoutesStub([
 		{
 			path: '/account/posts',
-			Component: () => <ListingCard listing={{ ...LISTING, ...listing }} />,
+			Component: () => (
+				<ListingCard listing={{ ...LISTING, ...listing }} matches={matches} />
+			),
 			action: action as never,
 		},
 	])
 	render(<Stub initialEntries={['/account/posts']} />)
+}
+
+const MATCHES: ListingMatches = {
+	count: 2,
+	items: [
+		{
+			id: 'found-1',
+			title: 'Sac à dos trouvé à Cocody',
+			description: 'Ramassé devant la pharmacie',
+			location: 'Abidjan, Cocody',
+			ville: 'Cocody',
+			date: 'Il y a 2 jours',
+			type: 'found',
+			category: 'bag',
+		},
+		{
+			id: 'found-2',
+			title: 'Sac noir sans papiers',
+			description: 'Laissé dans un taxi',
+			location: 'Abidjan, Cocody',
+			ville: 'Cocody',
+			date: 'Il y a 4 jours',
+			type: 'found',
+			category: 'bag',
+		},
+	],
 }
 
 /** Every action lives behind the one 44 px target that replaced four buttons. */
@@ -267,6 +297,56 @@ describe('ListingCard', () => {
 
 		await expect
 			.element(page.getByText('Personne ne vous a écrit', { exact: true }))
+			.toBeVisible()
+	})
+
+	it('says nothing about matches until there are some', async () => {
+		renderCard()
+
+		await expect
+			.element(page.getByText('pourraient correspondre'))
+			.not.toBeInTheDocument()
+	})
+
+	it('names the count and the town when the matches arrive', async () => {
+		renderCard({ ville: 'Cocody' }, undefined, MATCHES)
+
+		await expect
+			.element(
+				page.getByRole('button', {
+					name: /2 objets trouvés pourraient correspondre/,
+				}),
+			)
+			.toBeVisible()
+		await expect.element(page.getByText('Signalés à Cocody')).toBeVisible()
+	})
+
+	it('lists the candidates behind the band', async () => {
+		renderCard({}, undefined, MATCHES)
+
+		await userEvent.click(
+			page.getByRole('button', {
+				name: /2 objets trouvés pourraient correspondre/,
+			}),
+		)
+
+		await expect
+			.element(page.getByRole('link', { name: /Sac à dos trouvé à Cocody/ }))
+			.toHaveAttribute('href', '/posts/found-1')
+	})
+
+	/** The band counts what the endpoint found; the sheet shows the closest four. */
+	it('owns up to the candidates it does not list', async () => {
+		renderCard({}, undefined, { ...MATCHES, count: 9 })
+
+		await userEvent.click(
+			page.getByRole('button', {
+				name: /9 objets trouvés pourraient correspondre/,
+			}),
+		)
+
+		await expect
+			.element(page.getByText('Les 2 plus proches sont affichés.'))
 			.toBeVisible()
 	})
 })

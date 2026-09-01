@@ -38,6 +38,9 @@ import {
 	ListingActionsSheet,
 	type ListingSheetAction,
 } from './listing-actions-sheet'
+import { MatchesBand } from './matches-band'
+import { MatchesSheet } from './matches-sheet'
+import type { ListingMatches } from '../types/matches'
 import type { accountPostsAction } from '../servers/account-posts.action'
 
 /** What the pending action promises, so its answer can be reported in its own words. */
@@ -60,13 +63,16 @@ type Outcome = keyof typeof OUTCOMES
 
 interface ListingCardProps {
 	listing: UserLostItem
+	/** Absent until the matches request answers, and for every card with none. */
+	matches?: ListingMatches
 }
 
-export function ListingCard({ listing }: ListingCardProps) {
+export function ListingCard({ listing, matches }: ListingCardProps) {
 	const fetcher = useActionFetcher<typeof accountPostsAction>()
 	const [pending, setPending] = useState<Outcome | null>(null)
 	const [menuOpen, setMenuOpen] = useState(false)
 	const [confirmOpen, setConfirmOpen] = useState(false)
+	const [matchesOpen, setMatchesOpen] = useState(false)
 	const isUpdating = fetcher.isSubmitting
 	const config = listingStatusFor(listing)
 	const isPending = listing.moderationStatus === 'pending'
@@ -277,6 +283,24 @@ export function ListingCard({ listing }: ListingCardProps) {
 					)}
 				</div>
 			</div>
+
+			{matches && (
+				<MatchesBand
+					matches={matches}
+					type={listing.type}
+					ville={listing.ville}
+					onOpen={() => setMatchesOpen(true)}
+				/>
+			)}
+
+			{matches && (
+				<MatchesSheet
+					open={matchesOpen}
+					onOpenChange={setMatchesOpen}
+					matches={matches}
+					type={listing.type}
+				/>
+			)}
 
 			<ListingActionsSheet
 				open={menuOpen}
