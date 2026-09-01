@@ -58,3 +58,9 @@ export interface LostItemListApiResponse {
 	page: number
 	pageSize: number
 }
+
+/** `GET /lost-items/:id/matches` — a scored candidate of the opposite type. */
+export interface MatchCandidateApiDto {
+	lostItem: LostItemApiDto
+	score: number
+}

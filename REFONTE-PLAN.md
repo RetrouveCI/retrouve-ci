@@ -1475,6 +1475,72 @@ croisements d'état de la matrice rendent correctement, dans les deux thèmes.
 `components/listing-card.tsx`, `app/routes.ts`. **Flux** : A, D. **Acceptation**
 : la bande n'apparaît que sur les annonces en ligne et publiées.
 
+> **La source n'est pas celle que le point 2 nomme.** Le plan dit de réutiliser
+> `findMatchingLostItems`, c'est-à-dire `/lost-items?type&category&ville`. Cette
+> requête ne peut pas exprimer trois des quatre règles du domaine `matching` :
+> elle ne connaît pas `resolutionStatus` — le contrat public ne l'expose pas —
+> donc elle proposerait des objets **déjà rendus** ; elle ne calcule aucun score
+> ; et elle oblige le front à refaire l'inversion de type. Or
+> `GET /lost-items/:id/matches` existe déjà, est `@AllowAnonymous`, et fait
+> exactement le bon travail : type opposé, publié, encore actif, catégorie
+> **ou** ville, score ≥ 50. C'est lui que R14 appelle. Le « aucun travail API »
+> du plan reste vrai — il l'est même davantage.
+
+> **Un appel groupé, pas un par carte.** Une page porte jusqu'à douze cartes ;
+> un `fetcher` par carte ferait douze requêtes navigateur simultanées, chacune
+> balayant cent candidats côté API. La route ressource prend donc `?ids=a,b,c` —
+> dédoublonnés et plafonnés à `ACCOUNT_POSTS_PAGE_SIZE` — et éclate côté
+> serveur, où l'API est à un saut. Le navigateur demande une fois, la liste a un
+> seul état de chargement, et une carte sans bande reste complète.
+
+> **La route ressource ne peut exporter que `loader`.** React Router ne retire
+> le code serveur que de cet export : `matches.loader.ts` exportait aussi ses
+> types et une fonction nommée, ce qui tirait `session.server` dans le bundle
+> navigateur et faisait échouer `pnpm build` — jamais `typecheck`. Les types
+> sont partis dans `routes/account/posts/types/matches.ts`. `publish/matches`
+> respectait déjà la règle sans la dire.
+
+> **« Signalés à Cocody cette semaine » n'est pas dérivable, et la moitié en est
+> fausse.** Le seul filtre de date de l'API porte sur `eventDate` — la date où
+> l'objet a été perdu ou trouvé — jamais sur la date de signalement, que rien
+> n'indexe : « cette semaine » est le même mirage que le rail « 30 derniers
+> jours » de `note-carte`. Quant à la ville, le score peut retenir un candidat
+> sur sa seule catégorie, donc elle n'est pas garantie. Le sous-titre l'affirme
+> quand elle est vraie de tout ce que la feuille montre — « Signalés à Cocody »
+> — et retombe sinon sur ce que la requête garantit littéralement, le `OR` du
+> repository : « Même catégorie ou même ville ».
+
+> **Le chevron ouvre une feuille, pas une liste filtrée.** Le dessin met un
+> chevron (mobile) et un bouton « Voir » (desktop) sans dire vers quoi. Un
+> `/posts?category&ville` ne reproduit pas le score qui a sélectionné les
+> candidats : il répondrait avec un autre ensemble, parfois vide. La bande ouvre
+> donc une feuille inférieure — la forme que §2.1 donne à ce qui interrompt, et
+> celle que R13 a posée pour le menu `⋯` — qui liste les quatre meilleurs,
+> chacun lié à son annonce. Au-delà de quatre, une ligne le dit.
+
+> **`lg:col-span-2` écarté.** `note-carte` veut que la carte à correspondances
+> prenne deux colonnes. Dans une grille non `dense`, un élément large qui ne
+> tient pas dans la ligne courante en ouvre une nouvelle et laisse un trou
+> derrière lui ; `grid-flow-dense` le comblerait en réordonnant, ce qui casse
+> l'ordre chronologique de la liste. Mesuré à 1280 px : la grille égalise déjà
+> les hauteurs par rangée et la composition est propre sans lui. Écarté avec le
+> rail de la même note.
+
+> **Aucun squelette de bande.** Les quatre états de §2.3 règle 5 sont ceux de
+> l'écran, que R13 a livrés. La bande, elle, n'a que deux issues visibles :
+> présente ou absente. Dessiner un squelette sur chaque carte éligible ferait
+> clignoter la page entière pour, le plus souvent, ne rien annoncer — le point 4
+> du plan dit exactement cela. Vérifié : un échec de l'appel de correspondances
+> laisse les six cartes et zéro bande, sans erreur.
+
+> **Ce que la mesure a donné.** Contrastes de la bande, sonde par lecture de
+> pixel : titre 8,65 (clair) / 16,68 (sombre), sous-titre 5,15 / 10,83, loupe
+> blanche sur `--primary-green` 5,03 aux deux. Aucune cible tactile nouvelle
+> sous 44 px et aucun recouvrement en flux à 390 px. `/account/posts/matches`
+> répond bien 200 JSON malgré `account/posts/:id` : le segment statique gagne.
+> Le titre passe sur deux lignes à 390 px — le français est plus long que la
+> maquette, et deux lignes valent mieux qu'une troncature du nombre.
+
 #### R15 — Stickers, commandes et réglages
 
 1. **Mes stickers** : compteur d'activation, bouton « Scanner un sticker » en

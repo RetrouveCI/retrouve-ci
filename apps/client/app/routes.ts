@@ -26,6 +26,10 @@ export default [
 		route('posts/:id', 'routes/posts/details/_index.tsx'),
 		route('account', 'routes/account/_index.tsx'),
 		route('account/posts', 'routes/account/posts/_index.tsx'),
+		route(
+			'account/posts/matches',
+			'routes/account/posts/servers/matches.loader.ts',
+		),
 		route('account/posts/:id', 'routes/account/posts/edit/_index.tsx'),
 		route('account/orders', 'routes/account/orders/_index.tsx'),
 		route('account/stickers', 'routes/account/stickers/_index.tsx'),

@@ -7,6 +7,7 @@ import { ListingCard } from './components/listing-card'
 import { ListingCardSkeleton } from './components/listing-card-skeleton'
 import { ModerationBanner } from './components/moderation-banner'
 import { useAccountPostsFilters } from './hooks/use-account-posts-filters'
+import { useListingMatches } from './hooks/use-listing-matches'
 import { buildModerationNotice } from './helpers/moderation-notice'
 import { LIFECYCLE_FILTERS } from './account-posts.const'
 import { accountPostsLoader } from './servers/account-posts.loader'
@@ -47,6 +48,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 		navigation.state === 'loading' &&
 		navigation.location.pathname === location.pathname
 
+	const matches = useListingMatches(listings)
 	const notice = buildModerationNotice(summary.moderation)
 	const counts: Record<string, number> = {
 		all: summary.total,
@@ -159,7 +161,11 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 						<>
 							<div className="grid gap-4 lg:grid-cols-2">
 								{listings.map(listing => (
-									<ListingCard key={listing.id} listing={listing} />
+									<ListingCard
+										key={listing.id}
+										listing={listing}
+										matches={matches[listing.id]}
+									/>
 								))}
 							</div>
 							<PaginationBar
