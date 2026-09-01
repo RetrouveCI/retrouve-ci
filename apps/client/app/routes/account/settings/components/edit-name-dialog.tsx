@@ -23,7 +23,13 @@ import {
 } from '../settings.schema'
 import type { action } from '../_index'
 
-export function EditNameDialog({ currentName }: { currentName: string }) {
+export function EditNameDialog({
+	currentName,
+	trigger,
+}: {
+	currentName: string
+	trigger: React.ReactNode
+}) {
 	const [open, setOpen] = useState(false)
 	const [hasSubmitted, setHasSubmitted] = useState(false)
 
@@ -63,11 +69,7 @@ export function EditNameDialog({ currentName }: { currentName: string }) {
 				if (next) form.reset({ intent: 'update-name', name: currentName })
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="sm" className="rounded-lg text-xs">
-					Modifier
-				</Button>
-			</DialogTrigger>
+			<DialogTrigger asChild>{trigger}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Nom et prénoms</DialogTitle>

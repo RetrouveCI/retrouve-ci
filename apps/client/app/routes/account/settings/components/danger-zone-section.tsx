@@ -59,85 +59,87 @@ export function DangerZoneSection() {
 	}, [hasSubmitted, fetcher.isOk, navigate])
 
 	return (
-		<div className="border-destructive/20 bg-destructive/5 overflow-hidden rounded-2xl border">
-			<div className="border-destructive/20 bg-destructive/10 border-b p-5">
-				<h2 className="text-destructive flex items-center gap-2 font-semibold">
+		<section className="space-y-4 rounded-2xl border border-red-700/25 bg-red-50 p-4 dark:border-red-400/25 dark:bg-red-950/25">
+			<div>
+				{/*
+				 * `text-destructive` measures 2,98:1 on the dark background, so the
+				 * block names both inks outright — heading and body alike.
+				 */}
+				<h2 className="flex items-center gap-2 text-sm font-bold text-red-800 dark:text-red-300">
 					<Trash2 className="h-4 w-4" />
-					Zone de danger
+					Supprimer mon compte
 				</h2>
+				<p className="mt-1 text-[12.5px] leading-relaxed text-red-800 dark:text-red-300">
+					Vos annonces et vos stickers seront désactivés. Cette action est
+					définitive.
+				</p>
 			</div>
-			<div className="space-y-4 p-5">
-				<div className="flex items-center justify-between">
-					<div>
-						<p className="text-sm font-medium">Supprimer mon compte</p>
-						<p className="text-muted-foreground text-xs">
-							Cette action est irréversible et supprimera toutes vos données.
-						</p>
-					</div>
-					<AlertDialog
-						open={open}
-						onOpenChange={next => {
-							setOpen(next)
-							// Reset on open — see `edit-name-dialog.tsx`.
-							if (next) form.reset({ intent: 'delete-account', password: '' })
-						}}
+
+			<AlertDialog
+				open={open}
+				onOpenChange={next => {
+					setOpen(next)
+					// Reset on open — see `edit-name-dialog.tsx`.
+					if (next) form.reset({ intent: 'delete-account', password: '' })
+				}}
+			>
+				<AlertDialogTrigger asChild>
+					<Button
+						variant="outline"
+						className="touch-target h-10.5 rounded-xl border-[1.5px] border-red-700/35 bg-transparent text-[13.5px] font-semibold text-red-800 hover:bg-red-700/10 hover:text-red-800 dark:border-red-400/35 dark:text-red-300 dark:hover:text-red-300"
 					>
-						<AlertDialogTrigger asChild>
-							<Button variant="destructive" size="sm" className="rounded-xl">
-								Supprimer
-							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-								<AlertDialogDescription>
-									Cette action supprimera définitivement votre compte, vos
-									annonces et vos stickers. Cette action est irréversible.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<form
-								onSubmit={form.handleSubmit(onSubmit)}
-								noValidate
-								className="py-2"
+						Supprimer mon compte
+					</Button>
+				</AlertDialogTrigger>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+						<AlertDialogDescription>
+							Cette action supprimera définitivement votre compte, vos annonces
+							et vos stickers. Cette action est irréversible.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						noValidate
+						className="py-2"
+					>
+						<FormRootError
+							message={form.formState.errors.root?.message}
+							className="mb-4"
+						/>
+
+						<PasswordInput
+							id="delete-account-password"
+							name={password.field.name}
+							label="Confirmez avec votre mot de passe"
+							value={password.field.value ?? ''}
+							onChange={password.field.onChange}
+							disabled={fetcher.isSubmitting}
+						/>
+						{password.fieldState.error && (
+							<FieldError
+								errors={[password.fieldState.error]}
+								className="text-xs"
+							/>
+						)}
+
+						<AlertDialogFooter>
+							<AlertDialogCancel className="rounded-xl">
+								Annuler
+							</AlertDialogCancel>
+							<Button
+								type="submit"
+								variant="destructive"
+								disabled={!password.field.value || fetcher.isSubmitting}
+								className="rounded-xl"
 							>
-								<FormRootError
-									message={form.formState.errors.root?.message}
-									className="mb-4"
-								/>
-
-								<PasswordInput
-									id="delete-account-password"
-									name={password.field.name}
-									label="Confirmez avec votre mot de passe"
-									value={password.field.value ?? ''}
-									onChange={password.field.onChange}
-									disabled={fetcher.isSubmitting}
-								/>
-								{password.fieldState.error && (
-									<FieldError
-										errors={[password.fieldState.error]}
-										className="text-xs"
-									/>
-								)}
-
-								<AlertDialogFooter>
-									<AlertDialogCancel className="rounded-xl">
-										Annuler
-									</AlertDialogCancel>
-									<Button
-										type="submit"
-										variant="destructive"
-										disabled={!password.field.value || fetcher.isSubmitting}
-										className="rounded-xl"
-									>
-										Supprimer mon compte
-									</Button>
-								</AlertDialogFooter>
-							</form>
-						</AlertDialogContent>
-					</AlertDialog>
-				</div>
-			</div>
-		</div>
+								Supprimer mon compte
+							</Button>
+						</AlertDialogFooter>
+					</form>
+				</AlertDialogContent>
+			</AlertDialog>
+		</section>
 	)
 }

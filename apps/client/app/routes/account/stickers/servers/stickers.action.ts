@@ -1,35 +1,14 @@
 import { redirect } from 'react-router'
-import { z } from 'zod'
 import { zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { getServerSession } from '@/shared/helpers/session.server'
 import type { ActionResult } from '@/shared/types/action'
 import { withApiOperationError } from '@/shared/utils/api-operation'
+import { stickersActionSchema } from '../stickers.schema'
 import {
 	activateSticker,
 	revokeSticker,
 	updateSticker,
 } from './stickers.service'
-
-const optionalText = z
-	.string()
-	.optional()
-	.transform(v => (v ? v : undefined))
-
-const actionSchema = z.discriminatedUnion('intent', [
-	z.object({
-		intent: z.literal('activate'),
-		code: z.string(),
-		label: z.string(),
-		linkedObject: optionalText,
-	}),
-	z.object({
-		intent: z.literal('update'),
-		code: z.string(),
-		label: z.string(),
-		linkedObject: optionalText,
-	}),
-	z.object({ intent: z.literal('revoke'), code: z.string() }),
-])
 
 const UNAUTHORIZED = { redirectOnUnauthorized: '/login' }
 
@@ -41,7 +20,7 @@ export async function stickersAction({
 	const session = await getServerSession(request)
 	if (!session) throw redirect('/login')
 
-	const submission = actionSchema.safeParse(
+	const submission = stickersActionSchema.safeParse(
 		Object.fromEntries(await request.formData()),
 	)
 	if (!submission.success) {
@@ -58,7 +37,8 @@ export async function stickersAction({
 	}
 
 	const { intent, code, label, linkedObject } = submission.data
-	const content = { label, linkedObject }
+	// An empty description clears the field rather than being sent as `''`.
+	const content = { label, linkedObject: linkedObject || undefined }
 
 	return withApiOperationError(
 		() =>

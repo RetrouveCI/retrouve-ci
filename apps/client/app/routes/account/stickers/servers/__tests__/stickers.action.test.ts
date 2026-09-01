@@ -164,11 +164,22 @@ describe('stickersAction', () => {
 		).rejects.toBeInstanceOf(Response)
 	})
 
+	it('refuses a name too short to identify a sticker', async () => {
+		const result = await submit({
+			intent: 'activate',
+			code: 'RCI-ABC123',
+			label: 'x',
+		})
+
+		expect(errorsOf(result).label?.message).toBe('Donnez un nom à ce sticker')
+		expect(activateSticker).not.toHaveBeenCalled()
+	})
+
 	it('lets a non-API failure through', async () => {
 		updateSticker.mockRejectedValue(new Error('boom'))
 
 		await expect(
-			submit({ intent: 'update', code: 'RCI-ABC123', label: 'x' }),
+			submit({ intent: 'update', code: 'RCI-ABC123', label: 'Sac' }),
 		).rejects.toThrow('boom')
 	})
 })

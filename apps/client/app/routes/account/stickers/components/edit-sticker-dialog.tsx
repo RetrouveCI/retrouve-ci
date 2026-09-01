@@ -6,47 +6,48 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@app/ui/components'
 import { FormInputField, FormRootError } from '@app/ui/components/form'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
-import { Loader2, Plus } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import type { Sticker } from '@/shared/types/sticker'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import {
-	activateStickerSchema,
-	type ActivateStickerData,
-	type ActivateStickerInput,
+	updateStickerSchema,
+	type UpdateStickerData,
+	type UpdateStickerInput,
 } from '../stickers.schema'
 import type { stickersAction } from '../servers/stickers.action'
 
-const EMPTY: ActivateStickerInput = {
-	intent: 'activate',
-	code: '',
-	label: '',
-	linkedObject: '',
+interface EditStickerDialogProps {
+	sticker: Sticker
+	open: boolean
+	onOpenChange: (open: boolean) => void
 }
 
-export function ActivateStickerDialog({
-	trigger,
-}: {
-	trigger?: React.ReactNode
-}) {
-	const fetcher = useActionFetcher<
-		typeof stickersAction,
-		ActivateStickerInput
-	>()
-	const [open, setOpen] = useState(false)
+export function EditStickerDialog({
+	sticker,
+	open,
+	onOpenChange,
+}: EditStickerDialogProps) {
+	const fetcher = useActionFetcher<typeof stickersAction, UpdateStickerInput>()
 
-	const form = useForm<ActivateStickerInput, unknown, ActivateStickerData>({
-		resolver: standardSchemaResolver(activateStickerSchema),
+	const defaults: UpdateStickerInput = {
+		intent: 'update',
+		code: sticker.code,
+		label: sticker.label ?? '',
+		linkedObject: sticker.linkedObject ?? '',
+	}
+
+	const form = useForm<UpdateStickerInput, unknown, UpdateStickerData>({
+		resolver: standardSchemaResolver(updateStickerSchema),
 		mode: 'onSubmit',
 		reValidateMode: 'onChange',
 		errors: fetcher.errors,
-		defaultValues: EMPTY,
+		defaultValues: defaults,
 	})
 
 	// A failure needs no toast: `FormRootError` already carries it, inside the
@@ -54,57 +55,33 @@ export function ActivateStickerDialog({
 	useSettledSubmission(fetcher.response, result => {
 		if (!result.success) return
 
-		toast.success('Sticker activé')
-		form.reset(EMPTY)
-		setOpen(false)
+		toast.success('Sticker mis à jour')
+		onOpenChange(false)
 	})
-
-	const onSubmit = (values: ActivateStickerData) => {
-		void fetcher.submit(
-			{ ...values, code: values.code.toUpperCase() },
-			{ method: 'post' },
-		)
-	}
 
 	return (
 		<Dialog
 			open={open}
 			onOpenChange={next => {
-				setOpen(next)
-				if (next) form.reset(EMPTY)
+				onOpenChange(next)
+				if (next) form.reset(defaults)
 			}}
 		>
-			<DialogTrigger asChild>
-				{trigger ?? (
-					<Button className="bg-primary-green hover:bg-primary-green-dark h-13 w-full gap-2 rounded-[14px] text-[15px] text-white">
-						<Plus className="h-4.5 w-4.5" />
-						Activer un sticker
-					</Button>
-				)}
-			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Activer un sticker</DialogTitle>
-					<DialogDescription>
-						Le code est imprimé sous le QR de chaque sticker.
-					</DialogDescription>
+					<DialogTitle>Modifier le sticker</DialogTitle>
+					<DialogDescription>{sticker.code}</DialogDescription>
 				</DialogHeader>
 
 				<form
-					onSubmit={form.handleSubmit(onSubmit)}
+					onSubmit={form.handleSubmit(values =>
+						fetcher.submit(values, { method: 'post' }),
+					)}
 					noValidate
 					className="space-y-4"
 				>
 					<FormRootError message={form.formState.errors.root?.message} />
 
-					<FormInputField
-						control={form.control}
-						name="code"
-						label="Code du sticker"
-						required
-						placeholder="RCI-XXXX-XXXX"
-						className="h-11 tracking-wider uppercase"
-					/>
 					<FormInputField
 						control={form.control}
 						name="label"
@@ -123,7 +100,7 @@ export function ActivateStickerDialog({
 						<Button
 							type="button"
 							variant="outline"
-							onClick={() => setOpen(false)}
+							onClick={() => onOpenChange(false)}
 							className="rounded-xl"
 						>
 							Annuler
@@ -136,7 +113,7 @@ export function ActivateStickerDialog({
 							{fetcher.isSubmitting && (
 								<Loader2 className="h-4 w-4 animate-spin" />
 							)}
-							Activer
+							Enregistrer
 						</Button>
 					</DialogFooter>
 				</form>

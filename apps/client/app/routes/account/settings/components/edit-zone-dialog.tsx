@@ -29,11 +29,13 @@ const COMMUNE_CITY = 'Abidjan'
 interface EditZoneDialogProps {
 	currentCity: string | null
 	currentCommune: string | null
+	trigger: React.ReactNode
 }
 
 export function EditZoneDialog({
 	currentCity,
 	currentCommune,
+	trigger,
 }: EditZoneDialogProps) {
 	const [open, setOpen] = useState(false)
 	const [hasSubmitted, setHasSubmitted] = useState(false)
@@ -92,14 +94,10 @@ export function EditZoneDialog({
 					})
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="sm" className="rounded-lg text-xs">
-					Modifier
-				</Button>
-			</DialogTrigger>
+			<DialogTrigger asChild>{trigger}</DialogTrigger>
 			<DialogContent className="max-h-[85vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Zone</DialogTitle>
+					<DialogTitle>Ville et commune</DialogTitle>
 					<DialogDescription className="sr-only">
 						Modifier votre lieu d&apos;habitation
 					</DialogDescription>

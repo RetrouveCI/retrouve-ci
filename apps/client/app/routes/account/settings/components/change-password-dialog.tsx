@@ -23,7 +23,11 @@ import {
 } from '../settings.schema'
 import { changePassword } from '../helpers/settings.client'
 
-export function ChangePasswordDialog() {
+export function ChangePasswordDialog({
+	trigger,
+}: {
+	trigger: React.ReactNode
+}) {
 	const [open, setOpen] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
 
@@ -79,11 +83,7 @@ export function ChangePasswordDialog() {
 				if (!isOpen) form.reset()
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="outline" size="sm" className="rounded-xl">
-					Modifier
-				</Button>
-			</DialogTrigger>
+			<DialogTrigger asChild>{trigger}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Mot de passe</DialogTitle>

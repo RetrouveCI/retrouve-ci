@@ -1,88 +1,50 @@
-import { Label } from '@app/ui/components'
-import { User, Smartphone, MapPin, Calendar, Check } from 'lucide-react'
 import type { UserProfile } from '../mappers/profile.mapper'
+import { ChangePasswordDialog } from './change-password-dialog'
 import { EditNameDialog } from './edit-name-dialog'
 import { EditPhoneDialog } from './edit-phone-dialog'
 import { EditZoneDialog } from './edit-zone-dialog'
+import { SettingsRow } from './settings-row'
 
+/**
+ * The four dialogs the artboard folds into one list. The password left
+ * « Sécurité », which held nothing else, so that section is gone.
+ */
 export function PersonalInfoSection({ user }: { user: UserProfile }) {
 	return (
-		<div className="bg-background overflow-hidden rounded-2xl border">
-			<div className="bg-muted/30 border-b p-5">
-				<h2 className="flex items-center gap-2 font-semibold">
-					<User className="text-primary-green-text h-4 w-4" />
-					Informations personnelles
-				</h2>
+		<section className="space-y-2">
+			<h2 className="text-[15px] font-bold tracking-tight">Vos informations</h2>
+
+			<div className="bg-background rounded-2xl border px-3">
+				<EditNameDialog
+					currentName={user.name}
+					trigger={<SettingsRow label="Nom" value={user.name} />}
+				/>
+				<EditPhoneDialog
+					trigger={
+						<SettingsRow
+							label="Téléphone"
+							value={user.phone ?? 'Non renseigné'}
+						/>
+					}
+				/>
+				<EditZoneDialog
+					currentCity={user.city}
+					currentCommune={user.commune}
+					trigger={
+						<SettingsRow
+							label="Ville et commune"
+							value={user.zone ?? 'Non renseignée'}
+						/>
+					}
+				/>
+				<ChangePasswordDialog
+					trigger={<SettingsRow label="Mot de passe" last />}
+				/>
 			</div>
-			<div className="px-5">
-				<div className="flex items-center justify-between gap-3 py-4">
-					<div className="flex min-w-0 items-center gap-3">
-						<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-							<User className="text-primary-green-text h-5 w-5" />
-						</div>
-						<div className="min-w-0">
-							<Label className="text-sm font-medium">Nom et prénoms</Label>
-							<p className="text-muted-foreground truncate text-sm">
-								{user.name}
-							</p>
-						</div>
-					</div>
-					<EditNameDialog currentName={user.name} />
-				</div>
 
-				<div className="flex items-center justify-between gap-3 border-t py-4">
-					<div className="flex min-w-0 items-center gap-3">
-						<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-							<Smartphone className="text-primary-green-text h-5 w-5" />
-						</div>
-						<div className="min-w-0">
-							<Label className="text-sm font-medium">Numéro de téléphone</Label>
-							<p className="text-muted-foreground flex items-center gap-1.5 truncate text-sm">
-								{user.phone ?? 'Non renseigné'}
-								{user.phone && user.phoneVerified && (
-									<span className="text-primary-green-text inline-flex items-center gap-0.5 text-xs font-medium">
-										<Check className="h-3 w-3" />
-										Vérifié
-									</span>
-								)}
-							</p>
-						</div>
-					</div>
-					<EditPhoneDialog />
-				</div>
-
-				<div className="flex items-center justify-between gap-3 border-t py-4">
-					<div className="flex min-w-0 items-center gap-3">
-						<div className="bg-primary-green/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-							<MapPin className="text-primary-green-text h-5 w-5" />
-						</div>
-						<div className="min-w-0">
-							<Label className="text-sm font-medium">Zone</Label>
-							<p className="text-muted-foreground truncate text-sm">
-								{user.zone ?? 'Non renseignée'}
-							</p>
-						</div>
-					</div>
-					<EditZoneDialog
-						currentCity={user.city}
-						currentCommune={user.commune}
-					/>
-				</div>
-
-				<div className="flex items-center justify-between gap-3 border-t py-4">
-					<div className="flex min-w-0 items-center gap-3">
-						<div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-							<Calendar className="text-muted-foreground h-5 w-5" />
-						</div>
-						<div className="min-w-0">
-							<Label className="text-sm font-medium">Membre depuis</Label>
-							<p className="text-muted-foreground truncate text-sm">
-								{user.memberSince}
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+			<p className="text-muted-foreground px-1 text-xs">
+				Membre depuis {user.memberSince}.
+			</p>
+		</section>
 	)
 }

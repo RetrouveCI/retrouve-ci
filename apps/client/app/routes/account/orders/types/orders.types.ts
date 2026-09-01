@@ -6,13 +6,13 @@ export interface Order {
 	id: string
 	orderNumber: string
 	date: string
-	pack: { name: string; quantity: number; price: number }
+	pack: { id: string; name: string; quantity: number; price: number }
 	deliveryFee: number
 	total: number
 	status: OrderStatus
 	paymentMethod: string
 	deliveryAddress: string
-	estimatedDelivery?: string
+	deliveryNotes?: string
 	trackingNumber?: string
 }
 

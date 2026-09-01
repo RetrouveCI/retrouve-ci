@@ -1,15 +1,4 @@
 import {
-	Button,
-	Input,
-	Label,
-	Badge,
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
 	AlertDialog,
 	AlertDialogAction,
 	AlertDialogCancel,
@@ -18,262 +7,187 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
+	Badge,
+	Button,
 } from '@app/ui/components'
-import { useEffect, useState } from 'react'
-import { QrCode, Edit2, PowerOff, Calendar, Package } from 'lucide-react'
+import { useState } from 'react'
+import { MoreHorizontal, Pencil, PowerOff, QrCode } from 'lucide-react'
 import { toast } from 'sonner'
-import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
-import type { stickersAction } from '../servers/stickers.action'
-import type { Sticker } from '@/shared/types/sticker'
 import { cn } from '@app/ui/utils'
+import type { Sticker } from '@/shared/types/sticker'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import { stickerStatusFor } from '../helpers/sticker-status'
+import { EditStickerDialog } from './edit-sticker-dialog'
+import {
+	StickerActionsSheet,
+	type StickerSheetAction,
+} from './sticker-actions-sheet'
+import type { stickersAction } from '../servers/stickers.action'
 
-function formatDate(dateString: string) {
-	return new Date(dateString).toLocaleDateString('fr-FR', {
+function formatDate(value: string) {
+	return new Date(value).toLocaleDateString('fr-FR', {
 		day: 'numeric',
 		month: 'long',
-		year: 'numeric',
 	})
 }
 
-interface StickerCardProps {
-	sticker: Sticker
+/** A sticker not yet named has no label of its own to show. */
+function stickerName(sticker: Sticker) {
+	return sticker.label ?? 'Sticker non activé'
 }
 
-export function StickerCard({ sticker }: StickerCardProps) {
-	const updateFetcher = useActionFetcher<typeof stickersAction>()
-	const revokeFetcher = useActionFetcher<typeof stickersAction>()
-	const [hasSubmittedUpdate, setHasSubmittedUpdate] = useState(false)
-	const [hasSubmittedRevoke, setHasSubmittedRevoke] = useState(false)
-	const [isEditing, setIsEditing] = useState(false)
-	const [editLabel, setEditLabel] = useState(sticker.label ?? '')
-	const [editObject, setEditObject] = useState(sticker.linkedObject ?? '')
+function buildSubtitle(sticker: Sticker) {
+	if (sticker.status === 'generated') return 'Activez-le pour le nommer'
 
-	useEffect(() => {
-		if (!hasSubmittedUpdate || updateFetcher.state !== 'idle') return
+	const activated = sticker.activatedAt
+		? ` · activé le ${formatDate(sticker.activatedAt)}`
+		: ''
 
-		setHasSubmittedUpdate(false)
+	return `${sticker.code}${activated}`
+}
 
-		if (updateFetcher.isOk) {
-			setIsEditing(false)
-			toast.success('Sticker mis à jour')
-		} else {
-			toast.error(
-				updateFetcher.errors?.root?.message ?? 'Une erreur est survenue',
-			)
-		}
-	}, [
-		hasSubmittedUpdate,
-		updateFetcher.state,
-		updateFetcher.isOk,
-		updateFetcher.errors,
-	])
-
-	useEffect(() => {
-		if (!hasSubmittedRevoke || revokeFetcher.state !== 'idle') return
-
-		setHasSubmittedRevoke(false)
-
-		if (revokeFetcher.isOk) {
-			toast.success('Sticker désactivé')
-		} else {
-			toast.error(
-				revokeFetcher.errors?.root?.message ?? 'Une erreur est survenue',
-			)
-		}
-	}, [
-		hasSubmittedRevoke,
-		revokeFetcher.state,
-		revokeFetcher.isOk,
-		revokeFetcher.errors,
-	])
-
-	const handleSave = () => {
-		setHasSubmittedUpdate(true)
-		void updateFetcher.submit(
-			{
-				intent: 'update',
-				code: sticker.code,
-				label: editLabel,
-				linkedObject: editObject,
-			},
-			{ method: 'post' },
-		)
-	}
-
-	const handleRevoke = () => {
-		setHasSubmittedRevoke(true)
-		void revokeFetcher.submit(
-			{ intent: 'revoke', code: sticker.code },
-			{ method: 'post' },
-		)
-	}
-
+export function StickerCard({ sticker }: { sticker: Sticker }) {
+	const fetcher = useActionFetcher<typeof stickersAction>()
+	const [menuOpen, setMenuOpen] = useState(false)
+	const [editOpen, setEditOpen] = useState(false)
+	const [confirmOpen, setConfirmOpen] = useState(false)
+	const config = stickerStatusFor(sticker.status)
 	const isActive = sticker.status === 'activated'
-	const isUpdating = updateFetcher.isSubmitting
-	const isRevoking = revokeFetcher.isSubmitting
+
+	useSettledSubmission(fetcher.response, result => {
+		if (result.success) {
+			toast.success('Sticker désactivé')
+			return
+		}
+
+		toast.error(
+			result.errors?.root?.message ?? 'Impossible de désactiver ce sticker',
+		)
+	})
+
+	const actions: StickerSheetAction[] = isActive
+		? [
+				{
+					label: 'Modifier le sticker',
+					icon: Pencil,
+					onSelect: () => setEditOpen(true),
+				},
+				{
+					label: 'Désactiver le sticker',
+					icon: PowerOff,
+					destructive: true,
+					onSelect: () => setConfirmOpen(true),
+				},
+			]
+		: []
 
 	return (
-		<div
+		<article
 			className={cn(
-				'group bg-background relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-lg',
-				isActive
-					? 'border-primary-green/20 hover:border-primary-green/40'
-					: 'border-border opacity-70 hover:opacity-100',
+				'bg-background flex items-center gap-3 rounded-2xl border p-3.5',
+				config.border,
+				config.dimmed && 'bg-muted/30',
 			)}
 		>
-			<div
-				className={cn('h-1.5', isActive ? 'bg-primary-green' : 'bg-muted')}
-			/>
+			<span
+				className={cn(
+					'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
+					isActive ? 'bg-primary-green' : 'bg-muted',
+				)}
+			>
+				<QrCode
+					className={cn(
+						'h-5.5 w-5.5',
+						isActive ? 'text-white' : 'text-muted-foreground',
+					)}
+				/>
+			</span>
 
-			<div className="p-5">
-				<div className="flex items-start justify-between gap-3">
-					<div className="min-w-0 flex-1">
-						<div className="mb-3 flex items-center gap-2">
-							<div
-								className={cn(
-									'flex h-10 w-10 items-center justify-center rounded-xl',
-									isActive ? 'bg-primary-green/10' : 'bg-muted',
-								)}
-							>
-								<QrCode
-									className={cn(
-										'h-5 w-5',
-										isActive
-											? 'text-primary-green-text'
-											: 'text-muted-foreground',
-									)}
-								/>
-							</div>
-							<div>
-								<code className="text-muted-foreground bg-muted rounded px-2 py-0.5 font-mono text-xs">
-									{sticker.code}
-								</code>
-							</div>
-							<Badge
-								variant="outline"
-								className={cn(
-									'ml-auto text-[10px]',
-									isActive
-										? 'border-primary-green/30 bg-primary-green/5 text-primary-green-text'
-										: 'border-muted text-muted-foreground',
-								)}
-							>
-								{isActive ? 'Actif' : 'Désactivé'}
-							</Badge>
-						</div>
-						<h4 className="truncate text-lg font-semibold">{sticker.label}</h4>
-						{sticker.linkedObject && (
-							<p className="text-muted-foreground mt-0.5 flex items-center gap-1.5 truncate text-sm">
-								<Package className="h-3.5 w-3.5" />
-								{sticker.linkedObject}
-							</p>
-						)}
-						{sticker.activatedAt && (
-							<p className="text-muted-foreground mt-3 flex items-center gap-1.5 text-xs">
-								<Calendar className="h-3.5 w-3.5" />
-								Activé le {formatDate(sticker.activatedAt)}
-							</p>
-						)}
-					</div>
-				</div>
-
-				{isActive && (
-					<div className="mt-4 flex items-center gap-2 border-t pt-4">
-						<Dialog open={isEditing} onOpenChange={setIsEditing}>
-							<DialogTrigger asChild>
-								<Button
-									variant="outline"
-									size="sm"
-									className="h-9 flex-1 gap-1.5 rounded-xl"
-								>
-									<Edit2 className="h-3.5 w-3.5" />
-									Modifier
-								</Button>
-							</DialogTrigger>
-							<DialogContent>
-								<DialogHeader>
-									<DialogTitle>Modifier le sticker</DialogTitle>
-									<DialogDescription>
-										Modifiez les informations de votre sticker {sticker.code}
-									</DialogDescription>
-								</DialogHeader>
-								<div className="space-y-4 py-4">
-									<div className="space-y-2">
-										<Label htmlFor="label">Nom / Label</Label>
-										<Input
-											id="label"
-											value={editLabel}
-											onChange={e => setEditLabel(e.target.value)}
-											placeholder="Ex: Clés de maison"
-											className="h-11 rounded-xl"
-										/>
-									</div>
-									<div className="space-y-2">
-										<Label htmlFor="object">Description de l&apos;objet</Label>
-										<Input
-											id="object"
-											value={editObject}
-											onChange={e => setEditObject(e.target.value)}
-											placeholder="Ex: Trousseau avec 3 clés"
-											className="h-11 rounded-xl"
-										/>
-									</div>
-								</div>
-								<DialogFooter>
-									<Button
-										variant="outline"
-										onClick={() => setIsEditing(false)}
-										className="rounded-xl"
-									>
-										Annuler
-									</Button>
-									<Button
-										onClick={handleSave}
-										disabled={isUpdating}
-										className="bg-primary-green hover:bg-primary-green-dark rounded-xl text-white"
-									>
-										Enregistrer
-									</Button>
-								</DialogFooter>
-							</DialogContent>
-						</Dialog>
-						<AlertDialog>
-							<AlertDialogTrigger asChild>
-								<Button
-									variant="outline"
-									size="sm"
-									disabled={isRevoking}
-									className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive h-9 flex-1 gap-1.5 rounded-xl"
-								>
-									<PowerOff className="h-3.5 w-3.5" />
-									Désactiver
-								</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Désactiver ce sticker ?</AlertDialogTitle>
-									<AlertDialogDescription>
-										Cette action est irréversible. Le sticker {sticker.code}
-										ne pourra plus être réactivé.
-									</AlertDialogDescription>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel className="rounded-xl">
-										Annuler
-									</AlertDialogCancel>
-									<AlertDialogAction
-										onClick={handleRevoke}
-										className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
-									>
-										Désactiver
-									</AlertDialogAction>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
-					</div>
+			<div className="min-w-0 flex-1">
+				<p
+					className={cn(
+						'truncate text-[14.5px] font-semibold',
+						config.dimmed && 'text-muted-foreground',
+					)}
+				>
+					{stickerName(sticker)}
+				</p>
+				<p className="text-muted-foreground mt-0.5 truncate text-[11.5px]">
+					{buildSubtitle(sticker)}
+				</p>
+				{sticker.linkedObject && (
+					<p className="text-muted-foreground mt-0.5 truncate text-[11.5px]">
+						{sticker.linkedObject}
+					</p>
 				)}
 			</div>
-		</div>
+
+			{config.label && (
+				<Badge
+					className={cn(
+						'h-5.5 shrink-0 text-[10px] font-bold tracking-[0.04em] uppercase',
+						config.badge,
+					)}
+				>
+					{config.label}
+				</Badge>
+			)}
+
+			{actions.length > 0 && (
+				<Button
+					variant="ghost"
+					size="icon"
+					aria-label={`Actions sur ${stickerName(sticker)}`}
+					aria-haspopup="dialog"
+					disabled={fetcher.isSubmitting}
+					onClick={() => setMenuOpen(true)}
+					className="touch-target h-9 w-9 shrink-0 rounded-full"
+				>
+					<MoreHorizontal className="h-4.5 w-4.5" />
+				</Button>
+			)}
+
+			<StickerActionsSheet
+				open={menuOpen}
+				onOpenChange={setMenuOpen}
+				stickerName={stickerName(sticker)}
+				actions={actions}
+			/>
+
+			<EditStickerDialog
+				sticker={sticker}
+				open={editOpen}
+				onOpenChange={setEditOpen}
+			/>
+
+			<AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Désactiver ce sticker&nbsp;?</AlertDialogTitle>
+						<AlertDialogDescription>
+							Cette action est irréversible. {sticker.code} ne pourra plus être
+							réactivé, et son QR ne mènera plus à vous.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel className="rounded-xl">
+							Annuler
+						</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={() =>
+								void fetcher.submit(
+									{ intent: 'revoke', code: sticker.code },
+									{ method: 'post' },
+								)
+							}
+							className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
+						>
+							Désactiver
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+		</article>
 	)
 }
