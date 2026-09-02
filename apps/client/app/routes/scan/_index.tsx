@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { ScanLine, ArrowRight } from 'lucide-react'
-import { Button } from '@app/ui/components'
 import { pageMeta } from '@/shared/helpers/page-meta'
+import { CameraView } from './components/camera-view'
+import { ManualCodeForm } from './components/manual-code-form'
+import { ScanBlocked, ScanPrimer } from './components/scan-primer'
+import { parseStickerCode } from './helpers/sticker-code'
+import { useStickerScanner } from './hooks/use-sticker-scanner'
 
 export function meta() {
 	return pageMeta({
@@ -12,68 +15,96 @@ export function meta() {
 	})
 }
 
+const FOREIGN_NOTICE_MS = 2500
+
 /**
- * R6 opens this route because the tab bar now leads here, and a tab that leads
- * nowhere is worse than no tab. **R20 replaces the screen** with the camera and
- * its permission primer; what stays is the code entry below, which R21 keeps as
- * the universal fallback and which §3 names as the desktop equivalent of a scan.
- *
- * Everything a scan can do already lives at `/q/:code` — this screen only has to
- * get the visitor there.
+ * Every path out of this screen ends at `/q/:code` — the scanner reads a code,
+ * it does not become a second contact screen (flux B). What changes between the
+ * camera, the code entry and the browser that has neither is only how the code
+ * is obtained.
  */
 export default function ScanPage() {
 	const navigate = useNavigate()
-	const [code, setCode] = useState('')
+	const [manualEntry, setManualEntry] = useState(false)
+	const [foreignCode, setForeignCode] = useState(false)
 
-	const normalised = code.trim().toUpperCase()
+	const openCode = useCallback(
+		(code: string) => navigate(`/q/${encodeURIComponent(code)}`),
+		[navigate],
+	)
+
+	const scanner = useStickerScanner(
+		useCallback(
+			(raw: string) => {
+				const parsed = parseStickerCode(raw)
+				if (!parsed.ok) {
+					setForeignCode(true)
+					return
+				}
+
+				// Leaving the route unmounts the hook, which stops the stream.
+				void openCode(parsed.code)
+			},
+			[openCode],
+		),
+	)
+
+	useEffect(() => {
+		if (!foreignCode) return
+
+		const timer = window.setTimeout(
+			() => setForeignCode(false),
+			FOREIGN_NOTICE_MS,
+		)
+		return () => window.clearTimeout(timer)
+	}, [foreignCode])
+
+	const showManualEntry = () => {
+		scanner.stop()
+		setManualEntry(true)
+	}
 
 	return (
 		<main className="flex-1">
 			<section className="container mx-auto max-w-md px-4 py-10">
-				<div className="bg-primary-green/10 mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl">
-					<ScanLine className="text-primary-green-text h-7 w-7" />
-				</div>
-
 				<h1 className="mb-2 text-2xl font-bold">Scanner un sticker</h1>
 				<p className="text-muted-foreground mb-8">
 					Pour l&apos;activer, ou pour prévenir son propriétaire.
 				</p>
 
-				<form
-					onSubmit={event => {
-						event.preventDefault()
-						if (normalised) navigate(`/q/${encodeURIComponent(normalised)}`)
-					}}
-					className="space-y-3"
-				>
-					<label htmlFor="sticker-code" className="block text-sm font-medium">
-						Saisissez le code du sticker
-					</label>
-					<input
-						id="sticker-code"
-						name="code"
-						value={code}
-						onChange={event => setCode(event.target.value)}
-						placeholder="RCI-XXXX-XXXX"
-						autoComplete="off"
-						autoCapitalize="characters"
-						spellCheck={false}
-						className="border-input bg-background focus-visible:ring-ring h-13 w-full rounded-xl border px-4 text-base tracking-wider uppercase focus-visible:ring-2 focus-visible:outline-none"
+				{manualEntry ? (
+					<ManualCodeForm
+						onCode={openCode}
+						onBack={
+							scanner.status === 'blocked'
+								? undefined
+								: () => setManualEntry(false)
+						}
 					/>
-					<Button
-						type="submit"
-						disabled={normalised.length === 0}
-						className="bg-primary-green hover:bg-primary-green-dark h-13 w-full gap-2 rounded-xl text-white"
-					>
-						Continuer
-						<ArrowRight className="h-4 w-4" />
-					</Button>
-				</form>
-
-				<p className="text-muted-foreground mt-6 text-xs">
-					Le code est imprimé sous le QR de chaque sticker.
-				</p>
+				) : scanner.status === 'blocked' ? (
+					<ScanBlocked reason={scanner.blockedReason}>
+						<ManualCodeForm onCode={openCode} />
+					</ScanBlocked>
+				) : (
+					<ScanPrimer
+						onAllow={() => void scanner.start()}
+						onManualEntry={showManualEntry}
+						pending={scanner.status === 'requesting'}
+					/>
+				)}
 			</section>
+
+			{scanner.status === 'live' ? (
+				<CameraView
+					videoRef={scanner.videoRef}
+					onClose={scanner.stop}
+					onManualEntry={showManualEntry}
+					torchOn={scanner.torchOn}
+					torchAvailable={scanner.torchAvailable}
+					onToggleTorch={() => void scanner.toggleTorch()}
+					foreignCode={foreignCode}
+				/>
+			) : null}
 		</main>
 	)
 }
