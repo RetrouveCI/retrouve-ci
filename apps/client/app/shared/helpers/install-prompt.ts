@@ -1,10 +1,5 @@
 const DECLINED_KEY = 'retrouveci.install-declined.v1'
 
-/** The query value a screen carries when it has just succeeded at something. */
-export const SUCCESS_PARAM = 'success'
-
-export type InstallCue = 'published' | 'activated'
-
 /**
  * Chromium's install event, specified outside the DOM standard and so absent
  * from `lib.dom`. Augmenting `WindowEventMap` is what types the listener below

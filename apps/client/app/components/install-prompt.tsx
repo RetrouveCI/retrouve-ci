@@ -6,14 +6,9 @@ import {
 	DrawerTitle,
 } from '@app/ui/components'
 import { useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { useLocation } from 'react-router'
 import { Check, Download } from 'lucide-react'
-import {
-	declineInstall,
-	requestInstall,
-	SUCCESS_PARAM,
-	type InstallCue,
-} from '@/shared/helpers/install-prompt'
+import { declineInstall, requestInstall } from '@/shared/helpers/install-prompt'
 import { useInstallPrompt } from '@/shared/hooks/use-install-prompt'
 
 const PRIMARY =
@@ -29,37 +24,33 @@ const BENEFITS = [
 	'Aucun store, aucune mise à jour à télécharger',
 ]
 
-const INTRO: Record<InstallCue, string> = {
-	published:
-		'Votre annonce est en ligne. Installez l’app pour la suivre sans repasser par le navigateur.',
-	activated:
-		'Vos stickers sont activés. Installez l’app pour scanner les suivants d’un seul geste.',
-}
+/**
+ * The one screen the offer never covers: whoever lands there has just scanned a
+ * stranger's sticker and is trying to reach its owner. Asking them to install
+ * first is the interruption `note-scanav` warns against.
+ */
+const EXCLUDED = '/q/'
 
 /**
- * Never at load: the sheet opens only where the URL carries the success it
- * names, which is what makes R25's acceptance a property of the component
- * rather than of each screen that mounts it.
+ * Mounted once at the root, so it follows every entry point rather than a
+ * chosen few. It waits on the browser: nothing opens until Chromium hands over
+ * an install, which it does shortly after `load`.
  */
-export function InstallPrompt({ after }: { after: InstallCue }) {
-	const [searchParams] = useSearchParams()
+export function InstallPrompt() {
+	const { pathname } = useLocation()
 	const { installable, declined } = useInstallPrompt()
 	const [closed, setClosed] = useState(false)
 
 	const open =
-		!closed &&
-		installable &&
-		!declined &&
-		searchParams.get(SUCCESS_PARAM) === after
+		!closed && installable && !declined && !pathname.startsWith(EXCLUDED)
 
 	const onInstall = () => {
 		setClosed(true)
 		void requestInstall()
 	}
 
-	// Swiping away dismisses this moment; « Plus tard » is the answer that
-	// settles it for good. A gesture must not close a door the visitor cannot
-	// reopen from anywhere but Compte.
+	// Swiping away dismisses this visit; « Plus tard » settles it for good. A
+	// gesture must not close a door the visitor can only reopen from Compte.
 	const onLater = () => {
 		setClosed(true)
 		declineInstall()
@@ -87,7 +78,8 @@ export function InstallPrompt({ after }: { after: InstallCue }) {
 								Gardez RetrouveCI à portée de pouce
 							</DrawerTitle>
 							<DrawerDescription className="mt-1 text-sm">
-								{INTRO[after]}
+								Ajoutez-la à votre écran d’accueil. Elle s’ouvre plus vite, et
+								reste lisible quand le réseau lâche.
 							</DrawerDescription>
 						</span>
 					</DrawerHeader>

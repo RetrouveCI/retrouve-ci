@@ -25,6 +25,7 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { NotFoundContent } from '@/components/not-found-content'
 import { OfflineContent } from '@/components/offline-content'
+import { InstallPrompt } from '@/components/install-prompt'
 import { registerServiceWorker } from '@/shared/helpers/service-worker'
 import {
 	INSTALL_PROMPT_SCRIPT,
@@ -186,6 +187,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
 		<ThemeProvider initialPreference={loaderData.themePreference}>
 			<AuthProvider>
 				<Outlet />
+				<InstallPrompt />
 				<Toaster
 					position="bottom-right"
 					richColors

@@ -6,10 +6,7 @@ import {
 	stopAnimations,
 	userEvent,
 } from '@/shared/helpers/testing'
-import {
-	startInstallPromptCapture,
-	SUCCESS_PARAM,
-} from '@/shared/helpers/install-prompt'
+import { startInstallPromptCapture } from '@/shared/helpers/install-prompt'
 import { InstallPrompt } from '../install-prompt'
 
 const KEY = 'retrouveci.install-declined.v1'
@@ -28,10 +25,9 @@ function browserOffersInstall(outcome: 'accepted' | 'dismissed' = 'accepted') {
 
 function renderAt(url: string) {
 	const Stub = createRoutesStub([
-		{
-			path: '/account/posts',
-			Component: () => <InstallPrompt after="published" />,
-		},
+		{ path: '/', Component: InstallPrompt },
+		{ path: '/posts', Component: InstallPrompt },
+		{ path: '/q/:code', Component: InstallPrompt },
 	])
 	render(<Stub initialEntries={[url]} />)
 }
@@ -57,37 +53,37 @@ afterEach(() => {
 	localStorage.removeItem(KEY)
 })
 
-describe('when the install sheet may open', () => {
-	it('stays shut on a screen that has not just succeeded', () => {
+describe('when the install sheet opens', () => {
+	it('opens on arrival, once the browser has an install to give', async () => {
 		browserOffersInstall()
-		renderAt('/account/posts')
-
-		expect(sheet().elements()).toHaveLength(0)
-	})
-
-	it('stays shut when the browser has offered nothing to install', async () => {
-		renderAt(`/account/posts?${SUCCESS_PARAM}=published`)
-
-		expect(sheet().elements()).toHaveLength(0)
-	})
-
-	it('stays shut for a success it does not name', async () => {
-		browserOffersInstall()
-		renderAt(`/account/posts?${SUCCESS_PARAM}=activated`)
-
-		expect(sheet().elements()).toHaveLength(0)
-	})
-
-	it('opens once the listing is published and the browser can install', async () => {
-		browserOffersInstall()
-		renderAt(`/account/posts?${SUCCESS_PARAM}=published`)
+		renderAt('/')
 
 		await expect.element(sheet()).toBeVisible()
 	})
 
+	it('opens on any entry point, not only the home page', async () => {
+		browserOffersInstall()
+		renderAt('/posts')
+
+		await expect.element(sheet()).toBeVisible()
+	})
+
+	it('stays shut when the browser has offered nothing to install', () => {
+		renderAt('/')
+
+		expect(sheet().elements()).toHaveLength(0)
+	})
+
+	it('never covers the contact page of a scanned sticker', () => {
+		browserOffersInstall()
+		renderAt('/q/RCI-ABC123')
+
+		expect(sheet().elements()).toHaveLength(0)
+	})
+
 	it('promises only what the app delivers', async () => {
 		browserOffersInstall()
-		renderAt(`/account/posts?${SUCCESS_PARAM}=published`)
+		renderAt('/')
 
 		await expect
 			.element(page.getByText('Les annonces déjà consultées, hors connexion'))
@@ -99,7 +95,7 @@ describe('when the install sheet may open', () => {
 describe('answering the sheet', () => {
 	it('hands the visitor to the browser own dialog', async () => {
 		browserOffersInstall()
-		renderAt(`/account/posts?${SUCCESS_PARAM}=published`)
+		renderAt('/')
 
 		await userEvent.click(
 			page.getByRole('button', { name: "Installer l'application" }),
@@ -110,7 +106,7 @@ describe('answering the sheet', () => {
 
 	it('closes on « Plus tard »', async () => {
 		browserOffersInstall()
-		renderAt(`/account/posts?${SUCCESS_PARAM}=published`)
+		renderAt('/')
 		await expect.element(sheet()).toBeVisible()
 
 		await userEvent.click(page.getByRole('button', { name: 'Plus tard' }))
@@ -118,15 +114,26 @@ describe('answering the sheet', () => {
 		await vi.waitFor(() => expect(sheet().elements()).toHaveLength(0))
 	})
 
-	it('takes « Plus tard » as final, on this success and the next', async () => {
+	it('takes « Plus tard » as final, on this visit and the next', async () => {
 		browserOffersInstall()
-		renderAt(`/account/posts?${SUCCESS_PARAM}=published`)
+		renderAt('/')
 		await userEvent.click(page.getByRole('button', { name: 'Plus tard' }))
 		cleanup()
 
-		renderAt(`/account/posts?${SUCCESS_PARAM}=published`)
+		renderAt('/')
 
 		expect(sheet().elements()).toHaveLength(0)
 		expect(localStorage.getItem(KEY)).toBe('1')
+	})
+
+	it('remembers nothing when the sheet is merely swiped away', async () => {
+		browserOffersInstall()
+		renderAt('/')
+		await expect.element(sheet()).toBeVisible()
+
+		await userEvent.keyboard('{Escape}')
+		await vi.waitFor(() => expect(sheet().elements()).toHaveLength(0))
+
+		expect(localStorage.getItem(KEY)).toBeNull()
 	})
 })

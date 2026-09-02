@@ -1,5 +1,4 @@
 import { redirect } from 'react-router'
-import { SUCCESS_PARAM } from '@/shared/helpers/install-prompt'
 import { zodErrorToFieldErrors } from '@/shared/helpers/form'
 import type { ActionResult } from '@/shared/types/action'
 import { withApiOperationError } from '@/shared/utils/api-operation'
@@ -51,10 +50,8 @@ export async function publishAction(
 			// Not the listing itself: a new one is `pending`, so its public page
 			// would answer 404 to the person who just wrote it. « Mes annonces »
 			// is where it exists, and where the banner explains that a moderator
-			// has to pass before anyone else can see it. The marker rides along
-			// because the redirect leaves no `fetcher.isOk` behind for the install
-			// sheet to watch (§ R25).
-			throw redirect(`/account/posts?${SUCCESS_PARAM}=published`)
+			// has to pass before anyone else can see it.
+			throw redirect('/account/posts')
 		},
 		{ redirectOnUnauthorized: '/login' },
 	)
