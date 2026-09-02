@@ -1,7 +1,8 @@
 export const SITE_NAME = 'RetrouveCI'
-export const BRAND_COLOR = '#1E7F43'
 export const OG_LOCALE = 'fr_CI'
-export const OG_IMAGE = '/logo.png'
+
+/** 1200×630, the ratio WhatsApp and Facebook crop to. `logo.png` was a portrait. */
+export const OG_IMAGE = '/og-image.png'
 
 export interface PageMetaOptions {
 	/** Page name alone — the site name is appended. */
@@ -21,7 +22,6 @@ export function pageMeta({
 
 	return [
 		{ title: documentTitle },
-		{ name: 'theme-color', content: BRAND_COLOR },
 		{ property: 'og:type', content: type },
 		{ property: 'og:locale', content: OG_LOCALE },
 		{ property: 'og:site_name', content: SITE_NAME },
