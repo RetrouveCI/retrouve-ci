@@ -14,6 +14,7 @@ import { STICKER_FILTERS, type StickerFilter } from './stickers.const'
 import { stickersLoader } from './servers/stickers.loader'
 import { stickersAction } from './servers/stickers.action'
 import type { Route } from './+types/_index'
+import { InstallPrompt } from '@/components/install-prompt'
 
 export function meta() {
 	return pageMeta({
@@ -151,6 +152,8 @@ export default function StickersPage({ loaderData }: Route.ComponentProps) {
 					</div>
 				</div>
 			</section>
+
+			<InstallPrompt after="activated" />
 		</main>
 	)
 }

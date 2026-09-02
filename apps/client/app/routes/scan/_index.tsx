@@ -11,6 +11,7 @@ import { parseStickerCode } from './helpers/sticker-code'
 import { useStickerScanner } from './hooks/use-sticker-scanner'
 import { scanAction } from './servers/scan.action'
 import type { ScannedStickerStatus } from './servers/sticker-status.loader'
+import { SUCCESS_PARAM } from '@/shared/helpers/install-prompt'
 
 export function meta() {
 	return pageMeta({
@@ -23,6 +24,9 @@ export function meta() {
 export const action = scanAction
 
 const FOREIGN_NOTICE_MS = 2500
+
+/** « Terminer » ends a batch, which is the second success R25 may follow. */
+const FINISHED_TO = `/account/stickers?${SUCCESS_PARAM}=activated`
 
 /**
  * Two destinations, one rule: a sticker still waiting to be activated opens the
@@ -176,7 +180,7 @@ export default function ScanPage() {
 				<ActivationSheet
 					code={activating}
 					onNext={scanNext}
-					onFinish={() => void navigate('/account/stickers')}
+					onFinish={() => void navigate(FINISHED_TO)}
 				/>
 			) : null}
 		</main>

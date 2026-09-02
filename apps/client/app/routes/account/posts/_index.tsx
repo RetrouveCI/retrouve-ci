@@ -14,6 +14,7 @@ import { accountPostsLoader } from './servers/account-posts.loader'
 import { accountPostsAction } from './servers/account-posts.action'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
+import { InstallPrompt } from '@/components/install-prompt'
 
 export function meta() {
 	return pageMeta({
@@ -205,6 +206,8 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 					)}
 				</div>
 			</section>
+
+			<InstallPrompt after="published" />
 		</main>
 	)
 }

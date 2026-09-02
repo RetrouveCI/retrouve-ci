@@ -4,6 +4,7 @@ import {
 	QrCode,
 	Package,
 	Settings,
+	Download,
 	ChevronRight,
 	Plus,
 } from 'lucide-react'
@@ -51,6 +52,9 @@ export function AccountNav({
 			count: ordersCount,
 		},
 		{ href: '/account/settings', icon: Settings, label: 'Paramètres' },
+		// The permanent way in: the sheet only ever appears after a success, and
+		// « Plus tard » closes it for good (§ R25).
+		{ href: '/download', icon: Download, label: "Installer l'application" },
 	]
 
 	return (

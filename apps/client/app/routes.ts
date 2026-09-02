@@ -10,8 +10,7 @@ export default [
 		index('routes/home/_index.tsx'),
 		route('about', 'routes/about/_index.tsx'),
 		route('contact', 'routes/contact/_index.tsx'),
-		// Download page on stand-by: there is no mobile app to download yet.
-		// route('download', 'routes/download/_index.tsx'),
+		route('download', 'routes/download/_index.tsx'),
 		route('terms', 'routes/terms/_index.tsx'),
 		route('privacy', 'routes/privacy/_index.tsx'),
 		route('publish', 'routes/publish/_index.tsx'),

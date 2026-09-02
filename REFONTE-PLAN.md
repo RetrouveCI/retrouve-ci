@@ -3017,6 +3017,86 @@ cas).
 `app/components/`. **Flux** : tous. **Acceptation** : l'invite n'apparaît jamais
 avant une action réussie.
 
+> **Livrée. Écarts et mesures.**
+>
+> **L'événement précède l'hydratation — le point 1 ne tenait pas tel quel.**
+> Mesuré sur le build servi, tête réelle sous `xvfb` avec profil persistant :
+> Chromium émet `beforeinstallprompt` avant que React n'hydrate, et un
+> `useEffect` posé par la racine le rate. Le symptôme est muet — l'écouteur
+> existe, l'offre n'est jamais arrivée. La parade est celle que R23 a déjà
+> employée pour le thème : un script bloquant dans le `<head>`, qui appelle
+> `preventDefault()` et range l'événement sur `window`. La racine adopte ensuite
+> ce dépôt et continue d'écouter. Sans cela, l'invite ne s'ouvre jamais.
+>
+> **Trois promesses des planches sont fausses, et sont réécrites.** La première
+> est celle d'une alerte reçue app fermée : il n'y a **aucun web push** dans le
+> dépôt — ni `PushManager`, ni `VAPID`, ni clé — et A3 reste une question
+> ouverte, non planifiée. Ensuite « Moins d'1 Mo » : la coquille amorcée par R24
+> pèse **968 Kio** mesurés sur le build servi (deux documents et 65 actifs),
+> avant les 1,1 Mo de WASM du premier scan. Enfin « Vos annonces lisibles hors
+> connexion » : R24 a tranché que les documents privés ne sont **jamais** mis en
+> cache. Les trois cartes disent désormais l'ouverture depuis l'écran d'accueil,
+> les annonces **déjà consultées** hors connexion, et l'absence de store — trois
+> choses que R23 et R24 livrent réellement.
+>
+> **La publication redirige côté serveur, donc il n'y a pas de `fetcher.isOk`.**
+> Le point 1 supposait un effet de succès sur le formulaire ; R18 redirige vers
+> « Mes annonces ». Un marqueur `?success=published` est porté par la
+> redirection, `?success=activated` par « Terminer » du scanner, et la feuille
+> ne s'ouvre que là où l'URL nomme la réussite qu'elle attend. L'acceptation
+> devient ainsi une propriété du composant, pas de chaque écran qui le monte.
+>
+> **La planche dessine l'invite sur un écran « Annonce publiée » qui n'existe
+> pas.** Elle s'ouvre sur les deux pages d'arrivée. Elle ne s'ouvre pas dans la
+> feuille d'activation : ce serait une feuille par-dessus une feuille, au milieu
+> d'un lot de douze, exactement ce que la note `note-scanav` déconseille.
+>
+> **« Plus tard » est définitif**, retenu en `localStorage` — un refus est un
+> refus, et l'entrée permanente dans Compte plus le lien du pied de page restent
+> la porte d'entrée. Un balayage, lui, ne ferme que l'instant : une geste ne
+> doit pas condamner une porte qu'on ne rouvre que depuis Compte. Refuser la
+> feuille ne retire pas au passage le bouton de la page.
+>
+> **Le bouton « Installer maintenant » n'est pas permanent.** Il n'apparaît que
+> si le navigateur a remis une offre : Safari n'en remet jamais, et une app déjà
+> installée a dépensé la sienne. Sans bouton, l'étape 1 ne nomme que le menu du
+> navigateur ; en `display-mode: standalone`, la page dit que l'installation est
+> faite et retire les étapes. La colonne iPhone s'ouvre d'elle-même sur un
+> appareil Apple, après hydratation puisque le serveur n'a pas reçu l'agent. La
+> note du bas explique l'absence de bouton plutôt que d'affirmer que Safari est
+> obligatoire — Chrome iOS sait aussi ajouter à l'écran d'accueil.
+>
+> **La route garde le chemin `/download`** et n'a besoin d'aucun `+types/` :
+> elle n'a ni loader ni action. Le pied de page retrouve son lien, sous le
+> libellé « Installer l'app ». Les quatre composants de l'ancienne page qui
+> vendaient une app native restent sur disque, non référencés et marqués comme
+> tels, selon le précédent R18. La tuile de l'accueil reste dans sa section
+> commentée.
+>
+> **Acceptation : 16 verdicts sur 16**, dont deux autotests — que Chromium
+> propose bien une installation sur ce build, et que la feuille sait s'ouvrir.
+> Sans eux, tout verdict « pas de feuille » serait vide de sens.
+>
+> **Contraste et gabarit : mesurés contre une référence.** Huit autotests
+> sortent aux valeurs de la maison (17,28 / 18,98 / 6,39 / 5,03), zéro couleur
+> refusée par le canvas, 84 relevés par passe sur 7 largeurs × 2 thèmes. Comparé
+> à `refonte` sans R25, tout est identique ou meilleur : contraste 92 = 92,
+> cibles sous 44 px 12 = 12, tailles hors barreaux 20 = 20, débordement 8 = 8,
+> recouvrements 122 → 110. Rien de ce que R25 dessine n'échoue.
+>
+> **Deux dettes préexistantes confirmées au passage.** Le « AK » de l'avatar
+> d'en-tête mesure **1,05:1** en 1024 px, et `/account` déborde à 464 px sous
+> 430 px — `RecentListings`, dont le lien « Voir tout » fait 71 × 18. Les deux
+> se relèvent à l'identique sur la référence. Le « CI » du logotype reste à
+> 2,7:1, dispensé.
+>
+> **Un stub de mesure a révélé que `AuthContext` lit `user.email` sans garde** :
+> une session sans email fait tomber toute la coquille sur
+> `Une erreur est survenue`. better-auth en pose toujours un, donc ce n'est pas
+> un défaut atteignable — mais la ligne mérite d'être connue.
+>
+> **Tests** : +38 côté client (975 → 1013). Densité de commentaires **7,7 %**.
+
 ### Lot 9 — Authentification
 
 > Neuf écrans du canevas (page « Authentification ») : connexion, inscription en

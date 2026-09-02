@@ -74,7 +74,19 @@ describe('publishAction', () => {
 			(error: unknown) => error,
 		)
 
-		expect(redirectTo(thrown)).toBe('/account/posts')
+		expect(new URL(redirectTo(thrown) ?? '', 'https://x').pathname).toBe(
+			'/account/posts',
+		)
+	})
+
+	// The redirect leaves no `fetcher.isOk` behind, so the marker in the URL is
+	// the only thing telling « Mes annonces » a publication just landed.
+	it('carries the success the install sheet waits for', async () => {
+		const thrown = await publishAction(requestFor(), 'lost').catch(
+			(error: unknown) => error,
+		)
+
+		expect(redirectTo(thrown)).toBe('/account/posts?success=published')
 	})
 
 	it('publishes under the type the route chose, not a form field', async () => {
