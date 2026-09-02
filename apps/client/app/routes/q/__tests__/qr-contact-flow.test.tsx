@@ -38,14 +38,18 @@ const ok = () => ({ success: true }) as ActionResult
 const name = () => page.getByLabelText('Votre nom')
 const phone = () => page.getByLabelText('Téléphone')
 const email = () => page.getByLabelText(/^Email/)
-const message = () => page.getByLabelText('Message')
-const send = () =>
-	page.getByRole('button', { name: /Contacter le propriétaire/ })
+const message = () => page.getByLabelText(/Où peut-il le récupérer/)
+const addEmail = () =>
+	page.getByRole('button', { name: 'Ajouter un email (facultatif)' })
+const send = () => page.getByRole('button', { name: /Envoyer le message/ })
 
 async function fillForm({ emailValue = '' }: { emailValue?: string } = {}) {
 	await userEvent.fill(name(), 'Konan Yao')
 	await userEvent.fill(phone(), '0700000000')
-	if (emailValue) await userEvent.fill(email(), emailValue)
+	if (emailValue) {
+		await userEvent.click(addEmail())
+		await userEvent.fill(email(), emailValue)
+	}
 	await userEvent.fill(message(), "J'ai trouvé votre sac au marché de Cocody.")
 }
 
@@ -61,7 +65,7 @@ describe('QrContactPage', () => {
 			.element(page.getByText('Sticker désactivé'))
 			.toBeInTheDocument()
 		expect(
-			page.getByRole('button', { name: /Contacter/ }).elements(),
+			page.getByRole('button', { name: /Envoyer le message/ }).elements(),
 		).toHaveLength(0)
 	})
 
@@ -73,13 +77,69 @@ describe('QrContactPage', () => {
 			.toBeInTheDocument()
 	})
 
+	it('greets the finder by the owner first name', async () => {
+		renderPage(ok)
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent('Merci ! Cet objet appartient à Awa')
+	})
+
+	it('greets without a first name rather than leaving a gap', async () => {
+		renderPage(ok, { ...ACTIVATED, ownerFirstName: null })
+
+		await expect
+			.element(page.getByText("Merci ! Cet objet appartient à quelqu'un"))
+			.toBeInTheDocument()
+	})
+
+	it('names the sticker on its own card', async () => {
+		renderPage(ok)
+
+		await expect.element(page.getByText('Sur le sticker')).toBeInTheDocument()
+		await expect.element(page.getByText('Sac à dos noir')).toBeInTheDocument()
+	})
+
+	it('draws no card when the owner named neither sticker nor object', async () => {
+		renderPage(ok, { ...ACTIVATED, label: null, linkedObject: null })
+
+		await expect.element(page.getByRole('heading', { level: 1 })).toBeVisible()
+		expect(page.getByText('Sur le sticker').elements()).toHaveLength(0)
+	})
+
+	// The screen only ever sends a message, so the promise it makes is true.
+	it('promises the owner number is never shown', async () => {
+		renderPage(ok)
+
+		await expect.element(page.getByText(/jamais montré/)).toBeInTheDocument()
+	})
+
+	it('makes no such promise on a sticker that cannot be contacted', async () => {
+		renderPage(ok, { ...ACTIVATED, status: 'generated' })
+
+		await expect
+			.element(page.getByText('Sticker non activé'))
+			.toBeInTheDocument()
+		expect(page.getByText(/jamais montré/).elements()).toHaveLength(0)
+	})
+
 	it('reaches every field by its label', async () => {
 		renderPage(ok)
 
 		await expect.element(name()).toBeInTheDocument()
 		await expect.element(phone()).toBeInTheDocument()
-		await expect.element(email()).toBeInTheDocument()
 		await expect.element(message()).toBeInTheDocument()
+	})
+
+	it('keeps the email out of the way until it is asked for', async () => {
+		renderPage(ok)
+
+		await expect.element(addEmail()).toBeInTheDocument()
+		expect(email().elements()).toHaveLength(0)
+
+		await userEvent.click(addEmail())
+
+		await expect.element(email()).toBeInTheDocument()
 	})
 
 	it('reports the schema messages on their own fields, without reaching the action', async () => {
@@ -183,6 +243,25 @@ describe('QrContactPage', () => {
 		await expect
 			.element(page.getByText('Numéro refusé par l’opérateur'))
 			.toBeInTheDocument()
+	})
+
+	// A collapsed field would otherwise hide the message that belongs to it.
+	it('reveals the collapsed email to carry its own server-side error', async () => {
+		renderPage(
+			() =>
+				({
+					success: false,
+					errors: {
+						email: { type: 'custom', message: 'Adresse refusée' },
+					},
+				}) as ActionResult,
+		)
+
+		await fillForm()
+		await userEvent.click(send())
+
+		await expect.element(email()).toBeInTheDocument()
+		await expect.element(page.getByText('Adresse refusée')).toBeInTheDocument()
 	})
 
 	it('revalidates the loader after a successful send', async () => {

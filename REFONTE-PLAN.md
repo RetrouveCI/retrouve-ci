@@ -258,8 +258,9 @@ Une ligne = une branche = une PR = une session.
 | **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                | `api/notifications`  | 3 j    | R23          |
 | **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`            | `api/sticker-orders` | 0,5 j  | R17          |
 | **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`         | `api/lost-items`     | 1,5 j  | R18          |
+| **A8**  | API      | Joindre le propriétaire d'un sticker        | `refonte-a8-sticker-reach`           | `api/qr-codes`       | 1,5 j  | R19          |
 
-**Total ≈ 37 j** en séquentiel, dont ≈ 6 j côté API et ≈ 4 j pour le lot 9.
+**Total ≈ 38,5 j** en séquentiel, dont ≈ 6 j côté API et ≈ 4 j pour le lot 9.
 R2/R3, R11/R12 et R26/R29 se parallélisent ; les lots 3 à 6 s'ouvrent ensemble
 une fois la coquille posée, et le lot 9 s'ouvre indépendamment d'eux — il ne
 partage que `Button` et `Input` (R2) avec le reste du chantier.
@@ -2098,6 +2099,68 @@ sur le passage d'étape et la restauration.
 `components/qr-owner-card.tsx`. **Flux** : B. **Acceptation** : aucune couleur
 littérale ; le zoom iOS ne se déclenche plus.
 
+> ⚠️ **Le point 3 n'est pas constructible, et le plan comme la maquette se
+> contredisent eux-mêmes dessus.** « Prévenir sur WhatsApp » et « Appeler »
+> exigent le numéro du propriétaire. L'API ne le publie pas, et c'est délibéré :
+> `GetQrTokenPublicViewUseCase` dit « the owner's first name, **never the
+> account** », et `/qr-codes/:code/scan` est `@AllowAnonymous()` sur un code
+> énumérable, **sans aucune limitation de débit** dans le dépôt — y exposer un
+> numéro le rend moissonnable. Surtout, la maquette promet deux fois l'inverse :
+> `ScanQR` écrit « Le numéro du propriétaire ne vous est jamais montré » et
+> `ScanActivation` le redit au propriétaire, « sans jamais voir votre numéro ».
+> Or **ni `wa.me` ni `tel:` ne peuvent tenir cette promesse** — WhatsApp et le
+> clavier d'appel affichent le numéro d'un contact inconnu. Les deux boutons
+> sont donc **reportés à A8**, qui tranchera le consentement du propriétaire et
+> plafonnera le débit avant d'ouvrir quoi que ce soit ; R19 reste front-only
+> comme son périmètre l'annonce et livre les points 1, 2 et 4. « Envoyer le
+> message » est l'action dominante en attendant, et la promesse affichée est
+> alors **vraie**, ce qu'un test vérifie.
+
+> **Le formulaire ne descend pas à un seul champ obligatoire.**
+> `contactOwnerSchema` exige nom, numéro et message, et `ContactMessage.name`
+> est `NOT NULL` : l'assouplir serait une migration plus un changement de
+> contrat et d'API, donc hors du périmètre déclaré. Arbitrage retenu : **on ne
+> replie jamais un champ obligatoire** — un formulaire qui répond « ce champ est
+> requis » sur un champ qu'il cache est un piège. Le message passe donc en tête,
+> seul, sous le libellé de la maquette (« Où peut-il le récupérer ? » + «
+> Obligatoire ») ; nom et téléphone restent visibles sous un intertitre ; seul
+> l'email, réellement facultatif, est replié derrière « Ajouter un email
+> (facultatif) ». Ce repli **s'ouvre de lui-même** si une erreur serveur tombe
+> sur l'email, sans quoi le message serait injoignable.
+
+> **Six écarts de rendu, consignés plutôt que subis.** (1) Le titre de la
+> maquette (« Merci ! Cet objet appartient à Konan ») devient le `h1` et se
+> replie sur « quelqu'un » quand le compte n'a pas de prénom — les deux cas
+> viennent du même champ nullable. (2) Ce même `h1` porte l'état pour un sticker
+> non activé ou révoqué, et la note en dessous ne fait plus qu'expliquer :
+> l'ancienne paire titre + note disait deux fois la même chose. (3)
+> `QrOwnerCard` ne dessine **rien** quand le propriétaire n'a nommé ni le
+> sticker ni l'objet, au lieu d'une carte vide. (4) Les libellés en capitales
+> passent à `text-xs` : §2.1 retire `text-[10px]` et `text-[11px]`, que la
+> maquette emploie à 10,5 px. (5) Le lien-logo de l'en-tête mesurait **32 px** —
+> porté à 44, §2.1 ne souffre aucune exception sous `lg`. (6) La ligne « Le
+> numéro du propriétaire ne vous est jamais montré » n'apparaît que sur l'écran
+> activé : sur un sticker qu'on ne peut pas contacter, elle promettrait quelque
+> chose au sujet d'un formulaire absent.
+
+> **Mesures.** Aucun débordement sur **70 passages** — 320/360/390/430/768/1024/
+> 1440 px, deux thèmes, les cinq états du token (activé, activé sans prénom ni
+> libellé, non activé, révoqué, textes longs). **Aucun champ sous 16 px**, ce
+> qui est l'acceptation de l'étape. Aucune cible sous 44 px hors pied de page.
+> Plancher de contraste **5,03:1** sur 826 relevés, **zéro** sous plancher. Les
+> états qui n'existent qu'après interaction ont été mesurés à part (erreurs,
+> email déplié) : 222 relevés, dont **18 sous plancher — tous la dette R13**,
+> `text-destructive` à **2,82:1 en sombre** sur les messages de `FieldError`.
+> `--destructive-text` manque toujours dans `packages/ui`, et **R33** est
+> l'étape qui touche ce paquet. Les quatre autotests de la sonde sortent exacts
+> (17,28 / 18,98 / 6,39 / 5,24) et le compteur de couleurs refusées vaut zéro.
+
+> ⚠️ **Piège de test payé par R19 :** `cleanup()` appelé **au milieu** d'un test
+> de la suite `ui` vide le conteneur pour de bon — les douze tests suivants
+> échouent sur un `<body>` vide, avec un avertissement « overlapping act() calls
+> » pour seul indice. Deux rendus dans un même `it` ne se rattrapent pas : il
+> faut deux `it`.
+
 ### Lot 7 — Scanner QR
 
 #### R20 — Écran caméra et amorce de permission
@@ -2835,6 +2898,37 @@ numéro de carte, le nom et les prénoms, la date de naissance ; sur le permis, 
 `apps/admin/app/routes/dashboard/posts/`. **Flux** : A, B. **Acceptation** : une
 pièce se publie **sans** numéro, aucun numéro saisi n'apparaît dans une réponse
 publique, et deux écritures différentes du même nom se rapprochent.
+
+#### A8 — Joindre le propriétaire d'un sticker
+
+Ouvert par R19, qui a buté dessus. La maquette dessine « Prévenir sur WhatsApp »
+puis « Appeler » en tête de `/q/:code`, et promet dans le même écran que « le
+numéro du propriétaire ne vous est jamais montré ». Les deux ne tiennent pas
+ensemble : `wa.me` comme `tel:` affichent le numéro d'un contact inconnu. Il
+faut donc trancher **ce que le propriétaire accepte**, pas seulement comment le
+front l'affiche.
+
+1. **Le consentement est explicite et se donne à l'activation.** Une colonne sur
+   `QrToken` — par défaut **fermée** — dit si un trouveur peut appeler ou écrire
+   directement. La feuille d'activation (R22) pose la question en une phrase, et
+   `ScanActivation` dit déjà la conséquence au propriétaire. Sans consentement,
+   `/q/:code` reste ce que R19 a livré : un message, et rien d'autre.
+2. **Le numéro ne descend jamais dans la page.** `/qr-codes/:code/scan` reste ce
+   qu'il est — prénom, libellé, objet lié — et gagne au plus un booléen. Le saut
+   se fait par un point d'entrée dédié qui répond une redirection, de sorte que
+   le HTML servi ne porte pas le numéro et que le saut soit journalisable.
+3. **Le débit doit être plafonné avant, pas après.** Le code est énumérable et
+   le dépôt n'a **aucune** limitation de débit ; un point d'entrée qui rend
+   joignable un numéro sans plafond est un annuaire. C'est la condition
+   d'ouverture de ce lot, pas une amélioration ultérieure.
+4. **Un numéro absent n'est pas une erreur.** `user.phoneNumber` est nullable :
+   l'écran retombe alors sur le formulaire, sans bouton mort.
+
+**Fichiers** : `api/domains/qr-codes/`, `api/presentations/qr-codes/`,
+`packages/contracts/qr-codes/`, `packages/database`, puis `client/q` et la
+feuille d'activation de R22. **Flux** : B, C. **Acceptation** : un sticker sans
+consentement n'expose aucun bouton d'appel ; le numéro n'apparaît dans aucune
+réponse HTML.
 
 #### R35 — Publication guidée d'une pièce
 

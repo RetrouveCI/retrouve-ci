@@ -1,41 +1,48 @@
 import { Tag, Package } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import type { QrTokenPublicView } from '../servers/qr-contact.service'
 
 interface QrOwnerCardProps {
 	token: QrTokenPublicView
 }
 
+interface StickerLineProps {
+	icon: LucideIcon
+	caption: string
+	value: string
+}
+
+function StickerLine({ icon: Icon, caption, value }: StickerLineProps) {
+	return (
+		<div className="flex items-center gap-3">
+			<div className="bg-muted flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
+				<Icon className="text-muted-foreground h-5 w-5" />
+			</div>
+			<div className="min-w-0">
+				<p className="text-muted-foreground text-xs font-semibold tracking-[0.06em] uppercase">
+					{caption}
+				</p>
+				<p className="truncate text-[15px] font-semibold">{value}</p>
+			</div>
+		</div>
+	)
+}
+
+/** Nothing is drawn when the owner named neither the sticker nor the object. */
 export function QrOwnerCard({ token }: QrOwnerCardProps) {
-	const greeting = token.ownerFirstName
-		? `Cet objet appartient à ${token.ownerFirstName}`
-		: "Cet objet appartient à quelqu'un"
+	if (!token.label && !token.linkedObject) return null
 
 	return (
-		<div className="rounded-2xl border bg-white p-6 shadow-sm">
-			<div className="mb-4 flex items-center gap-3">
-				<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-full">
-					<span className="text-primary-green-text text-2xl">📦</span>
-				</div>
-				<div>
-					<p className="text-muted-foreground text-sm">Sticker RetrouveCI</p>
-					<p className="font-semibold">{greeting}</p>
-				</div>
-			</div>
-			{(token.label || token.linkedObject) && (
-				<div className="space-y-2 rounded-xl bg-gray-50 p-4">
-					{token.label && (
-						<div className="flex items-center gap-2 text-sm">
-							<Tag className="text-muted-foreground h-4 w-4 shrink-0" />
-							<span>{token.label}</span>
-						</div>
-					)}
-					{token.linkedObject && (
-						<div className="flex items-center gap-2 text-sm">
-							<Package className="text-muted-foreground h-4 w-4 shrink-0" />
-							<span>{token.linkedObject}</span>
-						</div>
-					)}
-				</div>
+		<div className="border-border bg-card space-y-3 rounded-[14px] border p-4">
+			{token.label && (
+				<StickerLine icon={Tag} caption="Sur le sticker" value={token.label} />
+			)}
+			{token.linkedObject && (
+				<StickerLine
+					icon={Package}
+					caption="Objet lié"
+					value={token.linkedObject}
+				/>
 			)}
 		</div>
 	)
