@@ -1,15 +1,14 @@
-import type { Sticker } from '@/shared/types/sticker'
+import type { Sticker, StickerActivationSummary } from '@/shared/types/sticker'
 import type { StickerFilter } from '../stickers.const'
 
-export interface StickerSummary {
-	total: number
-	counts: Record<StickerFilter, number>
-	/** 0 to 1, over every sticker owned — the denominator the artboard shows. */
-	ratio: number
-}
+export type StickerCounts = Record<StickerFilter, number>
 
-export function buildStickerSummary(stickers: Sticker[]): StickerSummary {
-	const counts: Record<StickerFilter, number> = {
+/**
+ * The pills count the list, the bar above counts the pack bought — waiting
+ * stickers included, which only the API can tell. Two denominators, on purpose.
+ */
+export function buildStickerCounts(stickers: Sticker[]): StickerCounts {
+	const counts: StickerCounts = {
 		all: stickers.length,
 		activated: 0,
 		generated: 0,
@@ -20,11 +19,7 @@ export function buildStickerSummary(stickers: Sticker[]): StickerSummary {
 		if (Object.hasOwn(counts, sticker.status)) counts[sticker.status] += 1
 	}
 
-	return {
-		total: stickers.length,
-		counts,
-		ratio: stickers.length === 0 ? 0 : counts.activated / stickers.length,
-	}
+	return counts
 }
 
 export function filterStickers(
@@ -36,17 +31,21 @@ export function filterStickers(
 		: stickers.filter(sticker => sticker.status === filter)
 }
 
-export function buildActivationLabel(summary: StickerSummary): string {
-	const { activated } = summary.counts
-	return `${activated} sur ${summary.total} activé${activated > 1 ? 's' : ''}`
+export function buildActivationLabel(
+	summary: StickerActivationSummary,
+): string {
+	const { activated, delivered } = summary
+	return `${activated} sur ${delivered} activé${activated > 1 ? 's' : ''}`
 }
 
-/**
- * « 9 restants » in the artboard assumes every sticker is either active or
- * waiting. A revoked one is neither, so the sentence names what is actually
- * left to activate rather than subtracting from the total.
- */
-export function buildRemainingLabel(summary: StickerSummary): string | null {
-	const pending = summary.counts.generated
-	return pending === 0 ? null : `${pending} en attente`
+/** Says nothing rather than « 0 restants » once the pack is fully activated. */
+export function buildRemainingLabel(
+	summary: StickerActivationSummary,
+): string | null {
+	return summary.pending === 0 ? null : `${summary.pending} en attente`
+}
+
+/** 0 to 1 over everything bought; `delivered` is floored on `activated`. */
+export function activationRatio(summary: StickerActivationSummary): number {
+	return summary.delivered === 0 ? 0 : summary.activated / summary.delivered
 }

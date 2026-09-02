@@ -1,4 +1,5 @@
 import { HeroSection } from './components/hero-section'
+import { StickerActivationBanner } from './components/sticker-activation-banner'
 import { RecentListingsStrip } from './components/recent-listings-strip'
 import { StickersSection } from './components/stickers-section'
 import { HowItWorksSection } from './components/how-it-works-section'
@@ -13,10 +14,13 @@ import type { Route } from './+types/_index'
 export const loader = homeLoader
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-	const { recent } = loaderData
+	const { recent, stickers } = loaderData
 
 	return (
 		<main>
+			{stickers && stickers.pending > 0 && (
+				<StickerActivationBanner pending={stickers.pending} />
+			)}
 			<HeroSection publishedCount={recent?.total} />
 			<RecentListingsStrip recent={recent} />
 			<StickersSection />

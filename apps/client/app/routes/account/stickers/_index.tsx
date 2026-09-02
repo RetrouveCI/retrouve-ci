@@ -7,8 +7,9 @@ import { pageMeta } from '@/shared/helpers/page-meta'
 import { ActivationProgress } from './components/activation-progress'
 import { ActivateStickerDialog } from './components/activate-sticker-dialog'
 import { OrderMoreCta } from './components/order-more-cta'
+import { PendingStickersCard } from './components/pending-stickers-card'
 import { StickerCard } from './components/sticker-card'
-import { buildStickerSummary, filterStickers } from './helpers/sticker-summary'
+import { buildStickerCounts, filterStickers } from './helpers/sticker-summary'
 import { STICKER_FILTERS, type StickerFilter } from './stickers.const'
 import { stickersLoader } from './servers/stickers.loader'
 import { stickersAction } from './servers/stickers.action'
@@ -26,11 +27,13 @@ export const loader = stickersLoader
 export const action = stickersAction
 
 export default function StickersPage({ loaderData }: Route.ComponentProps) {
-	const { stickers } = loaderData
+	const { stickers, summary } = loaderData
 	const [filter, setFilter] = useState<StickerFilter>('all')
 
-	const summary = buildStickerSummary(stickers)
+	const counts = buildStickerCounts(stickers)
 	const visible = filterStickers(stickers, filter)
+	// Nothing bought, nothing activated: the account has never held a sticker.
+	const isEmpty = summary.delivered === 0 && stickers.length === 0
 
 	return (
 		<main className="flex-1">
@@ -45,34 +48,48 @@ export default function StickersPage({ loaderData }: Route.ComponentProps) {
 					</Link>
 					<h1 className="mb-4 text-2xl font-bold">Mes stickers</h1>
 
-					{summary.total > 0 && (
+					{summary.delivered > 0 && (
 						<div className="mb-4">
 							<ActivationProgress summary={summary} />
 						</div>
 					)}
 
+					{/*
+					 * The scan leads now: R20 put a camera behind it and R22 lets it
+					 * activate, so typing « RCI-4A7F-2K91 » twelve times is no longer
+					 * the shortest path. The field stays, one tap away.
+					 */}
+					{/* 16 px, not the artboard's tight 8: the code link's tap area is
+					    extended to 44 px by `.touch-target`, and a smaller gap would
+					    have it overlap the button above. */}
 					<div className="max-w-md space-y-4">
-						<ActivateStickerDialog />
-						{/*
-						 * The scan is the secondary path until R20 puts the camera behind
-						 * it: `/q/:code` answers « Sticker non activé » to a token that is
-						 * only generated, so scanning cannot activate anything yet.
-						 */}
+						<Button
+							asChild
+							className="bg-primary-green hover:bg-primary-green-dark h-control w-full gap-2 rounded-[14px] text-lg text-white"
+						>
+							<Link to="/scan">
+								<ScanLine className="h-4.5 w-4.5" />
+								Scanner un sticker
+							</Link>
+						</Button>
 						<p className="text-muted-foreground text-center text-xs">
 							ou{' '}
-							<Link
-								to="/scan"
-								className="text-primary-green-text touch-target inline-flex items-center gap-1 font-semibold hover:underline"
-							>
-								<ScanLine className="h-3.5 w-3.5" />
-								scanner un sticker
-							</Link>
+							<ActivateStickerDialog
+								trigger={
+									<button
+										type="button"
+										className="text-primary-green-text touch-target font-semibold hover:underline"
+									>
+										saisir un code à la main
+									</button>
+								}
+							/>
 						</p>
 					</div>
 				</div>
 			</section>
 
-			{summary.total > 0 && (
+			{stickers.length > 0 && (
 				<section className="border-b py-4">
 					<div className="container mx-auto px-4">
 						<div
@@ -89,7 +106,7 @@ export default function StickersPage({ loaderData }: Route.ComponentProps) {
 								>
 									{label}
 									<span className="tabular-nums opacity-70">
-										<span aria-hidden>·</span> {summary.counts[id]}
+										<span aria-hidden>·</span> {counts[id]}
 									</span>
 								</FilterPill>
 							))}
@@ -100,7 +117,7 @@ export default function StickersPage({ loaderData }: Route.ComponentProps) {
 
 			<section className="py-6">
 				<div className="container mx-auto max-w-2xl space-y-3 px-4">
-					{summary.total === 0 ? (
+					{isEmpty ? (
 						<div className="bg-muted/30 rounded-2xl border-2 border-dashed py-16 text-center">
 							<div className="bg-muted mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl">
 								<QrCode className="text-muted-foreground h-8 w-8" />
@@ -111,7 +128,7 @@ export default function StickersPage({ loaderData }: Route.ComponentProps) {
 								vous revienne.
 							</p>
 						</div>
-					) : visible.length === 0 ? (
+					) : visible.length === 0 && stickers.length > 0 ? (
 						<div className="bg-muted/30 rounded-2xl border-2 border-dashed py-12 text-center">
 							<h2 className="mb-2 text-lg font-semibold">Aucun résultat</h2>
 							<p className="text-muted-foreground text-sm">
@@ -124,8 +141,13 @@ export default function StickersPage({ loaderData }: Route.ComponentProps) {
 						))
 					)}
 
+					{/* Only under « Tous »: a state filter must not hide the batch. */}
+					{summary.pending > 0 && filter === 'all' && (
+						<PendingStickersCard pending={summary.pending} />
+					)}
+
 					<div className="pt-3">
-						<OrderMoreCta hasStickers={summary.total > 0} />
+						<OrderMoreCta hasStickers={!isEmpty} />
 					</div>
 				</div>
 			</section>

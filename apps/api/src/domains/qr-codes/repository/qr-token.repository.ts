@@ -101,6 +101,12 @@ export class QrTokenRepository {
 		return toDomainQrToken(qrToken)
 	}
 
+	async countActivatedByOwner(userId: string): Promise<number> {
+		return this.prisma.qrToken.count({
+			where: { userId, status: PrismaQrTokenStatus.ACTIVATED },
+		})
+	}
+
 	async list(filter: ListQrTokensFilter): Promise<QrTokenListResponse> {
 		const where = {
 			...(filter.status && { status: toPrismaStatus(filter.status) }),

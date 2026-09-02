@@ -34,3 +34,14 @@ export interface QrToken {
 }
 
 export type QrTokenListResponse = Paginated<QrToken>
+
+/**
+ * `activated` is counted on the tokens, `delivered` on the orders: a
+ * `generated` token carries no owner, so what a visitor holds cannot be
+ * counted on the tokens at all.
+ */
+export interface StickerActivationSummary {
+	delivered: number
+	activated: number
+	pending: number
+}

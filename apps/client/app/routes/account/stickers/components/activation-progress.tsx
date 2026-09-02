@@ -1,7 +1,8 @@
+import type { StickerActivationSummary } from '@/shared/types/sticker'
 import {
+	activationRatio,
 	buildActivationLabel,
 	buildRemainingLabel,
-	type StickerSummary,
 } from '../helpers/sticker-summary'
 
 /**
@@ -9,8 +10,11 @@ import {
  * are doing their job. The bar carries `progressbar` semantics rather than a
  * bare div, so the ratio is readable without the drawing.
  */
-export function ActivationProgress({ summary }: { summary: StickerSummary }) {
-	const activated = summary.counts.activated
+export function ActivationProgress({
+	summary,
+}: {
+	summary: StickerActivationSummary
+}) {
 	const remaining = buildRemainingLabel(summary)
 
 	return (
@@ -26,14 +30,14 @@ export function ActivationProgress({ summary }: { summary: StickerSummary }) {
 			<div
 				role="progressbar"
 				aria-valuemin={0}
-				aria-valuemax={summary.total}
-				aria-valuenow={activated}
+				aria-valuemax={summary.delivered}
+				aria-valuenow={summary.activated}
 				aria-label="Stickers activés"
 				className="bg-muted h-2 overflow-hidden rounded-full"
 			>
 				<div
 					className="bg-primary-green h-full rounded-full transition-[width] duration-500"
-					style={{ width: `${Math.round(summary.ratio * 100)}%` }}
+					style={{ width: `${Math.round(activationRatio(summary) * 100)}%` }}
 				/>
 			</div>
 		</div>

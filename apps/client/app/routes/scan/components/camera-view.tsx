@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import type { RefObject } from 'react'
-import { X, Flashlight, Keyboard, Info } from 'lucide-react'
+import { Check, X, Flashlight, Keyboard, Info } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 
 interface CameraViewProps {
@@ -11,6 +11,7 @@ interface CameraViewProps {
 	torchAvailable: boolean
 	onToggleTorch: () => void
 	foreignCode: boolean
+	codeRead: boolean
 }
 
 /**
@@ -26,6 +27,7 @@ export function CameraView({
 	torchAvailable,
 	onToggleTorch,
 	foreignCode,
+	codeRead,
 }: CameraViewProps) {
 	// The viewfinder covers the shell, so the shell must stop moving under it:
 	// a page that scrolls behind a full-screen camera is the phone equivalent of
@@ -95,15 +97,17 @@ export function CameraView({
 			</div>
 
 			<div className="relative flex flex-1 flex-col items-center justify-center gap-6 px-6 pb-10">
-				<Viewfinder />
+				<Viewfinder codeRead={codeRead} />
 				<div className="rounded-2xl bg-neutral-950/85 px-5 py-3 text-center">
 					<p className="text-base font-medium text-white">
-						Visez le QR code du sticker
+						{codeRead ? 'Code lu' : 'Visez le QR code du sticker'}
 					</p>
 					<p className="mt-1 text-sm text-white/90">
 						{foreignCode
 							? "Ce QR code n'est pas un sticker RetrouveCI."
-							: 'La lecture est automatique'}
+							: codeRead
+								? 'Un instant…'
+								: 'La lecture est automatique'}
 					</p>
 				</div>
 			</div>
@@ -132,17 +136,29 @@ export function CameraView({
 	)
 }
 
-function Viewfinder() {
+/** Read: the sweep line goes, the frame turns green and says so. */
+function Viewfinder({ codeRead }: { codeRead: boolean }) {
 	return (
 		<div className="relative h-62 w-62" aria-hidden="true">
 			<div className="absolute inset-0 rounded-[28px] bg-white/5" />
 			{CORNERS.map(({ key, className }) => (
 				<span
 					key={key}
-					className={cn('absolute h-14 w-14 border-white', className)}
+					className={cn(
+						'absolute h-14 w-14',
+						codeRead ? 'border-primary-green' : 'border-white',
+						className,
+					)}
 				/>
 			))}
-			<span className="bg-primary-green absolute inset-x-4 top-1/2 h-[2.5px] rounded-full shadow-[0_0_18px_rgba(70,190,116,.7)]" />
+			{codeRead ? (
+				<span className="bg-primary-green absolute -top-3.5 left-1/2 flex h-7.5 -translate-x-1/2 items-center gap-1.5 rounded-full px-3.5 text-xs font-bold text-white">
+					<Check className="h-3.5 w-3.5" strokeWidth={3} />
+					Code lu
+				</span>
+			) : (
+				<span className="bg-primary-green absolute inset-x-4 top-1/2 h-[2.5px] rounded-full shadow-[0_0_18px_rgba(70,190,116,.7)]" />
+			)}
 		</div>
 	)
 }

@@ -5,6 +5,7 @@ import type { ActivateQrTokenUseCase } from '@/domains/qr-codes/use-cases/activa
 import type { ContactQrTokenOwnerUseCase } from '@/domains/qr-codes/use-cases/contact-qr-token-owner.use-case'
 import type { GenerateQrTokensUseCase } from '@/domains/qr-codes/use-cases/generate-qr-tokens.use-case'
 import type { GetMyQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-my-qr-tokens.use-case'
+import type { GetMyStickerSummaryUseCase } from '@/domains/qr-codes/use-cases/get-my-sticker-summary.use-case'
 import type { GetPaginatedQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-paginated-qr-tokens.use-case'
 import type { GetQrTokenByCodeUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-by-code.use-case'
 import type { GetQrTokenPublicViewUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-public-view.use-case'
@@ -28,6 +29,7 @@ describe('QrCodesController', () => {
 	let updateDetails: UpdateQrTokenDetailsUseCase
 	let getPaginated: GetPaginatedQrTokensUseCase
 	let getMine: GetMyQrTokensUseCase
+	let getMineSummary: GetMyStickerSummaryUseCase
 	let contactOwner: ContactQrTokenOwnerUseCase
 	let controller: QrCodesController
 
@@ -40,6 +42,7 @@ describe('QrCodesController', () => {
 		updateDetails = buildUseCase<UpdateQrTokenDetailsUseCase>()
 		getPaginated = buildUseCase<GetPaginatedQrTokensUseCase>()
 		getMine = buildUseCase<GetMyQrTokensUseCase>()
+		getMineSummary = buildUseCase<GetMyStickerSummaryUseCase>()
 		contactOwner = buildUseCase<ContactQrTokenOwnerUseCase>()
 		controller = new QrCodesController(
 			generate,
@@ -50,6 +53,7 @@ describe('QrCodesController', () => {
 			updateDetails,
 			getPaginated,
 			getMine,
+			getMineSummary,
 			contactOwner,
 		)
 	})
@@ -119,6 +123,18 @@ describe('QrCodesController', () => {
 				userId: 'user-1',
 				filter,
 			})
+		})
+	})
+
+	describe('listMineSummary', () => {
+		it('passes the session user id and nothing else', async () => {
+			const summary = { delivered: 12, activated: 3, pending: 9 }
+			vi.mocked(getMineSummary.execute).mockResolvedValue(summary)
+
+			await expect(controller.listMineSummary(session)).resolves.toEqual(
+				summary,
+			)
+			expect(getMineSummary.execute).toHaveBeenCalledWith('user-1')
 		})
 	})
 

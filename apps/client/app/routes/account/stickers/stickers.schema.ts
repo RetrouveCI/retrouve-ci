@@ -1,17 +1,24 @@
 import { z } from 'zod'
+import {
+	QR_LABEL_MAX_LENGTH,
+	QR_LINKED_OBJECT_MAX_LENGTH,
+} from '@app/contracts/qr-codes'
 
+// The ceilings are the contract's own: they were 80 and 140 here, against the
+// 60 and 120 the API enforces, so a long name passed the form and came back as
+// a bare « Validation failed » with nothing on the field.
 const labelSchema = z
 	.string({ error: 'Donnez un nom à ce sticker' })
 	.trim()
 	.min(2, 'Donnez un nom à ce sticker')
-	.max(80, 'Ce nom est trop long')
+	.max(QR_LABEL_MAX_LENGTH, 'Ce nom est trop long')
 
 // Optional, so a form that does not carry the field is not a failed
 // submission; the API is sent `undefined` rather than an empty string.
 const linkedObjectSchema = z
 	.string()
 	.trim()
-	.max(140, 'Cette description est trop longue')
+	.max(QR_LINKED_OBJECT_MAX_LENGTH, 'Cette description est trop longue')
 	.optional()
 	.default('')
 

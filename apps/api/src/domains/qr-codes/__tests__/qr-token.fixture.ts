@@ -28,5 +28,6 @@ export function buildRepository(): QrTokenRepository {
 		revoke: vi.fn(),
 		updateDetails: vi.fn(),
 		list: vi.fn(),
+		countActivatedByOwner: vi.fn(),
 	} as unknown as QrTokenRepository
 }

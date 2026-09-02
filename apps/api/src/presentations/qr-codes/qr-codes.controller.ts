@@ -25,6 +25,7 @@ import { ActivateQrTokenUseCase } from '@/domains/qr-codes/use-cases/activate-qr
 import { ContactQrTokenOwnerUseCase } from '@/domains/qr-codes/use-cases/contact-qr-token-owner.use-case'
 import { GenerateQrTokensUseCase } from '@/domains/qr-codes/use-cases/generate-qr-tokens.use-case'
 import { GetMyQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-my-qr-tokens.use-case'
+import { GetMyStickerSummaryUseCase } from '@/domains/qr-codes/use-cases/get-my-sticker-summary.use-case'
 import { GetPaginatedQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-paginated-qr-tokens.use-case'
 import { GetQrTokenByCodeUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-by-code.use-case'
 import { GetQrTokenPublicViewUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-public-view.use-case'
@@ -46,6 +47,7 @@ export class QrCodesController {
 		private readonly updateQrTokenDetailsUseCase: UpdateQrTokenDetailsUseCase,
 		private readonly getPaginatedQrTokensUseCase: GetPaginatedQrTokensUseCase,
 		private readonly getMyQrTokensUseCase: GetMyQrTokensUseCase,
+		private readonly getMyStickerSummaryUseCase: GetMyStickerSummaryUseCase,
 		private readonly contactQrTokenOwnerUseCase: ContactQrTokenOwnerUseCase,
 	) {}
 
@@ -80,6 +82,16 @@ export class QrCodesController {
 			userId: session.user.id,
 			filter,
 		})
+	}
+
+	/**
+	 * A route of its own rather than a field on `mine`: that list holds only the
+	 * tokens the visitor owns, and a sticker waiting to be activated has no
+	 * owner yet, so it appears in no list.
+	 */
+	@Get('mine/summary')
+	listMineSummary(@Session() session: UserSession<Auth>) {
+		return this.getMyStickerSummaryUseCase.execute(session.user.id)
 	}
 
 	@Get(':code/scan')

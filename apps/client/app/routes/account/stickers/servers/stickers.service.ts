@@ -1,4 +1,5 @@
 import { apiFetch } from '@/shared/utils/api-fetch'
+import type { StickerActivationSummary } from '@/shared/types/sticker'
 import type {
 	QrTokenApiDto,
 	QrTokenListApiResponse,
@@ -16,6 +17,15 @@ export async function getMyStickers(
 	request: Request,
 ): Promise<QrTokenApiDto[]> {
 	return (await getMyQrCodesPage(request)).items
+}
+
+/** Read by « Mes stickers » and by the home banner, hence no filter of its own. */
+export async function getMyStickerSummary(
+	request: Request,
+): Promise<StickerActivationSummary> {
+	return apiFetch<StickerActivationSummary>('/qr-codes/mine/summary', {
+		headers: { Cookie: request.headers.get('cookie') ?? '' },
+	})
 }
 
 export async function activateSticker(
