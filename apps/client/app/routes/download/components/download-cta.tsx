@@ -1,3 +1,6 @@
+// Superseded by R25: `/download` now installs the PWA rather than selling a
+// native app that does not exist. Kept on disk, unreferenced, in case the
+// store listing ever ships.
 import { Link } from 'react-router'
 import { Clock, ArrowRight } from 'lucide-react'
 import { Button } from '@app/ui/components'

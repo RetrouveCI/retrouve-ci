@@ -1,24 +1,26 @@
-import { DownloadHero } from './components/download-hero'
-import { BentoFeatures } from './components/bento-features'
-import { HowItWorksSteps } from './components/how-it-works-steps'
-import { DownloadCta } from './components/download-cta'
+import { useMediaQuery } from '@/shared/hooks/use-media-query'
 import { pageMeta } from '@/shared/helpers/page-meta'
+import { InstallHero } from './components/install-hero'
+import { InstallBenefits } from './components/install-benefits'
+import { InstallSteps } from './components/install-steps'
 
 export function meta() {
 	return pageMeta({
-		title: "Télécharger l'app",
+		title: "Installer l'application",
 		description:
-			"Téléchargez l'application RetrouveCI pour iOS et Android. Scannez les QR codes et gérez vos objets facilement.",
+			"Ajoutez RetrouveCI à votre écran d'accueil : ouverture immédiate, annonces déjà consultées lisibles sans réseau, raccourci vers le scanner.",
 	})
 }
 
 export default function Download() {
+	// An app already on the home screen has no install left to explain.
+	const installed = useMediaQuery('(display-mode: standalone)')
+
 	return (
-		<main className="flex-1">
-			<DownloadHero />
-			<BentoFeatures />
-			<HowItWorksSteps />
-			<DownloadCta />
+		<main className="mx-auto w-full max-w-2xl flex-1">
+			<InstallHero installed={installed} />
+			<InstallBenefits />
+			{!installed && <InstallSteps />}
 		</main>
 	)
 }

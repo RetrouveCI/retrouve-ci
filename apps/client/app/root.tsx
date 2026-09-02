@@ -25,7 +25,12 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { NotFoundContent } from '@/components/not-found-content'
 import { OfflineContent } from '@/components/offline-content'
+import { InstallPrompt } from '@/components/install-prompt'
 import { registerServiceWorker } from '@/shared/helpers/service-worker'
+import {
+	INSTALL_PROMPT_SCRIPT,
+	startInstallPromptCapture,
+} from '@/shared/helpers/install-prompt'
 
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
@@ -153,6 +158,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				{/* Older iOS ignores the manifest and labels from `<title>`. */}
 				<meta name="apple-mobile-web-app-title" content={SITE_NAME} />
 				<script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+				<script dangerouslySetInnerHTML={{ __html: INSTALL_PROMPT_SCRIPT }} />
 				<Meta />
 				<Links />
 			</head>
@@ -173,10 +179,15 @@ export default function App({ loaderData }: Route.ComponentProps) {
 		if (import.meta.env.PROD) registerServiceWorker()
 	}, [])
 
+	// Adopts whatever the head script caught before hydration, and keeps
+	// listening for an offer that lands later.
+	useEffect(startInstallPromptCapture, [])
+
 	return (
 		<ThemeProvider initialPreference={loaderData.themePreference}>
 			<AuthProvider>
 				<Outlet />
+				<InstallPrompt />
 				<Toaster
 					position="bottom-right"
 					richColors

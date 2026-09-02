@@ -9,8 +9,7 @@ const footerLinks = {
 		{ href: '/posts', label: 'Annonces' },
 		{ href: '/publish', label: 'Publier' },
 		{ href: '/stickers', label: 'Stickers QR' },
-		// Download page on stand-by: there is no mobile app to download yet.
-		// { href: '/download', label: 'Télécharger' },
+		{ href: '/download', label: "Installer l'app" },
 	],
 	legal: [
 		{ href: '/about', label: 'À propos' },
