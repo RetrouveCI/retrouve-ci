@@ -216,49 +216,49 @@ deviennent l'axe principal du produit, ou si les deux actions se révèlent
 
 Une ligne = une branche = une PR = une session.
 
-| #       | Lot      | Étape                                       | Branche                              | Scope commit         | Charge | Dépend de    |
-| ------- | -------- | ------------------------------------------- | ------------------------------------ | -------------------- | ------ | ------------ |
-| **R1**  | Socle    | Zones sûres de l'appareil                   | `refonte-r1-safe-areas`              | `client`             | 0,2 j  | —            |
-| **R2**  | Socle    | Cibles tactiles 44 px sous `lg`             | `refonte-r2-touch-targets`           | `ui` + les deux apps | 0,5 j  | —            |
-| **R3**  | Socle    | Tokens de couleur accessibles               | `refonte-r3-colour-tokens`           | `ui` + `client`      | 1 j    | —            |
-| **R4**  | Socle    | Photos servies à la taille d'affichage      | `refonte-r4-image-sizes`             | `client`             | 1 j    | —            |
-| **R5**  | Coquille | Thème dans Réglages + option `system`       | `refonte-r5-theme-settings`          | `client`             | 1 j    | R3           |
-| **R6**  | Coquille | Barre d'onglets à 4 entrées + Scanner       | `refonte-r6-tab-bar`                 | `client`             | 1,5 j  | R2, R5       |
-| **R7**  | Coquille | En-tête desktop en trois zones              | `refonte-r7-desktop-header`          | `client`             | 1 j    | R2           |
-| **R8**  | Annonces | Filtres en feuille inférieure               | `refonte-r8-filters-sheet`           | `client/posts`       | 1 j    | R2           |
-| **R9**  | Annonces | Pagination compacte                         | `refonte-r9-pagination`              | `client/posts`       | 0,5 j  | —            |
-| **R10** | Annonces | Barre d'action basse sur le détail          | `refonte-r10-detail-action-bar`      | `client/posts`       | 1 j    | R2           |
-| **R11** | Compte   | Filtres de Mes annonces pilotés par l'URL   | `refonte-r11-account-url-filters`    | `client/account`     | 1 j    | —            |
-| **R12** | Compte   | Retours honnêtes sur les actions d'annonce  | `refonte-r12-account-feedback`       | `client/account`     | 1 j    | —            |
-| **R13** | Compte   | Refonte de la carte d'annonce               | `refonte-r13-account-listing-card`   | `client/account`     | 1,5 j  | R2, R11, R12 |
-| **R14** | Compte   | Correspondances sur une annonce             | `refonte-r14-account-matches`        | `client/account`     | 1 j    | R13          |
-| **R15** | Compte   | Stickers, commandes et réglages             | `refonte-r15-account-screens`        | `client/account`     | 1,5 j  | R2, R5       |
-| **R16** | Accueil  | Hero reconstruit sur une grille             | `refonte-r16-home-hero`              | `client/home`        | 1 j    | R3           |
-| **R17** | Accueil  | Annonces récentes et bloc stickers          | `refonte-r17-home-listings-stickers` | `client/home`        | 1 j    | R4, R16      |
-| **R18** | Publier  | Publication en trois étapes + brouillon     | `refonte-r18-publish-steps`          | `client/publish`     | 1,5 j  | R2           |
-| **R19** | Publier  | Refonte de la page de scan publique         | `refonte-r19-qr-landing`             | `client/q`           | 1 j    | R3           |
-| **R20** | Scanner  | Écran caméra et amorce de permission        | `refonte-r20-scanner-camera`         | `client/scan`        | 1,5 j  | R6           |
-| **R21** | Scanner  | Décodeur WASM et repli photo                | `refonte-r21-scanner-fallbacks`      | `client/scan`        | 1 j    | R20          |
-| **R22** | Scanner  | Activation de stickers en série             | `refonte-r22-sticker-activation`     | `client/account`     | 1 j    | R20, R15     |
-| **R23** | PWA      | Manifeste, icônes et couleurs de thème      | `refonte-r23-manifest`               | `client/pwa`         | 1 j    | R1           |
-| **R24** | PWA      | Service worker, coquille et page hors-ligne | `refonte-r24-service-worker`         | `client/pwa`         | 1,5 j  | R4, R23      |
-| **R25** | PWA      | Invite et page d'installation               | `refonte-r25-install`                | `client/pwa`         | 1 j    | R23          |
-| **R26** | Auth     | Règle du numéro ivoirien                    | `refonte-r26-phone-rule`             | `contracts`          | 0,5 j  | —            |
-| **R27** | Auth     | Connexion et inscription                    | `refonte-r27-login-register`         | `client/auth`        | 1,5 j  | R2, R26      |
-| **R28** | Auth     | Mot de passe oublié en un écran             | `refonte-r28-password-reset`         | `client/auth`        | 1 j    | R26, R27     |
-| **R29** | Auth     | Layout auth aux trois largeurs              | `refonte-r29-auth-layout`            | `client/auth`        | 0,5 j  | —            |
-| **R30** | Auth     | Copie et chiffres du panneau de marque      | `refonte-r30-auth-copy`              | `client/auth`        | 0,5 j  | R29          |
-| **R31** | Auth     | Routes d'authentification sans préfixe      | `refonte-r31-auth-routes`            | `client/admin`       | 0,5 j  | —            |
-| **R32** | Stickers | Hero produit de la page Stickers            | `refonte-stickers-hero`              | `client/stickers`    | 0,5 j  | R2           |
-| **R33** | Socle    | Échelle typographique et boutons mobiles    | `refonte-r33-mobile-type-scale`      | `ui` + `client`      | 1,5 j  | R2, R17      |
-| **R34** | Socle    | Gouttière de zones sûres unique             | `refonte-r34-safe-area-gutter`       | `client`             | 0,5 j  | R1           |
-| **R35** | Publier  | Publication guidée d'une pièce              | `refonte-r35-document-publish`       | `client/publish`     | 1,5 j  | R18, A7      |
-| **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`       | `api/lost-items`     | 1 j    | —            |
-| **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`        | `api/storage`        | 0,5 j  | —            |
-| **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                | `api/notifications`  | 3 j    | R23          |
-| **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`            | `api/sticker-orders` | 0,5 j  | R17          |
-| **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`         | `api/lost-items`     | 1,5 j  | R18          |
-| **A8**  | API      | Joindre le propriétaire d'un sticker        | `refonte-a8-sticker-reach`           | `api/qr-codes`       | 1,5 j  | R19          |
+| #       | Lot      | Étape                                       | Branche                              | Scope commit                | Charge | Dépend de    |
+| ------- | -------- | ------------------------------------------- | ------------------------------------ | --------------------------- | ------ | ------------ |
+| **R1**  | Socle    | Zones sûres de l'appareil                   | `refonte-r1-safe-areas`              | `client`                    | 0,2 j  | —            |
+| **R2**  | Socle    | Cibles tactiles 44 px sous `lg`             | `refonte-r2-touch-targets`           | `ui` + les deux apps        | 0,5 j  | —            |
+| **R3**  | Socle    | Tokens de couleur accessibles               | `refonte-r3-colour-tokens`           | `ui` + `client`             | 1 j    | —            |
+| **R4**  | Socle    | Photos servies à la taille d'affichage      | `refonte-r4-image-sizes`             | `client`                    | 1 j    | —            |
+| **R5**  | Coquille | Thème dans Réglages + option `system`       | `refonte-r5-theme-settings`          | `client`                    | 1 j    | R3           |
+| **R6**  | Coquille | Barre d'onglets à 4 entrées + Scanner       | `refonte-r6-tab-bar`                 | `client`                    | 1,5 j  | R2, R5       |
+| **R7**  | Coquille | En-tête desktop en trois zones              | `refonte-r7-desktop-header`          | `client`                    | 1 j    | R2           |
+| **R8**  | Annonces | Filtres en feuille inférieure               | `refonte-r8-filters-sheet`           | `client/posts`              | 1 j    | R2           |
+| **R9**  | Annonces | Pagination compacte                         | `refonte-r9-pagination`              | `client/posts`              | 0,5 j  | —            |
+| **R10** | Annonces | Barre d'action basse sur le détail          | `refonte-r10-detail-action-bar`      | `client/posts`              | 1 j    | R2           |
+| **R11** | Compte   | Filtres de Mes annonces pilotés par l'URL   | `refonte-r11-account-url-filters`    | `client/account`            | 1 j    | —            |
+| **R12** | Compte   | Retours honnêtes sur les actions d'annonce  | `refonte-r12-account-feedback`       | `client/account`            | 1 j    | —            |
+| **R13** | Compte   | Refonte de la carte d'annonce               | `refonte-r13-account-listing-card`   | `client/account`            | 1,5 j  | R2, R11, R12 |
+| **R14** | Compte   | Correspondances sur une annonce             | `refonte-r14-account-matches`        | `client/account`            | 1 j    | R13          |
+| **R15** | Compte   | Stickers, commandes et réglages             | `refonte-r15-account-screens`        | `client/account`            | 1,5 j  | R2, R5       |
+| **R16** | Accueil  | Hero reconstruit sur une grille             | `refonte-r16-home-hero`              | `client/home`               | 1 j    | R3           |
+| **R17** | Accueil  | Annonces récentes et bloc stickers          | `refonte-r17-home-listings-stickers` | `client/home`               | 1 j    | R4, R16      |
+| **R18** | Publier  | Publication en trois étapes + brouillon     | `refonte-r18-publish-steps`          | `client/publish`            | 1,5 j  | R2           |
+| **R19** | Publier  | Refonte de la page de scan publique         | `refonte-r19-qr-landing`             | `client/q`                  | 1 j    | R3           |
+| **R20** | Scanner  | Écran caméra et amorce de permission        | `refonte-r20-scanner-camera`         | `client/scan` + `contracts` | 1,5 j  | R6           |
+| **R21** | Scanner  | Décodeur WASM et repli photo                | `refonte-r21-scanner-fallbacks`      | `client/scan`               | 1 j    | R20          |
+| **R22** | Scanner  | Activation de stickers en série             | `refonte-r22-sticker-activation`     | `client/account`            | 1 j    | R20, R15     |
+| **R23** | PWA      | Manifeste, icônes et couleurs de thème      | `refonte-r23-manifest`               | `client/pwa`                | 1 j    | R1           |
+| **R24** | PWA      | Service worker, coquille et page hors-ligne | `refonte-r24-service-worker`         | `client/pwa`                | 1,5 j  | R4, R23      |
+| **R25** | PWA      | Invite et page d'installation               | `refonte-r25-install`                | `client/pwa`                | 1 j    | R23          |
+| **R26** | Auth     | Règle du numéro ivoirien                    | `refonte-r26-phone-rule`             | `contracts`                 | 0,5 j  | —            |
+| **R27** | Auth     | Connexion et inscription                    | `refonte-r27-login-register`         | `client/auth`               | 1,5 j  | R2, R26      |
+| **R28** | Auth     | Mot de passe oublié en un écran             | `refonte-r28-password-reset`         | `client/auth`               | 1 j    | R26, R27     |
+| **R29** | Auth     | Layout auth aux trois largeurs              | `refonte-r29-auth-layout`            | `client/auth`               | 0,5 j  | —            |
+| **R30** | Auth     | Copie et chiffres du panneau de marque      | `refonte-r30-auth-copy`              | `client/auth`               | 0,5 j  | R29          |
+| **R31** | Auth     | Routes d'authentification sans préfixe      | `refonte-r31-auth-routes`            | `client/admin`              | 0,5 j  | —            |
+| **R32** | Stickers | Hero produit de la page Stickers            | `refonte-stickers-hero`              | `client/stickers`           | 0,5 j  | R2           |
+| **R33** | Socle    | Échelle typographique et boutons mobiles    | `refonte-r33-mobile-type-scale`      | `ui` + `client`             | 1,5 j  | R2, R17      |
+| **R34** | Socle    | Gouttière de zones sûres unique             | `refonte-r34-safe-area-gutter`       | `client`                    | 0,5 j  | R1           |
+| **R35** | Publier  | Publication guidée d'une pièce              | `refonte-r35-document-publish`       | `client/publish`            | 1,5 j  | R18, A7      |
+| **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`       | `api/lost-items`            | 1 j    | —            |
+| **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`        | `api/storage`               | 0,5 j  | —            |
+| **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                | `api/notifications`         | 3 j    | R23          |
+| **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`            | `api/sticker-orders`        | 0,5 j  | R17          |
+| **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`         | `api/lost-items`            | 1,5 j  | R18          |
+| **A8**  | API      | Joindre le propriétaire d'un sticker        | `refonte-a8-sticker-reach`           | `api/qr-codes`              | 1,5 j  | R19          |
 
 **Total ≈ 38,5 j** en séquentiel, dont ≈ 6 j côté API et ≈ 4 j pour le lot 9.
 R2/R3, R11/R12 et R26/R29 se parallélisent ; les lots 3 à 6 s'ouvrent ensemble
@@ -2169,14 +2169,117 @@ littérale ; le zoom iOS ne se déclenche plus.
 2. **Amorce avant toute demande système** : un écran qui explique l'usage, puis
    `getUserMedia` au tap. Un refus est durable.
 3. Décodage par `BarcodeDetector` quand il existe.
-4. Analyseur unique acceptant l'URL complète (`https://…/q/RCI-XXXX-XXXX`) et le
+4. Analyseur unique acceptant l'URL complète (`https://…/q/RCI-XXXXXX`) et le
    code nu ; normalisation de la casse et des tirets ; refus explicite d'un QR
    étranger.
 5. Un sticker activé qui n'est pas le vôtre ouvre `/q/:code` — pas une variante.
 
-**Fichiers** : nouveaux `routes/scan/`, `app/routes.ts`. **Flux** : B, C.
+**Fichiers** : nouveaux `routes/scan/`, `app/routes.ts`, plus
+`@app/contracts/qr-codes` et `api/qr-codes` (voir plus bas). **Flux** : B, C.
 **Acceptation** : aucune demande de permission au chargement d'une page.
 **Tests** : projet `node` sur l'analyseur (URL, code nu, casse, QR étranger).
+
+> **Le format du code n'est celui d'aucune des trois sources.** Ce plan écrivait
+> `RCI-XXXX-XXXX`, `note-scan-tech` écrit `RCI-XXXX`, l'artboard `Scanner`
+> annonce « le code à huit caractères » et R15 cite `RCI-4A7F-2K91`. Le
+> générateur, lui, produit `RCI-` **plus six** caractères tirés de
+> `ABCDEFGHJKLMNPQRSTUVWXYZ23456789` — ni I, ni O, ni 0, ni 1, pour qu'un code
+> lu à voix haute ou recopié ne soit jamais ambigu. Dix caractères en tout. Le
+> point 4 est corrigé ci-dessus, et l'écran ne compte aucun caractère à voix
+> haute : il dit « le code est imprimé sous le QR », qui reste vrai le jour où
+> la longueur change.
+
+> **Les deux constantes remontent dans `@app/contracts/qr-codes`.** Le périmètre
+> annonçait `routes/scan/` seul, mais l'analyseur doit connaître le préfixe et
+> la longueur, et `QR_CODE_PREFIX` / `QR_CODE_RANDOM_LENGTH` vivaient dans
+> `apps/api/src/domains/qr-codes/constants.ts`, que le client ne peut pas
+> importer. Les recopier aurait remis en place exactement la dérive qu'E6 a
+> passé une époque entière à tuer : une règle, deux écritures. Elles sont donc
+> dans `qr-codes.const.ts`, `generate-qr-code.ts` les lit de là, et le fichier
+> `constants.ts` disparaît. Le générateur et l'analyseur ne peuvent plus
+> diverger.
+
+> **L'analyseur ne vérifie pas l'hôte de l'URL.** Une URL en `/q/<code>` est
+> acceptée quelle que soit son origine. L'origine imprimée diffère entre la
+> production, une préproduction et un téléphone braqué sur un portable, et
+> refuser dessus casserait le scanner partout sauf en production. Ce qui est
+> refusé, c'est tout ce qui ne mène pas à un code de la bonne forme —
+> `https://retrouve.ci/posts/RCI-ABC123` compris.
+
+> **`/scan` reste dans la coquille ; seul le viseur passe en plein cadre.**
+> L'artboard `Scanner` dessine un écran sans en-tête ni onglets, ce qui se lit
+> comme une route hors coquille façon tunnel de publication (R18). Mais l'amorce
+> et la saisie du code sont du contenu de page ordinaire avec **une** action
+> dominante, et sortir la route ferait disparaître l'onglet Scanner à l'instant
+> même où on le touche. La caméra vivante, elle, est en `fixed inset-0`
+> par-dessus la barre d'onglets, et son ✕ ramène à l'amorce.
+
+> **Un navigateur sans `BarcodeDetector` n'ouvre pas la caméra du tout.** Le
+> point 3 dit « quand il existe » sans dire ce qui se passe sinon. Safari n'en a
+> pas et le décodeur WASM n'arrive qu'à R21 : ouvrir un viseur vivant qui ne
+> lira jamais rien coûterait une permission — durable — pour une fonction qui ne
+> rend rien. L'amorce bascule donc directement sur l'état « la lecture
+> automatique n'est pas disponible » de l'artboard `ScanPermission`, avec la
+> saisie du code en action dominante. R21 remplace cette branche.
+
+> **Le point 5 est satisfait par construction, et ne coûte rien.** À cette
+> étape, _tout_ code lu part sur `/q/:code`, propriétaire ou non : le scanner
+> n'a aucune variante à ne pas créer. C'est R22 qui introduira le partage, et
+> l'invariant du flux B devra y être revérifié — pas ici.
+
+> **Le voile plat de la maquette ne tient pas sur un sticker blanc.** L'artboard
+> pose du texte blanc sur un voile à 45 % au-dessus d'une scène **sombre**
+> dessinée. Une caméra vise du papier blanc au moins aussi souvent : mesuré sur
+> une scène blanche, le blanc sur ce voile tombe vers 1,5:1, illisible.
+> L'habillage du viseur est donc reposé en **aplats** — bandes haute et basse à
+> 85 % et pastille centrale à 85 % — en laissant le centre à 25 % là où l'on
+> vise. Mesuré sur scène blanche : **12,51:1 au plancher** sur 140 relevés.
+
+> **Le viseur verrouille le défilement et se ferme par Échap.** Non dessiné, et
+> pourtant : un plein cadre `fixed` au-dessus d'une coquille qui continue de
+> défiler, c'est deux écrans à la fois sur un téléphone. `aria-modal` seul ne
+> l'empêche pas.
+
+> **La saisie du code passe à react-hook-form + Zod.** R6 l'avait écrite en
+> `useState`, ce que les conventions du client interdisent depuis E7. Le schéma
+> est local (`scan.schema.ts`) et non dans les contrats : il ne garde aucune
+> règle métier propre, il appelle l'analyseur.
+
+> **`.touch-target` étend la zone tactile par pseudo-élément.** Elle n'a rien à
+> réparer. La première sonde a signalé le lien-logo de l'en-tête partagé à 137 ×
+> 31 px sur toutes les largeurs, ce qui ressemblait au défaut que R19 avait
+> corrigé sur son propre en-tête. C'en est l'inverse : `.touch-target` pose un
+> `::before` de `max(100%, 44px)` sous `lg` et le retire à `lg`, donc la boîte
+> **dessinée** n'est pas ce que le doigt atteint. Toute sonde de cibles doit
+> créditer cette classe, sous peine de faire « réparer » du code conforme.
+
+> **La sonde de contraste lisait le viseur sur du noir.** Elle remontait la
+> chaîne des **ancêtres**, or la vidéo et le voile sont des **frères** : ni l'un
+> ni l'autre n'était compté, et l'écran caméra sortait à 19,8:1 pendant que le
+> vrai chiffre était sous 2. Elle lit maintenant l'empilement par ordre de
+> peinture (`elementsFromPoint`, fond de l'élément lui-même inclus, descendants
+> exclus) et **écarte tout élément couvert** — ce qui règle du même coup les 220
+> fausses cibles de l'en-tête que le viseur recouvrait. Deux passes caméra, sur
+> scène noire et sur scène blanche.
+
+> **Mesures.** 84 passages : 7 largeurs (320→1440) × 2 thèmes × 6 états (amorce,
+> saisie, saisie en erreur, caméra indisponible, viseur sur scène noire, viseur
+> sur scène blanche). **0 débordement sur 84.** **0 cible sous 44 px sous
+> `lg`.** **0 champ sous 16 px** sur la page. Contraste : 1 878 relevés, **61
+> sous plancher, tous connus** — 54 pour le logotype « CI » (dispensé) et 7 pour
+> `text-destructive` en sombre. Autotests de la sonde **4/4 exacts**, 0 couleur
+> refusée par le canvas.
+
+> **Dette mesurée, hors périmètre.** `text-destructive` sur `bg-card` en sombre
+> vaut **2,98:1** et produit les 7 relevés de page — c'est la dette R13, et
+> **R33** est l'étape qui touche `packages/ui`. Le champ de recherche de
+> l'en-tête desktop est à **14 px** dès 768 px, donc sur une tablette où §2.1
+> demande 16 px (R7/R17). Et `bottom-tab-bar.tsx` garde un `text-[11px]` que
+> §2.1 déclare inexistant (R6) — pour R33 également.
+
+> **Deux nouveaux `env()` locaux, pour R34.** Le viseur est en `fixed inset-0` :
+> il lit `safe-area-inset-top` en haut et `safe-area-inset-bottom` en bas. R34
+> devra les reprendre avec ceux de R16, R17, R18 et R19.
 
 #### R21 — Décodeur WASM et repli photo
 

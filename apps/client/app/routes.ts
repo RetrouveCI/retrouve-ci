@@ -18,7 +18,8 @@ export default [
 		route('stickers', 'routes/stickers/_index.tsx'),
 		route('stickers/order', 'routes/stickers/order/_index.tsx'),
 		route('posts', 'routes/posts/_index.tsx'),
-		// Minimal screen: R20 replaces it with the camera and keeps the code entry.
+		// In the shell: the primer and the code entry are ordinary page content,
+		// and only the live viewfinder goes full-bleed, over the tab bar.
 		route('scan', 'routes/scan/_index.tsx'),
 		route('posts/:id', 'routes/posts/details/_index.tsx'),
 		route('account', 'routes/account/_index.tsx'),
