@@ -6,6 +6,16 @@ export type ThemePreference = Theme | 'system'
 
 export const THEME_COOKIE = 'theme'
 
+/**
+ * Android's URL bar and the installed app's status bar. The header is
+ * `bg-background`, so this is `--background` read as sRGB — the tag is served
+ * before any stylesheet could resolve a token.
+ */
+export const THEME_COLOR: Record<Theme, string> = {
+	light: '#ffffff',
+	dark: '#080a0e',
+}
+
 export const THEME_PREFERENCES = ['light', 'dark', 'system'] as const
 
 /**

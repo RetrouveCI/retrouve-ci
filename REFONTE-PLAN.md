@@ -2090,6 +2090,29 @@ laquelle R16 ne l'a pas prise. **Fichiers** :
 portant un `env()` local. **Flux** : les cinq. **Acceptation** : aucun contenu
 sous la découpe en paysage, et un seul point du code lit les insets latéraux.
 
+> **Recompté par R23 : quinze fichiers, pas huit.** R23 devait la prendre et l'a
+> rendue ici, arbitré avec l'utilisateur — un diff mêlant les actifs PWA à une
+> refonte de gouttière sur seize écrans n'est pas relisable. Voici la liste
+> exacte à reprendre, relevée sur le code :
+>
+> - `components/bottom-tab-bar.tsx` (bas, gauche, droite) ;
+> - **cinq** feuilles inférieures et non quatre —
+>   `account/posts/components/listing-actions-sheet.tsx`,
+>   `account/posts/components/matches-sheet.tsx`,
+>   `account/stickers/components/sticker-actions-sheet.tsx`,
+>   `posts/components/filter-sheet.tsx` et, depuis R22,
+>   `scan/components/activation-sheet.tsx` ;
+> - `routes/layout.tsx` (bas), `routes/q/_index.tsx` (haut),
+>   `scan/components/camera-view.tsx` (haut et bas) ;
+> - `home/components/hero-section.tsx` (gauche) et
+>   `home/components/stickers-section.tsx` (droite) ;
+> - le tunnel de publication : `publish/components/publish-header.tsx`,
+>   `publish/components/publish-action-bar.tsx`,
+>   `publish/components/publish-flow.tsx`.
+>
+> **Deux ne figuraient dans aucune liste** : `contact-bar.tsx`, qui est une
+> **sixième** barre basse, et `stickers-section.tsx` pour l'inset droit.
+
 ### Lot 6 — Publier et scan public
 
 #### R18 — Publication en trois étapes + brouillon
@@ -2688,26 +2711,152 @@ stickers ne demande jamais de saisir un code.
 1. `manifest.webmanifest` : `display: standalone`, `start_url: /`, `lang: fr`,
    `theme_color`, et `shortcuts` vers Scanner, Publier et Rechercher.
 2. Icônes 192 et 512, une variante `maskable` avec marge de sécurité, un
-   `apple-touch-icon` 180 — `public/` ne contient aujourd'hui que `logo.png`.
-3. Deux `theme-color` avec `media="(prefers-color-scheme: …)"`, déclarées une
-   fois dans `root.tsx` plutôt que répétées dans chaque `pageMeta()`.
+   `apple-touch-icon` 180 — `public/` ne contenait que `logo.png`.
+3. Une couleur de barre par thème, déclarée une fois dans `root.tsx` plutôt que
+   répétée dans chaque `pageMeta()`.
 4. Remplacer `OG_IMAGE` par une image 1200×630 — le partage WhatsApp d'une
    annonce est une boucle centrale du produit.
 
 **Fichiers** : `apps/client/public/`, `app/root.tsx`,
-`app/shared/helpers/page-meta.ts`. **Flux** : tous. **Acceptation** : l'app est
-déclarée installable par le navigateur.
+`app/shared/helpers/page-meta.ts`, `app/shared/helpers/theme.ts`,
+`app/context/theme.tsx`. **Flux** : tous. **Acceptation** : l'app est déclarée
+installable par le navigateur. **Tests** : projet `node` sur le manifeste, les
+actifs qu'il nomme et les balises de `root.tsx` (17 cas) et sur `pageMeta` (5
+cas) ; projet `ui` sur la couleur de barre qui suit une bascule de thème (2
+cas).
 
-> **À reprendre ici : les insets latéraux.** R16 a posé
-> `pl-[max(1rem,env(safe-area-inset-left))]` et son symétrique sur le hero de
-> l'accueil, parce qu'en paysage sur un téléphone à encoche la découpe mange une
-> gouttière de 44 px entière. **Aucun autre contenu de page ne lit ces deux
-> insets** : seuls `components/bottom-tab-bar.tsx`, les quatre feuilles
-> inférieures, `routes/layout.tsx` (bas seulement) et `routes/q/_index.tsx`
-> (haut seulement) le font. Le bon geste est une gouttière unique posée une fois
-> dans `routes/layout.tsx`, pas répétée écran par écran — mais elle touche les
-> quinze écrans déjà validés, donc elle appartient au lot PWA et non à une étape
-> d'écran.
+> **Mesuré : l'acceptation ne dépend pas de R24.** Chromium ne réclame plus de
+> service worker pour déclarer une app installable. Sur le build servi, **zéro
+> erreur d'installabilité**, zéro erreur d'analyse du manifeste — et la sonde a
+> nommé, dans la même exécution, les quatre refus qu'elle sait produire :
+> `manifest-missing-name-or-short-name`, `manifest-display-not-supported`,
+> `no-acceptable-icon`, `no-manifest`. La chaîne R1 → R23 → R24 tient toujours,
+> mais c'est pour le hors-ligne, plus pour l'installabilité.
+
+> **La sonde d'installabilité mentait en headless**, et il faut le savoir avant
+> R24 et R25. `Page.getInstallabilityErrors` renvoie `[]` pour **tout** en
+> headless classique, y compris un manifeste `display: browser` sans nom : la
+> machinerie d'installation n'y tourne pas. Il faut un Chromium **avec tête**
+> sous `xvfb-run`, et un **profil persistant** — un contexte éphémère ajoute
+> `in-incognito` à chaque relevé. Cinq cas dégradés doivent sortir juste avant
+> qu'un verdict positif vaille quoi que ce soit.
+
+> **Seize écarts consignés.**
+>
+> 1. **Une seule balise `theme-color`, pilotée, contre les deux du point 3.** Le
+>    point demandait `media="(prefers-color-scheme: …)"`, mais le thème a
+>    **trois** états gouvernés par un cookie, et une requête média ne lit que
+>    l'appareil : un visiteur ayant choisi « sombre » sur un OS clair aurait eu
+>    une barre blanche au-dessus d'une page sombre, et la barre n'aurait pas
+>    suivi une bascule dans Réglages. Une balise sans `media`, posée par le
+>    script bloquant qui résout déjà le cookie avant le premier rendu, et
+>    maintenue par `apply()` du `ThemeProvider`. **Mesuré 4 cas sur 4** :
+>    `system` + appareil sombre → `#080a0e`, `system` + appareil clair →
+>    `#ffffff`, cookie `dark` sur appareil clair → `#080a0e`, cookie `light` →
+>    `#ffffff`. Arbitré avec l'utilisateur.
+> 2. **La barre passe du vert de marque au fond de page.** L'en-tête est
+>    `bg-background` : une bande verte au-dessus lui faisait une couture. Les
+>    deux valeurs sont `--background` **mesuré** au pixel dans les deux thèmes
+>    (`oklch(1 0 0)` → `#ffffff`, `oklch(0.145 0.01 256)` → `#080a0e`) parce que
+>    la balise est servie avant toute feuille de style. `BRAND_COLOR` ne servait
+>    qu'à ça et **disparaît**. Un test échoue si le token bouge.
+> 3. **Le manifeste prend les mêmes valeurs** (`theme_color` et
+>    `background_color` en blanc), sans quoi l'écran de démarrage aurait
+>    clignoté en vert avant de rendre une page blanche. Le démarrage est donc
+>    blanc avec l'icône verte, ce qui est l'esthétique claire de la planche
+>    `Installer`. Contrepartie assumée : un visiteur en thème sombre voit ce
+>    démarrage clair, `background_color` ne pouvant pas dépendre du thème.
+> 4. **Les icônes gardent la marque intacte sur fond blanc**, contre la tuile
+>    verte que dessine la planche. La planche montre une **loupe générique**,
+>    pas notre marque : notre repère est vert foncé, et **mesuré à ~1,5:1 sur
+>    `#1e7f43`** — il y disparaît. Le rendre lisible sur vert aurait demandé de
+>    recolorer le logo, ce qui est un redessin et non une retouche. Arbitré avec
+>    l'utilisateur, qui a choisi la marque intacte.
+> 5. **La géométrie est mesurée, pas devinée.** `logo.png` fait 1632×2106 et
+>    **remplit sa boîte** — aucun rembourrage transparent à retrancher, vérifié
+>    au rognage. Le repère prend **78 %** de la hauteur de la tuile pour les
+>    icônes ordinaires, **76 %** pour l'`apple-touch-icon` (les coins y sont
+>    arrondis).
+> 6. **La marge du `maskable` se calcule sur la DIAGONALE** et non sur la
+>    hauteur, la zone sûre étant un **cercle** de 80 % du côté, donc
+>    `h × √(1 + rapport²) ≤ 0,8 × côté`, ce qui donne un rapport de **0,6309**.
+>    **Mesuré sur le fichier** : encre la plus éloignée du centre à **161,5 px**
+>    pour un rayon sûr de 204,8 — **zéro pixel dehors**.
+> 7. **`icon-512.png` tient déjà dans la zone sûre** (199,5 px contre 204,8), ce
+>    qui aurait permis de n'en livrer qu'une. La variante `maskable` est gardée
+>    quand même : elle a une marge réelle là où l'autre frôle le bord, et un
+>    lanceur qui rogne plus qu'annoncé ne pardonne pas les 5 px d'écart.
+> 8. **Trois icônes de raccourci en plus des trois entrées.** La planche les
+>    dessine, et Android affiche des carrés vides sans elles. Les tracés sont
+>    ceux de la planche elle-même, repris dans son SVG, en `#1e7f43` sur blanc.
+> 9. **`apple-mobile-web-app-title` en plus.** iOS avant 17.4 ignore le
+>    manifeste et étiquette l'icône avec le `<title>`, qui fait ici 52
+>    caractères. Une balise pour un nom d'écran d'accueil juste.
+> 10. **`rel="icon"` ne pointe plus sur `logo.png`.** Un portrait 1632×2106 de
+>     103 ko servait de favicon ; c'est `icon-192.png` désormais, avec ses
+>     `type` et `sizes`. `logo.png` reste en place, il porte encore l'identité
+>     sur les écrans d'authentification et sur `/q/:code`.
+> 11. **Les balises de document ne peuvent pas vivre dans un `meta()`.** Le
+>     `meta()` d'une route **remplace** celui de la racine, donc la couleur de
+>     barre ne survivait que parce que `pageMeta()` la répétait. Elle est
+>     maintenant écrite en dur dans le `<head>` de `Layout`, et `pageMeta()` ne
+>     l'émet plus — un test le garde, deux balises mettant la première en
+>     vigueur et figeant la couleur.
+> 12. **`og:image` reste RELATIF, et c'est une dette**, pas une régression :
+>     elle l'était déjà. Facebook demande une URL absolue, et le client n'a
+>     aucun `APP_URL` — seul `apps/admin` en a un. La rendre absolue demande
+>     soit une variable d'environnement de plus, soit de faire passer l'origine
+>     du `request` par les quinze `meta()` qui appellent `pageMeta()`.
+> 13. **L'image de partage est rendue dans Chromium**, pas par `sharp` : les
+>     polices du système ici n'ont que DejaVu et Liberation, alors qu'un rendu
+>     navigateur embarque la vraie Geist en `woff2`. Vérifié que la police est
+>     bien celle-là (`document.fonts.check`), et la ligne d'accroche
+>     **rééquilibrée** après mesure — elle laissait « fatalité » seule sur sa
+>     ligne.
+> 14. **Le générateur d'actifs n'est pas versionné.** `sharp` n'est pas une
+>     dépendance déclarée de `apps/client` (il n'est là que par transitivité),
+>     donc un script committé aurait cassé dès la première installation propre.
+>     Toute la géométrie est consignée ci-dessus pour être refaite à
+>     l'identique.
+> 15. **`format:check` ne couvre pas `.webmanifest`** — le script ne liste que
+>     `ts, tsx, js, jsx, json, md, css`. Le fichier est indenté à la tabulation
+>     à la main, comme les `.json` du dépôt, et rien ne le vérifiera.
+>     `react-router-serve`, lui, le sert déjà en `application/manifest+json`
+>     sans configuration : R24 n'a rien à ajouter de ce côté.
+> 16. **Aucun pixel de page ne change.** Le diff ne touche que le `<head>` et
+>     une balise `meta` écrite par `apply()` : les deux thèmes ont été relevés
+>     (§2.3 règle 8) sur ce qui change réellement, la couleur de barre, et non
+>     sur une campagne de contraste que cette étape ne peut pas déplacer.
+
+> **Mesures.** Verdict d'installabilité relevé sur le **build servi** et non sur
+> le serveur de développement, ce qui prouve du même coup que les dix actifs de
+> `public/` sont bien copiés dans `build/client/` par `react-router build` —
+> `files: ["build"]` suffit donc, aucun ajout à l'allowlist. Zéro erreur
+> d'installabilité, zéro erreur d'analyse, cinq autotests de sonde justes dans
+> la même exécution. Couleur de barre juste dans **4 cas sur 4**. Zone sûre du
+> `maskable` : **0 pixel** d'encre hors du cercle, encre la plus lointaine à
+> 161,5 px pour 204,8 permis. Typecheck 9/9, lint sans erreur, `format:check`
+> propre. Tests **+24 client (880 → 904)**, admin **409/409**, api **379/379**.
+> Densité de commentaires **9,3 %** (18,6 % à la première mesure, taillé en deux
+> passes : le raisonnement de l'arbitrage était écrit trois fois dans le code
+> alors qu'il appartient à ce document).
+
+> **L'instabilité sous charge parallèle a gagné le client.** `pnpm run test` à
+> la racine a fait tomber `apps/admin` **et** trois cas de
+> `routes/stickers/order/__tests__/order-flow.test.tsx`, ce dernier fichier
+> mettant 71 s à lui seul avec des expirations à 15 s. Les trois suites passent
+> **seules** — client 904/904, admin 409/409, api 379/379. Ce n'est pas une
+> régression de R23, qui ne touche ni `apps/admin` ni le tunnel de commande :
+> c'est le symptôme déjà consigné par R22, désormais visible aussi côté client.
+
+> **Les insets latéraux ne sont PAS repris ici.** L'entrée disait « à reprendre
+> ici » ; arbitré avec l'utilisateur en faveur de **R34**, qui existe déjà pour
+> ça. Mêlée aux actifs PWA, une refonte de gouttière sur seize écrans rend les
+> deux moitiés du diff illisibles à la relecture. **Recomptage pour R34** : ce
+> ne sont pas huit fichiers qui lisent `env(safe-area-inset-*)` mais **quinze**,
+> et deux d'entre eux ne figuraient dans aucune liste —
+> `routes/posts/details/components/contact-bar.tsx` (une sixième barre basse) et
+> `routes/home/components/stickers-section.tsx` (inset droit).
 
 #### R24 — Service worker, coquille et page hors-ligne
 

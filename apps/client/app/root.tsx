@@ -12,6 +12,7 @@ import { AuthProvider } from '@/context/auth'
 import { ThemeProvider } from '@/context/theme'
 import {
 	DEFAULT_THEME_PREFERENCE,
+	THEME_COLOR,
 	THEME_COOKIE,
 	type ThemePreference,
 } from '@/shared/helpers/theme'
@@ -29,12 +30,7 @@ import geistMonoLatin from '@fontsource-variable/geist-mono/files/geist-mono-lat
 import './app.css'
 
 import type { Route } from './+types/root'
-import {
-	BRAND_COLOR,
-	OG_IMAGE,
-	OG_LOCALE,
-	SITE_NAME,
-} from '@/shared/helpers/page-meta'
+import { OG_IMAGE, OG_LOCALE, SITE_NAME } from '@/shared/helpers/page-meta'
 
 export function loader({ request }: Route.LoaderArgs) {
 	return {
@@ -56,7 +52,6 @@ export function meta() {
 			content:
 				"objets perdus, objets retrouvés, Côte d'Ivoire, QR code, RetrouveCI, lost and found",
 		},
-		{ name: 'theme-color', content: BRAND_COLOR },
 		{ property: 'og:type', content: 'website' },
 		{ property: 'og:locale', content: OG_LOCALE },
 		{ property: 'og:site_name', content: SITE_NAME },
@@ -80,7 +75,9 @@ export function meta() {
 
 export function links() {
 	return [
-		{ rel: 'icon', href: '/logo.png' },
+		{ rel: 'manifest', href: '/manifest.webmanifest' },
+		{ rel: 'icon', type: 'image/png', sizes: '192x192', href: '/icon-192.png' },
+		{ rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
 		// The stylesheet only reveals the font file once parsed, so the first paint
 		// swaps. Preload the latin subset — the only one a French page matches.
 		// `crossOrigin` is required even same-origin: a font is fetched in CORS
@@ -112,6 +109,8 @@ var d=p==='dark'||(p==='system'&&matchMedia('(prefers-color-scheme: dark)').matc
 var r=document.documentElement;
 r.classList.toggle('dark',d);
 r.style.colorScheme=p==='system'?'light dark':p;
+var t=document.querySelector('meta[name="theme-color"]');
+if(t)t.setAttribute('content',d?'${THEME_COLOR.dark}':'${THEME_COLOR.light}');
 }catch(e){}})()`
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -140,6 +139,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					name="viewport"
 					content="width=device-width, initial-scale=1, viewport-fit=cover"
 				/>
+				{/* One tag, no `media`: three theme states, and the chosen one may
+				    contradict the device. `system` is unresolvable server-side, so
+				    this goes out light and the script above corrects it. */}
+				<meta
+					name="theme-color"
+					content={THEME_COLOR[preference === 'dark' ? 'dark' : 'light']}
+				/>
+				{/* Older iOS ignores the manifest and labels from `<title>`. */}
+				<meta name="apple-mobile-web-app-title" content={SITE_NAME} />
 				<script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
 				<Meta />
 				<Links />

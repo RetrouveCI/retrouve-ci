@@ -7,6 +7,7 @@ import {
 	type ReactNode,
 } from 'react'
 import {
+	THEME_COLOR,
 	themeCookie,
 	type Theme,
 	type ThemePreference,
@@ -39,6 +40,10 @@ function apply(theme: Theme, preference: ThemePreference) {
 	 * scrollbars and native controls from the device setting as it changes.
 	 */
 	root.style.colorScheme = preference === 'system' ? 'light dark' : theme
+	// A `media` attribute could not follow a switch: it reads the device.
+	document
+		.querySelector('meta[name="theme-color"]')
+		?.setAttribute('content', THEME_COLOR[theme])
 }
 
 export function ThemeProvider({
