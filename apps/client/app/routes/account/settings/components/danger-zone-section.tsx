@@ -69,7 +69,7 @@ export function DangerZoneSection() {
 					<Trash2 className="h-4 w-4" />
 					Supprimer mon compte
 				</h2>
-				<p className="mt-1 text-[12.5px] leading-relaxed text-red-800 dark:text-red-300">
+				<p className="mt-1 text-xs leading-relaxed text-red-800 dark:text-red-300">
 					Vos annonces et vos stickers seront désactivés. Cette action est
 					définitive.
 				</p>
@@ -86,7 +86,7 @@ export function DangerZoneSection() {
 				<AlertDialogTrigger asChild>
 					<Button
 						variant="outline"
-						className="touch-target h-10.5 rounded-xl border-[1.5px] border-red-700/35 bg-transparent text-[13.5px] font-semibold text-red-800 hover:bg-red-700/10 hover:text-red-800 dark:border-red-400/35 dark:text-red-300 dark:hover:text-red-300"
+						className="touch-target h-10.5 rounded-xl border-[1.5px] border-red-700/35 bg-transparent text-sm font-semibold text-red-800 hover:bg-red-700/10 hover:text-red-800 dark:border-red-400/35 dark:text-red-300 dark:hover:text-red-300"
 					>
 						Supprimer mon compte
 					</Button>

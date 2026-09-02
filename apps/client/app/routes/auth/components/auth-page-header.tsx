@@ -89,7 +89,7 @@ export function AuthPageHeader({
 						<span className="text-muted-foreground pr-2 text-xs tabular-nums lg:hidden">
 							{step} / {totalSteps}
 						</span>
-						<span className="text-muted-foreground hidden text-[13.5px] lg:inline">
+						<span className="text-muted-foreground hidden text-sm lg:inline">
 							Étape {step} sur {totalSteps}
 						</span>
 					</>

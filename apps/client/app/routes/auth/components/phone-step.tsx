@@ -29,7 +29,7 @@ export function PhoneStep({
 					Numéro de téléphone
 				</Label>
 				<div className="flex gap-2.5">
-					<div className="bg-muted/50 text-foreground flex h-13 shrink-0 items-center gap-2 rounded-xl border-[1.5px] px-3.5 text-sm font-semibold">
+					<div className="bg-muted/50 text-foreground h-control flex shrink-0 items-center gap-2 rounded-xl border-[1.5px] px-3.5 text-sm font-semibold">
 						<IvorianFlag className="h-3.5 w-5 rounded-[2px] ring-1 ring-black/10" />
 						+225
 					</div>
@@ -42,7 +42,7 @@ export function PhoneStep({
 						placeholder="07 00 00 00 00"
 						value={phoneNumber}
 						onChange={e => setPhoneNumber(e.target.value)}
-						className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-13 flex-1 rounded-xl border-[1.5px] text-[17px] tracking-[0.06em] tabular-nums transition-all focus:ring-[3px]"
+						className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-control text-field flex-1 rounded-xl border-[1.5px] tracking-[0.06em] tabular-nums transition-all focus:ring-[3px]"
 						autoComplete="tel"
 						autoFocus
 					/>

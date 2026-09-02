@@ -36,7 +36,7 @@ export function ContactBar({ listing }: { listing: LostItem }) {
 					href={href}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="bg-primary-green hover:bg-primary-green-dark flex h-13 flex-1 items-center justify-center gap-2.5 rounded-[14px] text-[15px] font-semibold text-white transition-colors"
+					className="bg-primary-green hover:bg-primary-green-dark h-control flex flex-1 items-center justify-center gap-2.5 rounded-[14px] text-lg font-semibold text-white transition-colors"
 				>
 					<WhatsAppIcon className="h-4.5 w-4.5" />
 					Contacter par WhatsApp
@@ -47,7 +47,7 @@ export function ContactBar({ listing }: { listing: LostItem }) {
 				 * edge case (§2.3, règle 5): saying so beats a link that opens
 				 * WhatsApp on « ce numéro n'est pas sur WhatsApp ».
 				 */
-				<p className="text-muted-foreground flex h-13 flex-1 items-center justify-center gap-2 rounded-[14px] border-[1.5px] border-dashed text-center text-sm">
+				<p className="text-muted-foreground h-control flex flex-1 items-center justify-center gap-2 rounded-[14px] border-[1.5px] border-dashed text-center text-sm">
 					<Phone className="h-4 w-4 shrink-0" />
 					Numéro de contact indisponible
 				</p>

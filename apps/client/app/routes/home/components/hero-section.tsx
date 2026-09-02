@@ -53,7 +53,7 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 							</span>
 						</h1>
 
-						<p className="text-muted-foreground hidden max-w-125 text-[17px] lg:block">
+						<p className="text-muted-foreground hidden max-w-125 text-xl lg:block">
 							Signalez, cherchez et retrouvez vos objets partout en Côte
 							d&apos;Ivoire — ou protégez-les à l&apos;avance avec un sticker
 							QR.
@@ -74,14 +74,14 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 						<div className="flex w-full gap-2.5 lg:w-auto">
 							<Link
 								to="/publish/lost"
-								className="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark flex h-13 flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-[15px] font-semibold transition-colors lg:flex-initial lg:px-7"
+								className="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark h-control flex flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-lg font-semibold transition-colors lg:flex-initial lg:px-7"
 							>
 								<CircleAlert className="h-4.5 w-4.5" />
 								J&apos;ai perdu
 							</Link>
 							<Link
 								to="/publish/found"
-								className="bg-primary-green hover:bg-primary-green-dark flex h-13 flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-[15px] font-semibold text-white transition-colors lg:flex-initial lg:px-7"
+								className="bg-primary-green hover:bg-primary-green-dark h-control flex flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-lg font-semibold text-white transition-colors lg:flex-initial lg:px-7"
 							>
 								<Check className="h-4.5 w-4.5" />
 								J&apos;ai trouvé

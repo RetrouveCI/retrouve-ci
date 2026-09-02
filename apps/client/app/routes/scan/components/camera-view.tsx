@@ -122,7 +122,7 @@ export function CameraView({
 				<button
 					type="button"
 					onClick={onManualEntry}
-					className="flex h-13 w-full items-center justify-center gap-2 rounded-[14px] border-[1.5px] border-white/50 text-base font-semibold text-white"
+					className="h-control flex w-full items-center justify-center gap-2 rounded-[14px] border-[1.5px] border-white/50 text-base font-semibold text-white"
 				>
 					<Keyboard className="h-[18px] w-[18px]" />
 					Saisir le code à la main

@@ -46,7 +46,7 @@ export function PlaceStep({ control, type }: PlaceStepProps) {
 			/>
 
 			<div className="space-y-2">
-				<InputLabel htmlFor="ville" required className="text-[13px]">
+				<InputLabel htmlFor="ville" required className="text-sm">
 					Ville
 				</InputLabel>
 				<Select
@@ -84,7 +84,7 @@ export function PlaceStep({ control, type }: PlaceStepProps) {
 			</div>
 
 			<div className="space-y-2">
-				<InputLabel htmlFor="commune" className="text-[13px]">
+				<InputLabel htmlFor="commune" className="text-sm">
 					Commune{' '}
 					<span className="text-muted-foreground font-normal">
 						(facultatif)
@@ -117,7 +117,7 @@ export function PlaceStep({ control, type }: PlaceStepProps) {
 			</div>
 
 			<div className="space-y-2">
-				<InputLabel htmlFor="date" required className="text-[13px]">
+				<InputLabel htmlFor="date" required className="text-sm">
 					{isLost ? 'Date de la perte' : 'Date de la trouvaille'}
 				</InputLabel>
 				<DateChoice

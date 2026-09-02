@@ -12,7 +12,7 @@ import { SettingsRow } from './settings-row'
 export function PersonalInfoSection({ user }: { user: UserProfile }) {
 	return (
 		<section className="space-y-2">
-			<h2 className="text-[15px] font-bold tracking-tight">Vos informations</h2>
+			<h2 className="text-lg font-bold tracking-tight">Vos informations</h2>
 
 			<div className="bg-background rounded-2xl border px-3">
 				<EditNameDialog

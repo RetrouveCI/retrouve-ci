@@ -94,9 +94,7 @@ export function FilterSheet({
 			 */}
 			<DrawerContent className="lg:mx-auto lg:max-w-2xl lg:rounded-t-2xl">
 				<DrawerHeader className="flex flex-row items-center justify-between border-b px-4 pt-2 pb-3.5 text-left">
-					<DrawerTitle className="text-[17px] tracking-tight">
-						Filtres
-					</DrawerTitle>
+					<DrawerTitle className="text-xl tracking-tight">Filtres</DrawerTitle>
 					<DrawerDescription className="sr-only">
 						Affinez les annonces par type, catégorie, lieu et période.
 					</DrawerDescription>
@@ -104,7 +102,7 @@ export function FilterSheet({
 						type="button"
 						onClick={onReset}
 						disabled={!hasActiveFilters}
-						className="text-muted-foreground enabled:hover:text-foreground touch-target text-[13px] font-medium transition-colors disabled:opacity-40"
+						className="text-muted-foreground enabled:hover:text-foreground touch-target text-sm font-medium transition-colors disabled:opacity-40"
 					>
 						Réinitialiser
 					</button>
@@ -112,7 +110,7 @@ export function FilterSheet({
 
 				<div className="flex flex-1 flex-col gap-5 overflow-y-auto px-4 py-4.5">
 					<fieldset>
-						<legend className="mb-2 text-[13px] font-semibold">
+						<legend className="mb-2 text-sm font-semibold">
 							Type d&apos;annonce
 						</legend>
 						<div className="flex flex-wrap gap-2">
@@ -134,9 +132,7 @@ export function FilterSheet({
 					</fieldset>
 
 					<fieldset>
-						<legend className="mb-2 text-[13px] font-semibold">
-							Catégorie
-						</legend>
+						<legend className="mb-2 text-sm font-semibold">Catégorie</legend>
 						<div className="flex flex-wrap gap-2">
 							{CATEGORY_FILTERS.map(({ id, label }) => (
 								<FilterPill
@@ -151,13 +147,13 @@ export function FilterSheet({
 					</fieldset>
 
 					<div>
-						<Label htmlFor="filter-ville" className="mb-2 text-[13px]">
+						<Label htmlFor="filter-ville" className="mb-2 text-sm">
 							Ville
 						</Label>
 						<Select value={filterVille} onValueChange={onVilleChange}>
 							<SelectTrigger
 								id="filter-ville"
-								className="bg-background h-13 w-full rounded-xl border-[1.5px] text-[15px]"
+								className="bg-background h-control w-full rounded-xl border-[1.5px] text-lg"
 							>
 								<SelectValue />
 							</SelectTrigger>
@@ -173,7 +169,7 @@ export function FilterSheet({
 					</div>
 
 					<div>
-						<Label htmlFor="filter-commune" className="mb-2 text-[13px]">
+						<Label htmlFor="filter-commune" className="mb-2 text-sm">
 							Commune
 						</Label>
 						<Select
@@ -183,7 +179,7 @@ export function FilterSheet({
 						>
 							<SelectTrigger
 								id="filter-commune"
-								className="bg-background h-13 w-full rounded-xl border-[1.5px] text-[15px]"
+								className="bg-background h-control w-full rounded-xl border-[1.5px] text-lg"
 							>
 								<SelectValue
 									placeholder={
@@ -205,7 +201,7 @@ export function FilterSheet({
 					</div>
 
 					<fieldset>
-						<legend className="mb-2 text-[13px] font-semibold">Période</legend>
+						<legend className="mb-2 text-sm font-semibold">Période</legend>
 						<div className="flex flex-wrap gap-2">
 							<FilterPill
 								active={dateFilter === '7d'}
@@ -278,14 +274,14 @@ export function FilterSheet({
 						type="button"
 						variant="outline"
 						onClick={onCancel}
-						className="h-13 flex-1 rounded-[14px] border-[1.5px] text-[15px] font-semibold"
+						className="h-control flex-1 rounded-[14px] border-[1.5px] text-lg font-semibold"
 					>
 						Annuler
 					</Button>
 					<Button
 						type="button"
 						onClick={() => onOpenChange(false)}
-						className="bg-primary-green hover:bg-primary-green-dark h-13 flex-[1.6] rounded-[14px] text-[15px] font-semibold text-white"
+						className="bg-primary-green hover:bg-primary-green-dark h-control flex-[1.6] rounded-[14px] text-lg font-semibold text-white"
 					>
 						Voir {resultCount} résultat{resultCount > 1 ? 's' : ''}
 					</Button>

@@ -74,7 +74,7 @@ export function EditZoneDialog({
 
 	const chipClass = (active: boolean) =>
 		cn(
-			'rounded-full border px-3.5 py-2 text-xs font-medium transition-all',
+			'flex h-chip items-center rounded-full border px-3.5 text-xs font-medium transition-all',
 			active
 				? 'bg-primary-green border-primary-green text-white'
 				: 'bg-background text-muted-foreground hover:border-primary-green/40 hover:text-foreground',

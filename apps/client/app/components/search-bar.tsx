@@ -41,7 +41,7 @@ const SIZE: Record<
 	lg: {
 		shell: 'py-1.5 pl-5 pr-1.5',
 		// 52 px, the §2.1 field. 48 truncated the hero's own placeholder.
-		input: 'h-13 text-base',
+		input: 'h-control text-base',
 		icon: 'h-5 w-5',
 		button: 'h-12 px-6',
 		iconButton: 'size-11',

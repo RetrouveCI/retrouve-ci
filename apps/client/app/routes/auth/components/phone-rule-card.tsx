@@ -13,7 +13,7 @@ export function PhoneRuleCard() {
 				<IvorianFlag className="h-3.5 w-5 rounded-[2px] ring-1 ring-black/10" />
 			}
 		>
-			<p className="text-foreground mb-0.5 text-[13px] font-semibold">
+			<p className="text-foreground mb-0.5 text-sm font-semibold">
 				Numéros ivoiriens uniquement
 			</p>
 			<p>

@@ -34,7 +34,7 @@ export function ScanPrimer({
 				type="button"
 				onClick={onAllow}
 				disabled={pending}
-				className="bg-primary-green hover:bg-primary-green-dark mt-6 flex h-13 w-full items-center justify-center gap-2 rounded-[14px] text-base font-semibold text-white transition-colors disabled:opacity-70"
+				className="bg-primary-green hover:bg-primary-green-dark h-control mt-6 flex w-full items-center justify-center gap-2 rounded-[14px] text-base font-semibold text-white transition-colors disabled:opacity-70"
 			>
 				{pending ? 'Ouverture de la caméra…' : 'Autoriser la caméra'}
 			</button>

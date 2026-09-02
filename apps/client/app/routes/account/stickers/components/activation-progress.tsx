@@ -16,13 +16,11 @@ export function ActivationProgress({ summary }: { summary: StickerSummary }) {
 	return (
 		<div>
 			<div className="mb-2 flex items-baseline justify-between gap-3">
-				<span className="text-[15px] font-semibold">
+				<span className="text-lg font-semibold">
 					{buildActivationLabel(summary)}
 				</span>
 				{remaining && (
-					<span className="text-muted-foreground text-[12.5px]">
-						{remaining}
-					</span>
+					<span className="text-muted-foreground text-xs">{remaining}</span>
 				)}
 			</div>
 			<div

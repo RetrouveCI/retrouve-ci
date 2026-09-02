@@ -25,7 +25,7 @@ function formatDay(value: string): string {
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
 	return (
-		<div className="flex items-baseline justify-between gap-4 text-[13.5px]">
+		<div className="flex items-baseline justify-between gap-4 text-sm">
 			<span className="text-muted-foreground shrink-0">{label}</span>
 			<span className="truncate text-right font-semibold">{value}</span>
 		</div>
@@ -54,7 +54,7 @@ export function ContactStep({ control, photoCount }: ContactStepProps) {
 				name="name"
 				render={({ field, fieldState }) => (
 					<div className="space-y-2">
-						<InputLabel htmlFor={field.name} required className="text-[13px]">
+						<InputLabel htmlFor={field.name} required className="text-sm">
 							Votre nom
 						</InputLabel>
 						<Input
@@ -62,7 +62,7 @@ export function ContactStep({ control, photoCount }: ContactStepProps) {
 							id={field.name}
 							value={field.value ?? ''}
 							placeholder="Ex : Konan"
-							className="h-13 text-base"
+							className="h-control text-base"
 							aria-invalid={fieldState.invalid || undefined}
 						/>
 						{fieldState.error && <FieldError errors={[fieldState.error]} />}
@@ -75,14 +75,14 @@ export function ContactStep({ control, photoCount }: ContactStepProps) {
 				name="whatsapp"
 				render={({ field, fieldState }) => (
 					<div className="space-y-2">
-						<InputLabel htmlFor={field.name} required className="text-[13px]">
+						<InputLabel htmlFor={field.name} required className="text-sm">
 							Numéro WhatsApp
 						</InputLabel>
 						{/* The indicative sits inside the field rather than beside it: two
 						    boxes read as two inputs, and only one of them is typed in. */}
 						<div
 							className={cn(
-								'border-border bg-background focus-within:border-ring flex h-13 items-center rounded-xl border-[1.5px] px-3.5',
+								'border-border bg-background focus-within:border-ring h-control flex items-center rounded-xl border-[1.5px] px-3.5',
 								fieldState.invalid && 'border-destructive',
 							)}
 						>
@@ -111,10 +111,8 @@ export function ContactStep({ control, photoCount }: ContactStepProps) {
 			<div className="bg-muted/40 border-border flex items-start gap-3 rounded-2xl border p-4">
 				<ShieldCheck className="text-primary-green-text mt-0.5 h-5 w-5 shrink-0" />
 				<div>
-					<p className="text-[13.5px] font-semibold">
-						Votre numéro reste privé
-					</p>
-					<p className="text-muted-foreground mt-1 text-[12.5px] leading-relaxed">
+					<p className="text-sm font-semibold">Votre numéro reste privé</p>
+					<p className="text-muted-foreground mt-1 text-xs leading-relaxed">
 						Il sert uniquement à ouvrir la conversation quand quelqu&apos;un
 						vous contacte.
 					</p>
@@ -122,7 +120,7 @@ export function ContactStep({ control, photoCount }: ContactStepProps) {
 			</div>
 
 			<div className="border-border space-y-2.5 border-t pt-4.5">
-				<p className="mb-3 text-[13px] font-semibold">Récapitulatif</p>
+				<p className="mb-3 text-sm font-semibold">Récapitulatif</p>
 				<SummaryRow label="Objet" value={values.title || 'Non renseigné'} />
 				<SummaryRow label="Lieu" value={place || 'Non renseigné'} />
 				<SummaryRow

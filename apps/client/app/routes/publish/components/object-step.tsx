@@ -50,7 +50,7 @@ export function ObjectStep({
 						to={entry.to}
 						aria-current={entry.type === type ? 'page' : undefined}
 						className={cn(
-							'flex h-11 flex-1 items-center justify-center rounded-[11px] text-[14.5px] font-semibold transition-colors',
+							'flex h-11 flex-1 items-center justify-center rounded-[11px] text-base font-semibold transition-colors',
 							entry.type === type
 								? PUBLISH_ACCENT[entry.type].fill
 								: 'text-muted-foreground hover:text-foreground',
@@ -66,7 +66,7 @@ export function ObjectStep({
 				name="title"
 				render={({ field, fieldState }) => (
 					<div className="space-y-2">
-						<InputLabel htmlFor={field.name} required className="text-[13px]">
+						<InputLabel htmlFor={field.name} required className="text-sm">
 							Titre de l&apos;annonce
 						</InputLabel>
 						<Input
@@ -74,7 +74,7 @@ export function ObjectStep({
 							id={field.name}
 							value={field.value ?? ''}
 							placeholder="Ex : Téléphone Tecno noir"
-							className="h-13 text-base"
+							className="h-control text-base"
 							aria-invalid={fieldState.invalid || undefined}
 						/>
 						{fieldState.error && <FieldError errors={[fieldState.error]} />}
@@ -87,7 +87,7 @@ export function ObjectStep({
 				name="objectType"
 				render={({ field, fieldState }) => (
 					<div className="space-y-2">
-						<InputLabel required className="text-[13px]">
+						<InputLabel required className="text-sm">
 							Type d&apos;objet
 						</InputLabel>
 						<CategoryPills
@@ -109,16 +109,12 @@ export function ObjectStep({
 					return (
 						<div className="space-y-2">
 							<div className="flex items-baseline justify-between gap-3">
-								<InputLabel
-									htmlFor={field.name}
-									required
-									className="text-[13px]"
-								>
+								<InputLabel htmlFor={field.name} required className="text-sm">
 									Description
 								</InputLabel>
 								<span
 									className={cn(
-										'shrink-0 text-[11.5px] tabular-nums',
+										'shrink-0 text-xs tabular-nums',
 										length >= MIN_DESCRIPTION_LENGTH
 											? 'text-muted-foreground'
 											: 'text-accent-orange-text',
@@ -147,8 +143,8 @@ export function ObjectStep({
 
 			<div className="space-y-2">
 				<div className="flex items-baseline justify-between gap-3">
-					<InputLabel className="text-[13px]">Photos</InputLabel>
-					<span className="text-muted-foreground shrink-0 text-[11.5px]">
+					<InputLabel className="text-sm">Photos</InputLabel>
+					<span className="text-muted-foreground shrink-0 text-xs">
 						Facultatif · {MAX_PHOTOS} max.
 					</span>
 				</div>

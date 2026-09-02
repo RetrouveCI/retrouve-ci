@@ -16,11 +16,12 @@ import {
 import type { action } from '../_index'
 
 /**
- * 16 px, not `text-sm`: under it iOS zooms on focus, and this is the screen a
- * finder reaches from their camera with no account and no second chance.
+ * `text-field` is 16 px by role, not by rung: under it iOS zooms on focus, and
+ * this is the screen a finder reaches from their camera with no account and no
+ * second chance. R33 moved the ladder; this floor did not move with it.
  */
 const CONTROL_CLASSNAME =
-	'bg-background border-border focus:border-primary-green focus:ring-primary-green/25 w-full rounded-[14px] border-[1.5px] px-4 text-base transition-colors outline-none focus:ring-2'
+	'bg-background border-border focus:border-primary-green focus:ring-primary-green/25 w-full rounded-[14px] border-[1.5px] px-4 text-field transition-colors outline-none focus:ring-2'
 
 const INITIAL_VALUES: QrContactInput = {
 	name: '',
@@ -59,7 +60,7 @@ function TextField({
 						type={type}
 						value={field.value ?? ''}
 						placeholder={placeholder}
-						className={cn('h-13', CONTROL_CLASSNAME)}
+						className={cn('h-control', CONTROL_CLASSNAME)}
 					/>
 					{fieldState.error && (
 						<FieldError errors={[fieldState.error]} className="text-xs" />
@@ -195,7 +196,7 @@ export function QrContactForm() {
 			<button
 				type="submit"
 				disabled={fetcher.isSubmitting}
-				className="bg-primary-green hover:bg-primary-green-dark flex h-13 w-full items-center justify-center gap-2 rounded-[14px] text-base font-semibold text-white transition-colors disabled:opacity-70"
+				className="bg-primary-green hover:bg-primary-green-dark h-control flex w-full items-center justify-center gap-2 rounded-[14px] text-base font-semibold text-white transition-colors disabled:opacity-70"
 			>
 				<Send className="h-4 w-4" />
 				{fetcher.isSubmitting ? 'Envoi en cours…' : 'Envoyer le message'}

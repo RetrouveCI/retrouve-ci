@@ -54,7 +54,7 @@ export function ManualCodeForm({ onCode, onBack }: ManualCodeFormProps) {
 							autoCorrect="off"
 							spellCheck={false}
 							aria-invalid={fieldState.invalid}
-							className="bg-background border-border focus:border-primary-green focus:ring-primary-green/25 h-13 w-full rounded-[14px] border-[1.5px] px-4 text-base tracking-wider uppercase transition-colors outline-none focus:ring-2"
+							className="bg-background border-border focus:border-primary-green focus:ring-primary-green/25 h-control w-full rounded-[14px] border-[1.5px] px-4 text-base tracking-wider uppercase transition-colors outline-none focus:ring-2"
 						/>
 						{fieldState.error ? (
 							<FieldError errors={[fieldState.error]} className="text-xs" />
@@ -69,7 +69,7 @@ export function ManualCodeForm({ onCode, onBack }: ManualCodeFormProps) {
 
 			<button
 				type="submit"
-				className="bg-primary-green hover:bg-primary-green-dark flex h-13 w-full items-center justify-center gap-2 rounded-[14px] text-base font-semibold text-white transition-colors"
+				className="bg-primary-green hover:bg-primary-green-dark h-control flex w-full items-center justify-center gap-2 rounded-[14px] text-base font-semibold text-white transition-colors"
 			>
 				Continuer
 				<ArrowRight className="h-[18px] w-[18px]" />

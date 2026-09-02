@@ -6,10 +6,10 @@ interface StepIntroProps {
 export function StepIntro({ title, description }: StepIntroProps) {
 	return (
 		<div>
-			<h1 className="text-[22px] leading-tight font-bold tracking-tight">
+			<h1 className="text-2xl leading-tight font-bold tracking-tight">
 				{title}
 			</h1>
-			<p className="text-muted-foreground mt-1.5 text-[13px] leading-relaxed">
+			<p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">
 				{description}
 			</p>
 		</div>

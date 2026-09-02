@@ -31,7 +31,7 @@ function StripCard({ listing }: { listing: LostItem }) {
 				)}
 				<span
 					className={cn(
-						'absolute top-2 left-2 flex h-5.5 items-center rounded-full px-2.5 text-[10px] font-bold tracking-[0.04em] uppercase',
+						'absolute top-2 left-2 flex h-5.5 items-center rounded-full px-2.5 text-xs font-bold tracking-[0.04em] uppercase',
 						isLost ? 'bg-red-700 text-white' : 'bg-primary-green text-white',
 					)}
 				>
@@ -40,7 +40,7 @@ function StripCard({ listing }: { listing: LostItem }) {
 			</div>
 
 			<div className="p-3">
-				<p className="group-hover:text-primary-green-text line-clamp-2 text-[13px] leading-snug font-semibold transition-colors">
+				<p className="group-hover:text-primary-green-text line-clamp-2 text-sm leading-snug font-semibold transition-colors">
 					{listing.title}
 				</p>
 				<p className="text-muted-foreground mt-1.5 flex items-center gap-1.5 text-xs">
@@ -83,7 +83,7 @@ export function RecentListingsStrip({
 					</h2>
 					<Link
 						to="/posts"
-						className="text-primary-green-text touch-target shrink-0 text-[13px] font-semibold md:text-sm"
+						className="text-primary-green-text touch-target shrink-0 text-sm font-semibold md:text-sm"
 					>
 						{recent && recent.total > 0
 							? `Voir les ${recent.total} annonces`

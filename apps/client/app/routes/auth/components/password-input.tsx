@@ -45,7 +45,7 @@ export function PasswordInput({
 					placeholder={placeholder ?? '••••••••'}
 					value={value}
 					onChange={e => onChange(e.target.value)}
-					className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-13 rounded-xl border-[1.5px] pr-11 transition-all focus:ring-[3px]"
+					className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-control rounded-xl border-[1.5px] pr-11 transition-all focus:ring-[3px]"
 					autoComplete={id === 'password' ? 'current-password' : 'new-password'}
 					disabled={disabled}
 					autoFocus={autoFocus}

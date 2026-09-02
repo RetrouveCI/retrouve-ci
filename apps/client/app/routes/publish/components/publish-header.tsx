@@ -52,7 +52,7 @@ export function PublishHeader({
 					Publier une annonce
 				</p>
 
-				<span className="text-muted-foreground shrink-0 text-[12.5px] tabular-nums">
+				<span className="text-muted-foreground shrink-0 text-xs tabular-nums">
 					{step} / {STEP_COUNT}
 				</span>
 			</div>

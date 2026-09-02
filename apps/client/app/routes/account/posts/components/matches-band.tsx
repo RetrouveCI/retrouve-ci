@@ -39,7 +39,7 @@ export function MatchesBand({
 				<Search className="h-4 w-4 text-white" />
 			</span>
 			<span className="min-w-0 flex-1">
-				<span className="block text-[13px] leading-tight font-semibold">
+				<span className="block text-sm leading-tight font-semibold">
 					{buildMatchesTitle(matches.count, type)}
 				</span>
 				<span className="mt-0.5 block truncate text-xs opacity-80">

@@ -26,7 +26,7 @@ export function SectionHeader({
 				<Icon className="h-5 w-5" style={{ color: accentColor }} />
 				{step !== undefined && (
 					<span
-						className="bg-background absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold"
+						className="bg-background absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold"
 						style={{
 							color: accentColor,
 							boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${accentColor} 30%, transparent)`,

@@ -22,7 +22,7 @@ function StickerLine({ icon: Icon, caption, value }: StickerLineProps) {
 				<p className="text-muted-foreground text-xs font-semibold tracking-[0.06em] uppercase">
 					{caption}
 				</p>
-				<p className="truncate text-[15px] font-semibold">{value}</p>
+				<p className="truncate text-lg font-semibold">{value}</p>
 			</div>
 		</div>
 	)

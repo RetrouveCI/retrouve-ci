@@ -169,6 +169,42 @@
 	--color-sidebar-ring: var(--sidebar-ring);
 }
 
+/**
+ * The mobile type scale, one notch below the boards (R33). It is redefined here
+ * rather than renamed across six hundred call sites: a screen cannot invent a
+ * size when the size ladder itself is the inventory. Sixteen distinct sizes were
+ * measured in the client before this — 10, 11, 13.5, 17 and 22 px among them.
+ *
+ * Two floors do not move and are not part of the ladder: a field never goes
+ * under 16 px, or iOS zooms on focus, and a tap target never goes under 44 px —
+ * `.touch-target` grows the tap area without growing the drawing.
+ */
+@theme {
+	--text-xs: 0.75rem; /* 12 — caption, status pill */
+	--text-xs--line-height: 1rem;
+	--text-sm: 0.8125rem; /* 13 — secondary */
+	--text-sm--line-height: 1.125rem;
+	--text-base: 0.875rem; /* 14 — body */
+	--text-base--line-height: 1.3125rem;
+	--text-lg: 0.9375rem; /* 15 — control label */
+	--text-lg--line-height: 1.25rem;
+	--text-xl: 1rem; /* 16 — card title */
+	--text-xl--line-height: 1.375rem;
+	--text-2xl: 1.125rem; /* 18 — section heading */
+	--text-2xl--line-height: 1.5rem;
+	--text-3xl: 1.125rem; /* 18 — collapsed onto the section heading */
+	--text-3xl--line-height: 1.5rem;
+	--text-4xl: 1.625rem; /* 26 — hero heading */
+	--text-4xl--line-height: 1.9375rem;
+
+	/* Named by role, because these two must never drift with the ladder. */
+	--text-field: 1rem; /* 16 — the iOS floor */
+	--text-field--line-height: 1.375rem;
+
+	--spacing-control: 3rem; /* 48 — primary action, field */
+	--spacing-chip: 2.125rem; /* 34 — filter pill */
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;

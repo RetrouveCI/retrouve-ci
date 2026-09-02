@@ -67,7 +67,7 @@ export function MatchingSuggestions({
 							? 'Objets similaires retrouvés'
 							: 'Objets similaires perdus'}
 					</p>
-					<p className="text-muted-foreground mt-0.5 text-[11px]">
+					<p className="text-muted-foreground mt-0.5 text-xs">
 						{isLoading
 							? 'Recherche en cours...'
 							: matches.length > 0
@@ -137,13 +137,13 @@ export function MatchingSuggestions({
 											{item.title}
 										</p>
 										<div className="mt-0.5 flex items-center gap-2">
-											<span className="text-muted-foreground flex items-center gap-0.5 text-[11px]">
+											<span className="text-muted-foreground flex items-center gap-0.5 text-xs">
 												<MapPin className="h-3 w-3 shrink-0" />
 												<span className="max-w-22.5 truncate">
 													{item.location}
 												</span>
 											</span>
-											<span className="text-muted-foreground flex items-center gap-0.5 text-[11px]">
+											<span className="text-muted-foreground flex items-center gap-0.5 text-xs">
 												<Clock className="h-3 w-3 shrink-0" />
 												{item.date}
 											</span>

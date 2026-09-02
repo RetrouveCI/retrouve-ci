@@ -222,7 +222,7 @@ export function ListingCard({ listing, matches }: ListingCardProps) {
 							{config.label && (
 								<Badge
 									className={cn(
-										'mb-1 h-5.5 text-[10px] font-bold tracking-[0.04em] uppercase',
+										'mb-1 h-5.5 text-xs font-bold tracking-[0.04em] uppercase',
 										config.badge,
 									)}
 								>

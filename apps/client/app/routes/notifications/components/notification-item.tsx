@@ -59,7 +59,7 @@ export function NotificationItem({
 				<p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
 					{notification.message}
 				</p>
-				<p className="text-muted-foreground/70 mt-1 text-[11px]">
+				<p className="text-muted-foreground/70 mt-1 text-xs">
 					{notification.relativeDate}
 				</p>
 			</div>

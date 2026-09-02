@@ -58,7 +58,7 @@ function ListingImage({
 			) : (
 				<div className="from-muted to-muted/70 absolute inset-0 flex flex-col items-center justify-center gap-2 bg-linear-to-br">
 					<CategoryIcon className="text-muted-foreground/25 h-10 w-10" />
-					<span className="text-muted-foreground/50 text-[10px] font-medium tracking-widest uppercase">
+					<span className="text-muted-foreground/50 text-xs font-medium tracking-widest uppercase">
 						{categoryLabel(listing.category)}
 					</span>
 				</div>
@@ -68,7 +68,7 @@ function ListingImage({
 
 			<div
 				className={cn(
-					'absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold shadow-sm',
+					'absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold shadow-sm',
 					isLost ? 'bg-red-600 text-white' : 'bg-primary-green text-white',
 				)}
 			>
@@ -76,7 +76,7 @@ function ListingImage({
 				{isLost ? 'Perdu' : 'Retrouvé'}
 			</div>
 
-			<div className="bg-background/90 text-muted-foreground absolute top-3 right-3 flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium shadow-sm backdrop-blur-sm">
+			<div className="bg-background/90 text-muted-foreground absolute top-3 right-3 flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium shadow-sm backdrop-blur-sm">
 				<CategoryIcon className="h-3 w-3" />
 				{categoryLabel(listing.category)}
 			</div>
@@ -102,7 +102,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 								</h3>
 								<span
 									className={cn(
-										'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase',
+										'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-bold tracking-wide uppercase',
 										isLost
 											? 'bg-red-50 text-red-700'
 											: // `bg-green-50` does not follow the theme, so its ink must not either.
@@ -127,7 +127,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 								<Clock className="h-3 w-3 shrink-0" />
 								{listing.date}
 							</span>
-							<span className="text-primary-green-text ml-auto flex items-center gap-1 font-medium opacity-0 transition-opacity group-hover:opacity-100">
+							<span className="text-primary-green-text ml-auto hidden items-center gap-1 font-medium opacity-0 transition-opacity group-hover:opacity-100 sm:flex">
 								Voir <ArrowRight className="h-3 w-3" />
 							</span>
 						</div>
@@ -156,11 +156,11 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 
 					<div className="flex items-center justify-between border-t pt-2.5">
 						<div className="flex flex-col gap-0.5">
-							<span className="text-muted-foreground flex items-center gap-1 text-[11px]">
+							<span className="text-muted-foreground flex items-center gap-1 text-xs">
 								<MapPin className="h-3 w-3 shrink-0" />
 								<span className="max-w-27.5 truncate">{listing.location}</span>
 							</span>
-							<span className="text-muted-foreground flex items-center gap-1 text-[11px]">
+							<span className="text-muted-foreground flex items-center gap-1 text-xs">
 								<Clock className="h-3 w-3 shrink-0" />
 								{listing.date}
 							</span>

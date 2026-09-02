@@ -32,7 +32,7 @@ export function HowItWorksSection() {
 							key={step.title}
 							className="border-border bg-background flex items-center gap-3.5 rounded-[14px] border p-3.5"
 						>
-							<span className="bg-primary-green/12 text-primary-green-text flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-xl text-sm font-bold">
+							<span className="bg-primary-green/12 text-primary-green-text h-chip flex w-9.5 shrink-0 items-center justify-center rounded-xl text-sm font-bold">
 								{index + 1}
 							</span>
 							<span className="min-w-0">

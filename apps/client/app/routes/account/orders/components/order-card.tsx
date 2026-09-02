@@ -18,13 +18,13 @@ export function OrderCard({ order }: { order: Order }) {
 				<p className="text-muted-foreground truncate text-sm font-semibold">
 					Pack {order.pack.name} · {order.pack.quantity} stickers
 				</p>
-				<p className="text-muted-foreground mt-0.5 truncate text-[11.5px]">
+				<p className="text-muted-foreground mt-0.5 truncate text-xs">
 					{formatOrderDate(order.date)} · {formatPrice(order.total)} FCFA
 				</p>
 			</div>
 			<Badge
 				className={cn(
-					'h-5.5 shrink-0 text-[10px] font-bold tracking-[0.04em] uppercase',
+					'h-5.5 shrink-0 text-xs font-bold tracking-[0.04em] uppercase',
 					config.badge,
 				)}
 			>

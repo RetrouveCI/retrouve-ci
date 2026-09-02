@@ -34,7 +34,7 @@ export function OrderProgressRail({ steps }: { steps: OrderStep[] }) {
 						</span>
 						<span
 							className={cn(
-								'text-[10.5px]',
+								'text-xs',
 								step.done && 'text-primary-green-text font-semibold',
 								step.current && 'text-foreground font-semibold',
 								!step.done && !step.current && 'text-muted-foreground',

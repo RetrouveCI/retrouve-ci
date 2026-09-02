@@ -96,14 +96,14 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 									<div className="mb-1 flex items-center gap-2">
 										{status.label && (
 											<Badge
-												className={cn('text-[10px] font-medium', status.badge)}
+												className={cn('text-xs font-medium', status.badge)}
 											>
 												{status.label}
 											</Badge>
 										)}
 										<span
 											className={cn(
-												'text-[10px] font-medium',
+												'text-xs font-medium',
 												listing.type === 'lost'
 													? 'text-red-500'
 													: 'text-primary-green-text',

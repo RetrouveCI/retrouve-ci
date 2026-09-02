@@ -14,7 +14,7 @@ interface PaginationBarProps {
  * without overlapping — five numbers plus the two arrows cannot fit inside
  * 360 px if the buttons are 44 px *wide*.
  */
-const SLOT = 'touch-target size-10 shrink-0 rounded-xl text-sm font-medium'
+const SLOT = 'touch-target size-chip shrink-0 rounded-xl text-sm font-medium'
 
 const ARROW =
 	'bg-background border-border text-muted-foreground hover:border-primary-green/30 hover:text-foreground flex items-center justify-center border transition-all disabled:pointer-events-none disabled:opacity-40'

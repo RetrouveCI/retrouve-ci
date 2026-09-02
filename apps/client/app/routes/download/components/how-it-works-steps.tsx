@@ -37,7 +37,7 @@ export function HowItWorksSteps() {
 							key={i}
 							className="bg-background relative rounded-2xl border p-6 text-center"
 						>
-							<div className="text-muted-foreground/10 mb-3 text-5xl font-bold">
+							<div className="text-muted-foreground/10 mb-3 text-4xl font-bold">
 								{item.step}
 							</div>
 							<div className="bg-primary-green/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl">

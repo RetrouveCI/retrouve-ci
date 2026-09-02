@@ -17,7 +17,7 @@ export function AboutCta() {
 					{/* Brand green, not the ink token: the pill is white in both themes. */}
 					<Link
 						to="/publish"
-						className="text-primary-green inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold transition-colors hover:bg-white/90"
+						className="text-primary-green h-control inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-6 text-lg font-semibold transition-colors hover:bg-white/90"
 					>
 						Publier une annonce
 						<ArrowRight className="h-4 w-4" />

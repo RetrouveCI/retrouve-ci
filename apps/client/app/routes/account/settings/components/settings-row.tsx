@@ -33,7 +33,7 @@ export function SettingsRow({
 			)}
 			{...props}
 		>
-			<span className="flex-1 text-[15px] font-medium">{label}</span>
+			<span className="flex-1 text-lg font-medium">{label}</span>
 			{value && (
 				<span className="text-muted-foreground truncate text-sm">{value}</span>
 			)}

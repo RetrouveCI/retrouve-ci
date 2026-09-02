@@ -70,15 +70,15 @@ Un même rôle, une même forme. Ces primitives sont posées par R2 et R3 ; aucu
 
 | Rôle                     | Forme imposée                                                                               |
 | ------------------------ | ------------------------------------------------------------------------------------------- |
-| Action primaire          | Bouton plein vert `--primary-green`, texte blanc, 52 px, rayon 14                           |
+| Action primaire          | Bouton plein vert `--primary-green`, texte blanc, 48 px, rayon 14 (R33)                     |
 | Action secondaire        | Contour 1,5 px `--border`, encre `--foreground`, même hauteur                               |
 | Action « objet perdu »   | Aplat `--accent-orange` + **encre foncée** — jamais de blanc (2,70:1)                       |
 | Action destructrice      | Contour rouge, jamais un aplat ; toujours derrière une confirmation                         |
-| Cible tactile            | 44 px minimum sous `lg`, sans exception                                                     |
-| Champ de saisie          | 52 px, police 16 px sur mobile (sous 16 px, iOS zoome au focus)                             |
+| Cible tactile            | 44 px minimum sous `lg`, sans exception — la **zone de tap**, pas le dessin                 |
+| Champ de saisie          | 48 px (R33), police 16 px partout via `text-field` (sous 16, iOS zoome au focus)            |
 | Carte                    | Rayon 14, bordure 1 px `--border`, photo 84 px en liste, 108 px en grille                   |
-| Pastille d'état          | 22 px, capitales 10 px, `letter-spacing` 0.04em — une seule forme pour tous les états       |
-| Puce de filtre           | Capsule 34–38 px ; active = fond `--foreground`, texte `--background`                       |
+| Pastille d'état          | 22 px, capitales 12 px (R33), `letter-spacing` 0.04em — une seule forme pour tous les états |
+| Puce de filtre           | Capsule 34 px (R33) ; active = fond `--foreground`, texte `--background`                    |
 | **Bannière**             | Une exception qui appelle une action ou une explication (modération, hors-ligne, livraison) |
 | **Feuille inférieure**   | Un panneau qui interrompt : filtres, menu `⋯`, activation d'un sticker                      |
 | **Barre d'action basse** | Un écran qui a **une** action dominante : détail d'annonce, tunnel de commande, formulaire  |
@@ -86,7 +86,9 @@ Un même rôle, une même forme. Ces primitives sont posées par R2 et R3 ; aucu
 
 **Ce qui n'existe plus** : le menu latéral, la bulle flottante permanente, les
 boutons-icônes sous 44 px, le texte blanc sur orange, le texte vert de marque
-sur fond sombre, `text-[10px]` et `text-[11px]`.
+sur fond sombre, et **toute taille de police arbitraire sur la base mobile** —
+`text-[10px]` et `text-[11px]` comprises. L'échelle mobile compte sept barreaux
+nommés, posés par R33 : 12, 13, 14, 15, 16, 18 et 26 px.
 
 ### 2.2 Les cinq flux de bout en bout
 
@@ -1961,6 +1963,109 @@ les écrans, donc elle ne peut pas rouler à l'intérieur d'une étape d'écran.
 `packages/ui/src/components/`, tous les `apps/client/app/routes/`. **Flux** :
 les cinq. **Acceptation** : à 320 et 390 px, aucun élément coupé par un ancêtre
 clippant sur aucun écran, et aucune cible sous 44 px.
+
+> **L'échelle est redéfinie, pas renommée.** Le point 2 demande un jeu de
+> tailles nommées ; les remplacer classe par classe aurait touché plus de six
+> cents appels et laissé chaque écran libre d'en inventer une autre le
+> lendemain. `--text-*` est donc redéfini dans le `@theme` de `packages/ui` :
+> l'échelle **est** l'inventaire, et un écran ne peut plus sortir du jeu parce
+> qu'il n'y a plus rien dehors. Sept barreaux — 12, 13, 14, 15, 16, 18, 26 — au
+> lieu de seize tailles mesurées.
+
+> **La dérive était pire que le plan ne le disait.** Relevé avant de changer
+> quoi que ce soit, sur neuf écrans publics et sept largeurs (320 → 430) :
+> **seize tailles de police distinctes** et **dix hauteurs de contrôle**. Dont
+> dix-neuf tailles arbitraires en cent trente et une occurrences, `text-[8px]`
+> et `text-[9px]` comprises, et des hauteurs de bouton à 24, 35, 40, 64, 68 et
+> 86 px. Le `h1` était à **36 px** partout où les planches disent 30, et le `h2`
+> à 30, 24, 22 ou 20 px selon l'écran là où elles disent 19.
+
+> **Deux jetons de rôle vivent à côté de l'échelle, et c'est le point 3 qui
+> l'impose.** `text-field` vaut 16 px par rôle, pas par barreau ; de même
+> `--spacing-control` (48) et `--spacing-chip` (34). La raison est une
+> régression observée à l'instant où l'échelle a bougé : R19 avait choisi
+> `text-base` sur le formulaire de `/q/:code` **parce qu'il valait 16 px**, en
+> le documentant, et le nouveau barreau l'a ramené à 14 sans un mot. Un plancher
+> tenu par un barreau n'est pas un plancher. Les cinq groupes de champs sur
+> mesure passent donc à `text-field`, et `Input` / `Textarea` de `packages/ui`
+> aussi — leur `md:text-sm` faisait par ailleurs 13 px sur une tablette, la
+> dette relevée par R20.
+
+> **§2.1 est amendé sur cinq lignes**, ce qu'une étape de socle est en droit de
+> faire et une étape d'écran non : action primaire et champ passent de 52 à 48
+> px, la puce de filtre de « 34–38 » à 34, les capitales de la pastille de 10 à
+> 12 px, et « ce qui n'existe plus » interdit désormais **toute** taille
+> arbitraire sur la base mobile, pas seulement `text-[10px]` et `text-[11px]`.
+
+> **La règle des 44 px n'est pas rouverte, et c'est elle qui rend la réduction
+> possible.** `.touch-target` fabrique la zone de tap par pseudo-élément sous
+> `lg` : un contrôle peut donc _paraître_ nettement plus petit sans devenir plus
+> difficile à atteindre. La ligne « Cible tactile » de §2.1 le dit maintenant
+> explicitement — la zone de tap, pas le dessin — parce que la confondre avec la
+> boîte dessinée est ce qui a failli faire « réparer » du code conforme à R20.
+
+> **La feuille de style partagée déplace aussi le backoffice.**
+> `packages/ui/src/styles/globals.css` est importée par les deux applications :
+> la typographie d'`apps/admin` descend donc du même cran, alors que le
+> périmètre annoncé est `ui` + `client`. Ses 409 tests passent et ses champs
+> gagnent le plancher de 16 px, mais **ses écrans n'ont pas été mesurés**. C'est
+> assumé, pas ignoré : le plan met l'échelle dans `packages/ui`, et deux
+> échelles pour un seul système de design serait la dérive que cette étape
+> ferme.
+
+> **Le desktop n'est pas touché.** Chaque variante `md:`, `lg:` et `xl:` est
+> laissée en place — la plainte comme le critère d'acceptation portent sur le
+> téléphone, et faire bouger les deux à la fois aurait rendu la relecture
+> impossible. Les grandes tailles (`text-5xl`, `text-[56px]`, `text-[3.375rem]`)
+> sont toutes derrière une variante, sauf deux qui ont rejoint l'échelle.
+
+> **La sonde de débordement a menti, encore.** Elle comptait quarante
+> débordements, dont les cercles décoratifs de quatre heros. Or les quatre
+> sections portent **déjà** `overflow-hidden` : ces cercles sont proprement
+> coupés, donc invisibles. Un élément clippé par un ancêtre n'est une faute que
+> s'il porte du **texte** — c'est du contenu coupé que parle le point 5, pas
+> d'un flou décoratif volontairement débordé. Avec la règle corrigée : **zéro**.
+
+> **Et le débordement a été comparé à une référence, pas jugé de mémoire.** Les
+> modifications ont été remisées (`git stash`) et la sonde relancée sur six
+> couples écran/largeur : le relevé est **identique** avant et après. R33
+> n'introduit aucun débordement, ce qui était l'inquiétude légitime d'une étape
+> qui change quinze tailles.
+
+> **Deux vraies trouvailles, corrigées.** Le bouton « Publier une annonce » du
+> bas de `/about` mesurait 42 px sans `touch-target` — la seule cible non
+> conforme de la campagne. Et l'indice de survol de `listing-card` (« Voir → »),
+> poussé par un `ml-auto`, dépassait le bord de la carte de 11 px à 320 px : il
+> passe en `hidden sm:flex`, parce qu'un indice de survol ne rend rien sur un
+> téléphone.
+
+> **Deux puces de filtre d'une seconde forme, ramenées à la bonne hauteur.**
+> §2.1 dit « une seule forme » ; `routes/posts/_index.tsx` et
+> `settings/components/edit-zone-dialog.tsx` avaient chacune leur capsule à 35
+> px avec son propre `py-2`. Les deux passent à `h-chip`. **Leur palette est
+> laissée telle quelle** : les faire passer par `filterPillClassName` changerait
+> aussi leurs couleurs actives, ce qui n'est pas une question de taille — reste
+> ouvert.
+
+> **Les liens au fil d'une phrase restent sous 44 px, et c'est correct.** Les
+> six relevés restants sont « politique de confidentialité », « conditions
+> d'utilisation » et « Se connecter », tous à l'intérieur d'un paragraphe. WCAG
+> 2.5.8 exempte explicitement un lien en ligne dans du texte courant, et la
+> règle de §2.1 vise un contrôle, pas un mot dans une phrase.
+
+> **`--destructive-text` n'est pas posé.** La liste des dettes désigne R33 comme
+> l'étape qui touche `packages/ui`, donc celle qui devait le faire. C'est une
+> question de **couleur**, pas d'échelle : elle demande sa propre passe de
+> contraste dans les deux thèmes et touche `field.tsx` plus chaque formulaire,
+> alors que ce diff pèse déjà soixante-onze fichiers. Déclaré non fait, et non
+> oublié.
+
+> **Mesures.** Neuf écrans publics × 7 largeurs (320, 360, 375, 390, 393, 412,
+> 430 — SE, Galaxy A/S, iPhone mini, iPhone 12-15, Pixel 7/8, Galaxy S20+,
+> iPhone Pro Max), 2 870 relevés d'élément. **Sept tailles de police, zéro hors
+> échelle.** **Zéro champ sous 16 px.** **Zéro débordement.** Zéro cible sous 44
+> px hors liens en ligne. Typecheck 9/9, lint sans erreur, client **846/846**,
+> admin **409/409**, `format:check` propre. Densité de commentaires **6,2 %**.
 
 #### R34 — Gouttière de zones sûres unique
 

@@ -85,7 +85,7 @@ export function AppearanceSection() {
 
 	return (
 		<section className="space-y-2">
-			<h2 className="flex items-center gap-2 text-[15px] font-bold tracking-tight">
+			<h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">
 				<Palette className="text-primary-green-text h-4 w-4" />
 				Apparence
 			</h2>
@@ -125,7 +125,7 @@ export function AppearanceSection() {
 									<ThemePreview preference={value} />
 									<span
 										className={cn(
-											'flex items-center gap-1.5 text-[12.5px]',
+											'flex items-center gap-1.5 text-xs',
 											isSelected
 												? 'text-primary-green-text font-semibold'
 												: 'text-muted-foreground font-medium',
