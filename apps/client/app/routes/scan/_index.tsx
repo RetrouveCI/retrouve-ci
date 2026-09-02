@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { pageMeta } from '@/shared/helpers/page-meta'
 import { CameraView } from './components/camera-view'
 import { ManualCodeForm } from './components/manual-code-form'
+import { PhotoCapture } from './components/photo-capture'
 import { ScanBlocked, ScanPrimer } from './components/scan-primer'
 import { parseStickerCode } from './helpers/sticker-code'
 import { useStickerScanner } from './hooks/use-sticker-scanner'
@@ -84,6 +85,10 @@ export default function ScanPage() {
 				) : scanner.status === 'blocked' ? (
 					<ScanBlocked reason={scanner.blockedReason}>
 						<ManualCodeForm onCode={openCode} />
+						{/* A decoder that failed to load cannot read a photograph either. */}
+						{scanner.blockedReason === 'unsupported' ? null : (
+							<PhotoCapture onCode={openCode} />
+						)}
 					</ScanBlocked>
 				) : (
 					<ScanPrimer

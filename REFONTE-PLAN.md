@@ -2295,6 +2295,115 @@ littérale ; le zoom iOS ne se déclenche plus.
 aboutit sur iOS Safari ; aucun octet de décodeur chargé tant que le scanner
 n'est pas ouvert.
 
+> **Le décodeur est `barcode-detector` posé sur `zxing-wasm`, et il ne se charge
+> que là où il manque.** Les trois candidats ont été pesés avant de choisir : le
+> `.wasm` de lecture fait 459 Ko gzip plus 17 Ko de glue, quand `jsqr` en pur
+> JavaScript en ferait une vingtaine. Ce qui tranche, c'est que l'import reste
+> conditionnel — Chrome Android répond avec son `BarcodeDetector` natif et ne
+> télécharge rien du tout ; seul Safari paie, une fois. `barcode-detector`
+> expose exactement l'interface `detect()` que R20 avait déjà déclarée, donc un
+> seul chemin de code au lieu de deux, et ZXing lit un sticker abîmé bien mieux
+> que jsQR, qui n'a plus de version depuis 2021.
+
+> **L'acceptation est vérifiée sur l'artefact de build, pas sur l'intention.**
+> La route `/scan` précharge dix-neuf chunks, dont aucun n'est le décodeur ni le
+> binaire ; la seule trace de zxing dans le chunk de la route est l'URL de
+> l'asset, quarante octets ; et le module n'est atteint que par
+> `import("./ponyfill-…js")`, sans qu'aucun chunk ne l'importe statiquement.
+
+> **Le binaire est servi depuis notre origine.** `zxing-wasm` va le chercher sur
+> un CDN par défaut : `setZXingModuleOverrides({ locateFile })` le fait pointer
+> sur l'asset que Vite émet. Deux raisons, et la seconde est structurante :
+> aucun tiers n'a à voir passer un scan, et le service worker de R24 ne pourra
+> précacher que ce que nous servons nous-mêmes. C'est ce qui met `zxing-wasm`
+> dans le catalogue, épinglé exactement à la version que `barcode-detector`
+> épingle — une glue et son binaire ne se désynchronisent pas.
+
+> **Seul le chargement du module est mémorisé, jamais le détecteur.** Mettre en
+> cache l'instance aurait figé le premier verdict : un navigateur qui gagne un
+> `BarcodeDetector` natif en cours de session aurait continué sur le WASM, et
+> surtout un échec de chargement se serait gravé pour toute la session, alors
+> que la cause probable est l'absence de réseau. Construire un détecteur sur un
+> module déjà chargé ne coûte rien. C'est aussi ce qui rend les tests
+> indépendants de leur ordre.
+
+> **La caméra est demandée avant le décodeur, et le flux est retenu entre les
+> deux.** La boîte de dialogue système doit suivre le tap, pas un téléchargement
+> d'un demi-mégaoctet. Le flux est donc rangé dans sa `ref` avant le second
+> `await`, sinon quitter la route pendant le chargement laisserait la caméra
+> allumée derrière soi.
+
+> **`unsupported` change de sens.** Ce n'est plus « ce navigateur ne sait pas
+> lire un QR code » — R21 en donne un à tout le monde — mais « le décodeur n'a
+> pas pu être chargé ». Le texte de l'écran le dit désormais, et c'est la seule
+> raison contre laquelle le repli photo n'est **pas** proposé : il a besoin du
+> décodeur qui vient d'échouer, donc ce serait un bouton mort.
+
+> **Le repli photo ne vit que dans l'état bloqué**, comme l'artboard
+> `ScanPermission` le dessine. Pas sur l'amorce, qui n'a qu'une seule action
+> dominante. Pas dans le viseur non plus, où une photographie ne lit pas mieux
+> qu'un flux vivant et où la saisie du code répond déjà au sticker abîmé.
+
+> **L'échec de lecture est passager en caméra, plein panneau en photo.**
+> L'artboard `ScanRepli` dessine son état 1 en feuille par-dessus le viseur,
+> sans dire d'où il vient. La caméra lit tout ce qui passe devant elle : sortir
+> du viseur à chaque QR étranger croisé — une affiche, un mur de flyers — serait
+> hostile, et coûterait sur certains navigateurs une nouvelle demande d'accès.
+> Le repli photo, lui, n'a pas d'image suivante à essayer tout seul : c'est là
+> que l'état dessiné prend son sens. Un troisième message a été ajouté pour la
+> photo qui ne porte aucun QR — le cas du sticker abîmé que le texte de
+> l'artboard nomme mais ne dessine pas.
+
+> **Le champ segmenté de l'artboard décrit un code qui n'existe pas.**
+> `RCI — 4A7F — ••••` et « le code à huit caractères » reprennent le format que
+> R20 avait déjà démonté : le générateur produit `RCI` plus **six** caractères,
+> un seul tiret. Tout le « formatage automatique des tirets » du point 3 se
+> réduit donc à ce tiret-là. Le masque met en majuscules, jette ce qu'un clavier
+> de téléphone ajoute, insère le tiret après `RCI` et s'arrête à dix caractères.
+
+> **Une URL collée échappe au masque.** Une valeur qui contient une barre
+> oblique est laissée telle quelle : le masque garderait l'hôte et jetterait le
+> code. Le champ accepte un lien de scan collé — c'est la seule chose qu'un
+> visiteur sur ordinateur puisse coller — et `parseStickerCode` le lit entier à
+> la soumission, sans avoir bougé, comme prévu.
+
+> **Le WASM ne se charge pas en test, et c'est délibéré.** Un mégaoctet de
+> binaire par exécution pour n'affirmer rien à son sujet : `barcode-detector`
+> est remplacé par un module factice, qui est aussi ce qui permet à un test de
+> dire que le décodeur a échoué. La règle de R20 tient toujours — Chromium de
+> build n'a pas de `BarcodeDetector`, donc son absence se pose explicitement.
+
+> **La sonde de contraste lisait encore l'en-tête sous le viseur.**
+> `elementsFromPoint` renvoie la pile **entière**, éléments recouverts compris :
+> y figurer ne prouve donc rien. La règle de R20 doit se lire sur le **sommet**
+> de la pile, pas sur la présence. Avant correction, les passes du viseur
+> sortaient dix-huit relevés sous plancher, tous le logotype de l'en-tête que le
+> plein cadre recouvre.
+
+> **Et la sonde de champs comptait un champ large de zéro pixel.** Un ancêtre
+> `hidden md:block` ne touche pas au `display` de l'`input` lui-même : la
+> recherche de l'en-tête ressortait à toutes les largeurs, quatre-vingt-quatre
+> relevés pour quarante-huit réels. C'est la boîte, pas le `display`, qui dit si
+> un élément est à l'écran.
+
+> **Mesures.** 112 passages : 7 largeurs (320→1440) × 2 thèmes × 8 états
+> (amorce, saisie, saisie en erreur, caméra refusée avec repli photo, échec de
+> photo, décodeur introuvable, viseur sur scène noire, viseur sur scène
+> blanche). **0 débordement sur 112.** **0 cible sous 44 px sous `lg`.** **0
+> champ de page sous 16 px.** Contraste : 1 760 relevés, **59 sous plancher,
+> tous connus** — 52 pour le logotype « CI » (dispensé) et 7 pour
+> `text-destructive` en sombre. Le viseur seul : 140 relevés, **12,51:1 au
+> plancher, 0 sous plancher** — le chiffre exact de R20, donc aucune régression
+> sur un habillage dont le balisage n'a pas bougé. Autotests de la sonde **4/4
+> exacts**, 0 couleur refusée par le canvas. **Tests : +14 (832 → 846).**
+
+> **Dette mesurée, hors périmètre.** Le champ de recherche de l'en-tête desktop
+> reste à **14 px** dès 768 px (48 relevés), et `text-destructive` sur `bg-card`
+> en sombre reste à 2,98:1 : les deux sont pour **R33**.
+
+> **Aucun nouvel `env()`.** R18, R19 et R20 en avaient chacune ajouté ; R21
+> n'ajoute rien, donc la liste que R34 devra reprendre ne grandit pas.
+
 #### R22 — Activation de stickers en série
 
 1. Feuille d'activation après lecture : nommer l'objet, lier une annonce

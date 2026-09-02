@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { ScannerBlockedReason, ScannerStatus } from '../types/scan.types'
+import { loadQrDetector } from '../helpers/qr-decoder'
+import type {
+	BarcodeDetectorLike,
+	ScannerBlockedReason,
+	ScannerStatus,
+} from '../types/scan.types'
 
 const DETECT_INTERVAL_MS = 200
 
@@ -17,6 +22,7 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 
 	const videoRef = useRef<HTMLVideoElement | null>(null)
 	const streamRef = useRef<MediaStream | null>(null)
+	const detectorRef = useRef<BarcodeDetectorLike | null>(null)
 	const onCodeRef = useRef(onCode)
 	onCodeRef.current = onCode
 
@@ -29,9 +35,8 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 	}, [])
 
 	const start = useCallback(async () => {
-		const detector = createDetector()
-		if (!detector || !navigator.mediaDevices?.getUserMedia) {
-			setBlockedReason('unsupported')
+		if (!navigator.mediaDevices?.getUserMedia) {
+			setBlockedReason('unavailable')
 			setStatus('blocked')
 			return
 		}
@@ -53,12 +58,26 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 			return
 		}
 
+		// Assigned before the next await, so leaving the route mid-load still stops
+		// the tracks through the unmount cleanup.
 		streamRef.current = stream
+
+		// The camera is asked for first and the decoder loaded second: the system
+		// dialog must follow the tap rather than a download.
+		try {
+			detectorRef.current = await loadQrDetector()
+		} catch {
+			stop()
+			setBlockedReason('unsupported')
+			setStatus('blocked')
+			return
+		}
+
 		setTorchAvailable(
 			stream.getVideoTracks()[0]?.getCapabilities?.().torch === true,
 		)
 		setStatus('live')
-	}, [])
+	}, [stop])
 
 	// The element only exists once the live view is rendered, so the stream is
 	// attached here rather than where it was opened.
@@ -72,10 +91,8 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 	}, [status])
 
 	useEffect(() => {
-		if (status !== 'live') return
-
-		const detector = createDetector()
-		if (!detector) return
+		const detector = detectorRef.current
+		if (status !== 'live' || !detector) return
 
 		let busy = false
 		const timer = window.setInterval(() => {
@@ -123,16 +140,5 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 		torchOn,
 		torchAvailable,
 		toggleTorch,
-	}
-}
-
-function createDetector() {
-	const Detector = window.BarcodeDetector
-	if (!Detector) return null
-
-	try {
-		return new Detector({ formats: ['qr_code'] })
-	} catch {
-		return null
 	}
 }

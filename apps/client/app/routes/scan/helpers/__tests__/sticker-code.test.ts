@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseStickerCode } from '../sticker-code'
+import { formatStickerCode, parseStickerCode } from '../sticker-code'
 
 describe('parseStickerCode', () => {
 	it('reads the bare code a sticker prints under its QR', () => {
@@ -71,5 +71,39 @@ describe('parseStickerCode', () => {
 			ok: false,
 			reason: 'foreign',
 		})
+	})
+})
+
+describe('formatStickerCode', () => {
+	it('adds the one hyphen the printed code carries', () => {
+		expect(formatStickerCode('rciabc123')).toBe('RCI-ABC123')
+	})
+
+	it('leaves the code alone while the prefix is still being typed', () => {
+		expect(['r', 'rc', 'rci', 'rcia', 'rciab'].map(formatStickerCode)).toEqual([
+			'R',
+			'RC',
+			'RCI',
+			'RCI-A',
+			'RCI-AB',
+		])
+	})
+
+	it('drops what a phone keyboard adds', () => {
+		expect(formatStickerCode('rci abc-123')).toBe('RCI-ABC123')
+	})
+
+	it('stops at the length the generator mints', () => {
+		expect(formatStickerCode('RCI-ABC1234567')).toBe('RCI-ABC123')
+	})
+
+	it('leaves a pasted URL untouched', () => {
+		expect(formatStickerCode('  https://retrouve.ci/q/RCI-ABC123 ')).toBe(
+			'https://retrouve.ci/q/RCI-ABC123',
+		)
+	})
+
+	it('keeps what belongs to no sticker, so the field can refuse it', () => {
+		expect(formatStickerCode('hello')).toBe('HELLO')
 	})
 })
