@@ -8,6 +8,7 @@ import { ContactBar } from './components/contact-bar'
 import { postDetailLoader } from './servers/lost-items.loader'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
+import { rememberViewedListing } from '@/shared/helpers/viewed-listings'
 
 export const loader = postDetailLoader
 
@@ -27,6 +28,16 @@ export default function ListingDetailPage({
 	const { listing } = loaderData
 	const navigate = useNavigate()
 	const [searchParams] = useSearchParams()
+
+	// What the offline page lists: the worker caches this document as it is
+	// served, and the index is what gives the entry a title to show.
+	useEffect(() => {
+		rememberViewedListing({
+			id: listing.id,
+			title: listing.title,
+			location: listing.location,
+		})
+	}, [listing.id, listing.title, listing.location])
 
 	useEffect(() => {
 		if (searchParams.get('published') !== '1') return

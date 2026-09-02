@@ -36,6 +36,9 @@ export default [
 		route('account/stickers', 'routes/account/stickers/_index.tsx'),
 		route('account/settings', 'routes/account/settings/_index.tsx'),
 		route('notifications', 'routes/notifications/_index.tsx'),
+		// Where the worker sends a navigation it can serve from neither the
+		// network nor the cache.
+		route('offline', 'routes/offline/_index.tsx'),
 	]),
 	route('q/:code', 'routes/q/_index.tsx'),
 	// The three-step tunnel carries its own 56 px bar and its own low action bar,

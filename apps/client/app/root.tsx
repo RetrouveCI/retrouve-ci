@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
 	isRouteErrorResponse,
 	Links,
@@ -5,6 +6,7 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useLocation,
 	useRouteLoaderData,
 } from 'react-router'
 import { Toaster } from 'sonner'
@@ -22,6 +24,8 @@ import { PublicEnvScript } from '@/components/public-env-script'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { NotFoundContent } from '@/components/not-found-content'
+import { OfflineContent } from '@/components/offline-content'
+import { registerServiceWorker } from '@/shared/helpers/service-worker'
 
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
@@ -163,6 +167,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
+	// Only the built app serves `/sw.js`; the dev server has no such file, and a
+	// registration that 404s would leave a failed worker on the origin.
+	useEffect(() => {
+		if (import.meta.env.PROD) registerServiceWorker()
+	}, [])
+
 	return (
 		<ThemeProvider initialPreference={loaderData.themePreference}>
 			<AuthProvider>
@@ -183,12 +193,37 @@ export default function App({ loaderData }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+	const location = useLocation()
+
+	/**
+	 * Read once, at the first render: a client-side navigation whose loader
+	 * cannot reach the network lands here rather than on the worker's redirect,
+	 * and settling this in an effect would flash « Une erreur est survenue »
+	 * first. `false` on the server, where an error page still came over the wire
+	 * and so is never an offline one.
+	 */
+	const [isOffline] = useState(
+		() => typeof navigator !== 'undefined' && !navigator.onLine,
+	)
+
 	if (isRouteErrorResponse(error) && error.status === 404) {
 		return (
 			<ThemeProvider initialPreference={DEFAULT_THEME_PREFERENCE}>
 				<AuthProvider>
 					<Header />
 					<NotFoundContent />
+					<Footer />
+				</AuthProvider>
+			</ThemeProvider>
+		)
+	}
+
+	if (isOffline) {
+		return (
+			<ThemeProvider initialPreference={DEFAULT_THEME_PREFERENCE}>
+				<AuthProvider>
+					<Header />
+					<OfflineContent retryTo={`${location.pathname}${location.search}`} />
 					<Footer />
 				</AuthProvider>
 			</ThemeProvider>

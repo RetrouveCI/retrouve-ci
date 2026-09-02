@@ -2869,6 +2869,142 @@ cas).
 **Fichiers** : `apps/client/`, configuration de build. **Flux** : tous.
 **Acceptation** : une annonce déjà consultée s'ouvre sans réseau.
 
+> **Acceptation atteinte, mesurée l'origine réellement coupée.** Une annonce
+> déjà lue s'ouvre à froid sans réseau, à son URL, avec son contenu. Relevé sur
+> le **build servi**, dans un Chromium piloté : **14 verdicts sur 14**, dont
+> **sept autotests** qui prouvent que la sonde sait détecter un échec.
+
+> **La stratégie, en toutes lettres.** Un document public part en _network
+> first_ — un serveur joignable ne sert donc jamais une page périmée — et sa
+> copie répond hors réseau. Un actif de `/assets/` part en _cache first_ :
+> **mesuré**, il est servi `max-age=31536000, immutable` derrière un nom haché,
+> le seul endroit où une lecture de cache ne peut pas être périmée. Un fichier
+> de `public/` est servi `max-age=0` (mesuré), donc _stale-while-revalidate_,
+> comme les charges utiles de loader publiques. Les photos, qui viennent d'une
+> autre origine, sont en _cache first_ et reviennent opaques. Chaque cache a un
+> plafond d'entrées, taillé du plus ancien.
+>
+> Le point 4 tient sur trois pièces : le script du worker est servi `max-age=0`
+> (mesuré) **et** enregistré en `updateViaCache: 'none'` avec un `update()` à
+> chaque chargement, donc un worker n'est jamais relu depuis le cache HTTP ; le
+> nom d'un cache porte une version de schéma, qu'un **déploiement ne bouge pas**
+> — un nom d'actif portant déjà son empreinte, garder les morceaux du build
+> précédent est ce qui laisse une page déjà ouverte continuer de les charger
+> après que le serveur les a remplacés.
+
+> **Dix-huit écarts consignés.**
+>
+> 1. **Le brouillon ne part PAS au retour du réseau : le point 3 est faux pour
+>    ce dépôt**, pas seulement incomplet. **Mesuré** : R18 ne conserve que les
+>    **huit champs texte**, les photos étant volontairement absentes (« un
+>    `File` meurt avec la page qui l'a choisi »), et `publishAction` exige une
+>    session vivante et poste du multipart. Un envoi automatique publierait donc
+>    une annonce **sans photo** que personne n'a confirmée. La page dit ce qui
+>    est vrai : « Votre brouillon d'annonce est conservé. Vous pourrez le
+>    publier dès le retour du réseau. » Arbitré avec l'utilisateur.
+> 2. **La coquille n'est pas précachée depuis une liste de build : elle est
+>    amorcée à l'installation.** **Mesuré** : 151 actifs pour 3,0 Mo, et
+>    `react-router build` n'émet **aucun** `.vite/manifest.json` où lire la
+>    liste. Le worker met en cache `/offline` et `/`, puis lit le HTML des deux
+>    pour en extraire leurs URL `/assets/` — une liste dérivée à l'exécution ne
+>    peut pas retarder sur le build dont elle est tirée. **Un seul chargement
+>    contrôlé suffit** à un démarrage à froid hors réseau. Arbitré avec
+>    l'utilisateur contre les deux autres options : rien du tout (deux
+>    chargements nécessaires) et la liste complète (~1,9 Mo à l'installation,
+>    sur un réseau souvent facturé au volume).
+> 3. **Le worker est du TypeScript bundlé par un second `vite build`**, pas un
+>    `public/sw.js` écrit à la main : 12 lignes de configuration, 57 ms, un IIFE
+>    de 3,0 ko, **aucune dépendance nouvelle**, et
+>    `/// <reference lib="webworker" />` passe `tsc --noEmit` et `eslint` aux
+>    côtés de `lib.dom`. En échange, sa politique est typée, lintée et couverte
+>    par 29 cas là où un fichier de `public/` n'aurait été relu que par lecture
+>    de son texte source. Arbitré avec l'utilisateur.
+> 4. **Seuls les documents PUBLICS sont mis en cache**, contre la carte « Votre
+>    annonce » que dessine la planche. **Mesuré** : aucun loader de `/`,
+>    `/posts`, `/posts/:id`, `/about`, `/contact`, `/terms`, `/privacy`,
+>    `/stickers` ni `/scan` n'appelle `getServerSession`, alors que
+>    `/account/*`, `/notifications`, `/publish/*` et `/q/:code` — qui porte le
+>    prénom du propriétaire — en dépendent. Un document authentifié resterait
+>    lisible sur l'appareil **après déconnexion**. La liste hors connexion ne
+>    montre donc que les annonces publiques consultées. Arbitré avec
+>    l'utilisateur.
+> 5. **Une page privée hors réseau est quand même rattrapée.** Écrite d'abord en
+>    « laisser passer », elle faisait tomber `/account` hors réseau sur l'écran
+>    d'erreur du navigateur — **mesuré**. Une stratégie `navigation` distincte
+>    répond pour ces pages sans **jamais** les stocker.
+> 6. **Le WASM du décodeur est exclu** de la mise en cache comme de l'amorçage.
+>    Ce sont 1,1 Mo pour un scan qui a de toute façon besoin du réseau derrière
+>    `/scan/status`.
+> 7. **La bannière est dans le flux, sous l'en-tête**, et non à la place de
+>    l'en-tête comme la planche la dessine. §2.1 nomme la bannière comme la
+>    primitive d'une explication et y range déjà « hors-ligne » ;
+>    `ModerationBanner` se lit ainsi ; et l'en-tête porte la navigation qui
+>    reste utile sans réseau. Sa palette est reprise **telle quelle** de
+>    `ModerationBanner` — un encart n'invente pas une paire de couleurs (R21).
+> 8. **La barre d'onglets n'est pas atténuée** comme sur la planche. Hors
+>    réseau, `/` et une annonce déjà lue s'ouvrent réellement : une navigation
+>    grisée annoncerait le contraire de ce que l'étape livre.
+> 9. **Une redirection, pas le document hors connexion sous l'URL demandée.**
+>    Servi comme corps, le routeur hydraterait une route sous le chemin d'une
+>    autre. **Mesuré sur un site jetable** : un navigateur suit bien la
+>    redirection qu'un worker rend à une navigation — ce n'était pas acquis, et
+>    le repli aurait été un document qui se relocalise en JavaScript.
+> 10. **Le second saut de cette redirection cherchait une clé qui n'existe
+>     pas.** `/offline?from=…` ne correspond pas à `/offline` : un `cache.match`
+>     honore la requête. Symptôme mesuré : `net::ERR_FAILED`. La branche hors
+>     connexion lit désormais le **chemin seul**.
+> 11. **La page hors connexion a besoin de SON PROPRE morceau de JS.** Amorcer
+>     les actifs de `/` seul suffisait à l'afficher mais **pas à l'hydrater** :
+>     sa liste, que seul un effet remplit, restait vide, et la bannière ne
+>     s'affichait pas non plus. Mesuré, puis corrigé en lisant les actifs des
+>     **deux** documents amorcés.
+> 12. **`setOffline` de Playwright ne coupe pas les requêtes émises PAR le
+>     service worker.** Trois relevés « réussis » étaient faux : le worker
+>     servait depuis le réseau, l'acceptation n'était pas prouvée. La sonde tue
+>     désormais l'origine — `process.kill(-pid)` sur le groupe, `npx` forkant le
+>     vrai serveur — et un autotest exige que le worker lui-même n'atteigne plus
+>     rien avant qu'un verdict compte.
+> 13. **`/offline` est monté DANS la coquille**, donc il porte l'en-tête, le
+>     pied et la barre d'onglets, et la bannière l'accompagne.
+> 14. **Le repli hors connexion vaut aussi pour une navigation côté client.** Un
+>     loader qui ne joint pas le réseau n'atteint jamais la redirection du
+>     worker : l'`ErrorBoundary` de la racine rend la même page quand
+>     `navigator.onLine` est faux. Lu **une fois**, à la première image — le
+>     régler dans un effet aurait fait clignoter « Une erreur est survenue ».
+> 15. **`retryTarget` réutilise `sanitizeRedirect`** plutôt que d'écrire un
+>     second garde d'open-redirect, et remappe son repli `/account` — qu'aucun
+>     visiteur hors réseau ne peut lire — sur `/`.
+> 16. **L'index des annonces consultées vit en `localStorage`**, pas dans le
+>     cache : un cache tient des documents, pas des titres, et lire le `<title>`
+>     d'un HTML mis en cache aurait été un analyseur de plus. Il est
+>     **intersecté** avec le cache à l'affichage, parce que la pastille dit « EN
+>     CACHE » : une entrée que la taille a fait tomber offrirait un lien qui
+>     ramène sur la page hors connexion.
+> 17. **Le titre est `text-2xl` (18) là où la planche dit 21.** R33 ne compte
+>     pas 21 parmi ses sept barreaux, et `/scan` comme `/q` — mêmes écrans à une
+>     seule fin — portent déjà `text-2xl`.
+> 18. **Rien à configurer côté service.** L'entrée annonçait « configuration de
+>     build » ; il n'y a eu que le second `vite build`. **Mesuré** :
+>     `react-router-serve` sert `build/client/sw.js` en `application/javascript`
+>     avec `Cache-Control: public, max-age=0`, donc la fraîcheur du worker est
+>     acquise sans en-tête à poser.
+
+> **Mesures.** Verdicts relevés sur le build servi, l'origine tuée après
+> amorçage : **14/14**, sept autotests compris (l'un d'eux exigeant que le
+> worker lui-même ne joigne plus rien). Démarrage à froid sur `/` sans réseau,
+> annonce déjà lue rouverte à son URL, chemin jamais lu redirigé vers
+> `/offline?from=…`, chemin privé redirigé de même, aucun document `/account`
+> stocké, WASM absent du cache d'actifs. Contraste et gabarits relevés sur les
+> deux écrans nouveaux, **sept largeurs × deux thèmes**, 860 lignes lues : trois
+> autotests justes (17,28 / 18,98 · 6,39 · 5,03), **zéro couleur refusée**,
+> aucune taille hors des sept barreaux, aucun champ sous 16 px, aucune cible
+> sous 44 px, aucun défilement horizontal, et pour seul échec de contraste le «
+> CI » du logotype à 2,7:1 déjà dispensé. Typecheck 9/9, lint sans erreur,
+> `format:check` propre. Tests **+71 client (904 → 975)**. Densité de
+> commentaires **9,5 %** (11,3 % à la première mesure : le raisonnement de la
+> redirection était écrit deux fois, et la stratégie de mise à jour trois fois,
+> alors qu'elle appartient à ce document).
+
 #### R25 — Invite et page d'installation
 
 1. Capter `beforeinstallprompt` et proposer l'installation **après une
@@ -2892,6 +3028,16 @@ avant une action réussie.
 > prédicat qu'elle pose.
 
 #### R26 — Règle du numéro ivoirien
+
+> **Recompté par R24 : cette étape est DÉJÀ LIVRÉE**, par `#152`
+> (`feat(contracts): hold a typed phone number to the ivorian rule`). Vérifié
+> fichier par fichier : `isAssignableLocalNumber` et
+> `ASSIGNABLE_PHONE_ERROR_MESSAGE` existent dans
+> `packages/contracts/src/shared/phone.ts`, les **sept** points de saisie du
+> tableau ci-dessous les lisent, et les **trois** points de connexion et de
+> récupération sont restés sur `isValidLocalNumber`. Ce qui reste à faire ici
+> est de vérifier la couverture demandée par « Tests » et de refermer l'entrée,
+> pas de reposer le prédicat.
 
 **Mesuré (§1.1).** `isValidLocalNumber` ne vérifie **que la longueur** : dix
 chiffres, aucun préfixe contrôlé nulle part dans le dépôt. Vérifié en exécutant
