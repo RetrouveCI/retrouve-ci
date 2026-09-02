@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { StickerOrderRepository } from './repository/sticker-order.repository'
+import { CountDeliveredStickersUseCase } from './use-cases/count-delivered-stickers.use-case'
 import { CreateStickerOrderUseCase } from './use-cases/create-sticker-order.use-case'
 import { GetMyStickerOrdersUseCase } from './use-cases/get-my-sticker-orders.use-case'
 import { GetPaginatedStickerOrdersUseCase } from './use-cases/get-paginated-sticker-orders.use-case'
@@ -13,6 +14,7 @@ const providers = [
 	GetPaginatedStickerOrdersUseCase,
 	GetMyStickerOrdersUseCase,
 	UpdateStickerOrderStatusUseCase,
+	CountDeliveredStickersUseCase,
 ]
 
 @Module({

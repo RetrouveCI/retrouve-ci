@@ -37,5 +37,6 @@ export function buildRepository(): StickerOrderRepository {
 		findById: vi.fn(),
 		list: vi.fn(),
 		updateStatus: vi.fn(),
+		sumDeliveredQuantity: vi.fn(),
 	} as unknown as StickerOrderRepository
 }

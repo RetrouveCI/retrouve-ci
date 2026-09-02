@@ -2522,6 +2522,165 @@ n'est pas ouvert.
 `routes/home/components/`. **Flux** : C. **Acceptation** : activer douze
 stickers ne demande jamais de saisir un code.
 
+> **Mesuré (§1.1) : un jeton en attente n'a pas de propriétaire.**
+> `createMany()` n'écrit que `code` et `batch`, et `activate()` est le **seul**
+> endroit qui pose `userId`. Donc `GET /qr-codes/mine?status=generated` renvoie
+> toujours une liste vide, et trois choses livrées par R15 étaient mortes-nées :
+> `buildRemainingLabel()` répondait toujours `null`, la barre d'activation était
+> **toujours à 100 %**, et le filtre « En attente » était **toujours vide**. La
+> seule trace des stickers qu'un visiteur possède est `StickerOrder.quantity`
+> sur ses commandes livrées, et il n'existe **aucune relation** entre
+> `StickerOrder` et `QrToken`. R22 répare les trois.
+
+> **Un point d'entrée de résumé, composé, et non deux.** Le numérateur est dans
+> `qr-codes`, le dénominateur dans `sticker-orders`. La règle « un use-case n'en
+> appelle jamais un autre » de `CLAUDE.md` vaut **à l'intérieur** d'un domaine :
+> `ContactQrTokenOwnerUseCase` injecte déjà `CreateContactMessageUseCase` et
+> `CreateNotificationUseCase`. `GET /qr-codes/mine/summary` suit ce précédent et
+> injecte un `CountDeliveredStickersUseCase`, ce qui coûte **un** aller-retour
+> au lieu de deux — à l'accueil comme sur Mes stickers.
+> `StickerOrdersDomainModule` n'importe rien, donc aucun cycle.
+
+> **Le résumé n'ajoute aucun schéma de contrat.** Le précédent
+> `/lost-items/mine/summary` n'en a pas non plus : un résumé ne prend pas
+> d'entrée, et la forme de sa réponse se type dans `shared/types/` du front.
+> `packages/contracts` est tout de même touché, pour une autre raison — voir les
+> plafonds ci-dessous.
+
+> **`delivered` est planché sur `activated`.** Un sticker activé hors d'une
+> commande à soi — un cadeau, un remplacement émis par le backoffice — rendrait
+> `pending` négatif et ferait lire « 3 sur 0 » à la barre. Le use-case fait la
+> soustraction une seule fois, côté serveur, et la borne à zéro.
+
+> **La pastille « En attente » est retirée de Mes stickers.** Un onglet vide par
+> construction promet une liste que rien ne peut remplir. Il en reste trois : «
+> Tous », « Actifs », « Désactivés » — cette dernière n'est pas dans la maquette
+> non plus, mais c'est le cas inverse, sans elle un sticker révoqué n'est
+> joignable que depuis « Tous ».
+
+> **Une seule carte de synthèse, là où la maquette dessine une carte par sticker
+> en attente.** `MesStickers` et `ScanMiseEnAvant` dessinent tous deux une ligne
+> « Sticker non activé / Scannez-le pour le nommer » : impossible, un sticker ne
+> devient la ligne de quelqu'un qu'en s'activant. Une carte porte le lot entier
+> — « 9 stickers en attente » — et mène au scanner. Elle ne s'affiche que sous «
+> Tous » : un filtre d'état ne doit pas cacher le lot.
+
+> **Deux dénominateurs sur un même écran, et c'est voulu.** Les pastilles
+> comptent la **liste** (`Tous · 4`), la barre compte le **paquet acheté**
+> (`3 sur 12 activés`). Les deux réponses sont justes à des questions
+> différentes, et les confondre demanderait de mentir sur l'une des deux.
+
+> **« Lier à une annonce » n'est pas livré comme un lien.** `linkedObject` est
+> un `String?` libre de 120 caractères, sans relation vers `LostItem`, et R15 a
+> déjà nommé cette colonne « Description de l'objet (optionnel) » : la
+> rebaptiser ferait dire deux choses à une colonne (§2.3 règle 1). La feuille
+> garde `label` comme champ dominant — « Sur quel objet le collez-vous ? », le
+> nom que verra celui qui scanne — plus la description libre. **A9** est ouverte
+> pour la vraie relation : colonne `lostItemId`, migration, contrat, résolution
+> côté `/q/:code`.
+
+> **Les plafonds de texte libre étaient plus larges devant que derrière.** Les
+> deux fronts bornaient `label` à 80 et `linkedObject` à 140, contre les 60 et
+> 120 que l'API applique : un nom de soixante-dix caractères passait le
+> formulaire et revenait en « Validation failed » sans rien sur le champ. Les
+> deux valeurs vivent désormais dans `qr-codes.const.ts`, lues par le schéma du
+> contrat **et** par les deux formulaires. C'est le seul motif d'entrée de
+> `packages/contracts` dans cette étape.
+
+> **Le contrôle de statut ne tourne que si une session existe.** Celui qui
+> **trouve** un objet n'a pas de compte et n'a rien à activer : son scan coûte
+> exactement ce qu'il coûtait avant R22, une navigation. Mesuré au navigateur :
+> **0 requête** de statut pour un visiteur anonyme, **1** pour un visiteur
+> connecté.
+
+> **Le statut se lit dans une route ressource, pas dans un loader de page.** La
+> question se pose par code lu, pas par navigation, donc `scan/status` suit la
+> forme de `publish/matches` et de `account/posts/matches`. Elle renvoie le code
+> **avec** le statut : React Router rend un nouvel objet par chargement, et
+> c'est cette identité qui distingue une réponse de la précédente — rescanner le
+> sticker qu'on vient d'activer doit redemander, pas réutiliser « generated ».
+> `null` veut dire « va sur `/q/:code` », API injoignable comprise : l'écran de
+> contact est la destination honnête d'un code dont on ne sait pas lire l'état.
+
+> **R22 introduit la première variante du flux B, et l'invariant tient quand
+> même.** §2.2 dit que `/q/:code` est le **seul** écran de contact. La feuille
+> ne contacte personne : elle nomme un objet que le visiteur possède. La règle
+> forcée est donc `generated` **et** session ⇒ feuille ; tout le reste — activé,
+> révoqué, illisible, ou visiteur anonyme ⇒ `/q/:code`, inchangé. Vérifié au
+> navigateur sur les trois branches.
+
+> **Le flux caméra reste ouvert, la détection est mise en pause.** Le même QR
+> reste devant l'objectif tant que le téléphone y est, et la détection ne
+> s'arrête qu'au rendu suivant : sans garde, le premier sticker lançait une
+> requête toutes les 200 ms. La première lecture gagne, puis la détection
+> s'arrête et le flux reste ouvert — la permission est déjà accordée, donc une
+> réouverture n'achèterait qu'une image noire entre chaque sticker. Mesuré :
+> **une seule ouverture de caméra pour douze stickers**, et **exactement 12**
+> activations reçues par l'API.
+
+> **La feuille gagne un état de succès que la maquette ne dessine pas.**
+> `ScanActivation` place « Scanner le suivant » sous « Activer ce sticker »,
+> c'est-à-dire « passe celui-là ». Après une activation réussie il faut dire ce
+> qui s'est passé, et un paquet fait douze : « Scanner le suivant » devient
+> l'action dominante, « Terminer » la seconde, et c'est elle seule qui part vers
+> Mes stickers. Balayer la feuille équivaut à « Scanner le suivant » — être
+> renvoyé sur un autre écran pour avoir fermé une feuille serait une surprise.
+
+> **Le scanner passe en action première sur Mes stickers.** R15 l'avait mis en
+> secondaire avec un commentaire disant « jusqu'à R20 » ; R20 et R21 n'activent
+> pas, c'est R22 qui active. Le champ de saisie reste, à un tap, sous la forme «
+> ou saisir un code à la main » que dessine `MesStickers`.
+
+> **Le bandeau se sert dans le loader d'accueil, au-dessus du hero.**
+> `homeLoader` ne prenait aucun argument et ne touchait jamais la session : il
+> gagne `request` et n'appelle l'API que si une session existe. Un échec du
+> résumé — API injoignable, contrôle de session qui lève — retire le bandeau et
+> **jamais** la page : c'est le premier écran du produit. Le bandeau est
+> au-dessus du hero comme la maquette le dessine, et il disparaît de lui-même à
+> la douzième activation, sans que personne ne le ferme.
+
+> **Un `env()` de plus pour R34.** La feuille d'activation lit
+> `env(safe-area-inset-bottom)`, comme les quatre feuilles inférieures déjà
+> recensées. La liste que R34 devra reprendre gagne donc une entrée.
+
+> **Mesures.** 42 passages : 7 largeurs réelles (320, 360, 375, 390, 393,
+> 412, 430) × 2 thèmes × 3 écrans (accueil avec bandeau, Mes stickers, feuille
+> d'activation ouverte). 894 relevés. **6 tailles de police, toutes sur les sept
+> barreaux de R33, 0 hors échelle.** **0 champ sous 16 px** — la feuille est à
+> 16 px et 48 px de haut. **0 cible sous 44 px sous `lg`.** **0 débordement de
+> page.** Contraste : **1 seul relevé sous plancher, le logotype « CI »** (2,7:1
+> en clair, dispensé), et il est **identique à la référence** — `git stash` puis
+> relance sur les deux écrans comparables donne les mêmes 16 débordements
+> intra-défileur et le même unique échec, aux caractères près. Autotests de la
+> sonde **4/4 exacts** (17,28 clair · 18,98 sombre · 6,39 · 5,03), **0 couleur
+> refusée par le canvas**. Les nouvelles surfaces, dans les deux thèmes :
+> bandeau **17,93:1** titre et **12,09:1** sous-titre (identiques en clair et en
+> sombre, la surface sombre tient), son action **6,39:1** à 48 px ; compteur
+> **17,28 / 18,98** ; « Scanner un sticker » **5,03:1** à 48 px ; pastilles à
+> **34 px** ; feuille **4,93:1** au plancher (la pastille « NON ACTIVÉ »).
+> **Acceptation vérifiée au navigateur : douze stickers activés d'affilée, douze
+> codes distincts reçus par l'API, 0 champ de code saisi à la main.** **Tests :
+> +34 côté client (846 → 880) et +7 côté api (372 → 379).**
+
+> **Le recouvrement des cibles tactiles baisse, et rien de neuf n'apparaît.**
+> 371 cibles comparées sur les trois écrans × 7 largeurs, chaque zone étendue à
+> 44 px autour de son centre quand elle porte `.touch-target` : **32 paires qui
+> se recouvrent, contre 73 dans la référence, et toutes les 32 y figurent
+> déjà**. Retirer la pastille « En attente » enlève un renvoi à la ligne, et la
+> carte de synthèse écarte « Commander d'autres stickers » de la barre d'onglets
+> — un recouvrement de 9 à 12 px que la référence portait à toutes les largeurs
+> disparaît. Ce qui reste est connu : le pied de page (12 px, dette recensée) et
+> deux paires de pastilles à 2 px quand la rangée passe à la ligne, `h-chip`
+> valant 34 px pour un tap étendu à 44. L'écart sous l'action première de Mes
+> stickers est laissé à 16 px et non aux 8 px de la maquette, sans quoi la zone
+> du lien « saisir un code à la main » mordrait sur le bouton.
+
+> **Les tests d'admin `administrators-page` flanchent aussi sous charge
+> parallèle.** Deux d'entre eux tombent dans un `pnpm run test --force` à la
+> racine et passent seuls, comme les « gates on the session » et
+> `contact.action.test.ts` déjà connus. Ce n'est pas une régression : R22 ne
+> touche pas `apps/admin`.
+
 ### Lot 8 — PWA
 
 #### R23 — Manifeste, icônes et couleurs de thème

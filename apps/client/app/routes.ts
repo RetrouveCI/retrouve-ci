@@ -21,6 +21,9 @@ export default [
 		// In the shell: the primer and the code entry are ordinary page content,
 		// and only the live viewfinder goes full-bleed, over the tab bar.
 		route('scan', 'routes/scan/_index.tsx'),
+		// Asked once per code read, not per navigation: a scan has to know
+		// whether the sticker is still waiting before it decides where to go.
+		route('scan/status', 'routes/scan/servers/sticker-status.loader.ts'),
 		route('posts/:id', 'routes/posts/details/_index.tsx'),
 		route('account', 'routes/account/_index.tsx'),
 		route('account/posts', 'routes/account/posts/_index.tsx'),

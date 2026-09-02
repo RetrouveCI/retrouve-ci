@@ -19,6 +19,10 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 		useState<ScannerBlockedReason>('unavailable')
 	const [torchOn, setTorchOn] = useState(false)
 	const [torchAvailable, setTorchAvailable] = useState(false)
+	// Detection stops, the stream stays open: activating twelve stickers must
+	// not reopen the camera twelve times, and a permission already granted is
+	// not re-asked, so a reopen would only cost the black frame in between.
+	const [paused, setPaused] = useState(false)
 
 	const videoRef = useRef<HTMLVideoElement | null>(null)
 	const streamRef = useRef<MediaStream | null>(null)
@@ -30,6 +34,7 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 		streamRef.current?.getTracks().forEach(track => track.stop())
 		streamRef.current = null
 		setStatus('idle')
+		setPaused(false)
 		setTorchOn(false)
 		setTorchAvailable(false)
 	}, [])
@@ -76,6 +81,7 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 		setTorchAvailable(
 			stream.getVideoTracks()[0]?.getCapabilities?.().torch === true,
 		)
+		setPaused(false)
 		setStatus('live')
 	}, [stop])
 
@@ -92,7 +98,7 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 
 	useEffect(() => {
 		const detector = detectorRef.current
-		if (status !== 'live' || !detector) return
+		if (status !== 'live' || paused || !detector) return
 
 		let busy = false
 		const timer = window.setInterval(() => {
@@ -114,7 +120,7 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 		}, DETECT_INTERVAL_MS)
 
 		return () => window.clearInterval(timer)
-	}, [status])
+	}, [status, paused])
 
 	useEffect(() => stop, [stop])
 
@@ -131,12 +137,18 @@ export function useStickerScanner(onCode: (raw: string) => void) {
 		}
 	}, [torchOn])
 
+	const pause = useCallback(() => setPaused(true), [])
+	const resume = useCallback(() => setPaused(false), [])
+
 	return {
 		status,
+		paused,
 		blockedReason,
 		videoRef,
 		start,
 		stop,
+		pause,
+		resume,
 		torchOn,
 		torchAvailable,
 		toggleTorch,

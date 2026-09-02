@@ -1,13 +1,49 @@
 import { createRoutesStub } from 'react-router'
 import { cleanup, page, render, userEvent } from '@/shared/helpers/testing'
+import type { StickerStatus } from '@/shared/types/sticker'
 import ScanPage from '../_index'
 
-function renderScan() {
+const { useAuth } = vi.hoisted(() => ({ useAuth: vi.fn() }))
+vi.mock('@/context/auth', () => ({ useAuth }))
+
+interface ScanScenario {
+	/** What `/scan/status` answers; `null` stands for « send them to /q/:code ». */
+	status?: StickerStatus | null
+	activation?: { success: boolean; errors?: Record<string, unknown> }
+}
+
+let statusAsked: string[]
+
+function renderScan({ status = null, activation }: ScanScenario = {}) {
+	statusAsked = []
+
 	const Stub = createRoutesStub([
-		{ path: '/scan', Component: ScanPage },
+		{
+			path: '/scan',
+			Component: ScanPage,
+			action: () => activation ?? { success: true },
+		},
+		{
+			path: '/scan/status',
+			loader: ({ request }: { request: Request }) => {
+				const code = new URL(request.url).searchParams.get('code') ?? ''
+				statusAsked.push(code)
+
+				return { code, status }
+			},
+		},
 		{ path: '/q/:code', Component: () => <p>Page du sticker</p> },
+		{ path: '/account/stickers', Component: () => <p>Mes stickers</p> },
 	])
 	render(<Stub initialEntries={['/scan']} />)
+}
+
+async function typeTheCode(code = 'RCI-ABC123') {
+	await userEvent.click(
+		page.getByRole('button', { name: 'Saisir le code à la main' }),
+	)
+	await userEvent.fill(page.getByLabelText('Code du sticker'), code)
+	await userEvent.click(page.getByRole('button', { name: 'Continuer' }))
 }
 
 let getUserMedia: ReturnType<typeof vi.fn>
@@ -75,6 +111,7 @@ function withDetector(
 }
 
 beforeEach(() => {
+	useAuth.mockReturnValue({ isAuthenticated: false })
 	getUserMedia = vi.fn()
 	ponyfill.throws = false
 	ponyfill.detect = async () => []
@@ -322,5 +359,150 @@ describe('ScanPage', () => {
 		await userEvent.click(page.getByRole('button', { name: 'Continuer' }))
 
 		await expect.element(page.getByText('Page du sticker')).toBeVisible()
+	})
+})
+
+/**
+ * R22's fork, and the one invariant it must not break: `/q/:code` stays the
+ * single contact screen of flux B. The sheet only ever opens on the one case
+ * that screen has nothing to say to — a sticker its own owner has yet to name.
+ */
+describe('ScanPage — activation', () => {
+	it('asks nothing about a code read by a visitor with no account', async () => {
+		renderScan({ status: 'generated' })
+
+		await typeTheCode()
+
+		await expect.element(page.getByText('Page du sticker')).toBeVisible()
+		expect(statusAsked).toEqual([])
+	})
+
+	it('opens the activation sheet on a sticker still waiting', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({ status: 'generated' })
+
+		await typeTheCode()
+
+		await expect.element(page.getByText('Sticker reconnu')).toBeVisible()
+		await expect
+			.element(page.getByText('Sur quel objet le collez-vous ?'))
+			.toBeVisible()
+		expect(statusAsked).toEqual(['RCI-ABC123'])
+	})
+
+	it('names the consequence before the sticker is activated', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({ status: 'generated' })
+
+		await typeTheCode()
+
+		await expect
+			.element(page.getByText(/quiconque scanne ce sticker peut vous joindre/))
+			.toBeVisible()
+	})
+
+	it('sends an already activated sticker to its contact page', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({ status: 'activated' })
+
+		await typeTheCode()
+
+		await expect.element(page.getByText('Page du sticker')).toBeVisible()
+	})
+
+	it('sends a revoked sticker to its contact page', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({ status: 'revoked' })
+
+		await typeTheCode()
+
+		await expect.element(page.getByText('Page du sticker')).toBeVisible()
+	})
+
+	// An unreadable status is not a reason to offer an activation that would
+	// fail: the contact screen is the honest destination.
+	it('sends the visitor to the contact page when the status cannot be read', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({ status: null })
+
+		await typeTheCode()
+
+		await expect.element(page.getByText('Page du sticker')).toBeVisible()
+	})
+
+	it('refuses an empty name on the field, not on the API', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({ status: 'generated' })
+		await typeTheCode()
+
+		await userEvent.click(
+			page.getByRole('button', { name: 'Activer ce sticker' }),
+		)
+
+		await expect
+			.element(page.getByText('Donnez un nom à ce sticker'))
+			.toBeVisible()
+	})
+
+	// The acceptance criterion: twelve stickers, and never a code to type.
+	it('offers the next sticker once one is activated', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({ status: 'generated' })
+		await typeTheCode()
+
+		await userEvent.fill(
+			page.getByLabelText('Sur quel objet le collez-vous ?'),
+			'Clés de la maison',
+		)
+		await userEvent.click(
+			page.getByRole('button', { name: 'Activer ce sticker' }),
+		)
+
+		await expect.element(page.getByText('Sticker activé')).toBeVisible()
+		await expect
+			.element(page.getByRole('button', { name: 'Scanner le suivant' }))
+			.toBeVisible()
+	})
+
+	it('leaves for « Mes stickers » on « Terminer »', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({ status: 'generated' })
+		await typeTheCode()
+		await userEvent.fill(
+			page.getByLabelText('Sur quel objet le collez-vous ?'),
+			'Clés de la maison',
+		)
+		await userEvent.click(
+			page.getByRole('button', { name: 'Activer ce sticker' }),
+		)
+		await expect.element(page.getByText('Sticker activé')).toBeVisible()
+
+		await userEvent.click(page.getByRole('button', { name: 'Terminer' }))
+
+		await expect.element(page.getByText('Mes stickers')).toBeVisible()
+	})
+
+	it('shows a failure inside the sheet rather than as a toast', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({
+			status: 'generated',
+			activation: {
+				success: false,
+				errors: { root: { message: 'Ce sticker est déjà activé' } },
+			},
+		})
+		await typeTheCode()
+
+		await userEvent.fill(
+			page.getByLabelText('Sur quel objet le collez-vous ?'),
+			'Clés de la maison',
+		)
+		await userEvent.click(
+			page.getByRole('button', { name: 'Activer ce sticker' }),
+		)
+
+		await expect
+			.element(page.getByText('Ce sticker est déjà activé'))
+			.toBeVisible()
 	})
 })

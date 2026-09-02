@@ -9,3 +9,13 @@ export interface Sticker {
 	linkedObject: string | null
 	activatedAt: string | null
 }
+
+/**
+ * A sticker waiting to be activated carries no owner, so `delivered` is read
+ * off the orders and only `activated` off the tokens.
+ */
+export interface StickerActivationSummary {
+	delivered: number
+	activated: number
+	pending: number
+}

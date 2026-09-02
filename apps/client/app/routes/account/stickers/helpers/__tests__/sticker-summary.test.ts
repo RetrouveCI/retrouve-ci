@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import type { Sticker } from '@/shared/types/sticker'
+import type { Sticker, StickerActivationSummary } from '@/shared/types/sticker'
 import {
+	activationRatio,
 	buildActivationLabel,
 	buildRemainingLabel,
-	buildStickerSummary,
+	buildStickerCounts,
 	filterStickers,
 } from '../sticker-summary'
 
@@ -22,91 +23,87 @@ function stickerWith(status: Sticker['status'], id: string = status): Sticker {
 const STICKERS: Sticker[] = [
 	stickerWith('activated', 'a1'),
 	stickerWith('activated', 'a2'),
-	stickerWith('generated', 'g1'),
 	stickerWith('revoked', 'r1'),
 ]
 
-describe('buildStickerSummary', () => {
-	it('counts every bucket and « Tous » over all of them', () => {
-		const summary = buildStickerSummary(STICKERS)
+function summary(
+	overrides: Partial<StickerActivationSummary> = {},
+): StickerActivationSummary {
+	return { delivered: 12, activated: 3, pending: 9, ...overrides }
+}
 
-		expect(summary.total).toBe(4)
-		expect(summary.counts).toEqual({
-			all: 4,
+describe('buildStickerCounts', () => {
+	it('counts every bucket and « Tous » over all of them', () => {
+		expect(buildStickerCounts(STICKERS)).toEqual({
+			all: 3,
 			activated: 2,
-			generated: 1,
+			generated: 0,
 			revoked: 1,
 		})
 	})
 
-	it('measures activation over every sticker owned', () => {
-		expect(buildStickerSummary(STICKERS).ratio).toBe(0.5)
-	})
-
-	it('does not divide by zero on an empty account', () => {
-		const summary = buildStickerSummary([])
-
-		expect(summary.ratio).toBe(0)
-		expect(summary.counts.all).toBe(0)
+	it('counts nothing on an empty account', () => {
+		expect(buildStickerCounts([]).all).toBe(0)
 	})
 
 	it('ignores a status the enumeration does not carry', () => {
 		const rogue = { ...stickerWith('activated'), status: 'archived' }
 
-		const summary = buildStickerSummary([
+		const counts = buildStickerCounts([
 			rogue as Sticker,
 			stickerWith('activated', 'a1'),
 		])
 
-		expect(summary.counts.activated).toBe(1)
-		expect(summary.total).toBe(2)
+		expect(counts.activated).toBe(1)
+		expect(counts.all).toBe(2)
 	})
 })
 
 describe('filterStickers', () => {
 	it('keeps everything under « Tous », revoked included', () => {
-		expect(filterStickers(STICKERS, 'all')).toHaveLength(4)
+		expect(filterStickers(STICKERS, 'all')).toHaveLength(3)
 	})
 
 	it.each([
 		['activated', 2],
-		['generated', 1],
 		['revoked', 1],
+		['generated', 0],
 	] as const)('narrows to %s', (filter, expected) => {
 		expect(filterStickers(STICKERS, filter)).toHaveLength(expected)
 	})
 })
 
 describe('buildActivationLabel', () => {
-	it('reads « 2 sur 4 activés »', () => {
-		expect(buildActivationLabel(buildStickerSummary(STICKERS))).toBe(
-			'2 sur 4 activés',
-		)
+	/** The denominator is the pack bought, not the rows on screen. */
+	it('reads « 3 sur 12 activés »', () => {
+		expect(buildActivationLabel(summary())).toBe('3 sur 12 activés')
 	})
 
 	it('stays singular at one', () => {
 		expect(
-			buildActivationLabel(buildStickerSummary([stickerWith('activated')])),
-		).toBe('1 sur 1 activé')
+			buildActivationLabel(summary({ delivered: 4, activated: 1, pending: 3 })),
+		).toBe('1 sur 4 activé')
 	})
 })
 
 describe('buildRemainingLabel', () => {
 	it('names what is left to activate', () => {
-		expect(buildRemainingLabel(buildStickerSummary(STICKERS))).toBe(
-			'1 en attente',
-		)
+		expect(buildRemainingLabel(summary())).toBe('9 en attente')
 	})
 
-	it('says nothing when none is waiting, rather than « 0 restants »', () => {
+	it('says nothing at zero, rather than « 0 restants »', () => {
 		expect(
-			buildRemainingLabel(buildStickerSummary([stickerWith('activated')])),
+			buildRemainingLabel(summary({ delivered: 4, activated: 4, pending: 0 })),
 		).toBeNull()
 	})
+})
 
-	it('does not count a revoked sticker as waiting', () => {
-		expect(
-			buildRemainingLabel(buildStickerSummary([stickerWith('revoked')])),
-		).toBeNull()
+describe('activationRatio', () => {
+	it('measures activation over the pack delivered', () => {
+		expect(activationRatio(summary({ delivered: 4, activated: 2 }))).toBe(0.5)
+	})
+
+	it('does not divide by zero on an empty account', () => {
+		expect(activationRatio({ delivered: 0, activated: 0, pending: 0 })).toBe(0)
 	})
 })
