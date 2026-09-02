@@ -8,7 +8,7 @@
 	],
 	"scripts": {
 		"dev": "react-router dev",
-		"build": "react-router build",
+		"build": "react-router build && vite build --config vite.sw.config.ts",
 		"start": "react-router-serve ./build/server/index.js",
 		"docker:build": "docker build -f Dockerfile -t retrouveci-client:local ../..",
 		"lint": "eslint",
