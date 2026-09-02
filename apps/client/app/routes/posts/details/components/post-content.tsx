@@ -23,7 +23,7 @@ function Pill({
 	return (
 		<span
 			className={cn(
-				'inline-flex h-[22px] items-center rounded-full px-2.5 text-[10px] font-bold tracking-[0.04em] uppercase',
+				'inline-flex h-[22px] items-center rounded-full px-2.5 text-xs font-bold tracking-[0.04em] uppercase',
 				className,
 			)}
 		>

@@ -52,7 +52,7 @@ export function PublishActionBar({
 						type="button"
 						onClick={onBack}
 						aria-label="Étape précédente"
-						className="border-border text-foreground hover:bg-muted flex h-13 w-14 shrink-0 items-center justify-center rounded-[14px] border-[1.5px] transition-colors"
+						className="border-border text-foreground hover:bg-muted h-control flex w-14 shrink-0 items-center justify-center rounded-[14px] border-[1.5px] transition-colors"
 					>
 						<ArrowLeft className="h-5 w-5" />
 					</button>
@@ -63,7 +63,7 @@ export function PublishActionBar({
 					onClick={isLastStep ? undefined : onNext}
 					disabled={isSubmitting}
 					className={cn(
-						'flex h-13 items-center justify-center gap-2 rounded-[14px] px-7 text-[15px] font-semibold transition-colors disabled:opacity-60',
+						'h-control flex items-center justify-center gap-2 rounded-[14px] px-7 text-lg font-semibold transition-colors disabled:opacity-60',
 						step === 1 ? 'shrink-0' : 'flex-1',
 						fillClass,
 					)}

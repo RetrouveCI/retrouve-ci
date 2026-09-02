@@ -48,7 +48,7 @@ export function BottomTabBar() {
 				<Link
 					to="/publish"
 					aria-label="Publier une annonce"
-					className="bg-primary-green hover:bg-primary-green-dark -mt-6 flex h-13 w-13 shrink-0 items-center justify-center rounded-full text-white shadow-lg transition-colors"
+					className="bg-primary-green hover:bg-primary-green-dark h-control -mt-6 flex w-13 shrink-0 items-center justify-center rounded-full text-white shadow-lg transition-colors"
 				>
 					<Plus className="h-6 w-6" />
 				</Link>
@@ -95,7 +95,7 @@ function TabLink({ href, label, icon: Icon, active, accent }: TabLinkProps) {
 		<Link
 			to={href}
 			className={cn(
-				'flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-medium transition-colors',
+				'flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-xs font-medium transition-colors',
 				active || accent ? 'text-primary-green-text' : 'text-muted-foreground',
 			)}
 		>

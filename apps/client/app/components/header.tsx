@@ -75,7 +75,7 @@ export function Header() {
 										key={link.href}
 										to={link.href}
 										className={cn(
-											'border-b-2 pb-0.5 text-[14.5px] whitespace-nowrap transition-colors',
+											'border-b-2 pb-0.5 text-base whitespace-nowrap transition-colors',
 											active
 												? 'border-primary-green text-foreground font-semibold'
 												: 'text-muted-foreground hover:text-foreground border-transparent',

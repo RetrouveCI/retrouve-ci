@@ -25,7 +25,7 @@ interface ListingActionsSheetProps {
 }
 
 const ROW =
-	'flex min-h-13 w-full items-center gap-3 rounded-xl px-3 text-left text-[15px] font-medium transition-colors hover:bg-muted disabled:opacity-50'
+	'flex min-h-13 w-full items-center gap-3 rounded-xl px-3 text-left text-lg font-medium transition-colors hover:bg-muted disabled:opacity-50'
 
 /**
  * The card's four 32 px buttons, gathered into one 44 px target and a sheet
@@ -43,7 +43,7 @@ export function ListingActionsSheet({
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent className="lg:mx-auto lg:max-w-md lg:rounded-t-2xl">
 				<DrawerHeader className="border-b px-4 pt-2 pb-3.5 text-left">
-					<DrawerTitle className="truncate text-[17px] tracking-tight">
+					<DrawerTitle className="truncate text-xl tracking-tight">
 						{listingTitle}
 					</DrawerTitle>
 					<DrawerDescription className="text-xs">

@@ -36,7 +36,7 @@ export function MatchesSheet({
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent className="lg:mx-auto lg:max-w-md lg:rounded-t-2xl">
 				<DrawerHeader className="border-b px-4 pt-2 pb-3.5 text-left">
-					<DrawerTitle className="text-[17px] tracking-tight">
+					<DrawerTitle className="text-xl tracking-tight">
 						{buildMatchesTitle(matches.count, type)}
 					</DrawerTitle>
 					<DrawerDescription className="text-xs">
@@ -73,7 +73,7 @@ export function MatchesSheet({
 								)}
 							</span>
 							<span className="min-w-0 flex-1">
-								<span className="block truncate text-[15px] font-medium">
+								<span className="block truncate text-lg font-medium">
 									{item.title}
 								</span>
 								<span className="text-muted-foreground block truncate text-xs">

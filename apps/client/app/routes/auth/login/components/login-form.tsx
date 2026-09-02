@@ -53,7 +53,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 							Numéro de téléphone
 						</Label>
 						<div className="flex gap-2.5">
-							<div className="bg-muted/50 text-foreground flex h-13 shrink-0 items-center gap-2 rounded-xl border-[1.5px] px-3.5 text-sm font-semibold">
+							<div className="bg-muted/50 text-foreground h-control flex shrink-0 items-center gap-2 rounded-xl border-[1.5px] px-3.5 text-sm font-semibold">
 								<IvorianFlag className="h-3.5 w-5 rounded-[2px] ring-1 ring-black/10" />
 								+225
 							</div>
@@ -64,7 +64,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 								inputMode="numeric"
 								maxLength={14}
 								placeholder="07 00 00 00 00"
-								className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-13 flex-1 rounded-xl border-[1.5px] text-[17px] tracking-[0.05em] tabular-nums transition-all focus:ring-[3px]"
+								className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-control text-field flex-1 rounded-xl border-[1.5px] tracking-[0.05em] tabular-nums transition-all focus:ring-[3px]"
 								autoComplete="tel"
 								autoFocus
 							/>
@@ -117,7 +117,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
 
 			<Link
 				to={withRedirect('/register', redirectTo)}
-				className="hover:bg-muted/50 flex h-13 w-full items-center justify-center rounded-[14px] border-[1.5px] text-[15px] font-semibold transition-colors"
+				className="hover:bg-muted/50 h-control flex w-full items-center justify-center rounded-[14px] border-[1.5px] text-lg font-semibold transition-colors"
 			>
 				Créer un compte
 			</Link>

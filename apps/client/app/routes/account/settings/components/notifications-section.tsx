@@ -22,7 +22,7 @@ const ALERTS = [
 export function NotificationsSection() {
 	return (
 		<section className="space-y-2">
-			<h2 className="flex items-center gap-2 text-[15px] font-bold tracking-tight">
+			<h2 className="flex items-center gap-2 text-lg font-bold tracking-tight">
 				Alertes
 				<Badge variant="secondary" className="font-medium">
 					Bientôt disponible
@@ -37,7 +37,7 @@ export function NotificationsSection() {
 					>
 						<div className="flex-1">
 							<p className="text-sm font-semibold">{alert.label}</p>
-							<p className="text-muted-foreground mt-0.5 text-[12.5px]">
+							<p className="text-muted-foreground mt-0.5 text-xs">
 								{alert.description}
 							</p>
 						</div>

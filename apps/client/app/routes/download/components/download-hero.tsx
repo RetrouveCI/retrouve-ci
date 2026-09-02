@@ -45,7 +45,7 @@ export function DownloadHero() {
 							>
 								<Apple className="h-6 w-6 shrink-0" />
 								<div className="text-left">
-									<p className="text-[10px] tracking-widest uppercase opacity-70">
+									<p className="text-xs tracking-widest uppercase opacity-70">
 										Bientôt sur
 									</p>
 									<p className="text-sm font-semibold">App Store</p>
@@ -57,7 +57,7 @@ export function DownloadHero() {
 							>
 								<Smartphone className="h-6 w-6 shrink-0" />
 								<div className="text-left">
-									<p className="text-[10px] tracking-widest uppercase opacity-70">
+									<p className="text-xs tracking-widest uppercase opacity-70">
 										Bientôt sur
 									</p>
 									<p className="text-sm font-semibold">Google Play</p>
@@ -101,7 +101,7 @@ export function DownloadHero() {
 											<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-xl">
 												<QrCode className="text-primary-green-text h-6 w-6" />
 											</div>
-											<p className="text-muted-foreground text-[10px]">
+											<p className="text-muted-foreground text-xs">
 												Scanner un QR code
 											</p>
 											<div className="border-primary-green pointer-events-none absolute top-16 left-16 h-16 w-16 rounded-tl-lg border-t-2 border-l-2" />
@@ -109,7 +109,7 @@ export function DownloadHero() {
 										</div>
 										<div className="border-primary-green/20 bg-primary-green/10 flex items-center gap-2 rounded-xl border px-3 py-2">
 											<CheckCircle2 className="text-primary-green-text h-4 w-4 shrink-0" />
-											<p className="text-[10px] font-medium">
+											<p className="text-xs font-medium">
 												Objet retrouvé à Cocody !
 											</p>
 										</div>
@@ -134,8 +134,8 @@ export function DownloadHero() {
 										<CheckCircle2 className="text-primary-green-text h-3.5 w-3.5" />
 									</div>
 									<div>
-										<p className="text-[10px] font-semibold">Retrouvé !</p>
-										<p className="text-muted-foreground text-[9px]">
+										<p className="text-xs font-semibold">Retrouvé !</p>
+										<p className="text-muted-foreground text-xs">
 											Il y a 2 min
 										</p>
 									</div>
@@ -147,8 +147,8 @@ export function DownloadHero() {
 										<Bell className="text-accent-orange-text h-3.5 w-3.5" />
 									</div>
 									<div>
-										<p className="text-[10px] font-semibold">Alerte</p>
-										<p className="text-muted-foreground text-[9px]">Yopougon</p>
+										<p className="text-xs font-semibold">Alerte</p>
+										<p className="text-muted-foreground text-xs">Yopougon</p>
 									</div>
 								</div>
 							</div>

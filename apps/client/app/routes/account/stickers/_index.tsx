@@ -58,7 +58,7 @@ export default function StickersPage({ loaderData }: Route.ComponentProps) {
 						 * it: `/q/:code` answers « Sticker non activé » to a token that is
 						 * only generated, so scanning cannot activate anything yet.
 						 */}
-						<p className="text-muted-foreground text-center text-[12.5px]">
+						<p className="text-muted-foreground text-center text-xs">
 							ou{' '}
 							<Link
 								to="/scan"

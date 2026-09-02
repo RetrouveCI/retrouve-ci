@@ -476,8 +476,8 @@ export function HeroMap() {
 							textAnchor={city.labelAnchor ?? 'middle'}
 							className={
 								city.minor
-									? 'fill-muted-foreground/80 text-[8px] font-medium'
-									: 'fill-muted-foreground text-[9px] font-medium'
+									? 'fill-muted-foreground/80 text-xs font-medium'
+									: 'fill-muted-foreground text-xs font-medium'
 							}
 						>
 							{city.name}

@@ -52,10 +52,10 @@ export function StickersSection() {
 
 						<div className="flex items-center gap-4 sm:gap-7">
 							<div className="flex-1">
-								<h2 className="text-[22px] leading-tight font-bold text-white sm:text-3xl lg:text-[2.125rem]">
+								<h2 className="text-2xl leading-tight font-bold text-white sm:text-3xl lg:text-[2.125rem]">
 									Un sticker QR sur vos objets qui comptent
 								</h2>
-								<p className="mt-2 max-w-lg text-[13.5px] leading-relaxed text-white/70 sm:text-base">
+								<p className="mt-2 max-w-lg text-sm leading-relaxed text-white/70 sm:text-base">
 									Celui qui trouve scanne le code et vous joint en un geste.
 									Votre numéro n&apos;apparaît jamais.
 								</p>
@@ -84,13 +84,13 @@ export function StickersSection() {
 						<div className="mt-1 flex flex-col gap-2.5 sm:flex-row">
 							<Link
 								to="/stickers/order"
-								className="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark flex h-13 items-center justify-center rounded-[14px] px-6 text-[15px] font-semibold transition-colors"
+								className="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark h-control flex items-center justify-center rounded-[14px] px-6 text-lg font-semibold transition-colors"
 							>
 								Commander mes stickers
 							</Link>
 							<Link
 								to="/stickers"
-								className="flex h-13 items-center justify-center rounded-[14px] border-[1.5px] border-white/25 px-6 text-[15px] font-semibold text-white transition-colors hover:bg-white/10"
+								className="h-control flex items-center justify-center rounded-[14px] border-[1.5px] border-white/25 px-6 text-lg font-semibold text-white transition-colors hover:bg-white/10"
 							>
 								Voir comment ça marche
 							</Link>

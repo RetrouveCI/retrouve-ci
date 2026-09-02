@@ -108,7 +108,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 									<SlidersHorizontal className="h-4 w-4" />
 									<span className="hidden sm:inline">Filtres</span>
 									{activeFiltersCount > 0 && (
-										<span className="bg-primary-green inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white">
+										<span className="bg-primary-green inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white">
 											{activeFiltersCount}
 										</span>
 									)}
@@ -161,7 +161,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 										onClick={() => setActiveCategory(id)}
 										aria-pressed={activeCategory === id}
 										className={cn(
-											'touch-target flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-all',
+											'touch-target h-chip flex items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium whitespace-nowrap transition-all',
 											activeCategory === id
 												? 'bg-foreground text-background border-foreground scale-[1.02] shadow-sm'
 												: 'bg-background border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground',

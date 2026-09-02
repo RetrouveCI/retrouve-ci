@@ -22,7 +22,7 @@ interface StickerActionsSheetProps {
 }
 
 const ROW =
-	'flex min-h-13 w-full items-center gap-3 rounded-xl px-3 text-left text-[15px] font-medium transition-colors hover:bg-muted'
+	'flex min-h-13 w-full items-center gap-3 rounded-xl px-3 text-left text-lg font-medium transition-colors hover:bg-muted'
 
 /** The same sheet R13 gives a listing, so both lists of cards read alike. */
 export function StickerActionsSheet({
@@ -35,7 +35,7 @@ export function StickerActionsSheet({
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent className="lg:mx-auto lg:max-w-md lg:rounded-t-2xl">
 				<DrawerHeader className="border-b px-4 pt-2 pb-3.5 text-left">
-					<DrawerTitle className="truncate text-[17px] tracking-tight">
+					<DrawerTitle className="truncate text-xl tracking-tight">
 						{stickerName}
 					</DrawerTitle>
 					<DrawerDescription className="text-xs">

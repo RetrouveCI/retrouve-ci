@@ -25,7 +25,7 @@ export function MissionBento() {
 							Fondée en
 						</p>
 						<div>
-							<p className="text-6xl font-bold">2026</p>
+							<p className="text-4xl font-bold">2026</p>
 							<p className="mt-1 text-sm text-white">
 								Abidjan, Côte d&apos;Ivoire
 							</p>

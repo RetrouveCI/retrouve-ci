@@ -67,7 +67,7 @@ export function ActivitySummary({ summary }: { summary: Summary | null }) {
 							</span>
 							<span
 								className={cn(
-									'text-[11.5px] leading-snug',
+									'text-xs leading-snug',
 									highlight
 										? 'text-primary-green-text'
 										: 'text-muted-foreground',

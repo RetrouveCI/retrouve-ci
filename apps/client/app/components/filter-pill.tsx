@@ -7,7 +7,7 @@ import { cn } from '@app/ui/utils'
  */
 export function filterPillClassName(active: boolean, className?: string) {
 	return cn(
-		'touch-target inline-flex h-9.5 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium whitespace-nowrap transition-colors',
+		'touch-target inline-flex h-chip items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium whitespace-nowrap transition-colors',
 		active
 			? 'bg-foreground text-background border-foreground'
 			: 'bg-background border-border text-foreground hover:border-foreground/30',
@@ -16,9 +16,9 @@ export function filterPillClassName(active: boolean, className?: string) {
 }
 
 /**
- * `touch-target` widens the tap zone to 44 px without changing the 38 px drawn,
- * which is also what keeps two wrapped rows from stealing each other's taps:
- * 3 px of overhang inside an 8 px gap.
+ * `touch-target` widens the tap zone to 44 px without changing the 34 px drawn
+ * (R33), which is also what keeps two wrapped rows from stealing each other's
+ * taps.
  */
 export function FilterPill({
 	active,

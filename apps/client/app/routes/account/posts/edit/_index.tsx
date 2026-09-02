@@ -201,7 +201,7 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 											(optionnel)
 										</span>
 									) : (
-										<span className="border-primary-green/20 bg-primary-green/10 text-primary-green-text ml-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold">
+										<span className="border-primary-green/20 bg-primary-green/10 text-primary-green-text ml-1 rounded-full border px-2 py-0.5 text-xs font-semibold">
 											Recommandé
 										</span>
 									)}

@@ -32,8 +32,8 @@ function MatchRow({ item }: { item: LostItem }) {
 			</div>
 
 			<div className="min-w-0 flex-1">
-				<p className="line-clamp-1 text-[13.5px] font-semibold">{item.title}</p>
-				<p className="text-muted-foreground mt-0.5 truncate text-[11.5px]">
+				<p className="line-clamp-1 text-sm font-semibold">{item.title}</p>
+				<p className="text-muted-foreground mt-0.5 truncate text-xs">
 					{item.location} · {item.date}
 				</p>
 			</div>
@@ -85,7 +85,7 @@ export function MatchPreview({ type, objectType, ville }: MatchPreviewProps) {
 		return (
 			<p
 				role="status"
-				className="text-muted-foreground border-border flex items-start gap-2.5 rounded-2xl border p-4 text-[13px]"
+				className="text-muted-foreground border-border flex items-start gap-2.5 rounded-2xl border p-4 text-sm"
 			>
 				<WifiOff className="mt-0.5 h-4 w-4 shrink-0" />
 				Impossible de vérifier les correspondances pour le moment. Vous pouvez
@@ -96,7 +96,7 @@ export function MatchPreview({ type, objectType, ville }: MatchPreviewProps) {
 
 	if (matches.length === 0) {
 		return (
-			<p className="text-muted-foreground border-border rounded-2xl border p-4 text-[13px]">
+			<p className="text-muted-foreground border-border rounded-2xl border p-4 text-sm">
 				Aucun objet déjà {type === 'lost' ? 'trouvé' : 'perdu'} ne correspond
 				pour l&apos;instant. Votre annonce sera la première.
 			</p>
@@ -118,7 +118,7 @@ export function MatchPreview({ type, objectType, ville }: MatchPreviewProps) {
 					<Search className="h-4 w-4 text-white" />
 				</span>
 				<div className="min-w-0">
-					<p className="text-[14.5px] leading-tight font-bold">{headline}</p>
+					<p className="text-base leading-tight font-bold">{headline}</p>
 					<p className="text-muted-foreground mt-0.5 text-xs">
 						Vérifiez avant de publier — vous gagnerez du temps.
 					</p>

@@ -45,17 +45,17 @@ export function BrandingPanel() {
 					height={42}
 					className="h-10 w-10 rounded-[13px] lg:h-[42px] lg:w-[42px]"
 				/>
-				<span className="hidden text-[22px] font-bold tracking-tight lg:inline">
+				<span className="hidden text-2xl font-bold tracking-tight lg:inline">
 					Retrouve<span className="text-white/65">CI</span>
 				</span>
 			</Link>
 
 			<div className="relative flex-1 lg:flex lg:flex-col lg:justify-center lg:gap-8">
 				<div>
-					<p className="text-[19px] leading-tight font-bold tracking-tight text-balance lg:mb-3.5 lg:text-[40px]">
+					<p className="text-2xl leading-tight font-bold tracking-tight text-balance lg:mb-3.5 lg:text-[40px]">
 						Retrouvez ce qui compte pour vous
 					</p>
-					<p className="text-white0 hidden max-w-md text-[17px] leading-relaxed lg:block">
+					<p className="text-white0 hidden max-w-md text-xl leading-relaxed lg:block">
 						La plateforme d’objets perdus et retrouvés en Côte d’Ivoire.
 					</p>
 				</div>
@@ -67,8 +67,8 @@ export function BrandingPanel() {
 								<Icon className="h-5 w-5" />
 							</span>
 							<span>
-								<span className="block text-[15px] font-semibold">{title}</span>
-								<span className="block text-[13.5px] text-white">{detail}</span>
+								<span className="block text-lg font-semibold">{title}</span>
+								<span className="block text-sm text-white">{detail}</span>
 							</span>
 						</li>
 					))}

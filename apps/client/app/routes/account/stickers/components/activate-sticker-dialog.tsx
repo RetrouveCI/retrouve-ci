@@ -76,7 +76,7 @@ export function ActivateStickerDialog({
 		>
 			<DialogTrigger asChild>
 				{trigger ?? (
-					<Button className="bg-primary-green hover:bg-primary-green-dark h-13 w-full gap-2 rounded-[14px] text-[15px] text-white">
+					<Button className="bg-primary-green hover:bg-primary-green-dark h-control w-full gap-2 rounded-[14px] text-lg text-white">
 						<Plus className="h-4.5 w-4.5" />
 						Activer un sticker
 					</Button>

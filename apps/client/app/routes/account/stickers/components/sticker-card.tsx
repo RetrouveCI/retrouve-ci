@@ -107,17 +107,17 @@ export function StickerCard({ sticker }: { sticker: Sticker }) {
 			<div className="min-w-0 flex-1">
 				<p
 					className={cn(
-						'truncate text-[14.5px] font-semibold',
+						'truncate text-base font-semibold',
 						config.dimmed && 'text-muted-foreground',
 					)}
 				>
 					{stickerName(sticker)}
 				</p>
-				<p className="text-muted-foreground mt-0.5 truncate text-[11.5px]">
+				<p className="text-muted-foreground mt-0.5 truncate text-xs">
 					{buildSubtitle(sticker)}
 				</p>
 				{sticker.linkedObject && (
-					<p className="text-muted-foreground mt-0.5 truncate text-[11.5px]">
+					<p className="text-muted-foreground mt-0.5 truncate text-xs">
 						{sticker.linkedObject}
 					</p>
 				)}
@@ -126,7 +126,7 @@ export function StickerCard({ sticker }: { sticker: Sticker }) {
 			{config.label && (
 				<Badge
 					className={cn(
-						'h-5.5 shrink-0 text-[10px] font-bold tracking-[0.04em] uppercase',
+						'h-5.5 shrink-0 text-xs font-bold tracking-[0.04em] uppercase',
 						config.badge,
 					)}
 				>

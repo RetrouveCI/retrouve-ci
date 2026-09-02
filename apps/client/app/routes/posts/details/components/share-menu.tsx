@@ -77,7 +77,7 @@ export function ShareMenu({ title, type }: ShareMenuProps) {
 				<Button
 					variant="outline"
 					aria-label="Partager cette annonce"
-					className="h-13 w-14 shrink-0 rounded-[14px] border-[1.5px]"
+					className="h-control w-14 shrink-0 rounded-[14px] border-[1.5px]"
 				>
 					<Share2 className="h-4.5 w-4.5" />
 				</Button>

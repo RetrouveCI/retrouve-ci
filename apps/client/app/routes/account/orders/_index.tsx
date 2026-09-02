@@ -62,7 +62,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 
 							{history.length > 0 && (
 								<>
-									<h2 className="text-muted-foreground pt-4 text-[11.5px] font-semibold tracking-[0.1em] uppercase">
+									<h2 className="text-muted-foreground pt-4 text-xs font-semibold tracking-[0.1em] uppercase">
 										Historique
 									</h2>
 									{history.map(order => (

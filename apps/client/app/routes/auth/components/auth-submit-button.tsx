@@ -23,7 +23,7 @@ export function AuthSubmitButton({
 	return (
 		<Button
 			type="submit"
-			className="bg-primary-green hover:bg-primary-green-dark h-13 w-full rounded-[14px] text-[15px] font-semibold text-white transition-all hover:scale-[1.02]"
+			className="bg-primary-green hover:bg-primary-green-dark h-control w-full rounded-[14px] text-lg font-semibold text-white transition-all hover:scale-[1.02]"
 			disabled={isSubmitting || disabled}
 		>
 			{isSubmitting ? (
