@@ -56,7 +56,7 @@ const BLOCKED_COPY: Record<ScannerBlockedReason, string> = {
 	unavailable:
 		'Aucune caméra utilisable sur cet appareil. Entrez le code imprimé sous le QR.',
 	unsupported:
-		'Ce navigateur ne sait pas encore lire un QR code. Entrez le code imprimé sous le QR.',
+		"Le lecteur de QR code n'a pas pu se charger. Entrez le code imprimé sous le QR.",
 }
 
 interface ScanBlockedProps {

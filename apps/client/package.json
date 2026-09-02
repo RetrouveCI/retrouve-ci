@@ -55,6 +55,7 @@
 		"@radix-ui/react-toggle": "catalog:",
 		"@radix-ui/react-toggle-group": "catalog:",
 		"@radix-ui/react-tooltip": "catalog:",
+		"barcode-detector": "catalog:",
 		"class-variance-authority": "catalog:",
 		"clsx": "catalog:",
 		"cmdk": "catalog:",
@@ -73,7 +74,8 @@
 		"sonner": "catalog:",
 		"tailwind-merge": "catalog:",
 		"vaul": "catalog:",
-		"zod": "catalog:"
+		"zod": "catalog:",
+		"zxing-wasm": "catalog:"
 	},
 	"devDependencies": {
 		"@react-router/dev": "catalog:",

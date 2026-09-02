@@ -4,6 +4,7 @@ export type StickerCodeResult =
 	{ ok: true; code: string } | { ok: false; reason: 'foreign' }
 
 const NOT_CODE_CHARACTER = /[^A-Z0-9]/g
+const MAX_CODE_LENGTH = QR_CODE_PREFIX.length + QR_CODE_RANDOM_LENGTH
 
 /**
  * A sticker's QR encodes the full `https://…/q/RCI-XXXXXX`, but the code is also
@@ -39,4 +40,25 @@ function takeCodeSegment(raw: string): string {
 	if (marker === -1) return trimmed
 
 	return trimmed.slice(marker + '/q/'.length).split(/[?#]/)[0] ?? ''
+}
+
+/**
+ * What the field shows as it is typed. The printed code carries one dash and six
+ * characters after `RCI` — the artboard's `RCI—4A7F—••••` describes a code the
+ * generator has never minted — so the whole of the formatting is that one dash.
+ */
+export function formatStickerCode(raw: string): string {
+	// A pasted URL is left alone: `parseStickerCode` reads it whole on submit,
+	// where the mask below would keep the host and throw the code away.
+	if (raw.includes('/')) return raw.trim()
+
+	const cleaned = raw
+		.toUpperCase()
+		.replace(NOT_CODE_CHARACTER, '')
+		.slice(0, MAX_CODE_LENGTH)
+
+	if (!cleaned.startsWith(QR_CODE_PREFIX)) return cleaned
+
+	const suffix = cleaned.slice(QR_CODE_PREFIX.length)
+	return suffix ? `${QR_CODE_PREFIX}-${suffix}` : cleaned
 }

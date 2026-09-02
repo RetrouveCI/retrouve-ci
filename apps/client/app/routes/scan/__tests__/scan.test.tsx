@@ -13,6 +13,52 @@ function renderScan() {
 let getUserMedia: ReturnType<typeof vi.fn>
 
 /**
+ * The WASM decoder is the one thing these tests must not really load: a megabyte
+ * of binary per run, to assert nothing about it. `ponyfill` is how each test
+ * says what the mocked module then does.
+ */
+const ponyfill = {
+	throws: false,
+	detect: async (): Promise<{ rawValue: string }[]> => [],
+}
+
+vi.mock('barcode-detector/ponyfill', () => ({
+	BarcodeDetector: class {
+		constructor() {
+			if (ponyfill.throws) throw new Error('offline')
+		}
+		detect = () => ponyfill.detect()
+	},
+	setZXingModuleOverrides: () => undefined,
+}))
+
+async function photoOfASticker() {
+	const canvas = document.createElement('canvas')
+	canvas.width = 2
+	canvas.height = 2
+
+	const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve))
+	if (!blob) throw new Error('the test could not build an image')
+
+	return new File([blob], 'sticker.png', { type: 'image/png' })
+}
+
+async function takeAPhoto() {
+	const input = document.querySelector<HTMLInputElement>('input[type="file"]')
+	if (!input) throw new Error('the photo fallback is not on screen')
+
+	await userEvent.upload(input, await photoOfASticker())
+}
+
+async function refuseTheCamera() {
+	getUserMedia.mockRejectedValue(new DOMException('', 'NotAllowedError'))
+	renderScan()
+	await userEvent.click(
+		page.getByRole('button', { name: 'Autoriser la caméra' }),
+	)
+}
+
+/**
  * Chromium on a build machine ships no `BarcodeDetector`, so the absence has to
  * be stated rather than inherited — otherwise the test that asserts the Safari
  * branch would pass for the wrong reason, and turn red the day it does ship.
@@ -30,6 +76,8 @@ function withDetector(
 
 beforeEach(() => {
 	getUserMedia = vi.fn()
+	ponyfill.throws = false
+	ponyfill.detect = async () => []
 	vi.stubGlobal('BarcodeDetector', undefined)
 	vi.stubGlobal('navigator', {
 		...navigator,
@@ -160,11 +208,26 @@ describe('ScanPage', () => {
 		await expect.element(page.getByLabelText('Code du sticker')).toBeVisible()
 	})
 
-	// Safari has no BarcodeDetector and the WASM decoder only lands at R21, so a
-	// viewfinder that can never read is not offered: the code entry takes over.
-	it('leads straight to the code entry when nothing can decode', async () => {
-		renderScan()
+	// R20 refused a viewfinder that could never read; R21 gives Safari a decoder.
+	it('opens the viewfinder on a browser with no detector of its own', async () => {
+		getUserMedia.mockResolvedValue(new MediaStream())
 
+		renderScan()
+		await userEvent.click(
+			page.getByRole('button', { name: 'Autoriser la caméra' }),
+		)
+
+		await expect
+			.element(page.getByRole('dialog', { name: 'Scanner un code' }))
+			.toBeVisible()
+		expect(getUserMedia).toHaveBeenCalledOnce()
+	})
+
+	it('falls back to the code entry when the decoder cannot be fetched', async () => {
+		ponyfill.throws = true
+		getUserMedia.mockResolvedValue(new MediaStream())
+
+		renderScan()
 		await userEvent.click(
 			page.getByRole('button', { name: 'Autoriser la caméra' }),
 		)
@@ -173,6 +236,91 @@ describe('ScanPage', () => {
 			.element(page.getByText("La lecture automatique n'est pas disponible"))
 			.toBeVisible()
 		await expect.element(page.getByLabelText('Code du sticker')).toBeVisible()
-		expect(getUserMedia).not.toHaveBeenCalled()
+	})
+
+	// The photo fallback needs the very decoder that just failed to load.
+	it('offers no photograph when the decoder itself is missing', async () => {
+		ponyfill.throws = true
+		getUserMedia.mockResolvedValue(new MediaStream())
+
+		renderScan()
+		await userEvent.click(
+			page.getByRole('button', { name: 'Autoriser la caméra' }),
+		)
+		await expect
+			.element(page.getByText("La lecture automatique n'est pas disponible"))
+			.toBeVisible()
+
+		expect(
+			page.getByRole('button', { name: /Prendre une photo/ }).elements(),
+		).toHaveLength(0)
+	})
+
+	it('offers the photograph when the camera is refused', async () => {
+		await refuseTheCamera()
+
+		await expect
+			.element(
+				page.getByRole('button', { name: 'Prendre une photo du sticker' }),
+			)
+			.toBeVisible()
+	})
+
+	it('reads a sticker code off a photograph', async () => {
+		ponyfill.detect = async () => [
+			{ rawValue: 'https://retrouve.ci/q/RCI-ABC123' },
+		]
+		await refuseTheCamera()
+
+		await takeAPhoto()
+
+		await expect.element(page.getByText('Page du sticker')).toBeVisible()
+	})
+
+	it('names a photograph whose QR leads somewhere else', async () => {
+		ponyfill.detect = async () => [{ rawValue: 'https://example.com/' }]
+		await refuseTheCamera()
+
+		await takeAPhoto()
+
+		await expect
+			.element(page.getByText("Ce code n'est pas un sticker RetrouveCI"))
+			.toBeVisible()
+	})
+
+	it('names a photograph that carries no QR at all', async () => {
+		await refuseTheCamera()
+
+		await takeAPhoto()
+
+		await expect
+			.element(page.getByText('Aucun QR code sur cette photo'))
+			.toBeVisible()
+	})
+
+	it('adds the hyphen and the upper case to a pasted code', async () => {
+		renderScan()
+		await userEvent.click(
+			page.getByRole('button', { name: 'Saisir le code à la main' }),
+		)
+
+		const field = page.getByLabelText('Code du sticker')
+		await userEvent.fill(field, 'rciabc123')
+
+		await expect.element(field).toHaveValue('RCI-ABC123')
+	})
+
+	it('leaves a pasted scan link for the parser', async () => {
+		renderScan()
+		await userEvent.click(
+			page.getByRole('button', { name: 'Saisir le code à la main' }),
+		)
+		await userEvent.fill(
+			page.getByLabelText('Code du sticker'),
+			'https://retrouve.ci/q/RCI-ABC123',
+		)
+		await userEvent.click(page.getByRole('button', { name: 'Continuer' }))
+
+		await expect.element(page.getByText('Page du sticker')).toBeVisible()
 	})
 })

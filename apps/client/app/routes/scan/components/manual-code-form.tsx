@@ -2,7 +2,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { FieldError } from '@app/ui/components'
-import { parseStickerCode } from '../helpers/sticker-code'
+import { formatStickerCode, parseStickerCode } from '../helpers/sticker-code'
 import {
 	stickerCodeSchema,
 	type StickerCodeData,
@@ -44,6 +44,9 @@ export function ManualCodeForm({ onCode, onBack }: ManualCodeFormProps) {
 						</label>
 						<input
 							{...field}
+							onChange={event =>
+								field.onChange(formatStickerCode(event.target.value))
+							}
 							id={field.name}
 							placeholder="RCI-XXXXXX"
 							autoComplete="off"
@@ -57,7 +60,8 @@ export function ManualCodeForm({ onCode, onBack }: ManualCodeFormProps) {
 							<FieldError errors={[fieldState.error]} className="text-xs" />
 						) : null}
 						<p className="text-muted-foreground text-sm">
-							Il est imprimé sous le QR code de chaque sticker.
+							Il est imprimé sous le QR code de chaque sticker. Le tiret et les
+							majuscules sont ajoutés au fur et à mesure.
 						</p>
 					</div>
 				)}
