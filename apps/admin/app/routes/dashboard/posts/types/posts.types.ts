@@ -2,6 +2,7 @@ import type {
 	DocumentType,
 	LostItemCategory,
 	LostItemType,
+	ModerationReason,
 	ModerationStatus,
 	ResolutionStatus,
 } from '@app/contracts/lost-items'
@@ -11,6 +12,7 @@ export type {
 	DocumentType,
 	LostItemCategory,
 	LostItemType,
+	ModerationReason,
 	ModerationStatus,
 	ResolutionStatus,
 }
@@ -34,6 +36,9 @@ export interface Post {
 	documentNumber: string | null
 	documentIssuer: string | null
 	moderationStatus: ModerationStatus
+	/** Only ever served on an admin read; the API strips it from public ones. */
+	moderationReason: ModerationReason | null
+	moderationReasonNote: string | null
 	resolutionStatus: ResolutionStatus
 	views: number
 	contactsCount: number

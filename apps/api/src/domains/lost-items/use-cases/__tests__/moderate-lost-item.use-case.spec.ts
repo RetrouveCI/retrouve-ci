@@ -30,9 +30,33 @@ describe('ModerateLostItemUseCase', () => {
 
 		expect(repository.updateModerationStatus).toHaveBeenCalledWith(
 			'lost-item-1',
-			'published',
+			{ moderationStatus: 'published' },
 		)
 		expect(result).toEqual(moderated)
+	})
+
+	// The id is the route's, so it must not reach the write as a field.
+	it('carries the reason and its note through to the write', async () => {
+		vi.mocked(repository.findById).mockResolvedValue(buildLostItem())
+		vi.mocked(repository.updateModerationStatus).mockResolvedValue(
+			buildLostItem({ moderationStatus: 'hidden' }),
+		)
+
+		await useCase.execute({
+			id: 'lost-item-1',
+			moderationStatus: 'hidden',
+			moderationReason: 'other',
+			moderationReasonNote: 'La 2e photo montre une carte bancaire.',
+		})
+
+		expect(repository.updateModerationStatus).toHaveBeenCalledWith(
+			'lost-item-1',
+			{
+				moderationStatus: 'hidden',
+				moderationReason: 'other',
+				moderationReasonNote: 'La 2e photo montre une carte bancaire.',
+			},
+		)
 	})
 
 	it('throws when the item does not exist, without writing', async () => {

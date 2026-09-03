@@ -22,6 +22,10 @@ import { BentoCard } from '@/components/bento-card'
 import { DataTable } from '@/components/data-table'
 import { PostsStatsGrid } from './components/posts-stats-grid'
 import { PostDetailDialog } from './components/post-detail-dialog'
+import {
+	HidePostDialog,
+	type HideDecision,
+} from './components/hide-post-dialog'
 import { postsLoader } from './servers/posts.loader'
 import { postsAction } from './servers/posts.action'
 import { format } from 'date-fns'
@@ -59,6 +63,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null)
 	const [detailOpen, setDetailOpen] = useState(false)
+	const [hidingPost, setHidingPost] = useState<Post | null>(null)
 
 	const moderateFetcher = useFetcher<ActionResult>()
 
@@ -80,11 +85,28 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 		}
 	}, [moderateFetcher.state, moderateFetcher.data, selectedPost?.id])
 
-	const handleModerate = (id: string, moderationStatus: ModerationStatus) => {
+	const handleModerate = (
+		id: string,
+		moderationStatus: ModerationStatus,
+		decision: HideDecision = {},
+	) => {
 		moderateFetcher.submit(
-			{ intent: 'moderate', id, moderationStatus },
+			{
+				intent: 'moderate',
+				id,
+				moderationStatus,
+				moderationReason: decision.moderationReason ?? '',
+				moderationReasonNote: decision.moderationReasonNote ?? '',
+			},
 			{ method: 'post' },
 		)
+	}
+
+	const handleHide = (decision: HideDecision) => {
+		if (!hidingPost) return
+
+		handleModerate(hidingPost.id, 'hidden', decision)
+		setHidingPost(null)
 	}
 
 	const handleStatusFilter = (value: string) => {
@@ -190,10 +212,10 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 							)}
 							{post.moderationStatus !== 'hidden' && (
 								<DropdownMenuItem
-									onClick={() => handleModerate(post.id, 'hidden')}
+									onClick={() => setHidingPost(post)}
 									className="text-destructive focus:text-destructive"
 								>
-									<EyeOff className="mr-2 h-4 w-4" /> Masquer
+									<EyeOff className="mr-2 h-4 w-4" /> Masquer…
 								</DropdownMenuItem>
 							)}
 							{post.moderationStatus !== 'pending' && (
@@ -285,7 +307,15 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 					if (!open) setSelectedPost(null)
 				}}
 				onModerate={handleModerate}
+				onHide={setHidingPost}
 				isModerating={moderateFetcher.state !== 'idle'}
+			/>
+
+			<HidePostDialog
+				post={hidingPost}
+				submitting={moderateFetcher.state !== 'idle'}
+				onOpenChange={open => !open && setHidingPost(null)}
+				onConfirm={handleHide}
 			/>
 		</>
 	)

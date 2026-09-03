@@ -1,6 +1,7 @@
 import type {
 	DocumentType,
 	LostItem,
+	ModerationReason,
 	LostItemType,
 	LostItemCategory,
 	LostItemStatus,
@@ -50,6 +51,8 @@ export interface LostItemApiDto {
  */
 export interface MyLostItemApiDto extends LostItemApiDto {
 	documentNumber: string | null
+	moderationReason: ModerationReason | null
+	moderationReasonNote: string | null
 }
 
 /**

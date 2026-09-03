@@ -52,8 +52,7 @@ describe('postsAction', () => {
 		})
 
 		expect(moderatePost).toHaveBeenCalledWith(
-			'post-1',
-			moderationStatus,
+			{ id: 'post-1', moderationStatus },
 			expect.any(Request),
 		)
 		expect(result).toEqual({
@@ -61,6 +60,64 @@ describe('postsAction', () => {
 			post: { id: 'post-1' },
 			intent: 'moderate',
 		})
+	})
+
+	it('carries the reason and its note when the dialog gave them', async () => {
+		await postsAction({
+			request: requestFor({
+				intent: 'moderate',
+				id: 'post-1',
+				moderationStatus: 'hidden',
+				moderationReason: 'other',
+				moderationReasonNote: 'La 2e photo montre une carte bancaire.',
+			}),
+		})
+
+		expect(moderatePost).toHaveBeenCalledWith(
+			{
+				id: 'post-1',
+				moderationStatus: 'hidden',
+				moderationReason: 'other',
+				moderationReasonNote: 'La 2e photo montre une carte bancaire.',
+			},
+			expect.any(Request),
+		)
+	})
+
+	// The dialog posts every field, so a reason nobody chose arrives as `''` —
+	// which the contract would refuse if it were passed through as a value.
+	it('reads an untouched reason as absent, not as an empty one', async () => {
+		await postsAction({
+			request: requestFor({
+				intent: 'moderate',
+				id: 'post-1',
+				moderationStatus: 'hidden',
+				moderationReason: '',
+				moderationReasonNote: '',
+			}),
+		})
+
+		expect(moderatePost).toHaveBeenCalledWith(
+			{ id: 'post-1', moderationStatus: 'hidden' },
+			expect.any(Request),
+		)
+	})
+
+	it('refuses a reason on the way back to published', async () => {
+		const result = await postsAction({
+			request: requestFor({
+				intent: 'moderate',
+				id: 'post-1',
+				moderationStatus: 'published',
+				moderationReason: 'duplicate',
+			}),
+		})
+
+		expect(await payloadOf(result)).toEqual({
+			ok: false,
+			error: "Un motif ne s'attache qu'à un masquage",
+		})
+		expect(moderatePost).not.toHaveBeenCalled()
 	})
 
 	it('refuses a status the contract does not know, in French', async () => {

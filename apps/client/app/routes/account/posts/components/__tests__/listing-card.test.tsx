@@ -251,6 +251,56 @@ describe('ListingCard', () => {
 			).toHaveLength(0)
 		})
 
+		// A listing pulled down without a word leaves nothing to correct.
+		it('says why a hidden listing was pulled down', async () => {
+			renderCard({
+				moderationStatus: 'hidden',
+				moderation: { reason: 'document_number_visible' },
+			})
+
+			await expect
+				.element(page.getByText(/laisse lire un numéro de pièce/))
+				.toBeVisible()
+			await expect
+				.element(page.getByRole('link', { name: "Modifier l'annonce" }))
+				.toHaveAttribute('href', '/account/posts/post-1')
+		})
+
+		it('reads the note the moderator wrote behind « Autre »', async () => {
+			renderCard({
+				moderationStatus: 'hidden',
+				moderation: { reason: 'other', note: 'La 2e photo montre une CNI.' },
+			})
+
+			await expect
+				.element(page.getByText('La 2e photo montre une CNI.'))
+				.toBeVisible()
+		})
+
+		// Hiding without a reason stays possible, and the card must not invent
+		// one — but the way to correct it is still offered.
+		it('offers the edit without a reason when none was given', async () => {
+			renderCard({ moderationStatus: 'hidden' })
+
+			expect(page.getByText(/^Motif/).elements()).toHaveLength(0)
+			await expect
+				.element(page.getByRole('link', { name: "Modifier l'annonce" }))
+				.toBeVisible()
+		})
+
+		// The artboard draws none there: frozen history beside « Motif » is noise.
+		it('drops the counters on a hidden listing', async () => {
+			renderCard({ moderationStatus: 'hidden', views: 12 })
+
+			expect(page.getByText(/12 vues/).elements()).toHaveLength(0)
+		})
+
+		it('keeps the counters while a listing is online', async () => {
+			renderCard({ moderationStatus: 'published', views: 12 })
+
+			await expect.element(page.getByText(/12 vues/)).toBeVisible()
+		})
+
 		it.each([
 			['resolved', 'Retrouvée'],
 			['expired', 'Archivée'],

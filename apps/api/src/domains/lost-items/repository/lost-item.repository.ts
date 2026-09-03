@@ -6,6 +6,7 @@ import {
 	toDomainResolutionStatus,
 	toPrismaCategory,
 	toPrismaDocumentType,
+	toPrismaModerationReason,
 	toPrismaModerationStatus,
 	toPrismaResolutionStatus,
 	toPrismaType,
@@ -18,6 +19,7 @@ import type {
 	LostItemListResponse,
 	LostItemOwnerSummary,
 	MatchCandidatesFilter,
+	ModerationDecision,
 	ModerationStatus,
 	ResolutionStatus,
 	UpdateLostItemData,
@@ -215,11 +217,21 @@ export class LostItemRepository {
 
 	async updateModerationStatus(
 		id: string,
-		moderationStatus: ModerationStatus,
+		{
+			moderationStatus,
+			moderationReason,
+			moderationReasonNote,
+		}: ModerationDecision,
 	): Promise<LostItem> {
 		const lostItem = await this.prisma.lostItem.update({
 			where: { id },
-			data: { moderationStatus: toPrismaModerationStatus(moderationStatus) },
+			data: {
+				moderationStatus: toPrismaModerationStatus(moderationStatus),
+				moderationReason: moderationReason
+					? toPrismaModerationReason(moderationReason)
+					: null,
+				moderationReasonNote: moderationReasonNote ?? null,
+			},
 		})
 
 		return toDomainLostItem(lostItem)

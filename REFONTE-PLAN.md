@@ -255,7 +255,7 @@ Une ligne = une branche = une PR = une session.
 | **R33** | Socle    | Échelle typographique et boutons mobiles    | `refonte-r33-mobile-type-scale`            | `ui` + `client`                      | 1,5 j  | R2, R17      |
 | **R34** | Socle    | Gouttière de zones sûres unique             | `refonte-r34-safe-area-gutter`             | `client`                             | 0,5 j  | R1           |
 | **R35** | Publier  | Publication guidée d'une pièce ✅           | `refonte-r35-document-publish`             | `client/publish`                     | 1,5 j  | R18, A7      |
-| **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`             | `api/lost-items`                     | 1 j    | —            |
+| **A1**  | API      | Motif de masquage d'une annonce ✅          | `refonte-a1-moderation-reason`             | `api/lost-items`                     | 1 j    | —            |
 | **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`              | `api/storage`                        | 0,5 j  | —            |
 | **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                      | `api/notifications`                  | 3 j    | R23          |
 | **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`                  | `api/sticker-orders`                 | 0,5 j  | R17          |
@@ -3688,23 +3688,93 @@ mot français sans accents dans `routes/auth/`, hors commentaires.
 
 ### Étapes API
 
-#### A1 — Motif de masquage d'une annonce
+#### A1 — Motif de masquage d'une annonce — **LIVRÉE**
 
-**Vérifié** : `LostItem` ne porte qu'un enum `moderationStatus`, et
-`ModerateLostItemUseCase` ne reçoit que le statut. **Il n'existe aucun champ de
-raison.** C'est la seule migration du chantier.
+**Vérifié avant de coder** : `LostItem` ne portait qu'un énuméré
+`moderationStatus`, `ModerateLostItemUseCase` ne recevait que le statut, et
+`moderation-notice.ts` nommait A1 comme la pièce manquante. Masquer était **un
+clic** dans le menu ⋯.
 
-1. Colonne `moderationReason String?` + migration.
-2. Contrat : le champ dans le schéma de modération et dans la réponse.
-3. `ModerateLostItemUseCase` accepte et stocke le motif.
-4. Saisie côté backoffice au moment de masquer.
-5. Affichage côté client dans la carte (complète R13).
+Ce qui a été livré :
 
-**Fichiers** : `packages/database/prisma/schema.prisma`,
-`packages/contracts/lost-items/`, `apps/api/src/domains/lost-items/`,
-`apps/admin/app/routes/dashboard/posts/`. **Flux** : D. **Acceptation** :
-masquer sans motif reste possible ; la carte n'affiche le bloc que s'il y en a
-un.
+1. **Le motif est un code, pas une phrase** — énuméré fermé de sept valeurs
+   (`document_number_visible`, `unclear_photo`, `vague_description`,
+   `contact_in_description`, `duplicate`, `off_topic`, `other`), plus une note
+   libre bornée à 300 caractères pour `other`. Deux colonnes, une migration.
+   C'est ce qui rend vraie la raison pour laquelle une liste a été choisie : le
+   propriétaire lit la **même phrase pour la même faute**, là où un texte libre
+   n'en donne que la convention.
+2. **Chaque app écrit ses mots depuis le même code** : le backoffice des
+   libellés courts pour sa liste déroulante, le client la phrase que lit le
+   déposant. Deux tables `Record<ModerationReason, string>`, donc un motif
+   ajouté au contrat est une erreur de compilation et non un libellé manquant.
+3. **Le motif ne sort sur aucune lecture publique**, par la projection typée
+   d'A7 étendue : `moderationReason` et `moderationReasonNote` y sont déclarés
+   `never`. Une annonce masquée puis republiée aurait sinon servi la note
+   interne d'un modérateur sur une page indexable.
+4. **Le contrat refuse un motif sur autre chose qu'un masquage**, exige la note
+   derrière `other` et la refuse partout ailleurs. **Masquer sans motif reste
+   possible** — un modérateur qui ne sait pas formuler doit pouvoir agir.
+5. **Le backoffice masque par une boîte de dialogue** et non plus par un clic,
+   depuis la liste comme depuis le détail.
+6. **La carte du client porte « Motif : … » et le bouton « Modifier l'annonce
+   »** que dessine l'artboard, et **perd ses compteurs** quand elle est masquée
+   : une histoire figée à côté du motif est du bruit.
+
+> ⚠️ **La phrase de l'artboard était un mensonge, le même que R12 a attrapé.**
+> `MesAnnonces` écrit « Motif : la photo laisse lire un numéro de pièce.
+> **Modifiez-la pour republier.** » Or `repository.update()` n'écrit aucun
+> statut de modération — corriger ne remet rien en ligne, ce que la bannière
+> au-dessus de la liste dit déjà. **Aucune des sept phrases ne promet un retour
+> en ligne**, et un test balaie les sept contre
+> `/republi|remettre en ligne|reparaît/i` pour que personne ne l'y remette.
+
+> ⚠️ **`--destructive-text` n'existe toujours pas** (dette de R13), et une
+> classe Tailwind sans token **ne génère rien du tout, silencieusement** : le
+> premier jet posait `text-destructive-text` sur la ligne de motif, qui serait
+> restée à la couleur héritée. L'encre est donc nommée —
+> `text-red-800 dark:text-red-300` — comme `danger-zone-section` le fait déjà,
+> avec la mesure qui le justifie (« `text-destructive` fait 2,98:1 sur le fond
+> sombre »).
+
+> **Le bouton d'édition est à 40 px dessinés et 44 px tapables.** L'artboard le
+> dessine à 38, §2.1 impose 44 : `.touch-target` existe exactement pour ce
+> désaccord, et c'est la première fois du chantier qu'il sert à le résoudre
+> plutôt qu'à couvrir une puce.
+
+> **Ce que le plan disait de faux.** « C'est la seule migration du chantier » :
+> A7 et R36 en avaient déjà écrit une chacune, celle-ci est la troisième.
+
+> ⚠️ **`prisma format` a expiré** (il télécharge un moteur), donc l'alignement
+> du bloc `LostItem` a été recalculé à la main — largeur des noms et des types
+> par colonne. Le diff du schéma reste confiné à l'énuméré et à ce bloc, dont le
+> réalignement est inévitable, `moderationReasonNote` étant plus large que tout
+> nom qu'il portait. La migration, elle, est écrite par `migrate diff` hors
+> ligne et revérifiée contre le diff du schéma.
+
+> **`postsAction` répond toujours `{ ok, error }`** et non `ActionResult` — la
+> dette déjà consignée. Elle n'a pas été alignée ici : le faire demande de
+> toucher les composants qui la lisent, ce qui n'est pas le périmètre d'A1. Le
+> contrôle côté navigateur suffit à ce que la boîte de dialogue n'envoie rien
+> d'invalide, et le message du contrat remonte en toast.
+
+**Fichiers** : `packages/database/prisma/` (énuméré + 2 colonnes + migration),
+`packages/contracts/src/lost-items/` (`update-moderation-status.schema.ts`
+raffiné, `MODERATION_REASONS`, `MODERATION_REASON_ERROR`),
+`apps/api/src/domains/lost-items/` (`ModerationDecision`, projection étendue,
+deux tables de conversion), `apps/admin/app/routes/dashboard/posts/`
+(`hide-post-dialog.tsx` nouveau, libellés, action, service),
+`apps/client/app/routes/account/posts/` (phrases, carte). **Flux** : D.
+
+**Acceptation, chacune mesurée** : masquer sans motif reste possible ; la carte
+n'affiche le bloc que s'il y en a un ; un motif sur un retour en ligne est
+refusé en français ; le motif n'apparaît dans aucune réponse publique — typé
+`never` et vérifié à la frontière de sérialisation.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Tests : api **421** (+2),
+contracts **341** (+12), admin **416** (+3), client **1097** (799 en `node`, 298
+en `ui`) contre 1084. Densité **8,8 %**.
 
 #### A4 — Prénom au compte, et vérification du code de reset
 
