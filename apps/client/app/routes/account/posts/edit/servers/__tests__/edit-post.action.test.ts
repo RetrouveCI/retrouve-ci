@@ -136,6 +136,42 @@ describe('editPostAction', () => {
 		expect(patchLostItemContent).not.toHaveBeenCalled()
 	})
 
+	const PIECE = {
+		...VALID,
+		objectType: 'documents',
+		description: '',
+		documentType: 'driver_licence',
+		documentHolderName: 'KOUASSI Jean',
+		documentNumber: '5811403-13-001570',
+		documentIssuer: '',
+	}
+
+	it('patches the four document fields', async () => {
+		await editPostAction(requestFor(PIECE), 'post-1').catch(() => undefined)
+
+		expect(patchLostItemContent).toHaveBeenCalledWith(
+			'post-1',
+			expect.objectContaining({
+				documentType: 'driver_licence',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: '5811403-13-001570',
+				documentIssuer: undefined,
+			}),
+			expect.any(Request),
+		)
+	})
+
+	// The rule holds on the way back too: a listing that carried photos before
+	// it declared a piece has them cleared rather than kept.
+	it('clears the photos of a piece of ID', async () => {
+		collectPhotoUrls.mockResolvedValue(['https://cdn/cni.jpg'])
+
+		await editPostAction(requestFor(PIECE), 'post-1').catch(() => undefined)
+
+		expect(collectPhotoUrls).not.toHaveBeenCalled()
+		expect(patchLostItemContent.mock.calls[0]?.[1].photos).toEqual([])
+	})
+
 	it('does not patch when a photo upload fails', async () => {
 		collectPhotoUrls.mockRejectedValue(new ApiError(413, 'Image trop lourde'))
 

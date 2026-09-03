@@ -4,8 +4,8 @@ import type {
 } from '@app/contracts/lost-items'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type {
-	LostItemApiDto,
-	LostItemListApiResponse,
+	MyLostItemApiDto,
+	MyLostItemListApiResponse,
 	MyLostItemsSummaryApiResponse,
 } from '@/shared/types/lost-items.types'
 import type { LostItemStatus } from '@/shared/types/lost-item'
@@ -23,7 +23,7 @@ const SWEEP_PAGE_SIZE = 50
 export async function getMyLostItemsPage(
 	request: Request,
 	filter: MyLostItemsFilterData,
-): Promise<LostItemListApiResponse> {
+): Promise<MyLostItemListApiResponse> {
 	const params = new URLSearchParams()
 	if (filter.search) params.set('search', filter.search)
 	if (filter.resolutionStatus)
@@ -31,7 +31,7 @@ export async function getMyLostItemsPage(
 	params.set('page', String(filter.page))
 	params.set('pageSize', String(filter.pageSize))
 
-	return apiFetch<LostItemListApiResponse>(
+	return apiFetch<MyLostItemListApiResponse>(
 		`/lost-items/mine?${params.toString()}`,
 		{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
 	)
@@ -49,13 +49,13 @@ export async function getMyLostItemsSummary(
 /** Every listing in one call, up to `SWEEP_PAGE_SIZE`. */
 export async function sweepMyLostItems(
 	request: Request,
-): Promise<LostItemListApiResponse> {
+): Promise<MyLostItemListApiResponse> {
 	return getMyLostItemsPage(request, { page: 1, pageSize: SWEEP_PAGE_SIZE })
 }
 
 export async function getMyLostItems(
 	request: Request,
-): Promise<LostItemApiDto[]> {
+): Promise<MyLostItemApiDto[]> {
 	return (await sweepMyLostItems(request)).items
 }
 
