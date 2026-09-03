@@ -64,12 +64,27 @@ const heading = (name: string) => page.getByRole('heading', { name })
 const CODE_HEADING = 'Le code reçu par SMS'
 const PASSWORD_HEADING = 'Votre mot de passe'
 
-async function reachOtpStep() {
-	renderPage()
+async function reachOtpStep(action?: Action) {
+	renderPage(action)
 	await userEvent.fill(phoneField(), PHONE)
 	await userEvent.click(submitPhone())
 	await expect.element(heading(CODE_HEADING)).toBeInTheDocument()
 }
+
+async function reachPasswordStep(action?: Action) {
+	await reachOtpStep(action)
+	await userEvent.fill(codeField(), CODE)
+	await expect.element(heading(PASSWORD_HEADING)).toBeInTheDocument()
+}
+
+const firstNameField = () => page.getByLabelText('Votre prénom')
+// The eye toggle carries « mot de passe » too, hence the role queries.
+const passwordField = () =>
+	page.getByRole('textbox', { name: 'Mot de passe', exact: true })
+const confirmField = () =>
+	page.getByRole('textbox', { name: 'Confirmer le mot de passe' })
+const createAccount = () =>
+	page.getByRole('button', { name: 'Créer mon compte' })
 
 beforeEach(() => {
 	auth.signedIn = false
@@ -189,6 +204,71 @@ describe('RegisterPage, once the code is verified', () => {
 
 		await expect
 			.element(page.getByText('Page de publication'))
+			.toBeInTheDocument()
+	})
+})
+
+describe('RegisterPage, the password step', () => {
+	// The first step posts `send-otp` to the same action, so what is asserted is
+	// the submission this step owns, not the call count.
+	function recordingAction(sent: Record<string, string>[]) {
+		return async ({ request }: { request: Request }) => {
+			sent.push(
+				Object.fromEntries(await request.formData()) as Record<string, string>,
+			)
+			return { success: true } as ActionResult
+		}
+	}
+
+	const created = (sent: Record<string, string>[]) =>
+		sent.filter(body => body.intent === 'set-initial-password')
+
+	it('refuses to create the account without a first name', async () => {
+		const sent: Record<string, string>[] = []
+		await reachPasswordStep(recordingAction(sent))
+
+		await userEvent.fill(passwordField(), 'Motdepasse1')
+		await userEvent.fill(confirmField(), 'Motdepasse1')
+		await userEvent.click(createAccount())
+
+		await expect
+			.element(page.getByText('Votre prénom est requis'))
+			.toBeInTheDocument()
+		expect(created(sent)).toEqual([])
+	})
+
+	it('sends the first name along with the password', async () => {
+		const sent: Record<string, string>[] = []
+		await reachPasswordStep(recordingAction(sent))
+
+		await userEvent.fill(passwordField(), 'Motdepasse1')
+		await userEvent.fill(confirmField(), 'Motdepasse1')
+		await userEvent.fill(firstNameField(), 'Konan')
+		await userEvent.click(createAccount())
+
+		await expect
+			.element(page.getByText('Page de publication'))
+			.toBeInTheDocument()
+		expect(created(sent)).toEqual([
+			{
+				intent: 'set-initial-password',
+				newPassword: 'Motdepasse1',
+				name: 'Konan',
+			},
+		])
+	})
+
+	// The artboard promised « Votre nom complet reste privé »; there is no such
+	// second name, so the step says only what is true.
+	it('says where the name will be shown, and promises nothing else', async () => {
+		await reachPasswordStep()
+
+		await expect
+			.element(
+				page.getByText(
+					'Affiché sur vos annonces, à la personne qui trouve votre objet.',
+				),
+			)
 			.toBeInTheDocument()
 	})
 })

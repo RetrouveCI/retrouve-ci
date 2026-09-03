@@ -171,4 +171,13 @@ describe('the publish draft', () => {
 	])('counts %s as content: %s', (_label, values, expected) => {
 		expect(hasDraftContent(values)).toBe(expected)
 	})
+
+	// The contact name arrives prefilled from the account, so counting it would
+	// announce « Brouillon enregistré » to someone who has written nothing.
+	it.each([
+		['left as it opened', 'Konan', false],
+		['changed', 'Awa', true],
+	])('counts a prefilled field %s as content: %s', (_label, name, expected) => {
+		expect(hasDraftContent({ name }, { name: 'Konan' })).toBe(expected)
+	})
 })

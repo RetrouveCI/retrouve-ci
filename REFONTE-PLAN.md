@@ -3776,27 +3776,74 @@ refusé en français ; le motif n'apparaît dans aucune réponse publique — ty
 contracts **341** (+12), admin **416** (+3), client **1097** (799 en `node`, 298
 en `ui`) contre 1084. Densité **8,8 %**.
 
-#### A4 — Prénom au compte, et vérification du code de reset
+#### A4 — Prénom au compte — **LIVRÉE**
 
-Deux besoins découverts par R28, tous deux impossibles côté front seul.
+**Vérifié avant de coder, et le plan se trompait sur presque tout son
+périmètre.** Il annonçait quatre changements avant le champ — colonne,
+migration, contrat, use-case — dont aucun n'était nécessaire. `User.name`
+**existe déjà** et est obligatoire — c'est un champ de better-auth —, et
+`auth.config.ts` le remplit avec `getTempName: phoneNumber => phoneNumber`. Le
+défaut n'était donc pas un champ manquant mais un champ **rempli avec le
+numéro** : l'en-tête du compte disait « Bonjour 👋 +2250700000000 » et l'avatar
+en tirait « + » pour initiales. L'écriture existait aussi — `update-user` de
+better-auth, déjà utilisé par le dialogue des réglages. A4 est donc devenue une
+étape **`client` seule**, sans migration ni contrat.
 
-1. **Le prénom.** `AuthMotDePasse` demande « Votre prénom » en 3/3 de
-   l'inscription, « affiché à la personne qui trouve votre objet ». Le champ
-   n'existe ni dans `@app/contracts/auth` ni en base, et
-   `/account/set-initial-password` ne porte que `newPassword`. Colonne,
-   migration, contrat, use-case, puis le champ dans
-   `create-password-step-section.tsx`.
-2. **La vérification du code de reset** _(facultatif)_. better-auth ne l'expose
-   pas : le code est rangé sous `${phoneNumber}-request-password-reset` et n'est
-   consommé que par `/phone-number/reset-password`, avec le mot de passe. Un
-   endpoint qui le vérifie **sans le consommer** permettrait de refuser un
-   mauvais code au bout de l'étape 1 plutôt qu'au bout de l'étape 2. À ne faire
-   que si le contrôle final se révèle gênant à l'usage — R28 tient déjà
-   l'essentiel, le mot de passe n'étant jamais perdu.
+Ce qui a été livré :
 
-**Fichiers** : `packages/database/prisma/schema.prisma`,
-`packages/contracts/src/auth/`, `apps/api/src/presentations/auth/`,
-`apps/client/app/routes/auth/register/`. **Flux** : E.
+1. **Le champ « Votre prénom » en 3/3 de l'inscription**, **obligatoire**
+   (2..120 caractères), écrit par `update-user` **avant** le mot de passe : un
+   échec sur le nom laisse le compte exactement comme l'étape OTP l'a laissé,
+   donc le même envoi se rejoue en entier. L'ordre est asserté.
+2. **Le prénom pré-remplit « Votre nom » du formulaire de publication**, ce qui
+   rend vraie la phrase de la maquette. Sans lui, ce que lit le trouveur est
+   `contactName`, saisi à la main et jamais repris du compte : la planche
+   promettait un affichage que rien ne produisait.
+3. **Un pré-remplissage n'est pas une saisie.** `hasDraftContent` prend
+   désormais ce que la page a ouvert et l'écarte, sans quoi la barre disait «
+   Brouillon enregistré » à quelqu'un qui n'avait rien écrit.
+4. **Les comptes antérieurs sont rattrapés par un rappel** sur `/account`,
+   affiché quand le nom est un numéro et non un nom, qui mène à la ligne des
+   réglages qui le corrige. Le prédicat est exigeant — chiffres et ponctuation
+   de numéro seulement, plus la longueur ivoirienne —, donc « Konan 0700000000 »
+   reste un nom.
+
+**Écart assumé avec la maquette** : `AuthMotDePasse` ajoutait « Votre nom
+complet reste privé ». Il n'existe pas de second nom, privé, à garder ; la
+phrase est donc tue, comme A1 a refusé de promettre un retour en ligne. L'écran
+dit ce qu'il fait : « Affiché sur vos annonces, à la personne qui trouve votre
+objet. »
+
+**Non fait, et volontairement** : le point 2 de l'étape — vérifier le code de
+reset **sans le consommer** — reste facultatif et non ouvert. better-auth ne
+l'expose pas : le code est rangé sous `${phoneNumber}-request-password-reset` et
+n'est consommé que par `/phone-number/reset-password`, avec le mot de passe. R28
+tient déjà l'essentiel, le mot de passe n'étant jamais perdu.
+
+**Flux** : A, E. **Fichiers** : `apps/client/app/shared/utils/display-name.ts`
+(nouveau), `apps/client/app/routes/auth/register/` (schéma, service, action,
+écran 3/3), `apps/client/app/routes/account/` (`components/name-reminder.tsx`,
+`_index`) et `apps/client/app/routes/publish/` (loader, `publish-flow`,
+brouillon).
+
+**Acceptation, chacune mesurée** : l'inscription refuse de finir sans prénom ;
+ce que la 3/3 envoie est bien `{ intent, newPassword, name }` ; le nom est écrit
+avant le mot de passe ; l'étape 3 de la publication s'ouvre sur le prénom du
+compte, modifiable ; un compte nommé d'après son numéro n'offre rien à
+pré-remplir ; un formulaire pré-rempli mais intact n'annonce aucun brouillon.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Tests : api **421**,
+contracts **341**, admin **416** — tous inchangés, l'étape ne touche que le
+client — et client **1122** (818 en `node`, 304 en `ui`) contre 1097. Densité
+**9,8 %**.
+
+**Dette ouverte par la mesure** : le formulaire de publication met `text-base`
+sur une douzaine de champs (`contact-step`, `object-step`, `document-section`,
+`date-choice`, `place-step`). Ici `text-base` vaut **14 px** et bat le
+`text-field` que porte `Input`, donc **iOS zoome sur chacun** — exactement le
+défaut que R37 a corrigé sur le hero. C'est une passe à part, pas un détour
+d'A4.
 
 #### A5 — Compteurs publics du panneau d'authentification _(facultatif)_
 

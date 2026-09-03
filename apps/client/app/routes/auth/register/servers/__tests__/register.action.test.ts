@@ -6,16 +6,20 @@ const errorsOf = (result: ActionResult) =>
 
 import { ApiError } from '@/shared/utils/api-fetch'
 
-const { requireServerSession, sendOtp, setInitialPassword } = vi.hoisted(
-	() => ({
+const { requireServerSession, sendOtp, setDisplayName, setInitialPassword } =
+	vi.hoisted(() => ({
 		requireServerSession: vi.fn(),
 		sendOtp: vi.fn(),
+		setDisplayName: vi.fn(),
 		setInitialPassword: vi.fn(),
-	}),
-)
+	}))
 
 vi.mock('@/shared/helpers/session.server', () => ({ requireServerSession }))
-vi.mock('../register.service', () => ({ sendOtp, setInitialPassword }))
+vi.mock('../register.service', () => ({
+	sendOtp,
+	setDisplayName,
+	setInitialPassword,
+}))
 
 const { registerAction } = await import('../register.action')
 
@@ -31,6 +35,7 @@ function requestFor(fields: Record<string, string>) {
 beforeEach(() => {
 	requireServerSession.mockReset().mockResolvedValue({ user: { id: 'u1' } })
 	sendOtp.mockReset().mockResolvedValue(undefined)
+	setDisplayName.mockReset().mockResolvedValue(undefined)
 	setInitialPassword.mockReset().mockResolvedValue(undefined)
 })
 
@@ -93,6 +98,7 @@ describe('registerAction', () => {
 					request: requestFor({
 						intent: 'set-initial-password',
 						newPassword: 'Motdepasse1',
+						name: 'Konan',
 					}),
 				}),
 			).rejects.toBe(redirectResponse)
@@ -104,6 +110,7 @@ describe('registerAction', () => {
 				request: requestFor({
 					intent: 'set-initial-password',
 					newPassword: 'Motdepasse1',
+					name: 'Konan',
 				}),
 			})
 
@@ -114,12 +121,55 @@ describe('registerAction', () => {
 			)
 		})
 
+		it('names the account before setting its password', async () => {
+			const order: string[] = []
+			setDisplayName.mockImplementation(async () => void order.push('name'))
+			setInitialPassword.mockImplementation(
+				async () => void order.push('password'),
+			)
+
+			await registerAction({
+				request: requestFor({
+					intent: 'set-initial-password',
+					newPassword: 'Motdepasse1',
+					name: '  Konan  ',
+				}),
+			})
+
+			expect(setDisplayName).toHaveBeenCalledWith('Konan', expect.any(Request))
+			// A failure on the name leaves the account as the OTP step left it, so
+			// the same submit can be retried whole.
+			expect(order).toEqual(['name', 'password'])
+		})
+
+		it.each(['', 'K'])(
+			'refuses the first name %p without touching the account',
+			async name => {
+				const result = await registerAction({
+					request: requestFor({
+						intent: 'set-initial-password',
+						newPassword: 'Motdepasse1',
+						name,
+					}),
+				})
+
+				expect(result.success).toBe(false)
+				expect(errorsOf(result)?.name).toBeDefined()
+				expect(setDisplayName).not.toHaveBeenCalled()
+				expect(setInitialPassword).not.toHaveBeenCalled()
+			},
+		)
+
 		// The rule is the contract's: 8..128, an uppercase, a lowercase, a digit.
 		it.each(['court1A', 'sansmajuscule1', 'SANSMINUSCULE1', 'SansChiffre'])(
 			'refuses %s without calling the API',
 			async newPassword => {
 				const result = await registerAction({
-					request: requestFor({ intent: 'set-initial-password', newPassword }),
+					request: requestFor({
+						intent: 'set-initial-password',
+						newPassword,
+						name: 'Konan',
+					}),
 				})
 
 				expect(result.success).toBe(false)

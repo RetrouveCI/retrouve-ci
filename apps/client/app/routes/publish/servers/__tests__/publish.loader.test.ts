@@ -9,7 +9,9 @@ const { publishLoader } = await import('../publish.loader')
 const request = () => new Request('http://localhost:3000/publish/lost')
 
 beforeEach(() => {
-	requireServerSession.mockReset().mockResolvedValue({ user: { id: 'u1' } })
+	requireServerSession
+		.mockReset()
+		.mockResolvedValue({ user: { id: 'u1', name: 'Konan' } })
 })
 
 afterEach(() => {
@@ -33,8 +35,22 @@ describe('publishLoader', () => {
 		await expect(publishLoader({ request: request() })).rejects.toBe(redirect)
 	})
 
-	it('hands the page no data of its own', async () => {
-		expect(await publishLoader({ request: request() })).toBeNull()
+	it('offers the account name as the contact name', async () => {
+		expect(await publishLoader({ request: request() })).toEqual({
+			contactName: 'Konan',
+		})
+	})
+
+	// An account that never named itself carries its own number, which is not a
+	// name to offer the finder.
+	it('offers nothing when the account is named after its number', async () => {
+		requireServerSession.mockResolvedValue({
+			user: { id: 'u1', name: '+2250700000000' },
+		})
+
+		expect(await publishLoader({ request: request() })).toEqual({
+			contactName: '',
+		})
 	})
 })
 

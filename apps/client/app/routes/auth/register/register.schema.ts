@@ -20,10 +20,21 @@ export const otpSchema = z.object({
 	otp: otpCodeSchema,
 })
 
+/**
+ * The account already has a name — a sign-up by phone stores the number itself
+ * — so this step overwrites it rather than filling a blank.
+ */
+export const firstNameSchema = z
+	.string({ error: 'Votre prénom est requis' })
+	.trim()
+	.min(2, 'Votre prénom est requis')
+	.max(120, 'Votre prénom est trop long')
+
 export const newPasswordSchema = withPasswordConfirmation(
 	z.object({
 		newPassword: passwordSchema,
 		confirmPassword: z.string(),
+		name: firstNameSchema,
 	}),
 )
 
@@ -35,6 +46,7 @@ export const sendOtpActionSchema = z.object({
 export const setInitialPasswordActionSchema = z.object({
 	intent: z.literal('set-initial-password'),
 	newPassword: passwordSchema,
+	name: firstNameSchema,
 })
 
 export type PhoneNumberInput = z.input<typeof phoneNumberSchema>
