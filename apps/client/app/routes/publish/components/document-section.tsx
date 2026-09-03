@@ -70,8 +70,9 @@ export function DocumentSection({ control, type }: DocumentSectionProps) {
 						<Select
 							value={field.value ?? ''}
 							// Radix answers once with an empty value as it mounts a
-							// `Select` that starts with none, which would clear the type a
-							// restored draft had just filled in — and collapse the block.
+							// `Select` that starts with none; `place-step.tsx` guards the
+							// same way. Preventive here — the block only appears after a
+							// draft is applied, so the call reaches nothing filled.
 							onValueChange={value => value && field.onChange(value)}
 							onOpenChange={open => !open && field.onBlur()}
 						>

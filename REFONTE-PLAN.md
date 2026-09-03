@@ -4041,16 +4041,21 @@ Ce qui a été livré :
 > la même façon sur la publication **et** sur la modification, sinon une édition
 > réclamait vingt caractères là où une création n'en demandait aucun.
 
-> **Deux pièges du dépôt, repayés faute d'être écrits.**
+> **Un piège réel, et une garde qui n'en était pas une.**
 >
-> ⚠️ **Radix répond une fois avec une valeur vide au montage d'un `Select`.**
-> `place-step.tsx` s'en garde ; `object-info-section.tsx` non. Pris au pied de
-> la lettre, l'appel vidait le `documentType` qu'un brouillon venait de
-> restaurer — et refermait le bloc entier. Un test le tient désormais.
+> **La garde Radix a été posée puis mesurée non porteuse — et l'affirmation
+> corrigée.** Cette note disait d'abord que l'appel parasite vidait le
+> `documentType` d'un brouillon restauré. **Faux, vérifié en retirant la garde**
+> : les onze tests passent sans elle. L'appel ne se déclenche que sur un
+> `Select` monté **sans** valeur, et le bloc n'apparaît qu'une fois le brouillon
+> appliqué, donc le type est déjà là. La garde reste, comme motif de
+> `place-step.tsx` et pour le jour où le bloc serait monté en permanence, mais
+> elle est **préventive** et son commentaire le dit.
 >
 > ⚠️ **Un `cleanup()` en milieu de test casse tous les tests suivants du
 > fichier**, de façon déterministe et non intermittente : le corps de page
-> revient vide. Deux cas dans un test valent deux tests.
+> revient vide. Celui-là est réel — cinq tests sont tombés d'un coup. Deux cas
+> dans un test valent deux tests.
 
 > **Ce que le brouillon a demandé en plus.** `readPublishDraft` relit chaque
 > champ pour ne jamais rendre une forme fausse ; un `documentType` édité à la
