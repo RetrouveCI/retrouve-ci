@@ -78,6 +78,7 @@ enum ContactMessageStatus {
 enum NotificationType {
   MATCH_FOUND
   QR_SCAN
+  STICKERS_DELIVERED
 }
 
 model User {

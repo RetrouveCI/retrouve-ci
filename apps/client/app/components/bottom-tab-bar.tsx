@@ -17,7 +17,11 @@ function isActiveTab(pathname: string, href: string) {
  * « Alertes » left the bar to make room. The bell moved into the header for
  * every width, which is what keeps notifications reachable on a phone.
  */
-export function BottomTabBar() {
+export function BottomTabBar({
+	pendingStickers = 0,
+}: {
+	pendingStickers?: number
+}) {
 	const { pathname } = useLocation()
 	const { isAuthenticated } = useAuth()
 
@@ -56,6 +60,7 @@ export function BottomTabBar() {
 					// Scanning is an action, not a place. The pill says so at rest,
 					// which is why it does not wait for the tab to be active.
 					accent
+					count={pendingStickers}
 				/>
 				{isAuthenticated ? (
 					<TabLink
@@ -83,24 +88,44 @@ interface TabLinkProps {
 	icon: React.ElementType
 	active: boolean
 	accent?: boolean
+	/** Drawn only above zero, and read out so it is not colour alone. */
+	count?: number
 }
 
-function TabLink({ href, label, icon: Icon, active, accent }: TabLinkProps) {
+function TabLink({
+	href,
+	label,
+	icon: Icon,
+	active,
+	accent,
+	count = 0,
+}: TabLinkProps) {
 	return (
 		<Link
 			to={href}
+			aria-label={count > 0 ? `${label} — ${count} à activer` : undefined}
 			className={cn(
 				'flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-xs font-medium transition-colors',
 				active || accent ? 'text-primary-green-text' : 'text-muted-foreground',
 			)}
 		>
-			{accent ? (
-				<span className="bg-primary-green/10 flex h-6.5 w-8.5 items-center justify-center rounded-full">
-					<Icon className="h-[19px] w-[19px]" />
-				</span>
-			) : (
-				<Icon className={cn('h-5 w-5', active && 'fill-primary-green/15')} />
-			)}
+			<span className="relative">
+				{accent ? (
+					<span className="bg-primary-green/10 flex h-6.5 w-8.5 items-center justify-center rounded-full">
+						<Icon className="h-[19px] w-[19px]" />
+					</span>
+				) : (
+					<Icon className={cn('h-5 w-5', active && 'fill-primary-green/15')} />
+				)}
+				{count > 0 && (
+					<span
+						aria-hidden
+						className="bg-accent-orange text-accent-orange-foreground absolute -top-1.5 -right-2 flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-xs leading-none font-bold"
+					>
+						{count > 9 ? '9+' : count}
+					</span>
+				)}
+			</span>
 			{label}
 		</Link>
 	)

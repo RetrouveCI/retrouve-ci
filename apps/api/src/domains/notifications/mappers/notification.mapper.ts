@@ -30,6 +30,8 @@ export function toPrismaType(type: NotificationType): PrismaNotificationType {
 			return PrismaNotificationType.MATCH_FOUND
 		case 'qr_scan':
 			return PrismaNotificationType.QR_SCAN
+		case 'stickers_delivered':
+			return PrismaNotificationType.STICKERS_DELIVERED
 	}
 }
 
@@ -39,5 +41,7 @@ export function toDomainType(type: PrismaNotificationType): NotificationType {
 			return 'match_found'
 		case PrismaNotificationType.QR_SCAN:
 			return 'qr_scan'
+		case PrismaNotificationType.STICKERS_DELIVERED:
+			return 'stickers_delivered'
 	}
 }

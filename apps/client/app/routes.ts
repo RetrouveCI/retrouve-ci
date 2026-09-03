@@ -33,6 +33,10 @@ export default [
 		route('account/posts/:id', 'routes/account/posts/edit/_index.tsx'),
 		route('account/orders', 'routes/account/orders/_index.tsx'),
 		route('account/stickers', 'routes/account/stickers/_index.tsx'),
+		route(
+			'account/stickers/pending',
+			'routes/account/stickers/servers/pending-count.loader.ts',
+		),
 		route('account/settings', 'routes/account/settings/_index.tsx'),
 		route('notifications', 'routes/notifications/_index.tsx'),
 		// Where the worker sends a navigation it can serve from neither the

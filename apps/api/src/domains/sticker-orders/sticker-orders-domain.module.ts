@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { NotificationsDomainModule } from '@/domains/notifications/notifications-domain.module'
 import { StickerOrderRepository } from './repository/sticker-order.repository'
 import { CountDeliveredStickersUseCase } from './use-cases/count-delivered-stickers.use-case'
 import { CreateStickerOrderUseCase } from './use-cases/create-sticker-order.use-case'
@@ -18,6 +19,9 @@ const providers = [
 ]
 
 @Module({
+	// The arrival of a pack is an event its buyer is told about, the way
+	// `matching` tells one about a candidate.
+	imports: [NotificationsDomainModule],
 	providers,
 	exports: providers,
 })

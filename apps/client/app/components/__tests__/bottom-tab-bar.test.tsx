@@ -11,9 +11,12 @@ vi.mock('@/context/auth', () => ({ useAuth }))
  * what is asserted is where each tab leads and that the active state follows the
  * URL — a tab pointing at the wrong route is invisible to `typecheck`.
  */
-function renderBar(pathname = '/') {
+function renderBar(pathname = '/', pendingStickers = 0) {
 	const Stub = createRoutesStub([
-		{ path: '*', Component: () => <BottomTabBar /> },
+		{
+			path: '*',
+			Component: () => <BottomTabBar pendingStickers={pendingStickers} />,
+		},
 	])
 	render(<Stub initialEntries={[pathname]} />)
 }
@@ -37,6 +40,29 @@ describe('BottomTabBar', () => {
 		renderBar()
 
 		await expect.element(tab(name)).toHaveAttribute('href', href)
+	})
+
+	// The standing task the delivery notification cannot carry: it is read once,
+	// twelve stickers take days. Named in the label, not colour alone.
+	it('counts the stickers still waiting on the scanner tab', async () => {
+		renderBar('/', 8)
+
+		await expect.element(tab('Scanner — 8 à activer')).toBeVisible()
+		await expect.element(page.getByText('8')).toBeVisible()
+	})
+
+	it('says nothing on the tab when nothing waits', async () => {
+		renderBar('/', 0)
+
+		await expect.element(tab('Scanner')).toBeVisible()
+	})
+
+	// Two digits do not fit under an icon; « Mes stickers » holds the exact one.
+	it('caps the count it draws', async () => {
+		renderBar('/', 24)
+
+		await expect.element(page.getByText('9+')).toBeVisible()
+		await expect.element(tab('Scanner — 24 à activer')).toBeVisible()
 	})
 
 	// « Alertes » left the bar to make room for the scanner; the header bell is
