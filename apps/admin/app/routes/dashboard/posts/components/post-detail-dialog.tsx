@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
+import { PostDocumentBlock } from './post-document-block'
 import { PostPhotos } from './post-photos'
 import type { Post, ModerationStatus } from '../types/posts.types'
 import { CATEGORY_LABELS, MODERATION_CONFIG } from '../posts.const'
@@ -100,11 +101,16 @@ export function PostDetailDialog({
 						)}
 					</div>
 
-					<div className="bg-muted/40 rounded-xl border p-4">
-						<p className="text-sm leading-relaxed whitespace-pre-line">
-							{post.description}
-						</p>
-					</div>
+					{/* A described piece of ID needs no paragraph, so it may have none. */}
+					{post.description && (
+						<div className="bg-muted/40 rounded-xl border p-4">
+							<p className="text-sm leading-relaxed whitespace-pre-line">
+								{post.description}
+							</p>
+						</div>
+					)}
+
+					<PostDocumentBlock post={post} />
 
 					<div className="grid gap-2.5 sm:grid-cols-2">
 						{metaItems.map(({ icon: Icon, value }, i) => (

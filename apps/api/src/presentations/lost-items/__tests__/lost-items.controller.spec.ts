@@ -6,12 +6,16 @@ import type {
 	MyLostItemsFilterData,
 	UpdateLostItemData,
 } from '@app/contracts/lost-items'
-import { buildLostItem } from '@/domains/lost-items/__tests__/lost-item.fixture'
+import {
+	buildLostItem,
+	buildPublicLostItem,
+} from '@/domains/lost-items/__tests__/lost-item.fixture'
 import type { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
 import type { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
 import type { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
 import type { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import type { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
+import type { GetPublicLostItemsUseCase } from '@/domains/lost-items/use-cases/get-public-lost-items.use-case'
 import type { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
 import type { RecordLostItemContactUseCase } from '@/domains/lost-items/use-cases/record-lost-item-contact.use-case'
 import type { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
@@ -36,6 +40,7 @@ describe('LostItemsController', () => {
 	let viewLostItem: ViewLostItemUseCase
 	let recordLostItemContact: RecordLostItemContactUseCase
 	let getPaginatedLostItems: GetPaginatedLostItemsUseCase
+	let getPublicLostItems: GetPublicLostItemsUseCase
 	let getMyLostItems: GetMyLostItemsUseCase
 	let getMyLostItemsSummary: GetMyLostItemsSummaryUseCase
 	let updateLostItem: UpdateLostItemUseCase
@@ -49,6 +54,7 @@ describe('LostItemsController', () => {
 		viewLostItem = buildUseCase<ViewLostItemUseCase>()
 		recordLostItemContact = buildUseCase<RecordLostItemContactUseCase>()
 		getPaginatedLostItems = buildUseCase<GetPaginatedLostItemsUseCase>()
+		getPublicLostItems = buildUseCase<GetPublicLostItemsUseCase>()
 		getMyLostItems = buildUseCase<GetMyLostItemsUseCase>()
 		getMyLostItemsSummary = buildUseCase<GetMyLostItemsSummaryUseCase>()
 		updateLostItem = buildUseCase<UpdateLostItemUseCase>()
@@ -60,6 +66,7 @@ describe('LostItemsController', () => {
 			viewLostItem,
 			recordLostItemContact,
 			getPaginatedLostItems,
+			getPublicLostItems,
 			getMyLostItems,
 			getMyLostItemsSummary,
 			updateLostItem,
@@ -97,22 +104,24 @@ describe('LostItemsController', () => {
 	})
 
 	describe('list', () => {
-		it('forces the moderation status to published', async () => {
+		/**
+		 * Publication and the projection moved into `GetPublicLostItemsUseCase`:
+		 * a controller that carries them is one a new route can forget to copy.
+		 */
+		it('delegates the public listing to its own use-case', async () => {
 			const query: ListLostItemsFilterData = { page: 1, pageSize: 20 }
 			const response = {
-				items: [buildLostItem()],
+				items: [buildPublicLostItem()],
 				total: 1,
 				page: 1,
 				pageSize: 20,
 			}
-			vi.mocked(getPaginatedLostItems.execute).mockResolvedValue(response)
+			vi.mocked(getPublicLostItems.execute).mockResolvedValue(response)
 
 			const result = await controller.list(query)
 
-			expect(getPaginatedLostItems.execute).toHaveBeenCalledWith({
-				...query,
-				moderationStatus: 'published',
-			})
+			expect(getPublicLostItems.execute).toHaveBeenCalledWith(query)
+			expect(getPaginatedLostItems.execute).not.toHaveBeenCalled()
 			expect(result).toEqual(response)
 		})
 
@@ -124,7 +133,7 @@ describe('LostItemsController', () => {
 				dateFrom: '2026-01-01',
 				dateTo: '2026-01-31',
 			}
-			vi.mocked(getPaginatedLostItems.execute).mockResolvedValue({
+			vi.mocked(getPublicLostItems.execute).mockResolvedValue({
 				items: [],
 				total: 0,
 				page: 1,
@@ -133,13 +142,12 @@ describe('LostItemsController', () => {
 
 			await controller.list(query)
 
-			expect(getPaginatedLostItems.execute).toHaveBeenCalledWith({
+			expect(getPublicLostItems.execute).toHaveBeenCalledWith({
 				page: 1,
 				pageSize: 20,
 				commune: 'Cocody',
 				dateFrom: new Date('2026-01-01T00:00:00.000Z'),
 				dateTo: new Date('2026-01-31T23:59:59.999Z'),
-				moderationStatus: 'published',
 			})
 		})
 	})
@@ -239,7 +247,7 @@ describe('LostItemsController', () => {
 
 	describe('recordContact', () => {
 		it('delegates to the use-case', async () => {
-			const lostItem = buildLostItem({ contactsCount: 1 })
+			const lostItem = buildPublicLostItem({ contactsCount: 1 })
 			vi.mocked(recordLostItemContact.execute).mockResolvedValue(lostItem)
 
 			const result = await controller.recordContact('lost-item-1')
