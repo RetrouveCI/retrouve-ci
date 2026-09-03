@@ -39,7 +39,7 @@ export function StickersSection() {
 	return (
 		<section className="py-2 sm:px-4 sm:py-7 lg:py-9">
 			<div className="mx-auto max-w-6xl">
-				<div className="dark:border-border grid gap-6 bg-neutral-900 px-[max(1rem,env(safe-area-inset-left))] py-7 pr-[max(1rem,env(safe-area-inset-right))] sm:gap-9 sm:rounded-3xl sm:px-8 sm:py-9 lg:grid-cols-[1fr_auto] lg:items-center lg:p-11 dark:border">
+				<div className="dark:border-border grid gap-6 bg-neutral-900 px-4 py-7 sm:gap-9 sm:rounded-3xl sm:px-8 sm:py-9 lg:grid-cols-[1fr_auto] lg:items-center lg:p-11 dark:border">
 					<div className="flex flex-col gap-4">
 						<div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
 							<span className="bg-accent-orange/20 text-accent-orange-light flex h-6.5 items-center rounded-full px-2.5 text-xs font-semibold">

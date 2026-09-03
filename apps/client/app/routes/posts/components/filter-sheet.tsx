@@ -92,7 +92,7 @@ export function FilterSheet({
 			 * the panel §2.1 describes. Below that, full width is right — it is the
 			 * phone and the tablet the sheet was drawn for.
 			 */}
-			<DrawerContent className="lg:mx-auto lg:max-w-2xl lg:rounded-t-2xl">
+			<DrawerContent className="safe-x lg:mx-auto lg:max-w-2xl lg:rounded-t-2xl">
 				<DrawerHeader className="flex flex-row items-center justify-between border-b px-4 pt-2 pb-3.5 text-left">
 					<DrawerTitle className="text-xl tracking-tight">Filtres</DrawerTitle>
 					<DrawerDescription className="sr-only">
@@ -268,7 +268,7 @@ export function FilterSheet({
 
 				<DrawerFooter
 					className="flex-row gap-3 border-t px-4 pt-3"
-					style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
+					style={{ paddingBottom: 'calc(var(--safe-bottom) + 1rem)' }}
 				>
 					<Button
 						type="button"

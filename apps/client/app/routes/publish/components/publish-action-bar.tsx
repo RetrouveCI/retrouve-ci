@@ -29,9 +29,9 @@ export function PublishActionBar({
 		<div
 			className="bg-background/95 sticky bottom-0 z-30 border-t backdrop-blur-md"
 			style={{
-				paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))',
-				paddingLeft: 'max(1rem, env(safe-area-inset-left))',
-				paddingRight: 'max(1rem, env(safe-area-inset-right))',
+				paddingBottom: 'max(1.25rem, var(--safe-bottom))',
+				paddingLeft: 'max(1rem, var(--safe-left))',
+				paddingRight: 'max(1rem, var(--safe-right))',
 			}}
 		>
 			<div className="mx-auto flex max-w-2xl items-center gap-3 pt-3">

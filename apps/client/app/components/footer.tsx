@@ -71,7 +71,7 @@ export function Footer() {
 	const currentYear = new Date().getFullYear()
 
 	return (
-		<footer className="bg-muted/30 border-t">
+		<footer className="safe-x bg-muted/30 border-t">
 			{/**
 			 * Below `lg` the tab bar carries the shell, and a four-column footer under
 			 * it is furniture. What stays is what the tab bar cannot reach — and it is

@@ -24,14 +24,7 @@ export function PublishHeader({
 	onBack,
 }: PublishHeaderProps) {
 	return (
-		<header
-			className="bg-background/95 sticky top-0 z-30 border-b backdrop-blur-md"
-			style={{
-				paddingTop: 'env(safe-area-inset-top)',
-				paddingLeft: 'env(safe-area-inset-left)',
-				paddingRight: 'env(safe-area-inset-right)',
-			}}
-		>
+		<header className="bg-background/95 safe-x sticky top-0 z-30 border-b pt-[var(--safe-top)] backdrop-blur-md">
 			<div className="mx-auto flex h-14 max-w-2xl items-center gap-2 pr-4 pl-2.5">
 				{step === 1 ? (
 					<Link to="/" aria-label="Fermer" className={ICON_BUTTON}>
