@@ -3975,22 +3975,35 @@ Ce qui a été livré :
    établissement pour une carte étudiante. Une CNI est délivrée par l'État, qui
    ne nomme aucune institution. **Seul le nom du titulaire est requis**, et il
    l'est dès que le bloc s'ouvre (règle d'A7).
-3. **Le numéro est demandé différemment des deux côtés** : en avant sur
+3. **La banque et l'assureur se choisissent dans une liste** — `CI_BANKS` (20)
+   et `CI_INSURERS` (15), par ordre alphabétique, un test refusant un doublon ou
+   un décalage d'ordre. ⚠️ **Aucune des deux ne peut être complète** : les
+   banques fusionnent et se renomment, et les deux listes ont été écrites de
+   mémoire, sans source vérifiable dans cette session. C'est pourquoi la liste
+   est un **raccourci et jamais un ensemble fermé** : « Autre — je saisis le nom
+   » rend la saisie libre, et « Choisir dans la liste » revient. Un émetteur
+   stocké hors liste — une modification, un brouillon écrit avant la liste —
+   ouvre le champ en saisie libre sur ce qu'il porte. **Les deux listes
+   demandent une relecture métier.**
+4. **Changer de type de pièce vide le numéro et l'émetteur.** Quatre chiffres de
+   carte bancaire ne sont pas un numéro de police, et une banque n'est pas un
+   assureur : un reste échouerait à une règle que le déposant ne voit pas.
+5. **Le numéro est demandé différemment des deux côtés** : en avant sur
    `/publish/found`, où la pièce est en main et où le texte dit de la recopier ;
    replié derrière « Je connais le numéro » sur `/publish/lost`, pour qu'un
    champ vide ne se lise pas comme une condition pour déclarer.
-4. **La phrase qui justifie le champ est à côté du champ** — il n'apparaît sur
+6. **La phrase qui justifie le champ est à côté du champ** — il n'apparaît sur
    aucune page publique, il sert à rapprocher et à vérifier à la remise. Mêmes
    mots que le bloc du back-office (§2.3 règle 2).
-5. **La description est facultative** dès que l'annonce nomme son type et son
+7. **La description est facultative** dès que l'annonce nomme son type et son
    titulaire : le compteur passe de « 0 / 20 min. » à « Facultatif », l'étoile
    quitte le libellé, et la page de détail ne rend plus un titre « Description »
    au-dessus du vide. La règle est celle du contrat (`describesDocument`), lue
    des deux côtés plutôt que réécrite.
-6. **Aucun écran de revendication**, comme décidé : un formulaire qui compare un
+8. **Aucun écran de revendication**, comme décidé : un formulaire qui compare un
    numéro sans plafond est un oracle, et un formulaire qui l'exige exclut celui
    qui a perdu sa pièce.
-7. **Le récapitulatif de l'étape 3 nomme la pièce** — c'est elle qui définit
+9. **Le récapitulatif de l'étape 3 nomme la pièce** — c'est elle qui définit
    l'annonce quand il n'y a ni photo ni description.
 
 > **Aucun artboard ne dessine cette étape.** Le canevas ne porte que
@@ -4104,8 +4117,8 @@ restauré garde son type de pièce.
 
 **Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
 `admin`) · `format:check` propre · `pnpm build` vert. Tests : contracts **328**
-et api **411** inchangés, admin **413** inchangé, client **1067** (790 en
-`node`, 277 en `ui`) contre 1021. Densité de commentaires **9,7 %**.
+et api **411** inchangés, admin **413** inchangé, client **1073** (790 en
+`node`, 283 en `ui`) contre 1021. Densité de commentaires **9,6 %**.
 
 #### A2 — Transformations Cloudinary à l'upload _(facultatif)_
 

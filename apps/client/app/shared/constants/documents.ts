@@ -24,10 +24,62 @@ export const DOCUMENT_TYPE_OPTIONS = DOCUMENT_TYPES.map(value => ({
 	label: DOCUMENT_TYPE_LABELS[value],
 }))
 
+/**
+ * Neither list can be complete — banks rebrand and merge — so both are a
+ * shortcut and never a closed set: « Autre » falls back to free text.
+ */
+export const CI_BANKS = [
+	'Access Bank',
+	'Afriland First Bank',
+	'Banque Atlantique',
+	'Banque Populaire',
+	'BGFIBank',
+	'BICICI',
+	'BNI',
+	'BOA (Bank of Africa)',
+	'Bridge Bank',
+	'BSIC',
+	'Coris Bank',
+	'Ecobank',
+	'GTBank',
+	'Mansa Bank',
+	'NSIA Banque',
+	'Orabank',
+	'SIB',
+	'Société Générale',
+	'UBA',
+	'Versus Bank',
+]
+
+export const CI_INSURERS = [
+	'Activa Assurances',
+	'Allianz',
+	'Amsa Assurances',
+	'Atlantique Assurances',
+	'AXA',
+	'Belife Insurance',
+	'CNAM / CMU',
+	'Loyale Assurances',
+	'MUGEFCI',
+	'NSIA Assurances',
+	'Prudential Beneficial',
+	'Sanlam',
+	'SIDAM',
+	'Sunu Assurances',
+	'Wafa Assurance',
+]
+
+export interface DocumentIssuerSpec {
+	label: string
+	placeholder: string
+	/** A shortcut list; absent when the field can only be free text. */
+	options?: readonly string[]
+}
+
 interface DocumentFieldSpec {
 	number: { label: string; placeholder: string }
 	/** Absent when the piece is issued by the State, which names no institution. */
-	issuer?: { label: string; placeholder: string }
+	issuer?: DocumentIssuerSpec
 }
 
 export const DOCUMENT_FIELDS: Record<DocumentType, DocumentFieldSpec> = {
@@ -45,11 +97,19 @@ export const DOCUMENT_FIELDS: Record<DocumentType, DocumentFieldSpec> = {
 			label: `${BANK_CARD_DIGITS} derniers chiffres`,
 			placeholder: 'Ex : 4321',
 		},
-		issuer: { label: 'Banque', placeholder: 'Ex : SGCI, Ecobank, NSIA Banque' },
+		issuer: {
+			label: 'Banque',
+			placeholder: 'Le nom de la banque',
+			options: CI_BANKS,
+		},
 	},
 	insurance_card: {
 		number: { label: 'Numéro de police', placeholder: 'Ex : POL-2026-88123' },
-		issuer: { label: 'Assureur', placeholder: 'Ex : NSIA, Sunu, Allianz' },
+		issuer: {
+			label: 'Assureur',
+			placeholder: "Le nom de l'assureur",
+			options: CI_INSURERS,
+		},
 	},
 	passport: {
 		number: { label: 'Numéro du passeport', placeholder: 'Ex : 21AB45678' },

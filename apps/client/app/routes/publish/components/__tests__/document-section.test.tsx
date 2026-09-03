@@ -7,6 +7,7 @@ import {
 	userEvent,
 } from '@/shared/helpers/testing'
 import type { LostItemType } from '@/shared/types/lost-item'
+import { CI_BANKS, CI_INSURERS } from '@/shared/constants/documents'
 import { writePublishDraft } from '../../helpers/publish-draft'
 import { PublishFlow } from '../publish-flow'
 
@@ -45,6 +46,19 @@ beforeEach(() => {
 
 afterEach(() => {
 	cleanup()
+})
+
+describe('the institution lists', () => {
+	// A duplicate would render two `SelectItem`s with the same key and value.
+	it.each([
+		['banks', CI_BANKS],
+		['insurers', CI_INSURERS],
+	])('name each of the %s once, in alphabetical order', (_label, list) => {
+		expect(new Set(list).size).toBe(list.length)
+		expect([...list]).toEqual(
+			[...list].sort((a, b) => a.localeCompare(b, 'fr')),
+		)
+	})
 })
 
 describe('declaring a piece of ID', () => {
@@ -90,6 +104,94 @@ describe('declaring a piece of ID', () => {
 
 		await expect.element(page.getByLabelText(/^Banque/)).toBeVisible()
 		await expect.element(page.getByLabelText(/derniers chiffres/)).toBeVisible()
+	})
+
+	it('offers the banks for a card and the insurers for a policy', async () => {
+		renderFlow('found')
+		await chooseType('Carte bancaire')
+		await userEvent.click(page.getByRole('combobox', { name: /^Banque/ }))
+
+		await expect
+			.element(page.getByRole('option', { name: 'Ecobank' }))
+			.toBeVisible()
+
+		await userEvent.click(page.getByRole('option', { name: 'Ecobank' }))
+
+		await expect
+			.element(page.getByRole('combobox', { name: /^Banque/ }))
+			.toHaveTextContent('Ecobank')
+
+		await chooseType("Carte d'assurance")
+		await userEvent.click(page.getByRole('combobox', { name: /^Assureur/ }))
+
+		await expect
+			.element(page.getByRole('option', { name: 'Sunu Assurances' }))
+			.toBeVisible()
+	})
+
+	// Neither list can be complete — banks rebrand and merge — so an institution
+	// that is not on it must still be nameable.
+	it('falls back to free text through « Autre »', async () => {
+		renderFlow('found')
+		await chooseType('Carte bancaire')
+		await userEvent.click(page.getByRole('combobox', { name: /^Banque/ }))
+		await userEvent.click(
+			page.getByRole('option', { name: /Autre — je saisis le nom/ }),
+		)
+
+		const free = page.getByLabelText(/^Banque/)
+
+		await userEvent.fill(free, 'Une banque toute neuve')
+
+		await expect.element(free).toHaveValue('Une banque toute neuve')
+
+		await userEvent.click(
+			page.getByRole('button', { name: 'Choisir dans la liste' }),
+		)
+
+		await expect
+			.element(page.getByRole('combobox', { name: /^Banque/ }))
+			.toBeVisible()
+	})
+
+	// A name typed before the list existed, or one it never carried, must open
+	// the field on what it holds rather than read as nothing chosen.
+	it('opens on free text when the stored issuer is off the list', async () => {
+		writePublishDraft({
+			values: {
+				title: 'Carte bancaire trouvée',
+				objectType: 'documents',
+				documentType: 'bank_card',
+				documentHolderName: 'KOUASSI Jean',
+				documentIssuer: 'Une banque disparue',
+			},
+			step: 1,
+		})
+
+		renderFlow('found')
+
+		await expect
+			.element(page.getByLabelText(/^Banque/))
+			.toHaveValue('Une banque disparue')
+	})
+
+	// Four digits of a bank card are not a policy number, and a bank is not an
+	// insurer: a leftover would fail a rule the poster cannot see.
+	it('clears the number and the issuer when the piece changes', async () => {
+		renderFlow('found')
+		await chooseType('Carte bancaire')
+		await userEvent.fill(page.getByLabelText(/derniers chiffres/), '4321')
+		await userEvent.click(page.getByRole('combobox', { name: /^Banque/ }))
+		await userEvent.click(page.getByRole('option', { name: 'Ecobank' }))
+
+		await chooseType("Carte d'assurance")
+
+		await expect
+			.element(page.getByLabelText(/^Numéro de police/))
+			.toHaveValue('')
+		await expect
+			.element(page.getByRole('combobox', { name: /^Assureur/ }))
+			.toHaveTextContent("Le nom de l'assureur")
 	})
 
 	// The piece is in hand on the « found » side, so the field leads there.
