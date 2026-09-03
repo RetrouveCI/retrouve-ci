@@ -148,6 +148,78 @@ describe('publishAction', () => {
 		expect(collectPhotoUrls).not.toHaveBeenCalled()
 	})
 
+	// A piece of ID is described by its type and its holder, so the API has to
+	// receive them under the names the contract uses.
+	it('forwards the four document fields', async () => {
+		await publishAction(
+			requestFor({
+				...VALID,
+				objectType: 'documents',
+				description: '',
+				documentType: 'insurance_card',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: 'POL-2026-88123',
+				documentIssuer: 'NSIA',
+			}),
+			'found',
+		).catch(() => undefined)
+
+		expect(createLostItem).toHaveBeenCalledWith(
+			expect.objectContaining({
+				documentType: 'insurance_card',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: 'POL-2026-88123',
+				documentIssuer: 'NSIA',
+			}),
+			expect.any(Request),
+		)
+	})
+
+	it('leaves the four fields absent when no piece was declared', async () => {
+		await publishAction(requestFor(), 'lost').catch(() => undefined)
+
+		const body = createLostItem.mock.calls[0]?.[0]
+
+		expect(body.documentType).toBeUndefined()
+		expect(body.documentHolderName).toBeUndefined()
+		expect(body.documentNumber).toBeUndefined()
+		expect(body.documentIssuer).toBeUndefined()
+	})
+
+	// A photo of a piece hands over the name, the number and the date of birth
+	// at once — so nothing is uploaded, whatever the submitted form carried.
+	it('uploads no photo for a piece of ID', async () => {
+		collectPhotoUrls.mockResolvedValue(['https://cdn/cni.jpg'])
+
+		await publishAction(
+			requestFor({
+				...VALID,
+				objectType: 'documents',
+				documentType: 'national_id',
+				documentHolderName: 'KOUASSI Jean',
+			}),
+			'found',
+		).catch(() => undefined)
+
+		expect(collectPhotoUrls).not.toHaveBeenCalled()
+		expect(createLostItem.mock.calls[0]?.[0].photos).toBeUndefined()
+	})
+
+	it('refuses a piece whose holder is not named', async () => {
+		const result = await publishAction(
+			requestFor({
+				...VALID,
+				objectType: 'documents',
+				documentType: 'national_id',
+			}),
+			'found',
+		)
+
+		expect(result.success).toBe(false)
+		expect(errorsOf(result)?.documentHolderName).toBeDefined()
+		expect(createLostItem).not.toHaveBeenCalled()
+	})
+
 	it('reports an API refusal as a root error', async () => {
 		createLostItem.mockRejectedValue(new ApiError(400, 'Annonce refusée'))
 

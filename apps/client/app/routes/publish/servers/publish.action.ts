@@ -27,9 +27,14 @@ export async function publishAction(
 	// The success path redirects, so it throws from inside the wrapper:
 	// `withApiOperationError` only converts an `ApiError` into a form error and
 	// rethrows everything else, the `redirect()` response included.
+	// A photo of a piece of ID hands over the name, the number and the date of
+	// birth at once, so the picker is not rendered — and the files are not
+	// uploaded either, whatever the submitted form happened to carry.
+	const isDocument = values.objectType === 'documents'
+
 	return withApiOperationError(
 		async () => {
-			const photos = await collectPhotoUrls(formData, request)
+			const photos = isDocument ? [] : await collectPhotoUrls(formData, request)
 
 			await createLostItem(
 				{
@@ -43,6 +48,10 @@ export async function publishAction(
 					contactName: values.name,
 					contactWhatsapp: values.whatsapp,
 					photos: photos.length ? photos : undefined,
+					documentType: values.documentType,
+					documentHolderName: values.documentHolderName || undefined,
+					documentNumber: values.documentNumber || undefined,
+					documentIssuer: values.documentIssuer || undefined,
 				},
 				request,
 			)

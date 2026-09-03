@@ -1,4 +1,5 @@
 import type {
+	DocumentType,
 	LostItem,
 	LostItemType,
 	LostItemCategory,
@@ -33,11 +34,22 @@ export interface LostItemApiDto {
 	contactName: string
 	contactWhatsapp: string
 	photos: string[]
+	documentType: DocumentType | null
+	documentHolderName: string | null
+	documentIssuer: string | null
 	moderationStatus: ModerationStatus
 	resolutionStatus: LostItemStatus
 	views: number
 	contactsCount: number
 	createdAt: string
+}
+
+/**
+ * What the session-gated reads add. `documentNumber` is declared here and
+ * nowhere else, so a screen fed by a public read cannot reach for it.
+ */
+export interface MyLostItemApiDto extends LostItemApiDto {
+	documentNumber: string | null
 }
 
 /**
@@ -57,6 +69,10 @@ export interface LostItemListApiResponse {
 	total: number
 	page: number
 	pageSize: number
+}
+
+export interface MyLostItemListApiResponse extends LostItemListApiResponse {
+	items: MyLostItemApiDto[]
 }
 
 /** `GET /lost-items/:id/matches` — a scored candidate of the opposite type. */

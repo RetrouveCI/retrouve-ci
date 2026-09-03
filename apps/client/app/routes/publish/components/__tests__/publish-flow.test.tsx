@@ -95,8 +95,8 @@ describe('the publish flow', () => {
 		await expect.element(draftNotice()).toBeVisible()
 	})
 
-	// The whole point of the draft: an incoming call tears the page down, and
-	// eight fields with it.
+	// The whole point of the draft: an incoming call tears the page down, and a
+	// dozen fields with it.
 	it('restores an interrupted session at the step it was left on', async () => {
 		writePublishDraft({
 			values: {

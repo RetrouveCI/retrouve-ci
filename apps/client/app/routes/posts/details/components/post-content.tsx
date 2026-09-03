@@ -1,5 +1,7 @@
-import { MapPin, Clock, ShieldAlert } from 'lucide-react'
+import { MapPin, Clock, IdCard, ShieldAlert } from 'lucide-react'
 import { cn } from '@app/ui/utils'
+import { DOCUMENT_TYPE_LABELS } from '@/shared/constants/documents'
+import type { LostItemDocument } from '@/shared/types/lost-item'
 import { categoryLabel } from '../../posts.const'
 
 interface LostItem {
@@ -10,6 +12,7 @@ interface LostItem {
 	type: 'lost' | 'found'
 	category: string
 	contact: { name: string }
+	document?: LostItemDocument
 }
 
 /** §2.1's state pastille: 22 px, 10 px capitals, `letter-spacing` 0.04em. */
@@ -54,6 +57,41 @@ function MetaCard({
 	)
 }
 
+/**
+ * The type, the holder and the issuer. `LostItemDocument` has no field for the
+ * number, so this page could not show one if it tried.
+ */
+function DocumentCard({ document: piece }: { document: LostItemDocument }) {
+	const lines = [
+		piece.holderName && { label: 'Titulaire', value: piece.holderName },
+		piece.issuer && { label: 'Émetteur', value: piece.issuer },
+	].filter((line): line is { label: string; value: string } => Boolean(line))
+
+	return (
+		<div className="bg-muted/40 space-y-3 rounded-xl border p-3.5">
+			<p className="flex items-center gap-2 text-sm font-semibold">
+				<IdCard className="text-primary-green-text h-4 w-4 shrink-0" />
+				{DOCUMENT_TYPE_LABELS[piece.type]}
+			</p>
+
+			{lines.length > 0 && (
+				<dl className="grid gap-2.5 sm:grid-cols-2">
+					{lines.map(line => (
+						<div key={line.label}>
+							<dt className="text-muted-foreground text-xs tracking-wider uppercase">
+								{line.label}
+							</dt>
+							<dd className="text-sm font-semibold break-words">
+								{line.value}
+							</dd>
+						</div>
+					))}
+				</dl>
+			)}
+		</div>
+	)
+}
+
 export function PostContent({ listing }: { listing: LostItem }) {
 	const isLost = listing.type === 'lost'
 
@@ -82,12 +120,16 @@ export function PostContent({ listing }: { listing: LostItem }) {
 				<MetaCard icon={Clock} label="Date" value={listing.date} />
 			</div>
 
-			<div>
-				<h2 className="mb-1.5 text-sm font-semibold">Description</h2>
-				<p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
-					{listing.description}
-				</p>
-			</div>
+			{listing.document && <DocumentCard document={listing.document} />}
+
+			{listing.description && (
+				<div>
+					<h2 className="mb-1.5 text-sm font-semibold">Description</h2>
+					<p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
+						{listing.description}
+					</p>
+				</div>
+			)}
 
 			<div className="flex items-center gap-3 rounded-xl border p-3.5">
 				<span

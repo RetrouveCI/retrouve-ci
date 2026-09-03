@@ -11,7 +11,15 @@ export const STEP_COUNT = 3
  * traced back to the step that can show it.
  */
 const STEP_FIELDS: readonly (readonly (keyof PublishFormInput)[])[] = [
-	['title', 'objectType', 'description'],
+	[
+		'title',
+		'objectType',
+		'description',
+		'documentType',
+		'documentHolderName',
+		'documentNumber',
+		'documentIssuer',
+	],
 	['ville', 'commune', 'date'],
 	['name', 'whatsapp'],
 ]
