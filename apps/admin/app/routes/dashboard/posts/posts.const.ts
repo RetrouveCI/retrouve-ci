@@ -1,5 +1,9 @@
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
-import type { LostItemCategory, ModerationStatus } from './types/posts.types'
+import type {
+	DocumentType,
+	LostItemCategory,
+	ModerationStatus,
+} from './types/posts.types'
 
 // The contract owns the categories and the statuses; the backoffice owns what
 // they are called and how they are toned. Keying both by the contract's type is
@@ -14,6 +18,16 @@ export const CATEGORY_LABELS: Record<LostItemCategory, string> = {
 	jewelry: 'Bijou',
 	documents: 'Documents',
 	other: 'Autre',
+}
+
+export const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
+	national_id: "Carte nationale d'identité",
+	driver_licence: 'Permis de conduire',
+	bank_card: 'Carte bancaire',
+	insurance_card: "Carte d'assurance",
+	passport: 'Passeport',
+	student_card: 'Carte étudiante',
+	other: 'Autre pièce',
 }
 
 export const MODERATION_CONFIG: Record<

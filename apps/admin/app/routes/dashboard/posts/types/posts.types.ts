@@ -1,4 +1,5 @@
 import type {
+	DocumentType,
 	LostItemCategory,
 	LostItemType,
 	ModerationStatus,
@@ -7,6 +8,7 @@ import type {
 import type { Paginated } from '@app/contracts/shared'
 
 export type {
+	DocumentType,
 	LostItemCategory,
 	LostItemType,
 	ModerationStatus,
@@ -25,6 +27,12 @@ export interface Post {
 	contactName: string
 	contactWhatsapp: string
 	photos: string[]
+	documentType: DocumentType | null
+	documentHolderName: string | null
+	// The number reaches the backoffice and nowhere else: it is what moderation
+	// reads, and it is stripped from every public read.
+	documentNumber: string | null
+	documentIssuer: string | null
 	moderationStatus: ModerationStatus
 	resolutionStatus: ResolutionStatus
 	views: number

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	buildLostItem,
+	buildPublicLostItem,
 	buildRepository,
 } from '../../__tests__/lost-item.fixture'
 import { LostItemNotFoundError } from '../../errors/lost-item.errors'
@@ -26,7 +27,25 @@ describe('RecordLostItemContactUseCase', () => {
 		const result = await useCase.execute('lost-item-1')
 
 		expect(repository.incrementContacts).toHaveBeenCalledWith('lost-item-1')
-		expect(result).toEqual({ ...lostItem, contactsCount: 3 })
+		expect(result).toEqual(
+			buildPublicLostItem({ moderationStatus: 'published', contactsCount: 3 }),
+		)
+	})
+
+	// Four routes answer to nobody in particular; this is one of them.
+	it('never carries the document number', async () => {
+		vi.mocked(repository.findById).mockResolvedValue(
+			buildLostItem({
+				documentType: 'national_id',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: 'CI0012345678',
+			}),
+		)
+
+		const result = await useCase.execute('lost-item-1')
+
+		expect(result).not.toHaveProperty('documentNumber')
+		expect(result.documentHolderName).toBe('KOUASSI Jean')
 	})
 
 	it('throws when the item does not exist, without counting a contact', async () => {

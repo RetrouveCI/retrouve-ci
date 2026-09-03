@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	buildLostItem,
+	buildPublicLostItem,
 	buildRepository,
 } from '@/domains/lost-items/__tests__/lost-item.fixture'
 import { LostItemNotFoundError } from '@/domains/lost-items/errors/lost-item.errors'
@@ -32,7 +33,37 @@ describe('FindMatchesUseCase', () => {
 		const result = await useCase.execute('lost-item-1')
 
 		expect(result).toHaveLength(1)
-		expect(result[0]?.lostItem).toEqual(strongMatch)
+		expect(result[0]?.lostItem).toEqual(
+			buildPublicLostItem({
+				id: 'lost-item-2',
+				type: 'found',
+				title: 'iPhone retrouvé',
+				description: 'Trouvé près du marché de Cocody',
+				eventDate: new Date('2026-01-02'),
+			}),
+		)
+	})
+
+	/** The route is anonymous — the loudest of the four public reads. */
+	it('never carries the document number of a candidate', async () => {
+		vi.mocked(repository.findById).mockResolvedValue(
+			buildLostItem({ type: 'lost', category: 'documents' }),
+		)
+		vi.mocked(repository.findMatchCandidates).mockResolvedValue([
+			buildLostItem({
+				id: 'lost-item-2',
+				type: 'found',
+				category: 'documents',
+				documentType: 'national_id',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: 'CI0012345678',
+			}),
+		])
+
+		const result = await useCase.execute('lost-item-1')
+
+		expect(result[0]?.lostItem).not.toHaveProperty('documentNumber')
+		expect(JSON.stringify(result)).not.toContain('CI0012345678')
 	})
 
 	it('throws when the source does not exist, without searching', async () => {

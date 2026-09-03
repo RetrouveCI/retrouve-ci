@@ -1,38 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import type { LostItem } from '@/domains/lost-items/types/lost-item.types'
+import { buildLostItem } from '@/domains/lost-items/__tests__/lost-item.fixture'
 import {
+	MATCH_SCORE_THRESHOLD,
 	SCORE_EVENT_DATE_CLOSE,
 	SCORE_EVENT_DATE_NEAR,
 	SCORE_SAME_CATEGORY,
 	SCORE_SAME_COMMUNE,
+	SCORE_SAME_DOCUMENT_NUMBER,
+	SCORE_SAME_DOCUMENT_TYPE,
+	SCORE_SAME_HOLDER_NAME,
 	SCORE_SAME_VILLE,
 	SCORE_TEXT_OVERLAP,
 } from '../../constants'
 import { computeMatchScore } from '../compute-match-score'
-
-function buildLostItem(overrides: Partial<LostItem> = {}): LostItem {
-	return {
-		id: 'lost-item-1',
-		type: 'lost',
-		category: 'phone',
-		title: 'iPhone 13 perdu',
-		description: 'Perdu près du marché de Cocody, coque noire avec autocollant',
-		ville: 'Abidjan',
-		commune: 'Cocody',
-		eventDate: new Date('2026-01-01'),
-		contactName: 'Jean Dupont',
-		contactWhatsapp: '+2250700000000',
-		photos: [],
-		moderationStatus: 'published',
-		resolutionStatus: 'active',
-		views: 0,
-		contactsCount: 0,
-		userId: 'user-1',
-		createdAt: new Date('2026-01-01'),
-		updatedAt: new Date('2026-01-01'),
-		...overrides,
-	}
-}
 
 describe('computeMatchScore', () => {
 	it('returns 0 when nothing matches', () => {
@@ -120,5 +100,114 @@ describe('computeMatchScore', () => {
 		expect(computeMatchScore(source, candidate)).toBe(
 			SCORE_SAME_VILLE + SCORE_SAME_COMMUNE,
 		)
+	})
+
+	describe('a piece of ID', () => {
+		const buildDocument = (overrides = {}) =>
+			buildLostItem({
+				category: 'documents',
+				title: 'Papiers perdus',
+				description: 'Perdus quelque part, aucun detail en commun',
+				eventDate: new Date('2026-05-01'),
+				...overrides,
+			})
+
+		// Same category, town, commune and day, and one word in common.
+		const baseline =
+			SCORE_SAME_CATEGORY +
+			SCORE_SAME_VILLE +
+			SCORE_SAME_COMMUNE +
+			SCORE_EVENT_DATE_CLOSE +
+			SCORE_TEXT_OVERLAP
+
+		it('leaves a listing that names no holder exactly where it was', () => {
+			const source = buildDocument()
+			const candidate = buildDocument({ id: 'lost-item-2', type: 'found' })
+
+			expect(computeMatchScore(source, candidate)).toBe(baseline)
+		})
+
+		it('adds the holder and the type when both sides agree', () => {
+			const source = buildDocument({
+				documentType: 'national_id',
+				documentHolderName: 'KOUASSI Jean',
+			})
+			const candidate = buildDocument({
+				id: 'lost-item-2',
+				type: 'found',
+				documentType: 'national_id',
+				documentHolderName: 'jean kouassi',
+			})
+
+			expect(computeMatchScore(source, candidate)).toBe(
+				baseline + SCORE_SAME_HOLDER_NAME + SCORE_SAME_DOCUMENT_TYPE,
+			)
+		})
+
+		/** Otherwise two strangers' cards in Abidjan notify each other. */
+		it('disqualifies a pair whose two holders share nothing', () => {
+			const source = buildDocument({
+				documentType: 'national_id',
+				documentHolderName: 'KOUASSI Jean',
+			})
+			const candidate = buildDocument({
+				id: 'lost-item-2',
+				type: 'found',
+				documentType: 'national_id',
+				documentHolderName: 'TRAORE Fatou',
+			})
+
+			expect(baseline).toBeGreaterThanOrEqual(MATCH_SCORE_THRESHOLD)
+			expect(computeMatchScore(source, candidate)).toBe(0)
+		})
+
+		/** The same number is not a probable pair: it is the same document. */
+		it('clears the threshold on the number alone', () => {
+			const source = buildDocument({
+				category: 'wallet',
+				ville: 'Abidjan',
+				commune: 'Cocody',
+				documentType: 'driver_licence',
+				documentNumber: '5811403-13-0015703713RC',
+			})
+			const candidate = buildDocument({
+				id: 'lost-item-2',
+				type: 'found',
+				category: 'documents',
+				ville: 'Bouaké',
+				commune: 'Belleville',
+				title: 'Permis retrouve',
+				description: 'Remis au poste, sans autre indication utile',
+				eventDate: new Date('2025-01-01'),
+				documentType: 'national_id',
+				documentNumber: '581140313 0015703713 RC',
+			})
+
+			expect(computeMatchScore(source, candidate)).toBe(
+				SCORE_SAME_DOCUMENT_NUMBER,
+			)
+			expect(SCORE_SAME_DOCUMENT_NUMBER).toBeGreaterThanOrEqual(
+				MATCH_SCORE_THRESHOLD,
+			)
+		})
+
+		it('lets an agreeing number outweigh a name that was mistyped', () => {
+			const source = buildDocument({
+				documentType: 'national_id',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: 'CI0012345678',
+			})
+			const candidate = buildDocument({
+				id: 'lost-item-2',
+				type: 'found',
+				documentType: 'national_id',
+				documentHolderName: 'TRAORE Fatou',
+				documentNumber: 'ci00-1234-5678',
+			})
+
+			expect(computeMatchScore(source, candidate)).toBe(
+				baseline + SCORE_SAME_DOCUMENT_NUMBER + SCORE_SAME_DOCUMENT_TYPE,
+			)
+		})
 	})
 })

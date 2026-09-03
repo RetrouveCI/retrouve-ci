@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import {
+	DOCUMENT_TYPES,
 	LOST_ITEM_CATEGORIES,
 	LOST_ITEM_TYPES,
 	MODERATION_STATUSES,
@@ -14,6 +15,10 @@ export const lostItemCategorySchema = z.enum(LOST_ITEM_CATEGORIES, {
 	error: 'Catégorie invalide',
 })
 
+export const documentTypeSchema = z.enum(DOCUMENT_TYPES, {
+	error: 'Type de pièce invalide',
+})
+
 export const resolutionStatusSchema = z.enum(RESOLUTION_STATUSES, {
 	error: 'Statut invalide',
 })
@@ -24,5 +29,6 @@ export const moderationStatusSchema = z.enum(MODERATION_STATUSES, {
 
 export type LostItemType = z.output<typeof lostItemTypeSchema>
 export type LostItemCategory = z.output<typeof lostItemCategorySchema>
+export type DocumentType = z.output<typeof documentTypeSchema>
 export type ResolutionStatus = z.output<typeof resolutionStatusSchema>
 export type ModerationStatus = z.output<typeof moderationStatusSchema>

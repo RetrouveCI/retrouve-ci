@@ -37,6 +37,7 @@ import { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-los
 import { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
 import { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
+import { GetPublicLostItemsUseCase } from '@/domains/lost-items/use-cases/get-public-lost-items.use-case'
 import { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
 import { RecordLostItemContactUseCase } from '@/domains/lost-items/use-cases/record-lost-item-contact.use-case'
 import { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
@@ -54,6 +55,7 @@ export class LostItemsController {
 		private readonly viewLostItemUseCase: ViewLostItemUseCase,
 		private readonly recordLostItemContactUseCase: RecordLostItemContactUseCase,
 		private readonly getPaginatedLostItemsUseCase: GetPaginatedLostItemsUseCase,
+		private readonly getPublicLostItemsUseCase: GetPublicLostItemsUseCase,
 		private readonly getMyLostItemsUseCase: GetMyLostItemsUseCase,
 		private readonly getMyLostItemsSummaryUseCase: GetMyLostItemsSummaryUseCase,
 		private readonly updateLostItemUseCase: UpdateLostItemUseCase,
@@ -82,10 +84,7 @@ export class LostItemsController {
 		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
 		filter: ListLostItemsFilterData,
 	) {
-		return this.getPaginatedLostItemsUseCase.execute({
-			...this.toListFilter(filter),
-			moderationStatus: 'published',
-		})
+		return this.getPublicLostItemsUseCase.execute(this.toListFilter(filter))
 	}
 
 	@Get('mine')

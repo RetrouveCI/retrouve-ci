@@ -1,4 +1,5 @@
 import {
+	DocumentType as PrismaDocumentType,
 	LostItemCategory as PrismaLostItemCategory,
 	LostItemType as PrismaLostItemType,
 	ModerationStatus as PrismaModerationStatus,
@@ -6,8 +7,9 @@ import {
 	type LostItem as PrismaLostItem,
 } from '@app/database'
 
-import type { LostItem } from '../types/lost-item.types'
+import type { LostItem, PublicLostItem } from '../types/lost-item.types'
 import type {
+	DocumentType,
 	LostItemCategory,
 	LostItemType,
 	ModerationStatus,
@@ -27,6 +29,12 @@ export function toDomainLostItem(lostItem: PrismaLostItem): LostItem {
 		contactName: lostItem.contactName,
 		contactWhatsapp: lostItem.contactWhatsapp,
 		photos: lostItem.photos,
+		documentType: lostItem.documentType
+			? toDomainDocumentType(lostItem.documentType)
+			: null,
+		documentHolderName: lostItem.documentHolderName,
+		documentNumber: lostItem.documentNumber,
+		documentIssuer: lostItem.documentIssuer,
 		moderationStatus: toDomainModerationStatus(lostItem.moderationStatus),
 		resolutionStatus: toDomainResolutionStatus(lostItem.resolutionStatus),
 		views: lostItem.views,
@@ -35,6 +43,16 @@ export function toDomainLostItem(lostItem: PrismaLostItem): LostItem {
 		createdAt: lostItem.createdAt,
 		updatedAt: lostItem.updatedAt,
 	}
+}
+
+/**
+ * Drops the one field a public read may not carry. The holder's name stays: it
+ * is what lets someone recognise their own document.
+ */
+export function toPublicLostItem(lostItem: LostItem): PublicLostItem {
+	const { documentNumber: _private, ...rest } = lostItem
+
+	return rest
 }
 
 export function toPrismaType(type: LostItemType): PrismaLostItemType {
@@ -119,4 +137,36 @@ export function toDomainResolutionStatus(
 		: status === PrismaResolutionStatus.RESOLVED
 			? 'resolved'
 			: 'expired'
+}
+
+const DOCUMENT_TYPE_TO_PRISMA: Record<DocumentType, PrismaDocumentType> = {
+	national_id: PrismaDocumentType.NATIONAL_ID,
+	driver_licence: PrismaDocumentType.DRIVER_LICENCE,
+	bank_card: PrismaDocumentType.BANK_CARD,
+	insurance_card: PrismaDocumentType.INSURANCE_CARD,
+	passport: PrismaDocumentType.PASSPORT,
+	student_card: PrismaDocumentType.STUDENT_CARD,
+	other: PrismaDocumentType.OTHER,
+}
+
+const DOCUMENT_TYPE_TO_DOMAIN: Record<PrismaDocumentType, DocumentType> = {
+	NATIONAL_ID: 'national_id',
+	DRIVER_LICENCE: 'driver_licence',
+	BANK_CARD: 'bank_card',
+	INSURANCE_CARD: 'insurance_card',
+	PASSPORT: 'passport',
+	STUDENT_CARD: 'student_card',
+	OTHER: 'other',
+}
+
+export function toPrismaDocumentType(
+	documentType: DocumentType,
+): PrismaDocumentType {
+	return DOCUMENT_TYPE_TO_PRISMA[documentType]
+}
+
+export function toDomainDocumentType(
+	documentType: PrismaDocumentType,
+): DocumentType {
+	return DOCUMENT_TYPE_TO_DOMAIN[documentType]
 }

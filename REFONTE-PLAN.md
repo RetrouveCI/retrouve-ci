@@ -3775,59 +3775,156 @@ donnée que rien n'affiche. **Fichiers** : `packages/database/prisma/`,
 `apps/api/src/domains/sticker-orders/`, `apps/client/app/routes/stickers/`,
 `apps/admin/app/routes/dashboard/orders/`. **Flux** : C.
 
-#### A7 — Champs de document sur une annonce
+#### A7 — Champs de document sur une annonce — **LIVRÉE**
 
-Ouvert par R18. En Côte d'Ivoire, les objets perdus les plus fréquents sont des
+Ouverte par R18. En Côte d'Ivoire, les objets perdus les plus fréquents sont des
 **pièces** : carte nationale d'identité, permis de conduire, carte bancaire,
-carte d'assurance. Le formulaire ne connaît qu'une catégorie `documents` et un
-texte libre, alors que ces pièces portent un nom de titulaire et un numéro que
-ni un titre ni une description ne rapprocheront jamais.
+carte d'assurance. Le formulaire ne connaissait qu'une catégorie `documents` et
+un texte libre, alors que ces pièces portent un nom de titulaire et un numéro
+que ni un titre ni une description ne rapprocheront jamais.
 
-Les deux spécimens fournis donnent la liste utile : sur la CNI, le **NNI** et le
-numéro de carte, le nom et les prénoms, la date de naissance ; sur le permis, le
-**numéro de permis**, le nom, les prénoms, la date et le lieu de délivrance.
+Ce qui a été livré :
 
 1. **Un énuméré fermé `documentType`** — `national_id`, `driver_licence`,
    `bank_card`, `insurance_card`, `passport`, `student_card`, `other` — dans
-   `@app/contracts/lost-items`, avec ses libellés côté fronts, comme
-   `LOST_ITEM_CATEGORIES`. Un nouveau type doit être une erreur de compilation,
-   pas un libellé manquant.
-2. **Le nom est obligatoire, le numéro ne l'est pas.** Les deux personnes de ce
-   formulaire ne peuvent pas fournir la même chose : celle qui **trouve** la
-   pièce l'a en main et lit le numéro ; celle qui l'a **perdue** ne le connaît
-   presque jamais, puisque sa pièce est justement ce qui le portait. L'exiger
-   fermerait la porte à celle que la fonction sert. Il est donc demandé avec
-   insistance côté trouvaille, et facultatif partout.
-3. **Le rapprochement porte donc sur le nom**, plus le type de pièce et la
-   ville. Le numéro, quand les deux côtés l'ont donné, fait passer une
-   correspondance probable à **certaine** ; il ne peut pas être la condition qui
-   ouvre le contact, sinon il exclut exactement ceux qu'il devait servir.
-4. **Le numéro n'est jamais public.** Une annonce est une page indexable :
-   publier un NNI avec un nom et une date de naissance, c'est livrer le jeu
-   complet d'une usurpation. La colonne est écrite mais **exclue du schéma de
-   lecture publique**, comme `resolutionStatus` l'est depuis R11. Elle sert au
-   rapprochement et à la **vérification à la remise** — qui rend la pièce
-   demande son numéro à qui la réclame.
-5. **Aucun numéro de carte bancaire.** Le PAN suffit à la fraude en ligne et
-   ferait entrer PCI-DSS dans le dépôt pour un service qui n'en a pas besoin :
-   la seule action utile est de faire opposition auprès de sa banque. Pour une
-   carte bancaire, la banque émettrice et les **quatre derniers chiffres**
-   suffisent à se reconnaître, et l'écran dit d'appeler sa banque d'abord.
-6. **Comparer sur une forme normalisée**, sans quoi rien ne se rapproche. Le
-   numéro : capitales, sans espaces ni tirets — `5811403-13-0015703713RC` et
-   `581140313 0015703713 RC` sont le même permis. Le **nom**, qui porte
-   désormais le rapprochement : capitales, accents retirés, espaces réduits, et
-   **ordre indifférent** entre nom et prénoms — les pièces impriment en
-   capitales sans accents, les noms ivoiriens s'écrivent de plusieurs façons, et
-   les deux champs s'inversent d'un formulaire à l'autre.
-7. **Le back-office l'affiche**, puisque c'est lui qui modère, et le journal ne
-   doit jamais écrire le numéro — même règle que le code OTP.
+   `@app/contracts/lost-items`, plus la colonne `DocumentType` en base et la
+   table de libellés `DOCUMENT_TYPE_LABELS` du backoffice, tapée
+   `Record<DocumentType, string>` : un type ajouté est une erreur de
+   compilation, pas un libellé manquant.
+2. **Quatre colonnes, pas trois** : `documentType`, `documentHolderName`,
+   `documentNumber` et `documentIssuer` — l'émetteur est la banque ou l'assureur
+   que R35 demande. Aucune date de naissance : un nom **avec** une date de
+   naissance sur une page indexable est exactement le jeu complet que le point
+   sur la vie privée refuse.
+3. **Le nom porte le rapprochement**, avec trois verdicts et non deux
+   (`compareHolderNames`). Un sous-ensemble vaut le même titulaire — une carte
+   imprime trois prénoms là où celui qui l'a perdue en écrit un. Un nom de
+   famille partagé et rien d'autre ne tranche **rien**, étant beaucoup trop
+   fréquent ici. Et deux noms qui ne partagent aucun mot **disqualifient** la
+   paire.
+4. **Le numéro n'est jamais public**, garanti par un type et par une sonde en CI
+   (voir les écarts ci-dessous).
+5. **Aucun numéro de carte bancaire** : pour `bank_card`, le contrat n'accepte
+   que quatre chiffres exactement. Le PAN ferait entrer PCI-DSS dans le dépôt
+   pour un service qui n'en a pas besoin.
+6. **La comparaison porte sur une forme normalisée.** Le numéro : capitales,
+   sans rien d'autre que des lettres et des chiffres, donc
+   `5811403-13-0015703713RC` et `581140313 0015703713 RC` sont le même permis.
+   Le nom : accents retirés, capitales, **ordre indifférent**, l'apostrophe qui
+   ferme (`N'GUESSAN` est un mot) et le trait d'union qui ouvre (`JEAN-BAPTISTE`
+   en fait deux), une initiale seule écartée.
+7. **Le back-office l'affiche** (`PostDocumentBlock`), et dit sur place que le
+   numéro n'atteint aucune page publique.
 
-**Fichiers** : `packages/database/prisma/`,
-`packages/contracts/src/lost-items/`, `apps/api/src/domains/lost-items/`,
-`apps/admin/app/routes/dashboard/posts/`. **Flux** : A, B. **Acceptation** : une
-pièce se publie **sans** numéro, aucun numéro saisi n'apparaît dans une réponse
-publique, et deux écritures différentes du même nom se rapprochent.
+> **Cinq points du plan étaient faux, intenables ou dangereux comme écrits.**
+>
+> **1. L'analogie avec R11 était fausse, et il fallait inventer le mécanisme.**
+> Le point 4 annonçait un numéro « exclu du schéma de lecture publique, comme
+> `resolutionStatus` l'est depuis R11 ». R11 a exclu `resolutionStatus` du
+> **schéma de filtre**, c'est-à-dire de l'entrée — le §6 de ce plan le dit
+> lui-même. **L'API n'a aucun schéma de réponse** : chaque route rend l'entité
+> de domaine entière. Il n'y avait donc rien à imiter.
+>
+> Retenu : une projection **typée**, `PublicLostItem`, dont `documentNumber` est
+> déclaré `never` plutôt que retiré — un `LostItem` complet n'est alors **pas**
+> assignable et le compilateur refuse le raccourci. Les specs l'ont prouvé en
+> échouant à la compilation avant d'être corrigées.
+>
+> **2. Il y a QUATRE chemins de lecture publics, pas un.** `GET /lost-items`,
+> `GET /lost-items/:id` (`@OptionalAuth`), `GET /lost-items/:id/matches`
+> (`@AllowAnonymous`, celui qu'on oublie) et **`POST /lost-items/:id/contact`**,
+> anonyme lui aussi, qui rendait l'entité complète. Les quatre passent par
+> `toPublicLostItem`, appliqué dans les **use-cases** et non dans le contrôleur,
+> la convention voulant qu'un contrôleur délègue et rien de plus. La règle qui
+> n'ouvre que le publié, et qui vivait dans le contrôleur, descend du même coup
+> dans un `GetPublicLostItemsUseCase` — appliquée **en dernier**, pour qu'un
+> filtre portant un autre statut ne puisse pas l'élargir.
+>
+> **3. « Le nom est obligatoire » aurait cassé la publication en production.**
+> Lu comme « requis sur toute annonce `documents` », il faisait répondre 400 au
+> client actuel, qui n'envoie aucun de ces champs, avant que R35 n'ait posé le
+> formulaire. Retenu : le bloc est facultatif en entier, mais **dès qu'il est
+> ouvert** — un type, un numéro ou un émetteur — le nom est requis. Un numéro
+> sans personne attachée ne rapproche rien et n'est qu'un fragment d'identité
+> conservé sans raison.
+>
+> **4. Le bloc n'est PAS lié à la catégorie `documents`.** Un portefeuille remis
+> avec une CNI dedans est la trouvaille la plus fréquente de toutes, et sa
+> catégorie est `wallet` : coupler les deux fermait la porte à l'annonce qui a
+> le plus besoin du nom du titulaire. La sélection des candidats faisant déjà un
+> `OR` sur la catégorie et la ville, la paire reste trouvable.
+>
+> **5. Un nom différent DISQUALIFIE.** Le plan ne demandait que d'ajouter du
+> poids au nom. Recompté sur les constantes : deux pièces de la même catégorie
+> dans la même ville marquent **65** pour un seuil à **50** — et **110** quand
+> elles partagent en plus la commune, le jour et un mot de description, ce qui
+> est la référence du test. Les cartes de deux inconnus d'Abidjan se notifiaient
+> donc mutuellement sans qu'aucun nom n'intervienne. Un désaccord sur le seul
+> champ identifiant que les deux côtés ont rempli pèse plus lourd que la ville —
+> **sauf si les numéros concordent**, auquel cas c'est le nom qui a été mal
+> recopié. Le numéro identique vaut 100 à lui seul : ce n'est pas une paire
+> probable, c'est le même document.
+
+> **Deux contraintes découvertes dans le code, pas dans le plan.**
+>
+> **Zod 4 lève à l'import** sur `.omit()` comme sur `.partial()` appliqués à un
+> objet portant un raffinement — et `updateLostItemSchema` est exactement
+> `createLostItemSchema.omit(...)`. Un `.check()` posé sur le schéma de création
+> aurait cassé l'import de `@app/contracts/lost-items` pour l'API **et** les
+> deux fronts. D'où un `lostItemFieldsSchema` sans règle, dont chaque écriture
+> dérive ses propres contrôles. `z.toJSONSchema` accepte un objet contrôlé, donc
+> `@ApiZodBody` et `/docs` ne bougent pas.
+>
+> **Le plancher de description a dû être reporté sur les DEUX écritures.** Le
+> rendre facultatif pour une pièce (point 5 de R35, tranché dans cette étape
+> puisque le contrat est ici) demandait de retirer le `.min()` de la forme. Sans
+> le réécrire dans le contrôle de la **modification**, une édition aurait
+> raccourci ce qu'une création refuse. Il ne s'applique plus quand l'annonce
+> nomme à la fois son type de pièce et son titulaire : les deux disent plus
+> qu'un paragraphe.
+
+> **Le point 7 était déjà satisfait, vérifié plutôt qu'inventé.** « Le journal
+> ne doit jamais écrire le numéro » : les deux seules lignes de journal des
+> domaines `lost-items` et `matching` n'écrivent qu'un identifiant et un compte.
+> Aucun changement.
+
+> **Ce qui n'a pas pu être mesuré, et pourquoi.** Docker n'existe pas dans cette
+> distro WSL, donc aucun Postgres et aucune mesure HTTP en vrai. La mesure se
+> fait donc à la frontière de sérialisation
+> (`JSON.stringify(...)).not.toContain(...)` sur les quatre chemins) et par une
+> **sonde de source en CI** : `public-lost-item-reads.spec.ts` relit les deux
+> contrôleurs, relève chaque gestionnaire portant `@AllowAnonymous()` ou
+> `@OptionalAuth()`, et exige que le use-case auquel il délègue déclare la
+> projection. Comme R34, la sonde a été **prouvée avant d'être crue** : branchée
+> sur le use-case non projeté, elle tombe sur ses deux assertions ; rebranchée,
+> elle repasse. La migration, elle, est écrite par Prisma et non à la main
+> (`migrate diff` entre les deux datamodels, hors ligne), et son SQL a été
+> revérifié identique au diff du schéma après coup.
+
+**Fichiers** : `packages/database/prisma/` (enum + 4 colonnes + migration),
+`packages/contracts/src/lost-items/` (`documents.schema.ts` nouveau,
+`create`/`update` restructurés), `apps/api/src/domains/lost-items/`
+(`PublicLostItem`, `toPublicLostItem`, `GetPublicLostItemsUseCase`),
+`apps/api/src/domains/matching/` (`normalize-document.ts`, trois constantes de
+score), `apps/admin/app/routes/dashboard/posts/` (`PostDocumentBlock`). **Flux**
+: A, B.
+
+**Acceptation, chacune mesurée** : une pièce se publie **sans numéro et sans
+description** — vérifié sur le `dist` construit, pas sur la source ; aucun
+numéro saisi n'apparaît dans une réponse publique — quatre chemins, projection
+typée, sonde en CI ; deux écritures différentes du même nom se rapprochent —
+`jean kouassi` et `KOUASSI Jean`, `Aïcha` et `AICHA`, `KOUASSI Jean` inclus dans
+`KOUASSI Jean Baptiste`.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Tests : api **411** (+32),
+contracts **328** (dont `lost-items` 61 → 73), admin **413** (+4), client
+**1021** inchangé. Densité de commentaires **9,5 %**. Le diff du schéma Prisma
+est confiné à l'énuméré et au bloc `LostItem`, dont le réalignement est
+inévitable, `documentHolderName` étant plus large que tout nom qu'il portait —
+aucun autre modèle n'a été reformaté.
+
+**R35 est débloquée.**
 
 #### A8 — Joindre le propriétaire d'un sticker
 
@@ -3862,9 +3959,10 @@ réponse HTML.
 
 #### R35 — Publication guidée d'une pièce
 
-Ouvert par R18, dépend d'**A7**. Côté formulaire, une pièce se décrit autrement
-qu'un téléphone : ce qui compte n'est ni la couleur ni la marque, mais le type
-de pièce et le nom du titulaire.
+Ouvert par R18, dépend d'**A7**, qui est livrée : le contrat, la base et le
+rapprochement portent les champs, il reste le formulaire. Côté formulaire, une
+pièce se décrit autrement qu'un téléphone : ce qui compte n'est ni la couleur ni
+la marque, mais le type de pièce et le nom du titulaire.
 
 1. **Choisir `Documents` ouvre un second choix** — CNI, permis, carte bancaire,
    carte d'assurance, passeport — au lieu d'un champ de description vide.
@@ -3911,8 +4009,9 @@ notifications à personne n'a pas d'intérêt.
 ## 6. Ce qui ne bouge pas
 
 - **`@app/contracts`** : aucun schéma n'a besoin de changer, sauf A1 (motif de
-  masquage) et R26 (le prédicat strict du numéro, et la remontée
-  d'`OTP_TTL_SECONDS` depuis `apps/api`).
+  masquage), R26 (le prédicat strict du numéro, et la remontée
+  d'`OTP_TTL_SECONDS` depuis `apps/api`) et A7, qui y a ajouté les champs de
+  pièce et déplacé le plancher de description de la forme vers chaque écriture.
 - **Les endpoints de l'API** : tout le front se sert de ce qui existe, y compris
   les correspondances (`/lost-items?type&category&ville`). **Deux exceptions
   mesurées** : R11 a dû laisser passer `resolutionStatus` sur

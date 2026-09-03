@@ -1,6 +1,7 @@
 import { vi } from 'vitest'
+import { toPublicLostItem } from '../mappers/lost-item.mapper'
 import type { LostItemRepository } from '../repository/lost-item.repository'
-import type { LostItem } from '../types/lost-item.types'
+import type { LostItem, PublicLostItem } from '../types/lost-item.types'
 
 export function buildLostItem(overrides: Partial<LostItem> = {}): LostItem {
 	return {
@@ -15,6 +16,10 @@ export function buildLostItem(overrides: Partial<LostItem> = {}): LostItem {
 		contactName: 'Jean Dupont',
 		contactWhatsapp: '+2250700000000',
 		photos: [],
+		documentType: null,
+		documentHolderName: null,
+		documentNumber: null,
+		documentIssuer: null,
 		moderationStatus: 'published',
 		resolutionStatus: 'active',
 		views: 0,
@@ -24,6 +29,13 @@ export function buildLostItem(overrides: Partial<LostItem> = {}): LostItem {
 		updatedAt: new Date('2026-01-01'),
 		...overrides,
 	}
+}
+
+/** What every public route answers with — the number dropped. */
+export function buildPublicLostItem(
+	overrides: Partial<LostItem> = {},
+): PublicLostItem {
+	return toPublicLostItem(buildLostItem(overrides))
 }
 
 /** The repository is a concrete class, so a double is a partial cast. */

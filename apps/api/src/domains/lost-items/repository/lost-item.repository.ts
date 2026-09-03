@@ -5,6 +5,7 @@ import {
 	toDomainModerationStatus,
 	toDomainResolutionStatus,
 	toPrismaCategory,
+	toPrismaDocumentType,
 	toPrismaModerationStatus,
 	toPrismaResolutionStatus,
 	toPrismaType,
@@ -34,6 +35,25 @@ const EMPTY_MODERATION: Record<ModerationStatus, number> = {
 	hidden: 0,
 }
 
+/** A form posts an empty string for a field it left alone; the column holds
+ * `null` or a value, never the difference between the two. */
+function toPrismaDocumentFields(data: CreateLostItemData | UpdateLostItemData) {
+	return {
+		...(data.documentType !== undefined && {
+			documentType: toPrismaDocumentType(data.documentType),
+		}),
+		...(data.documentHolderName !== undefined && {
+			documentHolderName: data.documentHolderName || null,
+		}),
+		...(data.documentNumber !== undefined && {
+			documentNumber: data.documentNumber || null,
+		}),
+		...(data.documentIssuer !== undefined && {
+			documentIssuer: data.documentIssuer || null,
+		}),
+	}
+}
+
 @Injectable()
 export class LostItemRepository {
 	constructor(private readonly prisma: PrismaService) {}
@@ -51,6 +71,7 @@ export class LostItemRepository {
 				contactName: data.contactName,
 				contactWhatsapp: data.contactWhatsapp,
 				photos: data.photos ?? [],
+				...toPrismaDocumentFields(data),
 				userId: data.userId,
 			},
 		})
@@ -181,6 +202,7 @@ export class LostItemRepository {
 				...(data.contactWhatsapp !== undefined && {
 					contactWhatsapp: data.contactWhatsapp,
 				}),
+				...toPrismaDocumentFields(data),
 				...(data.photos !== undefined && { photos: data.photos }),
 				...(data.resolutionStatus !== undefined && {
 					resolutionStatus: toPrismaResolutionStatus(data.resolutionStatus),

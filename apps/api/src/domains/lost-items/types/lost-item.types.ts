@@ -1,6 +1,7 @@
 import type {
 	AdminListLostItemsFilterData,
 	CreateLostItemData as CreateLostItemContract,
+	DocumentType,
 	LostItemCategory,
 	LostItemType,
 	ModerationStatus,
@@ -10,6 +11,7 @@ import type {
 import type { Paginated } from '@/shared/utils/pagination.util'
 
 export type {
+	DocumentType,
 	LostItemCategory,
 	LostItemType,
 	ModerationStatus,
@@ -62,6 +64,10 @@ export interface LostItem {
 	contactName: string
 	contactWhatsapp: string
 	photos: string[]
+	documentType: DocumentType | null
+	documentHolderName: string | null
+	documentNumber: string | null
+	documentIssuer: string | null
 	moderationStatus: ModerationStatus
 	resolutionStatus: ResolutionStatus
 	views: number
@@ -71,7 +77,19 @@ export interface LostItem {
 	updatedAt: Date
 }
 
+/**
+ * What a public read may carry. A listing is an indexable page: an identity
+ * number published next to a holder's name hands over the set an impersonation
+ * needs, so the column is written and never served. `documentNumber` is typed
+ * `never` rather than dropped, so a full `LostItem` is **not** assignable and
+ * the compiler refuses the shortcut on the four anonymous routes.
+ */
+export type PublicLostItem = Omit<LostItem, 'documentNumber'> & {
+	documentNumber?: never
+}
+
 export type LostItemListResponse = Paginated<LostItem>
+export type PublicLostItemListResponse = Paginated<PublicLostItem>
 
 /**
  * The two state axes counted over everything one owner has posted. The browser
