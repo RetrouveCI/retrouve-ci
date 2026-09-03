@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigation } from 'react-router'
 import { FormRootError } from '@app/ui/components/form'
 import type { LostItemType } from '@/shared/types/lost-item'
@@ -16,14 +16,26 @@ import { PublishHeader } from './publish-header'
  * The three screens `/publish/lost` and `/publish/found` share. One form, one
  * request body: the steps only decide what is on screen and what has to be
  * valid before moving on.
+ *
+ * `contactName` is the account's own name, prefilled into step 3 and editable:
+ * it is what the finder reads, and typing it again on every listing is the
+ * kind of friction that ends a publication.
  */
-export function PublishFlow({ type }: { type: LostItemType }) {
-	const { form, onSubmit, isSubmitting } = usePublishForm()
+export function PublishFlow({
+	type,
+	contactName,
+}: {
+	type: LostItemType
+	contactName: string
+}) {
+	const prefilled = useMemo(() => ({ name: contactName }), [contactName])
+	const { form, onSubmit, isSubmitting } = usePublishForm(prefilled)
 	const { step, goTo, goNext, goBack, isLastStep } = usePublishSteps(form)
 	const { hasDraft, discard } = usePublishDraft({
 		form,
 		step,
 		onRestoreStep: goTo,
+		prefilled,
 	})
 	const [photoCount, setPhotoCount] = useState(0)
 

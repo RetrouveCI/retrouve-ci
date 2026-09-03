@@ -17,6 +17,6 @@ export function meta() {
 	})
 }
 
-export default function PublishLostPage() {
-	return <PublishFlow type="lost" />
+export default function PublishLostPage({ loaderData }: Route.ComponentProps) {
+	return <PublishFlow type="lost" contactName={loaderData.contactName} />
 }

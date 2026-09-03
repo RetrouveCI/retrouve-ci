@@ -9,11 +9,11 @@ import {
 import { writePublishDraft } from '../../helpers/publish-draft'
 import { PublishFlow } from '../publish-flow'
 
-function renderFlow() {
+function renderFlow(contactName = '') {
 	const Stub = createRoutesStub([
 		{
 			path: '/publish/lost',
-			Component: () => <PublishFlow type="lost" />,
+			Component: () => <PublishFlow type="lost" contactName={contactName} />,
 			action: () => ({ success: true }),
 		},
 		// The step-2 card loads through this resource route as soon as a category
@@ -118,5 +118,25 @@ describe('the publish flow', () => {
 		await expect.element(page.getByLabelText(/^Votre nom/)).toHaveValue('Konan')
 		await expect.element(page.getByText('Cocody, Abidjan')).toBeVisible()
 		await expect.element(page.getByText('26 août 2026')).toBeVisible()
+	})
+})
+
+describe('the contact name the account already knows', () => {
+	it('opens step 3 on it, still editable', async () => {
+		renderFlow('Konan')
+		await describeObject()
+		await userEvent.click(advance())
+		await userEvent.click(advance())
+
+		await expect.element(page.getByLabelText(/^Votre nom/)).toHaveValue('Konan')
+	})
+
+	// Prefilling is not typing: the bar would otherwise claim a saved draft on a
+	// form nobody has touched.
+	it('does not read as a draft on its own', async () => {
+		renderFlow('Konan')
+
+		await expect.element(heading("L'objet")).toBeVisible()
+		expect(draftNotice().elements()).toHaveLength(0)
 	})
 })

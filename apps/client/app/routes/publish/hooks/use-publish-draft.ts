@@ -13,6 +13,8 @@ interface UsePublishDraftOptions {
 	form: UseFormReturn<PublishFormInput, unknown, PublishFormData>
 	step: number
 	onRestoreStep: (step: number) => void
+	/** What the page opened with, so it does not read as a draft on its own. */
+	prefilled: Partial<PublishFormInput>
 }
 
 /**
@@ -27,6 +29,7 @@ export function usePublishDraft({
 	form,
 	step,
 	onRestoreStep,
+	prefilled,
 }: UsePublishDraftOptions) {
 	const [isRestored, setIsRestored] = useState(false)
 	const [hasDraft, setHasDraft] = useState(false)
@@ -50,7 +53,7 @@ export function usePublishDraft({
 		if (!isRestored) return
 
 		const persist = (values: Partial<PublishFormInput>) => {
-			if (isStoppedRef.current || !hasDraftContent(values)) return
+			if (isStoppedRef.current || !hasDraftContent(values, prefilled)) return
 
 			writePublishDraft({ values, step })
 			setHasDraft(true)
@@ -60,7 +63,7 @@ export function usePublishDraft({
 		const subscription = form.watch(values => persist(values))
 
 		return () => subscription.unsubscribe()
-	}, [form, isRestored, step])
+	}, [form, isRestored, prefilled, step])
 
 	return {
 		hasDraft,

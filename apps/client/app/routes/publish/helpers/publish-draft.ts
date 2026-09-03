@@ -38,12 +38,22 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 	return Object.fromEntries(Object.entries(value))
 }
 
-/** True once anything has been typed — an untouched form stores nothing. */
-export function hasDraftContent(values: Partial<PublishFormInput>): boolean {
+/**
+ * True once anything has been **typed** — an untouched form stores nothing, and
+ * a field the page opened with, such as the contact name, was not typed.
+ */
+export function hasDraftContent(
+	values: Partial<PublishFormInput>,
+	prefilled: Partial<PublishFormInput> = {},
+): boolean {
 	return DRAFT_FIELDS.some(field => {
 		const value = values[field]
 
-		return typeof value === 'string' && value.trim() !== ''
+		return (
+			typeof value === 'string' &&
+			value.trim() !== '' &&
+			value !== prefilled[field]
+		)
 	})
 }
 

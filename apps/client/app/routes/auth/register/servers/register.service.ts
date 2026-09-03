@@ -15,6 +15,20 @@ export async function setInitialPassword(
 	})
 }
 
+export async function setDisplayName(
+	name: string,
+	request: Request,
+): Promise<void> {
+	await apiFetch('/api/auth/update-user', {
+		method: 'POST',
+		body: JSON.stringify({ name }),
+		headers: {
+			Cookie: request.headers.get('cookie') ?? '',
+			Origin: new URL(request.url).origin,
+		},
+	})
+}
+
 export async function sendOtp(
 	phoneNumber: string,
 	request: Request,

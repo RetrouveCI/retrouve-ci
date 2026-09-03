@@ -17,6 +17,6 @@ export function meta() {
 	})
 }
 
-export default function PublishFoundPage() {
-	return <PublishFlow type="found" />
+export default function PublishFoundPage({ loaderData }: Route.ComponentProps) {
+	return <PublishFlow type="found" contactName={loaderData.contactName} />
 }

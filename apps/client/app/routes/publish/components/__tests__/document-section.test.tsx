@@ -15,7 +15,7 @@ function renderFlow(type: LostItemType = 'lost') {
 	const Stub = createRoutesStub([
 		{
 			path: `/publish/${type}`,
-			Component: () => <PublishFlow type={type} />,
+			Component: () => <PublishFlow type={type} contactName="" />,
 			action: () => ({ success: true }),
 		},
 		{ path: '/publish/matches', loader: () => ({ items: [] }) },

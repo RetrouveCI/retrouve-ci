@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useController, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
-import { FormRootError } from '@app/ui/components/form'
+import { Input, Label } from '@app/ui/components'
+import { FieldError, FormRootError } from '@app/ui/components/form'
 import { toErrorList } from '../../helpers/field-errors'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import {
@@ -30,7 +31,7 @@ export function CreatePasswordStepSection({
 		mode: 'onSubmit',
 		errors: fetcher.errors,
 		reValidateMode: 'onChange',
-		defaultValues: { newPassword: '', confirmPassword: '' },
+		defaultValues: { newPassword: '', confirmPassword: '', name: '' },
 	})
 
 	const newPassword = useController({
@@ -41,11 +42,16 @@ export function CreatePasswordStepSection({
 		control: form.control,
 		name: 'confirmPassword',
 	})
+	const firstName = useController({ control: form.control, name: 'name' })
 
 	const onSubmit = (values: NewPasswordData) => {
 		setHasSubmitted(true)
 		void fetcher.submit(
-			{ intent: 'set-initial-password', newPassword: values.newPassword },
+			{
+				intent: 'set-initial-password',
+				newPassword: values.newPassword,
+				name: values.name,
+			},
 			{ method: 'post' },
 		)
 	}
@@ -77,6 +83,28 @@ export function CreatePasswordStepSection({
 				confirmPasswordErrors={toErrorList(confirmPassword.fieldState.error)}
 				isSubmitting={fetcher.isSubmitting}
 			/>
+
+			<div className="space-y-2">
+				<Label htmlFor="first-name" className="text-sm font-semibold">
+					Votre prénom
+				</Label>
+				<Input
+					id="first-name"
+					name="name"
+					value={firstName.field.value}
+					onChange={firstName.field.onChange}
+					placeholder="Konan"
+					autoComplete="given-name"
+					disabled={fetcher.isSubmitting}
+					className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-control rounded-xl border-[1.5px] transition-all focus:ring-[3px]"
+				/>
+				<FieldError errors={toErrorList(firstName.fieldState.error)} />
+				{/* The artboard added « Votre nom complet reste privé » — there is no
+				    second, private name to keep, so the promise is left unsaid. */}
+				<p className="text-muted-foreground text-xs">
+					Affiché sur vos annonces, à la personne qui trouve votre objet.
+				</p>
+			</div>
 
 			<AuthSubmitButton
 				isSubmitting={fetcher.isSubmitting}

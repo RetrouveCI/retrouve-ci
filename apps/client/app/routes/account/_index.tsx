@@ -11,12 +11,14 @@ import { toSticker } from '@/routes/account/stickers/mappers/sticker.mapper'
 import { getMyStickers } from '@/routes/account/stickers/servers/stickers.service'
 import { getMyStickerOrders } from '@/routes/account/orders/servers/orders.service'
 import { ProfileHeader } from './components/profile-header'
+import { NameReminder } from './components/name-reminder'
 import { AccountStats } from './components/account-stats'
 import { RecentListings } from './components/recent-listings'
 import { AccountNav } from './components/account-nav'
 import { ActivitySummary } from './components/activity-summary'
 import { getActivitySummary } from './servers/activity.service'
 import { useAuth } from '@/context/auth'
+import { isPhoneLikeName } from '@/shared/utils/display-name'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
 
@@ -108,6 +110,7 @@ function DashboardView({
 	return (
 		<main className="flex-1">
 			<ProfileHeader user={user} onLogout={logout} />
+			{isPhoneLikeName(user.name) && <NameReminder />}
 			<ActivitySummary summary={summary} />
 			<AccountStats listings={listings} stickers={stickers} />
 			<section className="pb-12">
