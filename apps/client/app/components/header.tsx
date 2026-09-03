@@ -34,7 +34,7 @@ function isActivePath(pathname: string, href: string) {
  * ceiling, the actions sit right. On scroll the links fade and the search stays:
  * it is what someone returning to the top is reaching for.
  */
-export function Header() {
+export function Header({ pendingStickers = 0 }: { pendingStickers?: number }) {
 	const [scrolled, setScrolled] = useState(false)
 	const { pathname } = useLocation()
 	const { user, isAuthenticated, logout } = useAuth()
@@ -137,6 +137,7 @@ export function Header() {
 									name={user?.name ?? ''}
 									phone={user?.phone}
 									onLogout={logout}
+									pendingStickers={pendingStickers}
 								/>
 							</div>
 						</div>

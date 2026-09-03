@@ -6,7 +6,11 @@ describe('notificationTypeSchema', () => {
 	// The API's own constant listed `match_found` alone, while its mapper and the
 	// Prisma enum both carry `qr_scan`. The contract is the complete list.
 	it('covers every type the database can hold', () => {
-		expect(NOTIFICATION_TYPES).toEqual(['match_found', 'qr_scan'])
+		expect(NOTIFICATION_TYPES).toEqual([
+			'match_found',
+			'qr_scan',
+			'stickers_delivered',
+		])
 	})
 
 	it.each(NOTIFICATION_TYPES)('accepts %s', type => {

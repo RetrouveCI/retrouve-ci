@@ -1,22 +1,10 @@
 import type { LostItemApiDto } from '@/shared/types/lost-items.types'
 
-const { getLostItems, getServerSession, getMyStickerSummary } = vi.hoisted(
-	() => ({
-		getLostItems: vi.fn(),
-		getServerSession: vi.fn(),
-		getMyStickerSummary: vi.fn(),
-	}),
-)
+const { getLostItems } = vi.hoisted(() => ({ getLostItems: vi.fn() }))
 
 vi.mock('../../../posts/servers/lost-items.service', () => ({ getLostItems }))
-vi.mock('@/shared/helpers/session.server', () => ({ getServerSession }))
-vi.mock('../../../account/stickers/servers/stickers.service', () => ({
-	getMyStickerSummary,
-}))
 
 const { homeLoader, RECENT_LISTINGS_COUNT } = await import('../home.loader')
-
-const request = new Request('http://localhost/')
 
 function dto(id: string): LostItemApiDto {
 	return {
@@ -41,8 +29,6 @@ function dto(id: string): LostItemApiDto {
 
 beforeEach(() => {
 	getLostItems.mockReset()
-	getServerSession.mockReset().mockResolvedValue(null)
-	getMyStickerSummary.mockReset()
 })
 
 describe('homeLoader', () => {
@@ -54,7 +40,7 @@ describe('homeLoader', () => {
 			pageSize: RECENT_LISTINGS_COUNT,
 		})
 
-		await homeLoader({ request })
+		await homeLoader()
 
 		expect(getLostItems).toHaveBeenCalledWith({
 			pageSize: RECENT_LISTINGS_COUNT,
@@ -69,7 +55,7 @@ describe('homeLoader', () => {
 			pageSize: RECENT_LISTINGS_COUNT,
 		})
 
-		const { recent } = await homeLoader({ request })
+		const { recent } = await homeLoader()
 
 		expect(recent?.total).toBe(412)
 		expect(recent?.listings.map(item => item.id)).toEqual(['a', 'b'])
@@ -83,7 +69,7 @@ describe('homeLoader', () => {
 			pageSize: RECENT_LISTINGS_COUNT,
 		})
 
-		const { recent } = await homeLoader({ request })
+		const { recent } = await homeLoader()
 
 		expect(recent).not.toBeNull()
 		expect(recent?.listings).toEqual([])
@@ -92,64 +78,18 @@ describe('homeLoader', () => {
 	it('leaves the home page standing when the API is unreachable', async () => {
 		getLostItems.mockRejectedValue(new Error('ECONNREFUSED'))
 
-		await expect(homeLoader({ request })).resolves.toEqual({
-			recent: null,
-			stickers: null,
-		})
+		await expect(homeLoader()).resolves.toEqual({ recent: null })
 	})
-})
 
-describe('homeLoader — the sticker banner', () => {
-	function published() {
+	// It left with the banner it fed; the shell reads it beside the page now.
+	it('reads nothing about stickers any more', async () => {
 		getLostItems.mockResolvedValue({
 			items: [],
 			total: 0,
 			page: 1,
 			pageSize: RECENT_LISTINGS_COUNT,
 		})
-	}
 
-	it('asks the API nothing about stickers for an anonymous visitor', async () => {
-		published()
-
-		const { stickers } = await homeLoader({ request })
-
-		expect(stickers).toBeNull()
-		expect(getMyStickerSummary).not.toHaveBeenCalled()
-	})
-
-	it('carries the summary for a signed-in visitor', async () => {
-		published()
-		getServerSession.mockResolvedValue({ user: { id: 'user-1' } })
-		getMyStickerSummary.mockResolvedValue({
-			delivered: 12,
-			activated: 3,
-			pending: 9,
-		})
-
-		const { stickers } = await homeLoader({ request })
-
-		expect(stickers).toEqual({ delivered: 12, activated: 3, pending: 9 })
-	})
-
-	/** A banner must never take the first screen of the product down. */
-	it('drops the banner rather than the page when the summary fails', async () => {
-		published()
-		getServerSession.mockResolvedValue({ user: { id: 'user-1' } })
-		getMyStickerSummary.mockRejectedValue(new Error('ECONNREFUSED'))
-
-		const { recent, stickers } = await homeLoader({ request })
-
-		expect(stickers).toBeNull()
-		expect(recent).not.toBeNull()
-	})
-
-	it('drops the banner when the session check itself throws', async () => {
-		published()
-		getServerSession.mockRejectedValue(new Error('ECONNREFUSED'))
-
-		await expect(homeLoader({ request })).resolves.toMatchObject({
-			stickers: null,
-		})
+		expect(Object.keys(await homeLoader())).toEqual(['recent'])
 	})
 })
