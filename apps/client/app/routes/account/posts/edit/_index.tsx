@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { Controller } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 import {
 	AlertCircle,
 	AlertTriangle,
@@ -7,17 +7,22 @@ import {
 	ArrowLeft,
 	Loader2,
 	Package,
+	ShieldCheck,
 } from 'lucide-react'
 import { Button, FieldError, Input, Textarea } from '@app/ui/components'
 import { FormRootError, InputLabel } from '@app/ui/components/form'
 import { cn } from '@app/ui/utils'
 import { SectionHeader } from '@/routes/publish/components/section-header'
+import { DocumentSection } from '@/routes/publish/components/document-section'
 import { LocationDateSection } from '@/routes/publish/components/location-date-section'
 import { ContactSection } from '@/routes/publish/components/contact-section'
 import { PublishPageHeader } from '@/routes/publish/components/publish-page-header'
 import { PhotosUpload } from '@/routes/publish/components/photos-upload'
 import { usePublishForm } from '@/routes/publish/hooks/use-publish-form'
-import { MIN_DESCRIPTION_LENGTH } from '@app/contracts/lost-items'
+import {
+	MIN_DESCRIPTION_LENGTH,
+	describesDocument,
+} from '@app/contracts/lost-items'
 import type { ModerationStatus } from '@/shared/types/lost-item'
 import { toLocalDigits } from '@/shared/utils/phone'
 import { OBJECT_TYPES } from '@/routes/publish/publish.const'
@@ -62,6 +67,8 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 		OBJECT_TYPES.find(type => type.value === item.category)?.label ??
 		item.category
 
+	const isDocument = item.category === 'documents'
+
 	const { form, onSubmit, isSubmitting } = usePublishForm({
 		title: item.title,
 		objectType: item.category,
@@ -71,6 +78,20 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 		date: item.eventDate.slice(0, 10),
 		name: item.contactName,
 		whatsapp: toLocalDigits(item.contactWhatsapp),
+		documentType: item.documentType ?? '',
+		documentHolderName: item.documentHolderName ?? '',
+		documentNumber: item.documentNumber ?? '',
+		documentIssuer: item.documentIssuer ?? '',
+	})
+
+	const [documentType, documentHolderName] = useWatch({
+		control: form.control,
+		name: ['documentType', 'documentHolderName'],
+	})
+
+	const describesPiece = describesDocument({
+		documentType: documentType || undefined,
+		documentHolderName,
 	})
 
 	return (
@@ -144,16 +165,24 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 								</div>
 							</div>
 
+							{isDocument && (
+								<DocumentSection control={form.control} type={item.type} />
+							)}
+
 							<Controller
 								control={form.control}
 								name="description"
 								render={({ field, fieldState }) => {
 									const length = field.value?.length ?? 0
-									const isLongEnough = length >= MIN_DESCRIPTION_LENGTH
+									const isLongEnough =
+										describesPiece || length >= MIN_DESCRIPTION_LENGTH
 
 									return (
 										<div className="space-y-2">
-											<InputLabel htmlFor={field.name} required>
+											<InputLabel
+												htmlFor={field.name}
+												required={!describesPiece}
+											>
 												Description
 											</InputLabel>
 											<Textarea
@@ -178,9 +207,11 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 														: 'text-muted-foreground',
 												)}
 											>
-												{isLongEnough
-													? '✓ Suffisant'
-													: `Minimum ${MIN_DESCRIPTION_LENGTH} caractères (${length}/${MIN_DESCRIPTION_LENGTH})`}
+												{describesPiece
+													? 'Facultatif pour une pièce'
+													: isLongEnough
+														? '✓ Suffisant'
+														: `Minimum ${MIN_DESCRIPTION_LENGTH} caractères (${length}/${MIN_DESCRIPTION_LENGTH})`}
 											</p>
 											{fieldState.error && (
 												<FieldError
@@ -193,25 +224,42 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 								}}
 							/>
 
-							<div className="space-y-2">
-								<InputLabel>
-									Photos{' '}
-									{isLost ? (
-										<span className="text-muted-foreground text-xs font-normal">
-											(optionnel)
-										</span>
-									) : (
-										<span className="border-primary-green/20 bg-primary-green/10 text-primary-green-text ml-1 rounded-full border px-2 py-0.5 text-xs font-semibold">
-											Recommandé
-										</span>
-									)}
-								</InputLabel>
-								<PhotosUpload
-									initialPhotos={item.photos}
-									variant={isLost ? 'optional' : 'recommended'}
-									accentColor={accentColor}
-								/>
-							</div>
+							{isDocument ? (
+								<div className="bg-muted/30 flex items-start gap-2.5 rounded-xl border p-4">
+									<ShieldCheck className="text-primary-green-text mt-0.5 h-4.5 w-4.5 shrink-0" />
+									<div className="space-y-1">
+										<p className="text-sm font-semibold">Aucune photo</p>
+										<p className="text-muted-foreground text-sm leading-relaxed">
+											La photo d&apos;une pièce livre d&apos;un coup le nom, le
+											numéro et la date de naissance sur une page publique.
+											{item.photos.length === 1 &&
+												' La photo actuelle sera retirée en enregistrant.'}
+											{item.photos.length > 1 &&
+												` Les ${item.photos.length} photos actuelles seront retirées en enregistrant.`}
+										</p>
+									</div>
+								</div>
+							) : (
+								<div className="space-y-2">
+									<InputLabel>
+										Photos{' '}
+										{isLost ? (
+											<span className="text-muted-foreground text-xs font-normal">
+												(optionnel)
+											</span>
+										) : (
+											<span className="border-primary-green/20 bg-primary-green/10 text-primary-green-text ml-1 rounded-full border px-2 py-0.5 text-xs font-semibold">
+												Recommandé
+											</span>
+										)}
+									</InputLabel>
+									<PhotosUpload
+										initialPhotos={item.photos}
+										variant={isLost ? 'optional' : 'recommended'}
+										accentColor={accentColor}
+									/>
+								</div>
+							)}
 						</div>
 
 						<LocationDateSection

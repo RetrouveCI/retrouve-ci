@@ -54,11 +54,45 @@ afterEach(() => {
 })
 
 describe('the publish draft', () => {
-	it('brings back the eight fields and the step it was left on', () => {
+	it('brings back every field and the step it was left on', () => {
 		writePublishDraft(FULL)
 
 		expect(readPublishDraft(STEP_COUNT)).toEqual(FULL)
 	})
+
+	it('brings back a piece of ID as it was left', () => {
+		const piece: PublishDraft = {
+			values: {
+				...FULL.values,
+				objectType: 'documents',
+				documentType: 'driver_licence',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: '5811403-13-001570',
+				documentIssuer: '',
+			},
+			step: 1,
+		}
+
+		writePublishDraft(piece)
+
+		expect(readPublishDraft(STEP_COUNT)).toEqual(piece)
+	})
+
+	// The `Select` can only show a value the contract still carries, so a type
+	// edited by hand must read as « nothing chosen » rather than reach it.
+	it.each(['carte_de_bus', 42, null])(
+		'drops a stored document type of %s',
+		documentType => {
+			overwriteStored(
+				JSON.stringify({
+					values: { title: 'CNI trouvée', documentType },
+					step: 1,
+				}),
+			)
+
+			expect(readPublishDraft(STEP_COUNT)?.values.documentType).toBeUndefined()
+		},
+	)
 
 	it('reads as absent when nothing was ever typed', () => {
 		expect(readPublishDraft(STEP_COUNT)).toBeNull()

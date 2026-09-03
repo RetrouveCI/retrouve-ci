@@ -24,9 +24,13 @@ export async function editPostAction(
 
 	// The success path redirects from inside the wrapper — see
 	// `routes/publish/servers/publish.action.ts` for why that works.
+	// Same rule as publication: a piece of ID keeps no photo, and the ones a
+	// listing carried before it declared one are dropped on the way through.
+	const isDocument = values.objectType === 'documents'
+
 	return withApiOperationError(
 		async () => {
-			const photos = await collectPhotoUrls(formData, request)
+			const photos = isDocument ? [] : await collectPhotoUrls(formData, request)
 
 			await patchLostItemContent(
 				id,
@@ -39,6 +43,10 @@ export async function editPostAction(
 					contactName: values.name,
 					contactWhatsapp: values.whatsapp,
 					photos,
+					documentType: values.documentType,
+					documentHolderName: values.documentHolderName || undefined,
+					documentNumber: values.documentNumber || undefined,
+					documentIssuer: values.documentIssuer || undefined,
 				},
 				request,
 			)

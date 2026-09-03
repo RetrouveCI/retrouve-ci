@@ -1,13 +1,14 @@
+import { documentTypeSchema } from '@app/contracts/lost-items'
 import type { PublishFormInput } from '../publish.schema'
 
 const STORAGE_KEY = 'retrouveci.publish-draft.v1'
 
 /**
- * The eight text fields the form owns. Photos are deliberately absent: they
- * live in real `<input type="file">` elements, and a `File` handle dies with
- * the page it was picked in — no storage can bring one back.
+ * The eleven free-text fields the form owns. Photos are deliberately absent:
+ * they live in real `<input type="file">` elements, and a `File` handle dies
+ * with the page it was picked in — no storage can bring one back.
  */
-const DRAFT_FIELDS = [
+const DRAFT_TEXT_FIELDS = [
 	'title',
 	'objectType',
 	'description',
@@ -16,7 +17,13 @@ const DRAFT_FIELDS = [
 	'date',
 	'name',
 	'whatsapp',
+	'documentHolderName',
+	'documentNumber',
+	'documentIssuer',
 ] as const
+
+/** Every other field holds free text; this one holds a closed enum. */
+const DRAFT_FIELDS = [...DRAFT_TEXT_FIELDS, 'documentType'] as const
 
 export interface PublishDraft {
 	values: Partial<PublishFormInput>
@@ -70,12 +77,17 @@ export function readPublishDraft(stepCount: number): PublishDraft | null {
 	const storedValues = asRecord(stored.values)
 	if (!storedValues) return null
 
-	const values: Record<string, string> = {}
+	const values: Partial<PublishFormInput> = {}
 
-	for (const field of DRAFT_FIELDS) {
+	for (const field of DRAFT_TEXT_FIELDS) {
 		const value = storedValues[field]
 		if (typeof value === 'string') values[field] = value
 	}
+
+	// A stored type the contract no longer knows must read as « nothing chosen »
+	// rather than reach the `Select` as a value it cannot show.
+	const documentType = documentTypeSchema.safeParse(storedValues.documentType)
+	if (documentType.success) values.documentType = documentType.data
 
 	if (!hasDraftContent(values)) return null
 

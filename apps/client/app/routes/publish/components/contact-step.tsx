@@ -4,6 +4,7 @@ import { FieldError, Input } from '@app/ui/components'
 import { InputLabel } from '@app/ui/components/form'
 import { cn } from '@app/ui/utils'
 import { ShieldCheck } from 'lucide-react'
+import { DOCUMENT_TYPE_LABELS } from '@/shared/constants/documents'
 import type { PublishFormInput } from '../publish.schema'
 import { StepIntro } from './step-intro'
 
@@ -127,6 +128,12 @@ export function ContactStep({ control, photoCount }: ContactStepProps) {
 					label="Date"
 					value={values.date ? formatDay(values.date) : 'Non renseignée'}
 				/>
+				{values.documentType && (
+					<SummaryRow
+						label="Pièce"
+						value={DOCUMENT_TYPE_LABELS[values.documentType]}
+					/>
+				)}
 				<SummaryRow label="Photos" value={String(photoCount)} />
 			</div>
 		</div>

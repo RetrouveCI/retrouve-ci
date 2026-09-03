@@ -18,6 +18,10 @@ const EMPTY_VALUES: PublishFormInput = {
 	date: '',
 	name: '',
 	whatsapp: '',
+	documentType: '',
+	documentHolderName: '',
+	documentNumber: '',
+	documentIssuer: '',
 }
 
 /**

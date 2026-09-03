@@ -218,49 +218,49 @@ deviennent l'axe principal du produit, ou si les deux actions se révèlent
 
 Une ligne = une branche = une PR = une session.
 
-| #       | Lot      | Étape                                       | Branche                                    | Scope commit                         | Charge | Dépend de    |
-| ------- | -------- | ------------------------------------------- | ------------------------------------------ | ------------------------------------ | ------ | ------------ |
-| **R1**  | Socle    | Zones sûres de l'appareil                   | `refonte-r1-safe-areas`                    | `client`                             | 0,2 j  | —            |
-| **R2**  | Socle    | Cibles tactiles 44 px sous `lg`             | `refonte-r2-touch-targets`                 | `ui` + les deux apps                 | 0,5 j  | —            |
-| **R3**  | Socle    | Tokens de couleur accessibles               | `refonte-r3-colour-tokens`                 | `ui` + `client`                      | 1 j    | —            |
-| **R4**  | Socle    | Photos servies à la taille d'affichage      | `refonte-r4-image-sizes`                   | `client`                             | 1 j    | —            |
-| **R5**  | Coquille | Thème dans Réglages + option `system`       | `refonte-r5-theme-settings`                | `client`                             | 1 j    | R3           |
-| **R6**  | Coquille | Barre d'onglets à 4 entrées + Scanner       | `refonte-r6-tab-bar`                       | `client`                             | 1,5 j  | R2, R5       |
-| **R7**  | Coquille | En-tête desktop en trois zones              | `refonte-r7-desktop-header`                | `client`                             | 1 j    | R2           |
-| **R8**  | Annonces | Filtres en feuille inférieure               | `refonte-r8-filters-sheet`                 | `client/posts`                       | 1 j    | R2           |
-| **R9**  | Annonces | Pagination compacte                         | `refonte-r9-pagination`                    | `client/posts`                       | 0,5 j  | —            |
-| **R10** | Annonces | Barre d'action basse sur le détail          | `refonte-r10-detail-action-bar`            | `client/posts`                       | 1 j    | R2           |
-| **R11** | Compte   | Filtres de Mes annonces pilotés par l'URL   | `refonte-r11-account-url-filters`          | `client/account`                     | 1 j    | —            |
-| **R12** | Compte   | Retours honnêtes sur les actions d'annonce  | `refonte-r12-account-feedback`             | `client/account`                     | 1 j    | —            |
-| **R13** | Compte   | Refonte de la carte d'annonce               | `refonte-r13-account-listing-card`         | `client/account`                     | 1,5 j  | R2, R11, R12 |
-| **R14** | Compte   | Correspondances sur une annonce             | `refonte-r14-account-matches`              | `client/account`                     | 1 j    | R13          |
-| **R15** | Compte   | Stickers, commandes et réglages             | `refonte-r15-account-screens`              | `client/account`                     | 1,5 j  | R2, R5       |
-| **R16** | Accueil  | Hero reconstruit sur une grille             | `refonte-r16-home-hero`                    | `client/home`                        | 1 j    | R3           |
-| **R17** | Accueil  | Annonces récentes et bloc stickers          | `refonte-r17-home-listings-stickers`       | `client/home`                        | 1 j    | R4, R16      |
-| **R18** | Publier  | Publication en trois étapes + brouillon     | `refonte-r18-publish-steps`                | `client/publish`                     | 1,5 j  | R2           |
-| **R19** | Publier  | Refonte de la page de scan publique         | `refonte-r19-qr-landing`                   | `client/q`                           | 1 j    | R3           |
-| **R20** | Scanner  | Écran caméra et amorce de permission        | `refonte-r20-scanner-camera`               | `client/scan` + `contracts`          | 1,5 j  | R6           |
-| **R21** | Scanner  | Décodeur WASM et repli photo                | `refonte-r21-scanner-fallbacks`            | `client/scan`                        | 1 j    | R20          |
-| **R22** | Scanner  | Activation de stickers en série             | `refonte-r22-sticker-activation`           | `client/account`                     | 1 j    | R20, R15     |
-| **R23** | PWA      | Manifeste, icônes et couleurs de thème      | `refonte-r23-manifest`                     | `client/pwa`                         | 1 j    | R1           |
-| **R24** | PWA      | Service worker, coquille et page hors-ligne | `refonte-r24-service-worker`               | `client/pwa`                         | 1,5 j  | R4, R23      |
-| **R25** | PWA      | Invite et page d'installation               | `refonte-r25-install`                      | `client/pwa`                         | 1 j    | R23          |
-| **R26** | Auth     | Règle du numéro ivoirien                    | `refonte-r26-phone-rule`                   | `contracts`                          | 0,5 j  | —            |
-| **R27** | Auth     | Connexion et inscription                    | `refonte-r27-login-register`               | `client/auth`                        | 1,5 j  | R2, R26      |
-| **R28** | Auth     | Mot de passe oublié en un écran             | `refonte-r28-password-reset`               | `client/auth`                        | 1 j    | R26, R27     |
-| **R29** | Auth     | Layout auth aux trois largeurs              | `refonte-r29-auth-layout`                  | `client/auth`                        | 0,5 j  | —            |
-| **R30** | Auth     | Copie et chiffres du panneau de marque      | `refonte-r30-auth-copy`                    | `client/auth`                        | 0,5 j  | R29          |
-| **R31** | Auth     | Routes d'authentification sans préfixe      | `refonte-r31-auth-routes`                  | `client/admin`                       | 0,5 j  | —            |
-| **R32** | Stickers | Hero produit de la page Stickers            | `refonte-stickers-hero`                    | `client/stickers`                    | 0,5 j  | R2           |
-| **R33** | Socle    | Échelle typographique et boutons mobiles    | `refonte-r33-mobile-type-scale`            | `ui` + `client`                      | 1,5 j  | R2, R17      |
-| **R34** | Socle    | Gouttière de zones sûres unique             | `refonte-r34-safe-area-gutter`             | `client`                             | 0,5 j  | R1           |
-| **R35** | Publier  | Publication guidée d'une pièce              | `refonte-r35-document-publish`             | `client/publish`                     | 1,5 j  | R18, A7      |
-| **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`             | `api/lost-items`                     | 1 j    | —            |
-| **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`              | `api/storage`                        | 0,5 j  | —            |
-| **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                      | `api/notifications`                  | 3 j    | R23          |
-| **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`                  | `api/sticker-orders`                 | 0,5 j  | R17          |
-| **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`               | `api/lost-items`                     | 1,5 j  | R18          |
-| **A8**  | API      | Joindre le propriétaire d'un sticker        | `refonte-a8-sticker-reach`                 | `api/qr-codes`                       | 1,5 j  | R19          |
+| #       | Lot      | Étape                                       | Branche                              | Scope commit                | Charge | Dépend de    |
+| ------- | -------- | ------------------------------------------- | ------------------------------------ | --------------------------- | ------ | ------------ |
+| **R1**  | Socle    | Zones sûres de l'appareil                   | `refonte-r1-safe-areas`              | `client`                    | 0,2 j  | —            |
+| **R2**  | Socle    | Cibles tactiles 44 px sous `lg`             | `refonte-r2-touch-targets`           | `ui` + les deux apps        | 0,5 j  | —            |
+| **R3**  | Socle    | Tokens de couleur accessibles               | `refonte-r3-colour-tokens`           | `ui` + `client`             | 1 j    | —            |
+| **R4**  | Socle    | Photos servies à la taille d'affichage      | `refonte-r4-image-sizes`             | `client`                    | 1 j    | —            |
+| **R5**  | Coquille | Thème dans Réglages + option `system`       | `refonte-r5-theme-settings`          | `client`                    | 1 j    | R3           |
+| **R6**  | Coquille | Barre d'onglets à 4 entrées + Scanner       | `refonte-r6-tab-bar`                 | `client`                    | 1,5 j  | R2, R5       |
+| **R7**  | Coquille | En-tête desktop en trois zones              | `refonte-r7-desktop-header`          | `client`                    | 1 j    | R2           |
+| **R8**  | Annonces | Filtres en feuille inférieure               | `refonte-r8-filters-sheet`           | `client/posts`              | 1 j    | R2           |
+| **R9**  | Annonces | Pagination compacte                         | `refonte-r9-pagination`              | `client/posts`              | 0,5 j  | —            |
+| **R10** | Annonces | Barre d'action basse sur le détail          | `refonte-r10-detail-action-bar`      | `client/posts`              | 1 j    | R2           |
+| **R11** | Compte   | Filtres de Mes annonces pilotés par l'URL   | `refonte-r11-account-url-filters`    | `client/account`            | 1 j    | —            |
+| **R12** | Compte   | Retours honnêtes sur les actions d'annonce  | `refonte-r12-account-feedback`       | `client/account`            | 1 j    | —            |
+| **R13** | Compte   | Refonte de la carte d'annonce               | `refonte-r13-account-listing-card`   | `client/account`            | 1,5 j  | R2, R11, R12 |
+| **R14** | Compte   | Correspondances sur une annonce             | `refonte-r14-account-matches`        | `client/account`            | 1 j    | R13          |
+| **R15** | Compte   | Stickers, commandes et réglages             | `refonte-r15-account-screens`        | `client/account`            | 1,5 j  | R2, R5       |
+| **R16** | Accueil  | Hero reconstruit sur une grille             | `refonte-r16-home-hero`              | `client/home`               | 1 j    | R3           |
+| **R17** | Accueil  | Annonces récentes et bloc stickers          | `refonte-r17-home-listings-stickers` | `client/home`               | 1 j    | R4, R16      |
+| **R18** | Publier  | Publication en trois étapes + brouillon     | `refonte-r18-publish-steps`          | `client/publish`            | 1,5 j  | R2           |
+| **R19** | Publier  | Refonte de la page de scan publique         | `refonte-r19-qr-landing`             | `client/q`                  | 1 j    | R3           |
+| **R20** | Scanner  | Écran caméra et amorce de permission        | `refonte-r20-scanner-camera`         | `client/scan` + `contracts` | 1,5 j  | R6           |
+| **R21** | Scanner  | Décodeur WASM et repli photo                | `refonte-r21-scanner-fallbacks`      | `client/scan`               | 1 j    | R20          |
+| **R22** | Scanner  | Activation de stickers en série             | `refonte-r22-sticker-activation`     | `client/account`            | 1 j    | R20, R15     |
+| **R23** | PWA      | Manifeste, icônes et couleurs de thème      | `refonte-r23-manifest`               | `client/pwa`                | 1 j    | R1           |
+| **R24** | PWA      | Service worker, coquille et page hors-ligne | `refonte-r24-service-worker`         | `client/pwa`                | 1,5 j  | R4, R23      |
+| **R25** | PWA      | Invite et page d'installation               | `refonte-r25-install`                | `client/pwa`                | 1 j    | R23          |
+| **R26** | Auth     | Règle du numéro ivoirien                    | `refonte-r26-phone-rule`             | `contracts`                 | 0,5 j  | —            |
+| **R27** | Auth     | Connexion et inscription                    | `refonte-r27-login-register`         | `client/auth`               | 1,5 j  | R2, R26      |
+| **R28** | Auth     | Mot de passe oublié en un écran             | `refonte-r28-password-reset`         | `client/auth`               | 1 j    | R26, R27     |
+| **R29** | Auth     | Layout auth aux trois largeurs              | `refonte-r29-auth-layout`            | `client/auth`               | 0,5 j  | —            |
+| **R30** | Auth     | Copie et chiffres du panneau de marque      | `refonte-r30-auth-copy`              | `client/auth`               | 0,5 j  | R29          |
+| **R31** | Auth     | Routes d'authentification sans préfixe      | `refonte-r31-auth-routes`            | `client/admin`              | 0,5 j  | —            |
+| **R32** | Stickers | Hero produit de la page Stickers            | `refonte-stickers-hero`              | `client/stickers`           | 0,5 j  | R2           |
+| **R33** | Socle    | Échelle typographique et boutons mobiles    | `refonte-r33-mobile-type-scale`      | `ui` + `client`             | 1,5 j  | R2, R17      |
+| **R34** | Socle    | Gouttière de zones sûres unique             | `refonte-r34-safe-area-gutter`       | `client`                    | 0,5 j  | R1           |
+| **R35** | Publier  | Publication guidée d'une pièce ✅           | `refonte-r35-document-publish`       | `client/publish`            | 1,5 j  | R18, A7      |
+| **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`       | `api/lost-items`            | 1 j    | —            |
+| **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`        | `api/storage`               | 0,5 j  | —            |
+| **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                | `api/notifications`         | 3 j    | R23          |
+| **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`            | `api/sticker-orders`        | 0,5 j  | R17          |
+| **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`         | `api/lost-items`            | 1,5 j  | R18          |
+| **A8**  | API      | Joindre le propriétaire d'un sticker        | `refonte-a8-sticker-reach`           | `api/qr-codes`              | 1,5 j  | R19          |
 | **R36** | Accueil  | L'arrivée des stickers devient un signal    | `refonte-r36-sticker-arrival-notification` | `client/home` + `api/sticker-orders` | 1 j    | R15, R17     |
 
 **Total ≈ 38,5 j** en séquentiel, dont ≈ 6 j côté API et ≈ 4 j pour le lot 9.
@@ -3958,38 +3958,168 @@ feuille d'activation de R22. **Flux** : B, C. **Acceptation** : un sticker sans
 consentement n'expose aucun bouton d'appel ; le numéro n'apparaît dans aucune
 réponse HTML.
 
-#### R35 — Publication guidée d'une pièce
+#### R35 — Publication guidée d'une pièce — **LIVRÉE**
 
-Ouvert par R18, dépend d'**A7**, qui est livrée : le contrat, la base et le
-rapprochement portent les champs, il reste le formulaire. Côté formulaire, une
-pièce se décrit autrement qu'un téléphone : ce qui compte n'est ni la couleur ni
-la marque, mais le type de pièce et le nom du titulaire.
+Ouverte par R18, dépendait d'**A7**. Côté formulaire, une pièce se décrit
+autrement qu'un téléphone : ce qui compte n'est ni la couleur ni la marque, mais
+le type de pièce et le nom du titulaire.
 
-1. **Choisir `Documents` ouvre un second choix** — CNI, permis, carte bancaire,
-   carte d'assurance, passeport — au lieu d'un champ de description vide.
-2. **Les champs suivent le type choisi** : nom du titulaire et numéro pour une
-   CNI ou un permis ; banque et quatre derniers chiffres pour une carte bancaire
-   ; assureur et numéro de police pour une carte d'assurance. **Seul le nom est
-   requis** (A7) : qui a perdu sa pièce ne connaît pas son numéro.
-3. **Le numéro est demandé différemment des deux côtés.** Sur `/publish/found`
-   la pièce est en main : le champ est en avant et le texte dit de le recopier.
-   Sur `/publish/lost` il est replié derrière « Je le connais », pour ne pas
-   laisser croire qu'on ne peut pas déclarer sans lui.
-4. **Dire pourquoi le numéro est demandé, à l'endroit où il est demandé** : il
-   n'apparaîtra sur aucune page, il sert à rapprocher et à vérifier à la remise.
-   Un champ qui réclame un numéro d'identité sans se justifier ne sera pas
-   rempli — ou le sera par les mauvaises personnes.
-5. **La description devient facultative** pour une pièce : le type et le nom la
-   remplacent, et `MIN_DESCRIPTION_LENGTH` n'a plus de sens ici.
-6. **Pas d'écran de revendication qui compare un numéro** : le contact passe par
-   WhatsApp comme pour toute annonce. Un formulaire qui compare un numéro sans
-   plafond est un oracle, et un formulaire qui l'exige exclut celui qui a perdu
-   sa pièce. La vérification se fait entre les deux personnes, à la remise.
+Ce qui a été livré :
 
-**Fichiers** : `apps/client/app/routes/publish/`,
-`apps/client/app/routes/posts/details/`, `apps/client/app/routes/q/`. **Flux** :
-A, B. **Acceptation** : publier une CNI perdue n'exige que le type et le nom du
-titulaire, et aucun numéro saisi n'apparaît sur la page publique.
+1. **Choisir `Documents` ouvre le bloc `DocumentSection`** — sept types dans un
+   `Select`, et rien d'autre tant qu'aucun n'est choisi : les champs qui suivent
+   dépendent du type.
+2. **Les champs suivent le type**, par une table `DOCUMENT_FIELDS` tapée
+   `Record<DocumentType, …>` dans `shared/constants/documents.ts` — libellé et
+   exemple du numéro pour chacun, et un émetteur **seulement là où il en existe
+   un** : banque pour une carte bancaire, assureur pour une carte d'assurance,
+   établissement pour une carte étudiante. Une CNI est délivrée par l'État, qui
+   ne nomme aucune institution. **Seul le nom du titulaire est requis**, et il
+   l'est dès que le bloc s'ouvre (règle d'A7).
+3. **La banque et l'assureur se choisissent dans une liste** — `CI_BANKS` (20)
+   et `CI_INSURERS` (15), par ordre alphabétique, un test refusant un doublon ou
+   un décalage d'ordre. ⚠️ **Aucune des deux ne peut être complète** : les
+   banques fusionnent et se renomment, et les deux listes ont été écrites de
+   mémoire, sans source vérifiable dans cette session. C'est pourquoi la liste
+   est un **raccourci et jamais un ensemble fermé** : « Autre — je saisis le nom
+   » rend la saisie libre, et « Choisir dans la liste » revient. Un émetteur
+   stocké hors liste — une modification, un brouillon écrit avant la liste —
+   ouvre le champ en saisie libre sur ce qu'il porte. **Les deux listes
+   demandent une relecture métier.**
+4. **Changer de type de pièce vide le numéro et l'émetteur.** Quatre chiffres de
+   carte bancaire ne sont pas un numéro de police, et une banque n'est pas un
+   assureur : un reste échouerait à une règle que le déposant ne voit pas.
+5. **Le numéro est demandé différemment des deux côtés** : en avant sur
+   `/publish/found`, où la pièce est en main et où le texte dit de la recopier ;
+   replié derrière « Je connais le numéro » sur `/publish/lost`, pour qu'un
+   champ vide ne se lise pas comme une condition pour déclarer.
+6. **La phrase qui justifie le champ est à côté du champ** — il n'apparaît sur
+   aucune page publique, il sert à rapprocher et à vérifier à la remise. Mêmes
+   mots que le bloc du back-office (§2.3 règle 2).
+7. **La description est facultative** dès que l'annonce nomme son type et son
+   titulaire : le compteur passe de « 0 / 20 min. » à « Facultatif », l'étoile
+   quitte le libellé, et la page de détail ne rend plus un titre « Description »
+   au-dessus du vide. La règle est celle du contrat (`describesDocument`), lue
+   des deux côtés plutôt que réécrite.
+8. **Aucun écran de revendication**, comme décidé : un formulaire qui compare un
+   numéro sans plafond est un oracle, et un formulaire qui l'exige exclut celui
+   qui a perdu sa pièce.
+9. **Le récapitulatif de l'étape 3 nomme la pièce** — c'est elle qui définit
+   l'annonce quand il n'y a ni photo ni description.
+
+> **Aucun artboard ne dessine cette étape.** Le canevas ne porte que
+> `Publier1/2/3`, les trois écrans de R18 : R35 est inventée, ce que le plan
+> assumait. ⚠️ **Et l'artifact utilisable a changé de main** : `d0fd086d` ne
+> répond plus, `e5758f3d` — que la note de mémoire donnait pour perdu — répond.
+> Vérifier quel compte répond avant de conclure qu'un canevas est perdu.
+
+> **Deux décisions du commanditaire, prises en séance.**
+>
+> **1. Aucune photo sur une annonce de pièce.** La proposition initiale était de
+> **flouter** la photo à l'upload. Quatre objections l'ont écartée : une pièce
+> floutée n'a plus **aucune** fonction, son contenu identifiant étant le texte ;
+> une ligne ne porte qu'une URL, donc un `eager` qui **remplace** aveugle le
+> modérateur et un `eager` qui **ajoute** laisse l'original adressable, sans
+> troisième forme ; le déclencheur (`documentType` renseigné) manque le
+> portefeuille photographié ouvert, que le déposant ne déclare pas ; et la force
+> d'`e_blur` se règle par rapport à la résolution, donc impossible à mesurer
+> sans Cloudinary joignable. Retenu : le sélecteur disparaît, remplacé par la
+> raison, et **les deux actions refusent les fichiers** — `collectPhotoUrls`
+> n'est pas appelé du tout, quoi que le formulaire soumis ait porté. Sur
+> modification, l'écran dit combien de photos seront retirées en enregistrant.
+>
+> **2. Le nom du titulaire est public en entier — contre la maquette.** La carte
+> d'`Annonces` s'intitule « Pièce d'identité **au nom de K.** », une initiale.
+> Le commanditaire a tranché pour le nom complet, l'exposition étant signalée :
+> nom + ville + date sur une page indexable. C'est l'état qu'A7 servait déjà, il
+> n'y avait donc rien à changer côté API. **Écart assumé vis-à-vis de la
+> maquette**, comme celui de R9.
+
+> **Trois points du plan étaient faux ou sans objet.**
+>
+> **1. `routes/q/` n'avait rien à recevoir.** La liste de fichiers le nomme. Or
+> `/q/:code` ne rend que `linkedObject`, une chaîne libre portée par `QrToken` :
+> la relation `QrToken → LostItem` n'existe pas, et n'est **aucune étape du
+> plan** (elle n'est nommée que dans une note de décision de R22).
+>
+> **2. §6 disait qu'aucun schéma de contrat n'avait à changer.** Un `z.union` nu
+> rapporte `Invalid input` **en anglais**, exactement ce que `CLAUDE.md` signale
+> — et un formulaire qui offre « rien de choisi » à côté de l'énuméré est obligé
+> d'en poser un. Le message est donc nommé dans le contrat
+> (`DOCUMENT_TYPE_ERROR`) plutôt que recopié dans le front, comme
+> `PASSWORD_HINT` l'est. Deux lignes dans `packages/contracts`, attrapées par un
+> test et non par une relecture.
+>
+> **3. Le plancher de description devait bouger sur les DEUX écrans.** A7 avait
+> reporté la règle sur les deux écritures du contrat ; il fallait la reporter de
+> la même façon sur la publication **et** sur la modification, sinon une édition
+> réclamait vingt caractères là où une création n'en demandait aucun.
+
+> **Un piège réel, et une garde qui n'en était pas une.**
+>
+> **La garde Radix a été posée puis mesurée non porteuse — et l'affirmation
+> corrigée.** Cette note disait d'abord que l'appel parasite vidait le
+> `documentType` d'un brouillon restauré. **Faux, vérifié en retirant la garde**
+> : les onze tests passent sans elle. L'appel ne se déclenche que sur un
+> `Select` monté **sans** valeur, et le bloc n'apparaît qu'une fois le brouillon
+> appliqué, donc le type est déjà là. La garde reste, comme motif de
+> `place-step.tsx` et pour le jour où le bloc serait monté en permanence, mais
+> elle est **préventive** et son commentaire le dit.
+>
+> ⚠️ **Un `cleanup()` en milieu de test casse tous les tests suivants du
+> fichier**, de façon déterministe et non intermittente : le corps de page
+> revient vide. Celui-là est réel — cinq tests sont tombés d'un coup. Deux cas
+> dans un test valent deux tests.
+
+> **Ce que le brouillon a demandé en plus.** `readPublishDraft` relit chaque
+> champ pour ne jamais rendre une forme fausse ; un `documentType` édité à la
+> main atteindrait le `Select` comme une valeur qu'il ne peut pas afficher. Il
+> est donc revalidé par `documentTypeSchema.safeParse`, et les onze autres
+> champs restent du texte libre.
+
+> **Le miroir client de la projection d'A7.** `documentNumber` n'est déclaré que
+> sur `MyLostItemApiDto`, produit par les seules lectures derrière session : un
+> écran nourri par une lecture publique ne peut pas l'atteindre, et
+> `LostItemDocument` — ce que la page de détail reçoit — n'a pas de champ pour
+> lui du tout.
+
+> **Deux dettes ouvertes, nommées plutôt que tues.**
+>
+> ⚠️ **L'API n'applique pas la règle « aucune photo ».** Les deux actions du
+> front la tiennent, mais un `POST /lost-items` direct peut attacher des photos
+> à une annonce `documents`, et un `PATCH` peut les y remettre. La forme du
+> correctif : une règle dans `pushLostItemWriteIssues`, qui voit `category` à la
+> création — l'aveugle étant la modification, `updateLostItemSchema` omettant
+> `category` par construction. Hors périmètre d'une étape `client`.
+>
+> ⚠️ **Un portefeuille ne peut pas déclarer de pièce par le formulaire.** A7 a
+> découplé le bloc de la catégorie exprès, « le portefeuille remis avec une CNI
+> dedans » étant la trouvaille la plus fréquente. R35 suit le point 1 du plan et
+> lie le bloc à `documents`, parce que la règle des photos a besoin d'**une**
+> condition : la photo extérieure d'un portefeuille est légitime, celle d'une
+> CNI non. Élargir demande deux conditions distinctes, donc une décision. Le
+> lien est tenu par le schéma et non par l'écran, donc une pièce attachée
+> ailleurs qu'au formulaire est effacée par la modification suivante — même
+> règle que la publication, et le seul comportement cohérent avec un écran qui
+> ne montre pas ces champs.
+
+**Fichiers** : `client/routes/publish/` (`document-section.tsx` nouveau,
+`publish.schema.ts`, `object-step.tsx`, `contact-step.tsx`, deux hooks et
+`publish-draft.ts`), `client/routes/account/posts/edit/`,
+`client/routes/posts/details/components/post-content.tsx`,
+`client/shared/constants/documents.ts` (nouveau), `client/shared/types/` et
+`shared/mappers/`, plus deux lignes dans `packages/contracts`. **Flux** : A, B.
+
+**Acceptation, chacune mesurée** : publier une CNI perdue n'exige que le type et
+le nom du titulaire — ni numéro, ni description, ni photo ; aucun numéro saisi
+n'apparaît sur la page publique — il n'a pas de champ pour y arriver ; le
+sélecteur de photos est absent et aucun fichier n'est envoyé ; un brouillon
+restauré garde son type de pièce.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Tests : contracts **328**
+et api **411** inchangés, admin **413** inchangé, client **1073** (790 en
+`node`, 283 en `ui`) contre 1021. Densité de commentaires **9,6 %**.
 
 #### A2 — Transformations Cloudinary à l'upload _(facultatif)_
 
@@ -4085,9 +4215,11 @@ contracts **329** (+1), admin **413** inchangé, client **1031** (759 en `node`,
 
 - **`@app/contracts`** : aucun schéma n'a besoin de changer, sauf A1 (motif de
   masquage), R26 (le prédicat strict du numéro, et la remontée
-  d'`OTP_TTL_SECONDS` depuis `apps/api`) et A7, qui y a ajouté les champs de
-  pièce et déplacé le plancher de description de la forme vers chaque écriture.
-  R36 y a ajouté une valeur d'énuméré, `stickers_delivered`.
+  d'`OTP_TTL_SECONDS` depuis `apps/api`), A7, qui y a ajouté les champs de pièce
+  et déplacé le plancher de description de la forme vers chaque écriture, et
+  R35, qui a dû y **nommer** le message de l'énuméré (`DOCUMENT_TYPE_ERROR`) :
+  un front qui offre « rien de choisi » à côté de l'énuméré l'enveloppe dans un
+  `z.union`, et un `z.union` nu répond en anglais.
 - **Les endpoints de l'API** : tout le front se sert de ce qui existe, y compris
   les correspondances (`/lost-items?type&category&ville`). **Deux exceptions
   mesurées** : R11 a dû laisser passer `resolutionStatus` sur

@@ -15,8 +15,14 @@ export const lostItemCategorySchema = z.enum(LOST_ITEM_CATEGORIES, {
 	error: 'Catégorie invalide',
 })
 
+/**
+ * Named, because a front that offers « nothing chosen » alongside the enum has
+ * to wrap it in a union — and a bare union reports `Invalid input` in English.
+ */
+export const DOCUMENT_TYPE_ERROR = 'Type de pièce invalide'
+
 export const documentTypeSchema = z.enum(DOCUMENT_TYPES, {
-	error: 'Type de pièce invalide',
+	error: DOCUMENT_TYPE_ERROR,
 })
 
 export const resolutionStatusSchema = z.enum(RESOLUTION_STATUSES, {

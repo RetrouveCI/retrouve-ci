@@ -1,6 +1,21 @@
 import { formatRelativeDate } from '@/shared/utils/date'
-import type { LostItem, UserLostItem } from '@/shared/types/lost-item'
+import type {
+	LostItem,
+	LostItemDocument,
+	UserLostItem,
+} from '@/shared/types/lost-item'
 import type { LostItemApiDto, LostItemDetail } from '../types/lost-items.types'
+
+/** Nothing is carried unless the listing named the piece it describes. */
+function toDocument(dto: LostItemApiDto): LostItemDocument | undefined {
+	if (!dto.documentType) return undefined
+
+	return {
+		type: dto.documentType,
+		holderName: dto.documentHolderName ?? undefined,
+		issuer: dto.documentIssuer ?? undefined,
+	}
+}
 
 export function toLostItem(dto: LostItemApiDto): LostItem {
 	return {
@@ -16,6 +31,7 @@ export function toLostItem(dto: LostItemApiDto): LostItem {
 		category: dto.category,
 		image: dto.photos[0],
 		images: dto.photos,
+		document: toDocument(dto),
 	}
 }
 
