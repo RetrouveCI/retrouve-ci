@@ -2,12 +2,9 @@ import { Injectable } from '@nestjs/common'
 import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
 import { requireLostItem } from '../helpers/require-lost-item'
 import { LostItemRepository } from '../repository/lost-item.repository'
-import type { LostItem, ModerationStatus } from '../types/lost-item.types'
+import type { LostItem, ModerationDecision } from '../types/lost-item.types'
 
-interface ModerateLostItemInput {
-	id: string
-	moderationStatus: ModerationStatus
-}
+type ModerateLostItemInput = ModerationDecision & { id: string }
 
 @Injectable()
 export class ModerateLostItemUseCase implements IDomainUseCase<
@@ -16,12 +13,9 @@ export class ModerateLostItemUseCase implements IDomainUseCase<
 > {
 	constructor(private readonly repository: LostItemRepository) {}
 
-	async execute({
-		id,
-		moderationStatus,
-	}: ModerateLostItemInput): Promise<LostItem> {
+	async execute({ id, ...decision }: ModerateLostItemInput): Promise<LostItem> {
 		await requireLostItem(this.repository, id)
 
-		return this.repository.updateModerationStatus(id, moderationStatus)
+		return this.repository.updateModerationStatus(id, decision)
 	}
 }

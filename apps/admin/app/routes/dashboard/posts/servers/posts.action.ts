@@ -1,7 +1,7 @@
 import { data } from 'react-router'
 import { ApiError } from '@/shared/utils/api-fetch'
 import { requireAdminSession } from '@/shared/helpers/session.server'
-import { moderationStatusSchema } from '@app/contracts/lost-items'
+import { updateModerationStatusSchema } from '@app/contracts/lost-items'
 import { moderatePost } from './posts.service'
 
 export async function postsAction({ request }: { request: Request }) {
@@ -9,18 +9,25 @@ export async function postsAction({ request }: { request: Request }) {
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 	const id = String(formData.get('id') ?? '')
-	const statusRaw = String(formData.get('moderationStatus') ?? '')
 
 	try {
 		if (intent === 'moderate' && id) {
-			const parsed = moderationStatusSchema.safeParse(statusRaw)
+			// A field left alone by the dialog must read as absent, not as `''`:
+			// the contract refuses an empty reason and an empty note alike.
+			const parsed = updateModerationStatusSchema.safeParse({
+				moderationStatus: formData.get('moderationStatus') ?? undefined,
+				moderationReason: formData.get('moderationReason') || undefined,
+				moderationReasonNote: formData.get('moderationReasonNote') || undefined,
+			})
+
 			if (!parsed.success) {
 				return data(
 					{ ok: false, error: parsed.error.issues[0]?.message },
 					{ status: 400 },
 				)
 			}
-			const post = await moderatePost(id, parsed.data, request)
+
+			const post = await moderatePost({ id, ...parsed.data }, request)
 			return { ok: true, post, intent }
 		}
 

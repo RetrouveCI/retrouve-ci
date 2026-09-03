@@ -4,6 +4,7 @@ import type {
 	DocumentType,
 	LostItemCategory,
 	LostItemType,
+	ModerationReason,
 	ModerationStatus,
 	ResolutionStatus,
 	UpdateLostItemData as UpdateLostItemContract,
@@ -14,6 +15,7 @@ export type {
 	DocumentType,
 	LostItemCategory,
 	LostItemType,
+	ModerationReason,
 	ModerationStatus,
 	ResolutionStatus,
 }
@@ -26,6 +28,16 @@ export type CreateLostItemData = Omit<CreateLostItemContract, 'eventDate'> & {
 
 export type UpdateLostItemData = Omit<UpdateLostItemContract, 'eventDate'> & {
 	eventDate?: Date
+}
+
+/**
+ * What a moderation write carries. Hiding without saying why stays possible,
+ * and the contract refuses a reason on anything but a removal.
+ */
+export interface ModerationDecision {
+	moderationStatus: ModerationStatus
+	moderationReason?: ModerationReason
+	moderationReasonNote?: string
 }
 
 /**
@@ -69,6 +81,8 @@ export interface LostItem {
 	documentNumber: string | null
 	documentIssuer: string | null
 	moderationStatus: ModerationStatus
+	moderationReason: ModerationReason | null
+	moderationReasonNote: string | null
 	resolutionStatus: ResolutionStatus
 	views: number
 	contactsCount: number
@@ -84,8 +98,13 @@ export interface LostItem {
  * `never` rather than dropped, so a full `LostItem` is **not** assignable and
  * the compiler refuses the shortcut on the four anonymous routes.
  */
-export type PublicLostItem = Omit<LostItem, 'documentNumber'> & {
+export type PublicLostItem = Omit<
+	LostItem,
+	'documentNumber' | 'moderationReason' | 'moderationReasonNote'
+> & {
 	documentNumber?: never
+	moderationReason?: never
+	moderationReasonNote?: never
 }
 
 export type LostItemListResponse = Paginated<LostItem>

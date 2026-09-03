@@ -11,6 +11,7 @@ import {
 	Button,
 } from '@app/ui/components'
 import { useState } from 'react'
+import { Link } from 'react-router'
 import {
 	CheckCircle,
 	ExternalLink,
@@ -34,6 +35,7 @@ import {
 	buildTimelineLabel,
 } from '../helpers/listing-labels'
 import { listingStatusFor } from '../helpers/listing-status'
+import { moderationReasonSentence } from '../helpers/moderation-notice'
 import {
 	ListingActionsSheet,
 	type ListingSheetAction,
@@ -77,6 +79,10 @@ export function ListingCard({ listing, matches }: ListingCardProps) {
 	const config = listingStatusFor(listing)
 	const isPending = listing.moderationStatus === 'pending'
 	const isPublished = listing.moderationStatus === 'published'
+	const isHidden = listing.moderationStatus === 'hidden'
+	const reason = listing.moderation
+		? moderationReasonSentence(listing.moderation)
+		: null
 
 	useSettledSubmission(fetcher.response, result => {
 		if (!pending) return
@@ -254,15 +260,36 @@ export function ListingCard({ listing, matches }: ListingCardProps) {
 						</Button>
 					</div>
 
+					{/* `--destructive-text` still does not exist (R13) and
+					    `text-destructive` reads 2,98:1 on the dark ground, so the ink is
+					    named — as `danger-zone-section` does. */}
+					{isHidden && reason && (
+						<p className="mt-2 text-xs leading-relaxed text-red-800 dark:text-red-300">
+							<span className="font-semibold">Motif&nbsp;:</span> {reason}
+						</p>
+					)}
+
+					{isHidden && (
+						<Link
+							to={`/account/posts/${listing.id}`}
+							className="touch-target border-border hover:bg-muted mt-2.5 inline-flex h-10 items-center gap-2 rounded-[11px] border-[1.5px] px-4 text-sm font-semibold transition-colors"
+						>
+							<Pencil className="h-3.5 w-3.5 shrink-0" />
+							Modifier l&apos;annonce
+						</Link>
+					)}
+
 					{/*
 					 * A listing awaiting validation has no audience yet, so a zero would
 					 * read as a failure. The sentence says why instead.
 					 */}
-					{isPending ? (
+					{isPending && (
 						<p className="text-muted-foreground mt-2 text-xs">
 							Pas encore de vue&nbsp;: elle n&apos;est visible que de vous.
 						</p>
-					) : (
+					)}
+
+					{!isPending && !isHidden && (
 						<div className="mt-2 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs">
 							<span className="text-muted-foreground flex items-center gap-1.5">
 								<Eye className="h-3.5 w-3.5 shrink-0" />

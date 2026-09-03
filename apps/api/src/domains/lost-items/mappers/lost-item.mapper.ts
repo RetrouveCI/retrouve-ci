@@ -2,6 +2,7 @@ import {
 	DocumentType as PrismaDocumentType,
 	LostItemCategory as PrismaLostItemCategory,
 	LostItemType as PrismaLostItemType,
+	ModerationReason as PrismaModerationReason,
 	ModerationStatus as PrismaModerationStatus,
 	ResolutionStatus as PrismaResolutionStatus,
 	type LostItem as PrismaLostItem,
@@ -12,6 +13,7 @@ import type {
 	DocumentType,
 	LostItemCategory,
 	LostItemType,
+	ModerationReason,
 	ModerationStatus,
 	ResolutionStatus,
 } from '../types/lost-item.types'
@@ -36,6 +38,10 @@ export function toDomainLostItem(lostItem: PrismaLostItem): LostItem {
 		documentNumber: lostItem.documentNumber,
 		documentIssuer: lostItem.documentIssuer,
 		moderationStatus: toDomainModerationStatus(lostItem.moderationStatus),
+		moderationReason: lostItem.moderationReason
+			? toDomainModerationReason(lostItem.moderationReason)
+			: null,
+		moderationReasonNote: lostItem.moderationReasonNote,
 		resolutionStatus: toDomainResolutionStatus(lostItem.resolutionStatus),
 		views: lostItem.views,
 		contactsCount: lostItem.contactsCount,
@@ -46,11 +52,18 @@ export function toDomainLostItem(lostItem: PrismaLostItem): LostItem {
 }
 
 /**
- * Drops the one field a public read may not carry. The holder's name stays: it
- * is what lets someone recognise their own document.
+ * Drops the fields a public read may not carry. The holder's name stays: it is
+ * what lets someone recognise their own document. The moderation reason is a
+ * moderator's note to one poster — a listing hidden then republished would
+ * otherwise serve it to everybody.
  */
 export function toPublicLostItem(lostItem: LostItem): PublicLostItem {
-	const { documentNumber: _private, ...rest } = lostItem
+	const {
+		documentNumber: _number,
+		moderationReason: _reason,
+		moderationReasonNote: _note,
+		...rest
+	} = lostItem
 
 	return rest
 }
@@ -117,6 +130,40 @@ export function toDomainModerationStatus(
 		: status === PrismaModerationStatus.PUBLISHED
 			? 'published'
 			: 'hidden'
+}
+
+// Two tables rather than a ternary ladder: seven values, and each direction is
+// checked for exhaustiveness by its `Record` key.
+const REASON_TO_PRISMA: Record<ModerationReason, PrismaModerationReason> = {
+	document_number_visible: PrismaModerationReason.DOCUMENT_NUMBER_VISIBLE,
+	unclear_photo: PrismaModerationReason.UNCLEAR_PHOTO,
+	vague_description: PrismaModerationReason.VAGUE_DESCRIPTION,
+	contact_in_description: PrismaModerationReason.CONTACT_IN_DESCRIPTION,
+	duplicate: PrismaModerationReason.DUPLICATE,
+	off_topic: PrismaModerationReason.OFF_TOPIC,
+	other: PrismaModerationReason.OTHER,
+}
+
+const REASON_TO_DOMAIN: Record<PrismaModerationReason, ModerationReason> = {
+	DOCUMENT_NUMBER_VISIBLE: 'document_number_visible',
+	UNCLEAR_PHOTO: 'unclear_photo',
+	VAGUE_DESCRIPTION: 'vague_description',
+	CONTACT_IN_DESCRIPTION: 'contact_in_description',
+	DUPLICATE: 'duplicate',
+	OFF_TOPIC: 'off_topic',
+	OTHER: 'other',
+}
+
+export function toPrismaModerationReason(
+	reason: ModerationReason,
+): PrismaModerationReason {
+	return REASON_TO_PRISMA[reason]
+}
+
+export function toDomainModerationReason(
+	reason: PrismaModerationReason,
+): ModerationReason {
+	return REASON_TO_DOMAIN[reason]
 }
 
 export function toPrismaResolutionStatus(

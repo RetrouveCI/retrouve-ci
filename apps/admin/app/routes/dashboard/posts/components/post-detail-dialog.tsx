@@ -37,6 +37,8 @@ interface PostDetailDialogProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
 	onModerate: (id: string, status: ModerationStatus) => void
+	/** Hiding asks for a reason, so it goes through its own dialog. */
+	onHide: (post: Post) => void
 	isModerating?: boolean
 }
 
@@ -45,6 +47,7 @@ export function PostDetailDialog({
 	open,
 	onOpenChange,
 	onModerate,
+	onHide,
 	isModerating = false,
 }: PostDetailDialogProps) {
 	if (!post) return null
@@ -152,7 +155,7 @@ export function PostDetailDialog({
 						<Button
 							variant="outline"
 							className="text-destructive hover:bg-destructive/10"
-							onClick={() => onModerate(post.id, 'hidden')}
+							onClick={() => onHide(post)}
 							disabled={isModerating}
 						>
 							<EyeOff className="mr-2 h-4 w-4" />

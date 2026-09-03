@@ -145,10 +145,7 @@ export class LostItemsController {
 		@Body(new ZodValidationPipe(updateModerationStatusSchema))
 		data: UpdateModerationStatusData,
 	) {
-		const lostItem = await this.moderateLostItemUseCase.execute({
-			id,
-			moderationStatus: data.moderationStatus,
-		})
+		const lostItem = await this.moderateLostItemUseCase.execute({ id, ...data })
 
 		/** Publication is the only moment a listing becomes matchable. */
 		if (lostItem.moderationStatus === 'published') {

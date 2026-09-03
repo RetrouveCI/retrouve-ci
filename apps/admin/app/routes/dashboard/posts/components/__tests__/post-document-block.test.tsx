@@ -20,6 +20,8 @@ function buildPost(overrides: Partial<Post> = {}): Post {
 		documentNumber: null,
 		documentIssuer: null,
 		moderationStatus: 'pending',
+		moderationReason: null,
+		moderationReasonNote: null,
 		resolutionStatus: 'active',
 		views: 0,
 		contactsCount: 0,

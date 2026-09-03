@@ -1,3 +1,4 @@
+import type { UpdateModerationStatusData } from '@app/contracts/lost-items'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type {
 	ModerationStatus,
@@ -29,13 +30,14 @@ export async function listPosts(
 }
 
 export async function moderatePost(
-	id: string,
-	moderationStatus: ModerationStatus,
+	decision: UpdateModerationStatusData & { id: string },
 	request: Request,
 ): Promise<Post> {
+	const { id, ...body } = decision
+
 	return apiFetch<Post>(`/lost-items/${id}/moderation`, {
 		method: 'PATCH',
-		body: JSON.stringify({ moderationStatus }),
+		body: JSON.stringify(body),
 		headers: { Cookie: request.headers.get('cookie') ?? '' },
 	})
 }

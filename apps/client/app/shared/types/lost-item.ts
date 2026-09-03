@@ -2,11 +2,18 @@ import type {
 	DocumentType,
 	LostItemCategory,
 	LostItemType,
+	ModerationReason,
 	ModerationStatus,
 	ResolutionStatus,
 } from '@app/contracts/lost-items'
 
-export type { DocumentType, LostItemCategory, LostItemType, ModerationStatus }
+export type {
+	DocumentType,
+	LostItemCategory,
+	LostItemType,
+	ModerationReason,
+	ModerationStatus,
+}
 
 /**
  * The piece a listing declares. There is no `number` here on purpose: the API
@@ -37,9 +44,16 @@ export interface LostItem {
 	document?: LostItemDocument
 }
 
+/** Why a moderator pulled a listing down. Never served on a public read. */
+export interface ListingModeration {
+	reason: ModerationReason
+	note?: string
+}
+
 export interface UserLostItem extends LostItem {
 	status: LostItemStatus
 	moderationStatus: ModerationStatus
+	moderation?: ListingModeration
 	createdAt: string
 	views: number
 	contacts: number

@@ -1,10 +1,15 @@
 import { formatRelativeDate } from '@/shared/utils/date'
 import type {
+	ListingModeration,
 	LostItem,
 	LostItemDocument,
 	UserLostItem,
 } from '@/shared/types/lost-item'
-import type { LostItemApiDto, LostItemDetail } from '../types/lost-items.types'
+import type {
+	LostItemApiDto,
+	LostItemDetail,
+	MyLostItemApiDto,
+} from '../types/lost-items.types'
 
 /** Nothing is carried unless the listing named the piece it describes. */
 function toDocument(dto: LostItemApiDto): LostItemDocument | undefined {
@@ -42,11 +47,22 @@ export function toLostItemDetail(dto: LostItemApiDto): LostItemDetail {
 	}
 }
 
-export function toUserLostItem(dto: LostItemApiDto): UserLostItem {
+/** Nothing is carried unless a moderator named a reason. */
+function toModeration(dto: MyLostItemApiDto): ListingModeration | undefined {
+	if (!dto.moderationReason) return undefined
+
+	return {
+		reason: dto.moderationReason,
+		note: dto.moderationReasonNote ?? undefined,
+	}
+}
+
+export function toUserLostItem(dto: MyLostItemApiDto): UserLostItem {
 	return {
 		...toLostItem(dto),
 		status: dto.resolutionStatus,
 		moderationStatus: dto.moderationStatus,
+		moderation: toModeration(dto),
 		createdAt: dto.createdAt,
 		views: dto.views,
 		contacts: dto.contactsCount,

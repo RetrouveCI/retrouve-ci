@@ -2,6 +2,7 @@ import {
 	DocumentType as PrismaDocumentType,
 	LostItemCategory as PrismaLostItemCategory,
 	LostItemType as PrismaLostItemType,
+	ModerationReason as PrismaModerationReason,
 	ModerationStatus as PrismaModerationStatus,
 	ResolutionStatus as PrismaResolutionStatus,
 	type LostItem as PrismaLostItem,
@@ -19,9 +20,11 @@ import {
 	toPrismaModerationStatus,
 	toPrismaResolutionStatus,
 	toPrismaType,
+	toDomainModerationReason,
+	toPrismaModerationReason,
 	toPublicLostItem,
 } from '../lost-item.mapper'
-import { DOCUMENT_TYPES } from '@app/contracts/lost-items'
+import { DOCUMENT_TYPES, MODERATION_REASONS } from '@app/contracts/lost-items'
 
 const prismaLostItem: PrismaLostItem = {
 	id: 'lost-item-1',
@@ -40,6 +43,8 @@ const prismaLostItem: PrismaLostItem = {
 	documentNumber: null,
 	documentIssuer: null,
 	moderationStatus: PrismaModerationStatus.PENDING,
+	moderationReason: null,
+	moderationReasonNote: null,
 	resolutionStatus: PrismaResolutionStatus.ACTIVE,
 	views: 0,
 	contactsCount: 0,
@@ -67,6 +72,8 @@ describe('toDomainLostItem', () => {
 			documentNumber: null,
 			documentIssuer: null,
 			moderationStatus: 'pending',
+			moderationReason: null,
+			moderationReasonNote: null,
 			resolutionStatus: 'active',
 			views: 0,
 			contactsCount: 0,
@@ -109,6 +116,32 @@ describe('toPublicLostItem', () => {
 		expect(projected.documentHolderName).toBe('KOUASSI Jean')
 		expect(projected.documentType).toBe('national_id')
 		expect(JSON.stringify(projected)).not.toContain('CI0012345678')
+	})
+
+	// A moderator's note is addressed to one poster. A listing hidden and then
+	// republished would otherwise carry it onto an indexable page.
+	it('drops the moderation reason and its note', () => {
+		const lostItem = toDomainLostItem({
+			...prismaLostItem,
+			moderationReason: PrismaModerationReason.OTHER,
+			moderationReasonNote: 'La 2e photo montre une carte bancaire.',
+		})
+
+		const projected = toPublicLostItem(lostItem)
+
+		expect(projected).not.toHaveProperty('moderationReason')
+		expect(projected).not.toHaveProperty('moderationReasonNote')
+		expect(JSON.stringify(projected)).not.toContain('carte bancaire')
+	})
+})
+
+describe('moderation reason conversions', () => {
+	it('round-trips every reason the contract declares', () => {
+		for (const reason of MODERATION_REASONS) {
+			expect(toDomainModerationReason(toPrismaModerationReason(reason))).toBe(
+				reason,
+			)
+		}
 	})
 })
 

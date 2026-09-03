@@ -1,4 +1,8 @@
-import { buildModerationNotice } from '../moderation-notice'
+import { MODERATION_REASONS } from '@app/contracts/lost-items'
+import {
+	buildModerationNotice,
+	moderationReasonSentence,
+} from '../moderation-notice'
 
 const moderation = (pending: number, hidden: number) => ({
 	pending,
@@ -50,5 +54,36 @@ describe('buildModerationNotice', () => {
 			title: '1 annonce en attente de validation, 2 masquées',
 			detail: "Aucune d'elles n'est visible publiquement.",
 		})
+	})
+})
+
+describe('moderationReasonSentence', () => {
+	// The whole point of storing a code: the same fault reads the same way.
+	it.each(MODERATION_REASONS.filter(reason => reason !== 'other'))(
+		'words %s without the moderator having to',
+		reason => {
+			const sentence = moderationReasonSentence({ reason })
+
+			expect(sentence).toBeTruthy()
+			expect(sentence).not.toMatch(/^[A-Z]/)
+		},
+	)
+
+	// « Autre » has no sentence of its own; the moderator wrote it.
+	it('reads the note behind « Autre »', () => {
+		expect(
+			moderationReasonSentence({ reason: 'other', note: 'La 2e photo.' }),
+		).toBe('La 2e photo.')
+		expect(moderationReasonSentence({ reason: 'other' })).toBeNull()
+	})
+
+	// ⚠️ The artboard said « Modifiez-la pour republier », which the API does
+	// not do — the lie R12 caught.
+	it('promises no return online', () => {
+		for (const reason of MODERATION_REASONS) {
+			const sentence = moderationReasonSentence({ reason, note: 'x' }) ?? ''
+
+			expect(sentence).not.toMatch(/republi|remettre en ligne|reparaît/i)
+		}
 	})
 })

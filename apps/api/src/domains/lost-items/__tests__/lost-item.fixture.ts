@@ -21,6 +21,8 @@ export function buildLostItem(overrides: Partial<LostItem> = {}): LostItem {
 		documentNumber: null,
 		documentIssuer: null,
 		moderationStatus: 'published',
+		moderationReason: null,
+		moderationReasonNote: null,
 		resolutionStatus: 'active',
 		views: 0,
 		contactsCount: 0,

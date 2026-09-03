@@ -37,6 +37,16 @@ enum DocumentType {
   OTHER
 }
 
+enum ModerationReason {
+  DOCUMENT_NUMBER_VISIBLE
+  UNCLEAR_PHOTO
+  VAGUE_DESCRIPTION
+  CONTACT_IN_DESCRIPTION
+  DUPLICATE
+  OFF_TOPIC
+  OTHER
+}
+
 enum ModerationStatus {
   PENDING
   PUBLISHED
@@ -161,29 +171,31 @@ model Verification {
 
 
 model LostItem {
-  id                 String           @id @default(uuid())
-  type               LostItemType
-  category           LostItemCategory
-  title              String
-  description        String
-  ville              String
-  commune            String?
-  eventDate          DateTime
-  contactName        String
-  contactWhatsapp    String
-  photos             String[]         @default([])
-  documentType       DocumentType?
-  documentHolderName String?
-  documentNumber     String?
-  documentIssuer     String?
-  moderationStatus   ModerationStatus @default(PENDING)
-  resolutionStatus   ResolutionStatus @default(ACTIVE)
-  views              Int              @default(0)
-  contactsCount      Int              @default(0)
-  userId             String
-  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  id                   String            @id @default(uuid())
+  type                 LostItemType
+  category             LostItemCategory
+  title                String
+  description          String
+  ville                String
+  commune              String?
+  eventDate            DateTime
+  contactName          String
+  contactWhatsapp      String
+  photos               String[]          @default([])
+  documentType         DocumentType?
+  documentHolderName   String?
+  documentNumber       String?
+  documentIssuer       String?
+  moderationStatus     ModerationStatus  @default(PENDING)
+  moderationReason     ModerationReason?
+  moderationReasonNote String?
+  resolutionStatus     ResolutionStatus  @default(ACTIVE)
+  views                Int               @default(0)
+  contactsCount        Int               @default(0)
+  userId               String
+  user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
   @@index([userId])
   @@index([type, moderationStatus, resolutionStatus])
