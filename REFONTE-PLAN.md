@@ -262,6 +262,7 @@ Une ligne = une branche = une PR = une session.
 | **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`               | `api/lost-items`                     | 1,5 j  | R18          |
 | **A8**  | API      | Joindre le propriétaire d'un sticker        | `refonte-a8-sticker-reach`                 | `api/qr-codes`                       | 1,5 j  | R19          |
 | **R36** | Accueil  | L'arrivée des stickers devient un signal    | `refonte-r36-sticker-arrival-notification` | `client/home` + `api/sticker-orders` | 1 j    | R15, R17     |
+| **R37** | Accueil  | Le hero regroupe ses filtres ✅             | `refonte-r37-hero-filter-group`            | `client/home`                        | 0,3 j  | R16, R33     |
 
 **Total ≈ 38,5 j** en séquentiel, dont ≈ 6 j côté API et ≈ 4 j pour le lot 9.
 R2/R3, R11/R12 et R26/R29 se parallélisent ; les lots 3 à 6 s'ouvrent ensemble
@@ -4209,6 +4210,55 @@ aucun appel.
 contracts **329** (+1), admin **413** inchangé, client **1083** (791 en `node`,
 292 en `ui`) contre 1073, mesuré sur `refonte` après le merge de R35 plutôt que
 supposé. Densité **8,9 %**.
+
+#### R37 — Le hero regroupe ses filtres — **LIVRÉE**
+
+Ouverte par le commanditaire en relisant l'accueil aux deux largeurs. Trois
+demandes, et un défaut trouvé en les traitant.
+
+1. **Les puces de catégorie remontent sous le champ de recherche.** Elles
+   restreignent la liste que ce champ interroge : les deux forment un bloc, là
+   où les puces étaient sous « J'ai perdu » / « J'ai trouvé ».
+2. **Les deux actions de publication gagnent de l'air** — un `mt-1 lg:mt-2`
+   par-dessus une gouttière de colonne portée de 16/20 px à 20/24 px, soit 24 px
+   sur téléphone et 32 px au-dessus de `lg` entre elles et le bloc de filtres.
+3. **Le champ de recherche passe de 64 px à 56 px sur téléphone**, contre 54 px
+   dessinés par l'artboard `Main`. Le champ lui-même est déjà au plancher de 48
+   px de §2.1 : il n'y avait que le rembourrage de la coquille à rendre.
+
+> ⚠️ **Le champ le plus en vue du produit faisait zoomer iOS.** Cette échelle
+> met `--text-base` à **14 px** (R33 l'a remappée), et `search-bar.tsx` posait
+> `text-base` sur son entrée. §2.1 exige 16 px via `text-field` et dit pourquoi
+> — « sous 16, iOS zoome au focus ». Corrigé pour la taille `lg`, donc pour le
+> hero de l'accueil **et** celui de `/posts`. ⚠️ **Les trois autres tailles
+> restent sous le plancher** (`xs` et `sm` à 13 px, `md` à 13 puis 14) : chacune
+> a son budget de largeur mesuré par R7 et R17, et les corriger demande de
+> remesurer la troncature du texte indicatif. **Dette ouverte, nommée.**
+
+> **Le commentaire de `search-bar.tsx` se trompait** : il annonçait « 52 px, the
+> §2.1 field » alors que `--spacing-control` vaut **48 px**. Les 64 px venaient
+> du `py-1.5` et du `border-2`, pas du champ.
+
+> **Aucun recouvrement de zone tactile introduit**, vérifié plutôt que supposé :
+> la puce dessine 34 px et son `::before` en porte 44, donc elle dépasse de 5 px
+> en haut et en bas ; les écarts sont de 12 px au-dessus (gouttière 10 +
+> `pt-0.5`) et de 19 px en dessous. Le test d'ordre a été **prouvé avant d'être
+> cru** : rebranché sur l'ancien agencement, il tombe.
+
+> **Ce qui n'a pas bougé.** Le texte indicatif reste celui de l'artboard, « Quel
+> objet recherchez-vous ? » : à 390 px et 16 px il tient dans les ~262 px
+> disponibles, et en dessous il peut rogner de quelques pixels — le raccourcir
+> serait changer une copie que la maquette fixe.
+
+**Fichiers** : `client/routes/home/components/hero-section.tsx`,
+`client/components/search-bar.tsx`. **Flux** : A.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Tests : client **1084**
+(791 en `node`, 293 en `ui`), +1 sur l'agencement ; api, contracts et admin
+inchangés. Diff de 44 lignes insérées dont 8 de commentaire — le ratio n'est pas
+comparable à celui d'une étape entière, l'essentiel du diff étant de la
+ré-indentation JSX.
 
 ---
 

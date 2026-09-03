@@ -35,7 +35,7 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 			<div className="relative z-10 container mx-auto px-4 py-8 md:py-12 lg:py-16">
 				{/* Uncapped, every pixel past 620 fell between the two columns. */}
 				<div className="mx-auto grid max-w-7xl items-center gap-8 md:grid-cols-[1.05fr_0.95fr] md:gap-7 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
-					<div className="flex min-w-0 flex-col items-start gap-4 lg:max-w-155 lg:gap-5">
+					<div className="flex min-w-0 flex-col items-start gap-5 lg:max-w-155 lg:gap-6">
 						{/* Real or absent — §3 forbids a reassurance figure written by hand. */}
 						{publishedCount !== undefined && publishedCount > 0 && (
 							<span className="bg-primary-green/12 text-primary-green-text flex h-7 items-center gap-2 rounded-full px-3 text-xs font-semibold">
@@ -58,8 +58,9 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 							QR.
 						</p>
 
-						{/* The form is a flex item, so the width has to sit above it. */}
-						<div className="w-full lg:max-w-140">
+						{/* One block: the shortcuts narrow the very list the field
+						    searches. The form is a flex item, so the width sits above it. */}
+						<div className="flex w-full flex-col gap-2.5 lg:max-w-140 lg:gap-3">
 							<SearchBar
 								mode="navigate"
 								action="/posts"
@@ -67,10 +68,26 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 								submit="responsive"
 								className="shadow-lg"
 							/>
+
+							{/* A secondary list, so it may scroll (§2.1); `gap-2` clears the
+							    3 px each pill's tap zone overhangs. No negative margin: it
+							    widens the flex column, which the grid item cannot shrink. */}
+							<div className="scrollbar-hide flex w-full gap-2 overflow-x-auto pt-0.5 lg:flex-wrap">
+								{SHORTCUTS.map(({ id, label, icon: Icon }) => (
+									<Link
+										key={id}
+										to={`/posts?category=${id}`}
+										className={filterPillClassName(false)}
+									>
+										<Icon className="h-4 w-4 shrink-0" />
+										{label}
+									</Link>
+								))}
+							</div>
 						</div>
 
 						{/* §2.3 rule 3's two words; white on the orange reads 2.70:1. */}
-						<div className="flex w-full gap-2.5 lg:w-auto">
+						<div className="mt-1 flex w-full gap-2.5 lg:mt-2 lg:w-auto">
 							<Link
 								to="/publish/lost"
 								className="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark h-control flex flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-lg font-semibold transition-colors lg:flex-initial lg:px-7"
@@ -85,22 +102,6 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 								<Check className="h-4.5 w-4.5" />
 								J&apos;ai trouvé
 							</Link>
-						</div>
-
-						{/* A secondary list, so it may scroll (§2.1); `gap-2` clears the
-						    3 px each pill's tap zone overhangs. No negative margin: it
-						    widens the flex column, which the grid item cannot shrink. */}
-						<div className="scrollbar-hide flex w-full gap-2 overflow-x-auto pt-0.5 lg:flex-wrap">
-							{SHORTCUTS.map(({ id, label, icon: Icon }) => (
-								<Link
-									key={id}
-									to={`/posts?category=${id}`}
-									className={filterPillClassName(false)}
-								>
-									<Icon className="h-4 w-4 shrink-0" />
-									{label}
-								</Link>
-							))}
 						</div>
 					</div>
 

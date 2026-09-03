@@ -39,9 +39,12 @@ const SIZE: Record<
 		iconButton: 'size-9',
 	},
 	lg: {
-		shell: 'py-1.5 pl-5 pr-1.5',
-		// 52 px, the §2.1 field. 48 truncated the hero's own placeholder.
-		input: 'h-control text-base',
+		// 56 px on a phone, near the artboard's 54: the field is already at
+		// §2.1's 48 px floor, so the padding is all there was left to give back.
+		shell: 'py-0.5 pl-4 pr-1 lg:py-1.5 lg:pl-5 lg:pr-1.5',
+		// `text-field`, not `text-base`: this ladder puts `base` at 14 px, and
+		// under 16 iOS zooms on focus.
+		input: 'h-control text-field',
 		icon: 'h-5 w-5',
 		button: 'h-12 px-6',
 		iconButton: 'size-11',

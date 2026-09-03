@@ -76,6 +76,30 @@ describe('HeroSection', () => {
 			.not.toBeInTheDocument()
 	})
 
+	// An arrangement `typecheck` cannot see, so it is asserted here.
+	it('groups the shortcuts with the field, ahead of the publish actions', async () => {
+		renderHero()
+
+		// `.element()` does not retry; the tree has to be settled first.
+		await expect.element(page.getByRole('search')).toBeInTheDocument()
+
+		const form = page.getByRole('search').element()
+		const pill = page.getByRole('link', { name: 'Téléphones' }).element()
+		const publish = page.getByRole('link', { name: "J'ai perdu" }).element()
+
+		const follows = (from: Element, to: Element) =>
+			Boolean(
+				from.compareDocumentPosition(to) & Node.DOCUMENT_POSITION_FOLLOWING,
+			)
+
+		expect(follows(form, pill)).toBe(true)
+		expect(follows(pill, publish)).toBe(true)
+
+		const block = pill.parentElement?.parentElement
+		expect(block?.contains(form)).toBe(true)
+		expect(block?.contains(publish)).toBe(false)
+	})
+
 	it("shortcuts to a pre-filtered listing, in the categories' own words", async () => {
 		renderHero()
 
