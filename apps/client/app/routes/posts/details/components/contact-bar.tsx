@@ -28,7 +28,7 @@ export function ContactBar({ listing }: { listing: LostItem }) {
 	)
 
 	return (
-		<div className="bg-background sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 border-t px-4 pt-3 pb-4 shadow-[0_-6px_20px_rgba(18,32,26,0.07)] lg:bottom-0 dark:shadow-[0_-6px_20px_rgba(0,0,0,0.4)]">
+		<div className="bg-background sticky bottom-[calc(4rem+var(--safe-bottom))] z-30 flex items-center gap-3 border-t px-4 pt-3 pb-4 shadow-[0_-6px_20px_rgba(18,32,26,0.07)] lg:bottom-0 dark:shadow-[0_-6px_20px_rgba(0,0,0,0.4)]">
 			<ShareMenu title={listing.title} type={listing.type} />
 
 			{href ? (

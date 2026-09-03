@@ -34,7 +34,7 @@ export function MatchesSheet({
 
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange}>
-			<DrawerContent className="lg:mx-auto lg:max-w-md lg:rounded-t-2xl">
+			<DrawerContent className="safe-x lg:mx-auto lg:max-w-md lg:rounded-t-2xl">
 				<DrawerHeader className="border-b px-4 pt-2 pb-3.5 text-left">
 					<DrawerTitle className="text-xl tracking-tight">
 						{buildMatchesTitle(matches.count, type)}
@@ -47,7 +47,7 @@ export function MatchesSheet({
 				<div
 					className="flex flex-col gap-1 px-3 py-3"
 					style={{
-						paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.75rem)',
+						paddingBottom: 'calc(var(--safe-bottom) + 0.75rem)',
 					}}
 				>
 					{matches.items.map(item => (

@@ -19,7 +19,9 @@ export default function NotFound() {
 	return (
 		<>
 			<Header />
-			<NotFoundContent />
+			<div className="safe-x">
+				<NotFoundContent />
+			</div>
 			<Footer />
 		</>
 	)

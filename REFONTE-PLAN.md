@@ -2069,49 +2069,107 @@ clippant sur aucun écran, et aucune cible sous 44 px.
 
 #### R34 — Gouttière de zones sûres unique
 
-Ouverte par R16 et rappelée par la relecture de R17 : les zones sûres cassent
-encore la mise en page. Seuls `bottom-tab-bar.tsx`, les quatre feuilles,
-`routes/layout.tsx` (en bas), `routes/q/_index.tsx` (en haut) et, depuis R16 et
-R17, le hero et le bloc stickers de l'accueil lisent `env(safe-area-inset-*)`.
-En paysage sur un téléphone à encoche, la découpe mange une gouttière entière
-sur tous les autres écrans.
+Ouverte par R16, rappelée par la relecture de R17, rendue par R23 : les zones
+sûres cassaient la mise en page partout où personne n'y avait pensé. En paysage
+sur un téléphone à encoche, la découpe mange une gouttière entière de chaque
+côté.
 
-1. **Une gouttière unique dans `routes/layout.tsx`**, pas un `env()` par écran :
-   c'est ce qui empêche le prochain écran d'oublier.
-2. **Retirer les `env()` locaux** que R16 et R17 ont posés sur l'accueil et que
-   R18 a posés sur le tunnel de publication (en-tête, barre d'action, colonne),
-   une fois la gouttière en place — sinon la marge est comptée deux fois.
-3. **Vérifier en paysage**, pas seulement en portrait : c'est l'orientation où
-   les insets latéraux ne valent pas zéro.
+**Mesuré (§1.1) — 111 constats sur la référence, 0 après.** Le critère
+d'acceptation de cette étape était donné pour visuel et hors CI. Il ne l'est
+plus : le protocole de Chromium sait **émuler les découpes**
+(`Emulation.setSafeAreaInsetsOverride`, une sonde Playwright sur le build
+servi). Posé `left: 44, right: 44, bottom: 21` à 844 × 390 — un téléphone à
+encoche couché — et relevé tout élément **de contenu** dont la boîte franchit
+une des deux bandes : texte propre, lien, bouton, champ, image. Un fond, une
+bordure et un calque décoratif sont exclus, parce qu'ils **doivent** passer sous
+la découpe.
 
-⚠️ **Elle touche les quinze écrans déjà validés**, ce qui est la raison pour
-laquelle R16 ne l'a pas prise. **Fichiers** :
-`apps/client/app/routes/layout.tsx`, `apps/client/app/globals.css`, les écrans
-portant un `env()` local. **Flux** : les cinq. **Acceptation** : aucun contenu
-sous la découpe en paysage, et un seul point du code lit les insets latéraux.
+|                          | Référence | R34   |
+| ------------------------ | --------- | ----- |
+| Écrans comparés          | 27        | 27    |
+| Éléments sous la découpe | **111**   | **0** |
+| Écrans touchés           | 25 sur 27 | 0     |
 
-> **Recompté par R23 : quinze fichiers, pas huit.** R23 devait la prendre et l'a
-> rendue ici, arbitré avec l'utilisateur — un diff mêlant les actifs PWA à une
-> refonte de gouttière sur seize écrans n'est pas relisable. Voici la liste
-> exacte à reprendre, relevée sur le code :
+Le viseur caméra fait un vingt-huitième écran, mesuré sur R34 seul : il demande
+la permission et un flux factice, et n'a donc pas de relevé de référence.
+
+Et l'inverse a été vérifié aussi, parce que c'est le vrai risque d'un diff qui
+touche seize écrans validés : sans découpe latérale — portrait 390 × 844 avec
+`top: 47, bottom: 34`, puis bureau 1280 × 800 — la géométrie est **identique à
+la référence, 0 différence sur 14 écrans × 2 formes**. Le changement est inerte
+là où il n'y a rien à dégager, l'échange des insets verticaux compris.
+
+**Recompté : seize fichiers et non quinze**, R25 ayant ajouté
+`install-prompt.tsx`. Et sur ces seize, **six seulement** lisaient un inset
+_latéral_ — la barre d'onglets, le hero, le bloc stickers et les trois pièces du
+tunnel de publication. Les dix autres ne lisaient que le haut ou le bas : c'est
+pourquoi la référence sortait 111 constats et non quelques-uns.
+
+1. **Un seul point de lecture, dans `app/app.css`.** Quatre propriétés
+   personnalisées — `--safe-top`, `--safe-right`, `--safe-bottom`, `--safe-left`
+   — et une utilitaire `safe-x` par-dessus les deux latérales. Plus aucun
+   `env(safe-area-inset-*)` ailleurs dans `apps/client` : les 24 occurrences
+   deviennent 20 lectures de variable dans 20 fichiers — quatre disparaissent
+   avec les doublons de l'accueil.
+2. **La gouttière va sur l'élément qui peint le fond.** Un `padding` laisse la
+   couleur, la bordure et l'ombre atteindre le bord de l'écran, et rentre le
+   contenu. C'est ce qui permet de la poser sur l'en-tête collant, sur le pied
+   de page, sur les barres fixes et sur les panneaux de feuille sans qu'aucun
+   décor ne décolle du bord.
+3. **Elle s'ajoute à la gouttière de base**, elle ne la remplace pas : le `px-4`
+   de la page et le `px-6` de l'en-tête restent où ils sont. Les
+   `max(1rem, env(…))` que R16 et R17 avaient posés sur l'accueil retombent donc
+   à `px-4` — les garder compterait l'inset deux fois. Ceux du tunnel restent :
+   le tunnel est **hors** de `routes/layout.tsx` et personne au-dessus ne porte
+   sa gouttière.
+4. **Cinq arbres, pas un.** Le point d'origine disait « une gouttière unique
+   dans `routes/layout.tsx` ». `routes.ts` porte cinq racines de premier niveau
+   — la coquille, `/q`, le tunnel, l'arbre d'authentification et `not-found` —
+   et les barres fixes comme les feuilles échappent au `padding` de tout
+   ancêtre. « Un seul point du code lit les insets » est donc tenu comme un
+   point de **définition**, consommé par chaque racine, chaque barre et chaque
+   feuille.
+
+> **Trois écarts au périmètre annoncé, tous vers le haut.** Le plan nommait la
+> coquille, l'accueil et le tunnel. La mesure a ajouté : les **six** feuilles
+> inférieures (les cinq de R23 plus celle de R25), `contact-bar.tsx`, les deux
+> barres du viseur caméra, l'arbre d'authentification et `not-found`. Aucun
+> n'avait le moindre inset latéral.
 >
-> - `components/bottom-tab-bar.tsx` (bas, gauche, droite) ;
-> - **cinq** feuilles inférieures et non quatre —
->   `account/posts/components/listing-actions-sheet.tsx`,
->   `account/posts/components/matches-sheet.tsx`,
->   `account/stickers/components/sticker-actions-sheet.tsx`,
->   `posts/components/filter-sheet.tsx` et, depuis R22,
->   `scan/components/activation-sheet.tsx` ;
-> - `routes/layout.tsx` (bas), `routes/q/_index.tsx` (haut),
->   `scan/components/camera-view.tsx` (haut et bas) ;
-> - `home/components/hero-section.tsx` (gauche) et
->   `home/components/stickers-section.tsx` (droite) ;
-> - le tunnel de publication : `publish/components/publish-header.tsx`,
->   `publish/components/publish-action-bar.tsx`,
->   `publish/components/publish-flow.tsx`.
->
-> **Deux ne figuraient dans aucune liste** : `contact-bar.tsx`, qui est une
-> **sixième** barre basse, et `stickers-section.tsx` pour l'inset droit.
+> Deux nuances honnêtes. Les pages d'authentification **ne figuraient pas dans
+> les 111 constats** : leur colonne de formulaire est étroite et centrée, donc
+> son contenu n'atteint pas la découpe à 844 px. La gouttière y est défensive,
+> pas corrective — mais le bandeau de marque, lui, s'affiche dès `md`, ce qui
+> est exactement le barreau qu'un téléphone couché atteint. Et le viseur caméra
+> a demandé sa propre passe : il faut la permission et un flux factice
+> (`--use-fake-device-for-media-stream`) pour l'atteindre. Ses deux barres
+> relèvent 44 px de chaque côté, 0 constat.
+
+**Le critère entre en CI**, ce qu'aucune étape à critère visuel n'avait réussi —
+et c'est le point de lecture unique qui le permet, puisqu'une propriété
+personnalisée se pose depuis un test là où un `env()` ne s'émule pas.
+
+- projet `node`, `shared/__tests__/safe-area.test.ts` : aucun fichier de `app/`
+  hors `app.css` ne contient `env(safe-area-inset`, et les quatre variables sont
+  bien définies. C'est la garde qui empêche le prochain écran d'en réécrire un.
+- projet `ui`, `routes/__tests__/safe-area-gutter.test.tsx` : `safe-x` rend la
+  découpe quand elle existe, **ne coûte rien** quand elle vaut zéro, et s'ajoute
+  au `px-4` du contenu au lieu de l'écraser.
+
+**Fichiers** : `apps/client/app/app.css`, `routes/layout.tsx`,
+`components/{header,footer,bottom-tab-bar,install-prompt}.tsx`,
+`routes/not-found.tsx`, `routes/q/_index.tsx`,
+`routes/auth/{layout.tsx,components/branding-panel.tsx}`,
+`routes/home/components/{hero-section,stickers-section}.tsx`,
+`routes/posts/components/filter-sheet.tsx`,
+`routes/posts/details/components/contact-bar.tsx`,
+`routes/publish/components/{publish-header,publish-action-bar,publish-flow}.tsx`,
+`routes/scan/components/{camera-view,activation-sheet}.tsx`,
+`routes/account/posts/components/{listing-actions-sheet,matches-sheet}.tsx`,
+`routes/account/stickers/components/sticker-actions-sheet.tsx`, plus les deux
+suites. **Flux** : les cinq. **Acceptation** : aucun contenu sous la découpe en
+paysage — **0 constat sur 28 écrans, contre 111 sur les 27 comparables** — et un
+seul point du code lit les insets, désormais affirmé par un test.
 
 ### Lot 6 — Publier et scan public
 

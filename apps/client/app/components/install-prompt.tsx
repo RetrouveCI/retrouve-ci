@@ -58,11 +58,11 @@ export function InstallPrompt() {
 
 	return (
 		<Drawer open={open} onOpenChange={next => !next && setClosed(true)}>
-			<DrawerContent className="lg:mx-auto lg:max-w-md lg:rounded-t-2xl">
+			<DrawerContent className="safe-x lg:mx-auto lg:max-w-md lg:rounded-t-2xl">
 				<div
 					className="space-y-4 px-5 pt-1 pb-5"
 					style={{
-						paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)',
+						paddingBottom: 'calc(var(--safe-bottom) + 1.25rem)',
 					}}
 				>
 					<DrawerHeader className="flex flex-row items-center gap-3.5 p-0 pb-1 text-left">

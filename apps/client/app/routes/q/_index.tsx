@@ -51,10 +51,10 @@ export default function QrContactPage({ loaderData }: Route.ComponentProps) {
 	const { token } = loaderData
 
 	return (
-		<div className="bg-background flex min-h-screen flex-col">
+		<div className="bg-background safe-x flex min-h-screen flex-col">
 			<header
 				className="flex items-center justify-center py-6"
-				style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))' }}
+				style={{ paddingTop: 'calc(1.5rem + var(--safe-top))' }}
 			>
 				<Link to="/" className="flex min-h-11 items-center gap-2 px-3">
 					<img src="/logo.png" alt="RetrouveCI" className="h-8 w-8" />
@@ -102,7 +102,7 @@ export default function QrContactPage({ loaderData }: Route.ComponentProps) {
 
 			<footer
 				className="py-6 text-center"
-				style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
+				style={{ paddingBottom: 'max(1.5rem, var(--safe-bottom))' }}
 			>
 				<p className="text-muted-foreground text-xs">
 					Propulsé par{' '}

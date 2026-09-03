@@ -32,8 +32,7 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 			<div className="bg-primary-green/15 absolute top-1/4 -right-20 h-125 w-125 rounded-full bg-linear-to-br to-transparent blur-3xl" />
 			<div className="bg-accent-orange/10 absolute bottom-1/4 -left-20 h-100 w-100 rounded-full bg-linear-to-tl to-transparent blur-3xl" />
 
-			{/* Landscape on a notched phone eats a whole 44 px gutter. */}
-			<div className="relative z-10 container mx-auto py-8 pr-[max(1rem,env(safe-area-inset-right))] pl-[max(1rem,env(safe-area-inset-left))] md:py-12 lg:py-16">
+			<div className="relative z-10 container mx-auto px-4 py-8 md:py-12 lg:py-16">
 				{/* Uncapped, every pixel past 620 fell between the two columns. */}
 				<div className="mx-auto grid max-w-7xl items-center gap-8 md:grid-cols-[1.05fr_0.95fr] md:gap-7 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
 					<div className="flex min-w-0 flex-col items-start gap-4 lg:max-w-155 lg:gap-5">

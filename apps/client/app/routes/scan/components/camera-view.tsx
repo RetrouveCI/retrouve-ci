@@ -65,10 +65,7 @@ export function CameraView({
 			    so white text needs its own ground rather than the image's. */}
 			<div className="absolute inset-0 bg-neutral-950/25" />
 
-			<div
-				className="relative flex items-center justify-between bg-neutral-950/85 px-3 py-4"
-				style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}
-			>
+			<div className="relative flex items-center justify-between bg-neutral-950/85 py-4 pt-[calc(1rem+var(--safe-top))] pr-[max(0.75rem,var(--safe-right))] pl-[max(0.75rem,var(--safe-left))]">
 				<button
 					type="button"
 					onClick={onClose}
@@ -112,10 +109,7 @@ export function CameraView({
 				</div>
 			</div>
 
-			<div
-				className="relative flex flex-col gap-3 bg-neutral-950/85 px-5 pt-4 pb-8"
-				style={{ paddingBottom: 'calc(2rem + env(safe-area-inset-bottom))' }}
-			>
+			<div className="relative flex flex-col gap-3 bg-neutral-950/85 pt-4 pr-[max(1.25rem,var(--safe-right))] pb-[calc(2rem+var(--safe-bottom))] pl-[max(1.25rem,var(--safe-left))]">
 				<div className="flex items-start gap-3 rounded-[14px] border border-white/20 p-3.5">
 					<Info className="mt-0.5 h-4 w-4 shrink-0 text-white/90" />
 					<p className="text-sm leading-relaxed text-white/90">

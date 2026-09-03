@@ -10,7 +10,7 @@ export default function AuthLayout() {
 		<div className="flex min-h-dvh flex-col lg:flex-row">
 			<BrandingPanel />
 
-			<div className="bg-background flex flex-1 flex-col justify-center p-6 lg:p-12">
+			<div className="bg-background flex flex-1 flex-col justify-center py-6 pr-[max(1.5rem,var(--safe-right))] pl-[max(1.5rem,var(--safe-left))] lg:py-12 lg:pr-[max(3rem,var(--safe-right))] lg:pl-[max(3rem,var(--safe-left))]">
 				{/* No logo bar here any more: each page draws the one bar the canvas
 				    shows, carrying the back control and its own identity. */}
 				<div className="mx-auto w-full max-w-md lg:max-w-105">

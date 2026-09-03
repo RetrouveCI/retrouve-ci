@@ -56,7 +56,7 @@ export function PublishFlow({ type }: { type: LostItemType }) {
 			/>
 
 			<form onSubmit={onSubmit} noValidate className="flex flex-1 flex-col">
-				<div className="mx-auto w-full max-w-2xl flex-1 pt-5 pr-[max(1rem,env(safe-area-inset-right))] pb-7 pl-[max(1rem,env(safe-area-inset-left))]">
+				<div className="mx-auto w-full max-w-2xl flex-1 pt-5 pr-[max(1rem,var(--safe-right))] pb-7 pl-[max(1rem,var(--safe-left))]">
 					<FormRootError message={errors.root?.message} />
 
 					{/* Every step stays mounted. The photo picker holds its files in

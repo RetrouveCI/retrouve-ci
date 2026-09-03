@@ -28,7 +28,7 @@ const ARGUMENTS = [
  */
 export function BrandingPanel() {
 	return (
-		<div className="from-primary-green to-primary-green-dark relative hidden overflow-hidden bg-linear-to-br text-white md:flex md:items-center md:gap-5 md:px-6 md:py-5 lg:w-1/2 lg:flex-col lg:items-stretch lg:gap-10 lg:p-12 xl:w-[44%] xl:p-16">
+		<div className="from-primary-green to-primary-green-dark relative hidden overflow-hidden bg-linear-to-br text-white md:flex md:items-center md:gap-5 md:py-5 md:pr-[max(1.5rem,var(--safe-right))] md:pl-[max(1.5rem,var(--safe-left))] lg:w-1/2 lg:flex-col lg:items-stretch lg:gap-10 lg:p-12 xl:w-[44%] xl:p-16">
 			<div className="pointer-events-none absolute inset-0" aria-hidden>
 				<div className="absolute -top-10 -left-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
 				<div className="absolute -right-10 -bottom-16 h-80 w-80 rounded-full bg-white/8 blur-3xl" />
