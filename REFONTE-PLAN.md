@@ -218,49 +218,50 @@ deviennent l'axe principal du produit, ou si les deux actions se révèlent
 
 Une ligne = une branche = une PR = une session.
 
-| #       | Lot      | Étape                                       | Branche                              | Scope commit                | Charge | Dépend de    |
-| ------- | -------- | ------------------------------------------- | ------------------------------------ | --------------------------- | ------ | ------------ |
-| **R1**  | Socle    | Zones sûres de l'appareil                   | `refonte-r1-safe-areas`              | `client`                    | 0,2 j  | —            |
-| **R2**  | Socle    | Cibles tactiles 44 px sous `lg`             | `refonte-r2-touch-targets`           | `ui` + les deux apps        | 0,5 j  | —            |
-| **R3**  | Socle    | Tokens de couleur accessibles               | `refonte-r3-colour-tokens`           | `ui` + `client`             | 1 j    | —            |
-| **R4**  | Socle    | Photos servies à la taille d'affichage      | `refonte-r4-image-sizes`             | `client`                    | 1 j    | —            |
-| **R5**  | Coquille | Thème dans Réglages + option `system`       | `refonte-r5-theme-settings`          | `client`                    | 1 j    | R3           |
-| **R6**  | Coquille | Barre d'onglets à 4 entrées + Scanner       | `refonte-r6-tab-bar`                 | `client`                    | 1,5 j  | R2, R5       |
-| **R7**  | Coquille | En-tête desktop en trois zones              | `refonte-r7-desktop-header`          | `client`                    | 1 j    | R2           |
-| **R8**  | Annonces | Filtres en feuille inférieure               | `refonte-r8-filters-sheet`           | `client/posts`              | 1 j    | R2           |
-| **R9**  | Annonces | Pagination compacte                         | `refonte-r9-pagination`              | `client/posts`              | 0,5 j  | —            |
-| **R10** | Annonces | Barre d'action basse sur le détail          | `refonte-r10-detail-action-bar`      | `client/posts`              | 1 j    | R2           |
-| **R11** | Compte   | Filtres de Mes annonces pilotés par l'URL   | `refonte-r11-account-url-filters`    | `client/account`            | 1 j    | —            |
-| **R12** | Compte   | Retours honnêtes sur les actions d'annonce  | `refonte-r12-account-feedback`       | `client/account`            | 1 j    | —            |
-| **R13** | Compte   | Refonte de la carte d'annonce               | `refonte-r13-account-listing-card`   | `client/account`            | 1,5 j  | R2, R11, R12 |
-| **R14** | Compte   | Correspondances sur une annonce             | `refonte-r14-account-matches`        | `client/account`            | 1 j    | R13          |
-| **R15** | Compte   | Stickers, commandes et réglages             | `refonte-r15-account-screens`        | `client/account`            | 1,5 j  | R2, R5       |
-| **R16** | Accueil  | Hero reconstruit sur une grille             | `refonte-r16-home-hero`              | `client/home`               | 1 j    | R3           |
-| **R17** | Accueil  | Annonces récentes et bloc stickers          | `refonte-r17-home-listings-stickers` | `client/home`               | 1 j    | R4, R16      |
-| **R18** | Publier  | Publication en trois étapes + brouillon     | `refonte-r18-publish-steps`          | `client/publish`            | 1,5 j  | R2           |
-| **R19** | Publier  | Refonte de la page de scan publique         | `refonte-r19-qr-landing`             | `client/q`                  | 1 j    | R3           |
-| **R20** | Scanner  | Écran caméra et amorce de permission        | `refonte-r20-scanner-camera`         | `client/scan` + `contracts` | 1,5 j  | R6           |
-| **R21** | Scanner  | Décodeur WASM et repli photo                | `refonte-r21-scanner-fallbacks`      | `client/scan`               | 1 j    | R20          |
-| **R22** | Scanner  | Activation de stickers en série             | `refonte-r22-sticker-activation`     | `client/account`            | 1 j    | R20, R15     |
-| **R23** | PWA      | Manifeste, icônes et couleurs de thème      | `refonte-r23-manifest`               | `client/pwa`                | 1 j    | R1           |
-| **R24** | PWA      | Service worker, coquille et page hors-ligne | `refonte-r24-service-worker`         | `client/pwa`                | 1,5 j  | R4, R23      |
-| **R25** | PWA      | Invite et page d'installation               | `refonte-r25-install`                | `client/pwa`                | 1 j    | R23          |
-| **R26** | Auth     | Règle du numéro ivoirien                    | `refonte-r26-phone-rule`             | `contracts`                 | 0,5 j  | —            |
-| **R27** | Auth     | Connexion et inscription                    | `refonte-r27-login-register`         | `client/auth`               | 1,5 j  | R2, R26      |
-| **R28** | Auth     | Mot de passe oublié en un écran             | `refonte-r28-password-reset`         | `client/auth`               | 1 j    | R26, R27     |
-| **R29** | Auth     | Layout auth aux trois largeurs              | `refonte-r29-auth-layout`            | `client/auth`               | 0,5 j  | —            |
-| **R30** | Auth     | Copie et chiffres du panneau de marque      | `refonte-r30-auth-copy`              | `client/auth`               | 0,5 j  | R29          |
-| **R31** | Auth     | Routes d'authentification sans préfixe      | `refonte-r31-auth-routes`            | `client/admin`              | 0,5 j  | —            |
-| **R32** | Stickers | Hero produit de la page Stickers            | `refonte-stickers-hero`              | `client/stickers`           | 0,5 j  | R2           |
-| **R33** | Socle    | Échelle typographique et boutons mobiles    | `refonte-r33-mobile-type-scale`      | `ui` + `client`             | 1,5 j  | R2, R17      |
-| **R34** | Socle    | Gouttière de zones sûres unique             | `refonte-r34-safe-area-gutter`       | `client`                    | 0,5 j  | R1           |
-| **R35** | Publier  | Publication guidée d'une pièce              | `refonte-r35-document-publish`       | `client/publish`            | 1,5 j  | R18, A7      |
-| **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`       | `api/lost-items`            | 1 j    | —            |
-| **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`        | `api/storage`               | 0,5 j  | —            |
-| **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                | `api/notifications`         | 3 j    | R23          |
-| **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`            | `api/sticker-orders`        | 0,5 j  | R17          |
-| **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`         | `api/lost-items`            | 1,5 j  | R18          |
-| **A8**  | API      | Joindre le propriétaire d'un sticker        | `refonte-a8-sticker-reach`           | `api/qr-codes`              | 1,5 j  | R19          |
+| #       | Lot      | Étape                                       | Branche                                    | Scope commit                         | Charge | Dépend de    |
+| ------- | -------- | ------------------------------------------- | ------------------------------------------ | ------------------------------------ | ------ | ------------ |
+| **R1**  | Socle    | Zones sûres de l'appareil                   | `refonte-r1-safe-areas`                    | `client`                             | 0,2 j  | —            |
+| **R2**  | Socle    | Cibles tactiles 44 px sous `lg`             | `refonte-r2-touch-targets`                 | `ui` + les deux apps                 | 0,5 j  | —            |
+| **R3**  | Socle    | Tokens de couleur accessibles               | `refonte-r3-colour-tokens`                 | `ui` + `client`                      | 1 j    | —            |
+| **R4**  | Socle    | Photos servies à la taille d'affichage      | `refonte-r4-image-sizes`                   | `client`                             | 1 j    | —            |
+| **R5**  | Coquille | Thème dans Réglages + option `system`       | `refonte-r5-theme-settings`                | `client`                             | 1 j    | R3           |
+| **R6**  | Coquille | Barre d'onglets à 4 entrées + Scanner       | `refonte-r6-tab-bar`                       | `client`                             | 1,5 j  | R2, R5       |
+| **R7**  | Coquille | En-tête desktop en trois zones              | `refonte-r7-desktop-header`                | `client`                             | 1 j    | R2           |
+| **R8**  | Annonces | Filtres en feuille inférieure               | `refonte-r8-filters-sheet`                 | `client/posts`                       | 1 j    | R2           |
+| **R9**  | Annonces | Pagination compacte                         | `refonte-r9-pagination`                    | `client/posts`                       | 0,5 j  | —            |
+| **R10** | Annonces | Barre d'action basse sur le détail          | `refonte-r10-detail-action-bar`            | `client/posts`                       | 1 j    | R2           |
+| **R11** | Compte   | Filtres de Mes annonces pilotés par l'URL   | `refonte-r11-account-url-filters`          | `client/account`                     | 1 j    | —            |
+| **R12** | Compte   | Retours honnêtes sur les actions d'annonce  | `refonte-r12-account-feedback`             | `client/account`                     | 1 j    | —            |
+| **R13** | Compte   | Refonte de la carte d'annonce               | `refonte-r13-account-listing-card`         | `client/account`                     | 1,5 j  | R2, R11, R12 |
+| **R14** | Compte   | Correspondances sur une annonce             | `refonte-r14-account-matches`              | `client/account`                     | 1 j    | R13          |
+| **R15** | Compte   | Stickers, commandes et réglages             | `refonte-r15-account-screens`              | `client/account`                     | 1,5 j  | R2, R5       |
+| **R16** | Accueil  | Hero reconstruit sur une grille             | `refonte-r16-home-hero`                    | `client/home`                        | 1 j    | R3           |
+| **R17** | Accueil  | Annonces récentes et bloc stickers          | `refonte-r17-home-listings-stickers`       | `client/home`                        | 1 j    | R4, R16      |
+| **R18** | Publier  | Publication en trois étapes + brouillon     | `refonte-r18-publish-steps`                | `client/publish`                     | 1,5 j  | R2           |
+| **R19** | Publier  | Refonte de la page de scan publique         | `refonte-r19-qr-landing`                   | `client/q`                           | 1 j    | R3           |
+| **R20** | Scanner  | Écran caméra et amorce de permission        | `refonte-r20-scanner-camera`               | `client/scan` + `contracts`          | 1,5 j  | R6           |
+| **R21** | Scanner  | Décodeur WASM et repli photo                | `refonte-r21-scanner-fallbacks`            | `client/scan`                        | 1 j    | R20          |
+| **R22** | Scanner  | Activation de stickers en série             | `refonte-r22-sticker-activation`           | `client/account`                     | 1 j    | R20, R15     |
+| **R23** | PWA      | Manifeste, icônes et couleurs de thème      | `refonte-r23-manifest`                     | `client/pwa`                         | 1 j    | R1           |
+| **R24** | PWA      | Service worker, coquille et page hors-ligne | `refonte-r24-service-worker`               | `client/pwa`                         | 1,5 j  | R4, R23      |
+| **R25** | PWA      | Invite et page d'installation               | `refonte-r25-install`                      | `client/pwa`                         | 1 j    | R23          |
+| **R26** | Auth     | Règle du numéro ivoirien                    | `refonte-r26-phone-rule`                   | `contracts`                          | 0,5 j  | —            |
+| **R27** | Auth     | Connexion et inscription                    | `refonte-r27-login-register`               | `client/auth`                        | 1,5 j  | R2, R26      |
+| **R28** | Auth     | Mot de passe oublié en un écran             | `refonte-r28-password-reset`               | `client/auth`                        | 1 j    | R26, R27     |
+| **R29** | Auth     | Layout auth aux trois largeurs              | `refonte-r29-auth-layout`                  | `client/auth`                        | 0,5 j  | —            |
+| **R30** | Auth     | Copie et chiffres du panneau de marque      | `refonte-r30-auth-copy`                    | `client/auth`                        | 0,5 j  | R29          |
+| **R31** | Auth     | Routes d'authentification sans préfixe      | `refonte-r31-auth-routes`                  | `client/admin`                       | 0,5 j  | —            |
+| **R32** | Stickers | Hero produit de la page Stickers            | `refonte-stickers-hero`                    | `client/stickers`                    | 0,5 j  | R2           |
+| **R33** | Socle    | Échelle typographique et boutons mobiles    | `refonte-r33-mobile-type-scale`            | `ui` + `client`                      | 1,5 j  | R2, R17      |
+| **R34** | Socle    | Gouttière de zones sûres unique             | `refonte-r34-safe-area-gutter`             | `client`                             | 0,5 j  | R1           |
+| **R35** | Publier  | Publication guidée d'une pièce              | `refonte-r35-document-publish`             | `client/publish`                     | 1,5 j  | R18, A7      |
+| **A1**  | API      | Motif de masquage d'une annonce             | `refonte-a1-moderation-reason`             | `api/lost-items`                     | 1 j    | —            |
+| **A2**  | API      | Transformations Cloudinary à l'upload       | `refonte-a2-cloudinary-eager`              | `api/storage`                        | 0,5 j  | —            |
+| **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                      | `api/notifications`                  | 3 j    | R23          |
+| **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`                  | `api/sticker-orders`                 | 0,5 j  | R17          |
+| **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`               | `api/lost-items`                     | 1,5 j  | R18          |
+| **A8**  | API      | Joindre le propriétaire d'un sticker        | `refonte-a8-sticker-reach`                 | `api/qr-codes`                       | 1,5 j  | R19          |
+| **R36** | Accueil  | L'arrivée des stickers devient un signal    | `refonte-r36-sticker-arrival-notification` | `client/home` + `api/sticker-orders` | 1 j    | R15, R17     |
 
 **Total ≈ 38,5 j** en séquentiel, dont ≈ 6 j côté API et ≈ 4 j pour le lot 9.
 R2/R3, R11/R12 et R26/R29 se parallélisent ; les lots 3 à 6 s'ouvrent ensemble
@@ -4004,6 +4005,80 @@ VAPID, table d'abonnements, envoi branché sur le domaine `matching`. Le lot 8 s
 livre sans. À décider quand l'installation aura des chiffres — pousser des
 notifications à personne n'a pas d'intérêt.
 
+#### R36 — L'arrivée des stickers devient un signal — **LIVRÉE**
+
+Ouverte par le commanditaire en relisant l'accueil : le pavé noir de R22, posé
+**au-dessus** du hero et en pleine largeur, se lit comme un interstitiel sur un
+écran large, et c'est la première chose qu'un acheteur revenant voit qu'il ait
+compris le message ou non.
+
+Ce qui a été livré :
+
+1. **L'arrivée devient une notification**, créée par l'API quand une commande
+   franchit `delivered` — **sur la transition seule**, de sorte qu'un
+   back-office qui réenregistre une commande déjà livrée ne le dit pas deux
+   fois. `UpdateStickerOrderStatusUseCase` injecte `CreateNotificationUseCase`,
+   comme `matching` et `qr-codes` le font déjà. Nouveau `NotificationType`
+   (`stickers_delivered`) dans le contrat, dans l'énuméré Prisma et dans les
+   deux `switch` exhaustifs du mappeur, plus sa migration.
+2. **Le compte restant devient un marqueur de coquille** : sur l'onglet Scanner
+   sous `lg`, sur « Mes stickers » et sur l'avatar au-dessus.
+   `/account/stickers` portait déjà sa propre carte, rien à y ajouter.
+3. **Le pavé et son test restent sur disque**, commentés avec leur raison.
+
+> **Une notification est un événement ; ce pavé était une tâche en cours.** La
+> proposition initiale était de tout confier aux notifications. Impossible tel
+> quel : une notification se lit une fois, alors qu'activer douze stickers prend
+> des jours — l'invite aurait disparu au premier « lu », le travail non fait.
+> D'où le partage : l'événement à la notification, la tâche au marqueur, qui lui
+> ne s'éteint qu'à la douzième activation.
+
+> **Le compte se lit à côté de la coquille, pas dans un loader racine.** Un
+> loader de layout se rejoue à chaque navigation et coûterait un aller-retour de
+> session à chaque fois, pour les visiteurs anonymes compris. C'est une route
+> ressource (`account/stickers/pending`) que la coquille charge une fois par
+> chargement complet — la forme de `publish/matches` et de `scan/status` — et le
+> `useEffect` ne part même pas si `AuthContext` dit anonyme.
+
+> ⚠️ **Un `fetcher.load` vers une route absente fait tomber TOUT l'arbre** par
+> l'ErrorBoundary par défaut de React Router : `No route matches URL`, en 404,
+> et plus rien ne s'affiche. Trouvé en mettant l'appel dans `BottomTabBar` et
+> `UserMenu` — les dix tests de coquille existants sont tombés d'un coup, parce
+> que leurs `createRoutesStub` ne déclaraient pas la route. Deux conséquences :
+> la lecture est remontée **dans la coquille**, qui la redescend en prop (les
+> deux composants redeviennent présentationnels, et un seul endroit dépend de la
+> route) ; et il faut se souvenir qu'une entrée retirée de `routes.ts` ne casse
+> pas un badge, elle casse l'application entière.
+
+> **Ce qui n'a pas été ajouté.** Le libellé de la pastille reste `text-xs` :
+> §2.1 interdit **explicitement** `text-[10px]` et `text-[11px]`, et le premier
+> jet en avait posé un. Le compte dessiné est plafonné à « 9+ » — deux chiffres
+> ne tiennent pas sous une icône — mais le nombre exact est dans le
+> `aria-label`, donc la couleur n'est jamais seule à porter l'information.
+
+> ⚠️ **Aucune mesure HTTP réelle** : pas de Docker dans cette distro, donc ni
+> Postgres ni passage effectif d'une commande à `delivered`. La migration est
+> écrite par `prisma migrate diff` hors ligne (un `ALTER TYPE … ADD VALUE`) et
+> la notification est mesurée sur le use-case, pas sur le fil.
+
+**Fichiers** : `api/domains/sticker-orders/` (use-case + module),
+`api/domains/notifications/mappers/`, `packages/contracts/src/notifications/`,
+`packages/database/prisma/` (énuméré + migration), `client/routes/home/` (pavé
+et lecture retirés du loader), `client/routes/layout.tsx`,
+`client/components/{header,user-menu,bottom-tab-bar}.tsx`,
+`client/routes/account/stickers/servers/pending-count.loader.ts` et
+`client/shared/hooks/use-pending-stickers.ts` (nouveaux). **Flux** : C.
+
+**Acceptation** : l'accueil n'ouvre plus sur un pavé ; une commande passée à
+`delivered` produit une notification et une seule ; le compte restant reste
+visible après lecture de cette notification ; un visiteur anonyme ne déclenche
+aucun appel.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Tests : api **418** (+7),
+contracts **329** (+1), admin **413** inchangé, client **1031** (759 en `node`,
+272 en `ui`) contre 1021 mesuré sur `refonte`. Densité **8,9 %**.
+
 ---
 
 ## 6. Ce qui ne bouge pas
@@ -4012,6 +4087,7 @@ notifications à personne n'a pas d'intérêt.
   masquage), R26 (le prédicat strict du numéro, et la remontée
   d'`OTP_TTL_SECONDS` depuis `apps/api`) et A7, qui y a ajouté les champs de
   pièce et déplacé le plancher de description de la forme vers chaque écriture.
+  R36 y a ajouté une valeur d'énuméré, `stickers_delivered`.
 - **Les endpoints de l'API** : tout le front se sert de ce qui existe, y compris
   les correspondances (`/lost-items?type&category&ville`). **Deux exceptions
   mesurées** : R11 a dû laisser passer `resolutionStatus` sur
