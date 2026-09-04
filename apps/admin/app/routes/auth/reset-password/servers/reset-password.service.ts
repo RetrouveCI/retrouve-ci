@@ -1,3 +1,4 @@
+import { requestOrigin } from '@/shared/helpers/origin'
 import { apiFetch } from '@/shared/utils/api-fetch'
 
 export async function resetPassword(
@@ -8,6 +9,6 @@ export async function resetPassword(
 	await apiFetch('/api/admin-auth/reset-password', {
 		method: 'POST',
 		body: JSON.stringify({ newPassword, token }),
-		headers: { Origin: new URL(request.url).origin },
+		headers: { Origin: requestOrigin(request) },
 	})
 }

@@ -1,3 +1,4 @@
+import { requestOrigin } from '@/shared/helpers/origin'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import { toE164 } from '@/shared/utils/phone'
 
@@ -8,6 +9,6 @@ export async function requestPasswordReset(
 	await apiFetch('/api/auth/phone-number/request-password-reset', {
 		method: 'POST',
 		body: JSON.stringify({ phoneNumber: toE164(phoneNumber) }),
-		headers: { Origin: new URL(request.url).origin },
+		headers: { Origin: requestOrigin(request) },
 	})
 }

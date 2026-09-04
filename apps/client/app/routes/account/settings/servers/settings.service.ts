@@ -1,3 +1,4 @@
+import { requestOrigin } from '@/shared/helpers/origin'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import { toE164 } from '@/shared/utils/phone'
 
@@ -10,7 +11,7 @@ export async function updateProfile(
 		body: JSON.stringify(fields),
 		headers: {
 			Cookie: request.headers.get('cookie') ?? '',
-			Origin: new URL(request.url).origin,
+			Origin: requestOrigin(request),
 		},
 	})
 }
@@ -22,7 +23,7 @@ export async function sendPhoneChangeOtp(
 	await apiFetch('/api/auth/phone-number/send-otp', {
 		method: 'POST',
 		body: JSON.stringify({ phoneNumber: toE164(phone) }),
-		headers: { Origin: new URL(request.url).origin },
+		headers: { Origin: requestOrigin(request) },
 	})
 }
 
@@ -37,7 +38,7 @@ export async function deleteAccount(
 			body: JSON.stringify({ password }),
 			headers: {
 				Cookie: request.headers.get('cookie') ?? '',
-				Origin: new URL(request.url).origin,
+				Origin: requestOrigin(request),
 			},
 		},
 	)

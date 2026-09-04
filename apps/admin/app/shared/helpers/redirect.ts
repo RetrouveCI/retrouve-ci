@@ -1,3 +1,5 @@
+import { requestOrigin } from '@/shared/helpers/origin'
+
 /**
  * Default landing page once an admin is authenticated and no specific
  * destination was requested.
@@ -83,5 +85,5 @@ export function loginUrlWithRedirect(redirectTo: string | null): string {
  */
 export function appUrl(path: string, request: Request): string {
 	const configured = process.env['ADMIN_APP_URL']?.trim()
-	return new URL(path, configured || new URL(request.url).origin).toString()
+	return new URL(path, configured || requestOrigin(request)).toString()
 }
