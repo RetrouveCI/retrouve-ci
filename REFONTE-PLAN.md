@@ -4351,6 +4351,10 @@ demandes, et un défaut trouvé en les traitant.
 > restent sous le plancher** (`xs` et `sm` à 13 px, `md` à 13 puis 14) : chacune
 > a son budget de largeur mesuré par R7 et R17, et les corriger demande de
 > remesurer la troncature du texte indicatif. **Dette ouverte, nommée.**
+>
+> ⚠️ **Fermée par R38, et le motif était faux** : remesurée, la troncature ne
+> serrait à aucune largeur. Le vrai obstacle était ailleurs — `text-sm` bat
+> `text-field`, ce que R37 n'a pas vu.
 
 > **Le commentaire de `search-bar.tsx` se trompait** : il annonçait « 52 px, the
 > §2.1 field » alors que `--spacing-control` vaut **48 px**. Les 64 px venaient
@@ -4376,6 +4380,104 @@ demandes, et un défaut trouvé en les traitant.
 inchangés. Diff de 44 lignes insérées dont 8 de commentaire — le ratio n'est pas
 comparable à celui d'une étape entière, l'essentiel du diff étant de la
 ré-indentation JSX.
+
+---
+
+#### R38 — Le plancher de 16 px tenu par le système, pas par la vigilance — **LIVRÉE**
+
+Ouverte par la passation d'A4, qui annonçait « douze champs portent `text-base`
+dans cinq fichiers, tous zooment sur iOS ». **La mesure a retourné le
+diagnostic**, et c'est l'étape.
+
+> ⚠️ **Les douze se décomposent en sept, quatre et un.** **Sept** sont des
+> `Input`/`Textarea` de `@app/ui`, qui portent `text-field` dans leur classe de
+> base : tailwind-merge ne le reconnaissant pas comme une taille, il le garde
+> **à côté** de `text-base`, et c'est l'ordre de sortie de Tailwind qui tranche
+> — `.text-field` est peint après `.text-base`. Mesuré en Chromium réel : **16
+> px**, donc leur `text-base` était une **classe morte**. **Quatre** sont des
+> `SelectTrigger` Radix, donc des `<button>`, et un bouton ne fait pas zoomer
+> iOS. **Un seul** était un vrai défaut : l'`<input>` brut du champ WhatsApp.
+
+> ⚠️ **Le verrou que R37 s'était posé n'existait pas.** Il disait que corriger
+> `xs`, `sm` et `md` de `SearchBar` « demande de remesurer la troncature du
+> texte indicatif ». Remesuré : « Téléphone, clés, papiers, sac… » fait **199 px
+> à 16 px** contre **335 px** de largeur utile au plus étroit (1024 px, où
+> `lg:min-w-80` mord). Il n'y avait rien à arbitrer.
+
+**Les vrais sites étaient trois, dont deux que la passation ne nommait pas.**
+
+| Site                                           | Mesuré | Pourquoi                                 |
+| ---------------------------------------------- | ------ | ---------------------------------------- |
+| `contact-step.tsx` — `<input type="tel">` brut | 14 px  | aucun composant de base pour le plancher |
+| `manual-code-form.tsx` — `<input>` brut        | 14 px  | idem — **non recensé** par la passation  |
+| `search-bar.tsx` — tailles `xs`, `sm`, `md`    | 13 px  | `text-sm` **bat** `text-field`           |
+
+Et la `SearchBar` du header est en `hidden … md:block`, donc rendue **dès 768
+px** : un iPhone l'atteint **en paysage**. `md` n'est la taille d'aucun
+appelant, mais c'est celle qu'on obtient en omettant la propriété.
+
+**La cause racine est sous les trois.** `text-field` était un **demi-token** :
+il posait une taille sans participer à la résolution des conflits, donc gagner
+ou perdre relevait d'un accident d'ordonnancement. Trois comportements
+incohérents, tous mesurés au navigateur :
+
+- `Input` + `text-base` → 16 px (le token gagne, par chance)
+- `Input` + `text-sm` → **13 px** (le token perd, `cn()` n'y peut rien)
+- `SelectTrigger` + `text-field` → **13 px** — écrire le plancher rendait la
+  chose **pire** que `text-base`
+
+C'est ce qui explique que R37 **et** la passation d'A4 se soient trompées toutes
+les deux. Le correctif est dans `cn()` : un `extendTailwindMerge` enregistre les
+noms que le thème a inventés, et **la dernière classe écrite gagne** — la seule
+règle sur laquelle un appelant puisse raisonner.
+
+1. **`cn()` apprend les quatre demi-tokens** : `text-field` en `font-size`,
+   `h-control` et `h-chip` en `h`, `size-chip` en `size`. Les trois derniers
+   avaient le même défaut sur **55 sites** ; ils gagnaient tous par l'ordre CSS,
+   donc corriger `text-field` seul aurait laissé le piège en place.
+2. **Les trois sites réels passent à `text-field`**, et les **sept** classes
+   mortes partent — devenues obligatoires : après le correctif elles auraient
+   gagné, à 14 px.
+3. **Six `SelectTrigger` passent à 16 px** — les quatre du formulaire de
+   publication et les deux de la feuille de filtres, qui lisaient 15 px sans
+   raison écrite. §2.1 dit « police 16 px partout via `text-field` », et
+   l'écrire ne marche que depuis le point 1.
+4. **Deux gardes**, chacune **prouvée en rebranchant le défaut** avant d'être
+   crue. `app/shared/__tests__/field-floor.test.ts` (`node`) interdit à un champ
+   de porter une classe de l'échelle et vérifie que `cn()` résout chaque
+   utilitaire personnalisé réellement écrit — donc un `w-control` ajouté demain
+   fait tomber le test jusqu'à ce que `cn()` l'apprenne.
+   `app/routes/__tests__/field-floor.test.tsx` (`ui`) mesure ce que Chromium
+   calcule sur les composants réels. Rebranchés, les défauts tombent à 14, 13 et
+   15 px.
+
+> **Non-régression prouvée avant d'être supposée**, puisque `cn()` est partagé.
+> Un changement de résolution ne peut se voir que là où un demi-token rencontre
+> une classe du même groupe : balayage des deux apps et de `packages/ui` →
+> **zéro collision** hors des sites changés exprès. `admin` ne porte **aucun**
+> demi-token ni aucune classe de l'échelle sur un champ, et ses 416 tests sont
+> inchangés. Les classes à variante (`file:text-sm`, `lg:min-h-0`) survivent,
+> vérifié ; `h-9` tombe du `Input` comme redondant, à hauteur calculée
+> identique.
+
+> **La maquette dessine ses champs à 15 px** (`.fld` de `Publier3`) et §2.1
+> exige 16. Le plancher gagne, comme en R37 : c'est une contrainte d'iOS, pas un
+> goût. Rien d'autre de l'artboard n'est touché.
+
+> ⚠️ **La garde de `cn()` vit dans `apps/client`, pas dans `packages/ui`**, qui
+> n'a ni script de test ni config Vitest. Y monter un runner est une étape en
+> soi ; le jour où elle a lieu, ces deux `describe` déménagent.
+
+**Fichiers** : `ui/utils/cn.ts`, `client/components/search-bar.tsx`,
+`client/routes/publish/components/{contact-step,object-step,date-choice,document-section,place-step}.tsx`,
+`client/routes/posts/components/filter-sheet.tsx`,
+`client/routes/scan/components/manual-code-form.tsx`, + 2 tests. **Flux** : A,
+D.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Tests : client **1134**
+(822 en `node`, 312 en `ui`) contre 1122, soit les 4 + 8 des deux gardes ; api
+**421**, contracts **341**, admin **416** inchangés. Densité **8,7 %**.
 
 ---
 

@@ -6,6 +6,7 @@ import { cn } from '@app/ui/utils'
 
 type Size = 'xs' | 'sm' | 'md' | 'lg'
 
+/** Only the shell changes with the size: §2.1 puts every field at 16 px. */
 const SIZE: Record<
 	Size,
 	{
@@ -19,21 +20,21 @@ const SIZE: Record<
 > = {
 	xs: {
 		shell: 'py-0.5 pl-3.5 pr-1.5',
-		input: 'h-9 text-sm',
+		input: 'h-9 text-field',
 		icon: 'h-4 w-4',
 		button: 'h-8 px-4 text-sm',
 		iconButton: 'size-7',
 	},
 	sm: {
 		shell: 'py-1 pl-3.5 pr-1.5',
-		input: 'h-10 text-sm',
+		input: 'h-10 text-field',
 		icon: 'h-4 w-4',
 		button: 'h-8 px-4 text-sm',
 		iconButton: 'size-8',
 	},
 	md: {
 		shell: 'py-1.5 pl-4 pr-1.5',
-		input: 'h-11 text-sm md:text-base',
+		input: 'h-11 text-field',
 		icon: 'h-5 w-5',
 		button: 'h-9 px-5',
 		iconButton: 'size-9',
@@ -42,8 +43,6 @@ const SIZE: Record<
 		// 56 px on a phone, near the artboard's 54: the field is already at
 		// §2.1's 48 px floor, so the padding is all there was left to give back.
 		shell: 'py-0.5 pl-4 pr-1 lg:py-1.5 lg:pl-5 lg:pr-1.5',
-		// `text-field`, not `text-base`: this ladder puts `base` at 14 px, and
-		// under 16 iOS zooms on focus.
 		input: 'h-control text-field',
 		icon: 'h-5 w-5',
 		button: 'h-12 px-6',

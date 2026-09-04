@@ -63,7 +63,7 @@ export function ContactStep({ control, photoCount }: ContactStepProps) {
 							id={field.name}
 							value={field.value ?? ''}
 							placeholder="Ex : Konan"
-							className="h-control text-base"
+							className="h-control"
 							aria-invalid={fieldState.invalid || undefined}
 						/>
 						{fieldState.error && <FieldError errors={[fieldState.error]} />}
@@ -98,7 +98,7 @@ export function ContactStep({ control, photoCount }: ContactStepProps) {
 								value={field.value ?? ''}
 								placeholder="07 00 00 00 00"
 								aria-invalid={fieldState.invalid || undefined}
-								className="h-full min-w-0 flex-1 bg-transparent text-base outline-none"
+								className="text-field h-full min-w-0 flex-1 bg-transparent outline-none"
 							/>
 						</div>
 						<p className="text-muted-foreground text-xs">

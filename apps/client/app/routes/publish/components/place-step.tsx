@@ -65,7 +65,7 @@ export function PlaceStep({ control, type }: PlaceStepProps) {
 				>
 					<SelectTrigger
 						id="ville"
-						className="w-full text-base data-[size=default]:h-13"
+						className="text-field w-full data-[size=default]:h-13"
 						aria-invalid={ville.fieldState.invalid || undefined}
 					>
 						<SelectValue placeholder="Sélectionnez une ville" />
@@ -98,7 +98,7 @@ export function PlaceStep({ control, type }: PlaceStepProps) {
 				>
 					<SelectTrigger
 						id="commune"
-						className="w-full text-base data-[size=default]:h-13"
+						className="text-field w-full data-[size=default]:h-13"
 					>
 						<SelectValue
 							placeholder={
