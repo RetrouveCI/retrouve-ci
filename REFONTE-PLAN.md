@@ -4544,6 +4544,46 @@ documentaire, aucun fichier de code modifié.
 **Chiffres** : `format:check` propre. Aucune suite n'est concernée — le diff ne
 contient que du Markdown — et rien n'a été relancé sous prétexte de rigueur.
 
+#### R40 — Le seul avis atteignable, épinglé — **LIVRÉE**
+
+Ouverte par R39, qui a recompté les avis de sécurité et trouvé que le fichier
+normatif se trompait de **nature** : il en annonçait neuf, tous réputés hors
+d'atteinte. Il y en avait quinze, et l'un était bel et bien atteignable.
+
+> ⚠️ **L'atteignabilité a été mesurée, pas déduite — et la lecture du code
+> disait l'inverse.** `@react-router/express` construit son URL depuis
+> `req.originalUrl` avec `new URL()` et ne touche **jamais** `req.query` ;
+> `react-router-serve` ne monte que `compression`, `morgan` et `express.static`.
+> Tout indiquait donc que `qs` n'était jamais appelé. En instrumentant
+> `qs.parse` dans un build de production, il reçoit pourtant la chaîne de
+> requête brute de chaque appel qui en porte une — `/terms?q=test&page=2`
+> compris, une page pourtant statique. **Le raisonnement se trompait ; la sonde
+> a tranché.**
+
+**Ce que ça change** : `qs@6.15.3` analyse une entrée non fiable à chaque
+requête de production des **deux** fronts, et deux avis de déni de service le
+visent. `pnpm-workspace.yaml` l'épingle à `6.16.0`.
+
+> ⚠️ **L'override sort de la plage qu'`express` demande.** Express exige
+> `~6.15.1`, donc `>=6.15.1 <6.16.0`. Le premier avis annonce un correctif en
+> `6.15.4` — **jamais publié**. La seule version corrigée est donc une mineure
+> au-dessus de ce qu'express accepte, et c'est pourquoi l'override est un
+> override et non un simple relèvement. Le commentaire dans
+> `pnpm-workspace.yaml` dit quand le retirer : quand express élargira sa plage.
+
+**Preuve, pas confiance** : `pnpm audit` passe de **15** à **13**, et les treize
+restants sont exactement ceux que R39 avait analysés un par un comme non
+atteignables. Aucun test ne bouge, ce qui est le résultat attendu — l'app ne lit
+pas `req.query`, donc rien dans le code ne dépend du parseur.
+
+**Fichiers** : `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `CLAUDE.md`. **Flux** :
+aucun.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Tests inchangés, chaque
+suite seule : api **421**, contracts **341**, admin **416**, client **1134**
+(822 en `node`, 312 en `ui`). `pnpm audit` 15 → 13.
+
 ---
 
 ## 6. Ce qui ne bouge pas

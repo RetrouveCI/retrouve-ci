@@ -941,21 +941,24 @@ deliberately declined.
 
 ### Security advisories
 
-`pnpm audit` reports **fifteen** (recounted 2026-09-04), and unlike the last
-count, **one group is reachable**. Re-run the count rather than trusting this
-paragraph — the set moves — and re-check the reasoning before dismissing a
-**new** one. Expect Dependabot to disagree: it reported fourteen on `main` the
-same day. The two count different things — `pnpm audit` reads this checkout's
-lockfile, Dependabot reads the default branch — so a mismatch is not a signal on
-its own.
+`pnpm audit` reports **thirteen** (recounted 2026-09-04), none of them
+reachable. Re-run the count rather than trusting this paragraph — the set moves
+— and re-check the reasoning before dismissing a **new** one. Expect Dependabot
+to disagree: it counts on the default branch, `pnpm audit` on this checkout's
+lockfile, so a mismatch is not a signal on its own.
 
-- **`qs`, two moderate — reachable, and the only ones.** `qs@6.15.3` is pulled
-  by `@react-router/serve` → `express` → `body-parser`, and `react-router-serve`
-  is the `CMD` of **both** front-end Dockerfiles, so `qs` parses the query
-  string of every production request. `@thallesp/nestjs-better-auth` pulls it on
-  the API side too. Both advisories are denial-of-service. The fix is a pnpm
-  override to `>=6.16.0`; it touches the lockfile for all three apps, so it is
-  its own step, not a line in someone else's PR.
+- **`qs` — was reachable, now pinned.** Two moderate denial-of-service
+  advisories hit `qs@6.15.3`, which arrives through `@react-router/serve` →
+  `express`, the `CMD` of **both** front-end Dockerfiles. Reachability here was
+  **measured, not argued**: instrumenting `qs.parse` in a production build
+  showed it receiving the raw query string of every request that carries one,
+  `/terms?q=test&page=2` included — a fully static page. Worth knowing, because
+  reading the code suggests the opposite: `@react-router/express` builds its URL
+  from `req.originalUrl` with `new URL()` and never touches `req.query`. The
+  parse happens anyway. `pnpm-workspace.yaml` now overrides `qs` to `6.16.0`,
+  which is **outside** express's own `~6.15.1` range: no `6.15.4` was ever
+  published, so the only patched release is a minor above what express asks for.
+  Drop the override once express widens its range.
 - **`fastify`, two moderate — not reachable.** `fastify@5.8.5` really is the
   server. The `X-Forwarded-*` spoofing needs `trustProxy`, which nothing in
   `apps/api/src` sets; the schema-validation bypass targets Fastify route
