@@ -102,7 +102,7 @@ export function ObjectStep({
 							id={field.name}
 							value={field.value ?? ''}
 							placeholder="Ex : Téléphone Tecno noir"
-							className="h-control text-base"
+							className="h-control"
 							aria-invalid={fieldState.invalid || undefined}
 						/>
 						{fieldState.error && <FieldError errors={[fieldState.error]} />}
@@ -168,7 +168,7 @@ export function ObjectStep({
 										? 'Couleur, marque, signes distinctifs, contenu…'
 										: "Couleur, marque, signes distinctifs, état de l'objet…"
 								}
-								className="min-h-27.5 resize-none text-base"
+								className="min-h-27.5 resize-none"
 								aria-invalid={fieldState.invalid || undefined}
 							/>
 							{fieldState.error && <FieldError errors={[fieldState.error]} />}

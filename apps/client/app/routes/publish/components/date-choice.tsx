@@ -79,7 +79,7 @@ export function DateChoice({
 					onChange={event => onChange(event.target.value)}
 					onBlur={onBlur}
 					max={isoDay(0)}
-					className="h-control text-base"
+					className="h-control"
 					aria-invalid={invalid || undefined}
 				/>
 			)}

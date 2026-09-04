@@ -54,7 +54,7 @@ export function ManualCodeForm({ onCode, onBack }: ManualCodeFormProps) {
 							autoCorrect="off"
 							spellCheck={false}
 							aria-invalid={fieldState.invalid}
-							className="bg-background border-border focus:border-primary-green focus:ring-primary-green/25 h-control w-full rounded-[14px] border-[1.5px] px-4 text-base tracking-wider uppercase transition-colors outline-none focus:ring-2"
+							className="bg-background border-border focus:border-primary-green focus:ring-primary-green/25 h-control text-field w-full rounded-[14px] border-[1.5px] px-4 tracking-wider uppercase transition-colors outline-none focus:ring-2"
 						/>
 						{fieldState.error ? (
 							<FieldError errors={[fieldState.error]} className="text-xs" />

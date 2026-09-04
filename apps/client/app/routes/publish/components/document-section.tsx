@@ -98,7 +98,7 @@ function IssuerField({ control, spec }: IssuerFieldProps) {
 				>
 					<SelectTrigger
 						id="documentIssuer"
-						className="h-control w-full text-base"
+						className="h-control text-field w-full"
 						aria-invalid={fieldState.invalid || undefined}
 					>
 						<SelectValue placeholder={spec.placeholder} />
@@ -121,7 +121,7 @@ function IssuerField({ control, spec }: IssuerFieldProps) {
 					id="documentIssuer"
 					value={field.value ?? ''}
 					placeholder={spec.placeholder}
-					className="h-control text-base"
+					className="h-control"
 					aria-invalid={fieldState.invalid || undefined}
 				/>
 			)}
@@ -182,7 +182,7 @@ export function DocumentSection({ control, type }: DocumentSectionProps) {
 						>
 							<SelectTrigger
 								id={field.name}
-								className="h-control w-full text-base"
+								className="h-control text-field w-full"
 								aria-invalid={fieldState.invalid || undefined}
 							>
 								<SelectValue placeholder="Sélectionnez la pièce" />
@@ -216,7 +216,7 @@ export function DocumentSection({ control, type }: DocumentSectionProps) {
 									value={field.value ?? ''}
 									placeholder="Ex : KOUASSI Jean"
 									autoComplete="off"
-									className="h-control text-base"
+									className="h-control"
 									aria-invalid={fieldState.invalid || undefined}
 								/>
 								<p className="text-muted-foreground text-xs leading-relaxed">
@@ -259,7 +259,7 @@ export function DocumentSection({ control, type }: DocumentSectionProps) {
 								placeholder={spec.number.placeholder}
 								autoComplete="off"
 								inputMode={documentType === 'bank_card' ? 'numeric' : undefined}
-								className="h-control text-base"
+								className="h-control"
 								aria-invalid={number.fieldState.invalid || undefined}
 							/>
 							<NumberNotice type={type} />

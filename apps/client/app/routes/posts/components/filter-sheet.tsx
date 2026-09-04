@@ -153,7 +153,7 @@ export function FilterSheet({
 						<Select value={filterVille} onValueChange={onVilleChange}>
 							<SelectTrigger
 								id="filter-ville"
-								className="bg-background h-control w-full rounded-xl border-[1.5px] text-lg"
+								className="bg-background h-control text-field w-full rounded-xl border-[1.5px]"
 							>
 								<SelectValue />
 							</SelectTrigger>
@@ -179,7 +179,7 @@ export function FilterSheet({
 						>
 							<SelectTrigger
 								id="filter-commune"
-								className="bg-background h-control w-full rounded-xl border-[1.5px] text-lg"
+								className="bg-background h-control text-field w-full rounded-xl border-[1.5px]"
 							>
 								<SelectValue
 									placeholder={
