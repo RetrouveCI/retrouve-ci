@@ -30,7 +30,7 @@ pnpm dev              # Start all apps in parallel (client :3000, admin :3001, a
 pnpm build            # Build all packages and apps (packages build first)
 pnpm lint             # Lint all workspaces
 pnpm typecheck        # Type-check all workspaces
-pnpm test             # Run unit tests (Vitest — api and admin)
+pnpm test             # Run unit tests (Vitest — api, contracts, admin, client)
 pnpm format           # Format with Prettier (ts, tsx, js, jsx, json, md, css)
 pnpm format:check     # Verify formatting without writing (used by CI)
 ```
@@ -56,19 +56,28 @@ To run a single app or package in isolation:
 pnpm --filter @app/client dev
 pnpm --filter @app/admin dev
 pnpm --filter @app/api dev
-pnpm --filter @app/ui build
+pnpm --filter @app/contracts build
 ```
 
-Tests are run with **Vitest**. The `api` app uses `*.spec.ts` (node). Both
+Tests are run with **Vitest**, in **four** workspaces: `api`, `contracts`,
+`admin` and `client`. `api` and `contracts` use `*.spec.ts` (node). Both
 front-ends declare two Vitest **projects**: `node` for `__tests__/*.test.ts`
 (pure modules) and `ui` for `__tests__/*.test.tsx`, run in a real Chromium
 through browser mode. Both apps have suites for both projects.
 
+`packages/ui` and `packages/web-kit` have **no runner at all**, which is why a
+guard over shared front code lives in `apps/client` — see the `cn()` token guard
+in `app/shared/__tests__/`.
+
 ```bash
 pnpm --filter @app/api test        # api only
+pnpm --filter @app/contracts test  # the shared schemas
 pnpm --filter @app/admin test      # both projects
 pnpm --filter @app/admin test:ui   # browser-mode components/hooks only
 ```
+
+Run each suite **on its own** when a count matters: the browser project is flaky
+under parallel load, and a full-monorepo run can fail tests that pass alone.
 
 ## Architecture
 
@@ -335,6 +344,11 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   `notifications`, `qr-codes`, `reporting`, `sticker-orders`. Each keeps its
   use-cases free of NestJS/HTTP concerns; controllers in `presentations/` are
   thin and delegate to use-cases.
+- `presentations/` holds **more folders than `domains/` does**: `auth`,
+  `health`, `stats` and `uploads` have no bounded context of their own. `stats`
+  fronts the `reporting` domain, `auth` carries the OTP queue consumer and the
+  `account` controller, and `health` and `uploads` are pure IO. A controller
+  without a domain belongs there — it does not justify inventing one.
 - Auth is **better-auth** (`@thallesp/nestjs-better-auth`): phone-number based
   for the client, email/password + admin role for the admin app.
 - **Phone OTPs go out over SMS through Letexto, on their own BullMQ queue.**
@@ -461,15 +475,28 @@ Both apps use the same layout, `app/routes/<area>/<page>/`, with
 Route structure (all under `app/`):
 
 - `/` — homepage
-- `/posts`, `/posts/[id]` — browse and view listings
+- `/posts`, `/posts/:id` — browse and view listings
 - `/publish`, `/publish/lost`, `/publish/found` — post a listing
+- `/scan` — the QR scanner: permission primer, live viewfinder, manual code
+- `/q/:code` — the public page a scanned sticker lands on, outside the shell
 - `/stickers`, `/stickers/order` — QR sticker info and ordering
-- `/account`, `/account/posts`, `/account/orders`, `/account/stickers`,
-  `/account/settings` — user account
-- `/auth` — auth entry point with shared layout (`auth/layout.tsx`)
-  - `/auth/login`, `/auth/register`, `/auth/password-forgotten`,
-    `/auth/reset-password` — individual auth pages
+- `/account`, `/account/posts`, `/account/posts/:id`, `/account/orders`,
+  `/account/stickers`, `/account/settings` — user account
+- `/notifications` — the visitor's notification list
+- **Auth pages carry no `/auth` prefix**: `/login`, `/register`,
+  `/password-forgotten`, `/reset-password`. They share `routes/auth/layout.tsx`,
+  so the folder is still `routes/auth/<page>/` — the _folder_ says `auth`, the
+  _URL_ does not. R31 dropped the prefix, and `shared/helpers/redirect.ts` lists
+  these four in `AUTH_PATHS`: a new auth page left out of that array opens a
+  sign-in loop.
+- `/offline` — where the service worker sends a navigation it can serve from
+  neither the network nor the cache
 - `/about`, `/contact`, `/download`, `/privacy`, `/terms`
+
+Four paths are **resource routes** — a `servers/*.loader.ts` mounted with no
+component, `fetcher.load`ed by a hook rather than fetched per navigation:
+`scan/status`, `publish/matches`, `account/posts/matches` and
+`account/stickers/pending`.
 
 > **`apps/client` uses the target layout**:
 >
@@ -487,12 +514,14 @@ Route structure (all under `app/`):
 > folder may hold the `components/`, `servers/` and `types/` its sub-routes
 > share (see `routes/publish/`, `routes/auth/`).
 >
-> A route whose entry is commented out of `routes.ts` gets **no `+types/`
-> module** — React Router only generates them for mounted routes — so it must
-> spell its loader/action args out (`({ request }: { request: Request })`). Only
-> `download` is in that position now: the sticker and QR routes were remounted,
-> so they read `./+types/_index` again and `apps/client/tsconfig.json` excludes
-> nothing but `node_modules` and `build`.
+> **Every route entry is mounted** — `routes.ts` has no commented-out entry
+> left, `download` included, and `apps/client/tsconfig.json` excludes nothing
+> but `node_modules` and `build`. A route whose entry were commented out would
+> get **no `+types/` module**, since React Router generates them only for
+> mounted routes, and would have to spell its loader args out. That signature
+> (`({ request }: { request: Request })`) is now simply the common style for a
+> loader that reads nothing but the request — mounted routes use it too, so it
+> no longer tells you anything about whether a route is mounted.
 
 Auth is phone-number based via better-auth (`phoneNumberClient` plugin).
 `AuthContext` (`app/context/auth.tsx`) wraps `authClient.useSession()` for
@@ -559,16 +588,20 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   `routes/auth/helpers/phone-auth.client.ts`), or — when the data is wanted
   lazily rather than per navigation — a **resource route** `fetcher.load`ed by a
   hook: `routes.ts` points a path straight at a `servers/*.loader.ts` with no
-  component (`publish/matches`, `account/activity`). That is what
-  `components/activity-hub.tsx` uses: the floating panel's summary would cost a
-  session round-trip on every navigation from the root loader, for anonymous
-  visitors included, whereas its hook loads once per full page load and again on
-  each open. In `routes/auth`, the two endpoints that create/refresh the
-  better-auth session cookie (`sign-in/phone-number` via `AuthContext.login`,
-  and `phone-number/verify` via `lib/phone-auth.client.ts`) are the only auth
-  calls made client-side — the browser needs the `Set-Cookie` response directly,
-  and this repo has no server-side mechanism to forward `Set-Cookie` from an API
-  response back through a React Router action. Every other auth mutation
+  component. There are four (`scan/status`, `publish/matches`,
+  `account/posts/matches`, `account/stickers/pending`), and the reason is always
+  the same: the datum is wanted on an interaction, not on every navigation, so
+  putting it in the root loader would cost a session round-trip per page — for
+  anonymous visitors included. `scan/status` is the clearest case, being asked
+  once per code read rather than per navigation. The calls that create or
+  refresh the better-auth session cookie stay **client-side**, because the
+  browser needs the `Set-Cookie` response directly: `sign-in/phone-number` via
+  `AuthContext.login`, and — through a `helpers/*.client.ts` wrapper, never from
+  a component — `phone-number/verify` in
+  `routes/auth/helpers/phone-auth.client.ts`, plus `changePassword` and
+  `phoneNumber.verify` in `routes/account/settings/helpers/settings.client.ts`,
+  since this repo has no server-side mechanism to forward `Set-Cookie` from an
+  API response back through a React Router action. Every other auth mutation
   (`send-otp`, `request-password-reset`, `reset-password`) goes through
   `servers/*.action.ts`, using the `intent` field pattern when a route has more
   than one action (e.g.
@@ -614,6 +647,40 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
   `routes/account/settings/components/security-section.tsx`). Area-level UI
   primitives (e.g. `routes/auth/components/`) stay separate from these
   feature-owned section components.
+
+#### PWA and the service worker (`apps/client`)
+
+The client is an installable PWA, and **its build has two stages**:
+
+```bash
+react-router build && vite build --config vite.sw.config.ts
+```
+
+The second one exists because a service worker is a stand-alone script at the
+scope root, not a chunk of the route graph, so `react-router build` cannot emit
+it. `vite.sw.config.ts` compiles `app/sw/service-worker.ts` to a single IIFE at
+`build/client/sw.js`, with `emptyOutDir: false` — it runs **after** the app
+build, which empties `build/`. Reversing the two erases the worker silently.
+
+- **Policy is a separate, tested module.** `app/sw/cache-policy.ts` owns the
+  cache names and versions, `strategyFor()`, `isPublicPath()` and
+  `OFFLINE_PATH`; `app/sw/service-worker.ts` only wires it to the fetch event.
+  That split is what makes the policy unit-testable in the `node` project
+  (`app/sw/__tests__/cache-policy.test.ts`) without a browser.
+- **`/offline`** is a real route in the shell, and the worker serves it for a
+  navigation it can satisfy from neither the network nor the cache.
+- **Registration** lives in `app/shared/helpers/service-worker.ts` — one call
+  site, guarded on `'serviceWorker' in navigator`.
+- **`public/manifest.webmanifest`** holds the identity (`id`, `scope`,
+  `start_url`, `display: standalone`), three icons under two purposes (`any` at
+  192 and 512, `maskable` at 512) and three shortcuts — scan, publish, search —
+  whose PNGs sit beside it. `apple-touch-icon.png` is **not** in the manifest:
+  iOS reads it from a `<link>` in `root.tsx`.
+
+Two measurement traps are worth knowing before testing any of this: Playwright's
+`setOffline` does **not** cut requests made _by_ the worker (kill the origin
+instead), and Chromium's installability probe returns an empty error list for
+everything in headless mode.
 
 ### Admin app (`apps/admin`)
 
@@ -686,16 +753,18 @@ Identical to the client app conventions above, with these admin-specific notes:
   `routes/dashboard/servers/dashboard.loader.ts`, the dashboard layout's loader,
   which hands it to `DashboardProvider` as a `counts` prop;
   `useDashboard().counts` exposes it, and the sidebar and
-  `components/topbar.tsx` only read it. **No component or context in `admin`
-  fetches any more**; the app's only remaining call outside a `servers/` folder
-  is `shared/helpers/session.server.ts`, the server-side session gate every
-  loader goes through (`client` is the same: its `activity-hub` twin is closed,
-  see below). Coming from a loader, the badge also revalidates with every action
-  instead of being read once on mount. `/notifications/unread-count` answers a
-  **bare number**, not `{ count }`: the admin typed it the second way until
-  E6.3, so `notificationsUnread` was `undefined` and the badge silently never
-  appeared. A counter the API cannot serve reads zero rather than throwing — a
-  badge must never take the shell down.
+  `components/topbar.tsx` only read it. **No component in `admin` fetches any
+  more**; outside a `servers/` folder the only callers left are
+  `shared/helpers/session.server.ts` — the session gate every loader goes
+  through — plus `context/auth.tsx` and `profile.client.ts`, the two client-side
+  calls named above that need `Set-Cookie` directly. `client` is the same shape,
+  with `settings.client.ts` and `phone-auth.client.ts` as its wrappers. Coming
+  from a loader, the badge also revalidates with every action instead of being
+  read once on mount. `/notifications/unread-count` answers a **bare number**,
+  not `{ count }`: the admin typed it the second way until E6.3, so
+  `notificationsUnread` was `undefined` and the badge silently never appeared. A
+  counter the API cannot serve reads zero rather than throwing — a badge must
+  never take the shell down.
 
 #### Front-end tests
 
@@ -796,7 +865,7 @@ deliberately declined.
   tidiness gap rather than a working one.
 - **`@app/vitest-config` has no `node` (SWC) preset.** Deliberate: it is only
   needed when a spec builds a NestJS testing module and lets the container
-  inject. None of the api's 85 spec files does — they instantiate classes by
+  inject. None of the api's 91 spec files does — they instantiate classes by
   hand (`new XxxController(deps)`), so no decorator emission is required. Adding
   `unplugin-swc` and `@swc/core` now would be two dependencies for a capability
   nothing exercises.
@@ -844,7 +913,7 @@ deliberately declined.
 - **`users.action` alone has no `redirectOnUnauthorized`**, where
   `administratorsAction` and `generateQrAction` both do. A dead backoffice
   session therefore surfaces as a 500 inside a dashboard the visitor can no
-  longer see, instead of a return to `/auth/login`.
+  longer see, instead of a return to `/login`.
 - **`notificationsAction` puts the id inside the `mark-read` condition**
   (`intent === 'mark-read' && id`), so a `mark-read` with no id answers
   `Intent inconnu` — naming the wrong problem. The other three admin actions
@@ -860,21 +929,44 @@ deliberately declined.
 
 ### `apps/client`
 
-- **`download` is the one route entry still commented out of `app/routes.ts`**,
-  along with the footer link, the home bento tile and the `Smartphone` import
-  that point at it: there is no mobile app to download yet. The five sticker/QR
-  entries — `stickers`, `stickers/order`, `account/orders`, `account/stickers`
-  and `q/:code` — were remounted, so `build` covers them again.
 - **`stickersAction` gates with `getServerSession` plus its own
-  `throw redirect('/auth/login')`**, where the two loaders beside it use
+  `throw redirect('/login')`**, where the two loaders beside it use
   `requireServerSession`. Same outcome, different shape.
+- **`place-step` draws its selects at 52 px** (`h-13`) where the rest of the
+  publish form uses `h-control` (48 px). Measured, left alone: changing a height
+  moves what the mock drew.
+- **A variant class still beats a bare one**, `data-[size=default]:h-9` over
+  `h-13`. R38 fixed the half-token trap by registering the four theme tokens
+  with `cn()`; this twin is untouched, and there is no guard for it.
 
 ### Security advisories
 
-`pnpm audit` reports nine, none reachable from what the API serves at runtime:
-four `@fastify/static` (kept in the lockfile only as
-`@nestjs/platform-fastify`'s optional peer, not installed), one `find-my-way`
-(the serving `fastify` resolves the patched release; the advisory needs HTTP/2,
-which the adapter does not enable), `deepmerge-ts` and `valibot` (reached only
-through the Prisma CLI), and two `@hono/node-server` (Windows `serveStatic`,
-unused). Re-check the reasoning before dismissing a **new** one.
+`pnpm audit` reports **fifteen** (recounted 2026-09-04), and unlike the last
+count, **one group is reachable**. Re-run the count rather than trusting this
+paragraph — the set moves — and re-check the reasoning before dismissing a
+**new** one.
+
+- **`qs`, two moderate — reachable, and the only ones.** `qs@6.15.3` is pulled
+  by `@react-router/serve` → `express` → `body-parser`, and `react-router-serve`
+  is the `CMD` of **both** front-end Dockerfiles, so `qs` parses the query
+  string of every production request. `@thallesp/nestjs-better-auth` pulls it on
+  the API side too. Both advisories are denial-of-service. The fix is a pnpm
+  override to `>=6.16.0`; it touches the lockfile for all three apps, so it is
+  its own step, not a line in someone else's PR.
+- **`fastify`, two moderate — not reachable.** `fastify@5.8.5` really is the
+  server. The `X-Forwarded-*` spoofing needs `trustProxy`, which nothing in
+  `apps/api/src` sets; the schema-validation bypass targets Fastify route
+  schemas, and this API validates through `ZodValidationPipe` instead.
+- **`@fastify/static`, four — not reachable.** Correcting what this file used to
+  claim: `8.3.0` _is_ installed and linked under `@nestjs/platform-fastify`. It
+  is simply never loaded — there is no `useStaticAssets` call and no import of
+  it anywhere in `apps/api/src`.
+- **`find-my-way`, one high — not reachable.** Two copies are on disk: `9.6.0`
+  under `@nestjs/platform-fastify`, and the patched `9.7.0` under
+  `fastify@5.8.5`, which is what actually routes. The advisory also needs
+  HTTP/2, which the adapter does not enable.
+- **`mysql2` (two), `deepmerge-ts`, `valibot`, `@hono/node-server` (two) — not
+  reachable.** All six arrive through the Prisma **CLI** (`prisma`,
+  `@prisma/dev`, `@prisma/config`). This repo talks to Postgres through
+  `@prisma/adapter-pg`, and the `@hono/node-server` advisories are Windows
+  `serveStatic` besides.

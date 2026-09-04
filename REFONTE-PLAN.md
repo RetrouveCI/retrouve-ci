@@ -4479,6 +4479,71 @@ D.
 (822 en `node`, 312 en `ui`) contre 1122, soit les 4 + 8 des deux gardes ; api
 **421**, contracts **341**, admin **416** inchangés. Densité **8,7 %**.
 
+#### R39 — `CLAUDE.md` remis d'aplomb sur ce que le dépôt fait — **LIVRÉE**
+
+Le fichier **normatif** — celui qui, en cas de désaccord avec `docs/`, gagne —
+avait dérivé sur onze points, dont trois qu'un agent suit les yeux fermés. Rien
+de ce qui suit n'a été cru sur parole : chaque correction est une mesure dans le
+code qui produit la donnée.
+
+> ⚠️ **La dérive la plus coûteuse était les URL d'authentification.** Le fichier
+> annonçait `/auth/login`, `/auth/register`, `/auth/password-forgotten`,
+> `/auth/reset-password` côté client et `/auth/login`, `/auth/forgot-password`,
+> `/auth/reset-password` côté backoffice. R31 a retiré le préfixe des **deux**
+> apps : les URL sont `/login`, `/register`… Le dossier, lui, reste
+> `routes/auth/<page>/`, et c'est ce qui rend la confusion durable — le dossier
+> dit `auth`, l'URL non. Trois autres passages répétaient la même erreur : la
+> cible de `requireAdminSession`, celle que `users.action` ne pose pas, et le
+> `throw redirect` de `stickersAction`, qui écrit bien `/login`.
+
+**Ce qui était faux, et ce que la mesure a rendu**
+
+| Affirmation                                                                                         | Mesure                                                                                                                                                                              |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `download` est la seule entrée commentée de `routes.ts`                                             | **Aucune** ne l'est. La note sur l'absence de `+types/` devenait trompeuse : la signature explicite est aujourd'hui le style courant d'un loader monté.                             |
+| Les resource routes sont `publish/matches` et `account/activity`, via `components/activity-hub.tsx` | `account/activity` n'existe pas et `activity-hub.tsx` a été supprimé. Il y en a **quatre** : `scan/status`, `publish/matches`, `account/posts/matches`, `account/stickers/pending`. |
+| `pnpm test` couvre `api` et `admin`                                                                 | **Quatre** workspaces testent : `api`, `contracts`, `admin`, `client`. `packages/ui` et `packages/web-kit` n'ont aucun runner.                                                      |
+| L'api a 85 fichiers de spec                                                                         | **91**.                                                                                                                                                                             |
+| `pnpm --filter @app/ui build`                                                                       | `packages/ui` n'a pas de script `build` — le fichier le dit lui-même deux sections plus bas.                                                                                        |
+| Le client n'a que les routes listées                                                                | Manquaient `/scan`, `/q/:code`, `/notifications`, `/offline` et `/account/posts/:id`.                                                                                               |
+| Aucun composant **ni contexte** d'`admin` n'appelle l'API                                           | Le fichier se contredisait : il admet deux appels client-side (`context/auth.tsx`, `profile.client.ts`) six lignes plus haut.                                                       |
+
+**Le trou, plutôt que l'erreur** : le service worker, le manifeste, `/offline`
+et le second `vite build` n'apparaissaient **nulle part**. Un lot entier de la
+refonte (R20–R25) était invisible au fichier qui fait autorité. Une section le
+décrit maintenant, avec ce qui casse quand on l'ignore : `vite.sw.config.ts`
+pose `emptyOutDir: false` et tourne **après** `react-router build`, qui vide
+`build/` — inverser les deux efface le worker sans un mot.
+
+> ⚠️ **Les avis de sécurité ont changé de nature, pas seulement de nombre.** Le
+> fichier en annonçait neuf, « aucun atteignable ». Ils sont **quinze**, et
+> **`qs` l'est** : `qs@6.15.3` arrive par `@react-router/serve` → `express` →
+> `body-parser`, et `react-router-serve` est le `CMD` des Dockerfile des
+> **deux** fronts — il analyse donc la chaîne de requête de chaque appel en
+> production. Deux avis de déni de service s'y appliquent. Les treize autres ont
+> été réanalysés un par un : `fastify@5.8.5` sert bien, mais le spoofing
+> `X-Forwarded-*` exige `trustProxy`, que rien n'active, et le contournement de
+> schéma vise les schémas Fastify là où l'API valide par `ZodValidationPipe` ;
+> `@fastify/static@8.3.0` est **bel et bien installé** — ce que le fichier niait
+> — mais jamais chargé, faute de `useStaticAssets` ; `find-my-way` a deux copies
+> sur disque, et celle que `fastify` résout est la patchée ; les six derniers ne
+> viennent que du CLI Prisma.
+
+**Décision** : l'override `qs@>=6.16.0` **n'est pas posé ici**. Il touche le
+lockfile des trois apps, donc il se prouve seul — mêler une réécriture
+documentaire à une réinstallation du monorepo aurait donné une PR à deux natures
+de risque. Le correctif est nommé dans `CLAUDE.md` comme une étape à part.
+
+**Écart assumé** : `docs/` n'a pas été touché. Sa dérive n'a pas été mesurée, et
+`CLAUDE.md` gagne sur lui par construction ; l'étendre aurait doublé une étape
+dont le périmètre était net.
+
+**Fichiers** : `CLAUDE.md`, `REFONTE-PLAN.md`. **Flux** : aucun — étape
+documentaire, aucun fichier de code modifié.
+
+**Chiffres** : `format:check` propre. Aucune suite n'est concernée — le diff ne
+contient que du Markdown — et rien n'a été relancé sous prétexte de rigueur.
+
 ---
 
 ## 6. Ce qui ne bouge pas
