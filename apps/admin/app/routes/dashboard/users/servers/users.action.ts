@@ -1,3 +1,4 @@
+import { requestOrigin } from '@/shared/helpers/origin'
 import { data } from 'react-router'
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import { banUser, unbanUser } from './users.service'
@@ -6,7 +7,7 @@ export async function usersAction({ request }: { request: Request }) {
 	await requireAdminSession(request)
 
 	const cookie = request.headers.get('cookie') ?? ''
-	const origin = request.headers.get('origin') ?? ''
+	const origin = requestOrigin(request)
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 	const userId = String(formData.get('userId') ?? '')

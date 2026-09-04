@@ -1,3 +1,4 @@
+import { requestOrigin } from '@/shared/helpers/origin'
 import { rootError, zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { appUrl } from '@/shared/helpers/redirect'
 import { requireAdminSession } from '@/shared/helpers/session.server'
@@ -27,7 +28,7 @@ export async function administratorsAction({
 
 	const headers = {
 		cookie: request.headers.get('cookie') ?? '',
-		origin: request.headers.get('origin') ?? '',
+		origin: requestOrigin(request),
 	}
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
