@@ -42,7 +42,9 @@ export function PasswordInput({
 					id={id}
 					name={name}
 					type={show ? 'text' : 'password'}
-					placeholder={placeholder ?? '••••••••'}
+					// Never bullets: a masked value looks exactly the same, so an empty
+					// field read as a filled one and its submit button as broken.
+					placeholder={placeholder}
 					value={value}
 					onChange={e => onChange(e.target.value)}
 					className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-control rounded-xl border-[1.5px] pr-11 transition-all focus:ring-[3px]"
