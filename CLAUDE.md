@@ -944,7 +944,10 @@ deliberately declined.
 `pnpm audit` reports **fifteen** (recounted 2026-09-04), and unlike the last
 count, **one group is reachable**. Re-run the count rather than trusting this
 paragraph — the set moves — and re-check the reasoning before dismissing a
-**new** one.
+**new** one. Expect Dependabot to disagree: it reported fourteen on `main` the
+same day. The two count different things — `pnpm audit` reads this checkout's
+lockfile, Dependabot reads the default branch — so a mismatch is not a signal on
+its own.
 
 - **`qs`, two moderate — reachable, and the only ones.** `qs@6.15.3` is pulled
   by `@react-router/serve` → `express` → `body-parser`, and `react-router-serve`
