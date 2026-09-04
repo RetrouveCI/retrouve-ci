@@ -4479,6 +4479,111 @@ D.
 (822 en `node`, 312 en `ui`) contre 1122, soit les 4 + 8 des deux gardes ; api
 **421**, contracts **341**, admin **416** inchangés. Densité **8,7 %**.
 
+#### R39 — `CLAUDE.md` remis d'aplomb sur ce que le dépôt fait — **LIVRÉE**
+
+Le fichier **normatif** — celui qui, en cas de désaccord avec `docs/`, gagne —
+avait dérivé sur onze points, dont trois qu'un agent suit les yeux fermés. Rien
+de ce qui suit n'a été cru sur parole : chaque correction est une mesure dans le
+code qui produit la donnée.
+
+> ⚠️ **La dérive la plus coûteuse était les URL d'authentification.** Le fichier
+> annonçait `/auth/login`, `/auth/register`, `/auth/password-forgotten`,
+> `/auth/reset-password` côté client et `/auth/login`, `/auth/forgot-password`,
+> `/auth/reset-password` côté backoffice. R31 a retiré le préfixe des **deux**
+> apps : les URL sont `/login`, `/register`… Le dossier, lui, reste
+> `routes/auth/<page>/`, et c'est ce qui rend la confusion durable — le dossier
+> dit `auth`, l'URL non. Trois autres passages répétaient la même erreur : la
+> cible de `requireAdminSession`, celle que `users.action` ne pose pas, et le
+> `throw redirect` de `stickersAction`, qui écrit bien `/login`.
+
+**Ce qui était faux, et ce que la mesure a rendu**
+
+| Affirmation                                                                                         | Mesure                                                                                                                                                                              |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `download` est la seule entrée commentée de `routes.ts`                                             | **Aucune** ne l'est. La note sur l'absence de `+types/` devenait trompeuse : la signature explicite est aujourd'hui le style courant d'un loader monté.                             |
+| Les resource routes sont `publish/matches` et `account/activity`, via `components/activity-hub.tsx` | `account/activity` n'existe pas et `activity-hub.tsx` a été supprimé. Il y en a **quatre** : `scan/status`, `publish/matches`, `account/posts/matches`, `account/stickers/pending`. |
+| `pnpm test` couvre `api` et `admin`                                                                 | **Quatre** workspaces testent : `api`, `contracts`, `admin`, `client`. `packages/ui` et `packages/web-kit` n'ont aucun runner.                                                      |
+| L'api a 85 fichiers de spec                                                                         | **91**.                                                                                                                                                                             |
+| `pnpm --filter @app/ui build`                                                                       | `packages/ui` n'a pas de script `build` — le fichier le dit lui-même deux sections plus bas.                                                                                        |
+| Le client n'a que les routes listées                                                                | Manquaient `/scan`, `/q/:code`, `/notifications`, `/offline` et `/account/posts/:id`.                                                                                               |
+| Aucun composant **ni contexte** d'`admin` n'appelle l'API                                           | Le fichier se contredisait : il admet deux appels client-side (`context/auth.tsx`, `profile.client.ts`) six lignes plus haut.                                                       |
+
+**Le trou, plutôt que l'erreur** : le service worker, le manifeste, `/offline`
+et le second `vite build` n'apparaissaient **nulle part**. Un lot entier de la
+refonte (R20–R25) était invisible au fichier qui fait autorité. Une section le
+décrit maintenant, avec ce qui casse quand on l'ignore : `vite.sw.config.ts`
+pose `emptyOutDir: false` et tourne **après** `react-router build`, qui vide
+`build/` — inverser les deux efface le worker sans un mot.
+
+> ⚠️ **Les avis de sécurité ont changé de nature, pas seulement de nombre.** Le
+> fichier en annonçait neuf, « aucun atteignable ». Ils sont **quinze**, et
+> **`qs` l'est** : `qs@6.15.3` arrive par `@react-router/serve` → `express` →
+> `body-parser`, et `react-router-serve` est le `CMD` des Dockerfile des
+> **deux** fronts — il analyse donc la chaîne de requête de chaque appel en
+> production. Deux avis de déni de service s'y appliquent. Les treize autres ont
+> été réanalysés un par un : `fastify@5.8.5` sert bien, mais le spoofing
+> `X-Forwarded-*` exige `trustProxy`, que rien n'active, et le contournement de
+> schéma vise les schémas Fastify là où l'API valide par `ZodValidationPipe` ;
+> `@fastify/static@8.3.0` est **bel et bien installé** — ce que le fichier niait
+> — mais jamais chargé, faute de `useStaticAssets` ; `find-my-way` a deux copies
+> sur disque, et celle que `fastify` résout est la patchée ; les six derniers ne
+> viennent que du CLI Prisma.
+
+**Décision** : l'override `qs@>=6.16.0` **n'est pas posé ici**. Il touche le
+lockfile des trois apps, donc il se prouve seul — mêler une réécriture
+documentaire à une réinstallation du monorepo aurait donné une PR à deux natures
+de risque. Le correctif est nommé dans `CLAUDE.md` comme une étape à part.
+
+**Écart assumé** : `docs/` n'a pas été touché. Sa dérive n'a pas été mesurée, et
+`CLAUDE.md` gagne sur lui par construction ; l'étendre aurait doublé une étape
+dont le périmètre était net.
+
+**Fichiers** : `CLAUDE.md`, `REFONTE-PLAN.md`. **Flux** : aucun — étape
+documentaire, aucun fichier de code modifié.
+
+**Chiffres** : `format:check` propre. Aucune suite n'est concernée — le diff ne
+contient que du Markdown — et rien n'a été relancé sous prétexte de rigueur.
+
+#### R40 — Le seul avis atteignable, épinglé — **LIVRÉE**
+
+Ouverte par R39, qui a recompté les avis de sécurité et trouvé que le fichier
+normatif se trompait de **nature** : il en annonçait neuf, tous réputés hors
+d'atteinte. Il y en avait quinze, et l'un était bel et bien atteignable.
+
+> ⚠️ **L'atteignabilité a été mesurée, pas déduite — et la lecture du code
+> disait l'inverse.** `@react-router/express` construit son URL depuis
+> `req.originalUrl` avec `new URL()` et ne touche **jamais** `req.query` ;
+> `react-router-serve` ne monte que `compression`, `morgan` et `express.static`.
+> Tout indiquait donc que `qs` n'était jamais appelé. En instrumentant
+> `qs.parse` dans un build de production, il reçoit pourtant la chaîne de
+> requête brute de chaque appel qui en porte une — `/terms?q=test&page=2`
+> compris, une page pourtant statique. **Le raisonnement se trompait ; la sonde
+> a tranché.**
+
+**Ce que ça change** : `qs@6.15.3` analyse une entrée non fiable à chaque
+requête de production des **deux** fronts, et deux avis de déni de service le
+visent. `pnpm-workspace.yaml` l'épingle à `6.16.0`.
+
+> ⚠️ **L'override sort de la plage qu'`express` demande.** Express exige
+> `~6.15.1`, donc `>=6.15.1 <6.16.0`. Le premier avis annonce un correctif en
+> `6.15.4` — **jamais publié**. La seule version corrigée est donc une mineure
+> au-dessus de ce qu'express accepte, et c'est pourquoi l'override est un
+> override et non un simple relèvement. Le commentaire dans
+> `pnpm-workspace.yaml` dit quand le retirer : quand express élargira sa plage.
+
+**Preuve, pas confiance** : `pnpm audit` passe de **15** à **13**, et les treize
+restants sont exactement ceux que R39 avait analysés un par un comme non
+atteignables. Aucun test ne bouge, ce qui est le résultat attendu — l'app ne lit
+pas `req.query`, donc rien dans le code ne dépend du parseur.
+
+**Fichiers** : `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `CLAUDE.md`. **Flux** :
+aucun.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Tests inchangés, chaque
+suite seule : api **421**, contracts **341**, admin **416**, client **1134**
+(822 en `node`, 312 en `ui`). `pnpm audit` 15 → 13.
+
 ---
 
 ## 6. Ce qui ne bouge pas
