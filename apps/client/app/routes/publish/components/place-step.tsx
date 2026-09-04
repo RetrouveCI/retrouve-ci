@@ -65,7 +65,7 @@ export function PlaceStep({ control, type }: PlaceStepProps) {
 				>
 					<SelectTrigger
 						id="ville"
-						className="text-field w-full data-[size=default]:h-13"
+						className="text-field h-control w-full"
 						aria-invalid={ville.fieldState.invalid || undefined}
 					>
 						<SelectValue placeholder="Sélectionnez une ville" />
@@ -96,10 +96,7 @@ export function PlaceStep({ control, type }: PlaceStepProps) {
 					onOpenChange={open => !open && commune.field.onBlur()}
 					disabled={!hasCommunes}
 				>
-					<SelectTrigger
-						id="commune"
-						className="text-field w-full data-[size=default]:h-13"
-					>
+					<SelectTrigger id="commune" className="text-field h-control w-full">
 						<SelectValue
 							placeholder={
 								hasCommunes ? 'Sélectionnez une commune' : 'Abidjan seulement'

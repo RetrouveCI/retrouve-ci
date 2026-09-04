@@ -8,10 +8,16 @@ import { usePublishForm } from '@/routes/publish/hooks/use-publish-form'
 import '../../app.css'
 
 const FLOOR = 16
+const CONTROL = 48
+const TOUCH = 44
 
 /** What the sibling source scan cannot see: the size Chromium computes. */
 function fontSize(element: Element): number {
 	return parseFloat(getComputedStyle(element).fontSize)
+}
+
+function height(element: Element): number {
+	return parseFloat(getComputedStyle(element).height)
 }
 
 function PublishFields() {
@@ -79,5 +85,28 @@ describe('every field the visitor types into', () => {
 
 		for (const id of ['ville', 'commune'])
 			expect(fontSize(document.getElementById(id)!), id).toBe(FLOOR)
+	})
+})
+
+/** A class `cn()` keeps can still lose in the cascade: only the box tells. */
+describe('the control height of a select', () => {
+	it('is the one the place step asks for, not the package default', async () => {
+		await page.viewport(390, 800)
+		mount(<PublishFields />)
+		await expect.element(page.getByLabelText(/Ville/)).toBeInTheDocument()
+
+		for (const id of ['ville', 'commune'])
+			expect(height(document.getElementById(id)!), id).toBe(CONTROL)
+	})
+
+	it('never falls below the touch floor on a phone', async () => {
+		await page.viewport(390, 800)
+		mount(<PublishFields />)
+		await expect.element(page.getByLabelText(/Ville/)).toBeInTheDocument()
+
+		for (const id of ['ville', 'commune'])
+			expect(height(document.getElementById(id)!), id).toBeGreaterThanOrEqual(
+				TOUCH,
+			)
 	})
 })

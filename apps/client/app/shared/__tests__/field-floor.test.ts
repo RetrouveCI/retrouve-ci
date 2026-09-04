@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { cn } from '@app/ui/utils'
 
 const THEME = 'node_modules/@app/ui/src/styles/globals.css'
+const PRIMITIVES = 'node_modules/@app/ui/src/components/ui'
 const APP = 'app'
 
 /** A token Tailwind spells itself; anything else is one this theme invented. */
@@ -124,5 +125,40 @@ describe('the theme tokens cn() has to know', () => {
 			expect(cn(rival, utility), `${rival} then ${utility}`).toBe(utility)
 			expect(cn(utility, rival), `${utility} then ${rival}`).toBe(rival)
 		}
+	})
+})
+
+/** R38's twin: `cn()` keeps this beside a bare height, then specificity wins. */
+const VARIANT_HEIGHT = /(?:^|\s|")[a-z0-9:[\]&_*='.,()-]*\]:h-[0-9]/
+
+/** Tailwind and this rule both read comments, so prose must not spell it out. */
+function code(src: string): string {
+	return src.replaceAll(/\/\/[^\n]*/g, '')
+}
+
+describe('a height cn() can actually reconcile', () => {
+	it('is what every field primitive pins', () => {
+		for (const file of ['input.tsx', 'textarea.tsx', 'select.tsx']) {
+			const src = code(readFileSync(join(PRIMITIVES, file), 'utf8'))
+
+			expect(VARIANT_HEIGHT.test(src), file).toBe(false)
+		}
+	})
+
+	it('is what every field in the app asks for', () => {
+		const offenders = fields()
+			.filter(field => VARIANT_HEIGHT.test(field.classes))
+			.map(field => `${field.file}:${field.line} <${field.tag}>`)
+
+		expect(offenders).toEqual([])
+	})
+
+	// A floor, never a height: the R38 lesson, and no call site supplies it.
+	it('leaves SelectTrigger floored at 44 px on a phone', () => {
+		const src = readFileSync(join(PRIMITIVES, 'select.tsx'), 'utf8')
+
+		expect(src).toContain('min-h-11')
+		expect(src).toContain('lg:min-h-0')
+		expect(src).not.toMatch(/\blg:h-\d/)
 	})
 })
