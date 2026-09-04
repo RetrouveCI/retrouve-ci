@@ -2292,17 +2292,19 @@ littérale ; le zoom iOS ne se déclenche plus.
 > exigent le numéro du propriétaire. L'API ne le publie pas, et c'est délibéré :
 > `GetQrTokenPublicViewUseCase` dit « the owner's first name, **never the
 > account** », et `/qr-codes/:code/scan` est `@AllowAnonymous()` sur un code
-> énumérable, **sans aucune limitation de débit** dans le dépôt — y exposer un
-> numéro le rend moissonnable. Surtout, la maquette promet deux fois l'inverse :
-> `ScanQR` écrit « Le numéro du propriétaire ne vous est jamais montré » et
-> `ScanActivation` le redit au propriétaire, « sans jamais voir votre numéro ».
-> Or **ni `wa.me` ni `tel:` ne peuvent tenir cette promesse** — WhatsApp et le
-> clavier d'appel affichent le numéro d'un contact inconnu. Les deux boutons
-> sont donc **reportés à A8**, qui tranchera le consentement du propriétaire et
-> plafonnera le débit avant d'ouvrir quoi que ce soit ; R19 reste front-only
-> comme son périmètre l'annonce et livre les points 1, 2 et 4. « Envoyer le
-> message » est l'action dominante en attendant, et la promesse affichée est
-> alors **vraie**, ce qu'un test vérifie.
+> énumérable — y exposer un numéro le rend moissonnable. R42 a depuis posé une
+> limitation de débit, mais **elle ne couvre pas cette lecture** : le périmètre
+> retenu est celui des écritures, et un plafond de lecture reste à décider.
+> Surtout, la maquette promet deux fois l'inverse : `ScanQR` écrit « Le numéro
+> du propriétaire ne vous est jamais montré » et `ScanActivation` le redit au
+> propriétaire, « sans jamais voir votre numéro ». Or **ni `wa.me` ni `tel:` ne
+> peuvent tenir cette promesse** — WhatsApp et le clavier d'appel affichent le
+> numéro d'un contact inconnu. Les deux boutons sont donc **reportés à A8**, qui
+> tranchera le consentement du propriétaire et plafonnera le débit avant
+> d'ouvrir quoi que ce soit ; R19 reste front-only comme son périmètre l'annonce
+> et livre les points 1, 2 et 4. « Envoyer le message » est l'action dominante
+> en attendant, et la promesse affichée est alors **vraie**, ce qu'un test
+> vérifie.
 
 > **Le formulaire ne descend pas à un seul champ obligatoire.**
 > `contactOwnerSchema` exige nom, numéro et message, et `ContactMessage.name`
@@ -4063,10 +4065,11 @@ front l'affiche.
    qu'il est — prénom, libellé, objet lié — et gagne au plus un booléen. Le saut
    se fait par un point d'entrée dédié qui répond une redirection, de sorte que
    le HTML servi ne porte pas le numéro et que le saut soit journalisable.
-3. **Le débit doit être plafonné avant, pas après.** Le code est énumérable et
-   le dépôt n'a **aucune** limitation de débit ; un point d'entrée qui rend
-   joignable un numéro sans plafond est un annuaire. C'est la condition
-   d'ouverture de ce lot, pas une amélioration ultérieure.
+3. **Le débit doit être plafonné avant, pas après.** ✅ **Levé par R42**, qui a
+   posé la limitation que ce point exigeait. Reste à faire ici : ajouter le
+   point d'entrée du saut au seau `public-write` de
+   `shared/rate-limit/rate-limit.policy.ts` en même temps qu'on l'écrit — un
+   point d'entrée qui rend joignable un numéro sans plafond est un annuaire.
 4. **Un numéro absent n'est pas une erreur.** `user.phoneNumber` est nullable :
    l'écran retombe alors sur le formulaire, sans bouton mort.
 
@@ -4660,6 +4663,78 @@ seule : api **421**, contracts **341**, admin **416** — tous inchangés, ce qu
 est le résultat attendu d'un changement de package partagé — et client **1139**
 (825 en `node`, 314 en `ui`), soit les cinq gardes ajoutées. Densité de
 commentaires 8,5 %.
+
+#### R42 — Un plafond sur ce qui coûte de l'argent — **LIVRÉE**
+
+Condition d'ouverture d'A8 §3, et dette la plus ancienne du dépôt : il n'y avait
+**aucune** limitation de débit, vérifié à zéro occurrence hors chaînes de test.
+Périmètre tranché avec le commanditaire — les écritures publiques, plus les
+routes better-auth ; plafonds prudents ; client identifié par nombre de sauts de
+proxy.
+
+> ⚠️ **Une garde Nest n'aurait protégé aucune route d'authentification.**
+> `@thallesp/nestjs-better-auth` monte ses routes par `httpAdapter.use()` et
+> **termine la requête** sans appeler `next()` : `/api/auth/*` ne traverse ni
+> garde, ni intercepteur, ni contrôleur. Or `send-otp` est précisément l'appel
+> qui **dépense de l'argent** à chaque coup, via Letexto. `@nestjs/throttler`,
+> la réponse réflexe, les aurait tous manqués. D'où un **hook Fastify
+> `onRequest`**, posé sur l'instance de l'adaptateur **avant**
+> `NestFactory.create` : les hooks `onRequest` s'exécutent dans l'ordre
+> d'enregistrement, et Nest ajoute celui de middie pendant son init.
+
+**Mesuré, pas déduit.** Une sonde a rejoué la chaîne réelle — Fastify, le clone
+de middie que Nest embarque, un middleware qui termine comme better-auth : le
+hook passe bien en premier, et un 429 qu'il pose **n'atteint jamais** le
+middleware. Une seconde sonde, sur sept appels à `send-otp` avec
+`X-Forwarded-For` : la clé retenue est celle du client et non de la socket,
+better-auth n'est atteint que **cinq** fois sur sept — donc deux SMS non envoyés
+— et une autre adresse repart d'un seau vierge.
+
+> ⚠️ **`trustProxy` est un NOMBRE, jamais `true`.** Faire confiance à l'en-tête
+> sans compter les sauts laisse un appelant s'inventer une adresse par requête
+> et contourner entièrement le plafond — et c'est ce que réclament les deux avis
+> `X-Forwarded-*` contre fastify, jusqu'ici écartés parce que rien ne posait
+> `trustProxy`. Trop bas est l'échec symétrique : à zéro saut, tout le monde
+> partage un seau et le premier abuseur bloque le pays. `TRUST_PROXY_HOPS` vaut
+> 1 en production, 0 ailleurs, et refuse toute valeur non entière.
+
+**Ce que ça change** : trois seaux dans `rate-limit.policy.ts`, un module pur —
+le même découpage que `cache-policy.ts` du service worker, et c'est ce qui les
+rend testables. `otp` (5 / 15 min) tient `send-otp` et
+`phone-number/request-password-reset`, les deux routes qui envoient un message ;
+`auth` (10 / 15 min) tient tout le reste sous `/api/auth/` et `/api/admin-auth/`
+; `public-write` (10 / h) tient les trois écritures anonymes
+`POST /contact-messages`, `/qr-codes/:code/contact` et
+`/lost-items/:id/contact`.
+
+**Une lecture n'est jamais plafonnée** : `get-session` part à chaque navigation
+des deux fronts, et l'y soumettre déconnecterait tout le monde au lieu de
+ralentir un attaquant.
+
+> ⚠️ **En cas de panne du magasin, on laisse passer — bruyamment.** Une
+> limitation qui ne joint plus Redis ne doit pas emporter l'API : un OTP que
+> personne ne peut demander est une panne pire qu'un OTP que personne ne compte.
+> Le journal le dit à chaque fois.
+
+**Ce qui était déjà couvert, et qu'il ne faut pas recompter** : better-auth
+plafonne **déjà** les tentatives de code à trois (`allowedAttempts || 3`) et
+supprime la ligne au-delà, donc les six chiffres ne sont pas force-brutables par
+code émis. Le seau `otp` complète cela en bornant le nombre de codes qu'on peut
+faire émettre.
+
+**Hors périmètre, assumé** : les écritures authentifiées, l'upload de photo et
+la lecture énumérable `GET /qr-codes/:code/scan` — trois candidats posés au
+commanditaire, non retenus pour ce lot. Le dernier reste la réserve d'A8.
+
+**Fichiers** : `api/shared/rate-limit/` (politique, magasin, hook, sauts de
+proxy, et leurs quatre specs), `api/src/main.ts`, `api/.env.example`,
+`pnpm-workspace.yaml`, `apps/api/package.json`. **Flux** : B, C, E.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**453** (421 + 32), contracts **341**, admin **422** et client **1145** (831 en
+`node`, 314 en `ui`) — les trois derniers inchangés, le lot étant entièrement
+back-end. Densité de commentaires 9,5 %.
 
 ---
 

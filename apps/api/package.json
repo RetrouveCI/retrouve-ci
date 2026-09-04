@@ -32,6 +32,7 @@
 		"cloudinary": "catalog:",
 		"dotenv": "catalog:",
 		"fastify": "catalog:",
+		"ioredis": "catalog:",
 		"reflect-metadata": "catalog:",
 		"rxjs": "catalog:",
 		"zod": "catalog:"

@@ -207,6 +207,9 @@ catalogs:
     input-otp:
       specifier: 1.4.2
       version: 1.4.2
+    ioredis:
+      specifier: 5.10.1
+      version: 5.10.1
     isbot:
       specifier: ^5.2.1
       version: 5.2.1
@@ -583,7 +586,7 @@ importers:
         version: 11.4.7(@fastify/static@8.3.0)(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(@nestjs/core@11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)
       '@thallesp/nestjs-better-auth':
         specifier: 'catalog:'
-        version: 2.6.1(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(@nestjs/core@11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(better-auth@1.6.30(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.11))(qs@6.15.3)(typescript@5.9.2)
+        version: 2.6.1(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(@nestjs/core@11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(better-auth@1.6.30(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.11))(qs@6.16.0)(typescript@5.9.2)
       better-auth:
         specifier: 'catalog:'
         version: 1.6.30(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.11)
@@ -599,6 +602,9 @@ importers:
       fastify:
         specifier: 'catalog:'
         version: 5.8.5
+      ioredis:
+        specifier: 'catalog:'
+        version: 5.10.1(supports-color@10.2.2)
       reflect-metadata:
         specifier: 'catalog:'
         version: 0.2.2
@@ -3376,7 +3382,7 @@ packages:
       better-auth: '>=1.5.0 <2.0.0'
       express: ^5.1.0
       graphql: ^16.11.0
-      qs: ^6.14.0
+      qs: 6.16.0
       typescript: ^5.9.2 || ^6.0.0
     peerDependenciesMeta:
       '@nestjs/graphql':
@@ -9070,7 +9076,7 @@ snapshots:
 
   '@tanstack/table-core@8.21.3': {}
 
-  '@thallesp/nestjs-better-auth@2.6.1(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(@nestjs/core@11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(better-auth@1.6.30(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.11))(qs@6.15.3)(typescript@5.9.2)':
+  '@thallesp/nestjs-better-auth@2.6.1(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(@nestjs/core@11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(better-auth@1.6.30(@prisma/client@7.8.0(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(typescript@5.9.2))(mysql2@3.15.3)(pg@8.16.3)(prisma@7.8.0(@types/react@19.2.17)(magicast@0.5.4)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.2))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.11))(qs@6.16.0)(typescript@5.9.2)':
     dependencies:
       '@nestjs/common': 11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2)
       '@nestjs/core': 11.1.26(@nestjs/common@11.1.26(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@10.2.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)
