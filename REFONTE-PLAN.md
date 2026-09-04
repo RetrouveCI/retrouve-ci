@@ -4584,6 +4584,83 @@ aucun.
 suite seule : api **421**, contracts **341**, admin **416**, client **1134**
 (822 en `node`, 312 en `ui`). `pnpm audit` 15 → 13.
 
+#### R41 — La hauteur d'un select décidée par `cn()`, pas par la spécificité — **LIVRÉE**
+
+Laissée ouverte par R38, qui avait fermé le piège du demi-token mais nommé son
+jumeau sans le traiter, et par R39, qui l'a consigné comme une dette
+**typographique** : `place-step` dessinerait ses selects à 52 px là où §2.1
+impose 48. Recompté avant de coder, le sujet n'était pas cosmétique.
+
+> ⚠️ **Six champs rendaient 36 px alors que leur classe demandait 48 ou 44.**
+> `SelectTrigger` épinglait sa hauteur derrière une variante d'attribut, qui
+> s'émet en `.data-\[size\=default\]\:h-9[data-size=default]` — spécificité
+> (0,2,0) — là où `h-control` s'émet en `.h-control`, (0,1,0). `cn()` **garde
+> les deux**, faute de savoir les rapprocher, et le sélecteur d'attribut gagne
+> ensuite **quel que soit l'ordre de sortie**. Ce n'est donc pas le jumeau du
+> piège de R38 : c'en est une forme plus dure, que l'ordre des classes ne peut
+> pas corriger.
+
+Les victimes, mesurées une par une : `document-section` (deux champs, livrés par
+R35 deux jours plus tôt) et `filter-sheet` (deux champs) demandaient
+`h-control`, soit 48 px, et rendaient 36 ; `location-date-section` demandait
+`h-11`, soit 44, et rendait 36. `place-step` est le seul endroit qui avait
+contourné le piège, en écrivant la variante `data-[size=default]:h-13` — d'où
+ses 52 px, et d'où l'illusion que la dette se résumait à lui.
+
+> ⚠️ **Aggravation : `Input` et `Button` portent `min-h-11`, `SelectTrigger`
+> n'avait aucun plancher.** Rien ne rattrapait ces 36 px, sous le seuil tactile
+> de 44 px que §2.1 impose sans exception. Et la garde de R38 lisait bien les
+> balises `SelectTrigger`, mais **sur la seule échelle typographique** : la
+> hauteur n'était surveillée par rien.
+
+**Ce que ça change** : le package exprime sa hauteur en classe **nue**
+(`size === 'sm' ? 'h-8' : 'h-9'`), ce que `cn()` sait rapprocher d'une hauteur
+d'appelant, et gagne `min-h-11 lg:min-h-0` — un plancher, jamais une hauteur, la
+leçon que `touch-targets.test.ts` avait déjà tirée. `data-size` reste, comme
+prise de style. Conséquence : les **six** champs sont réparés **sans être
+touchés**, leur classe étant enfin respectée. Le seul point d'appel modifié est
+`place-step`, aligné sur `h-control` — §2.1 l'emporte sur les 52 px de la
+maquette, comme R38 avait tranché pour le plancher de 16 px.
+
+> ⚠️ **Un seul des douze selects du backoffice change de rendu, et c'est une
+> réparation.** Le select « Lignes par page » de `data-table` demandait `h-8` et
+> rendait 36 ; il rend désormais 32. Ses deux voisins immédiats, les boutons de
+> pagination, écrivent `h-8 w-8` et rendaient déjà 32 : la barre était
+> désalignée de 4 px et s'aligne enfin. Les onze autres ne bougent pas au-dessus
+> de `lg` — sept écrivent `h-9`, quatre n'écrivent aucune hauteur et reçoivent
+> celle du package, qui vaut toujours 36. En dessous de `lg`, les douze gagnent
+> le plancher de 44 px, exactement ce que `Input` et `Button` y font déjà.
+
+`object-info-section.tsx` porte le même défaut et n'a pas été corrigé : il a
+**zéro import**, mort sur disque. Dette préexistante, hors périmètre.
+
+**Preuve, pas confiance** : trois mesures indépendantes, la lecture du code
+n'étant pas une preuve. Une sonde sur `tailwind-merge` a montré les deux
+hauteurs conservées côte à côte, puis une seule après correctif ; le CSS émis
+par un vrai build a donné les deux sélecteurs et leurs spécificités ; Chromium a
+répondu `expected 36 to be 48`. Les cinq gardes ont été **vérifiées
+falsifiables** — la régression réintroduite le temps d'un run les fait passer au
+rouge, puis restaurée depuis un `.bak` et la restauration contrôlée.
+
+> ⚠️ **Piège rencontré deux fois : Tailwind scanne les commentaires.** Écrire la
+> classe bannie en prose lui fait émettre une règle morte dans la feuille de
+> style **et** déclenche la garde qui la décrit. La garde dépouille donc les
+> commentaires avant de scanner, et aucune prose du dépôt n'épelle plus la
+> classe. Le hash du CSS émis est ce qui l'a révélé : inchangé après
+> reformulation du commentaire, il montrait que la citation subsistait ailleurs.
+
+**Fichiers** : `packages/ui/src/components/ui/select.tsx`,
+`client/routes/publish/components/place-step.tsx`,
+`client/shared/__tests__/field-floor.test.ts`,
+`client/routes/__tests__/field-floor.test.tsx`. **Flux** : A, B, D.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert, `sw.js` émis. Chaque suite
+seule : api **421**, contracts **341**, admin **416** — tous inchangés, ce qui
+est le résultat attendu d'un changement de package partagé — et client **1139**
+(825 en `node`, 314 en `ui`), soit les cinq gardes ajoutées. Densité de
+commentaires 8,5 %.
+
 ---
 
 ## 6. Ce qui ne bouge pas
