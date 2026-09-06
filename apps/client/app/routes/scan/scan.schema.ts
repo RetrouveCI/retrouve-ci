@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import {
+	directContactSchema,
 	QR_LABEL_MAX_LENGTH,
 	QR_LINKED_OBJECT_MAX_LENGTH,
 } from '@app/contracts/qr-codes'
@@ -37,6 +38,8 @@ export const activateScannedStickerSchema = z.object({
 		.max(QR_LINKED_OBJECT_MAX_LENGTH, 'Cette description est trop longue')
 		.optional()
 		.default(''),
+	// Closed unless the sheet's switch says otherwise, like the column itself.
+	directContact: directContactSchema.optional().default(false),
 })
 
 export type ActivateScannedStickerInput = z.input<

@@ -22,6 +22,7 @@ const DTO: QrTokenApiDto = {
 	batch: 'lot-aout',
 	label: 'Mes clés',
 	linkedObject: 'trousseau',
+	directContact: false,
 	userId: 'user-1',
 	createdAt: '2026-08-01T10:00:00.000Z',
 	activatedAt: '2026-08-02T10:00:00.000Z',
@@ -108,6 +109,7 @@ describe('stickersLoader', () => {
 		expect(Object.keys(stickers[0] ?? {}).sort()).toEqual([
 			'activatedAt',
 			'code',
+			'directContact',
 			'id',
 			'isActive',
 			'label',

@@ -260,7 +260,7 @@ Une ligne = une branche = une PR = une session.
 | **A3**  | API      | Notifications poussées sur correspondance   | `refonte-a3-web-push`                      | `api/notifications`                  | 3 j    | R23          |
 | **A6**  | API      | Source d'une commande de stickers           | `refonte-a6-order-source`                  | `api/sticker-orders`                 | 0,5 j  | R17          |
 | **A7**  | API      | Champs de document sur une annonce          | `refonte-a7-document-fields`               | `api/lost-items`                     | 1,5 j  | R18          |
-| **A8**  | API      | Joindre le propriétaire d'un sticker        | `refonte-a8-sticker-reach`                 | `api/qr-codes`                       | 1,5 j  | R19          |
+| **A8**  | API      | Joindre le propriétaire d'un sticker ✅     | `refonte-a8-sticker-reach`                 | `api/qr-codes`                       | 1,5 j  | R19          |
 | **R36** | Accueil  | L'arrivée des stickers devient un signal    | `refonte-r36-sticker-arrival-notification` | `client/home` + `api/sticker-orders` | 1 j    | R15, R17     |
 | **R37** | Accueil  | Le hero regroupe ses filtres ✅             | `refonte-r37-hero-filter-group`            | `client/home`                        | 0,3 j  | R16, R33     |
 
@@ -4047,37 +4047,118 @@ aucun autre modèle n'a été reformaté.
 
 **R35 est débloquée.**
 
-#### A8 — Joindre le propriétaire d'un sticker
+#### A8 — Joindre le propriétaire d'un sticker — **LIVRÉE**
 
-Ouvert par R19, qui a buté dessus. La maquette dessine « Prévenir sur WhatsApp »
-puis « Appeler » en tête de `/q/:code`, et promet dans le même écran que « le
-numéro du propriétaire ne vous est jamais montré ». Les deux ne tiennent pas
-ensemble : `wa.me` comme `tel:` affichent le numéro d'un contact inconnu. Il
-faut donc trancher **ce que le propriétaire accepte**, pas seulement comment le
-front l'affiche.
+Ouverte par R19, qui avait buté sur une contradiction de la maquette : `ScanQR`
+dessine « Prévenir sur WhatsApp » puis « Appeler », et promet dans le même écran
+que « le numéro du propriétaire ne vous est jamais montré ». Les deux ne
+tiennent pas ensemble, `wa.me` comme `tel:` affichant le numéro. Ce qui a été
+livré, sur les quatre points posés :
 
-1. **Le consentement est explicite et se donne à l'activation.** Une colonne sur
-   `QrToken` — par défaut **fermée** — dit si un trouveur peut appeler ou écrire
-   directement. La feuille d'activation (R22) pose la question en une phrase, et
-   `ScanActivation` dit déjà la conséquence au propriétaire. Sans consentement,
-   `/q/:code` reste ce que R19 a livré : un message, et rien d'autre.
-2. **Le numéro ne descend jamais dans la page.** `/qr-codes/:code/scan` reste ce
-   qu'il est — prénom, libellé, objet lié — et gagne au plus un booléen. Le saut
-   se fait par un point d'entrée dédié qui répond une redirection, de sorte que
-   le HTML servi ne porte pas le numéro et que le saut soit journalisable.
-3. **Le débit doit être plafonné avant, pas après.** ✅ **Levé par R42**, qui a
-   posé la limitation que ce point exigeait. Reste à faire ici : ajouter le
-   point d'entrée du saut au seau `public-write` de
-   `shared/rate-limit/rate-limit.policy.ts` en même temps qu'on l'écrit — un
-   point d'entrée qui rend joignable un numéro sans plafond est un annuaire.
-4. **Un numéro absent n'est pas une erreur.** `user.phoneNumber` est nullable :
-   l'écran retombe alors sur le formulaire, sans bouton mort.
+1. **Le consentement est explicite, et fermé par défaut.** `QrToken` gagne une
+   colonne `directContact` à `false`, écrite par `qrTokenDetailsSchema` — donc
+   par l'activation **et** par la modification, ce qui permet à un sticker
+   activé avant cette étape de consentir quand même. Un seul composant la pose,
+   `components/direct-contact-field.tsx`, monté dans la feuille d'activation de
+   R22 et dans le dialogue « Modifier ». Sans consentement, `/q/:code` reste ce
+   que R19 a livré : un message, et rien d'autre.
+2. **Le numéro ne descend jamais dans la page.** `/qr-codes/:code/scan` gagne le
+   booléen prévu et rien de plus. Le saut passe par un point d'entrée dédié dont
+   la réponse au navigateur est une **redirection**, suivie par le navigateur
+   lui-même : les boutons sont deux `<Form reloadDocument>` qui postent vers la
+   route ressource `/q/:code/reach`, et le HTML servi ne porte que le code.
+3. **Le débit est plafonné.** `POST /qr-codes/:code/reach` rejoint le seau
+   `public-write` de R42 dans le même geste que son écriture.
+4. **Un numéro absent n'est pas une erreur.** `toReachTarget` rend `null`, que
+   le use-case traduit en refus explicite ; aucun bouton mort n'est dessiné.
 
-**Fichiers** : `api/domains/qr-codes/`, `api/presentations/qr-codes/`,
-`packages/contracts/qr-codes/`, `packages/database`, puis `client/q` et la
-feuille d'activation de R22. **Flux** : B, C. **Acceptation** : un sticker sans
-consentement n'expose aucun bouton d'appel ; le numéro n'apparaît dans aucune
-réponse HTML.
+> ⚠️ **Le pas de côté qui a décidé de l'architecture : ce n'est pas l'API qui
+> redirige.** Le plan disait « un point d'entrée dédié qui répond une
+> redirection », et l'API a d'abord été écrite comme ça, `@Redirect()` compris —
+> mesuré, Nest sur Fastify émet bien `302` avec `Location: tel:…` intact. Mais
+> `apiFetch` **suit** les redirections et traite un 302 comme un échec : le
+> serveur du front aurait dû le contourner en `redirect: 'manual'`, en
+> redupliquant l'URL de base, les cookies et la gestion d'erreur. L'API répond
+> donc `{ url }` comme toutes les autres routes, et **c'est la route ressource
+> du front qui redirige**. On ne perd rien : le navigateur reçoit toujours un
+> vrai 302, et un script de la page ne peut pas lire ce `Location` — en
+> navigateur, une redirection `manual` est **opaque**. Une app mobile préférera
+> d'ailleurs l'URL au 302.
+
+**Mesuré avant d'écrire une ligne.** Un serveur minimal et Chromium piloté : sur
+`Location: https://…` le navigateur suit normalement ; sur `Location: tel:+225…`
+il **tente** le saut (`requestfailed … net::ERR_ABORTED`, la signature de la
+passation au gestionnaire de l'OS) et, faute de gestionnaire, **laisse la page
+exactement où elle était** — pas d'écran d'erreur. Le mode de défaillance est
+donc bénin, et le formulaire de message reste sous la main. C'est ce qui a rendu
+la forme « 302 » tenable ; sans la mesure, elle restait un pari.
+
+> ⚠️ **La promesse de la maquette devient fausse dès qu'un consentement est
+> donné, et §2 l'interdit.** Tranché avec le commanditaire : le bandeau devient
+> conditionnel. Sans consentement il garde la phrase de `ScanQR` **mot pour
+> mot** ; avec, il dit « Awa accepte d'être joint directement — son numéro
+> s'affichera dans votre téléphone. » Chaque écran dit ce qui est vrai de lui.
+> Même règle dans la feuille d'activation : la phrase « sans jamais voir votre
+> numéro » qu'elle affichait est remplacée par un texte qui suit la position de
+> l'interrupteur. **Écart assumé vis-à-vis de la maquette**, comme R9 et R35.
+
+**Deux autres décisions du commanditaire, prises en séance.**
+
+**1. La lecture `GET /qr-codes/:code/scan` est plafonnée**, ce que R42 avait
+laissé en réserve. `limitFor` garde « aucune lecture plafonnée » comme
+**défaut** et n'ouvre l'exception que pour les formes nommées dans
+`PUBLIC_READ_PATHS` : une liste blanche, donc aucune route future — et surtout
+pas `get-session` — n'y tombe en ressemblant à une autre. Le seau `public-read`
+est volontairement large (60 / 15 min) : six caractères sur un alphabet de
+trente-deux rendent le balayage sans espoir de toute façon, et les opérateurs
+mobiles d'ici mettent beaucoup de visiteurs derrière une seule adresse.
+`OPTIONS` n'est **jamais** plafonné, un préflight refusé cassant l'appel qu'il
+précède.
+
+**2. Le saut prévient le propriétaire.** `ReachQrTokenOwnerUseCase` lève une
+notification `qr_scan` nommant le canal — « cherche à vous appeler » ou « vous
+écrit sur WhatsApp » —, de sorte qu'un appel d'un numéro inconnu soit décroché.
+Elle est levée dans un `try` : le saut est ce que le trouveur est venu chercher,
+et la trace ne doit pas pouvoir l'en empêcher. Cela **ne** referme **pas** la
+dette « aucune trace de scan sur un `QrToken` », qui demanderait une table et
+sortait du lot.
+
+> ⚠️ **Le garde `cn()` de R38 a un faux positif de forme.** Il lit **tout** le
+> texte d'un `.tsx` pour y trouver les utilitaires en `-field`, `-control` ou
+> `-chip` ; le chemin d'import `@/components/direct-contact-field` s'est donc lu
+> comme une utilitaire `contact-field` qu'aucune échelle ne résout. Corrigé dans
+> le garde plutôt qu'en renommant le composant — une ligne d'`import` ne porte
+> jamais de classe —, et **revérifié** : une vraie `gap-control` écrite en
+> `className` le fait toujours tomber.
+
+**Ce que le saut ne fait pas** : rien n'est écrit sur `QrToken` ; le refus d'un
+code inconnu et celui d'un code non activé répondent la **même** erreur, dire
+lesquels existent étant précisément ce qu'il ne faut pas faire ; et le message
+WhatsApp est prérempli sur le libellé du sticker et le code, sans jamais nommer
+le propriétaire.
+
+**Fichiers** : `packages/database` (colonne + migration), `packages/contracts`
+(`reach.schema.ts`, `directContactSchema`), `api/domains/qr-codes/`
+(`reach-target.ts`, `reach-qr-token-owner.use-case.ts`, deux erreurs,
+`findOwnerReach`), `api/presentations/qr-codes/`,
+`api/shared/rate-limit/rate-limit.policy.ts`, `client/routes/q/`
+(`qr-reach.action.ts`, `qr-reach-actions.tsx`, bandeau conditionnel),
+`client/components/direct-contact-field.tsx`, `client/routes/scan/` et
+`client/routes/account/stickers/`. **Flux** : B, C.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**480** (+27), contracts **357** (+16), admin **422** (inchangé) et client
+**1175** — 849 en `node`, 326 en `ui`. Densité de commentaires 8,8 %. ⚠️ **Aucun
+delta annoncé pour le client** : la passation et l'entrée R42 ne donnent pas la
+même base (1147/833 contre 1145/831), et un worktree neuf n'a pas de
+`node_modules` pour trancher sans réinstaller. Les absolus ci-dessus sont
+mesurés, projet par projet.
+
+**Reste ouvert** : le back-office ne montre pas le consentement — il ne lit
+`qr-codes` que pour lister, révoquer et générer, et n'écrit jamais
+`qrTokenDetailsSchema`, donc rien n'y était à risque ; et **A9**, la relation
+`QrToken → LostItem`, reste entière.
 
 #### R35 — Publication guidée d'une pièce — **LIVRÉE**
 
@@ -4709,7 +4790,9 @@ rend testables. `otp` (5 / 15 min) tient `send-otp` et
 
 **Une lecture n'est jamais plafonnée** : `get-session` part à chaque navigation
 des deux fronts, et l'y soumettre déconnecterait tout le monde au lieu de
-ralentir un attaquant.
+ralentir un attaquant. ⚠️ **A8 a depuis ouvert une exception**, et par liste
+blanche : `PUBLIC_READ_PATHS` ne contient que `GET /qr-codes/:code/scan`, le
+défaut restant celui décrit ici.
 
 > ⚠️ **En cas de panne du magasin, on laisse passer — bruyamment.** Une
 > limitation qui ne joint plus Redis ne doit pas emporter l'API : un OTP que
@@ -4724,7 +4807,8 @@ faire émettre.
 
 **Hors périmètre, assumé** : les écritures authentifiées, l'upload de photo et
 la lecture énumérable `GET /qr-codes/:code/scan` — trois candidats posés au
-commanditaire, non retenus pour ce lot. Le dernier reste la réserve d'A8.
+commanditaire, non retenus pour ce lot. Le dernier a été **repris par A8**, qui
+l'a plafonné ; les deux autres restent ouverts.
 
 **Fichiers** : `api/shared/rate-limit/` (politique, magasin, hook, sauts de
 proxy, et leurs quatre specs), `api/src/main.ts`, `api/.env.example`,
@@ -4746,8 +4830,9 @@ back-end. Densité de commentaires 9,5 %.
   et déplacé le plancher de description de la forme vers chaque écriture, et
   R35, qui a dû y **nommer** le message de l'énuméré (`DOCUMENT_TYPE_ERROR`) —
   un front qui offre « rien de choisi » à côté de l'énuméré l'enveloppe dans un
-  `z.union`, et un `z.union` nu répond en anglais — et R36, qui y a ajouté une
-  valeur d'énuméré, `stickers_delivered`.
+  `z.union`, et un `z.union` nu répond en anglais —, R36, qui y a ajouté une
+  valeur d'énuméré, `stickers_delivered`, et A8, qui y a posé `reach.schema.ts`
+  et le `directContactSchema` que les deux fronts postent en chaîne.
 - **Les endpoints de l'API** : tout le front se sert de ce qui existe, y compris
   les correspondances (`/lost-items?type&category&ville`). **Deux exceptions
   mesurées** : R11 a dû laisser passer `resolutionStatus` sur

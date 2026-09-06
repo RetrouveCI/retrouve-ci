@@ -53,7 +53,11 @@ describe('scanAction', () => {
 		await expect(scanAction({ request })).resolves.toEqual({ success: true })
 		expect(activateSticker).toHaveBeenCalledWith(
 			'RCI-ABC123',
-			{ label: 'Clés de la maison', linkedObject: undefined },
+			{
+				label: 'Clés de la maison',
+				linkedObject: undefined,
+				directContact: false,
+			},
 			request,
 		)
 	})
@@ -65,7 +69,11 @@ describe('scanAction', () => {
 
 		expect(activateSticker).toHaveBeenCalledWith(
 			'RCI-ABC123',
-			{ label: 'Clés de la maison', linkedObject: 'Trousseau bleu' },
+			{
+				label: 'Clés de la maison',
+				linkedObject: 'Trousseau bleu',
+				directContact: false,
+			},
 			expect.anything(),
 		)
 	})

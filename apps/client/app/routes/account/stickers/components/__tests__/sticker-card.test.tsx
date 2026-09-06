@@ -27,6 +27,7 @@ const STICKER: Sticker = {
 	isActive: true,
 	label: 'Clés de la maison',
 	linkedObject: 'Trousseau avec porte-clés bleu',
+	directContact: false,
 	activatedAt: '2026-08-14T10:00:00.000Z',
 }
 
@@ -83,6 +84,7 @@ describe('StickerCard', () => {
 			isActive: false,
 			label: null,
 			linkedObject: null,
+			directContact: false,
 			activatedAt: null,
 		})
 
@@ -146,5 +148,48 @@ describe('StickerCard', () => {
 		await vi.waitFor(() =>
 			expect(error).toHaveBeenCalledWith('Sticker introuvable'),
 		)
+	})
+})
+
+/** Reachable from « Modifier », which is what lets an older sticker consent. */
+describe('StickerCard — the direct-contact consent', () => {
+	const consent = () =>
+		page.getByRole('switch', { name: "Accepter d'être joint directement" })
+
+	const openEdit = async () => {
+		await userEvent.click(page.getByRole('button', { name: /Actions sur/ }))
+		await userEvent.click(
+			page.getByRole('button', { name: 'Modifier le sticker' }),
+		)
+	}
+
+	it.each([
+		[false, 'unchecked'],
+		[true, 'checked'],
+	])('opens on the stored value %o', async (directContact, state) => {
+		renderCard({ directContact })
+
+		await openEdit()
+
+		await expect.element(consent()).toHaveAttribute('data-state', state)
+	})
+
+	it('posts the switched value, as the string a form carries', async () => {
+		const action = vi.fn(async ({ request }: { request: Request }) => {
+			const body = await request.formData()
+			return { success: true, data: body.get('directContact') } as never
+		})
+		renderCard({ directContact: false }, action)
+
+		await openEdit()
+		await userEvent.click(consent())
+		await userEvent.click(page.getByRole('button', { name: 'Enregistrer' }))
+
+		await vi.waitFor(() =>
+			expect(success).toHaveBeenCalledWith('Sticker mis à jour'),
+		)
+		await expect(action.mock.results[0]?.value).resolves.toMatchObject({
+			data: 'true',
+		})
 	})
 })

@@ -1,16 +1,17 @@
 import { Link } from 'react-router'
 import { AlertCircle, Lock, ShieldCheck } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { qrContactLoader } from './servers/qr-contact.loader'
+import { qrContactLoader, type ReachOutcome } from './servers/qr-contact.loader'
 import { qrContactAction } from './servers/qr-contact.action'
 import { QrOwnerCard } from './components/qr-owner-card'
 import { QrContactForm } from './components/qr-contact-form'
+import { QrReachActions } from './components/qr-reach-actions'
 import { pageMeta } from '@/shared/helpers/page-meta'
 import type { QrTokenPublicView } from './servers/qr-contact.service'
 import type { Route } from './+types/_index'
 
-export const loader = ({ params }: Route.LoaderArgs) =>
-	qrContactLoader({ params })
+export const loader = ({ request, params }: Route.LoaderArgs) =>
+	qrContactLoader({ request, params })
 
 export const action = ({ request, params }: Route.ActionArgs) =>
 	qrContactAction({ request, params })
@@ -33,6 +34,27 @@ function headline({ status, ownerFirstName }: QrTokenPublicView) {
 		: "Merci ! Cet objet appartient à quelqu'un"
 }
 
+/**
+ * The mockup's promise, honest in both states. Without consent it is the
+ * mockup's own sentence, word for word; with consent it says what a `tel:` or a
+ * `wa.me` jump actually does, since neither can hide the line it dials.
+ */
+function privacyNote({ directContact, ownerFirstName }: QrTokenPublicView) {
+	if (!directContact)
+		return 'Le numéro du propriétaire ne vous est jamais montré.'
+
+	const owner = ownerFirstName ?? 'Le propriétaire'
+
+	return `${owner} accepte d'être joint directement — son numéro s'affichera dans votre téléphone.`
+}
+
+const REACH_FAILURE: Record<ReachOutcome, string> = {
+	failed:
+		"Le contact direct n'a pas pu être établi. Laissez plutôt un message.",
+	throttled:
+		'Trop de tentatives depuis votre connexion. Patientez quelques minutes, ou laissez un message.',
+}
+
 interface StatusNoteProps {
 	icon: LucideIcon
 	children: string
@@ -47,8 +69,11 @@ function StatusNote({ icon: Icon, children }: StatusNoteProps) {
 	)
 }
 
-export default function QrContactPage({ loaderData }: Route.ComponentProps) {
-	const { token } = loaderData
+export default function QrContactPage({
+	loaderData,
+	params,
+}: Route.ComponentProps) {
+	const { token, reach } = loaderData
 
 	return (
 		<div className="bg-background safe-x flex min-h-screen flex-col">
@@ -79,12 +104,37 @@ export default function QrContactPage({ loaderData }: Route.ComponentProps) {
 
 					{token.status === 'activated' ? (
 						<>
+							{reach && (
+								<p
+									role="alert"
+									className="border-border bg-card text-muted-foreground rounded-[14px] border p-4 text-sm"
+								>
+									{REACH_FAILURE[reach]}
+								</p>
+							)}
+
+							{token.directContact && (
+								<>
+									<QrReachActions
+										code={params.code}
+										ownerFirstName={token.ownerFirstName}
+									/>
+									<div className="flex items-center gap-3">
+										<span className="bg-border h-px flex-1" />
+										<span className="text-muted-foreground text-xs">
+											ou laissez un message
+										</span>
+										<span className="bg-border h-px flex-1" />
+									</div>
+								</>
+							)}
+
 							<div className="border-border bg-card rounded-[14px] border p-5">
 								<QrContactForm />
 							</div>
 							<p className="text-muted-foreground flex items-center justify-center gap-1.5 text-center text-xs">
 								<ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-								Le numéro du propriétaire ne vous est jamais montré.
+								{privacyNote(token)}
 							</p>
 						</>
 					) : token.status === 'revoked' ? (

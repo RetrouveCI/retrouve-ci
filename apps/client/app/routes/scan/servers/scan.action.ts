@@ -23,14 +23,14 @@ export async function scanAction({
 		return { success: false, errors: zodErrorToFieldErrors(submission.error) }
 	}
 
-	const { code, label, linkedObject } = submission.data
+	const { code, label, linkedObject, directContact } = submission.data
 
 	return withApiOperationError(
 		// An empty description clears the field rather than being sent as `''`.
 		() =>
 			activateSticker(
 				code,
-				{ label, linkedObject: linkedObject || undefined },
+				{ label, linkedObject: linkedObject || undefined, directContact },
 				request,
 			),
 		{ redirectOnUnauthorized: '/login' },

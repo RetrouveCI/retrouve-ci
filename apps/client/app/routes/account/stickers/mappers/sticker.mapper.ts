@@ -9,6 +9,7 @@ export function toSticker(dto: QrTokenApiDto): Sticker {
 		isActive: dto.status === 'activated',
 		label: dto.label,
 		linkedObject: dto.linkedObject,
+		directContact: dto.directContact,
 		activatedAt: dto.activatedAt,
 	}
 }

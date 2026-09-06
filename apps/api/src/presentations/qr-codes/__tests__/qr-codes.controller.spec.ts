@@ -9,6 +9,7 @@ import type { GetMyStickerSummaryUseCase } from '@/domains/qr-codes/use-cases/ge
 import type { GetPaginatedQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-paginated-qr-tokens.use-case'
 import type { GetQrTokenByCodeUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-by-code.use-case'
 import type { GetQrTokenPublicViewUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-public-view.use-case'
+import type { ReachQrTokenOwnerUseCase } from '@/domains/qr-codes/use-cases/reach-qr-token-owner.use-case'
 import type { RevokeQrTokenUseCase } from '@/domains/qr-codes/use-cases/revoke-qr-token.use-case'
 import type { UpdateQrTokenDetailsUseCase } from '@/domains/qr-codes/use-cases/update-qr-token-details.use-case'
 import type { Auth } from '@/infrastructures/auth/auth.config'
@@ -31,6 +32,7 @@ describe('QrCodesController', () => {
 	let getMine: GetMyQrTokensUseCase
 	let getMineSummary: GetMyStickerSummaryUseCase
 	let contactOwner: ContactQrTokenOwnerUseCase
+	let reachOwner: ReachQrTokenOwnerUseCase
 	let controller: QrCodesController
 
 	beforeEach(() => {
@@ -44,6 +46,7 @@ describe('QrCodesController', () => {
 		getMine = buildUseCase<GetMyQrTokensUseCase>()
 		getMineSummary = buildUseCase<GetMyStickerSummaryUseCase>()
 		contactOwner = buildUseCase<ContactQrTokenOwnerUseCase>()
+		reachOwner = buildUseCase<ReachQrTokenOwnerUseCase>()
 		controller = new QrCodesController(
 			generate,
 			getByCode,
@@ -55,6 +58,7 @@ describe('QrCodesController', () => {
 			getMine,
 			getMineSummary,
 			contactOwner,
+			reachOwner,
 		)
 	})
 
@@ -199,6 +203,25 @@ describe('QrCodesController', () => {
 				...body,
 			})
 			expect(Reflect.getMetadata('PUBLIC', controller.contactOwner)).toBe(true)
+		})
+	})
+
+	describe('reachOwner', () => {
+		it('is open to an anonymous finder and answers only the target', async () => {
+			vi.mocked(reachOwner.execute).mockResolvedValue({
+				url: 'tel:+2250700000000',
+			})
+
+			const answer = await controller.reachOwner('RCI-ABC123', {
+				channel: 'call',
+			})
+
+			expect(answer).toEqual({ url: 'tel:+2250700000000' })
+			expect(reachOwner.execute).toHaveBeenCalledWith({
+				code: 'RCI-ABC123',
+				channel: 'call',
+			})
+			expect(Reflect.getMetadata('PUBLIC', controller.reachOwner)).toBe(true)
 		})
 	})
 })

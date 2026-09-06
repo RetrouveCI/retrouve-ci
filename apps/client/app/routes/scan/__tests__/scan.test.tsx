@@ -390,14 +390,34 @@ describe('ScanPage — activation', () => {
 		expect(statusAsked).toEqual(['RCI-ABC123'])
 	})
 
-	it('names the consequence before the sticker is activated', async () => {
+	// A8's consent, closed the way the column is.
+	it('offers the consent closed, and says so', async () => {
 		useAuth.mockReturnValue({ isAuthenticated: true })
 		renderScan({ status: 'generated' })
 
 		await typeTheCode()
 
+		const consent = page.getByRole('switch', {
+			name: "Accepter d'être joint directement",
+		})
+
+		await expect.element(consent).toHaveAttribute('data-state', 'unchecked')
 		await expect
-			.element(page.getByText(/quiconque scanne ce sticker peut vous joindre/))
+			.element(page.getByText(/Personne ne verra votre numéro/))
+			.toBeVisible()
+	})
+
+	it('warns that the number will show once the consent is given', async () => {
+		useAuth.mockReturnValue({ isAuthenticated: true })
+		renderScan({ status: 'generated' })
+
+		await typeTheCode()
+		await userEvent.click(
+			page.getByRole('switch', { name: "Accepter d'être joint directement" }),
+		)
+
+		await expect
+			.element(page.getByText(/Votre numéro s'affichera sur son téléphone/))
 			.toBeVisible()
 	})
 

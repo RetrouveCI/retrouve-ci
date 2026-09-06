@@ -42,6 +42,7 @@ describe('limitFor', () => {
 		it.each([
 			'/contact-messages',
 			'/qr-codes/RCI-123456/contact',
+			'/qr-codes/RCI-123456/reach',
 			'/lost-items/clx0000000000/contact',
 		])('holds %s, which anyone may post without an account', path => {
 			expect(limitFor('POST', path)).toEqual({
@@ -57,13 +58,29 @@ describe('limitFor', () => {
 		})
 	})
 
-	/**
-	 * `get-session` runs on every navigation of both front-ends, so a limit on it
-	 * would sign everyone out rather than slow an attacker down.
-	 */
-	it.each(['GET', 'HEAD', 'OPTIONS'])('never limits a %s', method => {
-		expect(limitFor(method, '/api/auth/get-session')).toBeNull()
-		expect(limitFor(method, '/lost-items')).toBeNull()
+	describe('the public-read bucket', () => {
+		it.each(['GET', 'HEAD'])('holds the scan read on a %s', method => {
+			expect(limitFor(method, '/qr-codes/RCI-123456/scan')).toEqual({
+				bucket: 'public-read',
+				max: 60,
+				windowSeconds: 900,
+			})
+		})
+
+		// `get-session` runs on every navigation: a cap there signs everyone out.
+		// Naming the read paths one by one is what keeps it out.
+		it.each(['GET', 'HEAD'])('leaves every other %s read alone', method => {
+			expect(limitFor(method, '/api/auth/get-session')).toBeNull()
+			expect(limitFor(method, '/lost-items')).toBeNull()
+			expect(limitFor(method, '/qr-codes/RCI-123456')).toBeNull()
+			expect(limitFor(method, '/qr-codes/mine')).toBeNull()
+		})
+
+		// A refused preflight breaks the call it precedes.
+		it('never limits an OPTIONS, scan read included', () => {
+			expect(limitFor('OPTIONS', '/qr-codes/RCI-123456/scan')).toBeNull()
+			expect(limitFor('OPTIONS', '/qr-codes/RCI-123456/reach')).toBeNull()
+		})
 	})
 
 	it('leaves everything outside the three buckets alone', () => {

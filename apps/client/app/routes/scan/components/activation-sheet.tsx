@@ -10,7 +10,8 @@ import { FormRootError } from '@app/ui/components/form'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
-import { Check, Loader2, QrCode, ScanLine, ShieldCheck } from 'lucide-react'
+import { Check, Loader2, QrCode, ScanLine } from 'lucide-react'
+import { DirectContactField } from '@/components/direct-contact-field'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import {
@@ -60,7 +61,7 @@ export function ActivationSheet({
 		mode: 'onSubmit',
 		reValidateMode: 'onChange',
 		errors: fetcher.errors,
-		defaultValues: { code, label: '', linkedObject: '' },
+		defaultValues: { code, label: '', linkedObject: '', directContact: false },
 	})
 
 	// A failure needs no toast: `FormRootError` carries it next to the button.
@@ -173,15 +174,10 @@ export function ActivationSheet({
 									)}
 								/>
 
-								<div className="border-border flex items-start gap-3 rounded-[13px] border p-3.5">
-									<span className="bg-primary-green/12 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-										<ShieldCheck className="text-primary-green-text h-4.5 w-4.5" />
-									</span>
-									<p className="text-muted-foreground text-xs leading-relaxed">
-										Une fois activé, quiconque scanne ce sticker peut vous
-										joindre — sans jamais voir votre numéro.
-									</p>
-								</div>
+								<DirectContactField
+									control={form.control}
+									name="directContact"
+								/>
 
 								<div className="space-y-1">
 									<button

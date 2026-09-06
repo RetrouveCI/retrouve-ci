@@ -14,6 +14,7 @@ export function toDomainQrToken(qrToken: PrismaQrToken): QrToken {
 		batch: qrToken.batch,
 		label: qrToken.label,
 		linkedObject: qrToken.linkedObject,
+		directContact: qrToken.directContact,
 		userId: qrToken.userId,
 		createdAt: qrToken.createdAt,
 		activatedAt: qrToken.activatedAt,
