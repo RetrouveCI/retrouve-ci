@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import {
+	directContactSchema,
 	QR_LABEL_MAX_LENGTH,
 	QR_LINKED_OBJECT_MAX_LENGTH,
 } from '@app/contracts/qr-codes'
@@ -22,6 +23,9 @@ const linkedObjectSchema = z
 	.optional()
 	.default('')
 
+// Closed unless a switch says otherwise, like the column it writes to.
+const directContactField = directContactSchema.optional().default(false)
+
 export const activateStickerSchema = z.object({
 	intent: z.literal('activate'),
 	code: z
@@ -31,6 +35,7 @@ export const activateStickerSchema = z.object({
 		.max(40, 'Ce code est trop long'),
 	label: labelSchema,
 	linkedObject: linkedObjectSchema,
+	directContact: directContactField,
 })
 
 export const updateStickerSchema = z.object({
@@ -38,6 +43,7 @@ export const updateStickerSchema = z.object({
 	code: z.string(),
 	label: labelSchema,
 	linkedObject: linkedObjectSchema,
+	directContact: directContactField,
 })
 
 export const revokeStickerSchema = z.object({

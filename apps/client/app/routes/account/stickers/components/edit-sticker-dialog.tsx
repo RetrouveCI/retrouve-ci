@@ -13,6 +13,7 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Sticker } from '@/shared/types/sticker'
+import { DirectContactField } from '@/components/direct-contact-field'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import {
@@ -40,6 +41,7 @@ export function EditStickerDialog({
 		code: sticker.code,
 		label: sticker.label ?? '',
 		linkedObject: sticker.linkedObject ?? '',
+		directContact: sticker.directContact,
 	}
 
 	const form = useForm<UpdateStickerInput, unknown, UpdateStickerData>({
@@ -95,6 +97,8 @@ export function EditStickerDialog({
 						label="Description de l'objet (optionnel)"
 						placeholder="Ex : Trousseau avec porte-clés bleu"
 					/>
+
+					<DirectContactField control={form.control} name="directContact" />
 
 					<DialogFooter>
 						<Button

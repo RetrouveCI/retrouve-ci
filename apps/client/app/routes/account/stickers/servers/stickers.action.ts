@@ -36,9 +36,13 @@ export async function stickersAction({
 		)
 	}
 
-	const { intent, code, label, linkedObject } = submission.data
+	const { intent, code, label, linkedObject, directContact } = submission.data
 	// An empty description clears the field rather than being sent as `''`.
-	const content = { label, linkedObject: linkedObject || undefined }
+	const content = {
+		label,
+		linkedObject: linkedObject || undefined,
+		directContact,
+	}
 
 	return withApiOperationError(
 		() =>

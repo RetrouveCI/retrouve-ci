@@ -206,17 +206,18 @@ model LostItem {
 
 
 model QrToken {
-  id           String        @id @default(uuid())
-  code         String        @unique
-  status       QrTokenStatus @default(GENERATED)
-  batch        String?
-  label        String?
-  linkedObject String?
-  userId       String?
-  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  createdAt    DateTime      @default(now())
-  activatedAt  DateTime?
-  revokedAt    DateTime?
+  id            String        @id @default(uuid())
+  code          String        @unique
+  status        QrTokenStatus @default(GENERATED)
+  batch         String?
+  label         String?
+  linkedObject  String?
+  directContact Boolean       @default(false)
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt     DateTime      @default(now())
+  activatedAt   DateTime?
+  revokedAt     DateTime?
 
   @@index([userId])
   @@index([status])

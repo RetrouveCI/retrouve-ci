@@ -30,7 +30,7 @@ export async function getMyStickerSummary(
 
 export async function activateSticker(
 	code: string,
-	data: { label?: string; linkedObject?: string },
+	data: { label?: string; linkedObject?: string; directContact?: boolean },
 	request: Request,
 ): Promise<QrTokenApiDto> {
 	return apiFetch<QrTokenApiDto>(`/qr-codes/${code}/activate`, {
@@ -42,7 +42,7 @@ export async function activateSticker(
 
 export async function updateSticker(
 	code: string,
-	data: { label?: string; linkedObject?: string },
+	data: { label?: string; linkedObject?: string; directContact?: boolean },
 	request: Request,
 ): Promise<QrTokenApiDto> {
 	return apiFetch<QrTokenApiDto>(`/qr-codes/${code}`, {

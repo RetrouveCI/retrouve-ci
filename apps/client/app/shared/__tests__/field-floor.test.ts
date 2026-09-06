@@ -110,7 +110,11 @@ describe('the theme tokens cn() has to know', () => {
 	it('resolves every custom utility the app writes against its own scale', () => {
 		const used = new Set<string>()
 		for (const file of sources(APP)) {
-			const src = readFileSync(file, 'utf8')
+			// Imports first: a path ending in one of these names a component file.
+			const src = readFileSync(file, 'utf8').replaceAll(
+				/^import [^\n]*\n/gm,
+				'',
+			)
 			for (const hit of src.matchAll(
 				/\b((?:min-|max-)?[a-z]+)-(field|control|chip)\b/g,
 			))

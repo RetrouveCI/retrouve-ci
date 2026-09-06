@@ -16,6 +16,7 @@ function stickerWith(status: Sticker['status'], id: string = status): Sticker {
 		isActive: status === 'activated',
 		label: null,
 		linkedObject: null,
+		directContact: false,
 		activatedAt: null,
 	}
 }

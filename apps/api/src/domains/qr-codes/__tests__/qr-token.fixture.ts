@@ -1,6 +1,6 @@
 import { vi } from 'vitest'
 import type { QrTokenRepository } from '../repository/qr-token.repository'
-import type { QrToken } from '../types/qr-token.types'
+import type { QrToken, QrTokenOwnerReach } from '../types/qr-token.types'
 
 export function buildQrToken(overrides: Partial<QrToken> = {}): QrToken {
 	return {
@@ -10,10 +10,25 @@ export function buildQrToken(overrides: Partial<QrToken> = {}): QrToken {
 		batch: 'batch-1',
 		label: null,
 		linkedObject: null,
+		directContact: false,
 		userId: null,
 		createdAt: new Date('2026-01-01'),
 		activatedAt: null,
 		revokedAt: null,
+		...overrides,
+	}
+}
+
+/** Activated, consented and reachable — each test spoils one of the three. */
+export function buildOwnerReach(
+	overrides: Partial<QrTokenOwnerReach> = {},
+): QrTokenOwnerReach {
+	return {
+		status: 'activated',
+		directContact: true,
+		label: 'Mes clés',
+		ownerUserId: 'owner-1',
+		ownerPhoneNumber: '+2250700000000',
 		...overrides,
 	}
 }
@@ -24,6 +39,7 @@ export function buildRepository(): QrTokenRepository {
 		createMany: vi.fn(),
 		findByCode: vi.fn(),
 		findPublicView: vi.fn(),
+		findOwnerReach: vi.fn(),
 		activate: vi.fn(),
 		revoke: vi.fn(),
 		updateDetails: vi.fn(),

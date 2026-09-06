@@ -1,12 +1,18 @@
 import type {
 	GenerateQrTokensData,
+	ReachChannel,
 	ListQrTokensFilterData,
 	QrTokenDetailsData,
 	QrTokenStatus,
 } from '@app/contracts/qr-codes'
 import type { Paginated } from '@/shared/utils/pagination.util'
 
-export type { GenerateQrTokensData, QrTokenDetailsData, QrTokenStatus }
+export type {
+	GenerateQrTokensData,
+	QrTokenDetailsData,
+	QrTokenStatus,
+	ReachChannel,
+}
 
 /** The admin list is unscoped; `listMine` narrows it to the session's user. */
 export type ListQrTokensFilter = ListQrTokensFilterData & {
@@ -18,6 +24,17 @@ export interface QrTokenPublicView {
 	ownerFirstName: string | null
 	label: string | null
 	linkedObject: string | null
+	/** Deliberately a boolean: it says a button may be drawn, never who to call. */
+	directContact: boolean
+}
+
+/** Read only by the reach use-case: the one shape here carrying a phone number. */
+export interface QrTokenOwnerReach {
+	status: QrTokenStatus
+	directContact: boolean
+	label: string | null
+	ownerUserId: string | null
+	ownerPhoneNumber: string | null
 }
 
 export interface QrToken {
@@ -27,6 +44,7 @@ export interface QrToken {
 	batch: string | null
 	label: string | null
 	linkedObject: string | null
+	directContact: boolean
 	userId: string | null
 	createdAt: Date
 	activatedAt: Date | null

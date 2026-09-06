@@ -10,6 +10,7 @@ const ACTIVATED: QrTokenPublicView = {
 	ownerFirstName: 'Awa',
 	label: 'Sac à dos noir',
 	linkedObject: 'Sac',
+	directContact: false,
 }
 
 type Action = (args: { request: Request }) => unknown
@@ -17,7 +18,7 @@ type Action = (args: { request: Request }) => unknown
 function renderPage(
 	action: Action,
 	token: QrTokenPublicView = ACTIVATED,
-	loader = () => ({ token }),
+	loader = () => ({ token, reach: null }),
 ) {
 	const Stub = createRoutesStub([
 		{
@@ -265,7 +266,7 @@ describe('QrContactPage', () => {
 	})
 
 	it('revalidates the loader after a successful send', async () => {
-		const loader = vi.fn(() => ({ token: ACTIVATED }))
+		const loader = vi.fn(() => ({ token: ACTIVATED, reach: null }))
 		renderPage(ok, ACTIVATED, loader)
 
 		await vi.waitFor(() => expect(loader).toHaveBeenCalledTimes(1))
@@ -275,4 +276,82 @@ describe('QrContactPage', () => {
 
 		await vi.waitFor(() => expect(loader).toHaveBeenCalledTimes(2))
 	})
+})
+
+const CONSENTED: QrTokenPublicView = { ...ACTIVATED, directContact: true }
+
+const whatsapp = () =>
+	page.getByRole('button', { name: /Prévenir Awa sur WhatsApp/ })
+const callOwner = () => page.getByRole('button', { name: 'Appeler' })
+
+/** A8: the buttons exist only where the owner said yes, and the note follows. */
+describe('QrContactPage — reaching the owner directly', () => {
+	it('draws no jump at all without consent', async () => {
+		renderPage(ok, ACTIVATED)
+
+		await expect.element(page.getByLabelText('Votre nom')).toBeInTheDocument()
+		expect(whatsapp().query()).toBeNull()
+		expect(callOwner().query()).toBeNull()
+	})
+
+	it("keeps the mockup's promise, word for word, without consent", async () => {
+		renderPage(ok, ACTIVATED)
+
+		await expect
+			.element(
+				page.getByText('Le numéro du propriétaire ne vous est jamais montré.'),
+			)
+			.toBeVisible()
+	})
+
+	it('draws both jumps with consent, WhatsApp first', async () => {
+		renderPage(ok, CONSENTED)
+
+		await expect.element(whatsapp()).toBeVisible()
+		await expect.element(callOwner()).toBeVisible()
+	})
+
+	// On the markup rather than on a click: `reloadDocument` makes these real
+	// document submissions, which is the whole point.
+	it.each([
+		['whatsapp', /Prévenir Awa sur WhatsApp/],
+		['call', /^Appeler$/],
+	])('posts the %s channel to the resource route', async (channel, label) => {
+		renderPage(ok, CONSENTED)
+
+		const button = page.getByRole('button', { name: label })
+		await expect.element(button).toBeVisible()
+		const form = button.element().closest('form')
+
+		expect(form?.getAttribute('action')).toBe('/q/ABC123/reach')
+		expect(form?.getAttribute('method')).toBe('post')
+		expect(
+			form?.querySelector('input[name="channel"]')?.getAttribute('value'),
+		).toBe(channel)
+	})
+
+	// With consent the mockup's sentence is simply false, and §2 forbids that.
+	it('says the number will show once consent was given', async () => {
+		renderPage(ok, CONSENTED)
+
+		await expect
+			.element(
+				page.getByText(
+					/Awa accepte d'être joint directement — son numéro s'affichera/,
+				),
+			)
+			.toBeVisible()
+	})
+
+	it.each([
+		['failed', /Le contact direct n'a pas pu être établi/],
+		['throttled', /Trop de tentatives depuis votre connexion/],
+	])(
+		'reports a %s jump on the screen it sent them back to',
+		async (reach, message) => {
+			renderPage(ok, CONSENTED, () => ({ token: CONSENTED, reach }) as never)
+
+			await expect.element(page.getByRole('alert')).toHaveTextContent(message)
+		},
+	)
 })

@@ -44,6 +44,9 @@ export default [
 		route('offline', 'routes/offline/_index.tsx'),
 	]),
 	route('q/:code', 'routes/q/_index.tsx'),
+	// The jump to the owner's line: an action and no component, so the browser
+	// follows the redirect itself and the page never carries the number.
+	route('q/:code/reach', 'routes/q/servers/qr-reach.action.ts'),
 	// The three-step tunnel carries its own 56 px bar and its own low action bar,
 	// so it sits outside the shell: the tab bar and that action bar would
 	// otherwise stack at the foot of the screen and steal each other's taps. The

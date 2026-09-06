@@ -1,4 +1,4 @@
-export type RateLimitBucket = 'otp' | 'auth' | 'public-write'
+export type RateLimitBucket = 'otp' | 'auth' | 'public-write' | 'public-read'
 
 export interface RateLimitRule {
 	bucket: RateLimitBucket
@@ -26,6 +26,14 @@ const PUBLIC_WRITE: RateLimitRule = {
 	windowSeconds: HOUR,
 }
 
+// Generous on purpose: a six-character code out of a 32-letter alphabet is
+// already unsweepable, and carriers here put many visitors behind one address.
+const PUBLIC_READ: RateLimitRule = {
+	bucket: 'public-read',
+	max: 60,
+	windowSeconds: 15 * MINUTE,
+}
+
 const AUTH_PREFIXES = ['/api/auth/', '/api/admin-auth/']
 
 /** The two better-auth routes that send a message rather than read a session. */
@@ -38,8 +46,12 @@ const OTP_PATHS = [
 const PUBLIC_WRITE_PATHS = [
 	/^\/contact-messages$/,
 	/^\/qr-codes\/[^/]+\/contact$/,
+	/^\/qr-codes\/[^/]+\/reach$/,
 	/^\/lost-items\/[^/]+\/contact$/,
 ]
+
+/** An allowlist, so no future read — `get-session` above all — falls in by resembling one. */
+const PUBLIC_READ_PATHS = [/^\/qr-codes\/[^/]+\/scan$/]
 
 function pathOf(url: string): string {
 	const path = url.split('?')[0] ?? url
@@ -47,13 +59,20 @@ function pathOf(url: string): string {
 }
 
 /**
- * A read is never limited: `get-session` runs on every navigation of both
- * front-ends, so a cap there signs everyone out rather than slowing an attacker.
+ * A read is limited only where `PUBLIC_READ_PATHS` names it: `get-session` runs
+ * on every navigation, so a cap there signs everyone out. `OPTIONS` is never
+ * capped, since a refused preflight breaks the call it precedes.
  */
 export function limitFor(method: string, url: string): RateLimitRule | null {
-	if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return null
+	if (method === 'OPTIONS') return null
 
 	const path = pathOf(url)
+
+	if (method === 'GET' || method === 'HEAD') {
+		return PUBLIC_READ_PATHS.some(shape => shape.test(path))
+			? PUBLIC_READ
+			: null
+	}
 
 	if (OTP_PATHS.includes(path)) return OTP
 	if (AUTH_PREFIXES.some(prefix => path.startsWith(prefix))) return AUTH

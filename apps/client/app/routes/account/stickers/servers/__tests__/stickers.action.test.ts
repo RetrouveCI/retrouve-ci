@@ -77,7 +77,7 @@ describe('stickersAction', () => {
 			expect(result).toEqual({ success: true })
 			expect(activateSticker).toHaveBeenCalledWith(
 				'RCI-ABC123',
-				{ label: 'Mes clés', linkedObject: 'trousseau' },
+				{ label: 'Mes clés', linkedObject: 'trousseau', directContact: false },
 				expect.any(Request),
 			)
 			expect(updateSticker).not.toHaveBeenCalled()
@@ -111,7 +111,11 @@ describe('stickersAction', () => {
 		expect(result).toEqual({ success: true })
 		expect(updateSticker).toHaveBeenCalledWith(
 			'RCI-ABC123',
-			{ label: 'Sac de sport', linkedObject: undefined },
+			{
+				label: 'Sac de sport',
+				linkedObject: undefined,
+				directContact: false,
+			},
 			expect.any(Request),
 		)
 		expect(activateSticker).not.toHaveBeenCalled()

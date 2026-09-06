@@ -7,6 +7,8 @@ export interface Sticker {
 	isActive: boolean
 	label: string | null
 	linkedObject: string | null
+	/** Whether a finder may be handed the owner's line. Closed by default. */
+	directContact: boolean
 	activatedAt: string | null
 }
 

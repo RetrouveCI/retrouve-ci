@@ -7,6 +7,7 @@ export interface QrTokenApiDto {
 	batch: string | null
 	label: string | null
 	linkedObject: string | null
+	directContact: boolean
 	userId: string | null
 	createdAt: string
 	activatedAt: string | null

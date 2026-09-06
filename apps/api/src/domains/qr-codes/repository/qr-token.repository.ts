@@ -12,6 +12,7 @@ import type {
 	QrToken,
 	QrTokenDetailsData,
 	QrTokenListResponse,
+	QrTokenOwnerReach,
 	QrTokenPublicView,
 } from '../types/qr-token.types'
 
@@ -50,6 +51,28 @@ export class QrTokenRepository {
 			ownerFirstName: qrToken.user?.name.split(' ')[0] ?? null,
 			label: qrToken.label,
 			linkedObject: qrToken.linkedObject,
+			directContact: qrToken.directContact,
+		}
+	}
+
+	/**
+	 * The only query here that selects `phoneNumber`, and separate from
+	 * `findPublicView` on purpose: that one feeds a response, this one a redirect.
+	 */
+	async findOwnerReach(code: string): Promise<QrTokenOwnerReach | null> {
+		const qrToken = await this.prisma.qrToken.findUnique({
+			where: { code },
+			include: { user: { select: { id: true, phoneNumber: true } } },
+		})
+
+		if (!qrToken) return null
+
+		return {
+			status: toDomainStatus(qrToken.status),
+			directContact: qrToken.directContact,
+			label: qrToken.label,
+			ownerUserId: qrToken.user?.id ?? null,
+			ownerPhoneNumber: qrToken.user?.phoneNumber ?? null,
 		}
 	}
 
@@ -65,6 +88,7 @@ export class QrTokenRepository {
 				userId,
 				label: data.label ?? null,
 				linkedObject: data.linkedObject ?? null,
+				directContact: data.directContact ?? false,
 				activatedAt: new Date(),
 			},
 		})
@@ -94,6 +118,9 @@ export class QrTokenRepository {
 				...(data.label !== undefined && { label: data.label }),
 				...(data.linkedObject !== undefined && {
 					linkedObject: data.linkedObject,
+				}),
+				...(data.directContact !== undefined && {
+					directContact: data.directContact,
 				}),
 			},
 		})
