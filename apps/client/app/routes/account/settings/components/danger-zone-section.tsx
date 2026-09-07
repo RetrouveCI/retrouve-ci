@@ -125,14 +125,14 @@ export function DangerZoneSection() {
 						)}
 
 						<AlertDialogFooter className="mt-4">
-							<AlertDialogCancel className="h-11 rounded-xl">
+							<AlertDialogCancel className="h-control rounded-xl">
 								Annuler
 							</AlertDialogCancel>
 							<Button
 								type="submit"
 								variant="destructive"
 								disabled={!password.field.value || fetcher.isSubmitting}
-								className="h-11 rounded-xl"
+								className="h-control rounded-xl"
 							>
 								Supprimer mon compte
 							</Button>

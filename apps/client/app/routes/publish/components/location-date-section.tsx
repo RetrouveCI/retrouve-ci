@@ -64,7 +64,7 @@ export function LocationDateSection({
 					>
 						<SelectTrigger
 							id="ville"
-							className="h-11"
+							className="h-control"
 							aria-invalid={ville.fieldState.invalid || undefined}
 						>
 							<SelectValue placeholder="Sélectionnez" />
@@ -97,7 +97,7 @@ export function LocationDateSection({
 						onOpenChange={open => !open && commune.field.onBlur()}
 						disabled={!hasCommunes}
 					>
-						<SelectTrigger id="commune" className="h-11">
+						<SelectTrigger id="commune" className="h-control">
 							<SelectValue placeholder={hasCommunes ? 'Sélectionnez' : '—'} />
 						</SelectTrigger>
 						<SelectContent>
@@ -120,7 +120,7 @@ export function LocationDateSection({
 					id="date"
 					type="date"
 					value={date.field.value ?? ''}
-					className="h-11"
+					className="h-control"
 					aria-invalid={!!date.fieldState.error}
 				/>
 				<FieldError errors={[date.fieldState.error]} className="text-xs" />
