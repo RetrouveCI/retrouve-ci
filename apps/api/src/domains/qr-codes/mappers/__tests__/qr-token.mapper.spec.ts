@@ -26,6 +26,7 @@ describe('qr-token mapper', () => {
 			createdAt: new Date('2026-01-01'),
 			activatedAt: new Date('2026-01-02'),
 			revokedAt: null,
+			lastScannedAt: new Date('2026-01-03'),
 		}
 
 		expect(toDomainQrToken(prismaQrToken)).toEqual({
@@ -41,6 +42,7 @@ describe('qr-token mapper', () => {
 			createdAt: new Date('2026-01-01'),
 			activatedAt: new Date('2026-01-02'),
 			revokedAt: null,
+			lastScannedAt: new Date('2026-01-03'),
 		})
 	})
 

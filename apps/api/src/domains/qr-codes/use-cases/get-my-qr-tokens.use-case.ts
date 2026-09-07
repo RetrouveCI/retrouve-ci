@@ -3,7 +3,7 @@ import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
 import { QrTokenRepository } from '../repository/qr-token.repository'
 import type {
 	ListQrTokensFilter,
-	QrTokenListResponse,
+	OwnedQrTokenListResponse,
 } from '../types/qr-token.types'
 
 interface GetMyQrTokensInput {
@@ -14,7 +14,7 @@ interface GetMyQrTokensInput {
 @Injectable()
 export class GetMyQrTokensUseCase implements IDomainUseCase<
 	GetMyQrTokensInput,
-	QrTokenListResponse
+	OwnedQrTokenListResponse
 > {
 	constructor(private readonly repository: QrTokenRepository) {}
 
@@ -22,7 +22,7 @@ export class GetMyQrTokensUseCase implements IDomainUseCase<
 	async execute({
 		userId,
 		filter,
-	}: GetMyQrTokensInput): Promise<QrTokenListResponse> {
-		return this.repository.list({ ...filter, userId })
+	}: GetMyQrTokensInput): Promise<OwnedQrTokenListResponse> {
+		return this.repository.listByOwner({ ...filter, userId })
 	}
 }

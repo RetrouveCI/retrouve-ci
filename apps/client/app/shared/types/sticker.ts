@@ -10,6 +10,9 @@ export interface Sticker {
 	/** Whether a finder may be handed the owner's line. Closed by default. */
 	directContact: boolean
 	activatedAt: string | null
+	/** What the owner reads on the card: when it was last read, by anyone. */
+	lastScannedAt: string | null
+	messagesCount: number
 }
 
 /**

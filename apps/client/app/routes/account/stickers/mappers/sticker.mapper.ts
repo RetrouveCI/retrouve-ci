@@ -11,5 +11,7 @@ export function toSticker(dto: QrTokenApiDto): Sticker {
 		linkedObject: dto.linkedObject,
 		directContact: dto.directContact,
 		activatedAt: dto.activatedAt,
+		lastScannedAt: dto.lastScannedAt,
+		messagesCount: dto.messagesCount,
 	}
 }
