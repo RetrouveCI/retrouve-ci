@@ -83,10 +83,10 @@ describe('the sitemap', () => {
 		await fetchSitemap()
 
 		expect(getLostItems).toHaveBeenCalledTimes(1)
-		expect(getLostItems).toHaveBeenCalledWith({
-			page: 1,
-			pageSize: SITEMAP_PAGE_SIZE,
-		})
+		expect(getLostItems).toHaveBeenCalledWith(
+			{ page: 1, pageSize: SITEMAP_PAGE_SIZE },
+			expect.any(Request),
+		)
 	})
 
 	it('never reads past its cap', async () => {

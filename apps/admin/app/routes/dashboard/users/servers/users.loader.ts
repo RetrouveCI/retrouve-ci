@@ -15,8 +15,7 @@ export async function usersLoader({ request }: { request: Request }) {
 	// page is reachable from a hand-edited URL.
 	const statusFilter = userStatusSchema.safeParse(rawStatus).data
 
-	const cookie = request.headers.get('cookie') ?? ''
-	const { users, total } = await listUsers(cookie, statusFilter)
+	const { users, total } = await listUsers(request, statusFilter)
 
 	return { users, total, statusFilter: rawStatus ?? 'all' }
 }

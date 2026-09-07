@@ -12,6 +12,7 @@ export async function requestPasswordReset(
 			email,
 			redirectTo: appUrl('/reset-password', request),
 		}),
+		request,
 		headers: { Origin: requestOrigin(request) },
 	})
 }

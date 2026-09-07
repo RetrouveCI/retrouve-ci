@@ -11,8 +11,7 @@ export async function userLoader({
 }) {
 	await requireAdminSession(request)
 
-	const cookie = request.headers.get('cookie') ?? ''
-	const user = await getUserById(cookie, params.id ?? '')
+	const user = await getUserById(request, params.id ?? '')
 	if (!user) throw redirect('/users')
 
 	return { user }

@@ -12,10 +12,11 @@ export function callerAddress(request: Request): string | undefined {
 	return firstHop(request, 'x-forwarded-for') ?? firstHop(request, 'x-real-ip')
 }
 
-// Passing `request` lets a server-side call speak for the visitor rather than
-// for this container: it carries the cookie and the address the rate limiter
-// keys on. Without it every visitor of a capped route shared one bucket (R44).
-export type ApiFetchInit = RequestInit & { request?: Request }
+// `request` is **required**, and that is the guard: it carries the cookie and
+// the address the rate limiter keys on, so a call omitting it speaks for this
+// container and every visitor of a capped route shares one bucket. R44 wired it
+// by hand and missed six calls, each already passing an `Origin`.
+export type ApiFetchInit = RequestInit & { request: Request }
 
 function forwardedHeaders(request: Request): Record<string, string> {
 	const address = callerAddress(request)
@@ -53,9 +54,9 @@ export function createApiFetch({
 }: CreateApiFetchOptions) {
 	return async function apiFetch<T>(
 		path: string,
-		init?: ApiFetchInit,
+		init: ApiFetchInit,
 	): Promise<T> {
-		const { request, ...rest } = init ?? {}
+		const { request, ...rest } = init
 
 		const response = await fetch(`${baseUrl()}${path}`, {
 			...rest,
@@ -63,8 +64,8 @@ export function createApiFetch({
 			headers: {
 				'Content-Type': 'application/json',
 				...defaultHeaders,
-				...(request ? forwardedHeaders(request) : {}),
-				...init?.headers,
+				...forwardedHeaders(request),
+				...init.headers,
 			},
 		})
 

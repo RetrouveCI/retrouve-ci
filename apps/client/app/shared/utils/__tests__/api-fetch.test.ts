@@ -1,5 +1,9 @@
 import { ApiError, apiFetch } from '../api-fetch'
 
+/** Required, so every call in the app carries one: see the R50 note below. */
+const incoming = (headers: Record<string, string> = {}) =>
+	new Request('http://localhost:3000/posts', { headers })
+
 function mockFetch(response: Response) {
 	const spy = vi.fn().mockResolvedValue(response)
 	vi.stubGlobal('fetch', spy)
@@ -19,7 +23,7 @@ describe('the public apiFetch', () => {
 	it('sends no X-Auth-Audience header', async () => {
 		const spy = mockFetch(new Response('{}', { status: 200 }))
 
-		await apiFetch('/lost-items')
+		await apiFetch('/lost-items', { request: incoming() })
 
 		const headers = spy.mock.calls[0]?.[1]?.headers as Record<string, string>
 		expect(headers['X-Auth-Audience']).toBeUndefined()
@@ -29,7 +33,7 @@ describe('the public apiFetch', () => {
 	it('forwards credentials, so the session cookie travels', async () => {
 		const spy = mockFetch(new Response('{}', { status: 200 }))
 
-		await apiFetch('/lost-items')
+		await apiFetch('/lost-items', { request: incoming() })
 
 		expect(spy.mock.calls[0]?.[1]?.credentials).toBe('include')
 	})
@@ -42,27 +46,31 @@ describe('the public apiFetch', () => {
 			),
 		)
 
-		await expect(apiFetch('/lost-items')).rejects.toThrowError(
-			new ApiError(400, 'Validation failed'),
-		)
+		await expect(
+			apiFetch('/lost-items', { request: incoming() }),
+		).rejects.toThrowError(new ApiError(400, 'Validation failed'))
 	})
 
 	it('falls back to the status text when the body is not JSON', async () => {
 		mockFetch(new Response('<html>502</html>', { status: 502 }))
 
-		await expect(apiFetch('/lost-items')).rejects.toThrowError(ApiError)
+		await expect(
+			apiFetch('/lost-items', { request: incoming() }),
+		).rejects.toThrowError(ApiError)
 	})
 
 	it('answers undefined on 204 rather than trying to parse a body', async () => {
 		mockFetch(new Response(null, { status: 204 }))
 
-		await expect(apiFetch('/lost-items')).resolves.toBeUndefined()
+		await expect(
+			apiFetch('/lost-items', { request: incoming() }),
+		).resolves.toBeUndefined()
 	})
 
 	it('prefixes the path with API_URL, read at call time', async () => {
 		const spy = mockFetch(new Response('{}', { status: 200 }))
 
-		await apiFetch('/lost-items')
+		await apiFetch('/lost-items', { request: incoming() })
 
 		expect(spy.mock.calls[0]?.[0]).toBe('http://api.test/lost-items')
 	})
@@ -70,9 +78,6 @@ describe('the public apiFetch', () => {
 
 /** R44, and the reason it is one place rather than forty-five. */
 describe('apiFetch speaking for the visitor', () => {
-	const incoming = (headers: Record<string, string>) =>
-		new Request('http://localhost:3000/q/RCI-1', { headers })
-
 	const headersOf = (spy: ReturnType<typeof mockFetch>) =>
 		spy.mock.calls[0]?.[1]?.headers as Record<string, string>
 
@@ -136,8 +141,20 @@ describe('apiFetch speaking for the visitor', () => {
 	it('does not pass the request on to fetch', async () => {
 		const spy = mockFetch(new Response('{}', { status: 200 }))
 
-		await apiFetch('/x', { request: incoming({}) })
+		await apiFetch('/x', { request: incoming() })
 
 		expect(spy.mock.calls[0]?.[1]).not.toHaveProperty('request')
+	})
+})
+
+// R50: optional forwarding left both `send-otp` callers, both
+// `request-password-reset` callers and the contact form keyed on this container
+// — 5 SMS per 15 minutes platform-wide. A required field makes that impossible.
+describe('the rule itself', () => {
+	it('refuses a call that speaks for no visitor', () => {
+		// @ts-expect-error `request` is required: this is the guard.
+		const call = () => apiFetch('/lost-items', { method: 'POST' })
+
+		expect(call).toBeTypeOf('function')
 	})
 })

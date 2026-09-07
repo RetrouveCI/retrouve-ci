@@ -1,4 +1,5 @@
-import { apiFetch } from '@/shared/utils/api-fetch'
+import { requestOrigin } from '@/shared/helpers/origin'
+import { apiFetch, type ApiFetchInit } from '@/shared/utils/api-fetch'
 import type { EditableRole } from '../administrators.schema'
 import type { Admin, AdminRole } from '../types/administrators.types'
 
@@ -25,25 +26,22 @@ function mapUser(user: BetterAuthUser): Admin {
 	}
 }
 
-interface ServerHeaders {
-	cookie: string
-	origin: string
+// Only the mutations name an `Origin`, as they always did: the API lets it win
+// over `X-Auth-Audience`, so adding one moves which instance answers.
+function authInit(request: Request): ApiFetchInit {
+	return { request, headers: { Origin: requestOrigin(request) } }
 }
 
-function authHeaders(h: ServerHeaders): Record<string, string> {
-	return { Cookie: h.cookie, Origin: h.origin }
-}
-
-export async function listAdminUsers(headers: ServerHeaders): Promise<Admin[]> {
+export async function listAdminUsers(request: Request): Promise<Admin[]> {
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
 		'/api/admin-auth/admin/list-users?limit=200&filterField=role&filterOperator=ne&filterValue=user',
-		{ headers: authHeaders(headers) },
+		{ request },
 	)
 	return res.users.filter(u => u.role !== 'user').map(mapUser)
 }
 
 export async function createAdminUser(
-	headers: ServerHeaders,
+	request: Request,
 	data: {
 		name: string
 		email: string
@@ -57,7 +55,7 @@ export async function createAdminUser(
 		'/api/admin-auth/admin/create-user',
 		{
 			method: 'POST',
-			headers: authHeaders(headers),
+			...authInit(request),
 			body: JSON.stringify({
 				...rest,
 				data: phone ? { phoneNumber: phone } : undefined,
@@ -68,58 +66,58 @@ export async function createAdminUser(
 }
 
 export async function setAdminRole(
-	headers: ServerHeaders,
+	request: Request,
 	userId: string,
 	role: EditableRole,
 ): Promise<void> {
 	await apiFetch('/api/admin-auth/admin/set-role', {
 		method: 'POST',
-		headers: authHeaders(headers),
+		...authInit(request),
 		body: JSON.stringify({ userId, role }),
 	})
 }
 
 export async function banAdminUser(
-	headers: ServerHeaders,
+	request: Request,
 	userId: string,
 ): Promise<void> {
 	await apiFetch('/api/admin-auth/admin/ban-user', {
 		method: 'POST',
-		headers: authHeaders(headers),
+		...authInit(request),
 		body: JSON.stringify({ userId }),
 	})
 }
 
 export async function unbanAdminUser(
-	headers: ServerHeaders,
+	request: Request,
 	userId: string,
 ): Promise<void> {
 	await apiFetch('/api/admin-auth/admin/unban-user', {
 		method: 'POST',
-		headers: authHeaders(headers),
+		...authInit(request),
 		body: JSON.stringify({ userId }),
 	})
 }
 
 export async function removeAdminUser(
-	headers: ServerHeaders,
+	request: Request,
 	userId: string,
 ): Promise<void> {
 	await apiFetch('/api/admin-auth/admin/remove-user', {
 		method: 'POST',
-		headers: authHeaders(headers),
+		...authInit(request),
 		body: JSON.stringify({ userId }),
 	})
 }
 
 export async function sendPasswordReset(
-	headers: ServerHeaders,
+	request: Request,
 	email: string,
 	redirectTo: string,
 ): Promise<void> {
 	await apiFetch('/api/admin-auth/request-password-reset', {
 		method: 'POST',
-		headers: authHeaders(headers),
+		...authInit(request),
 		body: JSON.stringify({ email, redirectTo }),
 	})
 }

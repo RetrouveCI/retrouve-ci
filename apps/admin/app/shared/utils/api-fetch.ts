@@ -2,6 +2,7 @@ import { createApiFetch } from '@app/web-kit/api'
 import { apiUrl } from '@/shared/helpers/env'
 
 export { ApiError } from '@app/web-kit/api'
+export type { ApiFetchInit } from '@app/web-kit/api'
 
 /**
  * Server-side calls carry no `Origin`, so the API has no other way to know

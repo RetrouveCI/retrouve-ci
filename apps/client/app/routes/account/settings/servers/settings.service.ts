@@ -21,6 +21,7 @@ export async function sendPhoneChangeOtp(
 	await apiFetch('/api/auth/phone-number/send-otp', {
 		method: 'POST',
 		body: JSON.stringify({ phoneNumber: toE164(phone) }),
+		request,
 		headers: { Origin: requestOrigin(request) },
 	})
 }

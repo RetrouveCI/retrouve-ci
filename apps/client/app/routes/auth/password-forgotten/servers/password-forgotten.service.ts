@@ -9,6 +9,7 @@ export async function requestPasswordReset(
 	await apiFetch('/api/auth/phone-number/request-password-reset', {
 		method: 'POST',
 		body: JSON.stringify({ phoneNumber: toE164(phoneNumber) }),
+		request,
 		headers: { Origin: requestOrigin(request) },
 	})
 }

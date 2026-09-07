@@ -1,5 +1,9 @@
 import { ApiError, apiFetch } from '../api-fetch'
 
+/** Every call speaks for a visitor, so every call needs one. */
+const incoming = (headers: Record<string, string> = {}) =>
+	new Request('http://localhost:3001/users', { headers })
+
 function mockFetch(response: Response) {
 	const spy = vi.fn().mockResolvedValue(response)
 	vi.stubGlobal('fetch', spy)
@@ -19,7 +23,7 @@ describe('the backoffice apiFetch', () => {
 	it('sends X-Auth-Audience on every call', async () => {
 		const spy = mockFetch(new Response('{}', { status: 200 }))
 
-		await apiFetch('/contact-messages')
+		await apiFetch('/contact-messages', { request: incoming() })
 
 		const headers = spy.mock.calls[0]?.[1]?.headers as Record<string, string>
 		expect(headers['X-Auth-Audience']).toBe('admin')
@@ -29,7 +33,7 @@ describe('the backoffice apiFetch', () => {
 	it('forwards credentials, so the session cookie travels', async () => {
 		const spy = mockFetch(new Response('{}', { status: 200 }))
 
-		await apiFetch('/contact-messages')
+		await apiFetch('/contact-messages', { request: incoming() })
 
 		expect(spy.mock.calls[0]?.[1]?.credentials).toBe('include')
 	})
@@ -37,7 +41,10 @@ describe('the backoffice apiFetch', () => {
 	it('lets a caller add headers without dropping the audience', async () => {
 		const spy = mockFetch(new Response('{}', { status: 200 }))
 
-		await apiFetch('/contact-messages', { headers: { Cookie: 'a=b' } })
+		await apiFetch('/contact-messages', {
+			request: incoming(),
+			headers: { Cookie: 'a=b' },
+		})
 
 		const headers = spy.mock.calls[0]?.[1]?.headers as Record<string, string>
 		expect(headers['X-Auth-Audience']).toBe('admin')
@@ -54,9 +61,9 @@ describe('the backoffice apiFetch', () => {
 			),
 		)
 
-		await expect(apiFetch('/contact-messages/x')).rejects.toThrowError(
-			new ApiError(404, 'Introuvable'),
-		)
+		await expect(
+			apiFetch('/contact-messages/x', { request: incoming() }),
+		).rejects.toThrowError(new ApiError(404, 'Introuvable'))
 	})
 
 	it('joins a message the API sends as an array', async () => {
@@ -66,21 +73,23 @@ describe('the backoffice apiFetch', () => {
 			}),
 		)
 
-		await expect(apiFetch('/contact-messages')).rejects.toThrowError(
-			new ApiError(400, 'a, b'),
-		)
+		await expect(
+			apiFetch('/contact-messages', { request: incoming() }),
+		).rejects.toThrowError(new ApiError(400, 'a, b'))
 	})
 
 	it('answers undefined on 204 rather than trying to parse a body', async () => {
 		mockFetch(new Response(null, { status: 204 }))
 
-		await expect(apiFetch('/contact-messages/x')).resolves.toBeUndefined()
+		await expect(
+			apiFetch('/contact-messages/x', { request: incoming() }),
+		).resolves.toBeUndefined()
 	})
 
 	it('prefixes the path with API_URL, read at call time', async () => {
 		const spy = mockFetch(new Response('{}', { status: 200 }))
 
-		await apiFetch('/lost-items')
+		await apiFetch('/lost-items', { request: incoming() })
 
 		expect(spy.mock.calls[0]?.[0]).toBe('http://api.test/lost-items')
 	})

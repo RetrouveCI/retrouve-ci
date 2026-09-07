@@ -17,7 +17,8 @@ export interface PostsQuery {
 }
 
 export async function getLostItems(
-	query: PostsQuery = {},
+	query: PostsQuery,
+	request: Request,
 ): Promise<LostItemListApiResponse> {
 	const params = new URLSearchParams()
 	if (query.search) params.set('search', query.search)
@@ -30,11 +31,16 @@ export async function getLostItems(
 	params.set('page', String(query.page ?? 1))
 	params.set('pageSize', String(query.pageSize ?? 12))
 
-	return apiFetch<LostItemListApiResponse>(`/lost-items?${params.toString()}`)
+	return apiFetch<LostItemListApiResponse>(`/lost-items?${params.toString()}`, {
+		request,
+	})
 }
 
-export async function getLostItemById(id: string): Promise<LostItemApiDto> {
-	return apiFetch<LostItemApiDto>(`/lost-items/${id}`)
+export async function getLostItemById(
+	id: string,
+	request: Request,
+): Promise<LostItemApiDto> {
+	return apiFetch<LostItemApiDto>(`/lost-items/${id}`, { request })
 }
 
 // From a `servers/` action only: the number leaves as a `Location` header.

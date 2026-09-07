@@ -21,9 +21,10 @@ const DTO = {
 }
 
 const load = () =>
-	postDetailLoader({ params: { id: 'post-1' } } as Parameters<
-		typeof postDetailLoader
-	>[0])
+	postDetailLoader({
+		params: { id: 'post-1' },
+		request: new Request('http://localhost:3000/posts/post-1'),
+	} as Parameters<typeof postDetailLoader>[0])
 
 const statusOf = (value: unknown) =>
 	value instanceof Response
@@ -42,7 +43,7 @@ describe('postDetailLoader', () => {
 	it('reads the listing named in the url', async () => {
 		await load()
 
-		expect(getLostItemById).toHaveBeenCalledWith('post-1')
+		expect(getLostItemById).toHaveBeenCalledWith('post-1', expect.any(Request))
 	})
 
 	it('hands the page the mapped listing', async () => {
