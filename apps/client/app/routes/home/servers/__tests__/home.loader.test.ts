@@ -17,7 +17,7 @@ function dto(id: string): LostItemApiDto {
 		commune: 'Cocody',
 		eventDate: '2026-08-30T10:00:00.000Z',
 		contactName: 'Awa',
-		contactWhatsapp: '+2250700000000',
+		contactReachable: true,
 		photos: [],
 		documentType: null,
 		documentHolderName: null,

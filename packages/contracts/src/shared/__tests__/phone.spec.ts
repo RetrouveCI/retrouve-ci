@@ -5,6 +5,7 @@ import {
 	stripPhoneSpacing,
 	toE164,
 	toLocalDigits,
+	toWhatsAppUrl,
 } from '../phone'
 
 describe('toLocalDigits', () => {
@@ -87,4 +88,36 @@ describe('toE164', () => {
 		expect(toE164('0700000000')).toBe('+2250700000000')
 		expect(toE164('+225 07 00 00 00 00')).toBe('+2250700000000')
 	})
+})
+
+describe('toWhatsAppUrl', () => {
+	it('addresses the recipient without a plus sign', () => {
+		expect(toWhatsAppUrl('0700000000')).toBe('https://wa.me/2250700000000')
+	})
+
+	// A stored number may be E.164, spaced, or bare local.
+	it.each(['+2250700000000', '07 00 00 00 00', '+225 07 00 00 00 00'])(
+		'reads %s as the same recipient',
+		stored => {
+			expect(toWhatsAppUrl(stored)).toBe('https://wa.me/2250700000000')
+		},
+	)
+
+	it('encodes a prefilled message rather than breaking the URL', () => {
+		expect(toWhatsAppUrl('0700000000', "J'ai trouvé ça")).toBe(
+			"https://wa.me/2250700000000?text=J'ai%20trouv%C3%A9%20%C3%A7a",
+		)
+	})
+
+	it('appends nothing when there is no message', () => {
+		expect(toWhatsAppUrl('0700000000', '')).toBe('https://wa.me/2250700000000')
+	})
+
+	// A link on ten wrong digits reads as the app being broken.
+	it.each(['', '070000000', '07000000000', 'abcdefghij'])(
+		'answers null for %o',
+		stored => {
+			expect(toWhatsAppUrl(stored)).toBeNull()
+		},
+	)
 })

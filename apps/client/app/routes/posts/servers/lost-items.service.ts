@@ -36,3 +36,16 @@ export async function getLostItems(
 export async function getLostItemById(id: string): Promise<LostItemApiDto> {
 	return apiFetch<LostItemApiDto>(`/lost-items/${id}`)
 }
+
+// From a `servers/` action only: the number leaves as a `Location` header.
+export async function contactLostItemPoster(
+	id: string,
+	request: Request,
+): Promise<string> {
+	const { url } = await apiFetch<{ url: string }>(`/lost-items/${id}/contact`, {
+		method: 'POST',
+		request,
+	})
+
+	return url
+}

@@ -23,3 +23,10 @@ export class LostItemPhotosRefusedError extends ValidationError {
 		super(PHOTOS_REFUSED_MESSAGE)
 	}
 }
+
+/** French: it is answered to an anonymous finder on a public page. */
+export class LostItemUnreachableError extends ValidationError {
+	constructor() {
+		super("Le numéro de contact de cette annonce n'est pas joignable")
+	}
+}

@@ -11,7 +11,7 @@ const DTO: LostItemApiDto = {
 	commune: 'Yopougon',
 	eventDate: '2026-09-01T10:00:00.000Z',
 	contactName: 'Awa',
-	contactWhatsapp: '+2250700000000',
+	contactReachable: true,
 	photos: [],
 	documentType: 'national_id',
 	documentHolderName: 'KOUASSI Jean',

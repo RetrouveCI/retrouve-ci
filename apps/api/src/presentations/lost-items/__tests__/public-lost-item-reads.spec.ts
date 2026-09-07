@@ -91,24 +91,36 @@ function collectPublicHandlers(): PublicHandler[] {
 	return handlers
 }
 
+// A public route may answer something narrower than a listing — R46's hands
+// back a target and no listing. Named so the exemption cannot rot in silence.
+const NARROWER = new Map([['ContactLostItemPosterUseCase', 'ContactTarget']])
+
 describe('reads open to the public', () => {
 	const handlers = collectPublicHandlers()
 
 	// The probe must catch something before its verdict means anything.
 	it('finds every route that answers without a session', () => {
 		expect(handlers.map(handler => handler.useCase).sort()).toEqual([
+			'ContactLostItemPosterUseCase',
 			'FindMatchesUseCase',
 			'GetPublicLostItemsUseCase',
-			'RecordLostItemContactUseCase',
 			'ViewLostItemUseCase',
 		])
 	})
 
-	it.each(collectPublicHandlers())(
+	it.each(handlers.filter(handler => !NARROWER.has(handler.useCase)))(
 		'$useCase answers with the projection',
 		({ source }) => {
 			expect(source).toContain('PublicLostItem')
 			expect(source).toContain('toPublicLostItem')
 		},
 	)
+
+	it.each([...NARROWER])('%s answers %s, and no listing', (useCase, shape) => {
+		const handler = handlers.find(item => item.useCase === useCase)
+
+		expect(handler, `${useCase} is exempt but no longer public`).toBeDefined()
+		expect(handler?.source).toContain(`Promise<${shape}>`)
+		expect(handler?.source).not.toContain('PublicLostItem')
+	})
 })

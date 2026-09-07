@@ -19,11 +19,11 @@ export interface LostItemFilters {
 }
 
 export interface LostItemDetail extends LostItem {
-	/** `whatsapp` is the stored `contactWhatsapp`, in whatever shape the row holds. */
-	contact: { name: string; whatsapp: string }
+	contact: { name: string }
+	contactReachable: boolean
 }
 
-export interface LostItemApiDto {
+export interface LostItemBaseApiDto {
 	id: string
 	type: LostItemType
 	category: LostItemCategory
@@ -33,7 +33,6 @@ export interface LostItemApiDto {
 	commune: string | null
 	eventDate: string
 	contactName: string
-	contactWhatsapp: string
 	photos: string[]
 	documentType: DocumentType | null
 	documentHolderName: string | null
@@ -45,11 +44,17 @@ export interface LostItemApiDto {
 	createdAt: string
 }
 
+/** A public read: a boolean where the poster's line used to travel. */
+export interface LostItemApiDto extends LostItemBaseApiDto {
+	contactReachable: boolean
+}
+
 /**
- * What the session-gated reads add. `documentNumber` is declared here and
- * nowhere else, so a screen fed by a public read cannot reach for it.
+ * What the session-gated reads add. Both are declared here and nowhere else, so
+ * a screen fed by a public read cannot reach for either.
  */
-export interface MyLostItemApiDto extends LostItemApiDto {
+export interface MyLostItemApiDto extends LostItemBaseApiDto {
+	contactWhatsapp: string
 	documentNumber: string | null
 	moderationReason: ModerationReason | null
 	moderationReasonNote: string | null
@@ -67,16 +72,17 @@ export interface MyLostItemsSummaryApiResponse {
 	moderation: Record<ModerationStatus, number>
 }
 
-export interface LostItemListApiResponse {
-	items: LostItemApiDto[]
+interface PaginatedApiResponse<TItem> {
+	items: TItem[]
 	total: number
 	page: number
 	pageSize: number
 }
 
-export interface MyLostItemListApiResponse extends LostItemListApiResponse {
-	items: MyLostItemApiDto[]
-}
+// Two shapes rather than one extending the other: the owner's read carries the
+// number where the public one carries a boolean, so neither widens the other.
+export type LostItemListApiResponse = PaginatedApiResponse<LostItemApiDto>
+export type MyLostItemListApiResponse = PaginatedApiResponse<MyLostItemApiDto>
 
 /** `GET /lost-items/:id/matches` — a scored candidate of the opposite type. */
 export interface MatchCandidateApiDto {
