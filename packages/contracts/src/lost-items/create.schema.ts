@@ -10,7 +10,11 @@ import {
 	pushLostItemWriteIssues,
 } from './documents.schema'
 import { lostItemCategorySchema, lostItemTypeSchema } from './enums.schema'
-import { MAX_DESCRIPTION_LENGTH, MAX_PHOTOS } from './lost-items.const'
+import {
+	MAX_DESCRIPTION_LENGTH,
+	MAX_PHOTOS,
+	MAX_STICKER_CODE_LENGTH,
+} from './lost-items.const'
 
 export const lostItemEventDateSchema = calendarDateSchema({
 	required: 'La date est requise',
@@ -67,9 +71,23 @@ export const lostItemFieldsSchema = z.object({
 	...documentFieldsShape,
 })
 
-export const createLostItemSchema = lostItemFieldsSchema.check(ctx =>
-	pushLostItemWriteIssues(ctx, { requireHolderName: true }),
-)
+/**
+ * Extended before the rule is attached, never after: Zod 4 throws on `.extend()`
+ * over a checked object, and `update` derives from `lostItemFieldsSchema` — so
+ * the sticker link stays a publication field, as decided.
+ */
+export const createLostItemSchema = lostItemFieldsSchema
+	.extend({
+		// Ownership is not a shape a schema can check: the API resolves the code
+		// against the poster's own tokens and refuses anything else.
+		stickerCode: z
+			.string()
+			.trim()
+			.min(1, 'Code de sticker invalide')
+			.max(MAX_STICKER_CODE_LENGTH, 'Code de sticker invalide')
+			.optional(),
+	})
+	.check(ctx => pushLostItemWriteIssues(ctx, { requireHolderName: true }))
 
 export type CreateLostItemInput = z.input<typeof createLostItemSchema>
 export type CreateLostItemData = z.output<typeof createLostItemSchema>

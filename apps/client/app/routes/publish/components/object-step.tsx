@@ -17,6 +17,8 @@ import { CategoryPills } from './category-pills'
 import { DocumentSection } from './document-section'
 import { PhotosUpload } from './photos-upload'
 import { StepIntro } from './step-intro'
+import { StickerLinkField } from './sticker-link-field'
+import type { LinkableSticker } from '../servers/publish.loader'
 
 const TYPES: { type: LostItemType; to: string; label: string }[] = [
 	{ type: 'lost', to: '/publish/lost', label: "J'ai perdu" },
@@ -26,12 +28,14 @@ const TYPES: { type: LostItemType; to: string; label: string }[] = [
 interface ObjectStepProps {
 	control: Control<PublishFormInput>
 	type: LostItemType
+	stickers: LinkableSticker[]
 	onPhotoCountChange: (count: number) => void
 }
 
 export function ObjectStep({
 	control,
 	type,
+	stickers,
 	onPhotoCountChange,
 }: ObjectStepProps) {
 	const accent = PUBLISH_ACCENT[type]
@@ -204,6 +208,8 @@ export function ObjectStep({
 					/>
 				</div>
 			)}
+
+			<StickerLinkField control={control} stickers={stickers} />
 		</div>
 	)
 }

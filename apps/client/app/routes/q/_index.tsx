@@ -6,6 +6,7 @@ import { qrContactAction } from './servers/qr-contact.action'
 import { QrOwnerCard } from './components/qr-owner-card'
 import { QrContactForm } from './components/qr-contact-form'
 import { QrReachActions } from './components/qr-reach-actions'
+import { QrLostItemCard } from './components/qr-lost-item-card'
 import { pageMeta } from '@/shared/helpers/page-meta'
 import type { QrTokenPublicView } from './servers/qr-contact.service'
 import type { Route } from './+types/_index'
@@ -101,6 +102,8 @@ export default function QrContactPage({
 					</div>
 
 					<QrOwnerCard token={token} />
+
+					{token.lostItem && <QrLostItemCard lostItem={token.lostItem} />}
 
 					{token.status === 'activated' ? (
 						<>

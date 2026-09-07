@@ -26,6 +26,16 @@ export interface QrTokenPublicView {
 	linkedObject: string | null
 	/** Deliberately a boolean: it says a button may be drawn, never who to call. */
 	directContact: boolean
+	/** Only when published and still active; `null` also covers « not linked ». */
+	lostItem: LinkedLostItem | null
+}
+
+/** What `/q/:code` may say about a linked listing: enough to open it, no more. */
+export interface LinkedLostItem {
+	id: string
+	title: string
+	ville: string
+	photo: string | null
 }
 
 /** Read only by the reach use-case: the one shape here carrying a phone number. */
@@ -45,6 +55,7 @@ export interface QrToken {
 	label: string | null
 	linkedObject: string | null
 	directContact: boolean
+	lostItemId: string | null
 	userId: string | null
 	createdAt: Date
 	activatedAt: Date | null

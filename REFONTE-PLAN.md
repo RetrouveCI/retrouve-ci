@@ -2660,9 +2660,9 @@ stickers ne demande jamais de saisir un code.
 > déjà nommé cette colonne « Description de l'objet (optionnel) » : la
 > rebaptiser ferait dire deux choses à une colonne (§2.3 règle 1). La feuille
 > garde `label` comme champ dominant — « Sur quel objet le collez-vous ? », le
-> nom que verra celui qui scanne — plus la description libre. **A9** est ouverte
-> pour la vraie relation : colonne `lostItemId`, migration, contrat, résolution
-> côté `/q/:code`.
+> nom que verra celui qui scanne — plus la description libre. ⚠️ **A9 a depuis
+> posé la vraie relation** (`lostItemId`), mais **pas ici** : le lien se donne à
+> la publication de l'annonce, pas à l'activation — voir sa section.
 
 > **Les plafonds de texte libre étaient plus larges devant que derrière.** Les
 > deux fronts bornaient `label` à 80 et `linkedObject` à 140, contre les 60 et
@@ -4157,8 +4157,89 @@ mesurés, projet par projet.
 
 **Reste ouvert** : le back-office ne montre pas le consentement — il ne lit
 `qr-codes` que pour lister, révoquer et générer, et n'écrit jamais
-`qrTokenDetailsSchema`, donc rien n'y était à risque ; et **A9**, la relation
-`QrToken → LostItem`, reste entière.
+`qrTokenDetailsSchema`, donc rien n'y était à risque. **A9 est livrée depuis**,
+et n'a rien changé à `linkedObject`.
+
+#### A9 — Le sticker et l'annonce se répondent — **LIVRÉE**
+
+Laissée ouverte par R22, et **jamais une étape du plan** : elle n'était qu'une
+note de décision, comme R38 à R42 avant elle — d'où une section ici et aucune
+ligne au §4. L'artboard `ScanActivation` dessine « Lier à une annonce
+(facultatif) », que R22 avait rendu en texte libre faute de relation.
+
+> ⚠️ **Le créneau que dessine la maquette est presque toujours vide.** On active
+> un sticker le jour où on le **reçoit** ; l'annonce n'existe qu'**après** avoir
+> perdu l'objet. La maquette le dit elle-même : la valeur qu'elle affiche est «
+> Aucune annonce ». Tranché avec le commanditaire : le champ passe **à la
+> publication de l'annonce**, sur `/publish/lost`, là où le propriétaire y pense
+> vraiment. **Écart assumé vis-à-vis de la maquette**, comme R9, R35 et A8.
+
+**`linkedObject` n'était pas le champ à remplacer** — 35 sites d'appel réels
+recomptés dans les quatre workspaces, et R22 l'a déjà nommé « Description de
+l'objet (optionnel) ». Un sticker sur un trousseau n'a le plus souvent aucune
+annonce, donc le texte libre garde sa fonction : `lostItemId` est une colonne de
+**plus**, et les 35 sites n'ont pas bougé.
+
+Ce qui a été livré :
+
+1. **`QrToken.lostItemId`**, nullable, `onDelete: SetNull` — supprimer une
+   annonce délie le sticker sans le perdre.
+2. **`createLostItemSchema` gagne `stickerCode`**, et lui seul : l'extension est
+   posée **avant** le `.check()`, donc `updateLostItemSchema`, qui dérive de
+   `lostItemFieldsSchema`, ne connaît pas le champ. Une modification ne peut pas
+   re-pointer un sticker en silence, et un test le prouve.
+3. **`LinkQrTokenToLostItemUseCase`**, appelé par `CreateLostItemUseCase` une
+   fois l'annonce écrite — c'est là que son id existe. `lost-items` importe
+   `QrCodesDomainModule` ; aucun cycle, `qr-codes` ne remonte jamais ici.
+4. **Le select n'offre que les stickers activés du visiteur**, nommés par leur
+   libellé, et **rien n'est dessiné** quand il n'en a aucun.
+5. **`/q/:code` montre « Déclaré perdu »** et ouvre l'annonce.
+
+> ⚠️ **`requireOwnedQrToken` est toute la sécurité du lot.** Sans elle une
+> annonce pointerait sur le sticker d'un inconnu, et `/q/:code` afficherait
+> l'objet de cet inconnu comme déclaré perdu. Vérifié en rouge : la garde
+> retirée, deux cas du spec tombent.
+
+> ⚠️ **Prisma type un `where` dans un `include` to-one, mais rien ici ne peut
+> prouver qu'il s'applique.** Le type est réel — `LostItemWhereInput` rejette un
+> champ bidon, donc ce n'est pas de l'`any`. Mais sans Postgres le runtime n'est
+> pas observable, et un filtre qui pourrait silencieusement ne pas s'appliquer
+> n'est pas un filtre à qui confier du contenu non modéré. Les deux statuts
+> remontent donc avec la ligne et sont pesés par `toLinkedLostItem`, une
+> fonction **pure** du mapper dont le spec couvre les **neuf** combinaisons de
+> `ModerationStatus` × `ResolutionStatus`. Une seule est montrable.
+
+**Un lien refusé ne fait pas échouer la publication.** Le formulaire n'offre que
+les stickers du déposant, donc un refus signifie un corps forgé : échouer ici
+lui montrerait une erreur pour une annonce qui a bel et bien été créée. C'est
+journalisé en **avertissement** — pas en silence — précisément parce que c'est
+un refus d'autorisation et non un incident, à la différence de la notification
+d'A8.
+
+**Ce qui n'a pas été fait, et pourquoi** : le lien ne se pose pas depuis «
+Modifier » d'un sticker (le commanditaire a retenu le seul côté annonce) ; une
+annonce résolue ou masquée cesse simplement d'être montrée, sans travail
+supplémentaire, puisque `toLinkedLostItem` pèse les deux statuts ; et le
+back-office ne montre toujours pas le lien.
+
+**Fichiers** : `packages/database` (colonne, relation, index, migration),
+`packages/contracts/lost-items` (`stickerCode`, `MAX_STICKER_CODE_LENGTH`),
+`api/domains/qr-codes/` (`link-qr-token-to-lost-item.use-case.ts`,
+`toLinkedLostItem`, `linkToLostItem`), `api/domains/lost-items/`
+(`create-lost-item.use-case.ts`, module), `client/routes/publish/`
+(`publish.loader.ts` paramétré par type, `sticker-link-field.tsx`, schéma,
+action, `ObjectStep`, `PublishFlow`) et `client/routes/q/`
+(`qr-lost-item-card.tsx`). **Flux** : B, C.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**501** (+21), contracts **364** (+7), admin **422** (inchangé) et client
+**1191** (859 en `node`, 332 en `ui`, +16) — les deux bornes mesurées dans la
+même session, contrairement à A8. Densité de commentaires 9,5 %.
+
+**Trois gardes vérifiées en rouge puis restaurées** : la propriété du sticker,
+les neuf combinaisons de statuts, et `stickerCode` remonté dans
+`lostItemFieldsSchema` (une modification pourrait alors re-pointer un sticker).
 
 #### R35 — Publication guidée d'une pièce — **LIVRÉE**
 
@@ -4831,8 +4912,11 @@ back-end. Densité de commentaires 9,5 %.
   R35, qui a dû y **nommer** le message de l'énuméré (`DOCUMENT_TYPE_ERROR`) —
   un front qui offre « rien de choisi » à côté de l'énuméré l'enveloppe dans un
   `z.union`, et un `z.union` nu répond en anglais —, R36, qui y a ajouté une
-  valeur d'énuméré, `stickers_delivered`, et A8, qui y a posé `reach.schema.ts`
-  et le `directContactSchema` que les deux fronts postent en chaîne.
+  valeur d'énuméré, `stickers_delivered`, A8, qui y a posé `reach.schema.ts` et
+  le `directContactSchema` que les deux fronts postent en chaîne, et A9, qui a
+  étendu **la création seule** avec `stickerCode` — l'extension est posée avant
+  le `.check()`, donc `update` l'ignore et une modification ne peut pas
+  re-pointer un sticker.
 - **Les endpoints de l'API** : tout le front se sert de ce qui existe, y compris
   les correspondances (`/lost-items?type&category&ville`). **Deux exceptions
   mesurées** : R11 a dû laisser passer `resolutionStatus` sur

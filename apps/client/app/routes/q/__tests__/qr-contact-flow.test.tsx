@@ -11,6 +11,7 @@ const ACTIVATED: QrTokenPublicView = {
 	label: 'Sac à dos noir',
 	linkedObject: 'Sac',
 	directContact: false,
+	lostItem: null,
 }
 
 type Action = (args: { request: Request }) => unknown
@@ -354,4 +355,48 @@ describe('QrContactPage — reaching the owner directly', () => {
 			await expect.element(page.getByRole('alert')).toHaveTextContent(message)
 		},
 	)
+})
+
+/** A9: the sticker says the object is being looked for, and opens the listing. */
+describe('QrContactPage — a sticker linked to a listing', () => {
+	const LINKED: QrTokenPublicView = {
+		...ACTIVATED,
+		lostItem: {
+			id: 'lost-item-9',
+			title: 'Trousseau de clés',
+			ville: 'Abidjan',
+			photo: null,
+		},
+	}
+
+	const card = () => page.getByRole('link', { name: /Déclaré perdu/ })
+
+	it('draws nothing when no listing came back', async () => {
+		renderPage(ok, ACTIVATED)
+
+		await expect.element(page.getByLabelText('Votre nom')).toBeInTheDocument()
+		expect(card().query()).toBeNull()
+	})
+
+	it('names the listing and opens it', async () => {
+		renderPage(ok, LINKED, () => ({ token: LINKED, reach: null }))
+
+		await expect.element(card()).toBeVisible()
+		await expect.element(card()).toHaveAttribute('href', '/posts/lost-item-9')
+		await expect.element(page.getByText('Trousseau de clés')).toBeVisible()
+	})
+
+	// The page decides nothing: the API sends a listing only when it is showable.
+	it('shows the photo the API sent, and a placeholder without one', async () => {
+		const withPhoto: QrTokenPublicView = {
+			...LINKED,
+			lostItem: { ...LINKED.lostItem!, photo: 'https://cdn/keys.jpg' },
+		}
+		renderPage(ok, withPhoto, () => ({ token: withPhoto, reach: null }))
+
+		await expect.element(card()).toBeVisible()
+		expect(card().element().querySelector('img')?.getAttribute('src')).toBe(
+			'https://cdn/keys.jpg',
+		)
+	})
 })

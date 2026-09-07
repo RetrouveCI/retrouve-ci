@@ -52,6 +52,7 @@ export async function publishAction(
 					documentHolderName: values.documentHolderName || undefined,
 					documentNumber: values.documentNumber || undefined,
 					documentIssuer: values.documentIssuer || undefined,
+					stickerCode: values.stickerCode,
 				},
 				request,
 			)

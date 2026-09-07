@@ -4,7 +4,8 @@ import { publishAction } from '../servers/publish.action'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
 
-export const loader = publishLoader
+export const loader = ({ request }: Route.LoaderArgs) =>
+	publishLoader({ request, type: 'lost' })
 
 export const action = ({ request }: Route.ActionArgs) =>
 	publishAction(request, 'lost')
@@ -18,5 +19,11 @@ export function meta() {
 }
 
 export default function PublishLostPage({ loaderData }: Route.ComponentProps) {
-	return <PublishFlow type="lost" contactName={loaderData.contactName} />
+	return (
+		<PublishFlow
+			type="lost"
+			contactName={loaderData.contactName}
+			stickers={loaderData.stickers}
+		/>
+	)
 }

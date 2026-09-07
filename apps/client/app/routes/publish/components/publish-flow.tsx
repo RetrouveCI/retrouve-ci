@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigation } from 'react-router'
 import { FormRootError } from '@app/ui/components/form'
 import type { LostItemType } from '@/shared/types/lost-item'
+import type { LinkableSticker } from '../servers/publish.loader'
 import { usePublishDraft } from '../hooks/use-publish-draft'
 import { usePublishForm } from '../hooks/use-publish-form'
 import { firstInvalidStep, usePublishSteps } from '../hooks/use-publish-steps'
@@ -24,9 +25,11 @@ import { PublishHeader } from './publish-header'
 export function PublishFlow({
 	type,
 	contactName,
+	stickers,
 }: {
 	type: LostItemType
 	contactName: string
+	stickers: LinkableSticker[]
 }) {
 	const prefilled = useMemo(() => ({ name: contactName }), [contactName])
 	const { form, onSubmit, isSubmitting } = usePublishForm(prefilled)
@@ -79,6 +82,7 @@ export function PublishFlow({
 						<ObjectStep
 							control={form.control}
 							type={type}
+							stickers={stickers}
 							onPhotoCountChange={setPhotoCount}
 						/>
 					</div>

@@ -54,3 +54,6 @@ export const MAX_DOCUMENT_NUMBER_LENGTH = 40
 
 /** A bank card is recognised by its last four digits — never by its PAN. */
 export const BANK_CARD_DIGITS = 4
+
+/** A code is `RCI-` plus six characters; the ceiling only bounds the field. */
+export const MAX_STICKER_CODE_LENGTH = 40

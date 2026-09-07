@@ -194,6 +194,7 @@ model LostItem {
   contactsCount        Int               @default(0)
   userId               String
   user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  qrTokens             QrToken[]
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
@@ -213,14 +214,17 @@ model QrToken {
   label         String?
   linkedObject  String?
   directContact Boolean       @default(false)
+  lostItemId    String?
   userId        String?
   user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  lostItem      LostItem?     @relation(fields: [lostItemId], references: [id], onDelete: SetNull)
   createdAt     DateTime      @default(now())
   activatedAt   DateTime?
   revokedAt     DateTime?
 
   @@index([userId])
   @@index([status])
+  @@index([lostItemId])
   @@map("qr_token")
 }
 

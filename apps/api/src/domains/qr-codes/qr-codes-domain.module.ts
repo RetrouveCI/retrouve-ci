@@ -11,6 +11,7 @@ import { GetMyStickerSummaryUseCase } from './use-cases/get-my-sticker-summary.u
 import { GetPaginatedQrTokensUseCase } from './use-cases/get-paginated-qr-tokens.use-case'
 import { GetQrTokenByCodeUseCase } from './use-cases/get-qr-token-by-code.use-case'
 import { GetQrTokenPublicViewUseCase } from './use-cases/get-qr-token-public-view.use-case'
+import { LinkQrTokenToLostItemUseCase } from './use-cases/link-qr-token-to-lost-item.use-case'
 import { ReachQrTokenOwnerUseCase } from './use-cases/reach-qr-token-owner.use-case'
 import { RevokeQrTokenUseCase } from './use-cases/revoke-qr-token.use-case'
 import { UpdateQrTokenDetailsUseCase } from './use-cases/update-qr-token-details.use-case'
@@ -28,6 +29,7 @@ const providers = [
 	GetMyStickerSummaryUseCase,
 	ContactQrTokenOwnerUseCase,
 	ReachQrTokenOwnerUseCase,
+	LinkQrTokenToLostItemUseCase,
 ]
 
 /**

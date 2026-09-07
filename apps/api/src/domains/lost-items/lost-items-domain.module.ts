@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { QrCodesDomainModule } from '@/domains/qr-codes/qr-codes-domain.module'
 import { LostItemRepository } from './repository/lost-item.repository'
 import { CreateLostItemUseCase } from './use-cases/create-lost-item.use-case'
 import { DeleteLostItemUseCase } from './use-cases/delete-lost-item.use-case'
@@ -25,7 +26,13 @@ const providers = [
 	DeleteLostItemUseCase,
 ]
 
+/**
+ * `create` links the sticker a listing names, so it writes through `qr-codes`,
+ * as `matching` writes through `notifications`. No cycle — `qr-codes` never
+ * reaches here.
+ */
 @Module({
+	imports: [QrCodesDomainModule],
 	providers,
 	exports: providers,
 })

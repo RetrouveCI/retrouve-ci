@@ -9,11 +9,19 @@ import {
 import { writePublishDraft } from '../../helpers/publish-draft'
 import { PublishFlow } from '../publish-flow'
 
-function renderFlow(contactName = '') {
+type Stickers = { code: string; label: string }[]
+
+function renderFlow(contactName = '', stickers: Stickers = []) {
 	const Stub = createRoutesStub([
 		{
 			path: '/publish/lost',
-			Component: () => <PublishFlow type="lost" contactName={contactName} />,
+			Component: () => (
+				<PublishFlow
+					type="lost"
+					contactName={contactName}
+					stickers={stickers}
+				/>
+			),
 			action: () => ({ success: true }),
 		},
 		// The step-2 card loads through this resource route as soon as a category
@@ -138,5 +146,41 @@ describe('the contact name the account already knows', () => {
 
 		await expect.element(heading("L'objet")).toBeVisible()
 		expect(draftNotice().elements()).toHaveLength(0)
+	})
+})
+
+/** A9: the field exists only where it has something to offer. */
+describe('PublishFlow — naming a sticker', () => {
+	const label = /Cet objet porte-t-il un de vos stickers/
+	const picker = () => page.getByRole('combobox', { name: label })
+
+	it('draws no picker for an account with no activated sticker', async () => {
+		renderFlow()
+
+		await expect.element(title()).toBeVisible()
+		expect(picker().query()).toBeNull()
+	})
+
+	it('offers the stickers by their name, none chosen to begin with', async () => {
+		renderFlow('', [{ code: 'RCI-ABC123', label: 'Clés de la maison' }])
+
+		await expect.element(picker()).toHaveTextContent('Aucun sticker')
+
+		await userEvent.click(picker())
+
+		await expect
+			.element(page.getByRole('option', { name: 'Clés de la maison' }))
+			.toBeVisible()
+	})
+
+	it('carries the chosen code into the submitted body', async () => {
+		renderFlow('', [{ code: 'RCI-ABC123', label: 'Clés de la maison' }])
+
+		await userEvent.click(picker())
+		await userEvent.click(
+			page.getByRole('option', { name: 'Clés de la maison' }),
+		)
+
+		await expect.element(picker()).toHaveTextContent('Clés de la maison')
 	})
 })
