@@ -14,6 +14,7 @@ export function meta() {
 		title: 'Réglages',
 		description:
 			'Modifiez vos informations personnelles, votre mot de passe et le thème.',
+		noindex: true,
 	})
 }
 

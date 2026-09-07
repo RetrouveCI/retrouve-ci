@@ -15,6 +15,7 @@ export function meta() {
 		title: 'Publier un objet retrouvé',
 		description:
 			"Décrivez l'objet que vous avez retrouvé pour aider son propriétaire à le récupérer.",
+		noindex: true,
 	})
 }
 

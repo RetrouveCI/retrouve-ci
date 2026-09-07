@@ -22,6 +22,7 @@ export function meta() {
 		title: 'Objet perdu',
 		description:
 			'Vous avez trouvé cet objet ? Contactez son propriétaire via RetrouveCI.',
+		noindex: true,
 	})
 }
 

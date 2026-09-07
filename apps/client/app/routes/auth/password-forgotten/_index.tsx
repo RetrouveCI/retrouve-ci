@@ -11,6 +11,7 @@ export function meta() {
 	return pageMeta({
 		title: 'Mot de passe oublié',
 		description: 'Réinitialisez le mot de passe de votre compte RetrouveCI.',
+		noindex: true,
 	})
 }
 

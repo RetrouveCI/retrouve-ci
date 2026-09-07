@@ -19,6 +19,7 @@ export function meta() {
 		title: 'Nouveau mot de passe',
 		description:
 			'Choisissez un nouveau mot de passe pour votre compte RetrouveCI.',
+		noindex: true,
 	})
 }
 

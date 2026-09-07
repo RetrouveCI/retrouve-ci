@@ -6,6 +6,7 @@ export function meta() {
 	return pageMeta({
 		title: 'Notifications',
 		description: 'Vos alertes de correspondance et vos messages.',
+		noindex: true,
 	})
 }
 

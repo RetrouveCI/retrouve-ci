@@ -6,20 +6,25 @@ const nameOf = (tag: { name?: string; property?: string }) =>
 	tag.name ?? tag.property
 
 describe('pageMeta', () => {
-	it('shares the 1200×630 image by default', () => {
-		const tags = pageMeta({ title: 'Annonces' })
+	// R48 moved them to `root`'s `Layout`: a relative `og:image` left every
+	// WhatsApp and Facebook preview without a picture.
+	it('emits no image tag at all', () => {
+		const named = pageMeta({ title: 'Annonces' }).map(nameOf)
 
 		expect(OG_IMAGE).toBe('/og-image.png')
-		expect(tags).toContainEqual({ property: 'og:image', content: OG_IMAGE })
-		expect(tags).toContainEqual({ name: 'twitter:image', content: OG_IMAGE })
+		expect(named).not.toContain('og:image')
+		expect(named).not.toContain('twitter:image')
 	})
 
-	it('lets a page share its own image instead', () => {
-		const tags = pageMeta({ title: 'Une annonce', image: '/uploads/x.jpg' })
+	it('says nothing about robots unless asked', () => {
+		expect(pageMeta({ title: 'Annonces' }).map(nameOf)).not.toContain('robots')
+	})
 
-		expect(tags).toContainEqual({
-			property: 'og:image',
-			content: '/uploads/x.jpg',
+	// A crawl blocked by robots.txt is still indexed when linked elsewhere.
+	it('keeps a page out of the index on request', () => {
+		expect(pageMeta({ title: 'Sticker', noindex: true })).toContainEqual({
+			name: 'robots',
+			content: 'noindex, nofollow',
 		})
 	})
 

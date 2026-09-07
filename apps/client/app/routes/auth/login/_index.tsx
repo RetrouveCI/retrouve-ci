@@ -12,6 +12,7 @@ export function meta() {
 	return pageMeta({
 		title: 'Connexion',
 		description: 'Connectez-vous à votre compte RetrouveCI.',
+		noindex: true,
 	})
 }
 

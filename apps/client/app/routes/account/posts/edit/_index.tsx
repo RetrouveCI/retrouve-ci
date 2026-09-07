@@ -41,6 +41,7 @@ export function meta() {
 	return pageMeta({
 		title: "Modifier l'annonce",
 		description: 'Mettez à jour les informations de votre annonce.',
+		noindex: true,
 	})
 }
 

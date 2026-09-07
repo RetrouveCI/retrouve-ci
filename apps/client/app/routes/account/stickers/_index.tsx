@@ -19,6 +19,7 @@ export function meta() {
 	return pageMeta({
 		title: 'Mes stickers',
 		description: 'Activez et gérez les stickers QR de vos objets.',
+		noindex: true,
 	})
 }
 

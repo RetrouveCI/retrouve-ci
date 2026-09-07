@@ -15,6 +15,7 @@ export function meta() {
 		title: 'Publier un objet perdu',
 		description:
 			"Décrivez l'objet que vous avez perdu pour que quelqu'un puisse vous aider.",
+		noindex: true,
 	})
 }
 
