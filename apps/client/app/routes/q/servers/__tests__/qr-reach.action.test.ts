@@ -41,7 +41,11 @@ describe('the reach action', () => {
 
 		expect(response.status).toBe(302)
 		expect(response.headers.get('Location')).toBe(target)
-		expect(reachQrOwner).toHaveBeenCalledWith(CODE, channel)
+		expect(reachQrOwner).toHaveBeenCalledWith(
+			CODE,
+			channel,
+			expect.any(Request),
+		)
 	})
 
 	// Nothing is echoed back into a body, so nothing can be read off the answer.

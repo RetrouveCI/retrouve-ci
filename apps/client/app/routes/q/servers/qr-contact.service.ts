@@ -21,19 +21,24 @@ export interface LinkedLostItem {
 	photo: string | null
 }
 
+// Anonymous, so no cookie — but `request` still travels: it is what tells the
+// rate limiter which visitor is asking, and all of them shared one bucket (R44).
 export async function getQrTokenPublicView(
 	code: string,
+	request: Request,
 ): Promise<QrTokenPublicView> {
-	return apiFetch<QrTokenPublicView>(`/qr-codes/${code}/scan`)
+	return apiFetch<QrTokenPublicView>(`/qr-codes/${code}/scan`, { request })
 }
 
 export async function contactQrOwner(
 	code: string,
 	data: z.infer<typeof qrContactSchema>,
+	request: Request,
 ): Promise<void> {
 	await apiFetch(`/qr-codes/${code}/contact`, {
 		method: 'POST',
 		body: JSON.stringify(data),
+		request,
 	})
 }
 
@@ -45,10 +50,12 @@ export async function contactQrOwner(
 export async function reachQrOwner(
 	code: string,
 	channel: ReachChannel,
+	request: Request,
 ): Promise<string> {
 	const { url } = await apiFetch<{ url: string }>(`/qr-codes/${code}/reach`, {
 		method: 'POST',
 		body: JSON.stringify({ channel }),
+		request,
 	})
 
 	return url

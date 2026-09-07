@@ -8,7 +8,7 @@ export async function getMyNotifications(
 ): Promise<NotificationListApiResponse> {
 	return apiFetch<NotificationListApiResponse>(
 		`/notifications/mine?pageSize=${PAGE_SIZE}`,
-		{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
+		{ request },
 	)
 }
 
@@ -16,7 +16,7 @@ export async function getUnreadNotificationsCount(
 	request: Request,
 ): Promise<number> {
 	return apiFetch<number>('/notifications/unread-count', {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -26,7 +26,7 @@ export async function markNotificationAsRead(
 ): Promise<void> {
 	await apiFetch(`/notifications/${id}/read`, {
 		method: 'PATCH',
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -35,6 +35,6 @@ export async function markAllNotificationsAsRead(
 ): Promise<void> {
 	await apiFetch('/notifications/read-all', {
 		method: 'PATCH',
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

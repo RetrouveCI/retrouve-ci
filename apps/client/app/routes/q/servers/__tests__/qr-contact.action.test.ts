@@ -43,7 +43,11 @@ describe('qrContactAction', () => {
 	// Ungated on purpose: the finder has no account.
 	it('sends the message for the scanned code', async () => {
 		expect(await submit(VALID)).toEqual({ success: true })
-		expect(contactQrOwner).toHaveBeenCalledWith('RCI-ABC123', VALID)
+		expect(contactQrOwner).toHaveBeenCalledWith(
+			'RCI-ABC123',
+			VALID,
+			expect.any(Request),
+		)
 	})
 
 	// The API wants the key absent, not an empty string.

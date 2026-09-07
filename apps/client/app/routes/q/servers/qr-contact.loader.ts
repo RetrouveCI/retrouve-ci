@@ -21,7 +21,7 @@ export async function qrContactLoader({
 	params: { code: string }
 }) {
 	try {
-		const token = await getQrTokenPublicView(params.code)
+		const token = await getQrTokenPublicView(params.code, request)
 		return { token, reach: reachOutcomeOf(request) }
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 404) {

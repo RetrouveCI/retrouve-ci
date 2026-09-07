@@ -34,7 +34,10 @@ describe('qrContactLoader', () => {
 	// Deliberately ungated: whoever finds the object is a stranger.
 	it('reads the public view for the scanned code', async () => {
 		expect(await scan('RCI-ABC123')).toEqual({ token: TOKEN, reach: null })
-		expect(getQrTokenPublicView).toHaveBeenCalledWith('RCI-ABC123')
+		expect(getQrTokenPublicView).toHaveBeenCalledWith(
+			'RCI-ABC123',
+			expect.any(Request),
+		)
 	})
 
 	/**

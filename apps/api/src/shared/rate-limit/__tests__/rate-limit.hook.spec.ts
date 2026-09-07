@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createRateLimitHook } from '../rate-limit.hook'
+import {
+	CLIENT_IP_HEADER,
+	callerOf,
+	createRateLimitHook,
+} from '../rate-limit.hook'
 import type { RateLimitCounter } from '../rate-limit.store'
 
 function fakeReply() {
@@ -113,5 +117,61 @@ describe('the rate limit hook', () => {
 		)
 
 		expect(counter.hit).toHaveBeenCalledWith('rl:public-write:unknown', 3600)
+	})
+})
+
+// R44. Every capped route but the browser-side sign-in is reached by a front's
+// server, so `request.ip` named that container: 5 OTPs / 15 min, platform-wide.
+describe('callerOf', () => {
+	const on = (value: string | string[] | undefined, ip = '10.0.0.5') =>
+		callerOf({
+			method: 'POST',
+			url: '/api/auth/phone-number/send-otp',
+			ip,
+			headers: value === undefined ? {} : { [CLIENT_IP_HEADER]: value },
+		})
+
+	it.each(['41.66.1.1', '2001:db8::1', '::1'])(
+		'takes %s from the header',
+		v => {
+			expect(on(v)).toBe(v)
+		},
+	)
+
+	it('reads the first value of a repeated header', () => {
+		expect(on(['41.66.1.1', '41.66.1.2'])).toBe('41.66.1.1')
+	})
+
+	it('falls back to the socket address when no front spoke for a visitor', () => {
+		expect(on(undefined)).toBe('10.0.0.5')
+		expect(callerOf({ method: 'POST', url: '/x' })).toBe('unknown')
+	})
+
+	// It lands inside a Redis key, so anything but an address is dropped.
+	it.each([
+		'41.66.1.1, 10.0.0.5',
+		'evil.example.com',
+		'41.66.1.1\nrl:otp:x',
+		'',
+		'ab',
+		'1'.repeat(46),
+	])('ignores %o and keeps the socket address', value => {
+		expect(on(value)).toBe('10.0.0.5')
+	})
+
+	it('is what the bucket key is built from', async () => {
+		const counter = counterAt(1)
+
+		await createRateLimitHook({ counter })(
+			{
+				method: 'POST',
+				url: '/api/auth/phone-number/send-otp',
+				ip: '10.0.0.5',
+				headers: { [CLIENT_IP_HEADER]: '41.66.1.1' },
+			},
+			fakeReply(),
+		)
+
+		expect(counter.hit).toHaveBeenCalledWith('rl:otp:41.66.1.1', 900)
 	})
 })

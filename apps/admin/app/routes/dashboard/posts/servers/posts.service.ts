@@ -25,7 +25,7 @@ export async function listPosts(
 	if (params.type) query.set('type', params.type)
 
 	return apiFetch<PostListResponse>(`/lost-items/admin?${query.toString()}`, {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -38,6 +38,6 @@ export async function moderatePost(
 	return apiFetch<Post>(`/lost-items/${id}/moderation`, {
 		method: 'PATCH',
 		body: JSON.stringify(body),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

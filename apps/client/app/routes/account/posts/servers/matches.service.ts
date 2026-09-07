@@ -13,6 +13,6 @@ export async function getListingMatches(
 	request: Request,
 ): Promise<MatchCandidateApiDto[]> {
 	return apiFetch<MatchCandidateApiDto[]>(`/lost-items/${id}/matches`, {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

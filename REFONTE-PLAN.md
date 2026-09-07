@@ -4113,7 +4113,8 @@ est volontairement large (60 / 15 min) : six caractères sur un alphabet de
 trente-deux rendent le balayage sans espoir de toute façon, et les opérateurs
 mobiles d'ici mettent beaucoup de visiteurs derrière une seule adresse.
 `OPTIONS` n'est **jamais** plafonné, un préflight refusé cassant l'appel qu'il
-précède.
+précède. ⚠️ **Ce seau était global jusqu'à R44** : `/q/:code` lit par son
+loader, donc côté serveur, et l'API voyait le conteneur du front.
 
 **2. Le saut prévient le propriétaire.** `ReachQrTokenOwnerUseCase` lève une
 notification `qr_scan` nommant le canal — « cherche à vous appeler » ou « vous
@@ -4852,6 +4853,14 @@ middleware. Une seconde sonde, sur sept appels à `send-otp` avec
 better-auth n'est atteint que **cinq** fois sur sept — donc deux SMS non envoyés
 — et une autre adresse repart d'un seau vierge.
 
+> ⚠️ **Cette seconde sonde mesurait la mauvaise chose, et R44 l'a corrigé.**
+> Elle injectait `X-Forwarded-For` **à la main**, ce qui simule un navigateur
+> appelant l'API en direct. Or `send-otp` part d'un `servers/*.service.ts`, donc
+> du **serveur du front**, qui n'envoie pas cet en-tête : l'API voyait une seule
+> adresse pour tout le monde, et les plafonds étaient **globaux** — 5 SMS par 15
+> minutes pour la plateforme entière. Le mécanisme était juste, le chemin jamais
+> joué. Voir la section R44.
+
 > ⚠️ **`trustProxy` est un NOMBRE, jamais `true`.** Faire confiance à l'en-tête
 > sans compter les sauts laisse un appelant s'inventer une adresse par requête
 > et contourner entièrement le plafond — et c'est ce que réclament les deux avis
@@ -4960,6 +4969,80 @@ back-end. Densité de commentaires 9,0 %.
 **Les deux moitiés vérifiées en rouge puis restaurées** : la règle de création
 retirée, deux cas du contrat tombent ; celle de modification retirée, un cas du
 use-case tombe.
+
+#### R44 — Les plafonds comptaient une seule adresse pour tout le monde — **LIVRÉE**
+
+Bug de production trouvé en préparant la trace de scan, **dans R42** et étendu
+par A8. Jamais une étape du plan, comme R38 à R43.
+
+> ⚠️ **La chaîne, vérifiée maillon par maillon.** `send-otp`,
+> `request-password-reset`, `POST /contact-messages`, les deux `…/contact` et le
+> `GET /qr-codes/:code/scan` d'A8 ne partent **que** de `servers/*.service.ts`,
+> donc du serveur du front ; seuls `sign-in/phone-number` et
+> `phone-number/verify` partent du navigateur. `createApiFetch` ne transmettait
+> **aucun** en-tête d'adresse — un `grep` sur les trois workspaces ne trouvait
+> `x-forwarded-*` que dans `origin.ts`, pour le protocole et l'hôte. Et une
+> sonde Fastify a tranché le dernier maillon : avec `trustProxy=1` et **aucun**
+> `X-Forwarded-For`, `request.ip` vaut l'adresse de la **socket**.
+
+Le hook cléant sur `rl:<seau>:<request.ip>`, les plafonds étaient donc
+**globaux** et non par visiteur :
+
+| Seau                      | Effet réel avant R44                                       |
+| ------------------------- | ---------------------------------------------------------- |
+| `otp` 5 / 15 min          | **5 SMS par 15 min pour la plateforme entière**            |
+| `public-write` 10 / h     | 10 par heure pour tout le monde                            |
+| `public-read` 60 / 15 min | 60 scans par 15 min pour tout le monde                     |
+| `auth` 10 / 15 min        | correct pour le navigateur, global pour les appels serveur |
+
+Déployé, cela cassait l'inscription dès la 6ᵉ demande de code en quinze minutes.
+
+**Deux gardes indépendantes, comme tranché avec le commanditaire.**
+
+**1. Le front parle pour le visiteur.** `apiFetch` accepte la requête entrante
+et en dérive le `Cookie` **et** l'adresse du visiteur (`X-Client-Ip`), premier
+saut seulement — l'API la lit telle quelle, et une chaîne nommerait un proxy. Ce
+n'est pas une liste de sites à tenir : les **45** appels des deux fronts sont
+passés à cette forme, ce qui **retire** du code au lieu d'en ajouter, et une
+garde par app refuse tout appel qui rebricole son propre `Cookie` — un seul est
+sur liste blanche, `upload.service.ts`, parce que le multipart exige la
+frontière que `FormData` choisit et donc un `fetch` brut.
+
+**2. L'OTP se plafonne par numéro.** `OtpDispatcher.dispatch` est le **goulot
+unique** où l'argent se dépense, et le premier endroit où le numéro est connu —
+le hook `onRequest`, lui, tourne avant la lecture du corps, donc il ne pouvait
+pas le voir. Les deux plafonds tiennent à la fois, et c'est le point : l'adresse
+est transmise par le front, donc falsifiable et rotative, tandis qu'un SMS coûte
+de l'argent **sur un numéro**.
+
+> ⚠️ **`X-Client-Ip` est cru tel quel**, ce qui suppose que l'API n'est pas
+> joignable hors de son réseau — non vérifiable d'ici. Une valeur falsifiée ne
+> lève que le plafond par appelant ; celui par numéro tient. La valeur finit
+> dans une clé Redis, donc tout ce qui n'est pas une adresse IPv4/IPv6 est
+> **écarté** plutôt que cru : une chaîne, un nom d'hôte, un saut de ligne.
+
+**Un `POST /lost-items/:id/contact` que personne n'appelle.** Recompté en
+passant : l'endpoint existe, il incrémente `contactsCount`, il est plafonné par
+R42 — et **aucun front ne l'atteint**. Donc `contactsCount` reste à zéro, là où
+`MesAnnonces` dessine « 3 personnes vous ont écrit ». Nommé ici, pas corrigé.
+
+**Fichiers** : `packages/web-kit/src/api/api-fetch.ts` (`ApiFetchInit`,
+`callerAddress`, `CLIENT_IP_HEADER`), `api/shared/rate-limit/` (`callerOf`, le
+seau `OTP_PER_NUMBER`), `api/infrastructures/auth/` (`otp-budget.error.ts`, le
+plafond du dispatcher, le fournisseur de compteur), les 45 appels des deux
+fronts, et deux gardes de structure. **Flux** : tous.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**522** (+17), contracts **380** (inchangé), admin **425** (+3) et client
+**1200** (868 en `node`, 332 en `ui`). Densité de commentaires 8,8 %.
+
+**Les trois gardes vérifiées en rouge puis restaurées** : la clé du hook, le
+plafond par numéro, et la dérivation d'en-têtes d'`apiFetch`.
+
+**Reste ouvert** : `/contact-messages` n'a aucune clé de ressource naturelle et
+reste plafonné par appelant seul ; les écritures authentifiées et l'upload de
+photo restent hors plafond, comme R42 l'avait assumé.
 
 ---
 

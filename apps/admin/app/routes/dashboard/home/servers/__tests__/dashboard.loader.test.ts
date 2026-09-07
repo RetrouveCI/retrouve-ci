@@ -62,13 +62,14 @@ describe('dashboardLoader', () => {
 		expect(apiFetch).not.toHaveBeenCalled()
 	})
 
-	// `/stats`, not `/api/stats`: the API has no global prefix.
-	it('reads /stats with the session cookie forwarded', async () => {
-		await dashboardLoader({ request: requestFor() })
+	// `/stats`, not `/api/stats`: the API has no global prefix. And the request
+	// itself travels, so the caller's address reaches the rate limiter (R44).
+	it('reads /stats, handing the incoming request over', async () => {
+		const request = requestFor()
 
-		expect(apiFetch).toHaveBeenCalledWith('/stats', {
-			headers: { Cookie: COOKIE },
-		})
+		await dashboardLoader({ request })
+
+		expect(apiFetch).toHaveBeenCalledWith('/stats', { request })
 	})
 
 	it('keeps the seven counters the tiles read', async () => {

@@ -5,6 +5,24 @@ export interface RateLimitRequest {
 	method: string
 	url: string
 	ip?: string
+	headers?: Record<string, string | string[] | undefined>
+}
+
+/** Set by a front calling for a visitor: its server is the socket peer there. */
+export const CLIENT_IP_HEADER = 'x-client-ip'
+
+/** IPv4, IPv6, and nothing else: the value ends up inside a Redis key. */
+const ADDRESS = /^[0-9a-f.:]{3,45}$/i
+
+// Trusted as given: the API is not meant to be reachable outside its network,
+// and a spoofed value lifts only a per-caller cap, never the per-number one.
+export function callerOf(request: RateLimitRequest): string {
+	const raw = request.headers?.[CLIENT_IP_HEADER]
+	const value = Array.isArray(raw) ? raw[0] : raw
+
+	if (value !== undefined && ADDRESS.test(value)) return value
+
+	return request.ip ?? 'unknown'
 }
 
 export interface RateLimitReply {
@@ -34,7 +52,7 @@ export function createRateLimitHook({ counter, onStoreError }: HookOptions) {
 		let hit
 		try {
 			hit = await counter.hit(
-				`rl:${rule.bucket}:${request.ip ?? 'unknown'}`,
+				`rl:${rule.bucket}:${callerOf(request)}`,
 				rule.windowSeconds,
 			)
 		} catch (error) {

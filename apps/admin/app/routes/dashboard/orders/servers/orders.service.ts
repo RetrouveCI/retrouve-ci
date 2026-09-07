@@ -17,7 +17,7 @@ export async function listOrders(
 
 	return apiFetch<StickerOrderListResponse>(
 		`/sticker-orders?${query.toString()}`,
-		{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
+		{ request },
 	)
 }
 
@@ -29,6 +29,6 @@ export async function updateOrderStatus(
 	return apiFetch<StickerOrder>(`/sticker-orders/${id}/status`, {
 		method: 'PATCH',
 		body: JSON.stringify({ status }),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

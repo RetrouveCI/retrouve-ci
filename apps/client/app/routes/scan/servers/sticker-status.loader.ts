@@ -28,7 +28,7 @@ export async function loader({
 	if (!parsed.ok) return { code: raw, status: null }
 
 	try {
-		const view = await getQrTokenPublicView(parsed.code)
+		const view = await getQrTokenPublicView(parsed.code, request)
 
 		return { code: parsed.code, status: view.status }
 	} catch {

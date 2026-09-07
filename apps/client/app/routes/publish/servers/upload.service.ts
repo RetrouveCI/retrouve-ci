@@ -1,3 +1,4 @@
+import { CLIENT_IP_HEADER, callerAddress } from '@app/web-kit/api'
 import { ApiError } from '@/shared/utils/api-fetch'
 import { MAX_PHOTOS } from '../publish.const'
 import { apiUrl } from '@/shared/helpers/env'
@@ -37,10 +38,18 @@ export async function uploadLostItemPhoto(
 	const body = new FormData()
 	body.append('photo', file)
 
+	// A raw `fetch`, not `apiFetch`: the multipart boundary has to be the one
+	// `FormData` picked, so no `Content-Type` may be set. The two headers
+	// `apiFetch` would have derived are therefore spelled out.
+	const address = callerAddress(request)
+
 	const response = await fetch(`${apiUrl()}/uploads/lost-item-photo`, {
 		method: 'POST',
 		body,
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		headers: {
+			Cookie: request.headers.get('cookie') ?? '',
+			...(address ? { [CLIENT_IP_HEADER]: address } : {}),
+		},
 	})
 
 	if (!response.ok) {
