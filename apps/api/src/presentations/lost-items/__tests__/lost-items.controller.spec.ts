@@ -17,7 +17,7 @@ import type { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-m
 import type { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
 import type { GetPublicLostItemsUseCase } from '@/domains/lost-items/use-cases/get-public-lost-items.use-case'
 import type { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
-import type { RecordLostItemContactUseCase } from '@/domains/lost-items/use-cases/record-lost-item-contact.use-case'
+import type { ContactLostItemPosterUseCase } from '@/domains/lost-items/use-cases/contact-lost-item-poster.use-case'
 import type { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
 import type { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import type { Auth } from '@/infrastructures/auth/auth.config'
@@ -38,7 +38,7 @@ function buildMatchingDispatcher() {
 describe('LostItemsController', () => {
 	let createLostItem: CreateLostItemUseCase
 	let viewLostItem: ViewLostItemUseCase
-	let recordLostItemContact: RecordLostItemContactUseCase
+	let contactLostItemPoster: ContactLostItemPosterUseCase
 	let getPaginatedLostItems: GetPaginatedLostItemsUseCase
 	let getPublicLostItems: GetPublicLostItemsUseCase
 	let getMyLostItems: GetMyLostItemsUseCase
@@ -52,7 +52,7 @@ describe('LostItemsController', () => {
 	beforeEach(() => {
 		createLostItem = buildUseCase<CreateLostItemUseCase>()
 		viewLostItem = buildUseCase<ViewLostItemUseCase>()
-		recordLostItemContact = buildUseCase<RecordLostItemContactUseCase>()
+		contactLostItemPoster = buildUseCase<ContactLostItemPosterUseCase>()
 		getPaginatedLostItems = buildUseCase<GetPaginatedLostItemsUseCase>()
 		getPublicLostItems = buildUseCase<GetPublicLostItemsUseCase>()
 		getMyLostItems = buildUseCase<GetMyLostItemsUseCase>()
@@ -64,7 +64,7 @@ describe('LostItemsController', () => {
 		controller = new LostItemsController(
 			createLostItem,
 			viewLostItem,
-			recordLostItemContact,
+			contactLostItemPoster,
 			getPaginatedLostItems,
 			getPublicLostItems,
 			getMyLostItems,
@@ -245,15 +245,14 @@ describe('LostItemsController', () => {
 		})
 	})
 
-	describe('recordContact', () => {
-		it('delegates to the use-case', async () => {
-			const lostItem = buildPublicLostItem({ contactsCount: 1 })
-			vi.mocked(recordLostItemContact.execute).mockResolvedValue(lostItem)
+	describe('contactPoster', () => {
+		it('is open to an anonymous finder and answers only the target', async () => {
+			const target = { url: 'https://wa.me/2250700000000?text=Bonjour' }
+			vi.mocked(contactLostItemPoster.execute).mockResolvedValue(target)
 
-			const result = await controller.recordContact('lost-item-1')
-
-			expect(recordLostItemContact.execute).toHaveBeenCalledWith('lost-item-1')
-			expect(result).toEqual(lostItem)
+			expect(await controller.contactPoster('lost-item-1')).toEqual(target)
+			expect(contactLostItemPoster.execute).toHaveBeenCalledWith('lost-item-1')
+			expect(Reflect.getMetadata('PUBLIC', controller.contactPoster)).toBe(true)
 		})
 	})
 

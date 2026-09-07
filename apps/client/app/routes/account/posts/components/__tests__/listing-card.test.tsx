@@ -219,7 +219,9 @@ describe('ListingCard', () => {
 				.element(page.getByText('48 vues', { exact: true }))
 				.toBeVisible()
 			await expect
-				.element(page.getByText('3 personnes vous ont écrit', { exact: true }))
+				.element(
+					page.getByText('3 personnes ont voulu vous joindre', { exact: true }),
+				)
 				.toBeVisible()
 			expect(page.getByText('En attente').elements()).toHaveLength(0)
 			expect(page.getByText('Masquée').elements()).toHaveLength(0)
@@ -338,7 +340,9 @@ describe('ListingCard', () => {
 
 		await expect.element(page.getByText('1 vue', { exact: true })).toBeVisible()
 		await expect
-			.element(page.getByText('1 personne vous a écrit', { exact: true }))
+			.element(
+				page.getByText('1 personne a voulu vous joindre', { exact: true }),
+			)
 			.toBeVisible()
 	})
 
@@ -346,7 +350,11 @@ describe('ListingCard', () => {
 		renderCard({ contacts: 0 })
 
 		await expect
-			.element(page.getByText('Personne ne vous a écrit', { exact: true }))
+			.element(
+				page.getByText("Personne n'a encore cherché à vous joindre", {
+					exact: true,
+				}),
+			)
 			.toBeVisible()
 	})
 

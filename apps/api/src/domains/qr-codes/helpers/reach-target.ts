@@ -2,6 +2,7 @@ import {
 	COUNTRY_CODE,
 	isValidLocalNumber,
 	toLocalDigits,
+	toWhatsAppUrl,
 } from '@app/contracts/shared'
 import type { ReachChannel } from '../types/qr-token.types'
 
@@ -16,14 +17,11 @@ export function toReachTarget(
 	channel: ReachChannel,
 	message?: string,
 ): string | null {
-	if (!phoneNumber || !isValidLocalNumber(phoneNumber)) return null
+	if (!phoneNumber) return null
 
-	const digits = `${COUNTRY_CODE}${toLocalDigits(phoneNumber)}`
+	if (channel === 'whatsapp') return toWhatsAppUrl(phoneNumber, message)
 
-	if (channel === 'call') return `tel:+${digits}`
+	if (!isValidLocalNumber(phoneNumber)) return null
 
-	// `wa.me` addresses the number without its `+`.
-	const text = message ? `?text=${encodeURIComponent(message)}` : ''
-
-	return `https://wa.me/${digits}${text}`
+	return `tel:+${COUNTRY_CODE}${toLocalDigits(phoneNumber)}`
 }

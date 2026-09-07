@@ -1044,7 +1044,9 @@ Mes annonces » en veut une.
 > `wa.me` construit sur dix mauvais chiffres ouvre WhatsApp sur « ce numéro
 > n'est pas sur WhatsApp », ce qui se lit comme une panne de l'application ; la
 > barre dit « Numéro de contact indisponible » à la place. C'est le quatrième
-> état de §2.3 règle 5, pas une précaution.
+> état de §2.3 règle 5, pas une précaution. ⚠️ **R46 a déplacé cette règle côté
+> serveur** : la barre ne reçoit plus qu'un booléen, `toWhatsAppUrl` vit dans
+> `@app/contracts/shared`, et `buildWhatsAppContactUrl` a disparu.
 
 > **Une colonne unique à toutes les largeurs, et le rail de bureau disparaît.**
 > Le plan dit « `ContactCard` devient une barre collée en bas » sans nommer de
@@ -5023,8 +5025,8 @@ de l'argent **sur un numéro**.
 
 **Un `POST /lost-items/:id/contact` que personne n'appelle.** Recompté en
 passant : l'endpoint existe, il incrémente `contactsCount`, il est plafonné par
-R42 — et **aucun front ne l'atteint**. Donc `contactsCount` reste à zéro, là où
-`MesAnnonces` dessine « 3 personnes vous ont écrit ». Nommé ici, pas corrigé.
+R42 — et **aucun front ne l'atteint**. Donc `contactsCount` restait à zéro, là
+où `MesAnnonces` dessine « 3 personnes vous ont écrit ». ✅ **Fermé par R46.**
 
 **Fichiers** : `packages/web-kit/src/api/api-fetch.ts` (`ApiFetchInit`,
 `callerAddress`, `CLIENT_IP_HEADER`), `api/shared/rate-limit/` (`callerOf`, le
@@ -5099,6 +5101,87 @@ dit ce que R45 a décidé.
 **Les deux gardes vérifiées en rouge puis restaurées** : l'ordre remis sur celui
 du contrat, et `objectType` présélectionné sur `documents`.
 
+#### R46 — Le compteur de contacts, et le numéro qui quittait la page — **LIVRÉE**
+
+Ouverte par le constat de R44, et **jamais une étape du plan**, comme R38 à R45.
+
+> ⚠️ **Quatre écrans affichaient zéro à vie.** `contactsCount` est rendu par «
+> Mes annonces » (« Personne ne vous a écrit »), les stats du compte (« Contacts
+> reçus »), les annonces récentes, et le dialogue du back-office. Et **rien ne
+> l'incrémentait** : `POST /lost-items/:id/contact` existait, anonyme et
+> plafonné, mais contacter était un simple `<a href="wa.me/…">` — aucun
+> aller-retour serveur, donc aucun comptage. Recompté : `views`, lui,
+> **fonctionne**, le `GET /lost-items/:id` l'incrémentant.
+
+> ⚠️ **Et le numéro du déposant était dans le HTML — de chaque carte, pas
+> seulement du détail.** `PublicLostItem` portait `contactWhatsapp`, et
+> `GET /lost-items` sert cette projection : le numéro de chaque annonce de la
+> liste était donc dans la page, récoltable par n'importe quel robot. Écart net
+> avec A8, qui s'est donné tant de mal pour qu'il n'y soit jamais sur un
+> sticker.
+
+**Le même geste répare les deux**, par le motif d'A8 : la barre est un
+`<Form target="_blank">` qui poste vers `/posts/:id/contact` ; l'action appelle
+l'API, qui **compte le contact et répond la cible** ; l'action redirige.
+`contactWhatsapp` quitte la projection publique et cède la place à
+`contactReachable`.
+
+**Mesuré avant d'écrire.** Un `<form method="post" target="_blank">` ouvre bien
+le nouvel onglet, **y** suit le 302, et laisse la page d'origine intacte.
+L'onglet séparé de R10 est donc conservé sans rien perdre — sans cette mesure,
+la forme restait un pari sur l'UX.
+
+**Trois duplications refermées au passage** : `toWhatsAppUrl` remonte dans
+`@app/contracts/shared`, à côté de `toE164`, et est lue par les **deux** sites
+qui adressent un vrai destinataire — `reach-target.ts` d'A8 et le nouveau
+contact d'annonce. `buildWhatsAppContactUrl` et `buildContactMessage` du front
+disparaissent : la règle est déplacée, pas désactivée.
+
+> ⚠️ **Le libellé promettait plus qu'il ne savait.** Un contact enregistré est
+> un **tap** sur le bouton : une fois WhatsApp ouvert, rien ici ne sait si un
+> message a été envoyé. Tranché avec le commanditaire, contre la maquette, qui
+> écrit « 3 personnes vous ont écrit » : les écrans disent « 3 personnes ont
+> voulu vous joindre », « Personne n'a encore cherché à vous joindre », et «
+> Contacts reçus » devient « Prises de contact ». **Écart assumé**, §2.
+
+> ⚠️ **La sonde de projection ne prouvait pas ce qu'elle semblait prouver.**
+> Remettre `contactWhatsapp` dans `toPublicLostItem` derrière un `as never`
+> passait les **524** tests de l'api : `public-lost-item-reads.spec.ts` vérifie
+> seulement qu'un use-case **mentionne** `toPublicLostItem`, pas ce qu'il émet.
+> R46 ajoute la garde qui manquait, sur la **forme sérialisée** et non sur le
+> type — un cast suffit à passer devant le compilateur, et celui-ci l'a fait. La
+> dette « l'API n'a aucun schéma de réponse » reste ouverte pour les autres
+> champs.
+
+**Deux types plutôt qu'un qui étend l'autre.** `MyLostItemApiDto` héritait de
+`LostItemApiDto` ; la lecture propriétaire porte le numéro là où la publique
+porte un booléen, donc ni l'une ni l'autre ne peut élargir sa voisine. Une base
+commune, deux DTO, et `PaginatedApiResponse<T>` pour les deux réponses de liste.
+L'écran de modification lit `/lost-items/mine`, donc son préremplissage n'a pas
+bougé.
+
+**Fichiers** : `packages/contracts/shared/phone.ts` (`toWhatsAppUrl`),
+`api/domains/lost-items/` (projection, `contact-lost-item-poster.use-case.ts`
+renommé depuis `record-lost-item-contact`, `LostItemUnreachableError`),
+`api/domains/qr-codes/helpers/reach-target.ts`, `api/presentations/lost-items/`,
+`client/routes/posts/` (barre, route ressource, service),
+`client/shared/types|mappers`, et les trois libellés plus celui du back-office.
+**Flux** : A, B.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**528** (+4), contracts **390** (+10), admin **425** (inchangé) et client
+**1202** (868 en `node`, 334 en `ui`) — en **baisse** de 4, le spec du helper
+supprimé ayant migré vers le contrat, où il en a apporté dix. Densité de
+commentaires 9,7 %.
+
+**Trois gardes vérifiées en rouge puis restaurées** : le numéro remis dans la
+projection, le compteur retiré du use-case, et l'ordre du reste.
+
+**Reste ouvert** : la trace de scan, que `MesStickers` dessine et qui demande
+une table ; et le rail des trente derniers jours que R13 avait reporté, puisque
+`contactsCount` est un compteur **sans horodatage**, ce que R46 ne change pas.
+
 #### R47 — La déconnexion ramenait sur le compte qu'on quittait — **LIVRÉE**
 
 Signalé par le commanditaire, et **jamais une étape du plan**, comme R38 à R46.
@@ -5133,12 +5216,16 @@ Vérifiée en rouge — le bug réintroduit, deux cas sur trois tombent.
 
 **Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
 `admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
-**522**, contracts **380**, admin **425** (inchangés) et client **1208** (871 en
-`node`, 337 en `ui`, +2). Densité de commentaires 6,5 %.
+**528**, contracts **390**, admin **425** (inchangés par ce lot) et client
+**1204** (868 en `node`, 336 en `ui`) — l'apport propre de R47 étant **+2** en
+`ui`. Densité de commentaires 6,5 %.
 
-> ⚠️ **Mesuré sur cette branche, qui part de `refonte` sans R46.** La première
-> version de cette entrée portait les totaux d'une branche empilée par erreur
-> sur R46 — recompter les suites depuis la base réelle, jamais recopier.
+> ⚠️ **Ces totaux ont bougé trois fois, et c'est instructif.** La branche a
+> d'abord été coupée par erreur au-dessus de R46, puis recréée depuis `refonte`,
+> puis R46 a été mergée et il a fallu la fusionner ici. À chaque déplacement de
+> base, les absolus changent alors que l'apport du lot reste le même. **Ne
+> jamais recopier des totaux : les recompter depuis la base réelle**, et
+> annoncer l'apport plutôt que l'absolu quand la base est mouvante.
 
 ---
 

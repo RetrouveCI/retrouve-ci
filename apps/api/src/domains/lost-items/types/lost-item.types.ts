@@ -100,11 +100,17 @@ export interface LostItem {
  */
 export type PublicLostItem = Omit<
 	LostItem,
-	'documentNumber' | 'moderationReason' | 'moderationReasonNote'
+	| 'documentNumber'
+	| 'moderationReason'
+	| 'moderationReasonNote'
+	| 'contactWhatsapp'
 > & {
 	documentNumber?: never
 	moderationReason?: never
 	moderationReasonNote?: never
+	/** It used to travel with every card and every detail: any crawler harvested it. */
+	contactWhatsapp?: never
+	contactReachable: boolean
 }
 
 export type LostItemListResponse = Paginated<LostItem>
