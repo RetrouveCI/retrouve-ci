@@ -9,6 +9,9 @@ export default [
 	layout('routes/layout.tsx', [
 		index('routes/home/_index.tsx'),
 		route('about', 'routes/about/_index.tsx'),
+		// The question an AI overview already answers for « objet perdu côte
+		// d'ivoire », which nothing of ours addressed.
+		route('objet-perdu-cote-divoire', 'routes/lost-guide/_index.tsx'),
 		route('contact', 'routes/contact/_index.tsx'),
 		route('download', 'routes/download/_index.tsx'),
 		route('terms', 'routes/terms/_index.tsx'),

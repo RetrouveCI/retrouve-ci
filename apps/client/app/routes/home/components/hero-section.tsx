@@ -52,10 +52,13 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 							</span>
 						</h1>
 
+						{/* Declarative since R49: the heading asks a question, so nothing
+						    said what RetrouveCI *is* — nor that it handles documents. */}
 						<p className="text-muted-foreground hidden max-w-125 text-xl lg:block">
-							Signalez, cherchez et retrouvez vos objets partout en Côte
-							d&apos;Ivoire — ou protégez-les à l&apos;avance avec un sticker
-							QR.
+							RetrouveCI est la plateforme ivoirienne des objets et documents
+							perdus&nbsp;: publiez une annonce, cherchez parmi celles des
+							autres, ou collez un sticker QR pour être joint sans donner votre
+							numéro.
 						</p>
 
 						{/* One block: the shortcuts narrow the very list the field

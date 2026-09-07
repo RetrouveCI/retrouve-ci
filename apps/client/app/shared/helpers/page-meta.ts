@@ -1,6 +1,14 @@
 export const SITE_NAME = 'RetrouveCI'
 export const OG_LOCALE = 'fr_CI'
 
+/**
+ * One sentence saying what the platform is, for whom and where — the shape a
+ * grounding model can lift. Read by the site description and by the JSON-LD, so
+ * the page and the markup never say two different things.
+ */
+export const PLATFORM_STATEMENT =
+	"Plateforme des objets et documents perdus ou retrouvés en Côte d'Ivoire : publiez une annonce, ou protégez vos objets avec un sticker QR."
+
 /** 1200×630, the ratio WhatsApp and Facebook crop to. `logo.png` was a portrait. */
 export const OG_IMAGE = '/og-image.png'
 

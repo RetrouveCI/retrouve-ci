@@ -10,6 +10,7 @@ const footerLinks = {
 		{ href: '/publish', label: 'Publier' },
 		{ href: '/stickers', label: 'Stickers QR' },
 		{ href: '/download', label: "Installer l'app" },
+		{ href: '/objet-perdu-cote-divoire', label: 'Que faire en cas de perte' },
 	],
 	legal: [
 		{ href: '/about', label: 'À propos' },
