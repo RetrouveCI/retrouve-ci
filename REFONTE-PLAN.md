@@ -5761,6 +5761,50 @@ variante bat une classe nue, sans garde pour le dire. Et la garde de portée est
 **côté client seul**, comme celle de `cn()` — `packages/ui` n'a toujours aucun
 runner, donc rien n'y veille.
 
+#### R54 — Les comptes listés du plus récent au plus ancien — **LIVRÉE**
+
+Demande du commanditaire, la troisième de la série avec R52 et R53 : lister les
+utilisateurs par date de création au back-office.
+
+> ⚠️ **Le tri ne pouvait pas se faire dans le front, et c'est tout l'intérêt du
+> lot.** `list-users` est appelé avec `limit=500`, et ce plafond n'est **pas**
+> une pagination : c'est une coupe. Sans tri, la base rend 500 comptes
+> **arbitraires** — donc trier côté navigateur n'aurait fait que réordonner les
+> mauvais, et les inscriptions les plus récentes pouvaient être précisément
+> celles qui manquaient.
+
+**Vérifié dans le code du paquet plutôt que supposé** : `better-auth@1.6.30`
+déclare `sortBy` et `sortDirection` sur `list-users`
+(`plugins/admin/routes.mjs`) et les passe à `internalAdapter.listUsers`
+**avant** la limite. Le tri se fait donc dans Postgres, sur la colonne
+`createdAt` du modèle `User`.
+
+Les deux listes plafonnées le portent : `/users` (500) et `/administrators`
+(200), qui avait le même défaut sans qu'on l'ait demandé. La lecture par id ne
+trie pas — un tri n'y déciderait rien.
+
+**La table affichait déjà la colonne « Inscription »**, sans jamais l'ordonner :
+le correctif est donc invisible sauf pour l'ordre des lignes, ce qui est
+exactement la demande.
+
+**Fichiers** : `admin/routes/dashboard/users/servers/users.service.ts`
+(`LIST_QUERY`), `administrators/servers/administrators.service.ts`, et leurs
+deux specs. **Flux** : aucun (back-office). **Aucun changement d'API, de contrat
+ni de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : admin
+**431** (+4), api **562**, contracts **390** et client **1292** (inchangés).
+Densité de commentaires 7,9 %.
+
+**Les deux gardes vérifiées en rouge puis restaurées** : le tri retiré de l'une
+ou l'autre liste fait tomber sa propre assertion sur la requête envoyée.
+
+**Reste ouvert** : le plafond lui-même. 500 comptes ordonnés valent mieux que
+500 au hasard, mais le jour où le pilote dépasse ce chiffre, la liste demandera
+une **vraie** pagination — `list-users` a l'`offset` qu'il faut, et la table du
+back-office n'a aucun tri de colonne.
+
 ---
 
 ## 6. Ce qui ne bouge pas

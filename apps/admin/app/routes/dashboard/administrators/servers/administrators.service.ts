@@ -34,7 +34,7 @@ function authInit(request: Request): ApiFetchInit {
 
 export async function listAdminUsers(request: Request): Promise<Admin[]> {
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
-		'/api/admin-auth/admin/list-users?limit=200&filterField=role&filterOperator=ne&filterValue=user',
+		'/api/admin-auth/admin/list-users?limit=200&sortBy=createdAt&sortDirection=desc&filterField=role&filterOperator=ne&filterValue=user',
 		{ request },
 	)
 	return res.users.filter(u => u.role !== 'user').map(mapUser)
