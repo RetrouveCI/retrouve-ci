@@ -95,7 +95,7 @@ export function EditNameDialog({
 									id={field.name}
 									value={field.value ?? ''}
 									placeholder="Ex : Adjoua Konan"
-									className="h-11"
+									className="h-control"
 									aria-invalid={fieldState.invalid || undefined}
 								/>
 								{fieldState.error && (
@@ -108,7 +108,7 @@ export function EditNameDialog({
 					<Button
 						type="submit"
 						disabled={fetcher.isSubmitting}
-						className="bg-primary-green hover:bg-primary-green-dark h-11 w-full gap-2 rounded-xl text-white"
+						className="bg-primary-green hover:bg-primary-green-dark h-control w-full gap-2 rounded-xl text-white"
 					>
 						{fetcher.isSubmitting ? (
 							<>
