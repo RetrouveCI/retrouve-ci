@@ -2,7 +2,6 @@ import {
 	DocumentType as PrismaDocumentType,
 	LostItemCategory as PrismaLostItemCategory,
 	LostItemType as PrismaLostItemType,
-	ModerationReason as PrismaModerationReason,
 	ModerationStatus as PrismaModerationStatus,
 	ResolutionStatus as PrismaResolutionStatus,
 	type LostItem as PrismaLostItem,
@@ -100,47 +99,20 @@ describe('toDomainLostItem', () => {
 })
 
 describe('toPublicLostItem', () => {
-	// A listing is an indexable page: a number published beside a name hands
-	// over the set an impersonation needs.
-	it('drops the document number and keeps everything else', () => {
-		const lostItem = toDomainLostItem({
-			...prismaLostItem,
-			documentType: PrismaDocumentType.NATIONAL_ID,
-			documentHolderName: 'KOUASSI Jean',
-			documentNumber: 'CI0012345678',
-		})
+	// What it withholds, and that it withholds nothing else, lives in
+	// `public-projection.spec.ts`, keyed on the entity's own columns.
+	it('keeps the holder name, which is what lets a person recognise theirs', () => {
+		const projected = toPublicLostItem(
+			toDomainLostItem({
+				...prismaLostItem,
+				documentType: PrismaDocumentType.NATIONAL_ID,
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: 'CI0012345678',
+			}),
+		)
 
-		const projected = toPublicLostItem(lostItem)
-
-		expect(projected).not.toHaveProperty('documentNumber')
 		expect(projected.documentHolderName).toBe('KOUASSI Jean')
 		expect(projected.documentType).toBe('national_id')
-		expect(JSON.stringify(projected)).not.toContain('CI0012345678')
-	})
-
-	// A moderator's note is addressed to one poster. A listing hidden and then
-	// republished would otherwise carry it onto an indexable page.
-	it('drops the moderation reason and its note', () => {
-		const lostItem = toDomainLostItem({
-			...prismaLostItem,
-			moderationReason: PrismaModerationReason.OTHER,
-			moderationReasonNote: 'La 2e photo montre une carte bancaire.',
-		})
-
-		const projected = toPublicLostItem(lostItem)
-
-		expect(projected).not.toHaveProperty('moderationReason')
-		expect(projected).not.toHaveProperty('moderationReasonNote')
-		expect(JSON.stringify(projected)).not.toContain('carte bancaire')
-	})
-
-	// On the serialised shape, not the type: a cast walks past the compiler.
-	it('drops the poster number, answering whether they can be reached', () => {
-		const projected = toPublicLostItem(toDomainLostItem(prismaLostItem))
-
-		expect(projected).not.toHaveProperty('contactWhatsapp')
-		expect(JSON.stringify(projected)).not.toContain('0700000000')
-		expect(projected.contactReachable).toBe(true)
 		expect(projected.contactName).toBe('Jean Dupont')
 	})
 

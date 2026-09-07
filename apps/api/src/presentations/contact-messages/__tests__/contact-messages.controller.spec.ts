@@ -50,7 +50,8 @@ describe('ContactMessagesController', () => {
 			const result = await controller.create(dto)
 
 			expect(createContactMessage.execute).toHaveBeenCalledWith(dto)
-			expect(result).toEqual(message)
+			// The row carries `recipientUserId` and `qrTokenCode`; the sender does not.
+			expect(result).toEqual({ success: true })
 		})
 	})
 

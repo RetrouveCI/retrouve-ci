@@ -94,9 +94,10 @@ export interface LostItem {
 /**
  * What a public read may carry. A listing is an indexable page: an identity
  * number published next to a holder's name hands over the set an impersonation
- * needs, so the column is written and never served. `documentNumber` is typed
- * `never` rather than dropped, so a full `LostItem` is **not** assignable and
- * the compiler refuses the shortcut on the four anonymous routes.
+ * needs, so the column is written and never served. Each field is typed
+ * `never` rather than dropped, so a full `LostItem` is **not** assignable. A
+ * cast still walks past that, hence a projection built field by field and a
+ * spec on the **serialised** shape.
  */
 export type PublicLostItem = Omit<
 	LostItem,
@@ -104,12 +105,15 @@ export type PublicLostItem = Omit<
 	| 'moderationReason'
 	| 'moderationReasonNote'
 	| 'contactWhatsapp'
+	| 'userId'
 > & {
 	documentNumber?: never
 	moderationReason?: never
 	moderationReasonNote?: never
 	/** It used to travel with every card and every detail: any crawler harvested it. */
 	contactWhatsapp?: never
+	/** Read by neither front, and it links every listing one person posted. */
+	userId?: never
 	contactReachable: boolean
 }
 

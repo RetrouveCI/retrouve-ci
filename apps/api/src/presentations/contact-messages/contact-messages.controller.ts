@@ -35,14 +35,18 @@ export class ContactMessagesController {
 		private readonly updateContactMessageStatus: UpdateContactMessageStatusUseCase,
 	) {}
 
+	// An acknowledgement, not the stored row: the sender is anonymous and reads
+	// nothing back, and `/qr-codes/:code/contact` already answered this way.
 	@Post()
 	@AllowAnonymous()
 	@ApiZodBody(createContactMessageSchema)
-	create(
+	async create(
 		@Body(new ZodValidationPipe(createContactMessageSchema))
 		data: CreateContactMessageData,
 	) {
-		return this.createContactMessage.execute(data)
+		await this.createContactMessage.execute(data)
+
+		return { success: true }
 	}
 
 	@Get()

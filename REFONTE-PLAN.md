@@ -4017,14 +4017,15 @@ Ce qui a été livré :
 > distro WSL, donc aucun Postgres et aucune mesure HTTP en vrai. La mesure se
 > fait donc à la frontière de sérialisation
 > (`JSON.stringify(...)).not.toContain(...)` sur les quatre chemins) et par une
-> **sonde de source en CI** : `public-lost-item-reads.spec.ts` relit les deux
-> contrôleurs, relève chaque gestionnaire portant `@AllowAnonymous()` ou
-> `@OptionalAuth()`, et exige que le use-case auquel il délègue déclare la
-> projection. Comme R34, la sonde a été **prouvée avant d'être crue** : branchée
-> sur le use-case non projeté, elle tombe sur ses deux assertions ; rebranchée,
-> elle repasse. La migration, elle, est écrite par Prisma et non à la main
-> (`migrate diff` entre les deux datamodels, hors ligne), et son SQL a été
-> revérifié identique au diff du schéma après coup.
+> **sonde de source en CI** : `public-lost-item-reads.spec.ts` relit deux
+> contrôleurs — R51 l'a renommée `anonymous-reads.spec.ts` et lui fait découvrir
+> les **cinq** qui en portent —, relève chaque gestionnaire portant
+> `@AllowAnonymous()` ou `@OptionalAuth()`, et exige que le use-case auquel il
+> délègue déclare la projection. Comme R34, la sonde a été **prouvée avant
+> d'être crue** : branchée sur le use-case non projeté, elle tombe sur ses deux
+> assertions ; rebranchée, elle repasse. La migration, elle, est écrite par
+> Prisma et non à la main (`migrate diff` entre les deux datamodels, hors
+> ligne), et son SQL a été revérifié identique au diff du schéma après coup.
 
 **Fichiers** : `packages/database/prisma/` (enum + 4 colonnes + migration),
 `packages/contracts/src/lost-items/` (`documents.schema.ts` nouveau,
@@ -5161,7 +5162,8 @@ disparaissent : la règle est déplacée, pas désactivée.
 > R46 ajoute la garde qui manquait, sur la **forme sérialisée** et non sur le
 > type — un cast suffit à passer devant le compilateur, et celui-ci l'a fait. La
 > dette « l'API n'a aucun schéma de réponse » reste ouverte pour les autres
-> champs.
+> champs. ✅ **Fermée pour `PublicLostItem` par R51**, qui construit la
+> projection champ par champ et partitionne les colonnes de l'entité.
 
 **Deux types plutôt qu'un qui étend l'autre.** `MyLostItemApiDto` héritait de
 `LostItemApiDto` ; la lecture propriétaire porte le numéro là où la publique
@@ -5498,6 +5500,97 @@ retirés ont déjà une assertion sur la forme sérialisée, pas seulement
    liste publique impose `published` : un événement `draft` ou `cancelled` se
    lit par son id. Personne ne l'appelle — le back-office passe par
    `/events/admin` —, donc le resserrer est gratuit.
+
+✅ **Les trois fermés par R51.**
+
+#### R51 — Une lecture publique se construit, elle ne se soustrait pas — **LIVRÉE**
+
+Les trois trous mesurés pendant R50, plus la dette « l'API n'a aucun schéma de
+réponse » pour ce qu'elle couvre ici. Jamais une étape du plan, comme R38 à R50.
+
+> ⚠️ **La passation décrivait la garde de projection dans un état qui n'était
+> plus le sien** : les quatre champs retirés avaient déjà, depuis R46, une
+> assertion sur la forme **sérialisée**. Recompter avant de recoder, une fois de
+> plus.
+
+**Ce qui manquait vraiment était la forme du mappeur.** `toPublicLostItem`
+**soustrayait** (`...rest`), là où `toLinkedLostItem` et `QrTokenPublicView`
+construisent champ par champ. Une colonne ajoutée à la table était donc publique
+le jour de sa création, et **aucun** test n'énumérait les clés. Il construit
+désormais ses dix-neuf champs, plus `contactReachable`.
+
+**La garde est une chaîne de trois maillons**, et c'est ce qui la rend
+infalsifiable : la fixture est typée `LostItem`, donc le compilateur **force**
+une colonne nouvelle à y entrer ; le test partitionne alors les clés de la
+fixture entre `PUBLIC_FIELDS` et `WITHHELD`, et échoue tant que la colonne n'est
+nommée d'aucun côté ; et chaque champ retenu porte une valeur assez distinctive
+pour être cherchée dans le `JSON.stringify`, puisqu'**un cast passe devant le
+compilateur**.
+
+**`userId` rejoint les champs retenus.** Mesuré : le DTO du client ne le déclare
+même pas, et le back-office lit `/lost-items/admin`, qui sert l'entité entière.
+Personne ne le lisait donc, et sur une page indexable il relie toutes les
+annonces d'une même personne — une corrélation que la page n'offre pas
+autrement, elle qui ne montre qu'un prénom. C'est exactement la décision que la
+garde est faite pour provoquer.
+
+**La sonde nommait deux contrôleurs à la main ; cinq portaient une route
+anonyme.** Elle les **découvre** maintenant sous `presentations/`, gère le
+décorateur posé sur la **classe** (`health`), et compare l'inventaire complet à
+une table écrite : un contrôleur oublié était précisément le cas qu'elle existe
+pour attraper. Chaque use-case anonyme doit en outre déclarer la forme que la
+table lui attribue — trois rendent une annonce et doivent passer par la
+projection, les sept autres nomment leur forme étroite. Le fichier monte de
+`presentations/lost-items/__tests__/` à `presentations/__tests__/`, son sujet
+n'étant plus un domaine.
+
+**Deux fuites fermées au passage, trouvées par la découverte :**
+
+1. **`GET /events/:id` était anonyme et ne restreignait pas le statut**, là où
+   la liste publique impose `published` : un événement `draft` ou `cancelled` se
+   lisait par son id. `requirePublishedEvent` reprend la forme de
+   `requirePublishedLostItem` — **introuvable** plutôt qu'interdit. Personne ne
+   l'appelait (le back-office passe par `/events/admin`), donc rien ne casse.
+2. **`POST /contact-messages` renvoyait la ligne stockée** à un expéditeur
+   anonyme, `recipientUserId` et `qrTokenCode` compris — toujours nuls sur ce
+   chemin, mais l'exemption n'avait pas de raison d'être : son jumeau
+   `POST /qr-codes/:code/contact` répondait déjà `{ success: true }`. Le client
+   jette le corps (`Promise<void>`), donc le resserrer ne coûte rien.
+
+> ⚠️ **`ViewLostItemUseCase` répond `LostItem | PublicLostItem`, et c'est
+> voulu** : l'auteur qui relit sa propre annonce reçoit l'entité entière, parce
+> que le formulaire de modification a besoin du numéro. La garde le sait et
+> l'écrit dans sa table — une exemption nommée plutôt qu'un cas oublié.
+
+**Fichiers** : `api/domains/lost-items/` (`mappers/lost-item.mapper.ts`,
+`types/lost-item.types.ts`, `mappers/__tests__/public-projection.spec.ts`),
+`api/domains/events/helpers/require-published-event.ts` et son spec,
+`get-event-by-id.use-case.ts`,
+`api/presentations/__tests__/anonymous-reads.spec.ts` (déplacé et réécrit),
+`contact-messages.controller.ts`. **Flux** : A, B, C. **Aucun changement de
+front, de contrat ni de base** — les trois resserrements portent sur des champs
+et des routes que personne ne lisait.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**550** (+22), contracts **390**, admin **427** et client **1284** (les trois
+inchangés, le lot étant entièrement back-end). Densité de commentaires 9,9 %.
+
+**Les cinq gardes vérifiées en rouge puis restaurées** : une colonne ajoutée à
+l'entité **et** câblée jusqu'à la projection fait tomber les deux tests de
+partition ; une forme élargie dans un use-case exempté fait tomber sa ligne de
+table ; une route anonyme posée dans `stats` — un contrôleur que l'inventaire ne
+nomme pas — fait tomber la découverte ; la projection retirée d'un lecteur de
+liste fait tomber sa ligne ; et le `status: 'published'` retiré de la liste
+anonyme d'événements fait tomber le dernier contrôle.
+
+**Reste ouvert** : la dette « l'API n'a aucun schéma de réponse » **n'est pas
+fermée**. Elle l'est pour `PublicLostItem`, dont chaque colonne est désormais
+une décision, et pour l'inventaire des routes anonymes. Les entités servies aux
+routes **authentifiées** n'ont ni projection ni garde : `StickerOrder`,
+`Notification` et `ContactMessage` partent entières à leur destinataire
+légitime. C'est un risque d'une autre nature — pas d'indexation, mais pas de
+schéma non plus.
 
 ---
 
