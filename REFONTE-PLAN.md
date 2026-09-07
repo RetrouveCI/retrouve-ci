@@ -5099,6 +5099,47 @@ dit ce que R45 a décidé.
 **Les deux gardes vérifiées en rouge puis restaurées** : l'ordre remis sur celui
 du contrat, et `objectType` présélectionné sur `documents`.
 
+#### R47 — La déconnexion ramenait sur le compte qu'on quittait — **LIVRÉE**
+
+Signalé par le commanditaire, et **jamais une étape du plan**, comme R38 à R46.
+
+> ⚠️ **Ce n'était pas une redirection oubliée, c'était une redirection
+> annulée.** `logout` faisait déjà `navigate('/login')`. Mais il lançait
+> `void authClient.signOut()` **sans l'attendre**, donc la navigation partait
+> avec le cookie encore en place — et `/login` a un loader qui renvoie ailleurs
+> tout visiteur porteur d'une session, vers `sanitizeRedirect(null)`,
+> c'est-à-dire `DEFAULT_REDIRECT`, c'est-à-dire **`/account`**. L'utilisateur
+> retombait sur la page qu'il quittait. La page a d'ailleurs une **seconde**
+> garde, un `useEffect` sur `isAuthenticated`, qui aurait fait la même chose si
+> le loader avait été esquivé.
+
+**Le correctif est d'attendre** : `logout` devient `async`, `await`e
+`authClient.signOut()`, puis navigue. Et il navigue en `replace`, pour que
+`/account` quitte l'historique — un retour arrière y rendait sinon un écran
+authentifié depuis le cache.
+
+**`context/auth.tsx` n'avait aucun test** ; c'est le premier, et le premier mock
+d'`authClient` du dépôt. Sa garde utile est une **promesse différée** : elle
+vérifie qu'aucune navigation n'a lieu tant que `signOut()` n'a pas résolu.
+Vérifiée en rouge — le bug réintroduit, deux cas sur trois tombent.
+
+> ⚠️ **Un troisième test a été écrit puis retiré.** Il assertait l'ordre d'appel
+> (`signOut` avant `navigate`), ce que la version boguée respectait aussi : il
+> passait **malgré** la régression. Un test qui survit au bug qu'il prétend
+> garder est du bruit, et la promesse différée le couvre strictement mieux.
+
+**Fichiers** : `client/context/auth.tsx` et son premier spec. **Flux** : A.
+**Aucun changement d'API, de contrat ni de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**522**, contracts **380**, admin **425** (inchangés) et client **1208** (871 en
+`node`, 337 en `ui`, +2). Densité de commentaires 6,5 %.
+
+> ⚠️ **Mesuré sur cette branche, qui part de `refonte` sans R46.** La première
+> version de cette entrée portait les totaux d'une branche empilée par erreur
+> sur R46 — recompter les suites depuis la base réelle, jamais recopier.
+
 ---
 
 ## 6. Ce qui ne bouge pas
