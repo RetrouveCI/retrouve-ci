@@ -10,6 +10,15 @@ export interface QrTokenPublicView {
 	linkedObject: string | null
 	/** Whether the owner accepted being reached directly. Never a number. */
 	directContact: boolean
+	/** The listing, and only when the API judged it showable. */
+	lostItem: LinkedLostItem | null
+}
+
+export interface LinkedLostItem {
+	id: string
+	title: string
+	ville: string
+	photo: string | null
 }
 
 export async function getQrTokenPublicView(

@@ -20,6 +20,7 @@ describe('GetQrTokenPublicViewUseCase', () => {
 			label: 'Mes clés',
 			linkedObject: 'Trousseau',
 			directContact: false,
+			lostItem: null,
 		}
 		vi.mocked(repository.findPublicView).mockResolvedValue(view)
 

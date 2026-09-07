@@ -3,6 +3,7 @@ import {
 	DOCUMENT_TYPE_ERROR,
 	MAX_DESCRIPTION_LENGTH,
 	MAX_DOCUMENT_NUMBER_LENGTH,
+	MAX_STICKER_CODE_LENGTH,
 	documentTypeSchema,
 	lostItemCategorySchema,
 	pushLostItemWriteIssues,
@@ -83,6 +84,14 @@ const publishFormFields = z.object({
 		.trim()
 		.max(120, 'Maximum 120 caractères')
 		.optional(),
+	// A `Select` starts out on `''`, like `documentType` above; the API resolves
+	// the code against the poster's own stickers, so no shape is checked here.
+	stickerCode: z
+		.string()
+		.trim()
+		.max(MAX_STICKER_CODE_LENGTH, 'Code de sticker invalide')
+		.optional()
+		.transform(value => value || undefined),
 })
 
 const NO_DOCUMENT = {

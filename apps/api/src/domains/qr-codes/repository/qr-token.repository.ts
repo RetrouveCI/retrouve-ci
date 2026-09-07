@@ -4,6 +4,7 @@ import { PrismaService } from '@/infrastructures/database/prisma.service'
 import {
 	toDomainQrToken,
 	toDomainStatus,
+	toLinkedLostItem,
 	toPrismaStatus,
 } from '../mappers/qr-token.mapper'
 import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
@@ -41,7 +42,22 @@ export class QrTokenRepository {
 	async findPublicView(code: string): Promise<QrTokenPublicView | null> {
 		const qrToken = await this.prisma.qrToken.findUnique({
 			where: { code },
-			include: { user: { select: { name: true } } },
+			include: {
+				user: { select: { name: true } },
+				// Weighed by `toLinkedLostItem`, not by a `where`: Prisma types one on
+				// a to-one include, but nothing here can prove it applies, and that
+				// is not a filter to trust with unmoderated content.
+				lostItem: {
+					select: {
+						id: true,
+						title: true,
+						ville: true,
+						photos: true,
+						moderationStatus: true,
+						resolutionStatus: true,
+					},
+				},
+			},
 		})
 
 		if (!qrToken) return null
@@ -52,7 +68,16 @@ export class QrTokenRepository {
 			label: qrToken.label,
 			linkedObject: qrToken.linkedObject,
 			directContact: qrToken.directContact,
+			lostItem: toLinkedLostItem(qrToken.lostItem),
 		}
+	}
+
+	/**
+	 * Points the sticker at a listing, or clears it with `null`. A sticker sits
+	 * on one object, so the newest listing simply replaces the previous link.
+	 */
+	async linkToLostItem(code: string, lostItemId: string | null): Promise<void> {
+		await this.prisma.qrToken.update({ where: { code }, data: { lostItemId } })
 	}
 
 	/**
