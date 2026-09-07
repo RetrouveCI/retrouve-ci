@@ -6,7 +6,7 @@ export async function getMyStickerOrdersPage(
 ): Promise<StickerOrderListApiResponse> {
 	return apiFetch<StickerOrderListApiResponse>(
 		'/sticker-orders/mine?pageSize=50',
-		{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
+		{ request },
 	)
 }
 

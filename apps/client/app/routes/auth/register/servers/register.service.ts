@@ -9,10 +9,8 @@ export async function setInitialPassword(
 	await apiFetch('/account/set-initial-password', {
 		method: 'POST',
 		body: JSON.stringify({ newPassword }),
-		headers: {
-			Cookie: request.headers.get('cookie') ?? '',
-			Origin: requestOrigin(request),
-		},
+		request,
+		headers: { Origin: requestOrigin(request) },
 	})
 }
 
@@ -23,10 +21,8 @@ export async function setDisplayName(
 	await apiFetch('/api/auth/update-user', {
 		method: 'POST',
 		body: JSON.stringify({ name }),
-		headers: {
-			Cookie: request.headers.get('cookie') ?? '',
-			Origin: requestOrigin(request),
-		},
+		request,
+		headers: { Origin: requestOrigin(request) },
 	})
 }
 

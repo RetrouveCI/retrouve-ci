@@ -4,8 +4,9 @@ import { APP_GUARD } from '@nestjs/core'
 import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
 import { SessionGuard } from '@/shared/auth/guards/session.guard'
+import { createRedisCounter } from '@/shared/rate-limit/rate-limit.store'
 import { createAdminAuth, createClientAuth } from './auth.config'
-import { ADMIN_AUTH, CLIENT_AUTH } from './auth.tokens'
+import { ADMIN_AUTH, CLIENT_AUTH, OTP_BUDGET_COUNTER } from './auth.tokens'
 import { OtpDispatcher } from './otp-dispatcher.service'
 import { OTP_QUEUE } from '@/infrastructures/queue/queue.constants'
 
@@ -19,6 +20,16 @@ import { OTP_QUEUE } from '@/infrastructures/queue/queue.constants'
 	imports: [BullModule.registerQueue({ name: OTP_QUEUE })],
 	providers: [
 		OtpDispatcher,
+		// Its own connection: BullMQ takes a URL rather than a client, and the
+		// request hook's counter is built before Nest exists.
+		{
+			provide: OTP_BUDGET_COUNTER,
+			useFactory: () => {
+				const url = process.env.REDIS_URL?.trim()
+
+				return url ? createRedisCounter(url) : undefined
+			},
+		},
 		{
 			provide: CLIENT_AUTH,
 			inject: [PrismaService, OtpDispatcher],

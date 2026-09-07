@@ -33,7 +33,7 @@ export async function getMyLostItemsPage(
 
 	return apiFetch<MyLostItemListApiResponse>(
 		`/lost-items/mine?${params.toString()}`,
-		{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
+		{ request },
 	)
 }
 
@@ -42,7 +42,7 @@ export async function getMyLostItemsSummary(
 	request: Request,
 ): Promise<MyLostItemsSummaryApiResponse> {
 	return apiFetch<MyLostItemsSummaryApiResponse>('/lost-items/mine/summary', {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -65,7 +65,7 @@ export async function deleteLostItem(
 ): Promise<void> {
 	await apiFetch(`/lost-items/${id}`, {
 		method: 'DELETE',
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -77,7 +77,7 @@ export async function patchLostItemContent(
 	await apiFetch(`/lost-items/${id}`, {
 		method: 'PATCH',
 		body: JSON.stringify(payload),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -89,6 +89,6 @@ export async function updateLostItemResolution(
 	await apiFetch(`/lost-items/${id}`, {
 		method: 'PATCH',
 		body: JSON.stringify({ resolutionStatus }),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

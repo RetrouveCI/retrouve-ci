@@ -17,7 +17,7 @@ export async function listContactMessages(
 
 	return apiFetch<ContactMessageListResponse>(
 		`/contact-messages?${query.toString()}`,
-		{ headers: { Cookie: request.headers.get('cookie') ?? '' } },
+		{ request },
 	)
 }
 
@@ -26,7 +26,7 @@ export async function getContactMessageById(
 	request: Request,
 ): Promise<ContactMessage> {
 	return apiFetch<ContactMessage>(`/contact-messages/${id}`, {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -38,6 +38,6 @@ export async function updateContactMessageStatus(
 	return apiFetch<ContactMessage>(`/contact-messages/${id}/status`, {
 		method: 'PATCH',
 		body: JSON.stringify({ status }),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

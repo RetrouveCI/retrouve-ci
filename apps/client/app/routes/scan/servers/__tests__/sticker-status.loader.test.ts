@@ -56,7 +56,10 @@ describe('sticker-status loader', () => {
 	it('normalises a scanned URL down to its code', async () => {
 		await loader({ request: requestFor('https://retrouve.ci/q/RCI-ABC123') })
 
-		expect(getQrTokenPublicView).toHaveBeenCalledWith('RCI-ABC123')
+		expect(getQrTokenPublicView).toHaveBeenCalledWith(
+			'RCI-ABC123',
+			expect.any(Request),
+		)
 	})
 
 	it('asks the API nothing about a code that is not a sticker', async () => {

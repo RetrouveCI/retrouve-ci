@@ -9,6 +9,6 @@ export async function createStickerOrder(
 	return apiFetch<StickerOrderApiDto>('/sticker-orders', {
 		method: 'POST',
 		body: JSON.stringify(payload),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

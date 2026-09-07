@@ -14,7 +14,11 @@ const HOUR = 60 * MINUTE
  * guessing: better-auth allows three attempts per issued code, so capping the
  * codes caps the total.
  */
-const OTP: RateLimitRule = { bucket: 'otp', max: 5, windowSeconds: 15 * MINUTE }
+export const OTP: RateLimitRule = {
+	bucket: 'otp',
+	max: 5,
+	windowSeconds: 15 * MINUTE,
+}
 const AUTH: RateLimitRule = {
 	bucket: 'auth',
 	max: 10,
@@ -32,6 +36,13 @@ const PUBLIC_READ: RateLimitRule = {
 	bucket: 'public-read',
 	max: 60,
 	windowSeconds: 15 * MINUTE,
+}
+
+// The same numbers as `OTP`, keyed on the number. Both hold at once: an address
+// is forwarded and rotatable, while a number is what an SMS costs money on.
+export const OTP_PER_NUMBER = {
+	max: OTP.max,
+	windowSeconds: OTP.windowSeconds,
 }
 
 const AUTH_PREFIXES = ['/api/auth/', '/api/admin-auth/']

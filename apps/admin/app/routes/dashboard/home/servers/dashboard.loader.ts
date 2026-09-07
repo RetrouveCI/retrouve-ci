@@ -37,7 +37,7 @@ export async function dashboardLoader({ request }: { request: Request }) {
 	await requireAdminSession(request)
 
 	const data = await apiFetch<StatsApiResponse>('/stats', {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 
 	return {

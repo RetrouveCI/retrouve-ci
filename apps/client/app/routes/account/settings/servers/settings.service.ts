@@ -9,10 +9,8 @@ export async function updateProfile(
 	await apiFetch('/api/auth/update-user', {
 		method: 'POST',
 		body: JSON.stringify(fields),
-		headers: {
-			Cookie: request.headers.get('cookie') ?? '',
-			Origin: requestOrigin(request),
-		},
+		request,
+		headers: { Origin: requestOrigin(request) },
 	})
 }
 
@@ -36,10 +34,8 @@ export async function deleteAccount(
 		{
 			method: 'POST',
 			body: JSON.stringify({ password }),
-			headers: {
-				Cookie: request.headers.get('cookie') ?? '',
-				Origin: requestOrigin(request),
-			},
+			request,
+			headers: { Origin: requestOrigin(request) },
 		},
 	)
 }

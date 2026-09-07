@@ -26,7 +26,9 @@ export async function action({
 	if (!submission.success) return redirect(`${back}?reach=failed`)
 
 	try {
-		return redirect(await reachQrOwner(params.code, submission.data.channel))
+		return redirect(
+			await reachQrOwner(params.code, submission.data.channel, request),
+		)
 	} catch (error) {
 		// Back to the contact screen, whose message form still works. Only the
 		// throttle is named apart, being the one worth waiting out.

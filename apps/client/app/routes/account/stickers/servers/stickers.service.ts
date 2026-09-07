@@ -9,7 +9,7 @@ export async function getMyQrCodesPage(
 	request: Request,
 ): Promise<QrTokenListApiResponse> {
 	return apiFetch<QrTokenListApiResponse>('/qr-codes/mine?pageSize=50', {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -24,7 +24,7 @@ export async function getMyStickerSummary(
 	request: Request,
 ): Promise<StickerActivationSummary> {
 	return apiFetch<StickerActivationSummary>('/qr-codes/mine/summary', {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -36,7 +36,7 @@ export async function activateSticker(
 	return apiFetch<QrTokenApiDto>(`/qr-codes/${code}/activate`, {
 		method: 'POST',
 		body: JSON.stringify(data),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -48,7 +48,7 @@ export async function updateSticker(
 	return apiFetch<QrTokenApiDto>(`/qr-codes/${code}`, {
 		method: 'PATCH',
 		body: JSON.stringify(data),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -58,6 +58,6 @@ export async function revokeSticker(
 ): Promise<QrTokenApiDto> {
 	return apiFetch<QrTokenApiDto>(`/qr-codes/${code}/revoke`, {
 		method: 'POST',
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

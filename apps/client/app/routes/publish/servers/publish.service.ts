@@ -9,6 +9,6 @@ export async function createLostItem(
 	return apiFetch<LostItemApiDto>('/lost-items', {
 		method: 'POST',
 		body: JSON.stringify(payload),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

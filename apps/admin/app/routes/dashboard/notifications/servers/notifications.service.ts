@@ -17,14 +17,14 @@ export async function listNotifications(
 	return apiFetch<NotificationListResponse>(
 		`/notifications/mine?${query.toString()}`,
 		{
-			headers: { Cookie: request.headers.get('cookie') ?? '' },
+			request,
 		},
 	)
 }
 
 export async function getUnreadCount(request: Request): Promise<number> {
 	return apiFetch<number>('/notifications/unread-count', {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -34,13 +34,13 @@ export async function markAsRead(
 ): Promise<Notification> {
 	return apiFetch<Notification>(`/notifications/${id}/read`, {
 		method: 'PATCH',
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
 export async function markAllAsRead(request: Request): Promise<void> {
 	return apiFetch<void>('/notifications/read-all', {
 		method: 'PATCH',
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
