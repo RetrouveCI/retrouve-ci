@@ -19,11 +19,15 @@ export function buildTimelineLabel(listing: UserLostItem): string {
 	return `${listing.location} · ${verb} ${formatRelativeDistance(listing.createdAt)}`
 }
 
-/** The number the owner came for, so it gets a sentence rather than a count. */
+/**
+ * A sentence rather than a count. It counts taps on « Contacter », not messages:
+ * once WhatsApp opens, nothing knows whether anything was sent. The artboard
+ * writes « vous ont écrit », which claims more — assumed deviation (§2).
+ */
 export function buildContactsLabel(contacts: number): string {
-	if (contacts === 0) return 'Personne ne vous a écrit'
+	if (contacts === 0) return "Personne n'a encore cherché à vous joindre"
 
 	return contacts > 1
-		? `${contacts} personnes vous ont écrit`
-		: '1 personne vous a écrit'
+		? `${contacts} personnes ont voulu vous joindre`
+		: '1 personne a voulu vous joindre'
 }

@@ -40,9 +40,9 @@ describe('buildTimelineLabel', () => {
 
 describe('buildContactsLabel', () => {
 	it.each([
-		[0, 'Personne ne vous a écrit'],
-		[1, '1 personne vous a écrit'],
-		[3, '3 personnes vous ont écrit'],
+		[0, "Personne n'a encore cherché à vous joindre"],
+		[1, '1 personne a voulu vous joindre'],
+		[3, '3 personnes ont voulu vous joindre'],
 	])('agrees the verb for %i contacts', (contacts, expected) => {
 		expect(buildContactsLabel(contacts)).toBe(expected)
 	})

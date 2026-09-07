@@ -8,6 +8,7 @@ import {
 	type LostItem as PrismaLostItem,
 } from '@app/database'
 
+import { isValidLocalNumber } from '@app/contracts/shared'
 import type { LostItem, PublicLostItem } from '../types/lost-item.types'
 import type {
 	DocumentType,
@@ -62,10 +63,11 @@ export function toPublicLostItem(lostItem: LostItem): PublicLostItem {
 		documentNumber: _number,
 		moderationReason: _reason,
 		moderationReasonNote: _note,
+		contactWhatsapp,
 		...rest
 	} = lostItem
 
-	return rest
+	return { ...rest, contactReachable: isValidLocalNumber(contactWhatsapp) }
 }
 
 export function toPrismaType(type: LostItemType): PrismaLostItemType {

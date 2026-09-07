@@ -44,3 +44,20 @@ export function isAssignableLocalNumber(input: string): boolean {
 export function toE164(localNumber: string): string {
 	return `+${COUNTRY_CODE}${toLocalDigits(localNumber)}`
 }
+
+/**
+ * Bare digits with the country code and no `+`, the shape the SMS gateway takes.
+ * `null` is a real answer: a link on ten wrong digits opens WhatsApp on « ce
+ * numéro n'est pas sur WhatsApp ». Length only, since it reads a stored number.
+ */
+export function toWhatsAppUrl(
+	localNumber: string,
+	message?: string,
+): string | null {
+	if (!isValidLocalNumber(localNumber)) return null
+
+	const recipient = `${COUNTRY_CODE}${toLocalDigits(localNumber)}`
+	const text = message ? `?text=${encodeURIComponent(message)}` : ''
+
+	return `https://wa.me/${recipient}${text}`
+}

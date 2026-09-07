@@ -17,7 +17,7 @@ const DTO = {
 	category: 'bag',
 	photos: ['https://cdn/a.jpg'],
 	contactName: 'Awa Traoré',
-	contactWhatsapp: '+2250700000000',
+	contactReachable: true,
 }
 
 const load = () =>
@@ -56,14 +56,12 @@ describe('postDetailLoader', () => {
 		})
 	})
 
-	// The contact block is the point of the page.
-	it('carries the poster contact through', async () => {
+	it('carries the poster name, and whether they can be reached', async () => {
 		const { listing } = await load()
 
-		expect(listing.contact).toEqual({
-			name: 'Awa Traoré',
-			whatsapp: '+2250700000000',
-		})
+		expect(listing.contact).toEqual({ name: 'Awa Traoré' })
+		expect(listing.contactReachable).toBe(true)
+		expect(listing).not.toHaveProperty('contactWhatsapp')
 	})
 
 	// A deleted or unpublished listing must render the 404 page, not an error.

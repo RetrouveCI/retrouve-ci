@@ -67,7 +67,7 @@ export function PostDetailDialog({
 		{ icon: User, value: post.contactName },
 		{ icon: Phone, value: post.contactWhatsapp },
 		{ icon: Eye, value: `${post.views} vues` },
-		{ icon: MessageCircle, value: `${post.contactsCount} contacts` },
+		{ icon: MessageCircle, value: `${post.contactsCount} prises de contact` },
 	]
 
 	return (

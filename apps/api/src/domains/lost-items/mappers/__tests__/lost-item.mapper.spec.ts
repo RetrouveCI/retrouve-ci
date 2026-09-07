@@ -133,6 +133,29 @@ describe('toPublicLostItem', () => {
 		expect(projected).not.toHaveProperty('moderationReasonNote')
 		expect(JSON.stringify(projected)).not.toContain('carte bancaire')
 	})
+
+	// On the serialised shape, not the type: a cast walks past the compiler.
+	it('drops the poster number, answering whether they can be reached', () => {
+		const projected = toPublicLostItem(toDomainLostItem(prismaLostItem))
+
+		expect(projected).not.toHaveProperty('contactWhatsapp')
+		expect(JSON.stringify(projected)).not.toContain('0700000000')
+		expect(projected.contactReachable).toBe(true)
+		expect(projected.contactName).toBe('Jean Dupont')
+	})
+
+	// The fourth state R10 draws, decided here now that the number stays here.
+	it.each([
+		['070000000', false],
+		['+2252250700000000', false],
+		['0700000000', true],
+	])('reads %o as reachable=%o', (contactWhatsapp, reachable) => {
+		const projected = toPublicLostItem(
+			toDomainLostItem({ ...prismaLostItem, contactWhatsapp }),
+		)
+
+		expect(projected.contactReachable).toBe(reachable)
+	})
 })
 
 describe('moderation reason conversions', () => {

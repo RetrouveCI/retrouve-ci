@@ -43,6 +43,8 @@ export default [
 		// network nor the cache.
 		route('offline', 'routes/offline/_index.tsx'),
 	]),
+	// Records the contact and redirects, like the sticker jump below.
+	route('posts/:id/contact', 'routes/posts/details/servers/contact.action.ts'),
 	route('q/:code', 'routes/q/_index.tsx'),
 	// The jump to the owner's line: an action and no component, so the browser
 	// follows the redirect itself and the page never carries the number.

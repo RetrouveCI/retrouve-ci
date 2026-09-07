@@ -39,7 +39,7 @@ import { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-los
 import { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
 import { GetPublicLostItemsUseCase } from '@/domains/lost-items/use-cases/get-public-lost-items.use-case'
 import { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
-import { RecordLostItemContactUseCase } from '@/domains/lost-items/use-cases/record-lost-item-contact.use-case'
+import { ContactLostItemPosterUseCase } from '@/domains/lost-items/use-cases/contact-lost-item-poster.use-case'
 import { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
 import { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
@@ -53,7 +53,7 @@ export class LostItemsController {
 	constructor(
 		private readonly createLostItemUseCase: CreateLostItemUseCase,
 		private readonly viewLostItemUseCase: ViewLostItemUseCase,
-		private readonly recordLostItemContactUseCase: RecordLostItemContactUseCase,
+		private readonly contactLostItemPosterUseCase: ContactLostItemPosterUseCase,
 		private readonly getPaginatedLostItemsUseCase: GetPaginatedLostItemsUseCase,
 		private readonly getPublicLostItemsUseCase: GetPublicLostItemsUseCase,
 		private readonly getMyLostItemsUseCase: GetMyLostItemsUseCase,
@@ -167,10 +167,11 @@ export class LostItemsController {
 		})
 	}
 
+	// Answers a target the front turns into a `Location`, and already capped.
 	@Post(':id/contact')
 	@AllowAnonymous()
-	recordContact(@Param('id') id: string) {
-		return this.recordLostItemContactUseCase.execute(id)
+	contactPoster(@Param('id') id: string) {
+		return this.contactLostItemPosterUseCase.execute(id)
 	}
 
 	@Patch(':id')

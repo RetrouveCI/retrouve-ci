@@ -27,7 +27,7 @@ export function AccountStats({ stickers, listings }: AccountStatsProps) {
 		{
 			icon: MessageCircle,
 			value: totalContacts,
-			label: 'Contacts reçus',
+			label: 'Prises de contact',
 			accent: 'green',
 		},
 		{

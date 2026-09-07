@@ -23,7 +23,7 @@ const candidate = (id: string, ville = 'Cocody'): MatchCandidateApiDto => ({
 		commune: null,
 		eventDate: '2026-08-01T10:00:00.000Z',
 		contactName: 'Awa',
-		contactWhatsapp: '+2250700000000',
+		contactReachable: true,
 		type: 'found',
 		category: 'bag',
 		photos: [],

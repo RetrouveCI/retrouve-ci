@@ -9,69 +9,61 @@ import {
 import { ContactBar } from '../contact-bar'
 
 interface BarListing {
+	id: string
 	title: string
 	type: 'lost' | 'found'
-	contact: { whatsapp: string }
+	contactReachable: boolean
 }
 
 const LISTING: BarListing = {
+	id: 'lost-item-9',
 	title: 'Téléphone Tecno Spark',
 	type: 'lost',
-	contact: { whatsapp: '+2250700000000' },
+	contactReachable: true,
 }
 
 function renderBar(listing: BarListing = LISTING) {
 	const Stub = createRoutesStub([
 		{ path: '/posts/:id', Component: () => <ContactBar listing={listing} /> },
 	])
-	render(<Stub initialEntries={['/posts/1']} />)
+	render(<Stub initialEntries={['/posts/lost-item-9']} />)
 }
 
-const contact = () => page.getByRole('link', { name: /Contacter par WhatsApp/ })
+const contact = () =>
+	page.getByRole('button', { name: /Contacter par WhatsApp/ })
 
 beforeEach(stopAnimations)
 afterEach(cleanup)
 
 describe('the contact bar', () => {
-	it('addresses the poster on WhatsApp, with the listing named', async () => {
+	// On the markup, not on a click: the number is no longer here to link from.
+	it('posts to the route that records and redirects', async () => {
 		renderBar()
-
-		await expect
-			.element(contact())
-			.toHaveAttribute(
-				'href',
-				`https://wa.me/2250700000000?text=${encodeURIComponent(
-					"Bonjour, j'ai peut-être trouvé votre objet : « Téléphone Tecno Spark ». Je vous écris depuis RetrouveCI.",
-				)}`,
-			)
-	})
-
-	it('opens WhatsApp out of the tab, without handing it the referrer', async () => {
-		renderBar()
-
-		await expect.element(contact()).toHaveAttribute('target', '_blank')
-		await expect
-			.element(contact())
-			.toHaveAttribute('rel', 'noopener noreferrer')
-	})
-
-	it('writes as the owner when the object was found', async () => {
-		renderBar({ ...LISTING, type: 'found' })
 
 		await expect.element(contact()).toBeVisible()
-		const href = (await contact().element()).getAttribute('href') ?? ''
+		const form = contact().element().closest('form')
 
-		expect(decodeURIComponent(href)).toContain('est peut-être le mien')
+		expect(form?.getAttribute('action')).toBe('/posts/lost-item-9/contact')
+		expect(form?.getAttribute('method')).toBe('post')
 	})
 
-	// The number CLAUDE.md records as stored double-prefixed in production.
-	it('says so rather than linking, when the stored number is unusable', async () => {
-		renderBar({ ...LISTING, contact: { whatsapp: '+2252250700000000' } })
+	// R10's separate tab, kept: measured, the browser posts and follows there.
+	it('opens WhatsApp out of the tab', async () => {
+		renderBar()
+
+		await expect.element(contact()).toBeVisible()
+		expect(contact().element().closest('form')?.getAttribute('target')).toBe(
+			'_blank',
+		)
+	})
+
+	it('says so rather than offering the action, when it cannot be reached', async () => {
+		renderBar({ ...LISTING, contactReachable: false })
 
 		await expect
 			.element(page.getByText('Numéro de contact indisponible'))
 			.toBeVisible()
-		expect(await contact().elements()).toHaveLength(0)
+		expect(contact().query()).toBeNull()
 	})
 
 	// A bare glyph would take « Partager » out of the accessibility tree with it.

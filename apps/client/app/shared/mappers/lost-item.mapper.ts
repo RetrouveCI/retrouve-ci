@@ -7,12 +7,13 @@ import type {
 } from '@/shared/types/lost-item'
 import type {
 	LostItemApiDto,
+	LostItemBaseApiDto,
 	LostItemDetail,
 	MyLostItemApiDto,
 } from '../types/lost-items.types'
 
 /** Nothing is carried unless the listing named the piece it describes. */
-function toDocument(dto: LostItemApiDto): LostItemDocument | undefined {
+function toDocument(dto: LostItemBaseApiDto): LostItemDocument | undefined {
 	if (!dto.documentType) return undefined
 
 	return {
@@ -22,7 +23,7 @@ function toDocument(dto: LostItemApiDto): LostItemDocument | undefined {
 	}
 }
 
-export function toLostItem(dto: LostItemApiDto): LostItem {
+export function toLostItem(dto: LostItemBaseApiDto): LostItem {
 	return {
 		id: dto.id,
 		title: dto.title,
@@ -43,7 +44,8 @@ export function toLostItem(dto: LostItemApiDto): LostItem {
 export function toLostItemDetail(dto: LostItemApiDto): LostItemDetail {
 	return {
 		...toLostItem(dto),
-		contact: { name: dto.contactName, whatsapp: dto.contactWhatsapp },
+		contact: { name: dto.contactName },
+		contactReachable: dto.contactReachable,
 	}
 }
 
