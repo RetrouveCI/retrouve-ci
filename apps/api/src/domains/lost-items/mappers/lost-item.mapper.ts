@@ -53,21 +53,34 @@ export function toDomainLostItem(lostItem: PrismaLostItem): LostItem {
 }
 
 /**
- * Drops the fields a public read may not carry. The holder's name stays: it is
- * what lets someone recognise their own document. The moderation reason is a
- * moderator's note to one poster — a listing hidden then republished would
- * otherwise serve it to everybody.
+ * Names what a public read carries rather than subtracting what it must not: a
+ * spread left every column added to the table public from its first day. The
+ * holder's name stays — it is what lets a person recognise their own document —
+ * while a moderation note is addressed to one poster.
  */
 export function toPublicLostItem(lostItem: LostItem): PublicLostItem {
-	const {
-		documentNumber: _number,
-		moderationReason: _reason,
-		moderationReasonNote: _note,
-		contactWhatsapp,
-		...rest
-	} = lostItem
-
-	return { ...rest, contactReachable: isValidLocalNumber(contactWhatsapp) }
+	return {
+		id: lostItem.id,
+		type: lostItem.type,
+		category: lostItem.category,
+		title: lostItem.title,
+		description: lostItem.description,
+		ville: lostItem.ville,
+		commune: lostItem.commune,
+		eventDate: lostItem.eventDate,
+		contactName: lostItem.contactName,
+		contactReachable: isValidLocalNumber(lostItem.contactWhatsapp),
+		photos: lostItem.photos,
+		documentType: lostItem.documentType,
+		documentHolderName: lostItem.documentHolderName,
+		documentIssuer: lostItem.documentIssuer,
+		moderationStatus: lostItem.moderationStatus,
+		resolutionStatus: lostItem.resolutionStatus,
+		views: lostItem.views,
+		contactsCount: lostItem.contactsCount,
+		createdAt: lostItem.createdAt,
+		updatedAt: lostItem.updatedAt,
+	}
 }
 
 export function toPrismaType(type: LostItemType): PrismaLostItemType {
