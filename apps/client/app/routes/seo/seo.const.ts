@@ -5,6 +5,7 @@
 export const INDEXABLE_PATHS = [
 	'/',
 	'/posts',
+	'/objet-perdu-cote-divoire',
 	'/publish',
 	'/stickers',
 	'/stickers/order',

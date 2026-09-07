@@ -5306,6 +5306,85 @@ associées de la capture — « Retrouver carte identité perdue », « site obj
 perdus », « objet perdu Côte d'Ivoire » — se gagnent avec des **pages**, pas des
 balises. La fonctionnalité pièces existe (A7, R35) ; aucune page ne la cible.
 
+#### R49 — Être citable par un aperçu IA — **LIVRÉE**
+
+Demande du commanditaire, partie d'une seconde capture : sur « objet perdu côte
+d'ivoire », l'aperçu IA de Google déroule les étapes puis recommande
+**Claimite** comme plateforme en ligne. RetrouveCI n'y figure pas, alors qu'il
+sort premier en organique sur « objet perdu abidjan ». Empilée sur R48, dont
+elle reprend `INDEXABLE_PATHS`, `structuredData` et la garde `noindex`.
+
+> ⚠️ **Google dit qu'il n'y a rien à baliser, et c'est officiel.** « There are
+> no additional requirements to appear in AI Overviews or AI Mode… **You don't
+> need to create new machine readable files, AI text files, or markup** to
+> appear in these features. » Les « 3,2× de citations grâce au schema FAQ » que
+> répètent les blogs SEO sont donc **invérifiables et contredits par la
+> source**. Aucun `FAQPage` ni `HowTo` n'a été ajouté pour tenter de forcer une
+> citation.
+
+**Ce qui rend Claimite citable, mesuré et non supposé.** Son site a été lu :
+**aucun balisage FAQ**, seulement une phrase déclarative — « Plateforme
+solidaire qui facilite la déclaration et la recherche de documents
+administratifs égarés en Côte d'Ivoire. » L'aperçu l'a paraphrasée mot pour mot.
+Quatre éléments extractibles : ce que c'est, ce qu'on y fait, sur quoi, et où.
+
+**Nos deux écarts, factuels** :
+
+1. **L'accueil ne disait pas ce que RetrouveCI est.** Son `<h1>` est « Perdu
+   quelque chose ? » — une question au visiteur, ce que §2 protège. Le
+   paragraphe sous le titre a donc été **réécrit** en phrase déclarative plutôt
+   qu'un bloc ajouté : aucun changement de mise en page.
+2. **Rien ne nommait les pièces ni les documents**, alors que le produit les
+   traite depuis A7 et R35 — et la question à laquelle l'aperçu répondait porte
+   sur « un objet **ou un document** ». La description du site,
+   l'`og:description` et le JSON-LD lisent désormais **une seule** constante,
+   `PLATFORM_STATEMENT`, donc la page et le balisage ne peuvent plus dire deux
+   choses différentes.
+
+**La page `/objet-perdu-cote-divoire`** répond à la question que l'aperçu
+traite, en prose avec de vrais titres : les étapes dans l'ordre, la moitié
+**trouveur** qu'aucune page n'adressait, et pourquoi une pièce se déclare sans
+photo. Elle est dans `INDEXABLE_PATHS` — donc au sitemap — et liée depuis le
+**pied de page** : un sitemap fait parcourir une page, un lien la rend digne
+d'être classée.
+
+> ⚠️ **La première étape est volontairement vague, et doit le rester.** Rien
+> dans ce dépôt ne peut vérifier ce que coûte un certificat de perte, quelles
+> pièces un commissariat demande, ni en combien de temps. Une page qui annonce
+> un tarif inventé est pire qu'une page qui l'omet. Un test **refuse** tout
+> chiffre suivi de F, FCFA, franc, jour ou euro dans cette étape. **À faire
+> relire par le commanditaire avant de compter dessus.**
+
+> ⚠️ **Ne PAS ajouter de groupe `User-agent: Google-Extended` à `robots.txt`.**
+> `Google-Extended` régit l'ancrage de Gemini et l'entraînement, **pas** la
+> recherche ni son classement — c'est documenté. Or un groupe spécifique
+> **remplace** celui de `*` : le déclarer ferait cesser de s'appliquer nos
+> `Disallow`, et `/q/:code` — qui porte le prénom d'un propriétaire —
+> deviendrait exploitable par Gemini. La configuration de R48 est déjà la bonne
+> : `*` couvre Google-Extended, pages privées exclues.
+
+**Mesuré sur le vrai serveur** : `/objet-perdu-cote-divoire` répond `200` avec
+son `h1` et ses trois `h2` lisibles dans le HTML servi, elle figure au sitemap,
+et l'accueil porte bien la phrase déclarative.
+
+**Reste ouvert, et c'est le commanditaire qui tranche** : la phrase de l'accueil
+est `hidden` sous `lg`, comme la maquette le veut — un robot la lit dans le
+HTML, mais un visiteur sur téléphone ne la voit pas. La rendre visible
+changerait la hauteur du hero, donc c'est une décision d'interface et non de
+référencement.
+
+**Fichiers** : `client/routes/lost-guide/` (page, contenu, spec),
+`client/routes/home/components/hero-section.tsx`,
+`client/components/footer.tsx`, `client/shared/helpers/page-meta.ts`
+(`PLATFORM_STATEMENT`), `structured-data.ts`, `root.tsx`, `routes.ts`,
+`routes/seo/seo.const.ts`. **Flux** : A. **Aucun changement d'API, de contrat ni
+de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**528**, contracts **390**, admin **425** (inchangés) et client **1283** (940 en
+`node`, 343 en `ui`, +8 sur R48). Densité de commentaires 9,6 %.
+
 ---
 
 ## 6. Ce qui ne bouge pas

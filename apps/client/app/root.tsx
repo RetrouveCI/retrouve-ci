@@ -39,7 +39,12 @@ import geistMonoLatin from '@fontsource-variable/geist-mono/files/geist-mono-lat
 import './app.css'
 
 import type { Route } from './+types/root'
-import { OG_IMAGE, OG_LOCALE, SITE_NAME } from '@/shared/helpers/page-meta'
+import {
+	OG_IMAGE,
+	OG_LOCALE,
+	PLATFORM_STATEMENT,
+	SITE_NAME,
+} from '@/shared/helpers/page-meta'
 import { SEO_KEYWORDS_CONTENT } from '@/shared/constants/seo-keywords'
 import { requestOrigin } from '@/shared/helpers/origin'
 import { structuredData } from '@/shared/helpers/structured-data'
@@ -56,8 +61,7 @@ export function loader({ request }: Route.LoaderArgs) {
 
 export function meta() {
 	const title = `${SITE_NAME} - Perdre un objet n'est plus une fatalité`
-	const description =
-		"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire. Publiez une annonce ou utilisez nos stickers QR pour protéger vos objets."
+	const description = PLATFORM_STATEMENT
 
 	return [
 		{ title },
@@ -67,18 +71,10 @@ export function meta() {
 		{ property: 'og:locale', content: OG_LOCALE },
 		{ property: 'og:site_name', content: SITE_NAME },
 		{ property: 'og:title', content: title },
-		{
-			property: 'og:description',
-			content:
-				"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
-		},
+		{ property: 'og:description', content: description },
 		{ name: 'twitter:card', content: 'summary_large_image' },
 		{ name: 'twitter:title', content: title },
-		{
-			name: 'twitter:description',
-			content:
-				"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
-		},
+		{ name: 'twitter:description', content: description },
 	]
 }
 
