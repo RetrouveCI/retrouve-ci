@@ -4368,12 +4368,12 @@ Ce qui a été livré :
 
 > **Deux dettes ouvertes, nommées plutôt que tues.**
 >
-> ⚠️ **L'API n'applique pas la règle « aucune photo ».** Les deux actions du
-> front la tiennent, mais un `POST /lost-items` direct peut attacher des photos
-> à une annonce `documents`, et un `PATCH` peut les y remettre. La forme du
-> correctif : une règle dans `pushLostItemWriteIssues`, qui voit `category` à la
-> création — l'aveugle étant la modification, `updateLostItemSchema` omettant
-> `category` par construction. Hors périmètre d'une étape `client`.
+> ⚠️ **L'API n'appliquait pas la règle « aucune photo »** — un `POST` direct
+> attachait des photos à une annonce `documents`, et un `PATCH` les y remettait.
+> ✅ **Fermée par R43**, qui a suivi la forme prévue ici : une règle dans
+> `pushLostItemWriteIssues`, plus — pour l'angle mort de la modification, que
+> cette note avait bien vu — la même règle dans `UpdateLostItemUseCase`, contre
+> la ligne stockée.
 >
 > ⚠️ **Un portefeuille ne peut pas déclarer de pièce par le formulaire.** A7 a
 > découplé le bloc de la catégorie exprès, « le portefeuille remis avec une CNI
@@ -4900,6 +4900,66 @@ proxy, et leurs quatre specs), `api/src/main.ts`, `api/.env.example`,
 **453** (421 + 32), contracts **341**, admin **422** et client **1145** (831 en
 `node`, 314 en `ui`) — les trois derniers inchangés, le lot étant entièrement
 back-end. Densité de commentaires 9,5 %.
+
+#### R43 — La règle des photos tenue par l'API, pas par le formulaire — **LIVRÉE**
+
+Dette nommée par R35 et **jamais une étape du plan**, comme R38 à R42 : d'où une
+section ici et aucune ligne au §4. Une photo de pièce livre le nom, le numéro et
+la date de naissance **d'un coup**, sur une page que les moteurs indexent. R35
+avait fait disparaître le sélecteur et coupé `collectPhotoUrls` dans les deux
+actions du front — mais un `POST /lost-items` direct attachait des photos à une
+annonce `documents`, et un `PATCH` les y remettait.
+
+**La note de R35 avait vu juste sur la forme du correctif, et sur son angle
+mort.** La règle vit donc à deux endroits, chacun là où la donnée se trouve :
+
+1. **À la création, dans le contrat** — `pushLostItemWriteIssues` refuse
+   `photos` non vide quand `category` vaut `documents`, et pose l'erreur **sur
+   le champ `photos`**.
+2. **À la modification, dans le use-case** — `updateLostItemSchema` omet
+   `category` par construction (elle est posée à la publication), donc le schéma
+   n'a rien à peser : `UpdateLostItemUseCase` lit la catégorie **stockée**, que
+   `requireOwnedLostItem` lui rend déjà.
+
+> ⚠️ **Le déclencheur est la catégorie, jamais `documentType`.** A7 a découplé
+> les quatre champs de pièce de la catégorie exprès — « le portefeuille remis
+> avec une CNI dedans » est la trouvaille la plus fréquente, et sa catégorie est
+> `wallet`. Refuser sur une pièce déclarée tuerait la photo extérieure d'un
+> portefeuille, qui ne révèle rien. `refusesPhotos()` est donc une fonction du
+> contrat sur la seule catégorie, et un test la passe sur les **neuf** valeurs.
+
+**Vérifié plutôt que supposé : aucun flux légitime ne casse.** Le front lit
+`objectType` **du formulaire** là où le serveur lit la catégorie **stockée** —
+si l'écran de modification laissait changer le type, les deux divergeraient et
+une modification honnête serait refusée. Il n'en rend **aucun** champ :
+`objectType` est préchargé depuis `item.category` et n'est jamais modifiable. Et
+`edit-post.action` envoie déjà `photos: []` sur une pièce, donc la règle ne se
+déclenche que sur un appel direct.
+
+**Un refus et non un nettoyage silencieux.** Retirer les photos sans le dire
+laisserait un client bogué croire que ça a marché ; le message est celui du
+contrat (`PHOTOS_REFUSED_MESSAGE`), lu des deux côtés plutôt que réécrit.
+
+**Ce qui reste ouvert** : la seconde dette de R35, **un portefeuille ne peut pas
+déclarer de pièce par le formulaire** — élargir demande deux conditions
+distinctes, donc une décision du commanditaire. R43 n'y touche pas, et
+`refusesPhotos()` est exactement l'endroit où cette décision se posera.
+
+**Fichiers** : `packages/contracts/lost-items` (`refusesPhotos`,
+`PHOTOS_REFUSED_MESSAGE`, la règle dans `pushLostItemWriteIssues`),
+`api/domains/lost-items/` (`LostItemPhotosRefusedError`,
+`update-lost-item.use-case.ts`). **Flux** : B. **Aucun changement de front** :
+il tenait déjà la règle.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**505** (+4), contracts **380** (+16), admin **422** et client **1191** (859 en
+`node`, 332 en `ui`) — les deux derniers inchangés, le lot étant entièrement
+back-end. Densité de commentaires 9,0 %.
+
+**Les deux moitiés vérifiées en rouge puis restaurées** : la règle de création
+retirée, deux cas du contrat tombent ; celle de modification retirée, un cas du
+use-case tombe.
 
 ---
 
