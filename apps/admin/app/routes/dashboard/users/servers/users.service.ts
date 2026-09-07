@@ -25,12 +25,16 @@ function mapUser(u: BetterAuthUser): User {
 	}
 }
 
+// Sorted by the database, not by this list: the limit is a ceiling rather than
+// pagination, so an unsorted call answers an arbitrary 500 accounts.
+const LIST_QUERY = 'limit=500&sortBy=createdAt&sortDirection=desc'
+
 export async function listUsers(
 	request: Request,
 	statusFilter?: UserStatus,
 ): Promise<{ users: User[]; total: number }> {
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
-		'/api/admin-auth/admin/list-users?limit=500&filterField=role&filterOperator=eq&filterValue=user',
+		`/api/admin-auth/admin/list-users?${LIST_QUERY}&filterField=role&filterOperator=eq&filterValue=user`,
 		{ request },
 	)
 

@@ -24,6 +24,18 @@ afterEach(() => {
 })
 
 describe('the administrators service', () => {
+	// Same ceiling as the users list, and the same arbitrary cut without a sort.
+	it('asks the database for the newest administrators first', async () => {
+		const spy = mockFetch()
+
+		await listAdminUsers(incoming())
+
+		const query = new URL(String(spy.mock.calls[0]?.[0])).searchParams
+
+		expect(query.get('sortBy')).toBe('createdAt')
+		expect(query.get('sortDirection')).toBe('desc')
+	})
+
 	// The bug R50 closes: every backoffice mutation keyed on this container, so
 	// one `auth` bucket of ten per fifteen minutes served the whole office.
 	it('sends the caller address and the cookie on a mutation', async () => {
