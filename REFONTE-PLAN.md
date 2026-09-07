@@ -5044,6 +5044,61 @@ plafond par numéro, et la dérivation d'en-têtes d'`apiFetch`.
 reste plafonné par appelant seul ; les écritures authentifiées et l'upload de
 photo restent hors plafond, comme R42 l'avait assumé.
 
+#### R45 — `Documents` en tête des pastilles, mais pas présélectionné — **LIVRÉE**
+
+Demande du commanditaire sur l'étape 1 de la publication : mettre `Documents` en
+option choisie par défaut.
+
+> ⚠️ **La demande a été partiellement déclinée, pour une raison mesurée.**
+> `Documents` est la **seule** catégorie qui retire le sélecteur de photos —
+> décision de R35, qu'A7 justifie et que R43 fait désormais tenir par l'API. La
+> présélectionner ferait arriver **tout le monde** sur un formulaire sans aucun
+> moyen d'ajouter une photo : celui qui déclare un téléphone perdu, et celui qui
+> déclare un sac trouvé, où la photo est justement marquée « recommandée ». Et
+> une annonce laissée sur `Documents` par inattention partirait sans photo même
+> si l'auteur en avait joint une, `publishAction` les refusant.
+>
+> C'est aussi le piège de #199 : un champ présélectionné se lit comme déjà
+> répondu, donc on l'ignore en survolant. Le dépôt s'en gardait **déjà** sans
+> qu'on le sache — présélectionner `Documents` fait tomber « does not read as a
+> draft on its own », un test de R18.
+
+**Retenu** : aucune présélection, et `Documents` déplacé **en tête** de la
+liste, où il est vu le premier. Le tap reste, la visibilité est gagnée.
+
+**L'ordre est local au formulaire**, et dérivé du contrat plutôt qu'écrit à la
+main :
+
+```ts
+const PILL_ORDER = [
+	'documents',
+	...LOST_ITEM_CATEGORIES.filter(value => value !== 'documents'),
+] as const
+```
+
+Deux raisons. `posts.const.ts` tire **aussi** ses puces de filtre de
+`LOST_ITEM_CATEGORIES`, donc réordonner le contrat déplacerait les filtres de la
+liste, qui répondent à une autre question. Et la dérivation garde une
+**permutation** : une catégorie ajoutée au contrat ne peut pas disparaître du
+formulaire en silence. L'écran de modification lit `OBJECT_TYPES` par `.find()`
+seulement, donc l'ordre ne l'atteint pas.
+
+**Un test déplacé** : le bloc `describe('OBJECT_TYPES')` de
+`publish.schema.test.ts` asseyait l'ordre du contrat. Il porte sur la constante
+et non sur le schéma, donc il vit maintenant dans `publish.const.test.ts`, où il
+dit ce que R45 a décidé.
+
+**Fichiers** : `client/routes/publish/publish.const.ts`, ses deux specs.
+**Flux** : B. **Aucun changement d'API ni de contrat.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**522**, contracts **380**, admin **425** (inchangés) et client **1206** (871 en
+`node`, 335 en `ui`). Densité de commentaires 9,8 %.
+
+**Les deux gardes vérifiées en rouge puis restaurées** : l'ordre remis sur celui
+du contrat, et `objectType` présélectionné sur `documents`.
+
 ---
 
 ## 6. Ce qui ne bouge pas

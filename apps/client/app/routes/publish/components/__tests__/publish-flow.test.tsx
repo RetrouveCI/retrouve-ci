@@ -149,6 +149,49 @@ describe('the contact name the account already knows', () => {
 	})
 })
 
+// R45. `Documents` leads, but is not preselected: it is the one category that
+// takes the photo picker away, so a listing left on it would publish with none.
+describe('PublishFlow — choosing a category', () => {
+	const pill = (name: string) => page.getByRole('button', { name, exact: true })
+
+	const pills = () =>
+		page
+			.getByRole('group', { name: "Type d'objet" })
+			.element()
+			.querySelectorAll('button')
+
+	it('leads with Documents', async () => {
+		renderFlow()
+
+		await expect.element(pill('Documents')).toBeVisible()
+		expect(pills()[0]?.textContent).toBe('Documents')
+	})
+
+	it('preselects none of them', async () => {
+		renderFlow()
+
+		await expect.element(pill('Documents')).toBeVisible()
+
+		const pressed = [...pills()].filter(
+			button => button.getAttribute('aria-pressed') === 'true',
+		)
+
+		expect(pressed).toEqual([])
+		expect(page.getByText('Aucune photo').query()).toBeNull()
+	})
+
+	it('refuses to move on until one is chosen', async () => {
+		renderFlow()
+
+		await userEvent.fill(title(), 'Téléphone Tecno noir')
+		await userEvent.click(advance())
+
+		await expect
+			.element(page.getByText("Sélectionnez un type d'objet"))
+			.toBeVisible()
+	})
+})
+
 /** A9: the field exists only where it has something to offer. */
 describe('PublishFlow — naming a sticker', () => {
 	const label = /Cet objet porte-t-il un de vos stickers/
