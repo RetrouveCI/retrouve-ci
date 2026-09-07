@@ -18,6 +18,8 @@ function stickerWith(status: Sticker['status'], id: string = status): Sticker {
 		linkedObject: null,
 		directContact: false,
 		activatedAt: null,
+		lastScannedAt: null,
+		messagesCount: 0,
 	}
 }
 

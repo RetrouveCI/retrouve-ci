@@ -27,6 +27,8 @@ const DTO: QrTokenApiDto = {
 	createdAt: '2026-08-01T10:00:00.000Z',
 	activatedAt: '2026-08-02T10:00:00.000Z',
 	revokedAt: null,
+	lastScannedAt: null,
+	messagesCount: 0,
 }
 
 function requestFor() {
@@ -113,7 +115,9 @@ describe('stickersLoader', () => {
 			'id',
 			'isActive',
 			'label',
+			'lastScannedAt',
 			'linkedObject',
+			'messagesCount',
 			'status',
 		])
 	})

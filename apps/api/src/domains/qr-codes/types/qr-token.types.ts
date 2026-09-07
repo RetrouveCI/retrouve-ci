@@ -38,6 +38,12 @@ export interface LinkedLostItem {
 	photo: string | null
 }
 
+/** What the public view read hands back, the trace kept out of the response. */
+export interface QrTokenPublicViewRead {
+	view: QrTokenPublicView
+	lastScannedAt: Date | null
+}
+
 /** Read only by the reach use-case: the one shape here carrying a phone number. */
 export interface QrTokenOwnerReach {
 	status: QrTokenStatus
@@ -60,9 +66,19 @@ export interface QrToken {
 	createdAt: Date
 	activatedAt: Date | null
 	revokedAt: Date | null
+	lastScannedAt: Date | null
+}
+
+/**
+ * What the owner's own list adds: a count, not a column, so it stays off the
+ * entity. `/q/:code` counts as one message per contact form sent through it.
+ */
+export interface OwnedQrToken extends QrToken {
+	messagesCount: number
 }
 
 export type QrTokenListResponse = Paginated<QrToken>
+export type OwnedQrTokenListResponse = Paginated<OwnedQrToken>
 
 /**
  * `activated` is counted on the tokens, `delivered` on the orders: a

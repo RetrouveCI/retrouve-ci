@@ -7,14 +7,16 @@ import {
 	toLinkedLostItem,
 	toPrismaStatus,
 } from '../mappers/qr-token.mapper'
+import { withMessageCounts } from '../helpers/with-message-counts'
 import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 import type {
 	ListQrTokensFilter,
+	OwnedQrTokenListResponse,
 	QrToken,
 	QrTokenDetailsData,
 	QrTokenListResponse,
 	QrTokenOwnerReach,
-	QrTokenPublicView,
+	QrTokenPublicViewRead,
 } from '../types/qr-token.types'
 
 @Injectable()
@@ -39,7 +41,7 @@ export class QrTokenRepository {
 		return qrToken ? toDomainQrToken(qrToken) : null
 	}
 
-	async findPublicView(code: string): Promise<QrTokenPublicView | null> {
+	async findPublicView(code: string): Promise<QrTokenPublicViewRead | null> {
 		const qrToken = await this.prisma.qrToken.findUnique({
 			where: { code },
 			include: {
@@ -63,13 +65,23 @@ export class QrTokenRepository {
 		if (!qrToken) return null
 
 		return {
-			status: toDomainStatus(qrToken.status),
-			ownerFirstName: qrToken.user?.name.split(' ')[0] ?? null,
-			label: qrToken.label,
-			linkedObject: qrToken.linkedObject,
-			directContact: qrToken.directContact,
-			lostItem: toLinkedLostItem(qrToken.lostItem),
+			view: {
+				status: toDomainStatus(qrToken.status),
+				ownerFirstName: qrToken.user?.name.split(' ')[0] ?? null,
+				label: qrToken.label,
+				linkedObject: qrToken.linkedObject,
+				directContact: qrToken.directContact,
+				lostItem: toLinkedLostItem(qrToken.lostItem),
+			},
+			lastScannedAt: qrToken.lastScannedAt,
 		}
+	}
+
+	async recordScan(code: string, at: Date): Promise<void> {
+		await this.prisma.qrToken.update({
+			where: { code },
+			data: { lastScannedAt: at },
+		})
 	}
 
 	/**
@@ -175,5 +187,26 @@ export class QrTokenRepository {
 		])
 
 		return toPaginated(items.map(toDomainQrToken), total, filter)
+	}
+
+	/**
+	 * The owner's own list. The count is grouped over the codes of this page
+	 * only, so it stays bounded by the page size rather than by the batch.
+	 */
+	async listByOwner(
+		filter: ListQrTokensFilter & { userId: string },
+	): Promise<OwnedQrTokenListResponse> {
+		const page = await this.list(filter)
+		const codes = page.items.map(item => item.code)
+
+		const rows = codes.length
+			? await this.prisma.contactMessage.groupBy({
+					by: ['qrTokenCode'],
+					where: { qrTokenCode: { in: codes } },
+					_count: { _all: true },
+				})
+			: []
+
+		return { ...page, items: withMessageCounts(page.items, rows) }
 	}
 }

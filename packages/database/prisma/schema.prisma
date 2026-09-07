@@ -221,6 +221,7 @@ model QrToken {
   createdAt     DateTime      @default(now())
   activatedAt   DateTime?
   revokedAt     DateTime?
+  lastScannedAt DateTime?
 
   @@index([userId])
   @@index([status])
@@ -308,5 +309,6 @@ model ContactMessage {
 
   @@index([status])
   @@index([recipientUserId])
+  @@index([qrTokenCode])
   @@map("contact_message")
 }
