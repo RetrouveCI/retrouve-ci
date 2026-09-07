@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { createLostItemSchema } from '../create.schema'
-import { BANK_CARD_DIGITS, MIN_DESCRIPTION_LENGTH } from '../lost-items.const'
+import { PHOTOS_REFUSED_MESSAGE, refusesPhotos } from '../documents.schema'
+import {
+	BANK_CARD_DIGITS,
+	LOST_ITEM_CATEGORIES,
+	MIN_DESCRIPTION_LENGTH,
+} from '../lost-items.const'
 import { updateLostItemSchema } from '../update.schema'
 
 const VALID = {
@@ -170,5 +175,54 @@ describe('document fields on an update', () => {
 				documentHolderName: 'KOUASSI Jean',
 			}).success,
 		).toBe(true)
+	})
+})
+
+/** R43: the rule R35 drew in the form, where a direct POST cannot walk past it. */
+describe('photos on a document listing', () => {
+	it('refuses a creation carrying one', () => {
+		expect(messageFor({ photos: ['https://cdn/cni.jpg'] })).toBe(
+			PHOTOS_REFUSED_MESSAGE,
+		)
+	})
+
+	it('names the field it belongs to', () => {
+		const refused = parse({ photos: ['https://cdn/cni.jpg'] })
+
+		expect(refused.error?.issues[0]?.path).toEqual(['photos'])
+	})
+
+	it.each([undefined, []])('accepts %o, which carries nothing', photos => {
+		expect(parse({ photos }).success).toBe(true)
+	})
+
+	// The category, never a declared piece: a closed wallet reveals nothing.
+	it('leaves every other category alone', () => {
+		const wallet = {
+			...VALID,
+			category: 'wallet',
+			documentType: 'national_id',
+			documentHolderName: 'Awa Traoré',
+			photos: ['https://cdn/wallet.jpg'],
+		}
+
+		expect(createLostItemSchema.safeParse(wallet).success).toBe(true)
+	})
+
+	it.each(LOST_ITEM_CATEGORIES)('says whether %s refuses photos', category => {
+		expect(refusesPhotos(category)).toBe(category === 'documents')
+	})
+
+	it('says nothing refuses them when no category is given', () => {
+		expect(refusesPhotos(undefined)).toBe(false)
+	})
+
+	// An update omits the category, so the rule lives in the use-case instead.
+	it('is not a rule an update schema can apply', () => {
+		const edited = updateLostItemSchema.safeParse({
+			photos: ['https://cdn/cni.jpg'],
+		})
+
+		expect(edited.success).toBe(true)
 	})
 })

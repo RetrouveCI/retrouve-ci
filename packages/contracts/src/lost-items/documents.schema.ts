@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { documentTypeSchema, type DocumentType } from './enums.schema'
+import type { LostItemCategory } from './enums.schema'
 import {
 	BANK_CARD_DIGITS,
 	MAX_DOCUMENT_NUMBER_LENGTH,
@@ -90,22 +91,47 @@ export function documentFieldIssues(
 	return issues
 }
 
+export const PHOTOS_REFUSED_MESSAGE =
+	'Une annonce de pièce ne porte aucune photo : le type et le nom du titulaire suffisent à la retrouver'
+
+/**
+ * A photo of a piece hands over the name, the number and the date of birth at
+ * once, on an indexed page. Deliberately the **category** and not
+ * `documentType`: the document fields are open to every category, and a photo
+ * of a closed wallet with a CNI inside reveals nothing.
+ */
+export function refusesPhotos(category: LostItemCategory | undefined): boolean {
+	return category === 'documents'
+}
+
 /**
  * The description floor lives here too, because whether it applies depends on
  * these fields: the shape carries no `min` of its own any more.
  */
 export function pushLostItemWriteIssues(
 	ctx: {
-		value: DocumentFields & { description?: string }
+		value: DocumentFields & {
+			description?: string
+			category?: LostItemCategory
+			photos?: string[]
+		}
 		issues: z.core.$ZodRawIssue[]
 	},
 	options: { requireHolderName: boolean },
 ): void {
-	const push = (path: keyof DocumentFields | 'description', message: string) =>
+	const push = (
+		path: keyof DocumentFields | 'description' | 'photos',
+		message: string,
+	) =>
 		ctx.issues.push({ code: 'custom', message, input: ctx.value, path: [path] })
 
 	for (const [path, message] of documentFieldIssues(ctx.value, options)) {
 		push(path, message)
+	}
+
+	// `update` omits `category`: an edit is weighed against the stored row.
+	if (refusesPhotos(ctx.value.category) && ctx.value.photos?.length) {
+		push('photos', PHOTOS_REFUSED_MESSAGE)
 	}
 
 	const { description } = ctx.value
