@@ -9,6 +9,7 @@ export async function submitContactMessage(
 	await apiFetch('/contact-messages', {
 		method: 'POST',
 		body: JSON.stringify(data),
+		request,
 		headers: { Origin: requestOrigin(request) },
 	})
 }

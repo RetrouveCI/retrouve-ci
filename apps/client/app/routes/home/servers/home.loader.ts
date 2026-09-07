@@ -21,13 +21,22 @@ export interface HomeLoaderData {
  * had no loader at all before R17, so an unreachable API must leave it standing
  * rather than turn the first screen of the product into an error page.
  */
-export async function homeLoader(): Promise<HomeLoaderData> {
-	return { recent: await loadRecent() }
+export async function homeLoader({
+	request,
+}: {
+	request: Request
+}): Promise<HomeLoaderData> {
+	return { recent: await loadRecent(request) }
 }
 
-async function loadRecent(): Promise<HomeRecentListings | null> {
+async function loadRecent(
+	request: Request,
+): Promise<HomeRecentListings | null> {
 	try {
-		const response = await getLostItems({ pageSize: RECENT_LISTINGS_COUNT })
+		const response = await getLostItems(
+			{ pageSize: RECENT_LISTINGS_COUNT },
+			request,
+		)
 
 		return {
 			listings: response.items.map(toLostItem),

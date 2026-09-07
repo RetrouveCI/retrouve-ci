@@ -56,11 +56,11 @@ describe('usersAction', () => {
 		expect(banUser).not.toHaveBeenCalled()
 	})
 
-	it('bans the given user, forwarding cookie and origin', async () => {
+	it('bans the given user, handing the request down', async () => {
 		const { body } = bodyOf(await submit({ intent: 'ban', userId: 'user-1' }))
 
 		expect(body).toEqual({ ok: true, intent: 'ban' })
-		expect(banUser).toHaveBeenCalledWith(COOKIE, ORIGIN, 'user-1')
+		expect(banUser).toHaveBeenCalledWith(expect.any(Request), 'user-1')
 		expect(unbanUser).not.toHaveBeenCalled()
 	})
 
@@ -68,7 +68,7 @@ describe('usersAction', () => {
 		const { body } = bodyOf(await submit({ intent: 'unban', userId: 'user-1' }))
 
 		expect(body).toEqual({ ok: true, intent: 'unban' })
-		expect(unbanUser).toHaveBeenCalledWith(COOKIE, ORIGIN, 'user-1')
+		expect(unbanUser).toHaveBeenCalledWith(expect.any(Request), 'user-1')
 		expect(banUser).not.toHaveBeenCalled()
 	})
 

@@ -30,6 +30,8 @@ function dto(id: string): LostItemApiDto {
 	}
 }
 
+const args = { request: new Request('http://localhost:3000/') }
+
 beforeEach(() => {
 	getLostItems.mockReset()
 })
@@ -43,11 +45,12 @@ describe('homeLoader', () => {
 			pageSize: RECENT_LISTINGS_COUNT,
 		})
 
-		await homeLoader()
+		await homeLoader(args)
 
-		expect(getLostItems).toHaveBeenCalledWith({
-			pageSize: RECENT_LISTINGS_COUNT,
-		})
+		expect(getLostItems).toHaveBeenCalledWith(
+			{ pageSize: RECENT_LISTINGS_COUNT },
+			args.request,
+		)
 	})
 
 	it('carries the published total the counter reads', async () => {
@@ -58,7 +61,7 @@ describe('homeLoader', () => {
 			pageSize: RECENT_LISTINGS_COUNT,
 		})
 
-		const { recent } = await homeLoader()
+		const { recent } = await homeLoader(args)
 
 		expect(recent?.total).toBe(412)
 		expect(recent?.listings.map(item => item.id)).toEqual(['a', 'b'])
@@ -72,7 +75,7 @@ describe('homeLoader', () => {
 			pageSize: RECENT_LISTINGS_COUNT,
 		})
 
-		const { recent } = await homeLoader()
+		const { recent } = await homeLoader(args)
 
 		expect(recent).not.toBeNull()
 		expect(recent?.listings).toEqual([])
@@ -81,7 +84,7 @@ describe('homeLoader', () => {
 	it('leaves the home page standing when the API is unreachable', async () => {
 		getLostItems.mockRejectedValue(new Error('ECONNREFUSED'))
 
-		await expect(homeLoader()).resolves.toEqual({ recent: null })
+		await expect(homeLoader(args)).resolves.toEqual({ recent: null })
 	})
 
 	// It left with the banner it fed; the shell reads it beside the page now.
@@ -93,6 +96,6 @@ describe('homeLoader', () => {
 			pageSize: RECENT_LISTINGS_COUNT,
 		})
 
-		expect(Object.keys(await homeLoader())).toEqual(['recent'])
+		expect(Object.keys(await homeLoader(args))).toEqual(['recent'])
 	})
 })

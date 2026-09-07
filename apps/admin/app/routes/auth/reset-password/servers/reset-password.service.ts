@@ -9,6 +9,7 @@ export async function resetPassword(
 	await apiFetch('/api/admin-auth/reset-password', {
 		method: 'POST',
 		body: JSON.stringify({ newPassword, token }),
+		request,
 		headers: { Origin: requestOrigin(request) },
 	})
 }

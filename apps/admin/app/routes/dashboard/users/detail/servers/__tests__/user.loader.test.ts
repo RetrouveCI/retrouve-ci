@@ -48,10 +48,12 @@ describe('userLoader', () => {
 		expect(getUserById).not.toHaveBeenCalled()
 	})
 
-	it('forwards the session cookie and the route id', async () => {
-		await userLoader({ request: requestFor(), params: { id: 'user-1' } })
+	it('hands the request down with the route id', async () => {
+		const request = requestFor()
 
-		expect(getUserById).toHaveBeenCalledWith(COOKIE, 'user-1')
+		await userLoader({ request, params: { id: 'user-1' } })
+
+		expect(getUserById).toHaveBeenCalledWith(request, 'user-1')
 	})
 
 	it('hands the user back under the key the page reads', async () => {
@@ -87,7 +89,7 @@ describe('userLoader', () => {
 		await expect(
 			userLoader({ request: requestFor(), params: {} }),
 		).rejects.toBeInstanceOf(Response)
-		expect(getUserById).toHaveBeenCalledWith(COOKIE, '')
+		expect(getUserById).toHaveBeenCalledWith(expect.any(Request), '')
 	})
 
 	it('lets a service failure through', async () => {

@@ -29,7 +29,7 @@ export async function loader({
 	if (!result.success) return { items: [] }
 
 	try {
-		const items = await findMatchingLostItems(result.data)
+		const items = await findMatchingLostItems(result.data, request)
 
 		return { items: items.map(toLostItem) }
 	} catch {

@@ -1,4 +1,3 @@
-import { requestOrigin } from '@/shared/helpers/origin'
 import { rootError, zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { appUrl } from '@/shared/helpers/redirect'
 import { requireAdminSession } from '@/shared/helpers/session.server'
@@ -26,10 +25,6 @@ export async function administratorsAction({
 }): Promise<ActionResult> {
 	await requireAdminSession(request)
 
-	const headers = {
-		cookie: request.headers.get('cookie') ?? '',
-		origin: requestOrigin(request),
-	}
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 	const id = String(formData.get('id') ?? '')
@@ -44,7 +39,7 @@ export async function administratorsAction({
 		const { phone, ...rest } = submission.data
 
 		return withApiOperationError(
-			() => createAdminUser(headers, { ...rest, ...(phone ? { phone } : {}) }),
+			() => createAdminUser(request, { ...rest, ...(phone ? { phone } : {}) }),
 			API_OPTIONS,
 		)
 	}
@@ -60,7 +55,7 @@ export async function administratorsAction({
 		if (!id) return rootError("L'administrateur à modifier est introuvable")
 
 		return withApiOperationError(
-			() => setAdminRole(headers, id, submission.data.role),
+			() => setAdminRole(request, id, submission.data.role),
 			API_OPTIONS,
 		)
 	}
@@ -73,7 +68,7 @@ export async function administratorsAction({
 
 		return withApiOperationError(
 			() =>
-				disabling ? banAdminUser(headers, id) : unbanAdminUser(headers, id),
+				disabling ? banAdminUser(request, id) : unbanAdminUser(request, id),
 			API_OPTIONS,
 		)
 	}
@@ -82,7 +77,7 @@ export async function administratorsAction({
 		if (!id) return rootError("L'administrateur à supprimer est introuvable")
 
 		return withApiOperationError(
-			() => removeAdminUser(headers, id),
+			() => removeAdminUser(request, id),
 			API_OPTIONS,
 		)
 	}
@@ -94,7 +89,7 @@ export async function administratorsAction({
 
 		return withApiOperationError(
 			() =>
-				sendPasswordReset(headers, email, appUrl('/reset-password', request)),
+				sendPasswordReset(request, email, appUrl('/reset-password', request)),
 			API_OPTIONS,
 		)
 	}

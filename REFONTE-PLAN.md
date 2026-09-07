@@ -5006,11 +5006,19 @@ Déployé, cela cassait l'inscription dès la 6ᵉ demande de code en quinze min
 **1. Le front parle pour le visiteur.** `apiFetch` accepte la requête entrante
 et en dérive le `Cookie` **et** l'adresse du visiteur (`X-Client-Ip`), premier
 saut seulement — l'API la lit telle quelle, et une chaîne nommerait un proxy. Ce
-n'est pas une liste de sites à tenir : les **45** appels des deux fronts sont
-passés à cette forme, ce qui **retire** du code au lieu d'en ajouter, et une
-garde par app refuse tout appel qui rebricole son propre `Cookie` — un seul est
-sur liste blanche, `upload.service.ts`, parce que le multipart exige la
-frontière que `FormData` choisit et donc un `fetch` brut.
+n'est pas une liste de sites à tenir : les appels des deux fronts sont passés à
+cette forme, ce qui **retire** du code au lieu d'en ajouter, et une garde par
+app refuse tout appel qui rebricole son propre `Cookie` — un seul est sur liste
+blanche, `upload.service.ts`, parce que le multipart exige la frontière que
+`FormData` choisit et donc un `fetch` brut.
+
+> ⚠️ **Faux sur les deux points, corrigé par R50.** La conversion a manqué
+> **vingt-deux** appels, dont **seize** sur une route plafonnée : ceux qui
+> posaient déjà un `Origin` sans transmettre la requête se lisaient comme
+> convertis, et la garde ne cherchait que le littéral
+> `Cookie: request.headers.get`. Le seau `otp` est donc resté **global** jusqu'à
+> R50, qui rend `request` obligatoire dans le type — le compilateur, lui, ne
+> peut pas en manquer un.
 
 **2. L'OTP se plafonne par numéro.** `OtpDispatcher.dispatch` est le **goulot
 unique** où l'argent se dépense, et le premier endroit où le numéro est connu —
@@ -5384,6 +5392,112 @@ de base.**
 `admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
 **528**, contracts **390**, admin **425** (inchangés) et client **1283** (940 en
 `node`, 343 en `ui`, +8 sur R48). Densité de commentaires 9,6 %.
+
+#### R50 — Vingt-deux appels parlaient encore pour le conteneur, et la garde de R44 ne pouvait pas le voir — **LIVRÉE**
+
+Bug de production trouvé en dimensionnant la garde de projection que la
+passation proposait. Jamais une étape du plan, comme R38 à R47.
+
+> ⚠️ **`callerOf` retombe sur `request.ip` faute de `X-Client-Ip`.**
+> **Vingt-deux** appels ne transmettaient pas la requête — neuf au client,
+> treize au back-office —, dont **seize** sur une route plafonnée. Ils
+> écrivaient `headers: { Origin: requestOrigin(request) }` ou
+> `headers: { Cookie: cookie }`, donc un `grep request` les voyait passer.
+
+| Appel                                                                             | Seau                | Effet réel avant R50                                      |
+| --------------------------------------------------------------------------------- | ------------------- | --------------------------------------------------------- |
+| `register` et `settings` → `send-otp`                                             | `otp` 5 / 15 min    | **5 SMS par 15 min pour la plateforme entière**           |
+| `password-forgotten` et `reset-password` → `request-password-reset`               | `otp`               | même seau, donc le même plafond partagé                   |
+| `reset-password` → `reset-password`                                               | `auth` 10 / 15 min  | global                                                    |
+| `contact` → `POST /contact-messages`                                              | `public-write` 10/h | global                                                    |
+| les deux pages d'auth du back-office → `request-password-reset`, `reset-password` | `auth` 10 / 15 min  | global                                                    |
+| `users` et `administrators` → `/api/admin-auth/admin/*`                           | `auth` 10 / 15 min  | **un seul seau pour tout le back-office**, sept écritures |
+
+C'est exactement la panne que R44 disait avoir fermée — « cassait l'inscription
+dès la 6ᵉ demande de code en quinze minutes ». Le plafond par **numéro** tenait,
+donc l'argent était protégé ; ce qui était cassé, c'est le refus d'inscriptions
+légitimes, et une modération de comptes en lot côté back-office.
+
+> ⚠️ **La garde de R44 vérifiait une orthographe, pas une propriété.** Elle
+> cherchait le littéral `Cookie: request.headers.get`, la forme du seul symptôme
+> qu'elle avait vu. Les appels manqués ne le contiennent pas : les uns ne
+> posaient qu'un `Origin`, les autres reçoivent un `cookie: string` déjà extrait
+> par leur loader. Son propre commentaire le disait sans le voir — « `Origin`
+> est passé à côté de `request` par les quatre écritures better-auth » : les
+> quatre qui le faisaient.
+
+**Le correctif est un type, pas une convention.** `request` devient
+**obligatoire** dans `ApiFetchInit`, donc le compilateur énumère les fautifs et
+aucun appel futur ne peut l'omettre. Il en a trouvé deux que le balayage textuel
+avait ratés, dont `sitemap.loader.ts`, écrit à R48. Chaque appelant avait déjà
+une `Request` sous la main, `session.server.ts` comprise, donc la règle est
+uniforme : les lectures non plafonnées la transmettent aussi, ce qui met la
+garde à l'abri d'un plafond ajouté plus tard à `PUBLIC_READ_PATHS`.
+
+> ⚠️ **`Origin` gagne sur `X-Auth-Audience` côté API** (`resolveAudience`), donc
+> en poser un sur une lecture qui n'en avait pas déplacerait l'instance
+> better-auth qui répond. La ligne est donc tenue **appel par appel** : les
+> mutations du back-office nomment une origine comme avant, les deux lectures
+> n'en nomment aucune. `listAdminUsers` envoyait `Origin: ''`, que l'API lit
+> comme absent — elle n'en envoie plus du tout, ce qui est le même comportement.
+
+**Le back-office cesse de faire circuler un `cookie: string`.** Les deux
+services prennent la requête, ce qui **retire** du code : plus de
+`request.headers.get('cookie') ?? ''` dans cinq loaders et actions, et
+`administrators.loader` cesse de lire `origin` à la main — il lisait l'en-tête
+brut, absent d'une navigation, donc il envoyait la chaîne vide.
+
+**La garde réécrite dans les deux apps** vérifie ce qui reste hors de portée du
+type : personne n'adresse l'API par un `fetch` brut, et le seul fichier autorisé
+à le faire — `upload.service.ts`, dont le multipart exige la frontière de
+`FormData` — doit épeler **les deux** en-têtes. Le contrôle « il enfreint encore
+pour une raison » devient donc « il dérive encore les deux », ce qui attrape
+l'oubli de l'adresse.
+
+**Fichiers** : `packages/web-kit/src/api/api-fetch.ts` (`request` requis), six
+appels du client, `admin/routes/dashboard/{users,administrators}/servers/`
+(services, loaders, actions), les deux `caller-forwarding.test.ts`, les deux
+`api-fetch.test.ts` et un nouveau `administrators.service.test.ts`. **Flux** :
+tous. **Aucun changement d'API, de contrat ni de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**528** et contracts **390** (inchangés), admin **427** (+2) et client **1284**
+(941 en `node`, 343 en `ui`, +1). Densité de commentaires 9,5 %.
+
+**Les trois gardes vérifiées en rouge puis restaurées** : `request` rendu
+optionnel fait tomber le `@ts-expect-error` de la règle elle-même, un `fetch`
+brut ajouté dans un `servers/` est signalé nommément, et l'adresse retirée du
+seul contournement autorisé fait tomber le contrôle de la liste blanche.
+
+**Un test retiré, dont le chemin de code n'existe plus** : « sends empty strings
+when the request carries neither header » gardait l'extraction manuelle des deux
+en-têtes dans `administrators.loader`. Remplacé par l'assertion que la requête
+descend telle quelle, dans les deux cas.
+
+**Reste ouvert** : `X-Client-Ip` est toujours cru tel quel, question posée au
+commanditaire et sans réponse ; `/contact-messages` n'a toujours aucune clé de
+ressource naturelle, mais son plafond compte désormais par **visiteur** et non
+par plateforme ; les écritures authentifiées et l'upload de photo restent hors
+plafond, comme R42 l'avait assumé.
+
+**Mesuré en passant, pour l'étape d'après.** La garde de projection que la
+passation décrivait n'est pas dans l'état qu'elle disait : les **quatre** champs
+retirés ont déjà une assertion sur la forme sérialisée, pas seulement
+`contactWhatsapp`. Ce qui manque est ailleurs, et trois trous ont été mesurés :
+
+1. **`toPublicLostItem` soustrait au lieu de construire** (`...rest`), là où
+   `toLinkedLostItem` et `QrTokenPublicView` construisent champ par champ. Une
+   colonne ajoutée à `LostItem` est donc publique d'office, et **aucun** test
+   n'énumère les clés.
+2. **`public-lost-item-reads.spec.ts` nomme deux contrôleurs à la main**, alors
+   que **cinq** portent une route anonyme (`events`, `qr-codes`,
+   `contact-messages` et `health` en plus). Un contrôleur anonyme ajouté est
+   invisible à la sonde.
+3. **`GET /events/:id` est anonyme et ne restreint pas le statut**, là où la
+   liste publique impose `published` : un événement `draft` ou `cancelled` se
+   lit par son id. Personne ne l'appelle — le back-office passe par
+   `/events/admin` —, donc le resserrer est gratuit.
 
 ---
 

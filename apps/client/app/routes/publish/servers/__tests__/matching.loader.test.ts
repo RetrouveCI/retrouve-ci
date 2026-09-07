@@ -25,11 +25,14 @@ describe('the matching loader', () => {
 	it('asks the API for the three criteria it was given', async () => {
 		await loader({ request: requestFor(VALID) })
 
-		expect(findMatchingLostItems).toHaveBeenCalledWith({
-			type: 'lost',
-			category: LOST_ITEM_CATEGORIES[0],
-			ville: 'Abidjan',
-		})
+		expect(findMatchingLostItems).toHaveBeenCalledWith(
+			{
+				type: 'lost',
+				category: LOST_ITEM_CATEGORIES[0],
+				ville: 'Abidjan',
+			},
+			expect.any(Request),
+		)
 	})
 
 	// The panel loads while the form is still being filled in, so a partial query

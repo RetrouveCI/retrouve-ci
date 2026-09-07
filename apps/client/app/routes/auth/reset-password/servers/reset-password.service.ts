@@ -9,6 +9,7 @@ export async function requestPasswordResetOtp(
 	await apiFetch('/api/auth/phone-number/request-password-reset', {
 		method: 'POST',
 		body: JSON.stringify({ phoneNumber: toE164(phoneNumber) }),
+		request,
 		headers: { Origin: requestOrigin(request) },
 	})
 }
@@ -24,6 +25,7 @@ export async function resetPassword(
 			otp: params.otp,
 			newPassword: params.newPassword,
 		}),
+		request,
 		headers: { Origin: requestOrigin(request) },
 	})
 }

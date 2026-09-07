@@ -5,7 +5,7 @@ import { toLostItem } from '@/shared/mappers/lost-item.mapper'
 export async function postsLoader({ request }: { request: Request }) {
 	const filters = parsePostsFilters(new URL(request.url).searchParams)
 
-	const response = await getLostItems(filters)
+	const response = await getLostItems(filters, request)
 
 	return {
 		listings: response.items.map(toLostItem),

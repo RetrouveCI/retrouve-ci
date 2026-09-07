@@ -3,9 +3,12 @@ import { join } from 'node:path'
 
 const APP = 'app'
 
-// A hand-built `Cookie` sends no caller address, so the API keys its bucket on
-// this container: the R44 bug, 5 OTPs per 15 minutes platform-wide.
-const HAND_BUILT = /Cookie: request\.headers\.get/
+// `apiFetch` requires the request, so the compiler holds that half — R44's
+// guard tested one spelling and missed six calls. What a type cannot see is a
+// raw `fetch` to the API, bypassing the derivation: that is what this reads for.
+
+const BYPASS = /\bfetch\(/
+const ADDRESSES_THE_API = /apiUrl/
 
 /** A raw `fetch`: multipart needs `FormData`'s own boundary, so no `apiFetch`. */
 const ALLOWED = ['routes/publish/servers/upload.service.ts']
@@ -19,26 +22,35 @@ function sources(dir: string): string[] {
 	})
 }
 
+function bypasses(file: string): boolean {
+	const source = readFileSync(file, 'utf8')
+
+	return BYPASS.test(source) && ADDRESSES_THE_API.test(source)
+}
+
 describe('every server-side call speaks for the visitor', () => {
 	it('finds the files it is meant to be reading', () => {
 		expect(sources(APP).length).toBeGreaterThan(20)
 	})
 
-	it('leaves no call hand-building its own cookie header', () => {
+	it('leaves no call addressing the API outside apiFetch', () => {
 		const offenders = sources(APP).filter(
 			file =>
-				HAND_BUILT.test(readFileSync(file, 'utf8')) &&
-				!ALLOWED.some(allowed => file.endsWith(allowed)),
+				bypasses(file) && !ALLOWED.some(allowed => file.endsWith(allowed)),
 		)
 
 		expect(offenders).toEqual([])
 	})
 
-	// An allowlist that names a file which no longer offends is a lie.
-	it.each(ALLOWED)('keeps %s on the allowlist for a reason', allowed => {
+	// Bypassing `apiFetch` without deriving both headers is the R44 bug itself.
+	it.each(ALLOWED)('has %s derive both headers by hand', allowed => {
 		const file = sources(APP).find(path => path.endsWith(allowed))
 
 		expect(file, `${allowed} is allowed but absent`).toBeDefined()
-		expect(HAND_BUILT.test(readFileSync(file as string, 'utf8'))).toBe(true)
+		expect(bypasses(file as string)).toBe(true)
+
+		const source = readFileSync(file as string, 'utf8')
+		expect(source).toContain("Cookie: request.headers.get('cookie')")
+		expect(source).toContain('CLIENT_IP_HEADER')
 	})
 })

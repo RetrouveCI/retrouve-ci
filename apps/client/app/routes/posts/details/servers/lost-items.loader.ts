@@ -4,9 +4,9 @@ import { ApiError } from '@/shared/utils/api-fetch'
 import { getLostItemById } from '../../servers/lost-items.service'
 import { toLostItemDetail } from '@/shared/mappers/lost-item.mapper'
 
-export async function postDetailLoader({ params }: Route.LoaderArgs) {
+export async function postDetailLoader({ params, request }: Route.LoaderArgs) {
 	try {
-		const dto = await getLostItemById(params.id)
+		const dto = await getLostItemById(params.id, request)
 
 		return { listing: toLostItemDetail(dto) }
 	} catch (err) {

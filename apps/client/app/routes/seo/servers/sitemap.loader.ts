@@ -40,15 +40,15 @@ export function buildSitemap(origin: string, entries: SitemapEntry[]): string {
  * so nothing hidden appears here. A failure yields the static paths alone — a
  * 500 teaches a crawler nothing.
  */
-async function listingEntries(): Promise<SitemapEntry[]> {
+async function listingEntries(request: Request): Promise<SitemapEntry[]> {
 	const entries: SitemapEntry[] = []
 
 	try {
 		for (let page = 1; page <= SITEMAP_MAX_PAGES; page++) {
-			const { items, total } = await getLostItems({
-				page,
-				pageSize: SITEMAP_PAGE_SIZE,
-			})
+			const { items, total } = await getLostItems(
+				{ page, pageSize: SITEMAP_PAGE_SIZE },
+				request,
+			)
 
 			entries.push(
 				...items.map(item => ({
@@ -69,7 +69,7 @@ async function listingEntries(): Promise<SitemapEntry[]> {
 export async function loader({ request }: { request: Request }) {
 	const entries: SitemapEntry[] = [
 		...INDEXABLE_PATHS.map(path => ({ path })),
-		...(await listingEntries()),
+		...(await listingEntries(request)),
 	]
 
 	return new Response(buildSitemap(requestOrigin(request), entries), {

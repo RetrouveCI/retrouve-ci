@@ -36,12 +36,15 @@ afterEach(() => {
 
 describe('postsLoader', () => {
 	it('asks for the first page of the listing by default', async () => {
-		await postsLoader({ request: requestFor() })
+		const request = requestFor()
 
-		expect(getLostItems).toHaveBeenCalledWith({
-			page: 1,
-			pageSize: POSTS_PAGE_SIZE,
-		})
+		await postsLoader({ request })
+
+		// The request travels too: `apiFetch` needs it to speak for the visitor.
+		expect(getLostItems).toHaveBeenCalledWith(
+			{ page: 1, pageSize: POSTS_PAGE_SIZE },
+			request,
+		)
 	})
 
 	it('forwards the filters the url carries', async () => {
@@ -56,6 +59,7 @@ describe('postsLoader', () => {
 				ville: 'Abidjan',
 				page: 2,
 			}),
+			expect.any(Request),
 		)
 	})
 

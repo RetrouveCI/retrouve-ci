@@ -41,13 +41,14 @@ describe('usersLoader', () => {
 		expect(listUsers).not.toHaveBeenCalled()
 	})
 
-	it('forwards the session cookie to the service', async () => {
-		await usersLoader({ request: requestFor() })
+	// The request itself, not a cookie string: that is what carries the caller
+	// address the API's rate limiter keys on (R50).
+	it('hands the request down to the service', async () => {
+		const request = requestFor()
 
-		expect(listUsers).toHaveBeenCalledWith(
-			'retrouveci-admin.session_token=abc',
-			undefined,
-		)
+		await usersLoader({ request })
+
+		expect(listUsers).toHaveBeenCalledWith(request, undefined)
 	})
 
 	it.each(USER_STATUSES)('forwards the %s filter', async status => {
@@ -55,7 +56,7 @@ describe('usersLoader', () => {
 			request: requestFor(`?status=${status}`),
 		})
 
-		expect(listUsers).toHaveBeenCalledWith(expect.any(String), status)
+		expect(listUsers).toHaveBeenCalledWith(expect.any(Request), status)
 		expect(result.statusFilter).toBe(status)
 	})
 
@@ -64,7 +65,7 @@ describe('usersLoader', () => {
 		async search => {
 			await usersLoader({ request: requestFor(search) })
 
-			expect(listUsers).toHaveBeenCalledWith(expect.any(String), undefined)
+			expect(listUsers).toHaveBeenCalledWith(expect.any(Request), undefined)
 		},
 	)
 

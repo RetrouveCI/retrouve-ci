@@ -33,6 +33,7 @@ export async function sendOtp(
 	await apiFetch('/api/auth/phone-number/send-otp', {
 		method: 'POST',
 		body: JSON.stringify({ phoneNumber: toE164(phoneNumber) }),
+		request,
 		headers: { Origin: requestOrigin(request) },
 	})
 }
