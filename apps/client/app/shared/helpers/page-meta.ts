@@ -8,15 +8,18 @@ export interface PageMetaOptions {
 	/** Page name alone — the site name is appended. */
 	title: string
 	description?: string
-	image?: string
 	type?: 'website' | 'article'
+	/** robots.txt stops a crawl, never an indexing. This does. */
+	noindex?: boolean
 }
 
+// The image tags live in `root`'s `Layout`: `og:image` must be absolute, which
+// needs the request's origin. No caller passed a custom one, over all 28.
 export function pageMeta({
 	title,
 	description,
-	image = OG_IMAGE,
 	type = 'website',
+	noindex,
 }: PageMetaOptions) {
 	const documentTitle = `${title} | ${SITE_NAME}`
 
@@ -26,10 +29,9 @@ export function pageMeta({
 		{ property: 'og:locale', content: OG_LOCALE },
 		{ property: 'og:site_name', content: SITE_NAME },
 		{ property: 'og:title', content: documentTitle },
-		{ property: 'og:image', content: image },
 		{ name: 'twitter:card', content: 'summary_large_image' },
 		{ name: 'twitter:title', content: documentTitle },
-		{ name: 'twitter:image', content: image },
+		...(noindex ? [{ name: 'robots', content: 'noindex, nofollow' }] : []),
 		...(description
 			? [
 					{ name: 'description', content: description },

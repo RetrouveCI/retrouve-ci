@@ -40,11 +40,17 @@ import './app.css'
 
 import type { Route } from './+types/root'
 import { OG_IMAGE, OG_LOCALE, SITE_NAME } from '@/shared/helpers/page-meta'
+import { SEO_KEYWORDS_CONTENT } from '@/shared/constants/seo-keywords'
+import { requestOrigin } from '@/shared/helpers/origin'
+import { structuredData } from '@/shared/helpers/structured-data'
 
 export function loader({ request }: Route.LoaderArgs) {
 	return {
 		themePreference: getThemePreferenceFromRequest(request),
 		env: publicEnv(),
+		// `new URL(request.url).origin` reads `http` behind Traefik, and a
+		// canonical on the wrong scheme is worse than none.
+		origin: requestOrigin(request),
 	}
 }
 
@@ -56,11 +62,7 @@ export function meta() {
 	return [
 		{ title },
 		{ name: 'description', content: description },
-		{
-			name: 'keywords',
-			content:
-				"objets perdus, objets retrouvés, Côte d'Ivoire, QR code, RetrouveCI, lost and found",
-		},
+		{ name: 'keywords', content: SEO_KEYWORDS_CONTENT },
 		{ property: 'og:type', content: 'website' },
 		{ property: 'og:locale', content: OG_LOCALE },
 		{ property: 'og:site_name', content: SITE_NAME },
@@ -70,7 +72,6 @@ export function meta() {
 			content:
 				"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
 		},
-		{ property: 'og:image', content: OG_IMAGE },
 		{ name: 'twitter:card', content: 'summary_large_image' },
 		{ name: 'twitter:title', content: title },
 		{
@@ -78,7 +79,6 @@ export function meta() {
 			content:
 				"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
 		},
-		{ name: 'twitter:image', content: OG_IMAGE },
 	]
 }
 
@@ -124,9 +124,19 @@ if(t)t.setAttribute('content',d?'${THEME_COLOR.dark}':'${THEME_COLOR.light}');
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	const data = useRouteLoaderData<typeof loader>('root')
+	const { pathname } = useLocation()
 
 	const preference: ThemePreference =
 		data?.themePreference ?? DEFAULT_THEME_PREFERENCE
+
+	/**
+	 * Only the request knows the origin, and these have to be absolute. The
+	 * canonical drops the query on purpose: `/posts?category=phone&page=2` is
+	 * the same page, and the sitemap names every listing anyway.
+	 */
+	const origin = data?.origin
+	const canonical = origin ? `${origin}${pathname}` : undefined
+	const image = origin ? `${origin}${OG_IMAGE}` : undefined
 
 	/**
 	 * Server-side, `system` cannot be resolved, so the document goes out neutral
@@ -159,6 +169,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<meta name="apple-mobile-web-app-title" content={SITE_NAME} />
 				<script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
 				<script dangerouslySetInnerHTML={{ __html: INSTALL_PROMPT_SCRIPT }} />
+				{canonical && (
+					<>
+						<link rel="canonical" href={canonical} />
+						<meta property="og:url" content={canonical} />
+					</>
+				)}
+				{image && (
+					<>
+						<meta property="og:image" content={image} />
+						<meta name="twitter:image" content={image} />
+					</>
+				)}
+				{origin && (
+					<script
+						type="application/ld+json"
+						dangerouslySetInnerHTML={{ __html: structuredData(origin) }}
+					/>
+				)}
 				<Meta />
 				<Links />
 			</head>

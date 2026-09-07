@@ -17,6 +17,7 @@ export function meta() {
 		title: 'Scanner',
 		description:
 			"Scannez un sticker RetrouveCI pour l'activer ou prévenir son propriétaire.",
+		noindex: true,
 	})
 }
 

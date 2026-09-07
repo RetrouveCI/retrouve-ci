@@ -45,6 +45,10 @@ export default [
 	]),
 	// Records the contact and redirects, like the sticker jump below.
 	route('posts/:id/contact', 'routes/posts/details/servers/contact.action.ts'),
+	// Outside the shell, and text rather than a page: a crawler needs the origin
+	// the browser used, which only a loader can read.
+	route('robots.txt', 'routes/seo/servers/robots.loader.ts'),
+	route('sitemap.xml', 'routes/seo/servers/sitemap.loader.ts'),
 	route('q/:code', 'routes/q/_index.tsx'),
 	// The jump to the owner's line: an action and no component, so the browser
 	// follows the redirect itself and the page never carries the number.

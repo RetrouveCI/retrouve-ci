@@ -2868,9 +2868,11 @@ cas).
 >     vigueur et figeant la couleur.
 > 12. **`og:image` reste RELATIF, et c'est une dette**, pas une régression :
 >     elle l'était déjà. Facebook demande une URL absolue, et le client n'a
->     aucun `APP_URL` — seul `apps/admin` en a un. La rendre absolue demande
->     soit une variable d'environnement de plus, soit de faire passer l'origine
->     du `request` par les quinze `meta()` qui appellent `pageMeta()`.
+>     aucun `APP_URL` — seul `apps/admin` en a un. ✅ **Fermée par R48**, et par
+>     aucune des deux voies envisagées ici : l'origine vient de
+>     `requestOrigin(request)` (#198) dans le loader racine, et c'est `Layout`
+>     qui rend les balises d'image — donc **un** endroit, pas les vingt-huit
+>     `meta()`.
 > 13. **L'image de partage est rendue dans Chromium**, pas par `sharp` : les
 >     polices du système ici n'ont que DejaVu et Liberation, alors qu'un rendu
 >     navigateur embarque la vraie Geist en `woff2`. Vérifié que la police est
@@ -5226,6 +5228,83 @@ Vérifiée en rouge — le bug réintroduit, deux cas sur trois tombent.
 > base, les absolus changent alors que l'apport du lot reste le même. **Ne
 > jamais recopier des totaux : les recompter depuis la base réelle**, et
 > annoncer l'apport plutôt que l'absolu quand la base est mouvante.
+
+#### R48 — Ce qui fait vraiment remonter le site — **LIVRÉE**
+
+Demande du commanditaire, partie d'une capture d'écran : `retrouveci.com` sort
+**premier** sur « objet perdu abidjan », et il voulait entretenir ça — en
+commençant par sortir les mots clés de `root.tsx`.
+
+> ⚠️ **`<meta name="keywords">` n'est PAS un signal de classement.** Google l'a
+> abandonné en 2009 et le dit publiquement ; Bing dit la même chose et traite le
+> bourrage comme du spam. Le bon référencement observé ne vient donc pas de là.
+> Dit au commanditaire, et le tableau fait quand même — une chaîne de 597
+> caractères dans un composant est mauvaise en soi — mais **le reste du lot est
+> ce qui déplace l'aiguille**.
+
+**Le tableau** vit dans `shared/constants/seo-keywords.ts` : **55 termes** après
+l'ajout du côté **trouvé**, que la liste ignorait alors que la moitié des
+annonces sont `found`. En français « trouvé » (par moi) et « retrouvé »
+(récupéré) sont deux recherches, pas deux orthographes. Une garde refuse tout
+**littéral** dans le contenu du tag, ce qui tient la promesse « ne plus rouvrir
+`root.tsx` ».
+
+**Ce qui manquait vraiment, et qui est posé** :
+
+1. **`sitemap.xml`** — le plus gros levier. Sans lui Google n'atteint une
+   annonce qu'en parcourant la pagination de `/posts`, alors que chaque annonce
+   est une page qui répond seule à « téléphone perdu Cocody ». Il liste les dix
+   pages indexables **et chaque annonce publiée**, plafonné à dix appels de cent
+   (`MAX_PAGE_SIZE`). Une API injoignable rend les pages statiques seules : un
+   sitemap vide apprend à un robot que le site est vide.
+2. **`robots.txt`** — servi par un loader et non en fichier statique, pour que
+   la ligne `Sitemap:` nomme l'origine que le navigateur a utilisée.
+3. **`og:image` absolue** — la dette du point 12 de R23, fermée.
+4. **`<link rel="canonical">`** — sans la requête, donc
+   `/posts?category=phone&page=2` cesse de diluer `/posts`. Aucune annonce n'est
+   perdue : le sitemap les nomme toutes.
+5. **JSON-LD** `WebSite` + `SearchAction` + `Organization` — le `SearchAction`
+   est ce qui donne la boîte de recherche dans les résultats ; il pointe sur
+   `?q=`, l'alias que `parse-posts-filters` lit.
+6. **`noindex` sur les quinze pages privées**, `/q/:code` en tête.
+
+> ⚠️ **`/q/:code` indexée publierait le prénom du propriétaire et son libellé.**
+> C'est le pendant de R46, qui a sorti un numéro du HTML. Et `robots.txt` ne
+> suffit pas : il arrête un **parcours**, jamais une **indexation** — une URL
+> liée ailleurs est indexée quand même. D'où les deux, la liste et la balise.
+
+**La garde qui compte lie les deux listes**, dans les **deux** sens : chaque
+chemin de `DISALLOWED_PATHS` doit avoir une page qui envoie `noindex`, **et**
+chaque page qui envoie `noindex` doit être nommée dans `robots.txt`. La première
+version n'avait que le premier sens — retirer `/q/` de la liste retirait aussi
+ses vérifications, donc une route privée ajoutée plus tard passait inaperçue.
+Les deux directions vérifiées en rouge.
+
+**Mesuré sur le vrai serveur, pas seulement en test.** `react-router-serve` sur
+le build, avec `X-Forwarded-Proto` et `X-Forwarded-Host` : `/robots.txt` répond
+`200 text/plain` et `/sitemap.xml` `200 application/xml`, tous deux sur
+`https://retrouveci.com` — donc le **point dans `robots.txt`** ne gêne pas le
+routage, ce qui n'allait pas de soi à côté du traitement spécial de `.data`. Le
+HTML de l'accueil porte bien canonical, `og:url`, l'image absolue et les cinq
+types JSON-LD ; `/offline` envoie `noindex, nofollow` et `/terms` n'envoie rien.
+⚠️ **`/q/:code` n'a pas pu être vérifiée ainsi** — son loader appelle l'API,
+injoignable dans ce test, donc c'est la garde unitaire qui la couvre.
+
+**Fichiers** : `client/shared/constants/seo-keywords.ts`, `client/routes/seo/`
+(`seo.const.ts`, `robots.loader.ts`, `sitemap.loader.ts`),
+`client/shared/helpers/structured-data.ts`, `page-meta.ts` (`noindex`, images
+retirées), `root.tsx`, `routes.ts`, et les quinze pages privées. **Flux** :
+tous. **Aucun changement d'API, de contrat ni de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**528**, contracts **390**, admin **425** (inchangés) et client **1275** (939 en
+`node`, +71, et 336 en `ui`). Densité de commentaires 9,4 %.
+
+**Reste ouvert, et c'est du contenu et non de la technique** : les recherches
+associées de la capture — « Retrouver carte identité perdue », « site objets
+perdus », « objet perdu Côte d'Ivoire » — se gagnent avec des **pages**, pas des
+balises. La fonctionnalité pièces existe (A7, R35) ; aucune page ne la cible.
 
 ---
 

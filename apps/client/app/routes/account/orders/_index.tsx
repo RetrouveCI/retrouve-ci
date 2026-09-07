@@ -13,6 +13,7 @@ export function meta() {
 	return pageMeta({
 		title: 'Mes commandes',
 		description: 'Suivez la livraison de vos stickers QR RetrouveCI.',
+		noindex: true,
 	})
 }
 

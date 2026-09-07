@@ -19,6 +19,7 @@ export function meta() {
 	return pageMeta({
 		title: 'Créer un compte',
 		description: 'Rejoignez RetrouveCI pour publier et retrouver des objets.',
+		noindex: true,
 	})
 }
 

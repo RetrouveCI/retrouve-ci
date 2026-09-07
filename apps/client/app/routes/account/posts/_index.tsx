@@ -19,6 +19,7 @@ export function meta() {
 	return pageMeta({
 		title: 'Mes annonces',
 		description: 'Retrouvez et gérez les annonces que vous avez publiées.',
+		noindex: true,
 	})
 }
 

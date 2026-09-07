@@ -26,6 +26,7 @@ export function meta() {
 	return pageMeta({
 		title: 'Mon compte',
 		description: 'Gérez vos annonces, vos informations et vos préférences.',
+		noindex: true,
 	})
 }
 

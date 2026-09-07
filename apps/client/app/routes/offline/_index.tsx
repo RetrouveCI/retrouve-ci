@@ -4,11 +4,8 @@ import { pageMeta } from '@/shared/helpers/page-meta'
 import { retryTarget } from './helpers/retry-target'
 
 export function meta() {
-	return [
-		...pageMeta({ title: 'Hors connexion' }),
-		// A crawler that reaches this page has been handed the wrong document.
-		{ name: 'robots', content: 'noindex' },
-	]
+	// A crawler that reaches this page has been handed the wrong document.
+	return pageMeta({ title: 'Hors connexion', noindex: true })
 }
 
 export default function OfflinePage() {
