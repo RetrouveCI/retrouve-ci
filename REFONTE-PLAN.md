@@ -5592,6 +5592,90 @@ routes **authentifiées** n'ont ni projection ni garde : `StickerOrder`,
 légitime. C'est un risque d'une autre nature — pas d'indexation, mais pas de
 schéma non plus.
 
+#### R53 — Les finitions, dont deux qui n'existaient plus — **LIVRÉE**
+
+La liste de finitions que la passation traînait, demandée par le commanditaire
+avec R52 et R54. Chaque entrée a été **remesurée avant d'être corrigée**, et
+c'est ce qui a fait le lot : deux n'étaient plus vraies, une était plus large
+qu'annoncé, et une dernière s'est révélée en cherchant.
+
+**1. Les contrôles à 44 px, et il y en avait plus que quatre dialogues.** `h-11`
+vaut 44, le **plancher tactile**, là où §2.1 demande 48 pour un champ et pour
+une action principale. Les quatre dialogues de réglages le portaient — 12
+contrôles —, mais aussi `contact-section` et `location-date-section`, que
+l'écran de **modification d'annonce** rend toujours : 6 de plus, invisibles à la
+passation. Dix-huit contrôles remontés à `h-control`, le token que `cn()`
+connaît (R38, R41).
+
+> ⚠️ **La ligne est tracée sur ce qu'est le contrôle, pas sur la classe.** Le
+> client compte **54** `h-11` : les `h-11 w-11` sont des vignettes et des boîtes
+> d'icône, les `min-h-11` des cibles tactiles à leur plancher légitime, et les
+> deux appels à l'action de `terms`/`privacy` passent en `lg:h-auto`. Seuls un
+> champ et une action principale sont concernés par les 48 px.
+
+**La garde mesure la boîte, pas la classe** — une classe que `cn()` garde peut
+encore perdre dans la cascade (R41) : elle ouvre les quatre dialogues dans
+Chromium et lit `getComputedStyle().height` de chaque `input` et de chaque
+bouton de soumission.
+
+**2 et 3. Les deux entrées `/account` ne se reproduisent pas.** Mesuré plutôt
+que corrigé :
+
+- l'avatar rend **72 × 72** à 320, 464 **et** 640 px, y compris avec un nom
+  insécable de 33 caractères — pas le 1,05:1 annoncé ;
+- **aucun bloc** de `/account` ne déborde à 464 px, avec une annonce de 68
+  caractères en titre : `scrollWidth == clientWidth == 464`, et aucun élément de
+  la page n'a le moindre débordement.
+
+Les deux sondes deviennent des **gardes** plutôt que des corrections, et la
+seconde **nomme l'élément fautif** : « quelque chose déborde » n'est pas un
+rapport de bug. Ce qui les avait produites reste inconnu — probablement une
+mesure sur la page entière, avant R33 et R37.
+
+**4. Sept composants morts, pas quatre — et surtout une règle.** La dette «
+composants morts sur disque » revient à chaque passation et se nettoie à la main
+à chaque fois. La règle la remplace : **un composant est atteint depuis quelque
+part, ou il écrit noir sur blanc qu'il est gardé sans l'être.**
+
+> ⚠️ **Deux états légitimes existaient déjà**, et la garde accepte les deux :
+> les quatre composants de `download/` portent « Kept on disk, unreferenced »
+> depuis R25, et `payment-step` a son corps **entièrement commenté** depuis R17.
+> Le second n'a reçu qu'un mot pour devenir vérifiable par machine.
+
+Sept fichiers supprimés — `object-info-section`, `publish-sidebar`,
+`publish-form-actions`, `form-progress`, `matching-suggestions`, `tips-panel`
+(tous rendus caducs par le découpage en étapes de R18) et `empty-orders-state`
+(la page des commandes écrit son vide en ligne). **Trois d'entre eux, la garde
+les a trouvés seule** : un balayage à la main les avait manqués. Le lot retire
+**222 lignes de plus qu'il n'en ajoute**.
+
+**Le back-office est propre** : la même sonde passée sur `apps/admin` ne trouve
+aucun orphelin, donc la garde reste côté client, comme celle de `cn()`.
+
+**Fichiers** : les cinq composants de réglages, `contact-section` et
+`location-date-section`, `payment-step` (un mot), sept suppressions, et quatre
+gardes — `dialog-controls`, `profile-header`, `account-overflow`,
+`unreferenced-components`. **Flux** : A, C. **Aucun changement d'API, de contrat
+ni de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**550**, contracts **390**, admin **427** (inchangés) et client **1300** (+16
+sur la base, le lot étant entièrement front). Densité de commentaires 9,5 %.
+
+**Les trois gardes vérifiées en rouge puis restaurées** : un dialogue ramené à
+`h-11` fait tomber la garde de hauteur sur `expected 44 to be 48` ; un composant
+sans marqueur, posé dans `publish/components`, est nommé par les deux assertions
+; et un fichier garé qu'on remet à l'écran fait tomber « parks exactly the files
+that name themselves parked ».
+
+**Reste ouvert** : `place-step` dessine toujours ses selects à 52 px (`h-13`),
+mesuré et laissé tel quel par une étape précédente — changer une hauteur déplace
+ce que la maquette a dessiné. Le jumeau de R38 tient toujours : une classe de
+variante bat une classe nue, sans garde pour le dire. Et la garde de portée est
+**côté client seul**, comme celle de `cn()` — `packages/ui` n'a toujours aucun
+runner, donc rien n'y veille.
+
 ---
 
 ## 6. Ce qui ne bouge pas

@@ -152,7 +152,7 @@ export function ChangePasswordDialog({
 					<Button
 						type="submit"
 						disabled={isSaving}
-						className="bg-primary-green hover:bg-primary-green-dark h-11 w-full gap-2 rounded-xl text-white"
+						className="bg-primary-green hover:bg-primary-green-dark h-control w-full gap-2 rounded-xl text-white"
 					>
 						{isSaving ? (
 							<>
