@@ -12,6 +12,8 @@ export interface QrTokenApiDto {
 	createdAt: string
 	activatedAt: string | null
 	revokedAt: string | null
+	lastScannedAt: string | null
+	messagesCount: number
 }
 
 export interface QrTokenListApiResponse {

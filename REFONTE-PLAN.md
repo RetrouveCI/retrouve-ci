@@ -5592,6 +5592,91 @@ routes **authentifiées** n'ont ni projection ni garde : `StickerOrder`,
 légitime. C'est un risque d'une autre nature — pas d'indexation, mais pas de
 schéma non plus.
 
+#### R52 — La trace de scan, telle que la maquette la dessine — **LIVRÉE**
+
+L'étape du §4 jamais commencée : cinq détours l'avaient précédée. Demandée par
+le commanditaire avec R53 et R54.
+
+> ⚠️ **La passation affirmait « une table, pas une colonne ». L'artboard dit le
+> contraire.** `MesStickers` écrit « Scanné il y a 2 h · 1 message » **à la
+> place de** la ligne du code, sur une carte de trois lignes au plus. Cela
+> demande un **horodatage du dernier scan**, rien de plus : une table ne
+> servirait qu'à un historique que la maquette ne dessine nulle part. Lire la
+> maquette avant de creuser aura économisé un modèle, une relation et une
+> pagination.
+
+**Deux changements de base, tous deux minuscules** : `qr_token.lastScannedAt`
+(nullable), et l'index qui manquait sur `contact_message.qrTokenCode` — la
+colonne existait depuis A8 et n'avait jamais été indexée, alors que compter les
+messages d'un sticker la balaye.
+
+**L'écriture vit dans une lecture**, comme `ViewLostItemUseCase` le fait déjà
+pour ses vues : `GET /qr-codes/:code/scan` est le seul moment où qui que ce soit
+apprend que le sticker a été lu.
+
+> ⚠️ **Le loader de `/q/:code` appelle cet endpoint à chaque navigation**, donc
+> un rechargement compte comme un scan. Sans fenêtre, « scanné il y a 2 h »
+> afficherait « il y a quelques secondes » aussi longtemps qu'un trouveur laisse
+> la page ouverte. D'où `SCAN_WINDOW_MINUTES = 5`, et la décision vit dans une
+> fonction **pure** (`shouldRecordScan`) plutôt que dans un `where` Prisma :
+> l'horodatage arrive déjà dans la requête que `findPublicView` exécute, donc la
+> fenêtre ne coûte aucune lecture de plus — et un `where` ne serait pas
+> vérifiable ici, faute de Postgres.
+
+**La trace ne quitte jamais l'API vers le trouveur.** `findPublicView` rend
+désormais `{ view, lastScannedAt }` : la vue publique garde exactement les six
+champs que R51 lui reconnaît, et le spec du use-case asserte
+`not.toHaveProperty('lastScannedAt')` sur la réponse — la leçon de R46, un cast
+passe devant le compilateur.
+
+**Le compte de messages est un agrégat, donc il n'entre pas dans l'entité.**
+`QrToken` gagne la colonne ; `OwnedQrToken` ajoute `messagesCount`, et seule la
+liste du propriétaire (`listByOwner`) le calcule — la liste du back-office reste
+sur `QrToken`. Le `groupBy` est borné aux codes **de la page**, jamais du lot,
+et la fusion vit dans un helper pur (`withMessageCounts`) : c'est le mauvais
+appariement qui est le risque, et aucune requête ne le révélerait.
+
+**Côté client**, le sous-titre quitte le composant pour
+`helpers/sticker-subtitle.ts`, où il est testable : pièce non activée → «
+Activez-le pour le nommer » ; scannée → « Scanné il y a 2 heures · 1 message » ;
+sinon le code et la date d'activation, comme avant. Le pluriel est traité, et
+zéro message n'écrit rien.
+
+> ⚠️ **`formatRelativeDistance` répond « il y a environ 2 heures ».** Sur une
+> ligne qui tronque à 12 px, l'approximation est du bruit — d'où
+> `formatShortRelativeDistance`, même bibliothèque et même locale, en
+> `formatDistanceToNowStrict`. Pas un second vocabulaire de dates : une seconde
+> précision du même.
+
+**Fichiers** : `packages/database` (schéma + migration), `api/domains/qr-codes/`
+(`helpers/should-record-scan.ts`, `helpers/with-message-counts.ts`, types,
+mappeur, dépôt, `get-qr-token-public-view.use-case.ts`,
+`get-my-qr-tokens.use-case.ts`), `client/routes/account/stickers/` (helper de
+sous-titre, mappeur, types, carte), `client/shared/utils/date.ts`. **Flux** : C.
+**Aucun changement de contrat.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**562** (+12), contracts **390** et admin **427** (inchangés), client **1292**
+(948 en `node`, 344 en `ui`, +8). Densité de commentaires 7,9 %.
+
+**Les quatre gardes vérifiées en rouge puis restaurées** : la fenêtre retirée
+fait tomber « leaves the trace alone inside the window » ; la lecture rendue
+telle quelle (`read as unknown as QrTokenPublicView`) fait tomber l'assertion
+sur la forme sérialisée ; la fusion appariée sur l'`id` fait tomber deux cas de
+`withMessageCounts` ; et la branche de la trace retirée du sous-titre fait
+tomber cinq cas du helper.
+
+**Ce qui n'a pas pu être mesuré** : le `groupBy` et l'`update` eux-mêmes, faute
+de Postgres dans cette distro — d'où les deux décisions déportées dans des
+fonctions pures. La requête reste écrite une fois, à un seul endroit.
+
+**Reste ouvert** : le back-office ne montre pas `lastScannedAt` sur sa fiche de
+token, alors que la donnée y arrive désormais — un ajout d'une ligne le jour où
+la modération en a besoin. Et l'horloge : un scan est daté par l'API, pas par le
+navigateur du trouveur, donc un serveur mal réglé décale la trace pour tout le
+monde.
+
 #### R53 — Les finitions, dont deux qui n'existaient plus — **LIVRÉE**
 
 La liste de finitions que la passation traînait, demandée par le commanditaire

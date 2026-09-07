@@ -16,6 +16,7 @@ export function buildQrToken(overrides: Partial<QrToken> = {}): QrToken {
 		createdAt: new Date('2026-01-01'),
 		activatedAt: null,
 		revokedAt: null,
+		lastScannedAt: null,
 		...overrides,
 	}
 }
@@ -40,6 +41,8 @@ export function buildRepository(): QrTokenRepository {
 		createMany: vi.fn(),
 		findByCode: vi.fn(),
 		findPublicView: vi.fn(),
+		recordScan: vi.fn(),
+		listByOwner: vi.fn(),
 		findOwnerReach: vi.fn(),
 		linkToLostItem: vi.fn(),
 		activate: vi.fn(),

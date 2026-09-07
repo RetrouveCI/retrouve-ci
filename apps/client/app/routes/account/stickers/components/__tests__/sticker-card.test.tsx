@@ -29,6 +29,8 @@ const STICKER: Sticker = {
 	linkedObject: 'Trousseau avec porte-clés bleu',
 	directContact: false,
 	activatedAt: '2026-08-14T10:00:00.000Z',
+	lastScannedAt: null,
+	messagesCount: 0,
 }
 
 type Action = (args: { request: Request }) => unknown
@@ -68,6 +70,18 @@ describe('StickerCard', () => {
 		await expect
 			.element(page.getByText(/RCI-4A7F-2K91 · activé le 14 août/))
 			.toBeInTheDocument()
+	})
+
+	it('shows the scan trace once someone has read the sticker', async () => {
+		renderCard({
+			lastScannedAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+			messagesCount: 1,
+		})
+
+		await expect
+			.element(page.getByText('Scanné il y a 2 heures · 1 message'))
+			.toBeInTheDocument()
+		expect(page.getByText(/RCI-4A7F-2K91 ·/).elements()).toHaveLength(0)
 	})
 
 	it('draws no badge on an active sticker, which is the normal case', async () => {

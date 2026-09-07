@@ -56,6 +56,7 @@ export function toDomainQrToken(qrToken: PrismaQrToken): QrToken {
 		createdAt: qrToken.createdAt,
 		activatedAt: qrToken.activatedAt,
 		revokedAt: qrToken.revokedAt,
+		lastScannedAt: qrToken.lastScannedAt,
 	}
 }
 

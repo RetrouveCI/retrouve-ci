@@ -18,6 +18,7 @@ import type { Sticker } from '@/shared/types/sticker'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import { stickerStatusFor } from '../helpers/sticker-status'
+import { buildStickerSubtitle } from '../helpers/sticker-subtitle'
 import { EditStickerDialog } from './edit-sticker-dialog'
 import {
 	StickerActionsSheet,
@@ -25,26 +26,9 @@ import {
 } from './sticker-actions-sheet'
 import type { stickersAction } from '../servers/stickers.action'
 
-function formatDate(value: string) {
-	return new Date(value).toLocaleDateString('fr-FR', {
-		day: 'numeric',
-		month: 'long',
-	})
-}
-
 /** A sticker not yet named has no label of its own to show. */
 function stickerName(sticker: Sticker) {
 	return sticker.label ?? 'Sticker non activé'
-}
-
-function buildSubtitle(sticker: Sticker) {
-	if (sticker.status === 'generated') return 'Activez-le pour le nommer'
-
-	const activated = sticker.activatedAt
-		? ` · activé le ${formatDate(sticker.activatedAt)}`
-		: ''
-
-	return `${sticker.code}${activated}`
 }
 
 export function StickerCard({ sticker }: { sticker: Sticker }) {
@@ -114,7 +98,7 @@ export function StickerCard({ sticker }: { sticker: Sticker }) {
 					{stickerName(sticker)}
 				</p>
 				<p className="text-muted-foreground mt-0.5 truncate text-xs">
-					{buildSubtitle(sticker)}
+					{buildStickerSubtitle(sticker)}
 				</p>
 				{sticker.linkedObject && (
 					<p className="text-muted-foreground mt-0.5 truncate text-xs">
