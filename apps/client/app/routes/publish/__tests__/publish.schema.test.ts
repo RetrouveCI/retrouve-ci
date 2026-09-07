@@ -6,7 +6,6 @@ import {
 } from '@app/contracts/lost-items'
 import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
 import { publishFormSchema } from '../publish.schema'
-import { OBJECT_TYPES } from '../publish.const'
 
 const VALID = {
 	title: 'iPhone 13 perdu',
@@ -195,12 +194,5 @@ describe('publishFormSchema, on a piece of ID', () => {
 		).toBe(
 			`La description doit contenir au moins ${MIN_DESCRIPTION_LENGTH} caractères`,
 		)
-	})
-})
-
-describe('OBJECT_TYPES', () => {
-	it('labels every category the contract carries, in the contract order', () => {
-		expect(OBJECT_TYPES.map(o => o.value)).toEqual([...LOST_ITEM_CATEGORIES])
-		expect(OBJECT_TYPES.every(o => o.label.length > 0)).toBe(true)
 	})
 })

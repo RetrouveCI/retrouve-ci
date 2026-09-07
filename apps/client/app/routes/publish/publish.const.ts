@@ -24,7 +24,18 @@ const CATEGORY_LABELS: Record<LostItemCategory, string> = {
 	other: 'Autre',
 }
 
-export const OBJECT_TYPES = LOST_ITEM_CATEGORIES.map(value => ({
+/**
+ * `Documents` leads, being the one category that reshapes the form — it opens
+ * the piece block and takes the photo picker away. For that same reason it is
+ * **not** preselected. Its own order, since `posts.const.ts` draws its filter
+ * chips from the contract's, and derived from it so it stays a permutation.
+ */
+const PILL_ORDER = [
+	'documents',
+	...LOST_ITEM_CATEGORIES.filter(value => value !== 'documents'),
+] as const
+
+export const OBJECT_TYPES = PILL_ORDER.map(value => ({
 	value,
 	label: CATEGORY_LABELS[value],
 }))
