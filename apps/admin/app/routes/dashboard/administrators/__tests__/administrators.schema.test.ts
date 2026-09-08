@@ -68,7 +68,7 @@ describe('adminCreateSchema', () => {
 	it('reports a name shorter than two characters', () => {
 		const result = adminCreateSchema.safeParse({ ...VALID, name: 'A' })
 
-		expect(result.error?.issues[0]?.message).toBe('Minimum 2 caractères')
+		expect(result.error?.issues[0]?.message).toBe('Votre nom est requis')
 	})
 
 	it('tells a blank email apart from a malformed one', () => {

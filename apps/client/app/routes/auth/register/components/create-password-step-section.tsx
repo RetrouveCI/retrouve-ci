@@ -42,7 +42,7 @@ export function CreatePasswordStepSection({
 		control: form.control,
 		name: 'confirmPassword',
 	})
-	const firstName = useController({ control: form.control, name: 'name' })
+	const fullName = useController({ control: form.control, name: 'name' })
 
 	const onSubmit = (values: NewPasswordData) => {
 		setHasSubmitted(true)
@@ -91,14 +91,14 @@ export function CreatePasswordStepSection({
 				<Input
 					id="first-name"
 					name="name"
-					value={firstName.field.value}
-					onChange={firstName.field.onChange}
+					value={fullName.field.value}
+					onChange={fullName.field.onChange}
 					placeholder="Konan Ouattara Grégoire"
 					autoComplete="name"
 					disabled={fetcher.isSubmitting}
 					className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-control rounded-xl border-[1.5px] transition-all focus:ring-[3px]"
 				/>
-				<FieldError errors={toErrorList(firstName.fieldState.error)} />
+				<FieldError errors={toErrorList(fullName.fieldState.error)} />
 				{/* The artboard added « Votre nom complet reste privé » — there is no
 				    second, private name to keep, so the promise is left unsaid. */}
 				<p className="text-muted-foreground text-xs">

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import {
 	currentPasswordSchema,
+	fullNameSchema,
 	otpCodeSchema,
 	passwordSchema,
 	withPasswordConfirmation,
@@ -12,10 +13,7 @@ import {
 
 export const updateNameSchema = z.object({
 	intent: z.literal('update-name'),
-	name: z
-		.string({ error: 'Votre nom est requis' })
-		.min(2, 'Votre nom est requis')
-		.max(120),
+	name: fullNameSchema,
 })
 
 export const updateZoneSchema = z.object({

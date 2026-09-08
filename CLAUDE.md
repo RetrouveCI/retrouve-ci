@@ -257,6 +257,19 @@ characters. It also owns `withPasswordConfirmation`, which replaces the
 account may predate the rule. `PASSWORD_HINT` and `PASSWORD_PLACEHOLDER` live
 here too, so no form can advertise a rule the schema does not enforce.
 
+`shared/name.ts` owns the **name rule** — trimmed, `2..120` — and is the same
+finding as the password one, on `user.name`: **three** rules on one column, at
+odds. Sign-up trimmed and capped at 120; the account's own edit form capped at
+120 but named no message, so Zod answered in **English**; administrator creation
+capped at 80 with no message on the type error. Since an admin is also an
+ordinary user, a name the public app stored was one the backoffice could not
+re-save. 120 is the ceiling that won, for the reason the password floor rose:
+widening the backoffice's locks nobody out where narrowing the public app's
+would refuse a name already written. ⚠️ Its spec pins `2` and `120` as
+**literals** in one assertion, because every other case there derives its
+expectation from the constants — changing one moved both sides and left the
+suite green.
+
 `shared/otp.ts` owns `OTP_LENGTH`. better-auth's `phoneNumber()` plugin defaults
 to `otpLength: 6` and the API never overrides it, so the phone-change form's
 `/^\d{4,8}$/` accepted a four-digit code the API could only ever reject.

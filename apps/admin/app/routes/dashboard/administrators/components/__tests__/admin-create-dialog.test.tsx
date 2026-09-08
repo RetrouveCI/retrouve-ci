@@ -84,7 +84,7 @@ describe('AdminCreateDialog', () => {
 		await userEvent.click(submit())
 
 		await expect
-			.element(page.getByText('Minimum 2 caractères'))
+			.element(page.getByText('Votre nom est requis'))
 			.toBeInTheDocument()
 		await expect
 			.element(page.getByText("L'email est requis"))

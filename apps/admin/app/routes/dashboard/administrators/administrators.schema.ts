@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { passwordSchema } from '@app/contracts/shared'
+import { fullNameSchema, passwordSchema } from '@app/contracts/shared'
 import {
 	ASSIGNABLE_PHONE_ERROR_MESSAGE,
 	isAssignableLocalNumber,
@@ -15,10 +15,7 @@ export const editableRoleSchema = z.enum(['admin', 'moderator'], {
 })
 
 export const adminCreateSchema = z.object({
-	name: z
-		.string()
-		.min(2, 'Minimum 2 caractères')
-		.max(80, 'Maximum 80 caractères'),
+	name: fullNameSchema,
 	email: z.email({
 		error: issue => (issue.input ? 'Email invalide' : "L'email est requis"),
 	}),

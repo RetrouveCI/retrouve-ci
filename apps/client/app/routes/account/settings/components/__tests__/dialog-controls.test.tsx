@@ -63,7 +63,7 @@ afterEach(() => {
  */
 describe('the settings dialogs', () => {
 	it.each([
-		[/^Nom/, 'Nom et prénoms'],
+		[/^Nom/, 'Nom complet'],
 		[/^Téléphone/, 'Numéro de téléphone'],
 		[/^Ville et commune/, 'Ville et commune'],
 		[/^Mot de passe/, 'Mot de passe'],
