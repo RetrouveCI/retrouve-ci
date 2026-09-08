@@ -83,7 +83,7 @@ export function StickersSection() {
 
 						<div className="mt-1 flex flex-col gap-2.5 sm:flex-row">
 							<Link
-								to="/stickers/order"
+								to="/stickers/order?from=home"
 								className="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark h-control flex items-center justify-center rounded-[14px] px-6 text-lg font-semibold transition-colors"
 							>
 								Commander mes stickers

@@ -9,8 +9,8 @@ import type { Order } from '../types/orders.types'
  */
 export function ReorderCta({ lastOrder }: { lastOrder?: Order }) {
 	const to = lastOrder
-		? `/stickers/order?pack=${encodeURIComponent(lastOrder.pack.id)}`
-		: '/stickers/order'
+		? `/stickers/order?from=account&pack=${encodeURIComponent(lastOrder.pack.id)}`
+		: '/stickers/order?from=account'
 
 	return (
 		<Link

@@ -1,13 +1,19 @@
 import type {
 	CreateStickerOrderData as CreateStickerOrderContract,
 	ListStickerOrdersFilterData,
+	StickerOrderSource,
 	StickerOrderStatus,
 	StickerPack,
 	StickerPackId,
 } from '@app/contracts/sticker-orders'
 import type { Paginated } from '@/shared/utils/pagination.util'
 
-export type { StickerOrderStatus, StickerPack, StickerPackId }
+export type {
+	StickerOrderSource,
+	StickerOrderStatus,
+	StickerPack,
+	StickerPackId,
+}
 
 /** `userId` comes from the session, never from the body. */
 export type CreateStickerOrderData = CreateStickerOrderContract & {
@@ -29,6 +35,7 @@ export interface CreateStickerOrderRecord {
 	deliveryFee: number
 	total: number
 	paymentMethod: string
+	source: StickerOrderSource
 	deliveryAddress: string
 	deliveryCity: string
 	deliveryNotes?: string
@@ -46,6 +53,7 @@ export interface StickerOrder {
 	total: number
 	status: StickerOrderStatus
 	paymentMethod: string
+	source: StickerOrderSource
 	deliveryAddress: string
 	deliveryCity: string
 	deliveryNotes: string | null

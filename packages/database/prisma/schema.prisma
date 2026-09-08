@@ -79,6 +79,15 @@ enum StickerOrderStatus {
   CANCELLED
 }
 
+/// Where a sale came from. DIRECT is what an order carries when no marker came,
+/// including every row written before A6 — nobody knows where those came from.
+enum StickerOrderSource {
+  HOME
+  STICKERS_PAGE
+  ACCOUNT
+  DIRECT
+}
+
 enum ContactMessageStatus {
   NEW
   READ
@@ -259,6 +268,7 @@ model StickerOrder {
   deliveryFee     Int
   total           Int
   status          StickerOrderStatus @default(PENDING)
+  source          StickerOrderSource @default(DIRECT)
   paymentMethod   String
   deliveryAddress String
   deliveryCity    String

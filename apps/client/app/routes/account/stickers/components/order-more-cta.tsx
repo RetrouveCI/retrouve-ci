@@ -11,7 +11,7 @@ const FROM_PRICE = Math.min(...STICKER_PACKS.map(pack => pack.price))
 export function OrderMoreCta({ hasStickers }: { hasStickers: boolean }) {
 	return (
 		<Link
-			to="/stickers/order"
+			to="/stickers/order?from=account"
 			className="bg-foreground text-background touch-target flex items-center gap-3 rounded-2xl p-4 transition-opacity hover:opacity-90"
 		>
 			<span className="bg-background/12 flex h-10.5 w-10.5 shrink-0 items-center justify-center rounded-xl">

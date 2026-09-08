@@ -1,8 +1,14 @@
-import { StickerOrderStatus as PrismaStickerOrderStatus } from '@app/database'
-import { describe, expect, it } from 'vitest'
 import {
+	StickerOrderSource as PrismaStickerOrderSource,
+	StickerOrderStatus as PrismaStickerOrderStatus,
+} from '@app/database'
+import { describe, expect, it } from 'vitest'
+import { STICKER_ORDER_SOURCES } from '@app/contracts/sticker-orders'
+import {
+	toDomainSource,
 	toDomainStatus,
 	toDomainStickerOrder,
+	toPrismaSource,
 	toPrismaStatus,
 } from '../sticker-order.mapper'
 
@@ -18,6 +24,7 @@ describe('sticker-order mapper', () => {
 			deliveryFee: 1000,
 			total: 2500,
 			status: PrismaStickerOrderStatus.PENDING,
+			source: PrismaStickerOrderSource.HOME,
 			paymentMethod: 'Orange Money',
 			deliveryAddress: 'Cocody Riviera 3, Abidjan',
 			deliveryCity: 'Abidjan',
@@ -40,6 +47,7 @@ describe('sticker-order mapper', () => {
 			deliveryFee: 1000,
 			total: 2500,
 			status: 'pending',
+			source: 'home',
 			paymentMethod: 'Orange Money',
 			deliveryAddress: 'Cocody Riviera 3, Abidjan',
 			deliveryCity: 'Abidjan',
@@ -62,5 +70,18 @@ describe('sticker-order mapper', () => {
 	] as const)('maps status %s both ways', (domain, prisma) => {
 		expect(toPrismaStatus(domain)).toBe(prisma)
 		expect(toDomainStatus(prisma)).toBe(domain)
+	})
+})
+
+describe('the source both sides carry', () => {
+	it.each(STICKER_ORDER_SOURCES)('maps %s both ways', source => {
+		expect(toDomainSource(toPrismaSource(source))).toBe(source)
+	})
+
+	// The same guard the notification types carry, and it catches a typo.
+	it('has the same sources on both sides', () => {
+		expect(Object.keys(PrismaStickerOrderSource).sort()).toEqual(
+			[...STICKER_ORDER_SOURCES].map(value => value.toUpperCase()).sort(),
+		)
 	})
 })

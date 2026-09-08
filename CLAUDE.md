@@ -519,6 +519,21 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   is withheld from `PublicLostItem`, and what enforces that is
   `toPublicLostItem` not naming it — the projection spec compares the emitted
   keys, so the type's `?: never` is belt and not braces.
+- **Where a sale came from is a closed enum, stamped like the price.**
+  `StickerOrder.source` is `HOME` / `STICKERS_PAGE` / `ACCOUNT` / `DIRECT`,
+  because the value arrives in a URL and what arrives in a URL is not trusted
+  data. `createStickerOrderSchema` accepts it as optional and
+  `CreateStickerOrderUseCase` stamps `direct` when absent — the body may
+  **name** a source, never invent one — the way it already stamps
+  `PAYMENT_ON_DELIVERY`. The client narrows the `?from=` param to the enum
+  before it leaves the browser (`readSourceParam`), and the funnel's three steps
+  are in-page state, so the marker the entry link carried is still in the URL
+  when the last step submits. ⚠️ Four values for **five** entry points: both
+  surfaces of the Stickers page are one `stickers_page` and both account
+  surfaces one `account`, because what the figure separates is the shop window
+  from the returning customer. The French labels live in the **backoffice**
+  (`orders.const.ts`) — an operator's vocabulary, the same split the moderation
+  reasons use.
 - **An order tells its buyer at every step, on the transition alone.**
   `UpdateStickerOrderStatusUseCase` holds a
   `Record<StickerOrderStatus, StatusNotice | null>`, so a status added to the

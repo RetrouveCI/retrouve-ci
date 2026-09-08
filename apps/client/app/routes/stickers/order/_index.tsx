@@ -21,6 +21,7 @@ import {
 	PACKS,
 } from './stickers-order.const'
 import { readPackParam } from './helpers/read-pack-param'
+import { readSourceParam } from './helpers/read-source-param'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import type { Order } from '../../account/orders/types/orders.types'
 import { pageMeta } from '@/shared/helpers/page-meta'
@@ -123,7 +124,12 @@ export default function CommanderPage() {
 	const onSubmit = (submitted: StickerOrderData) => {
 		setHasSubmitted(true)
 		void fetcher.submit(
-			{ ...submitted, couponCode: submitted.couponCode ?? '' },
+			{
+				...submitted,
+				couponCode: submitted.couponCode ?? '',
+				// The steps are in-page state, so the marker is still in the URL.
+				source: readSourceParam(searchParams.get('from')),
+			},
 			{ method: 'post' },
 		)
 	}

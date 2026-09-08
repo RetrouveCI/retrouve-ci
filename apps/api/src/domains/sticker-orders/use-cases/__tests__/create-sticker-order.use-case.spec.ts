@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { PAYMENT_ON_DELIVERY } from '@app/contracts/sticker-orders'
+import {
+	DEFAULT_STICKER_ORDER_SOURCE,
+	PAYMENT_ON_DELIVERY,
+	STICKER_ORDER_SOURCES,
+} from '@app/contracts/sticker-orders'
 import {
 	buildRepository,
 	buildStickerOrder,
@@ -50,6 +54,7 @@ describe('CreateStickerOrderUseCase', () => {
 			deliveryFee: 1000,
 			total: 3000,
 			paymentMethod: PAYMENT_ON_DELIVERY,
+			source: 'direct',
 			deliveryAddress: 'Cocody Riviera 3, Abidjan',
 			deliveryCity: 'Abidjan',
 			deliveryNotes: undefined,
@@ -158,5 +163,36 @@ describe('CreateStickerOrderUseCase', () => {
 			await expect(useCase.execute(data)).rejects.toThrow()
 			expect(notifier.execute).not.toHaveBeenCalled()
 		})
+	})
+})
+
+// The enum is closed, so what reaches the column is one of four or the default.
+describe('where the sale came from', () => {
+	let repository: StickerOrderRepository
+	let useCase: CreateStickerOrderUseCase
+
+	beforeEach(() => {
+		repository = buildRepository()
+		vi.mocked(repository.countOpenOrders).mockResolvedValue(0)
+		vi.mocked(repository.create).mockResolvedValue(buildStickerOrder())
+		useCase = new CreateStickerOrderUseCase(repository, {
+			execute: vi.fn().mockResolvedValue(undefined),
+		} as unknown as CreateNotificationUseCase)
+	})
+
+	const storedSource = () =>
+		vi.mocked(repository.create).mock.calls[0]?.[0]?.source
+
+	it.each(STICKER_ORDER_SOURCES)('stores %s as it was named', async source => {
+		await useCase.execute({ ...data, source })
+
+		expect(storedSource()).toBe(source)
+	})
+
+	it('stamps the default when the body names none', async () => {
+		await useCase.execute(data)
+
+		expect(storedSource()).toBe(DEFAULT_STICKER_ORDER_SOURCE)
+		expect(storedSource()).toBe('direct')
 	})
 })

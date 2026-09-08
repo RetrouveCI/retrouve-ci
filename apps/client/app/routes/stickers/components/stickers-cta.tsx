@@ -25,7 +25,7 @@ export function StickersCta() {
 							size="lg"
 							className="bg-primary-green hover:bg-primary-green-dark h-12 px-8 text-white"
 						>
-							<Link to="/stickers/order">
+							<Link to="/stickers/order?from=stickers_page">
 								Commander maintenant
 								<ArrowRight className="ml-2 h-4 w-4" />
 							</Link>

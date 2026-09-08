@@ -8,6 +8,22 @@ export const STICKER_ORDER_STATUSES = [
 
 export const STICKER_PACK_IDS = ['pack-4', 'pack-8', 'pack-20'] as const
 
+/**
+ * Where a sale came from — a closed enum, because the value arrives in a URL.
+ * `direct` is what carries when no marker came, rows written before A6
+ * included. Both surfaces of the Stickers page are one `stickers_page` and both
+ * account surfaces one `account`: the split is the shop window against the
+ * returning customer, not two buttons on one screen.
+ */
+export const STICKER_ORDER_SOURCES = [
+	'home',
+	'stickers_page',
+	'account',
+	'direct',
+] as const
+
+export const DEFAULT_STICKER_ORDER_SOURCE = 'direct'
+
 export const DELIVERY_FEE = 1000
 
 /**

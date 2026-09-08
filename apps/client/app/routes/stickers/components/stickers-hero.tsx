@@ -91,7 +91,7 @@ export function StickersHero() {
 							asChild
 							className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-8 text-base font-semibold"
 						>
-							<Link to="/stickers/order">
+							<Link to="/stickers/order?from=stickers_page">
 								Je commande
 								<ArrowRight className="ml-1 h-4 w-4" />
 							</Link>

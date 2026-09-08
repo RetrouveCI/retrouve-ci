@@ -11,6 +11,7 @@ import { Package } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { stickerPaymentMethodLabel } from '@app/contracts/sticker-orders'
+import { ORDER_SOURCE_LABELS } from '../orders.const'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import type { StickerOrder, OrderStatus } from '../types/orders.types'
 
@@ -69,6 +70,9 @@ export function OrderDetailDialog({
 							<p className="text-muted-foreground text-sm">
 								Mode de paiement :{' '}
 								{stickerPaymentMethodLabel(order.paymentMethod)}
+							</p>
+							<p className="text-muted-foreground text-sm">
+								Source : {ORDER_SOURCE_LABELS[order.source]}
 							</p>
 						</div>
 					</div>

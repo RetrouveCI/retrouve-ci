@@ -17,6 +17,7 @@ export function buildStickerOrder(
 		total: 3000,
 		status: 'pending',
 		paymentMethod: PAYMENT_ON_DELIVERY,
+		source: 'direct',
 		deliveryAddress: 'Cocody Riviera 3, Abidjan',
 		deliveryCity: 'Abidjan',
 		deliveryNotes: null,

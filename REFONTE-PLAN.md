@@ -3952,27 +3952,67 @@ au lieu du mois calendaire en fait tomber deux ; et le mappeur public émettant
 — Tailwind n'émettait rien et le paragraphe héritait de `text-white`. Mort, donc
 retiré.
 
-#### A6 — Source d'une commande de stickers _(facultatif)_
+#### A6 — Source d'une commande de stickers — **LIVRÉE**
 
-Ouvert par R17, qui a tranché le §8 sans dépendance : la mesure retenue est le
-nombre de commandes par semaine, lisible sur `/orders` du backoffice. Elle dit
-si le produit se vend, pas **d'où** vient la vente, et l'accueil a désormais
-deux points d'entrée vers le tunnel — le bloc en position 2 et la page Stickers.
+La mesure retenue au §8 — le nombre de commandes par semaine, lisible sur
+`/orders` — dit si le produit se vend, pas **d'où** vient la vente.
 
-1. Colonne `source` sur `StickerOrder`, avec une migration et une valeur par
-   défaut pour les lignes existantes. Un énuméré fermé, pas du texte libre : ce
-   qui vient d'une URL n'est pas une donnée de confiance.
-2. `createStickerOrderSchema` l'accepte, le use-case la **stampe** comme il
-   stampe déjà `PAYMENT_ON_DELIVERY` et le prix du catalogue.
-3. Le tunnel propage le marqueur du bloc d'origine jusqu'à l'envoi.
-4. Le backoffice l'affiche dans le dialogue de commande, à côté du mode de
-   paiement.
+> ⚠️ **Cinq points d'entrée, pas deux.** Cette section n'en nommait que deux («
+> le bloc en position 2 et la page Stickers ») ; le dépôt en porte **cinq** : le
+> bloc de l'accueil, le hero **et** l'appel de pied de la page Stickers, le «
+> commander plus » de Mes stickers et le « recommander » de Mes commandes. D'où
+> quatre valeurs et non cinq : les deux surfaces de la page Stickers sont un
+> `stickers_page`, et les deux surfaces du compte un `account` — ce que la
+> mesure doit séparer, c'est la vitrine du client qui revient, pas deux boutons
+> du même écran.
 
-**Ne rien poser avant** : un `?from=accueil` que personne ne stocke est une
-donnée que rien n'affiche. **Fichiers** : `packages/database/prisma/`,
-`packages/contracts/src/sticker-orders/`,
-`apps/api/src/domains/sticker-orders/`, `apps/client/app/routes/stickers/`,
-`apps/admin/app/routes/dashboard/orders/`. **Flux** : C.
+1. **`StickerOrderSource`** — `HOME`, `STICKERS_PAGE`, `ACCOUNT`, `DIRECT` — en
+   énuméré fermé et non en texte libre, puisque la valeur arrive dans une URL.
+   Migration : `NOT NULL DEFAULT 'DIRECT'`, donc les lignes existantes sont
+   justes sans reprise, et `direct` y est **honnête** : personne ne sait d'où
+   elles venaient.
+2. **`createStickerOrderSchema` l'accepte en optionnel**, et le use-case stampe
+   le défaut comme il stampe `PAYMENT_ON_DELIVERY` et le prix du catalogue.
+   Absent veut dire « personne n'a marqué l'arrivée », ce qui est `direct` et
+   non un trou : le corps peut **nommer** une source, jamais en inventer une.
+3. **`readSourceParam` réduit à l'énuméré** avant que la valeur ne quitte le
+   navigateur, et le schéma du formulaire la revalide côté serveur. Les trois
+   étapes du tunnel sont un état de page, donc le marqueur porté par le lien
+   d'entrée est encore dans l'URL quand la dernière étape envoie.
+4. **Le back-office l'affiche** sous le mode de paiement, avec un
+   `Record<StickerOrderSource, string>` posé **côté admin** : c'est le
+   vocabulaire d'un opérateur, le même partage que les motifs de modération.
+
+**Le dialogue de commande n'avait aucun test** — seulement son loader et son
+action. Il en a un maintenant, qui couvre les quatre libellés et le fait que la
+source ne remplace pas le mode de paiement.
+
+**Fichiers** : `database/prisma/` (schéma + migration),
+`contracts/sticker-orders/` (l'énuméré, son schéma, le champ, l'index),
+`api/domains/sticker-orders/` (types, mappeur + parité, dépôt, use-case, deux
+specs), `client/routes/stickers/order/` (le lecteur + son spec, le schéma,
+l'envoi, l'action), `client/routes/{home,stickers,account}/` (les cinq liens),
+`admin/routes/dashboard/orders/` (les libellés, le type, le dialogue, son spec).
+**Flux** : C. **Changements de contrat et de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur, 0 avertissement · `format:check`
+propre · `pnpm build` vert. Chaque suite seule : api **726** (+6), contracts
+**437** (inchangée), admin **443** (+5), client **1024** en `node` (+8) et
+**385** en `ui` (inchangée).
+
+**Les trois gardes vérifiées en rouge** : le paramètre d'URL passé sans filtre
+(`value as StickerOrderSource`) fait tomber six cas du lecteur ; le défaut non
+estampillé fait tomber deux cas du use-case ; et une valeur ajoutée au contrat
+sans l'enum Prisma fait tomber **deux tests et le typecheck** — le `switch`
+exhaustif du mappeur.
+
+> ⚠️ **Une sauvegarde nommée avec un « о » cyrillique.** Le `cp` de sauvegarde
+> du use-case a écrit `csо.bak` (U+043E), et le `|| cp` de repli n'a jamais
+> tourné puisque le premier avait réussi. La restauration a donc échoué en
+> silence, et l'injection est restée dans l'arbre — attrapée par un `grep` de
+> contrôle, pas par `git status`, qui montrait le fichier modifié de toute
+> façon. Contrôler la restauration par `diff -q` **et** par un `grep` de
+> l'injection, jamais par la seule absence d'erreur du `cp`.
 
 #### A7 — Champs de document sur une annonce — **LIVRÉE**
 
