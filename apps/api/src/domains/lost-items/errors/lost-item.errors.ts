@@ -20,7 +20,7 @@ export class LostItemForbiddenError extends ForbiddenError {
 /** The contract's own sentence, since `create` reports this rule through the pipe. */
 export class LostItemPhotosRefusedError extends ValidationError {
 	constructor() {
-		super(PHOTOS_REFUSED_MESSAGE)
+		super(PHOTOS_REFUSED_MESSAGE, 'photos')
 	}
 }
 

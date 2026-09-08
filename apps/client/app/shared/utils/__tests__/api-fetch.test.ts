@@ -51,6 +51,39 @@ describe('the public apiFetch', () => {
 		).rejects.toThrowError(new ApiError(400, 'Validation failed'))
 	})
 
+	// The map both the pipe and the domain filter answer with, which
+	// `ApiErrorBody` did not declare and nobody could read.
+	it('carries the field errors the API names', async () => {
+		mockFetch(
+			new Response(
+				JSON.stringify({
+					statusCode: 400,
+					message: 'Ce sticker est déjà activé',
+					errors: { code: ['Ce sticker est déjà activé'] },
+				}),
+				{ status: 400 },
+			),
+		)
+
+		await expect(
+			apiFetch('/qr-codes/RCI-A/activate', { request: incoming() }),
+		).rejects.toMatchObject({
+			fieldErrors: { code: ['Ce sticker est déjà activé'] },
+		})
+	})
+
+	it('carries an empty map when the API names no field', async () => {
+		mockFetch(
+			new Response(JSON.stringify({ statusCode: 500, message: 'boom' }), {
+				status: 500,
+			}),
+		)
+
+		await expect(
+			apiFetch('/lost-items', { request: incoming() }),
+		).rejects.toMatchObject({ fieldErrors: {} })
+	})
+
 	it('falls back to the status text when the body is not JSON', async () => {
 		mockFetch(new Response('<html>502</html>', { status: 502 }))
 

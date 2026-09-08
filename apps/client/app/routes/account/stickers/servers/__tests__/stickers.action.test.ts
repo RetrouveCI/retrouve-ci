@@ -187,3 +187,34 @@ describe('stickersAction', () => {
 		).rejects.toThrow('boom')
 	})
 })
+
+// The chain, end to end: the API refuses on `code`, `ApiError` carries the map,
+// and the dialog's own `code` field renders it — where it read « QR token
+// "RCI-ABC123" is already activated » in a banner.
+describe('a refusal the API lands on a field', () => {
+	it('puts the message on the code field, not in the banner', async () => {
+		activateSticker.mockRejectedValue(
+			new ApiError(400, 'Ce sticker est déjà activé', {
+				code: ['Ce sticker est déjà activé'],
+			}),
+		)
+
+		const errors = errorsOf(
+			await submit({ intent: 'activate', code: 'RCI-ABC123', label: 'Clés' }),
+		)
+
+		expect(errors['code']?.message).toBe('Ce sticker est déjà activé')
+		expect(errors['root']).toBeUndefined()
+	})
+
+	it('keeps a refusal with no field in the banner', async () => {
+		activateSticker.mockRejectedValue(new ApiError(500, 'Service indisponible'))
+
+		const errors = errorsOf(
+			await submit({ intent: 'activate', code: 'RCI-ABC123', label: 'Clés' }),
+		)
+
+		expect(errors['root']?.message).toBe('Service indisponible')
+		expect(errors['code']).toBeUndefined()
+	})
+})

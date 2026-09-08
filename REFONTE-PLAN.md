@@ -5805,6 +5805,79 @@ ou l'autre liste fait tomber sa propre assertion sur la requête envoyée.
 une **vraie** pagination — `list-users` a l'`offset` qu'il faut, et la table du
 back-office n'a aucun tri de colonne.
 
+#### R55 — Un refus de l'API atteint le champ qu'il concerne — **LIVRÉE**
+
+La dette que `CLAUDE.md` et `packages/web-kit/README` portaient depuis E7 : «
+The API's field errors never reach a form ». Fermée des **deux** côtés, parce
+qu'aucun des deux ne suffisait seul.
+
+> ⚠️ **Le bug vivant qui a décidé du lot.** Activer un sticker déjà activé
+> affichait « QR token "RCI-4A7F-2K91" is already activated » — **en anglais**,
+> dans une bannière, sur un écran français, et dans le flux où R22 fait activer
+> douze stickers d'affilée. Le message venait tel quel de l'API : rien, côté
+> client, ne traduit `error.message`.
+
+**Trois maillons manquaient, un par couche.**
+
+1. **L'API ne nommait le champ que par le pipe.** `ZodValidationPipe` répond
+   `{ message, errors }` depuis E6, mais `DomainExceptionFilter` n'envoyait que
+   `message` — donc une règle **métier** ne pouvait viser aucun champ.
+   `ValidationError` accepte désormais un `field` optionnel, et le filtre émet
+   la **même** carte que le pipe : un front lit une seule forme, que le refus
+   vienne du schéma ou du domaine.
+2. **`ApiErrorBody` ne déclarait pas `errors`.** La carte arrivait dans la
+   réponse et personne ne la lisait. `ApiError` porte maintenant `fieldErrors`.
+3. **`withApiOperationData` ne savait qu'écrire `root`.** Il pose chaque message
+   sur son champ, et garde `root` pour ce qui n'en a pas.
+
+**Quatre erreurs nomment leur champ**, choisies parce qu'un formulaire les
+attend : `LostItemPhotosRefusedError` → `photos` (la règle de R43, qui rejoint
+ainsi la version du contrat sur le même champ), `QrTokenAlreadyActivatedError`
+et `QrTokenRevokedError` → `code`. Les deux dernières **passent au français**,
+puisqu'un visiteur les lit désormais, et cessent de répéter le code : il est à
+l'écran, dans le champ où le message atterrit.
+
+> ⚠️ **`InvalidQrTokenError` n'était levée nulle part** — une classe d'erreur
+> morte, trouvée en passant. Supprimée plutôt que traduite.
+
+**Deux décisions dans le mappeur, et elles comptent** :
+
+- **Un nom que le formulaire n'a pas retombe sur `root`.** Sans cela, RHF garde
+  une erreur pour un champ inexistant et **rien** ne s'affiche : le message
+  disparaîtrait en silence, ce qui est pire que la bannière d'avant. L'option
+  `fields` (nom API → nom du formulaire) sert donc à la fois de renommage et de
+  liste blanche.
+- **« Validation failed » ne survit que si l'API n'a rien nommé.** C'est
+  l'enveloppe du pipe ; elle ne dit rien qu'un visiteur puisse corriger dès que
+  les champs portent leur propre phrase.
+
+**Un seul formulaire du monorepo a besoin de `fields`** : la commande de
+stickers, qui poste `address` et `city` là où le contrat dit `deliveryAddress`
+et `deliveryCity` — l'écart que `CLAUDE.md` citait comme la raison de ne pas s'y
+attaquer. Les 51 autres appels passent par l'identité et n'ont pas bougé.
+
+**Fichiers** : `api/shared/errors/domain.error.ts`,
+`api/shared/filters/domain-exception.filter.ts` (+ son spec, qui n'existait
+pas), les deux fichiers d'erreurs de domaine,
+`web-kit/src/api/{api-error,api-fetch}.ts`,
+`web-kit/src/action/api-operation.ts`,
+`client/routes/stickers/order/servers/order.action.ts`. **Flux** : B, C. **Aucun
+changement de contrat ni de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**569** (+7), admin **437** (+6), client **1312** (+4), contracts **390**
+(inchangé). Densité de commentaires 9,6 %.
+
+**Les trois maillons vérifiés en rouge puis restaurés** : le filtre qui cesse de
+nommer le champ fait tomber trois cas ; `apiFetch` qui jette la carte en fait
+tomber un ; et le mappeur ramené à `root` seul en fait tomber cinq.
+
+**Reste ouvert** : `postsAction`, `users.action` et `qr-token.action` ne
+répondent toujours pas `ActionResult` — leurs composants lisent `ok` et ne
+peuvent donc rien recevoir de tout ceci. C'est la moitié restante de la dette
+d'E7, et elle touche des composants, pas seulement des actions.
+
 ---
 
 ## 6. Ce qui ne bouge pas

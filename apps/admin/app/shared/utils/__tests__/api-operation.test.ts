@@ -149,3 +149,103 @@ describe('getApiErrorMessage', () => {
 		)
 	})
 })
+
+// The debt this closes: `ApiErrorBody` declared no `errors`, so the map a 400
+// carries was read by nobody and every message reached a form as a banner.
+describe('the API field errors', () => {
+	const failing = (error: ApiError) => async () => {
+		throw error
+	}
+
+	it('lands each message on the field it belongs to', async () => {
+		const result = await withApiOperationError(
+			failing(
+				new ApiError(400, 'Validation failed', {
+					email: ["L'adresse e-mail est invalide"],
+					password: ['8 caractères minimum'],
+				}),
+			),
+		)
+
+		expect(result).toEqual({
+			success: false,
+			errors: {
+				email: { type: 'server', message: "L'adresse e-mail est invalide" },
+				password: { type: 'server', message: '8 caractères minimum' },
+			},
+		})
+	})
+
+	// « Validation failed » is what the pipe answers beside the map: it says
+	// nothing a visitor can act on once the fields carry their own sentence.
+	it('drops the envelope message once a field carries one', async () => {
+		const result = await withApiOperationError(
+			failing(new ApiError(400, 'Validation failed', { name: ['Requis'] })),
+		)
+
+		expect(result.success).toBe(false)
+		expect(result.success === false && result.errors).not.toHaveProperty('root')
+	})
+
+	it('renames a field the form spells differently', async () => {
+		const result = await withApiOperationError(
+			failing(
+				new ApiError(400, 'Validation failed', {
+					deliveryAddress: ['Adresse requise'],
+				}),
+			),
+			{ fields: { deliveryAddress: 'address' } },
+		)
+
+		expect(result).toEqual({
+			success: false,
+			errors: {
+				address: { type: 'server', message: 'Adresse requise' },
+			},
+		})
+	})
+
+	// A name the form does not have would hold an error RHF renders nowhere.
+	it('folds a field the form does not have into root', async () => {
+		const result = await withApiOperationError(
+			failing(
+				new ApiError(400, 'Validation failed', {
+					deliveryNotes: ['Note trop longue'],
+				}),
+			),
+			{ fields: { deliveryAddress: 'address' } },
+		)
+
+		expect(result).toEqual({
+			success: false,
+			errors: { root: { type: 'custom', message: 'Note trop longue' } },
+		})
+	})
+
+	it('joins the several messages one field can carry', async () => {
+		const result = await withApiOperationError(
+			failing(
+				new ApiError(400, 'Validation failed', {
+					password: ['8 caractères minimum', 'Une majuscule est requise'],
+				}),
+			),
+		)
+
+		expect(
+			result.success === false && result.errors?.['password']?.message,
+		).toBe('8 caractères minimum Une majuscule est requise')
+	})
+
+	it('keeps the root error when the API names no field at all', async () => {
+		const result = await withApiOperationError(
+			failing(new ApiError(409, 'Ce sticker est déjà activé')),
+		)
+
+		expect(result).toEqual({
+			success: false,
+			errors: {
+				root: { type: 'custom', message: 'Ce sticker est déjà activé' },
+			},
+		})
+	})
+})

@@ -10,11 +10,11 @@ export class QrTokenNotFoundError extends NotFoundError {
 	}
 }
 
-export class InvalidQrTokenError extends ValidationError {}
-
+// French, and on the `code` field: the activation dialog reads this sentence,
+// often, and the code is on screen already.
 export class QrTokenAlreadyActivatedError extends ValidationError {
-	constructor(code: string) {
-		super(`QR token "${code}" is already activated`)
+	constructor() {
+		super('Ce sticker est déjà activé', 'code')
 	}
 }
 
@@ -47,8 +47,8 @@ export class QrTokenOwnerUnreachableError extends ValidationError {
 }
 
 export class QrTokenRevokedError extends ValidationError {
-	constructor(code: string) {
-		super(`QR token "${code}" has been revoked`)
+	constructor() {
+		super('Ce sticker a été désactivé et ne peut plus être activé', 'code')
 	}
 }
 

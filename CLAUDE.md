@@ -155,6 +155,19 @@ Each app keeps a one-line re-export at its old `@/shared/...` path, so the 65
 files importing these modules were untouched. New code may import
 `@app/web-kit/action` directly.
 
+**A refusal from the API lands on the field it names.** `ApiErrorBody` declares
+`errors`, `ApiError` carries them as `fieldErrors`, and `withApiOperationData`
+turns them into react-hook-form's `FieldErrors`. Two rules hold it together: a
+name the form does not have folds into `root` — RHF renders an error for a
+non-existent field **nowhere**, so passing it through would lose the message in
+silence — and the envelope message (`Validation failed`) survives only when the
+API named no field at all. The optional `fields` option maps the API's names
+onto the form's and, by doing so, declares which fields the form has; exactly
+one form needs it, the sticker order, which posts `address` where the contract
+says `deliveryAddress`. On the API side `DomainExceptionFilter` answers the
+**same** map as `ZodValidationPipe`, so a business refusal — a `ValidationError`
+carrying a `field` — reaches a form the way a schema one does.
+
 What deliberately stays per-app: `auth-client.ts` (different better-auth
 plugins), `session.server.ts` / `redirect.ts` / `page-meta.ts` (same idea,
 genuinely different code), `helpers/testing.ts` (two `export *` lines over the
@@ -873,19 +886,6 @@ deliberately declined.
   versus spaces and 85). Reformatting was declined because it would drown every
   diff of the realignment and break `git blame`. If it is ever done, it must be
   one isolated commit plus a `.git-blame-ignore-revs`.
-
-### `packages/web-kit`
-
-- **The API's field errors never reach a form.** `ApiErrorBody` in
-  `src/api/api-error.ts` declares `statusCode`, `message` and `error`, and
-  `ApiError` carries only a status and a message — so the `errors` map the
-  `ZodValidationPipe` answers a 400 with is read by nobody, and
-  `withApiOperationData` can only ever build a `root` error holding
-  `Validation failed`. No form in either app can land a server-side message on
-  the field it belongs to; the front's own schema is the only thing that ever
-  does. Fixing it means deciding how to map the API's names onto each form's —
-  the sticker order posts `address` where the contract says `deliveryAddress` —
-  so it is a `@app/web-kit` change that touches both apps.
 
 ### `packages/ui`
 
