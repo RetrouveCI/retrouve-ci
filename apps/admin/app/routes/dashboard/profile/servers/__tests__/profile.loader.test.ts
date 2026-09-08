@@ -1,5 +1,3 @@
-import { redirect } from 'react-router'
-
 const { requireAdminSession } = vi.hoisted(() => ({
 	requireAdminSession: vi.fn(),
 }))
