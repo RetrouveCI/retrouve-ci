@@ -5952,6 +5952,15 @@ tomber « sends a dead session back to the login page ».
 renumérote ses activités par position. Ni l'un ni l'autre n'a de rapport avec le
 contrat des actions.
 
+> ⚠️ **La CI a attrapé ce qu'aucune commande locale ne pouvait voir.** Le hook
+> déplacé importe `react`, que `packages/web-kit` ne déclarait pas : ici `react`
+> est hissé dans le `node_modules` de la racine, donc TypeScript le résolvait en
+> remontant l'arborescence et `pnpm typecheck` passait — l'install isolée de la
+> CI, elle, échouait. Déclaré comme `packages/ui` le fait (pair `^19` plus
+> devDependency), **et gardé** : un test compare les imports de `src/` aux
+> dépendances du manifeste, dans `apps/client` puisque `web-kit` n'a pas de
+> runner. Vérifié en rouge en retirant la déclaration.
+
 ---
 
 ## 6. Ce qui ne bouge pas
