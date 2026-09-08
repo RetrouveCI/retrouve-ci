@@ -44,6 +44,7 @@ export function toDomainLostItem(lostItem: PrismaLostItem): LostItem {
 			: null,
 		moderationReasonNote: lostItem.moderationReasonNote,
 		resolutionStatus: toDomainResolutionStatus(lostItem.resolutionStatus),
+		resolvedAt: lostItem.resolvedAt,
 		views: lostItem.views,
 		contactsCount: lostItem.contactsCount,
 		userId: lostItem.userId,

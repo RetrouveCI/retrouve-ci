@@ -1,5 +1,7 @@
 import { Link } from 'react-router'
 import { BellRing, QrCode, ShieldCheck } from 'lucide-react'
+import { formatNumber } from '@app/contracts/shared'
+import type { PublicCounters } from '../../home/servers/public-counters'
 
 const ARGUMENTS = [
 	{
@@ -26,7 +28,11 @@ const ARGUMENTS = [
  * 768 px tablet — the commonest one, in portrait — got a 448 px form marooned in
  * an empty page. From `lg` it stands back up as the left column.
  */
-export function BrandingPanel() {
+export function BrandingPanel({
+	counters,
+}: {
+	counters: PublicCounters | null
+}) {
 	return (
 		<div className="from-primary-green to-primary-green-dark relative hidden overflow-hidden bg-linear-to-br text-white md:flex md:items-center md:gap-5 md:py-5 md:pr-[max(1.5rem,var(--safe-right))] md:pl-[max(1.5rem,var(--safe-left))] lg:w-1/2 lg:flex-col lg:items-stretch lg:gap-10 lg:p-12 xl:w-[44%] xl:p-16">
 			<div className="pointer-events-none absolute inset-0" aria-hidden>
@@ -55,7 +61,7 @@ export function BrandingPanel() {
 					<p className="text-2xl leading-tight font-bold tracking-tight text-balance lg:mb-3.5 lg:text-[40px]">
 						Retrouvez ce qui compte pour vous
 					</p>
-					<p className="text-white0 hidden max-w-md text-xl leading-relaxed lg:block">
+					<p className="hidden max-w-md text-xl leading-relaxed lg:block">
 						La plateforme d’objets perdus et retrouvés en Côte d’Ivoire.
 					</p>
 				</div>
@@ -75,11 +81,41 @@ export function BrandingPanel() {
 				</ul>
 			</div>
 
-			{/* The canvas closes the panel with two live counters, badged CHIFFRES
-			    RÉELS. R30 wires them, or leaves the band out: the three that stood
-			    here — 2,500+ objets, 15,000+ utilisateurs, 50+ villes — were written
-			    by hand before the Abidjan pilot had started, on the very screen that
-			    asks for trust. They are not carried over. */}
+			{/* The three that used to stand here — 2,500+ objets, 15,000+
+			    utilisateurs — were written by hand, on the screen asking for trust. */}
+			<CountersBand counters={counters} />
+		</div>
+	)
+}
+
+// Nothing at all while there is nothing to say, and each figure stands on its
+// own, so an empty month does not hide the listings.
+function CountersBand({ counters }: { counters: PublicCounters | null }) {
+	if (!counters) return null
+
+	const figures = [
+		{ value: counters.published, label: 'annonces en ligne' },
+		{ value: counters.resolvedThisMonth, label: 'objets rendus ce mois' },
+	].filter(figure => figure.value > 0)
+
+	if (figures.length === 0) return null
+
+	return (
+		<div className="relative hidden border-t border-white/15 pt-6 lg:block">
+			<p className="mb-3 text-xs font-bold tracking-[0.12em] text-white/60 uppercase">
+				Chiffres réels
+			</p>
+			<dl className="flex gap-10">
+				{figures.map(({ value, label }) => (
+					// `dt` before `dd` in the DOM, reversed on screen — and written once.
+					<div key={label} className="flex flex-col-reverse">
+						<dt className="text-sm text-white/70">{label}</dt>
+						<dd className="text-3xl font-bold tracking-tight">
+							{formatNumber(value)}
+						</dd>
+					</div>
+				))}
+			</dl>
 		</div>
 	)
 }

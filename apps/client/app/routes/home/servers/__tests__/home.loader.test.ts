@@ -1,8 +1,12 @@
 import type { LostItemApiDto } from '@/shared/types/lost-items.types'
 
-const { getLostItems } = vi.hoisted(() => ({ getLostItems: vi.fn() }))
+const { getLostItems, getPublicCounters } = vi.hoisted(() => ({
+	getLostItems: vi.fn(),
+	getPublicCounters: vi.fn(),
+}))
 
 vi.mock('../../../posts/servers/lost-items.service', () => ({ getLostItems }))
+vi.mock('../counters.service', () => ({ getPublicCounters }))
 
 const { homeLoader, RECENT_LISTINGS_COUNT } = await import('../home.loader')
 
@@ -34,6 +38,10 @@ const args = { request: new Request('http://localhost:3000/') }
 
 beforeEach(() => {
 	getLostItems.mockReset()
+	getPublicCounters.mockReset().mockResolvedValue({
+		published: 0,
+		resolvedThisMonth: 0,
+	})
 })
 
 describe('homeLoader', () => {
@@ -53,7 +61,7 @@ describe('homeLoader', () => {
 		)
 	})
 
-	it('carries the published total the counter reads', async () => {
+	it('maps the listings the strip shows', async () => {
 		getLostItems.mockResolvedValue({
 			items: [dto('a'), dto('b')],
 			total: 412,
@@ -63,8 +71,33 @@ describe('homeLoader', () => {
 
 		const { recent } = await homeLoader(args)
 
-		expect(recent?.total).toBe(412)
 		expect(recent?.listings.map(item => item.id)).toEqual(['a', 'b'])
+	})
+
+	// ⚠️ The badge used to read the list response's `total`, which counts what
+	// that query matched. The list's total is deliberately ignored now.
+	it('takes the count from the counters endpoint, not from the list', async () => {
+		getLostItems.mockResolvedValue({
+			items: [dto('a')],
+			total: 412,
+			page: 1,
+			pageSize: RECENT_LISTINGS_COUNT,
+		})
+		getPublicCounters.mockResolvedValue({
+			published: 37,
+			resolvedThisMonth: 4,
+		})
+
+		const { counters } = await homeLoader(args)
+
+		expect(counters).toEqual({ published: 37, resolvedThisMonth: 4 })
+	})
+
+	// An unreachable counter must leave the page standing, as a list already does.
+	it('answers null counters when the endpoint cannot be reached', async () => {
+		getPublicCounters.mockRejectedValue(new Error('boom'))
+
+		expect((await homeLoader(args)).counters).toBeNull()
 	})
 
 	it('tells an empty listing apart from a failed one', async () => {
@@ -83,8 +116,12 @@ describe('homeLoader', () => {
 
 	it('leaves the home page standing when the API is unreachable', async () => {
 		getLostItems.mockRejectedValue(new Error('ECONNREFUSED'))
+		getPublicCounters.mockRejectedValue(new Error('ECONNREFUSED'))
 
-		await expect(homeLoader(args)).resolves.toEqual({ recent: null })
+		await expect(homeLoader(args)).resolves.toEqual({
+			recent: null,
+			counters: null,
+		})
 	})
 
 	// It left with the banner it fed; the shell reads it beside the page now.
@@ -96,6 +133,6 @@ describe('homeLoader', () => {
 			pageSize: RECENT_LISTINGS_COUNT,
 		})
 
-		expect(Object.keys(await homeLoader(args))).toEqual(['recent'])
+		expect(Object.keys(await homeLoader(args))).toEqual(['recent', 'counters'])
 	})
 })

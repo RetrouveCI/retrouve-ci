@@ -205,6 +205,9 @@ model LostItem {
   moderationReason     ModerationReason?
   moderationReasonNote String?
   resolutionStatus     ResolutionStatus  @default(ACTIVE)
+  /// When the owner marked it handed back; null before A5 and while active.
+  /// updatedAt moves on every edit, so it could never answer « ce mois ».
+  resolvedAt           DateTime?
   views                Int               @default(0)
   contactsCount        Int               @default(0)
   userId               String

@@ -3851,32 +3851,106 @@ sur une douzaine de champs (`contact-step`, `object-step`, `document-section`,
 défaut que R37 a corrigé sur le hero. C'est une passe à part, pas un détour
 d'A4.
 
-#### A5 — Compteurs publics du panneau d'authentification _(facultatif)_
+#### A5 — Compteurs publics du panneau d'authentification — **LIVRÉE**
 
-Repris de R30, qui s'est close sans eux. La maquette (`AuthDesktop`) ferme le
-panneau sur deux compteurs badgés « CHIFFRES RÉELS » : annonces en ligne, objets
-rendus ce mois. Aucun n'est servi publiquement aujourd'hui.
+Reprise de R30, qui s'était close sans eux : la maquette (`AuthDesktop`) ferme
+le panneau sur deux compteurs badgés « CHIFFRES RÉELS » — annonces en ligne,
+objets rendus ce mois — et aucun n'était servi publiquement. Sa condition — « à
+ne faire qu'une fois le pilote démarré » — était remplie : le produit est en
+production avec les premiers utilisateurs.
 
-1. Endpoint public rendant les deux nombres — le second demande
-   `resolutionStatus` et une fenêtre de dates, hors du contrat public actuel.
-2. Loader sur `routes/auth/layout.tsx`, **tolérant à la panne** : un compteur
-   que l'API ne peut pas servir ne doit pas emporter l'écran de connexion, comme
-   la pastille de notifications du backoffice qui lit zéro plutôt que de lever.
-3. `Intl.NumberFormat('fr-FR')` — la virgule anglaise des anciens chiffres n'est
-   pas le séparateur français. Test projet `node` : zéro → rien, `1234` → « 1
-   234 ».
-4. **Ne rien afficher tant qu'il n'y a rien** : la bande disparaît entièrement
-   plutôt que d'annoncer zéro.
+> ⚠️ **« Objets rendus ce mois » n'était pas calculable.** Il n'existait
+> **aucune colonne `resolvedAt`** : seulement `resolutionStatus`. `updatedAt`
+> bouge à chaque édition, et R11 avait déjà consigné que s'en servir serait un
+> mensonge. Comme §2 et §3 interdisent un chiffre de réassurance qui n'est pas
+> réel, l'étape emporte une **migration** que sa description n'annonçait pas :
+> une colonne nullable, donc les lignes antérieures disent « je ne sais pas »
+> plutôt que d'inventer une date.
 
-**Deux consommateurs depuis R17**, pas un : la pastille de l'accueil affiche « N
-annonces en ligne » depuis le `total` de `GET /lost-items`, et attend ce même
-endpoint pour le « objets rendus ce mois » que les planches lui dessinent. Le
-faire sert donc les deux écrans d'entrée du produit.
+**L'estampille ne bouge qu'avec l'état.** `resolvedAtFor` compare la ligne
+d'avant — déjà chargée par `requireOwnedLostItem`, donc à coût nul — et la
+demande : entrer dans `resolved` pose la date, en sortir l'efface, et
+ré-enregistrer ne touche à rien. Sans cette garde, réenregistrer une annonce
+retrouvée en septembre l'aurait comptée en octobre. Même motif que N2 pour la
+modération et N3 pour les commandes : **la transition, pas l'état.**
 
-**À ne faire qu'une fois le pilote démarré**, sans quoi on livre une bande qui
-reste masquée. **Fichiers** : `packages/contracts/src/`, `apps/api/src/`,
-`apps/client/app/routes/auth/{layout.tsx,components/branding-panel.tsx}`,
-`apps/client/app/routes/home/servers/home.loader.ts`. **Flux** : A, E.
+> ⚠️ **« Annonces en ligne » se disait déjà, et à deux endroits de plus.** La
+> pastille du hero et le lien « Voir les N annonces » de la bande lisaient tous
+> deux le `total` de la réponse de liste — c'est-à-dire ce que _cette requête_ a
+> matché, filtres compris. La même phrase pouvait donc porter trois chiffres
+> selon l'écran. Les trois lisent désormais l'endpoint unique, et
+> `HomeRecentListings.total` disparaît.
+
+**Le compte est défini une fois côté serveur.** `countPublished()` applique
+`moderationStatus = PUBLISHED` et rien d'autre — exactement ce que
+`GetPublicLostItemsUseCase` applique — donc les deux écrans ne peuvent pas
+diverger.
+
+**La route n'est pas plafonnée, et c'est motivé.** Un front la lit côté serveur,
+donc l'adresse que le limiteur verrait est celle du conteneur du front : un
+plafond là refuse tout le monde d'un coup. C'est le raisonnement déjà écrit pour
+`get-session`, et il est rappelé sur la route.
+
+**Rien ne s'affiche tant qu'il n'y a rien**, et chaque chiffre tient seul : un
+mois sans restitution ne masque pas les annonces. `null` — l'API injoignable —
+et zéro donnent la même absence de bande, parce qu'annoncer « 0 objets rendus »
+sur l'écran qui demande la confiance est pire que de ne rien dire.
+
+**Un troisième `formatPrice` évité, proprement cette fois.** N3 l'avait posé
+dans `sticker-orders`, à côté du catalogue. Un compteur d'annonces n'est pas un
+prix : le groupement français est de la plomberie de locale, pas du domaine.
+`@app/contracts/shared/number.ts` porte donc `formatNumber`, et `formatPrice` en
+devient un alias sous son nom de domaine — une ligne, aucune seconde
+implémentation possible.
+
+**Fichiers** : `database/prisma/` (schéma + migration), `contracts/shared/`
+(`formatNumber`), `contracts/sticker-orders/` (l'alias),
+`api/domains/lost-items/` (le type, le mappeur, la projection, deux comptes,
+l'estampille, un use-case, trois specs), `api/presentations/stats/` (la route,
+son spec, la sonde des routes anonymes), `client/routes/home/servers/` (le
+service, le chargeur tolérant, deux specs), `client/routes/auth/` (le loader du
+layout, la bande, son spec), `client/routes/home/components/` (la pastille et le
+lien de la bande). **Flux** : A, E. **Changements d'API, de contrat et de
+base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur, 0 avertissement · `format:check`
+propre · `pnpm build` vert. Chaque suite seule : api **708** (+7), contracts
+**437** (inchangée), admin **438** (inchangée), client **1013** en `node` (+2)
+et **385** en `ui` (+6).
+
+**Les trois gardes vérifiées en rouge** : l'estampille posée à chaque
+enregistrement fait tomber un cas ; la fenêtre passée en « 30 derniers jours »
+au lieu du mois calendaire en fait tomber deux ; et le mappeur public émettant
+`resolvedAt` fait tomber la sonde de projection — dont le cas ajouté ici.
+
+> ⚠️ **La garde de projection ne se joue pas sur le type.** Retirer `resolvedAt`
+> de l'`Omit` et son `?: never` laisse **20 tests verts** : ce qui protège,
+> c'est que `toPublicLostItem` — un littéral écrit à la main — ne le nomme pas,
+> et c'est cela que la sonde compare. Le type est une ceinture, pas la bretelle.
+> La question « d'où vient la valeur attendue ? » se pose aussi à l'injection :
+> le premier essai visait le mauvais levier.
+
+> ⚠️ **Deux sondes ont tiré d'elles-mêmes**, et c'est leur raison d'être : celle
+> des colonnes de l'entité a exigé que `resolvedAt` soit classé d'un côté ou de
+> l'autre, et celle des routes anonymes a exigé que la nouvelle route soit
+> déclarée **avec la forme étroite qu'elle rend** (`PublicCounters`, deux
+> nombres) — ce qui est ce qui la garde hors de `PROJECTED`.
+
+> ⚠️ **Le libellé écrit deux fois n'était pas une erreur de test.** Le premier
+> jet de la bande mettait le libellé dans un `<dt class="sr-only">` **et** dans
+> un `<span>` visible : Playwright a répondu « strict mode violation: resolved
+> to 2 elements », et un lecteur d'écran l'aurait lu deux fois. La paire est
+> maintenant `dt` puis `dd` dans le DOM, inversée à l'écran par
+> `flex-col-reverse`.
+
+> **Note de mesure** : `page.getByText('1 234')` avec une espace ordinaire
+> **matche** la sortie d'`Intl` — Playwright normalise les blancs du DOM — là où
+> le `toContain` de Vitest sur une chaîne brute ne le fait pas (N3). Les deux
+> faits sont compatibles ; il faut savoir lequel s'applique.
+
+**Corrigé au passage** : `text-white0` dans le panneau, qui n'est pas une classe
+— Tailwind n'émettait rien et le paragraphe héritait de `text-white`. Mort, donc
+retiré.
 
 #### A6 — Source d'une commande de stickers _(facultatif)_
 

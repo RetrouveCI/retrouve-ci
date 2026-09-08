@@ -270,6 +270,14 @@ would refuse a name already written. ⚠️ Its spec pins `2` and `120` as
 expectation from the constants — changing one moved both sides and left the
 suite green.
 
+`shared/number.ts` owns `formatNumber` — French thousands grouping, which is a
+narrow no-break space and not the comma the hand-written figures carried. One
+home, because a price, a listing count and a returned-object count all read the
+same way; `sticker-orders`' `formatPrice` is an alias of it under its domain
+name. ⚠️ Assert a formatted amount **through** it, never against a hand-written
+« 11 000 »: Vitest's `toContain` on a raw string does not normalise whitespace
+(Playwright's DOM text matching does).
+
 `shared/otp.ts` owns `OTP_LENGTH`. better-auth's `phoneNumber()` plugin defaults
 to `otpLength: 6` and the API never overrides it, so the phone-change form's
 `/^\d{4,8}$/` accepted a four-digit code the API could only ever reject.
@@ -485,6 +493,21 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   `notify-matches`, where that is right because the failure must retry the
   BullMQ job, and `contact-qr-token-owner`, the one public write where an
   unreachable Redis still answers 500.
+- **The two public counters are counted, never written.** `GET /stats/counters`
+  is anonymous and answers `{ published, resolvedThisMonth }`, read by the
+  sign-in panel and by the home page's badge and « Voir les N annonces » link —
+  all three used to derive the first figure from a list response's `total`,
+  which counts what that query matched. It is deliberately **not** rate-limited:
+  a front reads it server-side, so the address a limiter would see is the
+  front's container, and a cap there refuses everyone at once — the reason
+  `get-session` is exempt too. A front draws no band at all rather than
+  announcing a zero, and `null` (an unreachable API) reads the same way. ⚠️
+  `LostItem.resolvedAt` exists because `updatedAt` moves on any edit and could
+  never answer « ce mois »; it moves **only** with the resolution status, so
+  re-saving a resolved listing does not push the day into the current month. It
+  is withheld from `PublicLostItem`, and what enforces that is
+  `toPublicLostItem` not naming it — the projection spec compares the emitted
+  keys, so the type's `?: never` is belt and not braces.
 - **An order tells its buyer at every step, on the transition alone.**
   `UpdateStickerOrderStatusUseCase` holds a
   `Record<StickerOrderStatus, StatusNotice | null>`, so a status added to the

@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { MapPin, Package, RefreshCw } from 'lucide-react'
+import { formatNumber } from '@app/contracts/shared'
 import { cn } from '@app/ui/utils'
 import { imageUrl } from '@/shared/utils/image'
 import type { LostItem } from '@/shared/types/lost-item'
@@ -71,8 +72,11 @@ function StripNotice({
 
 export function RecentListingsStrip({
 	recent,
+	published,
 }: {
 	recent: HomeRecentListings | null
+	/** The hero badge's count, so one phrase carries one figure. */
+	published?: number
 }) {
 	return (
 		<section className="border-border/60 border-t py-7">
@@ -85,8 +89,8 @@ export function RecentListingsStrip({
 						to="/posts"
 						className="text-primary-green-text touch-target shrink-0 text-sm font-semibold md:text-sm"
 					>
-						{recent && recent.total > 0
-							? `Voir les ${recent.total} annonces`
+						{published
+							? `Voir les ${formatNumber(published)} annonces`
 							: 'Tout voir'}
 					</Link>
 				</div>
