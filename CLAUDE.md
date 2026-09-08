@@ -395,6 +395,18 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   cannot deliver its code is worse than a boot failure. Left unset in
   development, the code is logged to the console as it was before there was a
   gateway.
+- **Rate limiting is a Fastify `onRequest` hook, not a Nest guard**, because
+  `/api/auth/*` is middleware mounted before Nest and sees no guard, pipe or
+  interceptor — a Nest throttler would miss `send-otp` entirely. The hook is
+  registered before `NestFactory.create`, reads its rules from
+  `shared/rate-limit/rate-limit.policy.ts` (`otp`, `auth`, `public-write`,
+  `public-read`, `upload`) and keys them on the caller: `X-Client-Ip` when a
+  front forwarded it, the socket address otherwise. It **fails open**, loudly —
+  a limiter that cannot reach Redis must not take sign-in down with it. Two
+  ceilings sit **inside** Nest instead, where the identity is known and an
+  address cannot be rotated: `OtpDispatcher` counts per phone number, and
+  `UploadBudget` per account. Those are the two routes that spend money, an SMS
+  and a Cloudinary image, and both hold at the same time as the address one.
 - Background jobs (e.g. match notifications, OTP SMS) run on **BullMQ** backed
   by Redis. Every queue shares one connection, built by
   `infrastructures/queue/queue.config.ts`. `REDIS_URL` is **required in

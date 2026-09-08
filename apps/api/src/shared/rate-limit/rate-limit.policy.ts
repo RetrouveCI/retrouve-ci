@@ -1,4 +1,5 @@
-export type RateLimitBucket = 'otp' | 'auth' | 'public-write' | 'public-read'
+export type RateLimitBucket =
+	'otp' | 'auth' | 'public-write' | 'public-read' | 'upload'
 
 export interface RateLimitRule {
 	bucket: RateLimitBucket
@@ -38,6 +39,18 @@ const PUBLIC_READ: RateLimitRule = {
 	windowSeconds: 15 * MINUTE,
 }
 
+// A photo is stored, transformed and served by Cloudinary, so an upload is the
+// other route that spends money. Generous per address, since a carrier puts
+// many visitors behind one: `UPLOAD_PER_USER` is the ceiling that counts.
+const UPLOAD: RateLimitRule = {
+	bucket: 'upload',
+	max: 60,
+	windowSeconds: HOUR,
+}
+
+/** Six listings' worth of photos an hour, retries and re-crops included. */
+export const UPLOAD_PER_USER = { max: 30, windowSeconds: HOUR }
+
 // The same numbers as `OTP`, keyed on the number. Both hold at once: an address
 // is forwarded and rotatable, while a number is what an SMS costs money on.
 export const OTP_PER_NUMBER = {
@@ -60,6 +73,9 @@ const PUBLIC_WRITE_PATHS = [
 	/^\/qr-codes\/[^/]+\/reach$/,
 	/^\/lost-items\/[^/]+\/contact$/,
 ]
+
+/** Authenticated, so every request here already has an owner to charge. */
+const UPLOAD_PATHS = [/^\/uploads\/[^/]+$/]
 
 /** An allowlist, so no future read — `get-session` above all — falls in by resembling one. */
 const PUBLIC_READ_PATHS = [/^\/qr-codes\/[^/]+\/scan$/]
@@ -87,6 +103,7 @@ export function limitFor(method: string, url: string): RateLimitRule | null {
 
 	if (OTP_PATHS.includes(path)) return OTP
 	if (AUTH_PREFIXES.some(prefix => path.startsWith(prefix))) return AUTH
+	if (UPLOAD_PATHS.some(shape => shape.test(path))) return UPLOAD
 	if (PUBLIC_WRITE_PATHS.some(shape => shape.test(path))) return PUBLIC_WRITE
 
 	return null
