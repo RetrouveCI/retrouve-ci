@@ -152,10 +152,12 @@ export class LostItemsController {
 		@Body(new ZodValidationPipe(updateModerationStatusSchema))
 		data: UpdateModerationStatusData,
 	) {
-		const lostItem = await this.moderateLostItemUseCase.execute({ id, ...data })
+		const { lostItem, becamePublished } =
+			await this.moderateLostItemUseCase.execute({ id, ...data })
 
-		/** Publication is the only moment a listing becomes matchable. */
-		if (lostItem.moderationStatus === 'published') {
+		// Publication is the only moment a listing becomes matchable — the
+		// transition, not the state, so publishing twice searches once.
+		if (becamePublished) {
 			await this.matchingDispatcher.dispatch(id)
 		}
 

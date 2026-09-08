@@ -360,8 +360,11 @@ describe('LostItemsController', () => {
 		})
 
 		it('delegates to the use-case and enqueues a matching job on publication', async () => {
-			const moderated = buildLostItem({ moderationStatus: 'published' })
-			vi.mocked(moderateLostItem.execute).mockResolvedValue(moderated)
+			const lostItem = buildLostItem({ moderationStatus: 'published' })
+			vi.mocked(moderateLostItem.execute).mockResolvedValue({
+				lostItem,
+				becamePublished: true,
+			})
 
 			const result = await controller.updateModerationStatus('lost-item-1', {
 				moderationStatus: 'published',
@@ -372,16 +375,18 @@ describe('LostItemsController', () => {
 				moderationStatus: 'published',
 			})
 			expect(matchingDispatcher.dispatch).toHaveBeenCalledWith('lost-item-1')
-			expect(result).toEqual(moderated)
+			// The outcome is the use-case's shape; the route still answers the row.
+			expect(result).toEqual(lostItem)
 		})
 
 		/** Publication is the only transition that makes a listing matchable. */
 		it.each(['pending', 'hidden'] as const)(
 			'enqueues nothing when moderating to %s',
 			async moderationStatus => {
-				vi.mocked(moderateLostItem.execute).mockResolvedValue(
-					buildLostItem({ moderationStatus }),
-				)
+				vi.mocked(moderateLostItem.execute).mockResolvedValue({
+					lostItem: buildLostItem({ moderationStatus }),
+					becamePublished: false,
+				})
 
 				await controller.updateModerationStatus('lost-item-1', {
 					moderationStatus,
@@ -390,6 +395,22 @@ describe('LostItemsController', () => {
 				expect(matchingDispatcher.dispatch).not.toHaveBeenCalled()
 			},
 		)
+
+		// ⚠️ The route reads the transition, not the state: a second publish of an
+		// already-published listing used to search for matches — and notify —
+		// again, since the row it answers says `published` either way.
+		it('enqueues nothing when publication changed nothing', async () => {
+			vi.mocked(moderateLostItem.execute).mockResolvedValue({
+				lostItem: buildLostItem({ moderationStatus: 'published' }),
+				becamePublished: false,
+			})
+
+			await controller.updateModerationStatus('lost-item-1', {
+				moderationStatus: 'published',
+			})
+
+			expect(matchingDispatcher.dispatch).not.toHaveBeenCalled()
+		})
 	})
 
 	describe('delete', () => {

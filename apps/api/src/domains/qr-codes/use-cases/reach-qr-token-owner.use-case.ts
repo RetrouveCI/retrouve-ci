@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
+import { notifyUser } from '@/domains/notifications/helpers/notify'
 import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
 import {
 	QrTokenDirectContactRefusedError,
@@ -68,26 +69,20 @@ export class ReachQrTokenOwnerUseCase implements IDomainUseCase<
 	}
 
 	/** The jump is what the finder came for; the trace must not be able to stop it. */
-	private async notifyOwner(
+	private notifyOwner(
 		userId: string,
 		label: string | null,
 		channel: ReachChannel,
 	): Promise<void> {
 		const object = label ? `« ${label} »` : 'votre objet'
 
-		try {
-			await this.createNotification.execute({
-				type: 'qr_scan',
-				title: "Quelqu'un cherche à vous joindre",
-				message: `Une personne a scanné le sticker de ${object} et ${CHANNEL_WORDING[channel]}.`,
-				link: '/account/stickers',
-				userId,
-			})
-		} catch (error) {
-			this.logger.error(
-				`Reach notification for user ${userId} failed: ${String(error)}`,
-			)
-		}
+		return notifyUser(this.createNotification, this.logger, {
+			type: 'qr_scan',
+			title: "Quelqu'un cherche à vous joindre",
+			message: `Une personne a scanné le sticker de ${object} et ${CHANNEL_WORDING[channel]}.`,
+			link: '/account/stickers',
+			userId,
+		})
 	}
 }
 
