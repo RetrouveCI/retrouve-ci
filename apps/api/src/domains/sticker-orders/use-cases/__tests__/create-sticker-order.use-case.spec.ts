@@ -6,6 +6,8 @@ import {
 } from '../../__tests__/sticker-order.fixture'
 import type { StickerOrderRepository } from '../../repository/sticker-order.repository'
 import type { CreateStickerOrderData } from '../../types/sticker-order.types'
+import { MAX_OPEN_STICKER_ORDERS } from '../../constants'
+import { TooManyOpenStickerOrdersError } from '../../errors/sticker-order.errors'
 import { CreateStickerOrderUseCase } from '../create-sticker-order.use-case'
 
 const data: CreateStickerOrderData = {
@@ -58,5 +60,61 @@ describe('CreateStickerOrderUseCase', () => {
 		expect(repository.create).toHaveBeenCalledWith(
 			expect.objectContaining({ deliveryFee: 0, total: 2000 }),
 		)
+	})
+
+	// The ceiling is on what one account holds at once, not on how fast it
+	// orders: an open order is unpaid exposure.
+	describe('the open-order ceiling', () => {
+		it.each([
+			[0, true],
+			[MAX_OPEN_STICKER_ORDERS - 1, true],
+			[MAX_OPEN_STICKER_ORDERS, false],
+			[MAX_OPEN_STICKER_ORDERS + 1, false],
+		])('with %i open orders, accepts=%s', async (open, accepted) => {
+			vi.mocked(repository.countOpenOrders).mockResolvedValue(open)
+			vi.mocked(repository.create).mockResolvedValue(buildStickerOrder())
+
+			const attempt = useCase.execute(data)
+
+			if (accepted) {
+				await expect(attempt).resolves.toBeDefined()
+			} else {
+				await expect(attempt).rejects.toBeInstanceOf(
+					TooManyOpenStickerOrdersError,
+				)
+			}
+		})
+
+		it('counts the orders of the ordering account, and no other', async () => {
+			vi.mocked(repository.create).mockResolvedValue(buildStickerOrder())
+
+			await useCase.execute(data)
+
+			expect(repository.countOpenOrders).toHaveBeenCalledWith('user-1')
+		})
+
+		// A refusal must not write the row it refused.
+		it('writes nothing once it refuses', async () => {
+			vi.mocked(repository.countOpenOrders).mockResolvedValue(
+				MAX_OPEN_STICKER_ORDERS,
+			)
+
+			await expect(useCase.execute(data)).rejects.toThrow()
+			expect(repository.create).not.toHaveBeenCalled()
+		})
+
+		// No field, so the front renders it with `FormRootError`: the refusal is
+		// about the account's orders and about none of the form's inputs.
+		it('names no field, since no input is at fault', async () => {
+			vi.mocked(repository.countOpenOrders).mockResolvedValue(
+				MAX_OPEN_STICKER_ORDERS,
+			)
+
+			const thrown: unknown = await useCase
+				.execute(data)
+				.catch((error: unknown) => error)
+
+			expect((thrown as TooManyOpenStickerOrdersError).field).toBeUndefined()
+		})
 	})
 })

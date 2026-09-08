@@ -5,6 +5,7 @@ import {
 	toDomainStickerOrder,
 	toPrismaStatus,
 } from '../mappers/sticker-order.mapper'
+import { OPEN_STICKER_ORDER_STATUSES } from '../constants'
 import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 import type {
 	CreateStickerOrderRecord,
@@ -59,6 +60,17 @@ export class StickerOrderRepository {
 		})
 
 		return _sum.quantity ?? 0
+	}
+
+	// What this account has committed and not settled: a delivery is dispatched
+	// with cash expected on arrival.
+	async countOpenOrders(userId: string): Promise<number> {
+		return this.prisma.stickerOrder.count({
+			where: {
+				userId,
+				status: { in: OPEN_STICKER_ORDER_STATUSES.map(toPrismaStatus) },
+			},
+		})
 	}
 
 	async list(

@@ -38,5 +38,7 @@ export function buildRepository(): StickerOrderRepository {
 		list: vi.fn(),
 		updateStatus: vi.fn(),
 		sumDeliveredQuantity: vi.fn(),
+		// Defaults to room for another order, so a spec opts in to the refusal.
+		countOpenOrders: vi.fn().mockResolvedValue(0),
 	} as unknown as StickerOrderRepository
 }

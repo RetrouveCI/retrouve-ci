@@ -21,6 +21,9 @@ import type { ContactLostItemPosterUseCase } from '@/domains/lost-items/use-case
 import type { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
 import type { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import type { Auth } from '@/infrastructures/auth/auth.config'
+import { AccountBudget } from '@/shared/rate-limit/account-budget.service'
+import { LOST_ITEM_PER_USER } from '@/shared/rate-limit/rate-limit.policy'
+import { AccountBudgetExceededError } from '@/shared/rate-limit/account-budget.error'
 import { LostItemsController } from '../lost-items.controller'
 
 const session = {
@@ -47,6 +50,7 @@ describe('LostItemsController', () => {
 	let moderateLostItem: ModerateLostItemUseCase
 	let deleteLostItem: DeleteLostItemUseCase
 	let matchingDispatcher: ReturnType<typeof buildMatchingDispatcher>
+	let accountBudget: AccountBudget
 	let controller: LostItemsController
 
 	beforeEach(() => {
@@ -61,6 +65,7 @@ describe('LostItemsController', () => {
 		moderateLostItem = buildUseCase<ModerateLostItemUseCase>()
 		deleteLostItem = buildUseCase<DeleteLostItemUseCase>()
 		matchingDispatcher = buildMatchingDispatcher()
+		accountBudget = { require: vi.fn() } as unknown as AccountBudget
 		controller = new LostItemsController(
 			createLostItem,
 			viewLostItem,
@@ -73,22 +78,24 @@ describe('LostItemsController', () => {
 			moderateLostItem,
 			deleteLostItem,
 			matchingDispatcher as never,
+			accountBudget,
 		)
 	})
 
 	describe('create', () => {
+		const dto: CreateLostItemData = {
+			type: 'lost',
+			category: 'phone',
+			title: 'iPhone 13 perdu',
+			description:
+				'Perdu près du marché de Cocody, coque noire avec autocollant',
+			ville: 'Abidjan',
+			eventDate: '2026-01-01',
+			contactName: 'Jean Dupont',
+			contactWhatsapp: '+2250700000000',
+		}
+
 		it('converts the eventDate string and forwards the session user id', async () => {
-			const dto: CreateLostItemData = {
-				type: 'lost',
-				category: 'phone',
-				title: 'iPhone 13 perdu',
-				description:
-					'Perdu près du marché de Cocody, coque noire avec autocollant',
-				ville: 'Abidjan',
-				eventDate: '2026-01-01',
-				contactName: 'Jean Dupont',
-				contactWhatsapp: '+2250700000000',
-			}
 			const created = buildLostItem()
 			vi.mocked(createLostItem.execute).mockResolvedValue(created)
 
@@ -100,6 +107,30 @@ describe('LostItemsController', () => {
 				userId: 'user-1',
 			})
 			expect(result).toEqual(created)
+		})
+
+		// What a flood of listings spends is the moderation queue, so the ceiling
+		// is asked before the row is written.
+		it('asks the account ceiling for the poster', async () => {
+			vi.mocked(createLostItem.execute).mockResolvedValue(buildLostItem())
+
+			await controller.create(session, dto)
+
+			expect(accountBudget.require).toHaveBeenCalledWith(
+				LOST_ITEM_PER_USER,
+				'user-1',
+			)
+		})
+
+		it('writes nothing when the ceiling refuses', async () => {
+			vi.mocked(accountBudget.require).mockRejectedValue(
+				new AccountBudgetExceededError(LOST_ITEM_PER_USER.message, 900),
+			)
+
+			await expect(controller.create(session, dto)).rejects.toBeInstanceOf(
+				AccountBudgetExceededError,
+			)
+			expect(createLostItem.execute).not.toHaveBeenCalled()
 		})
 	})
 

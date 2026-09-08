@@ -1,27 +1,18 @@
-import {
-	BadRequestException,
-	HttpException,
-	PayloadTooLargeException,
-} from '@nestjs/common'
-import type { FastifyReply, FastifyRequest } from 'fastify'
+import { BadRequestException, PayloadTooLargeException } from '@nestjs/common'
+import type { FastifyRequest } from 'fastify'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Auth } from '@/infrastructures/auth/auth.config'
 import { StorageService } from '@/infrastructures/storage/storage.service'
-import { UploadBudgetExceededError } from '@/infrastructures/storage/upload-budget.error'
-import { UploadBudget } from '@/infrastructures/storage/upload-budget.service'
+import { AccountBudgetExceededError } from '@/shared/rate-limit/account-budget.error'
+import { AccountBudget } from '@/shared/rate-limit/account-budget.service'
+import { UPLOAD_PER_USER } from '@/shared/rate-limit/rate-limit.policy'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import { UploadsController } from '../uploads.controller'
 
 const SESSION = { user: { id: 'user-1' } } as UserSession<Auth>
 
-function buildBudget(): UploadBudget {
-	return { require: vi.fn() } as unknown as UploadBudget
-}
-
-function buildReply() {
-	const header = vi.fn()
-
-	return { reply: { header } as unknown as FastifyReply, header }
+function buildBudget(): AccountBudget {
+	return { require: vi.fn() } as unknown as AccountBudget
 }
 
 function buildStorageService(): StorageService {
@@ -55,7 +46,7 @@ function buildFile(
 
 describe('UploadsController', () => {
 	let storageService: StorageService
-	let budget: UploadBudget
+	let budget: AccountBudget
 	let controller: UploadsController
 
 	beforeEach(() => {
@@ -74,7 +65,6 @@ describe('UploadsController', () => {
 			const result = await controller.uploadLostItemPhoto(
 				SESSION,
 				buildRequest(file),
-				buildReply().reply,
 			)
 
 			expect(storageService.uploadLostItemPhoto).toHaveBeenCalledWith({
@@ -87,11 +77,7 @@ describe('UploadsController', () => {
 
 		it('throws when no file is provided', async () => {
 			await expect(
-				controller.uploadLostItemPhoto(
-					SESSION,
-					buildRequest(undefined),
-					buildReply().reply,
-				),
+				controller.uploadLostItemPhoto(SESSION, buildRequest(undefined)),
 			).rejects.toBeInstanceOf(BadRequestException)
 			expect(storageService.uploadLostItemPhoto).not.toHaveBeenCalled()
 		})
@@ -100,61 +86,42 @@ describe('UploadsController', () => {
 			const file = buildFile({ file: { truncated: true } })
 
 			await expect(
-				controller.uploadLostItemPhoto(
-					SESSION,
-					buildRequest(file),
-					buildReply().reply,
-				),
+				controller.uploadLostItemPhoto(SESSION, buildRequest(file)),
 			).rejects.toBeInstanceOf(PayloadTooLargeException)
 			expect(storageService.uploadLostItemPhoto).not.toHaveBeenCalled()
 		})
 	})
 
 	describe('the upload budget', () => {
-		it('is asked for the session owner, not for the request', async () => {
-			await controller.uploadLostItemPhoto(
-				SESSION,
-				buildRequest(buildFile()),
-				buildReply().reply,
-			)
+		it('is asked for the session owner under the upload limit', async () => {
+			await controller.uploadLostItemPhoto(SESSION, buildRequest(buildFile()))
 
-			expect(budget.require).toHaveBeenCalledWith('user-1')
+			expect(budget.require).toHaveBeenCalledWith(UPLOAD_PER_USER, 'user-1')
 		})
 
 		// A refusal must cost nothing: neither read nor stored once it is spent.
-		it('refuses with a 429 before reading the file', async () => {
+		// The 429 itself is `AccountBudgetFilter`'s job, so the controller's part
+		// is to let the refusal out untouched, before it touches the file.
+		it('lets the refusal out before reading the file', async () => {
 			vi.mocked(budget.require).mockRejectedValue(
-				new UploadBudgetExceededError(900),
+				new AccountBudgetExceededError(UPLOAD_PER_USER.message, 900),
 			)
 			const request = buildRequest(buildFile())
-			const { reply, header } = buildReply()
 
-			const thrown: unknown = await controller
-				.uploadLostItemPhoto(SESSION, request, reply)
-				.catch((error: unknown) => error)
-
-			expect(thrown).toBeInstanceOf(HttpException)
-			expect((thrown as HttpException).getStatus()).toBe(429)
-			expect((thrown as HttpException).getResponse()).toMatchObject({
-				message:
-					'Trop de photos envoyées pour ce compte. Merci de patienter avant de réessayer.',
-			})
-			expect(header).toHaveBeenCalledWith('Retry-After', '900')
+			await expect(
+				controller.uploadLostItemPhoto(SESSION, request),
+			).rejects.toBeInstanceOf(AccountBudgetExceededError)
 			expect(request.file).not.toHaveBeenCalled()
 			expect(storageService.uploadLostItemPhoto).not.toHaveBeenCalled()
 		})
 
-		// A store that cannot answer is not a refusal: `UploadBudget` fails open,
+		// A store that cannot answer is not a refusal: `AccountBudget` fails open,
 		// and anything else coming out of it is a bug worth surfacing.
-		it('lets a failure that is not a refusal through', async () => {
+		it('swallows nothing that is not a refusal', async () => {
 			vi.mocked(budget.require).mockRejectedValue(new Error('redis exploded'))
 
 			await expect(
-				controller.uploadLostItemPhoto(
-					SESSION,
-					buildRequest(buildFile()),
-					buildReply().reply,
-				),
+				controller.uploadLostItemPhoto(SESSION, buildRequest(buildFile())),
 			).rejects.toThrow('redis exploded')
 		})
 	})

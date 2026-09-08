@@ -12,6 +12,7 @@ import { Logger } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import fastifyMultipart from '@fastify/multipart'
 import { DomainExceptionFilter } from '@/shared/filters/domain-exception.filter'
+import { AccountBudgetFilter } from '@/shared/rate-limit/account-budget.filter'
 import { MAX_PHOTO_SIZE } from '@/infrastructures/storage/storage.service'
 import { AppModule } from './app.module'
 import { getAllowedOrigins } from '@/shared/auth/allowed-origins'
@@ -91,7 +92,7 @@ async function bootstrap(): Promise<void> {
 		limits: { fileSize: MAX_PHOTO_SIZE, files: 1 },
 	})
 
-	app.useGlobalFilters(new DomainExceptionFilter())
+	app.useGlobalFilters(new DomainExceptionFilter(), new AccountBudgetFilter())
 
 	if (shouldExposeSwagger()) {
 		setupSwagger(app)
