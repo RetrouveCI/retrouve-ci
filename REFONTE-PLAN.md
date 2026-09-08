@@ -6526,12 +6526,12 @@ qui a fait réécrire le commentaire.
 > fichier soit committé, donc N1 emporte aussi ce que cette édition rendait
 > **faux** — voir N4, dont la moitié part avec ce lot.
 
-#### N4 — Un mot, un sens pour le champ nom — **À MOITIÉ LIVRÉE PAR N1**
+#### N4 — Un mot, un sens pour le champ nom — **LIVRÉE**
 
 Le commanditaire a tranché le vocabulaire en éditant l'écran : le champ est un
-**nom complet**. Ce que son édition rendait **faux** part avec N1, puisqu'il a
-demandé que son fichier soit committé et qu'un arbre rouge n'est pas une option
-:
+**nom complet**. Ce que son édition rendait **faux** est parti avec N1,
+puisqu'il avait demandé que son fichier soit committé et qu'un arbre rouge n'est
+pas une option :
 
 - `register.schema.ts` répondait « Votre **prénom** est requis » et « trop long
   » à un champ étiqueté « nom complet » — devenu « Votre nom » ;
@@ -6540,11 +6540,77 @@ demandé que son fichier soit committé et qu'un arbre rouge n'est pas une optio
 - et les deux assertions de `register-flow.test.tsx` suivent le libellé qui part
   en production. Aucune occurrence de « prénom » ne reste dans `routes/auth/`.
 
-**Reste ouvert**, et délibérément hors de N1 parce que l'édition ne les rend pas
-faux : `account/settings` dit « Nom et **prénoms** » là où l'inscription dit «
-nom complet » — deux formulations d'une même chose, ce que §2.3 règle 2 n'aime
-pas —, et la variable s'appelle encore `firstName` alors qu'elle porte un nom
-complet. Petit lot, sans migration.
+La moitié qui restait s'est révélée plus grosse que « renommer une variable ».
+En cherchant les deux formulations, l'audit a trouvé **trois règles sur une
+seule colonne `user.name`**, et elles ne s'accordaient pas :
+
+| Où                     | Erreur de type           | `trim` | Plancher | Plafond                          |
+| ---------------------- | ------------------------ | ------ | -------- | -------------------------------- |
+| client, inscription    | « Votre nom est requis » | ✅     | 2        | **120** « trop long »            |
+| client, réglages       | « Votre nom est requis » | ❌     | 2        | **120**, _aucun message_         |
+| admin, administrateurs | _aucun (défaut Zod)_     | ❌     | 2        | **80** « Maximum 80 caractères » |
+
+> ⚠️ **Deux conséquences réelles, pas théoriques.** Un administrateur créé par
+> le back-office est plafonné à 80, alors que la même personne éditant son nom
+> dans l'app publique va jusqu'à 120 : un nom que l'une stocke est un nom que
+> l'autre ne peut pas ré-enregistrer. Et deux des trois chemins répondaient en
+> **anglais** — le `.max(120)` des réglages ne nommait aucun message, l'erreur
+> de type du back-office non plus — là où le pipe de l'API a une locale mais pas
+> un formulaire de front.
+
+**C'est le constat de `shared/password.ts` en E6, rejoué.** Une colonne, cinq
+règles à l'époque, trois ici. D'où le même remède et le même domicile :
+`@app/contracts/shared/name.ts` porte `fullNameSchema`, `NAME_MIN_LENGTH` et
+`NAME_MAX_LENGTH`, et les **trois** formulaires l'importent.
+
+**Le plafond retenu est 120**, pour la raison qui avait fait monter le plancher
+du mot de passe : élargir celui du back-office n'enferme personne dehors, alors
+que resserrer celui de l'app publique refuserait un nom déjà en base. Le
+`.trim()` fait partie de la règle et non du devoir de l'appelant — sans lui, «
+␣␣A␣␣ » passait un plancher de deux caractères sur quatre caractères d'espace.
+
+**Le vocabulaire, ce que l'étape annonçait** : `edit-name-dialog.tsx` disait «
+Nom et prénoms » (titre, description lue par les lecteurs d'écran, libellé du
+champ) là où l'inscription dit « nom complet » et où le back-office disait déjà
+« Nom complet ». Les trois disent maintenant la même chose.
+
+**Les identifiants** : `firstNameSchema` disparaît avec la règle,
+`create-password-step-section.tsx` nomme sa variable `fullName`, et le helper du
+test d'inscription suit.
+
+> **Ce qui n'a PAS bougé, et pourquoi.** `ownerFirstName` (page `/q/:code`) et
+> le `firstName` du bonjour du back-office portent un **vrai** prénom —
+> `user.name.split(' ')[0]`, extrait délibérément pour n'afficher que le prénom.
+> Les trois placeholders diffèrent encore (« Ex : Adjoua Konan », « Konan
+> Ouattara Grégoire », « Prénom Nom ») : ce sont des **exemples**, pas des
+> libellés concurrents, et l'argument de `PASSWORD_PLACEHOLDER` ne tient pas ici
+> — un exemple n'annonce aucune règle. La constante écrite au premier jet a été
+> retirée plutôt qu'exportée sans emploi.
+
+**Fichiers** : `contracts/shared/` (la règle, son spec, l'index),
+`client/routes/auth/register/` (le schéma, le composant, son test),
+`client/routes/account/settings/` (le schéma, la boîte de dialogue, deux tests),
+`admin/routes/dashboard/administrators/` (le schéma, deux tests). **Flux** : E.
+**Changement de contrat, aucun de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur, 0 avertissement · `format:check`
+propre · `pnpm build` vert. Chaque suite seule : api **701** (inchangée),
+contracts **437** (+14), admin **438** et client **1011** en `node` / **379** en
+`ui` (inchangés).
+
+**Les trois gardes vérifiées en rouge** : le `.trim()` retiré fait tomber deux
+cas ; le back-office se redonnant sa règle à 80 fait tomber deux cas dont celui
+de la boîte de dialogue ; et le plafond ramené à 80 — voir ci-dessous.
+
+> ⚠️ **La garde du plafond ne pouvait pas échouer au premier jet.** Chaque cas
+> du spec calculait sa valeur attendue depuis `NAME_MAX_LENGTH`, donc ramener la
+> constante de 120 à 80 laissait **437 tests verts** : les deux côtés de
+> l'assertion bougeaient ensemble. C'est le piège que N1 avait consigné sur la
+> partition des audiences, retombé dans le même trou une étape plus tard. Une
+> seule assertion épingle désormais les deux nombres **en littéral**, et elle
+> dit d'elle-même ce qu'elle achète — elle attrape une édition accidentelle, pas
+> une décision : déplacer le plafond oblige à toucher cette ligne, donc à la
+> justifier.
 
 #### N2 — Le poseur apprend ce qui arrive à son annonce — **LIVRÉE**
 

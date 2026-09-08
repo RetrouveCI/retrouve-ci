@@ -72,9 +72,9 @@ export function EditNameDialog({
 			<DialogTrigger asChild>{trigger}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Nom et prénoms</DialogTitle>
+					<DialogTitle>Nom complet</DialogTitle>
 					<DialogDescription className="sr-only">
-						Modifier votre nom et prénoms
+						Modifier votre nom complet
 					</DialogDescription>
 				</DialogHeader>
 				<form
@@ -89,7 +89,7 @@ export function EditNameDialog({
 						name="name"
 						render={({ field, fieldState }) => (
 							<div className="space-y-2">
-								<InputLabel htmlFor={field.name}>Nom et prénoms</InputLabel>
+								<InputLabel htmlFor={field.name}>Nom complet</InputLabel>
 								<Input
 									{...field}
 									id={field.name}

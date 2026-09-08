@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import {
+	fullNameSchema,
 	otpCodeSchema,
 	passwordSchema,
 	withPasswordConfirmation,
@@ -20,21 +21,12 @@ export const otpSchema = z.object({
 	otp: otpCodeSchema,
 })
 
-/**
- * The account already has a name — a sign-up by phone stores the number itself
- * — so this step overwrites it rather than filling a blank.
- */
-export const firstNameSchema = z
-	.string({ error: 'Votre nom est requis' })
-	.trim()
-	.min(2, 'Votre nom est requis')
-	.max(120, 'Votre nom est trop long')
-
 export const newPasswordSchema = withPasswordConfirmation(
 	z.object({
 		newPassword: passwordSchema,
 		confirmPassword: z.string(),
-		name: firstNameSchema,
+		// A sign-up by phone already stored the number as the name; this overwrites.
+		name: fullNameSchema,
 	}),
 )
 
@@ -46,7 +38,7 @@ export const sendOtpActionSchema = z.object({
 export const setInitialPasswordActionSchema = z.object({
 	intent: z.literal('set-initial-password'),
 	newPassword: passwordSchema,
-	name: firstNameSchema,
+	name: fullNameSchema,
 })
 
 export type PhoneNumberInput = z.input<typeof phoneNumberSchema>

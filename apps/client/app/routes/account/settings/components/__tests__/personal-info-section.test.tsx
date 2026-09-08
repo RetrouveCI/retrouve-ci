@@ -83,7 +83,7 @@ describe('PersonalInfoSection', () => {
 		await userEvent.click(page.getByRole('button', { name: /^Nom/ }))
 
 		await expect
-			.element(page.getByRole('dialog', { name: 'Nom et prénoms' }))
+			.element(page.getByRole('dialog', { name: 'Nom complet' }))
 			.toBeInTheDocument()
 	})
 })
