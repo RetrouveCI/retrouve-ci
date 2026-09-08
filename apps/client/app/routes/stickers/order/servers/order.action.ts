@@ -35,6 +35,15 @@ export async function orderAction(
 					request,
 				),
 			),
-		{ redirectOnUnauthorized: '/login' },
+		{
+			redirectOnUnauthorized: '/login',
+			// The one form in the monorepo whose names differ from the contract's.
+			fields: {
+				packId: 'packId',
+				deliveryAddress: 'address',
+				deliveryCity: 'city',
+				couponCode: 'couponCode',
+			},
+		},
 	)
 }

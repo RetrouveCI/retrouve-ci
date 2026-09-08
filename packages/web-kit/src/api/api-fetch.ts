@@ -79,6 +79,7 @@ export function createApiFetch({
 				body
 					? toApiErrorMessage(body, response.statusText)
 					: response.statusText,
+				body?.errors,
 			)
 		}
 
