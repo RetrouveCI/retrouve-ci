@@ -1,15 +1,15 @@
 import type { ActionResult } from '@/shared/types/action'
 import { ApiError } from '@/shared/utils/api-fetch'
 
-const { getServerSession, activateSticker, updateSticker, revokeSticker } =
+const { requireServerSession, activateSticker, updateSticker, revokeSticker } =
 	vi.hoisted(() => ({
-		getServerSession: vi.fn(),
+		requireServerSession: vi.fn(),
 		activateSticker: vi.fn(),
 		updateSticker: vi.fn(),
 		revokeSticker: vi.fn(),
 	}))
 
-vi.mock('@/shared/helpers/session.server', () => ({ getServerSession }))
+vi.mock('@/shared/helpers/session.server', () => ({ requireServerSession }))
 vi.mock('../stickers.service', () => ({
 	activateSticker,
 	updateSticker,
@@ -36,7 +36,7 @@ function errorsOf(result: ActionResult) {
 }
 
 beforeEach(() => {
-	getServerSession.mockReset().mockResolvedValue({ user: { id: 'user-1' } })
+	requireServerSession.mockReset().mockResolvedValue({ user: { id: 'user-1' } })
 	activateSticker.mockReset().mockResolvedValue({ code: 'RCI-ABC123' })
 	updateSticker.mockReset().mockResolvedValue({ code: 'RCI-ABC123' })
 	revokeSticker.mockReset().mockResolvedValue({ code: 'RCI-ABC123' })
@@ -47,22 +47,26 @@ afterEach(() => {
 })
 
 describe('stickersAction', () => {
-	/**
-	 * This one gates with `getServerSession` and its own `redirect`, where the
-	 * loaders next to it use `requireServerSession`. The outcome is the same and
-	 * is asserted here; the inconsistency is recorded in the plan.
-	 */
-	it('redirects to login when there is no session, reading no body', async () => {
-		getServerSession.mockResolvedValue(null)
+	it('gates on the session before reading the body', async () => {
+		const redirect = new Response(null, {
+			status: 302,
+			headers: { location: '/login?redirectTo=%2Faccount%2Fstickers' },
+		})
+		requireServerSession.mockRejectedValue(redirect)
 
 		const thrown = await submit({
 			intent: 'revoke',
 			code: 'RCI-ABC123',
-		}).catch((error: unknown) => error as Response)
+		}).catch((error: unknown) => error)
 
-		expect(thrown).toBeInstanceOf(Response)
-		expect((thrown as Response).headers.get('location')).toBe('/login')
+		expect(thrown).toBe(redirect)
 		expect(revokeSticker).not.toHaveBeenCalled()
+	})
+
+	it('reads the session through the shared gate, not its own', async () => {
+		await submit({ intent: 'revoke', code: 'RCI-ABC123' })
+
+		expect(requireServerSession).toHaveBeenCalledTimes(1)
 	})
 
 	describe('activate', () => {

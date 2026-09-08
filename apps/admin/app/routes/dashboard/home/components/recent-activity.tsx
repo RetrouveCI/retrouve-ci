@@ -13,7 +13,7 @@ import { cn } from '@app/ui/utils'
 type ActivityType = 'scan' | 'user' | 'post' | 'contact'
 
 interface Activity {
-	id: number
+	id: string
 	type: string
 	text: string
 	timestamp: string

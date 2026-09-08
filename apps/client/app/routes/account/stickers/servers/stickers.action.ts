@@ -1,6 +1,5 @@
-import { redirect } from 'react-router'
 import { zodErrorToFieldErrors } from '@/shared/helpers/form'
-import { getServerSession } from '@/shared/helpers/session.server'
+import { requireServerSession } from '@/shared/helpers/session.server'
 import type { ActionResult } from '@/shared/types/action'
 import { withApiOperationError } from '@/shared/utils/api-operation'
 import { stickersActionSchema } from '../stickers.schema'
@@ -17,8 +16,8 @@ export async function stickersAction({
 }: {
 	request: Request
 }): Promise<ActionResult> {
-	const session = await getServerSession(request)
-	if (!session) throw redirect('/login')
+	// Not just a shape: the bespoke gate threw a bare `/login`, losing the page.
+	await requireServerSession(request)
 
 	const submission = stickersActionSchema.safeParse(
 		Object.fromEntries(await request.formData()),

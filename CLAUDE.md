@@ -65,9 +65,13 @@ front-ends declare two Vitest **projects**: `node` for `__tests__/*.test.ts`
 (pure modules) and `ui` for `__tests__/*.test.tsx`, run in a real Chromium
 through browser mode. Both apps have suites for both projects.
 
-`packages/ui` and `packages/web-kit` have **no runner at all**, which is why a
-guard over shared front code lives in `apps/client` — see the `cn()` token guard
-in `app/shared/__tests__/`.
+`packages/ui` and `packages/web-kit` have **no runner at all**, which is why
+every guard over shared front code lives in `apps/client/app/shared/__tests__/`
+— the `cn()` token floor, the caller-forwarding rule, the safe-area criterion,
+`web-kit`'s declared dependencies, and `FieldError`'s two rules. ⚠️ Count with
+`.elements().length` in a browser test, never with `not.toBeInTheDocument()`: a
+locator matching **several** elements resolves to no single element, so the
+negative form passes on two matches exactly as it does on zero.
 
 ```bash
 pnpm --filter @app/api test        # api only
@@ -934,15 +938,6 @@ deliberately declined.
   diff of the realignment and break `git blame`. If it is ever done, it must be
   one isolated commit plus a `.git-blame-ignore-revs`.
 
-### `packages/ui`
-
-- **`FieldError` drifts from the current shadcn revision** in
-  `components/ui/field.tsx`: it does not deduplicate messages by `message`, and
-  an **empty** `errors` array falls through to the `<ul>` branch, rendering an
-  empty `role="alert"`. `FormInputField` / `FormTextareaField` avoid the second
-  by rendering conditionally, so `errors` is never empty through them. Resync
-  via the shadcn CLI.
-
 ### `apps/api`
 
 - **`reporting`'s ten `$queryRaw` calls are not covered**, and that is a
@@ -950,29 +945,6 @@ deliberately declined.
   rendered shape directly — so a test would only be worth anything against a
   real Postgres, which this repo's CI does not start. The day it does, that is
   an integration test, not a unit test.
-
-### `apps/admin`
-
-- **The dashboard's `CATEGORY_LABELS` is a `Record<string, string>`** with a
-  `?? row.category` fallback, where `posts.const.ts` types its own table against
-  `LostItemCategory`. A category added to the contract would show a French
-  administrator `JEWELRY` instead of failing to compile. The front has no type
-  for the Prisma enum's casing, so the guard is a test rather than the type.
-- **`dashboard/home`'s loader renumbers activities by position** (`id: i + 1`)
-  and discards the id the API sends. Harmless while nothing targets one
-  activity, but the React key will not survive a sort.
-
-### `apps/client`
-
-- **`stickersAction` gates with `getServerSession` plus its own
-  `throw redirect('/login')`**, where the two loaders beside it use
-  `requireServerSession`. Same outcome, different shape.
-- **`place-step` draws its selects at 52 px** (`h-13`) where the rest of the
-  publish form uses `h-control` (48 px). Measured, left alone: changing a height
-  moves what the mock drew.
-- **A variant class still beats a bare one**, `data-[size=default]:h-9` over
-  `h-13`. R38 fixed the half-token trap by registering the four theme tokens
-  with `cn()`; this twin is untouched, and there is no guard for it.
 
 ### Security advisories
 

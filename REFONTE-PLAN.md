@@ -6261,6 +6261,110 @@ dira pas : elle vérifie qu'un chemin est **nommé**, pas que le raisonnement
 tient encore. Et `CATEGORY_LABELS` plus la renumérotation de `dashboard/home`
 attendent toujours.
 
+#### R60 — Solder la petite dette, et deux entrées qui n'existaient plus — **LIVRÉE**
+
+Ce qui restait de la liste « Known debt » de `CLAUDE.md`, audité **sur pièces
+avant d'être corrigé** — et l'audit a trouvé deux dettes qui n'existaient plus
+et une note qui décrivait mal celle qui existait.
+
+**`FieldError` de `packages/ui`, resynchronisé sur la révision shadcn.** La note
+prescrivait « resync via the shadcn CLI » ; la source du registre a été lue
+(`ui.shadcn.com/r/styles/new-york-v4/field.json`) plutôt que réécrite à la main,
+et elle corrige exactement les deux points nommés : `if (!errors?.length)` au
+lieu de `if (!errors)`, et une déduplication par message via une `Map`. Seul
+l'ordre des classes reste le nôtre, c'est le tri Tailwind de Prettier.
+
+> ⚠️ **`packages/ui` n'a aucun runner, donc la garde vit dans `apps/client`** —
+> la cinquième de `app/shared/__tests__/`. Et sa **première version ne valait
+> rien** : cinq tests verts contre l'ancienne implémentation.
+>
+> **`expect.element(locator).not.toBeInTheDocument()` passe aussi quand le
+> localisateur matche PLUSIEURS éléments** : il ne résout pas un élément unique,
+> donc la forme négative est vraie sur deux correspondances exactement comme sur
+> zéro. Réécrite sur `.elements().length`, elle échoue sur les deux points de la
+> dette — l'alerte vide et le doublon — et sur eux seuls.
+
+**Le `CATEGORY_LABELS` du tableau de bord, tenu par le TYPE.** La note disait :
+« le front n'a pas de type pour la casse de l'enum Prisma, donc la garde est un
+test plutôt que le type ». **C'est faux** :
+`Record<Uppercase<LostItemCategory>, string>` est ce type. Une catégorie ajoutée
+au contrat est désormais une **erreur de compilation** (`TS2741`, vérifiée), là
+où elle affichait `JEWELRY` à un administrateur français. Le test qui restait
+couvre ce que le type ne peut pas : une dérive de **casse**, l'API lisant la
+colonne en `::text`.
+
+**L'id d'activité conservé.** `dashboard/home` renumérotait par position
+(`id: i + 1`) et jetait celui de l'API ; `Activity.id` passe de `number` à
+`string` et le test qui assertait `[1, 2]` asserte `['act-a', 'act-b']`.
+
+> ⚠️ **`stickersAction` : la note disait « même résultat, forme différente », et
+> c'était inexact.** `requireServerSession` redirige vers
+> `loginUrlWithRedirect(...)` là où la garde maison jetait un `/login` **nu** :
+> une session expirée revenait donc sur l'accueil au lieu de revenir sur ces
+> stickers. L'aligner corrige un vrai écart de comportement, pas une forme.
+
+> ⚠️ **Et une tentative écartée, qui vaut d'être notée.** Pour assertionner
+> l'URL réelle, le test a d'abord gardé le vrai `requireServerSession` via
+> `importOriginal` en ne stubbant que `getServerSession` — **ça ne marche pas**
+> : la vraie fonction appelle le `getServerSession` **local à son module**, que
+> remplacer l'export n'intercepte pas, donc le test partait sur un vrai `fetch`
+> vers `api.test`. L'URL est déjà prouvée par `session.server.test.ts` ; ce
+> test-ci prouve la **délégation**, ce qui est sa place.
+
+**Deux entrées de `CLAUDE.md` ne décrivaient plus rien** : `place-step` dessine
+ses selects avec `h-control` et non `h-13`, et `data-[size=default]:h-9`
+n'existe **nulle part** dans le dépôt — R41 avait fermé ce jumeau, et le fichier
+normatif l'ignorait. Les deux sont retirées avec les quatre closes par ce lot.
+`Known debt` ne contient plus que des décisions assumées : le TypeScript
+épinglé, les deux presets absents, Prettier, et les `$queryRaw` de `reporting`.
+
+**`pnpm lint` est propre pour la première fois** : 0 erreur **et 0
+avertissement**. Le seul qui restait — un `import { redirect }` inutilisé dans
+`profile.loader.test.ts`, masqué par un `const redirect` local à la ligne 42 —
+était traîné comme « préexistant » depuis R48.
+
+> ⚠️ **Cet import inutilisé était PORTEUR, et la CI seule l'a vu.** Le retirer a
+> laissé le fichier **sans aucun import ni export**, donc ce n'était plus un
+> module — et son `await import(...)` de haut niveau devient illégal
+> (**TS1375**). Remplacé par un `export {}` que son commentaire déclare
+> nécessaire, pour que personne ne le retire à son tour ; le retrait de cette
+> ligne fait bien échouer le typecheck, vérifié.
+>
+> **Et c'est une faute de méthode, pas de connaissance** : après cette retouche
+> j'ai relancé `lint` et non `typecheck`. Le `pnpm build` qui a suivi n'a rien
+> dit non plus, `react-router build` ne type-checkant pas. **Relancer la chaîne
+> ENTIÈRE après la dernière retouche, y compris quand elle ne fait qu'une
+> ligne** — R58 et R59 l'avaient fait, ce lot l'a sauté et la CI a répondu.
+
+**Fichiers** : `packages/ui/src/components/ui/field.tsx`,
+`client/app/shared/__tests__/field-error.test.tsx` (neuf),
+`client/routes/account/stickers/servers/` (l'action et son spec),
+`admin/routes/dashboard/home/` (le loader, son spec, `recent-activity.tsx`),
+`admin/routes/dashboard/profile/servers/__tests__/profile.loader.test.ts`,
+`CLAUDE.md`. **Flux** : C et D. **Aucun changement d'API, de contrat ni de
+base.**
+
+**Chiffres** : typecheck 9/9 · lint **0 erreur, 0 avertissement** ·
+`format:check` propre · `pnpm build` vert. Chaque suite seule : api **624**,
+contracts **390**, admin **438** (inchangées) et client **1390** (1013 en
+`node`, +1, et 377 en `ui`, +5). Densité de commentaires 9,6 % — **24,1 % au
+premier jet**, le pire ratio de la série parce que le lot est petit : 137 lignes
+dont les correctifs tiennent en une ligne chacun et le raisonnement en dix. Neuf
+blocs condensés, et le raisonnement déplacé ici et dans la PR, où il a sa place.
+
+**Les trois gardes vérifiées en rouge puis restaurées** : l'ancienne
+implémentation de `FieldError` fait tomber deux cas sur cinq, l'alerte vide et
+le doublon ; une catégorie du contrat privée de libellé fait tomber le
+**typecheck** et pas un test ; et le retrait de l'`export {}` le fait tomber sur
+TS1375. Restauration contrôlée au `grep` et au `git diff --stat`.
+
+**Reste ouvert** : plus rien d'actionnable dans `Known debt`. Ce qui subsiste
+est délibéré et consigné comme tel. Côté étapes, A2, A3, A5 et A6 restent
+facultatives, et §8 pose encore la question du web push (A3) au commanditaire —
+ses deux autres lignes vivantes, `A1 avant ou après R13` et la règle de la
+récupération de mot de passe, renvoient à des étapes **livrées** et pourraient
+être barrées.
+
 ---
 
 ## 6. Ce qui ne bouge pas
