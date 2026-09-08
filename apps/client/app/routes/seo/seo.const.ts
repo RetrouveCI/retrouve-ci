@@ -6,6 +6,7 @@ export const INDEXABLE_PATHS = [
 	'/',
 	'/posts',
 	'/objet-perdu-cote-divoire',
+	'/carte-identite-perdue',
 	'/publish',
 	'/stickers',
 	'/stickers/order',
@@ -34,6 +35,14 @@ export const DISALLOWED_PATHS = [
 	'/reset-password',
 	'/offline',
 ] as const
+
+/**
+ * The public pages a static list cannot name, because their path carries a
+ * parameter: the sitemap enumerates them one by one instead. This is the third
+ * class of the partition every mounted page falls into — indexable, disallowed,
+ * or enumerated — and naming it is what lets the guard be total.
+ */
+export const ENUMERATED_PATHS = ['/posts/:id'] as const
 
 // Capped so a crawler's fetch stays bounded: 100 is `MAX_PAGE_SIZE`, and ten
 // calls is far more than the pilot holds.

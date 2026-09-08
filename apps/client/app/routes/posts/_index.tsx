@@ -12,10 +12,13 @@ import { pageMeta } from '@/shared/helpers/page-meta'
 
 export const loader = postsLoader
 
+// « Annonces » is an internal word nobody searches, on the one page that *is*
+// the lost-and-found listing. It now says what it holds, as R49 did for home.
 export function meta() {
 	return pageMeta({
-		title: 'Annonces',
-		description: 'Parcourez les objets perdus et retrouvés sur RetrouveCI.',
+		title: "Objets perdus et retrouvés en Côte d'Ivoire",
+		description:
+			"Le site des objets et documents perdus ou retrouvés en Côte d'Ivoire : parcourez les annonces par ville, par commune et par type d'objet, ou publiez la vôtre.",
 	})
 }
 

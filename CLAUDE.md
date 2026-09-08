@@ -516,6 +516,11 @@ Route structure (all under `app/`):
   sign-in loop.
 - `/offline` — where the service worker sends a navigation it can serve from
   neither the network nor the cache
+- `/objet-perdu-cote-divoire`, `/carte-identite-perdue` — the two **search
+  landing pages**, prose that answers a query rather than app screens. They are
+  in `INDEXABLE_PATHS`, and a guard makes every mounted page fall in exactly one
+  of three classes — indexable, disallowed, or enumerated by the sitemap — so a
+  public page can no longer be added and left out of the sitemap in silence.
 - `/about`, `/contact`, `/download`, `/privacy`, `/terms`
 
 Four paths are **resource routes** — a `servers/*.loader.ts` mounted with no
