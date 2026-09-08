@@ -493,6 +493,17 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   `notify-matches`, where that is right because the failure must retry the
   BullMQ job, and `contact-qr-token-owner`, the one public write where an
   unreachable Redis still answers 500.
+- **A stored photo is bounded in pixels, not only in bytes.**
+  `uploadImageBuffer` passes an **incoming** `transformation`
+  (`c_limit,w_2000`), applied before Cloudinary stores the asset — ⚠️ not
+  `eager`, which pre-generates extra derived versions and leaves the master at
+  full size. `MAX_PHOTO_SIZE` (5 Mo) bounds bytes, and five megabytes of JPEG
+  can be 6000 px wide, so the two caps are complementary. The ceiling sits above
+  the widest the front ever asks for (1600 device pixels, the detail gallery at
+  2×), and no `q_auto`/`f_auto` is baked into the master because the display URL
+  already applies one. `c_limit` never upscales, so a narrower photo is stored
+  untouched — and asking for more than is stored yields the stored size rather
+  than an error, which is why no cross-app guard was added.
 - **The two public counters are counted, never written.** `GET /stats/counters`
   is anonymous and answers `{ published, resolvedThisMonth }`, read by the
   sign-in panel and by the home page's badge and « Voir les N annonces » link —

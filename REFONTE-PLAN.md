@@ -4484,13 +4484,65 @@ restauré garde son type de pièce.
 et api **411** inchangés, admin **413** inchangé, client **1073** (790 en
 `node`, 283 en `ui`) contre 1021. Densité de commentaires **9,6 %**.
 
-#### A2 — Transformations Cloudinary à l'upload _(facultatif)_
+#### A2 — Transformations Cloudinary à l'upload — **LIVRÉE**
 
-Si R4 dérive les URLs côté front, l'upload peut rester tel quel. À faire
-seulement pour borner l'original stocké : `eager` avec une largeur maximale dans
-`uploadImageBuffer`.
+R4 dérive bien les URLs d'affichage côté front (`imageUrl`, `c_limit,w_N`), donc
+le **service** était déjà borné. Ce qui ne l'était pas, c'est le **master
+stocké**.
 
-**Fichiers** : `apps/api/src/infrastructures/storage/cloudinary.client.ts`.
+> ⚠️ **La prescription de cette section était fausse pour son propre but.** Elle
+> disait « `eager` avec une largeur maximale ». Une transformation `eager`
+> pré-génère des versions dérivées **en plus** et laisse l'original stocké en
+> pleine taille : elle ne borne rien. Ce qui borne, c'est une transformation
+> **entrante** — `transformation` passé à l'upload, appliqué **avant** que
+> l'asset soit stocké. C'est ce qui est livré, et les deux tests qui le disent
+> tombent si on remet `eager`.
+>
+> ⚠️ Lecture de l'API Cloudinary, **non mesurée contre un compte réel** : ce
+> checkout n'a ni identifiants ni accès réseau de test. À reconfirmer au premier
+> upload en production, en regardant la largeur du master dans la médiathèque.
+
+**Le plafond en octets ne borne pas les pixels.** `MAX_PHOTO_SIZE` refuse
+au-delà de 5 Mo, et cinq mégaoctets de JPEG peuvent faire 6000 px de large. Les
+deux plafonds sont donc complémentaires, pas redondants.
+
+**2000 px, mesuré et non choisi au hasard** : le front ne demande jamais plus de
+**1600** px (la galerie du détail, à 2×) — relevé sur les huit largeurs passées
+à `imageUrl`. Le plafond laisse donc de la marge sans rien perdre de ce qu'un
+écran dessine, et un modérateur garde de quoi lire le numéro de pièce que le
+motif `document_number_visible` d'A1 vise.
+
+**`c_limit` et pas `c_fill`** — le second **agrandit**, ce qui est l'inverse du
+but : une photo déjà plus étroite que le plafond est stockée telle quelle. Et
+**aucun `q_auto` ni `f_auto` sur le master** : l'URL d'affichage en applique
+déjà un, et cuire une passe avec perte dans le master se composerait avec elle.
+
+**Assumé** : la transformation entrante **écarte l'original**. Pour une photo
+d'annonce, rien n'en a besoin au-delà de l'affichage et de la modération ; le
+jour où un téléchargement pleine résolution serait voulu, il faudra le décider
+avant, pas après.
+
+**Garde inter-app déclinée**, et pourquoi : on pourrait vérifier qu'aucun appel
+à `imageUrl` ne demande plus que le plafond, en hissant celui-ci dans
+`@app/contracts`. Mais `c_limit` ne casse pas quand on demande trop — il rend la
+taille stockée, donc une image un peu molle et non une panne. Le coût (une
+constante de contrat pour deux runtimes) dépasse la sévérité.
+
+**Fichiers** : `api/infrastructures/storage/cloudinary.client.ts` (+ son spec,
+qu'il n'avait pas). **Flux** : A, B. **Aucun changement de contrat ni de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur, 0 avertissement · `format:check`
+propre · `pnpm build` vert. Chaque suite seule : api **720** (+6), contracts
+**437**, admin **438**, client **1016** en `node` / **385** en `ui` (toutes
+inchangées).
+
+**Les deux gardes vérifiées en rouge** : `eager` remis à la place de la
+transformation entrante fait tomber trois cas ; `c_fill` à la place de `c_limit`
+en fait tomber deux.
+
+> **Note de mesure** : `apps/api` est en **CommonJS**, donc un `await import` de
+> haut niveau y est refusé (TS1309) là où les specs du client s'en servent. Un
+> `import` statique suffit — `vi.mock` est hissé au-dessus de lui.
 
 #### A3 — Notifications poussées sur correspondance _(facultatif)_
 
