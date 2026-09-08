@@ -1,4 +1,5 @@
 import type { LostItemApiDto } from '@/shared/types/lost-items.types'
+import { formatRelativeDate } from '@/shared/utils/date'
 import { toLostItem, toLostItemDetail } from '../lost-item.mapper'
 
 const DTO: LostItemApiDto = {
@@ -52,5 +53,37 @@ describe('the lost item mapper', () => {
 		expect(JSON.stringify(toLostItemDetail(withNumber))).not.toContain(
 			'CI0012345678',
 		)
+	})
+})
+
+// ⚠️ Both used to come from `eventDate`, so a listing posted yesterday about a
+// card lost in June read « Il y a 3 mois ». Three weeks apart here.
+describe('the two dates a listing carries', () => {
+	const DATED = {
+		...DTO,
+		eventDate: '2026-06-10T10:00:00.000Z',
+		createdAt: '2026-09-01T10:00:00.000Z',
+	}
+
+	it('counts the relative line from the posting date', () => {
+		expect(toLostItem(DATED).postedAt).toBe(
+			formatRelativeDate('2026-09-01T10:00:00.000Z'),
+		)
+	})
+
+	it('does not count it from the loss date', () => {
+		expect(toLostItem(DATED).postedAt).not.toBe(
+			formatRelativeDate('2026-06-10T10:00:00.000Z'),
+		)
+	})
+
+	// Absolute, because a finder compares a day rather than a duration.
+	it('keeps the loss date as the day it happened', () => {
+		expect(toLostItem(DATED).eventDate).toBe('10 juin 2026')
+	})
+
+	// It was mapped and read by nobody; two dates make the name ambiguous too.
+	it('carries no dateISO any more', () => {
+		expect(toLostItem(DATED)).not.toHaveProperty('dateISO')
 	})
 })

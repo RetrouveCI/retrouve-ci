@@ -1,4 +1,4 @@
-import { formatRelativeDate } from '@/shared/utils/date'
+import { formatEventDate, formatRelativeDate } from '@/shared/utils/date'
 import type {
 	ListingModeration,
 	LostItem,
@@ -31,8 +31,8 @@ export function toLostItem(dto: LostItemBaseApiDto): LostItem {
 		location: dto.commune ? `${dto.commune}, ${dto.ville}` : dto.ville,
 		ville: dto.ville,
 		commune: dto.commune ?? undefined,
-		date: formatRelativeDate(dto.eventDate),
-		dateISO: dto.eventDate.slice(0, 10),
+		postedAt: formatRelativeDate(dto.createdAt),
+		eventDate: formatEventDate(dto.eventDate),
 		type: dto.type,
 		category: dto.category,
 		image: dto.photos[0],

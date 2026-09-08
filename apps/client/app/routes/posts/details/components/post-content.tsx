@@ -1,4 +1,4 @@
-import { MapPin, Clock, IdCard, ShieldAlert } from 'lucide-react'
+import { MapPin, Clock, CalendarDays, IdCard, ShieldAlert } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { DOCUMENT_TYPE_LABELS } from '@/shared/constants/documents'
 import type { LostItemDocument } from '@/shared/types/lost-item'
@@ -8,7 +8,8 @@ interface LostItem {
 	title: string
 	description: string
 	location: string
-	date: string
+	postedAt: string
+	eventDate: string
 	type: 'lost' | 'found'
 	category: string
 	contact: { name: string }
@@ -115,9 +116,19 @@ export function PostContent({ listing }: { listing: LostItem }) {
 				{listing.title}
 			</h1>
 
-			<div className="flex gap-2.5">
+			{/* A grid rather than a row, so the third card folds on a phone. */}
+			<div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
 				<MetaCard icon={MapPin} label="Lieu" value={listing.location} />
-				<MetaCard icon={Clock} label="Date" value={listing.date} />
+				<MetaCard
+					icon={CalendarDays}
+					label={isLost ? 'Perdu le' : 'Retrouvé le'}
+					value={listing.eventDate}
+				/>
+				<MetaCard
+					icon={Clock}
+					label="Date de publication"
+					value={listing.postedAt}
+				/>
 			</div>
 
 			{listing.document && <DocumentCard document={listing.document} />}

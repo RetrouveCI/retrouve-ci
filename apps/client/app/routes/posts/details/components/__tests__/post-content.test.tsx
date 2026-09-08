@@ -7,7 +7,8 @@ const LISTING = {
 	title: 'CNI trouvée à Yopougon',
 	description: '',
 	location: 'Yopougon, Abidjan',
-	date: 'il y a 2 jours',
+	postedAt: 'il y a 2 jours',
+	eventDate: '1 août 2026',
 	type: 'found' as const,
 	category: 'documents',
 	contact: { name: 'Awa' },
@@ -56,5 +57,33 @@ describe('a listing that declares a piece', () => {
 		await expect
 			.element(page.getByRole('heading', { name: 'Description' }))
 			.toBeVisible()
+	})
+})
+
+// Two dates, so the labels have to say which is which.
+describe('the two dates', () => {
+	it('names the day the object was found and the day the listing went up', async () => {
+		renderContent()
+
+		await expect.element(page.getByText('Retrouvé le')).toBeVisible()
+		await expect.element(page.getByText('1 août 2026')).toBeVisible()
+		await expect.element(page.getByText('Date de publication')).toBeVisible()
+		await expect.element(page.getByText('il y a 2 jours')).toBeVisible()
+	})
+
+	// The label follows the type axis, as the pill above it does (§2.3 rule 2).
+	it('says « Perdu le » on a lost listing', async () => {
+		const Stub = createRoutesStub([
+			{
+				path: '/',
+				Component: () => (
+					<PostContent listing={{ ...LISTING, type: 'lost' as const }} />
+				),
+			},
+		])
+		render(<Stub initialEntries={['/']} />)
+
+		await expect.element(page.getByText('Perdu le')).toBeVisible()
+		expect(page.getByText('Retrouvé le').elements()).toHaveLength(0)
 	})
 })

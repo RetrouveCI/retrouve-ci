@@ -77,7 +77,7 @@ export function MatchesSheet({
 									{item.title}
 								</span>
 								<span className="text-muted-foreground block truncate text-xs">
-									{item.location} &middot; {item.date.toLowerCase()}
+									{item.location} &middot; {item.postedAt.toLowerCase()}
 								</span>
 							</span>
 							<ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />

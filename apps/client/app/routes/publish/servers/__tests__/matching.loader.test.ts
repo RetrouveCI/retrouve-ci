@@ -65,6 +65,7 @@ describe('the matching loader', () => {
 				ville: 'Abidjan',
 				commune: 'Cocody',
 				eventDate: '2026-08-01T10:00:00.000Z',
+				createdAt: '2026-08-20T10:00:00.000Z',
 				photos: [],
 			},
 		])
@@ -76,7 +77,7 @@ describe('the matching loader', () => {
 			id: 'post-1',
 			title: 'Sac noir',
 			location: 'Cocody, Abidjan',
-			dateISO: '2026-08-01',
+			eventDate: '1 août 2026',
 		})
 	})
 

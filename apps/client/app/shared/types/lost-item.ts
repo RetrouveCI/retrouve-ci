@@ -35,8 +35,10 @@ export interface LostItem {
 	location: string
 	ville?: string
 	commune?: string
-	date: string
-	dateISO?: string
+	/** « Il y a 4 jours », from `createdAt`: how long the listing has been up. */
+	postedAt: string
+	/** « 3 sept. 2026 » — the day the object was lost or found. */
+	eventDate: string
 	type: LostItemType
 	category: LostItemCategory | string
 	image?: string
