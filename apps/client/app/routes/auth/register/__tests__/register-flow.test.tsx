@@ -77,7 +77,7 @@ async function reachPasswordStep(action?: Action) {
 	await expect.element(heading(PASSWORD_HEADING)).toBeInTheDocument()
 }
 
-const firstNameField = () => page.getByLabelText('Votre prénom')
+const firstNameField = () => page.getByLabelText('Votre nom complet')
 // The eye toggle carries « mot de passe » too, hence the role queries.
 const passwordField = () =>
 	page.getByRole('textbox', { name: 'Mot de passe', exact: true })
@@ -232,7 +232,7 @@ describe('RegisterPage, the password step', () => {
 		await userEvent.click(createAccount())
 
 		await expect
-			.element(page.getByText('Votre prénom est requis'))
+			.element(page.getByText('Votre nom est requis'))
 			.toBeInTheDocument()
 		expect(created(sent)).toEqual([])
 	})

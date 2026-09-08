@@ -14,6 +14,7 @@ import {
 	AUDIENCE_HEADER,
 	getAdminOrigins,
 	resolveAudience,
+	type SessionAudience,
 } from '@/shared/auth/session-audience'
 
 // Metadata keys `@AllowAnonymous()`, `@OptionalAuth()` and `@Roles()` set.
@@ -25,6 +26,7 @@ interface RequestLike {
 	headers?: Record<string, string | string[] | undefined>
 	session?: unknown
 	user?: unknown
+	authAudience?: SessionAudience
 }
 
 type SessionLike = { user?: { role?: string | null } } | null
@@ -61,6 +63,9 @@ export class SessionGuard implements CanActivate {
 
 		request.session = session
 		request.user = session?.user ?? null
+		// Attached rather than recomputed: whoever needs to know which app is
+		// asking reads the value the instance choice was actually made on.
+		request.authAudience = audience
 
 		if (this.metadata<boolean>(context, PUBLIC_KEY)) return true
 

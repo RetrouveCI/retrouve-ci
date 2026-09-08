@@ -5,15 +5,23 @@ import {
 	buildContactMessage,
 	buildRepository,
 } from '../../__tests__/contact-message.fixture'
+import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
 import { CreateContactMessageUseCase } from '../create-contact-message.use-case'
+function buildNotifier(): CreateNotificationUseCase {
+	return {
+		execute: vi.fn().mockResolvedValue(undefined),
+	} as unknown as CreateNotificationUseCase
+}
 
 describe('CreateContactMessageUseCase', () => {
 	let repository: ContactMessageRepository
 	let useCase: CreateContactMessageUseCase
+	let notifier: CreateNotificationUseCase
 
 	beforeEach(() => {
 		repository = buildRepository()
-		useCase = new CreateContactMessageUseCase(repository)
+		notifier = buildNotifier()
+		useCase = new CreateContactMessageUseCase(repository, notifier)
 	})
 
 	const data: CreateContactMessageData = {
@@ -55,5 +63,28 @@ describe('CreateContactMessageUseCase', () => {
 
 		expect(await useCase.execute(payload)).toEqual(created)
 		expect(repository.create).toHaveBeenCalledWith(payload)
+	})
+
+	describe('telling the desk', () => {
+		beforeEach(() => {
+			vi.mocked(repository.create).mockResolvedValue(buildContactMessage())
+		})
+
+		it('raises a desk notification naming the sender', async () => {
+			await useCase.execute(data)
+
+			const [call] = vi.mocked(notifier.execute).mock.calls
+
+			expect(call?.[0]).toMatchObject({
+				type: 'contact_received',
+				link: '/contact-messages?status=new',
+			})
+		})
+
+		it('still records the message when the notice fails', async () => {
+			vi.mocked(notifier.execute).mockRejectedValue(new Error('redis down'))
+
+			await expect(useCase.execute(data)).resolves.toBeDefined()
+		})
 	})
 })

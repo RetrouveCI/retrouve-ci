@@ -7,6 +7,9 @@ import {
 import { Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructures/auth/auth.config'
+import { Audience } from '@/shared/auth/decorators/audience.decorator'
+import type { SessionAudience } from '@/shared/auth/session-audience'
+import { notificationScope } from '@/domains/notifications/helpers/notification-scope'
 import { GetMyNotificationsUseCase } from '@/domains/notifications/use-cases/get-my-notifications.use-case'
 import { GetUnreadNotificationsCountUseCase } from '@/domains/notifications/use-cases/get-unread-notifications-count.use-case'
 import { MarkAllNotificationsAsReadUseCase } from '@/domains/notifications/use-cases/mark-all-notifications-as-read.use-case'
@@ -25,28 +28,51 @@ export class NotificationsController {
 		private readonly markNotificationAsRead: MarkNotificationAsReadUseCase,
 	) {}
 
+	// `mine` is a misnomer for the backoffice, which reads the desk's — the path
+	// is kept so no front changes. The guard's audience decides, not a parameter.
 	@Get('mine')
 	@ApiZodQuery(listNotificationsFilterSchema)
 	listMine(
 		@Session() session: UserSession<Auth>,
+		@Audience() audience: SessionAudience,
 		@Query(new ZodValidationPipe(listNotificationsFilterSchema))
 		filter: ListNotificationsFilterData,
 	) {
-		return this.getMyNotifications.execute({ userId: session.user.id, filter })
+		return this.getMyNotifications.execute({
+			scope: notificationScope(audience, session.user.id),
+			filter,
+		})
 	}
 
 	@Get('unread-count')
-	getUnreadCount(@Session() session: UserSession<Auth>) {
-		return this.getUnreadNotificationsCount.execute(session.user.id)
+	getUnreadCount(
+		@Session() session: UserSession<Auth>,
+		@Audience() audience: SessionAudience,
+	) {
+		return this.getUnreadNotificationsCount.execute(
+			notificationScope(audience, session.user.id),
+		)
 	}
 
 	@Patch('read-all')
-	markAllAsRead(@Session() session: UserSession<Auth>) {
-		return this.markAllNotificationsAsRead.execute(session.user.id)
+	markAllAsRead(
+		@Session() session: UserSession<Auth>,
+		@Audience() audience: SessionAudience,
+	) {
+		return this.markAllNotificationsAsRead.execute(
+			notificationScope(audience, session.user.id),
+		)
 	}
 
 	@Patch(':id/read')
-	markAsRead(@Session() session: UserSession<Auth>, @Param('id') id: string) {
-		return this.markNotificationAsRead.execute({ id, userId: session.user.id })
+	markAsRead(
+		@Session() session: UserSession<Auth>,
+		@Audience() audience: SessionAudience,
+		@Param('id') id: string,
+	) {
+		return this.markNotificationAsRead.execute({
+			id,
+			scope: notificationScope(audience, session.user.id),
+		})
 	}
 }
