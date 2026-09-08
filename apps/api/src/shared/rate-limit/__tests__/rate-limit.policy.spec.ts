@@ -83,8 +83,33 @@ describe('limitFor', () => {
 		})
 	})
 
-	it('leaves everything outside the three buckets alone', () => {
-		expect(limitFor('POST', '/uploads/lost-item-photo')).toBeNull()
+	// The other route that spends money. R42 asserted it uncapped; R57 caps it.
+	describe('the upload bucket', () => {
+		it('caps an upload by the address the front forwards', () => {
+			expect(limitFor('POST', '/uploads/lost-item-photo')?.bucket).toBe(
+				'upload',
+			)
+		})
+
+		// Authenticated, so the per-user ceiling is the one that counts; this one
+		// is generous because a carrier puts many visitors behind one address.
+		it('is generous enough for a carrier, and hourly', () => {
+			const rule = limitFor('POST', '/uploads/lost-item-photo')
+
+			expect(rule?.max).toBe(60)
+			expect(rule?.windowSeconds).toBe(3600)
+		})
+
+		it('caps an upload route added later, by shape', () => {
+			expect(limitFor('POST', '/uploads/sticker-proof')?.bucket).toBe('upload')
+		})
+
+		it('leaves a nested path alone, which no upload route is', () => {
+			expect(limitFor('POST', '/uploads/lost-item/photo')).toBeNull()
+		})
+	})
+
+	it('leaves the authenticated writes that cost nothing alone', () => {
 		expect(limitFor('POST', '/sticker-orders')).toBeNull()
 		expect(limitFor('POST', '/lost-items')).toBeNull()
 	})

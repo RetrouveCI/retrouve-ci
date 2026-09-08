@@ -5961,6 +5961,83 @@ contrat des actions.
 > dépendances du manifeste, dans `apps/client` puisque `web-kit` n'a pas de
 > runner. Vérifié en rouge en retirant la déclaration.
 
+#### R57 — La seule autre route qui dépense de l'argent — **LIVRÉE**
+
+Ce que R42 avait assumé et R44 laissé ouvert : « les écritures authentifiées et
+l'upload de photo restent hors plafond ». L'upload est la moitié qui compte.
+
+> ⚠️ **`POST /uploads/lost-item-photo` était authentifiée et sans aucun
+> plafond.** Chaque envoi est stocké, transformé et servi par Cloudinary, donc
+> facturé. Un compte pouvait en envoyer autant qu'il voulait — 5 Mo par fichier
+> était la seule borne, et elle est par fichier. Le spec de R42 **assertait**
+> l'absence de plafond (« leaves everything outside the three buckets alone ») ;
+> ce lot retourne cette assertion.
+
+**Deux plafonds, comme pour l'OTP, et pour la même raison.**
+
+1. **Par adresse, dans le hook** : un seau `upload`, 60 par heure. Généreux
+   exprès — un opérateur met beaucoup de visiteurs derrière une adresse, et
+   l'adresse est **transmise par le front** donc rotative.
+2. **Par compte, dans Nest** : `UPLOAD_PER_USER`, 30 par heure — six annonces de
+   photos, reprises et recadrages compris. C'est le plafond qui tient, parce
+   qu'un compte ne se fait pas tourner : en créer un coûte un OTP, lui-même
+   plafonné par numéro depuis R44.
+
+> ⚠️ **Le hook ne peut pas connaître le compte.** Il tourne avant que la session
+> soit lue, donc il ne peut cléer que sur l'adresse. D'où `UploadBudget` dans
+> `infrastructures/storage/`, exactement là où `OtpDispatcher` vit pour l'SMS :
+> le goulot où la dépense commence, et le premier endroit où le propriétaire est
+> connu.
+
+**Le refus ne coûte rien** : la vérification passe **avant** `request.file()`,
+donc avant que le fichier soit lu, a fortiori stocké.
+
+> ⚠️ **Une erreur écrite puis corrigée en cours de route, qui vaut d'être
+> notée.** La première version exposait `retryAfter(userId)` pour que le
+> contrôleur lise le délai — or `hit()` **incrémente** : lire un refus aurait
+> consommé du budget, et maintenu la fenêtre ouverte aussi longtemps qu'on
+> l'interrogeait. Le délai voyage donc **dans** l'erreur.
+
+**La réponse est celle du hook, au caractère près** : même corps
+(`{ statusCode, message, error }`) et même en-tête `Retry-After`, pour qu'un
+front lise une seule forme quel que soit le plafond qui a refusé. Le contrôleur
+pose l'en-tête par un `@Res({ passthrough: true })` — une exception Nest ne
+porte pas d'en-tête.
+
+**Échec ouvert, bruyamment**, comme les deux autres plafonds : un compteur qui
+ne joint pas Redis ne doit pas empêcher un poseur de publier. Le développement,
+sans `REDIS_URL`, prend le même chemin.
+
+**Aucun changement de front** : `collectPhotoUrls` tourne **dans**
+`withApiOperationError`, donc le message du 429 remonte déjà en erreur `root`
+sur le formulaire de publication. Mesuré avant d'écrire une ligne.
+
+**`CLAUDE.md` ne disait rien du limiteur** — trois plafonds en production et le
+fichier normatif était muet. Le paragraphe manquant est ajouté : pourquoi un
+hook Fastify et non une garde Nest, les cinq seaux, la clé, l'échec ouvert, et
+les deux plafonds intérieurs.
+
+**Fichiers** : `api/shared/rate-limit/rate-limit.policy.ts` (seau `upload`,
+`UPLOAD_PER_USER`), `api/infrastructures/storage/` (`upload-budget.service.ts`,
+`upload-budget.error.ts`, `storage.tokens.ts`, le module),
+`api/presentations/uploads/uploads.controller.ts`, trois specs, `CLAUDE.md`.
+**Flux** : B. **Aucun changement de contrat, de base ni de front.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**583** (+14), contracts **390**, admin **438** et client **1314** (inchangés).
+Densité de commentaires 8,6 %.
+
+**Les trois gardes vérifiées en rouge puis restaurées** : la vérification
+retirée du contrôleur fait tomber trois cas ; le chemin retiré de la politique
+en fait tomber trois ; et l'échec ouvert transformé en refus fait tomber sa
+garde.
+
+**Reste ouvert** : les autres écritures authentifiées — publier une annonce,
+commander des stickers — n'ont toujours aucun plafond. Elles ne coûtent qu'une
+ligne en base, donc c'est un risque de spam et non de facture ; le jour où la
+modération croule, le seau existe et il suffira d'y nommer les chemins.
+
 ---
 
 ## 6. Ce qui ne bouge pas
