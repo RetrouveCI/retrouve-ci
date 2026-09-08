@@ -40,6 +40,15 @@ export interface ModerationDecision {
 	moderationReasonNote?: string
 }
 
+/** `undefined` leaves the column alone; a `Date` or `null` writes it. */
+export type ResolvedAtWrite = Date | null | undefined
+
+/** What the auth panel and the home badge both read, counted not written. */
+export interface PublicCounters {
+	published: number
+	resolvedThisMonth: number
+}
+
 /**
  * What a moderation write settled. `becamePublished` is a transition, not a
  * state: publication is the only moment matching runs, so a second publish of
@@ -94,6 +103,7 @@ export interface LostItem {
 	moderationReason: ModerationReason | null
 	moderationReasonNote: string | null
 	resolutionStatus: ResolutionStatus
+	resolvedAt: Date | null
 	views: number
 	contactsCount: number
 	userId: string
@@ -116,6 +126,7 @@ export type PublicLostItem = Omit<
 	| 'moderationReasonNote'
 	| 'contactWhatsapp'
 	| 'userId'
+	| 'resolvedAt'
 > & {
 	documentNumber?: never
 	moderationReason?: never
@@ -124,6 +135,8 @@ export type PublicLostItem = Omit<
 	contactWhatsapp?: never
 	/** Read by neither front, and it links every listing one person posted. */
 	userId?: never
+	/** Counted by A5 in aggregate; no public screen reads one listing's day. */
+	resolvedAt?: never
 	contactReachable: boolean
 }
 

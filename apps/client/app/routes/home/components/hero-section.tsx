@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { CircleAlert, Check } from 'lucide-react'
+import { formatNumber } from '@app/contracts/shared'
 import type { LostItemCategory } from '@app/contracts/lost-items'
 import { SearchBar } from '@/components/search-bar'
 import { filterPillClassName } from '@/components/filter-pill'
@@ -40,7 +41,7 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 						{publishedCount !== undefined && publishedCount > 0 && (
 							<span className="bg-primary-green/12 text-primary-green-text flex h-7 items-center gap-2 rounded-full px-3 text-xs font-semibold">
 								<span className="bg-primary-green h-1.5 w-1.5 rounded-full" />
-								{publishedCount} annonces en ligne
+								{formatNumber(publishedCount)} annonces en ligne
 							</span>
 						)}
 

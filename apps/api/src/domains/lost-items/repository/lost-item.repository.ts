@@ -22,6 +22,7 @@ import type {
 	ModerationDecision,
 	ModerationStatus,
 	ResolutionStatus,
+	ResolvedAtWrite,
 	UpdateLostItemData,
 } from '../types/lost-item.types'
 
@@ -187,7 +188,11 @@ export class LostItemRepository {
 		return items.map(toDomainLostItem)
 	}
 
-	async update(id: string, data: UpdateLostItemData): Promise<LostItem> {
+	async update(
+		id: string,
+		data: UpdateLostItemData,
+		resolvedAt: ResolvedAtWrite = undefined,
+	): Promise<LostItem> {
 		const lostItem = await this.prisma.lostItem.update({
 			where: { id },
 			data: {
@@ -209,10 +214,26 @@ export class LostItemRepository {
 				...(data.resolutionStatus !== undefined && {
 					resolutionStatus: toPrismaResolutionStatus(data.resolutionStatus),
 				}),
+				...(resolvedAt !== undefined && { resolvedAt }),
 			},
 		})
 
 		return toDomainLostItem(lostItem)
+	}
+
+	// ⚠️ `published` and nothing else, exactly what `GetPublicLostItemsUseCase`
+	// applies — so the two screens cannot show different figures.
+	async countPublished(): Promise<number> {
+		return this.prisma.lostItem.count({
+			where: { moderationStatus: 'PUBLISHED' },
+		})
+	}
+
+	// Not `updatedAt`: it moves on any edit, so it could never answer « ce mois ».
+	async countResolvedSince(since: Date): Promise<number> {
+		return this.prisma.lostItem.count({
+			where: { resolutionStatus: 'RESOLVED', resolvedAt: { gte: since } },
+		})
 	}
 
 	async updateModerationStatus(

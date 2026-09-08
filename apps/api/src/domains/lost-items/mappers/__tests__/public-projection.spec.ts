@@ -35,9 +35,15 @@ const WITHHELD = {
 	moderationReason: 'document_number_visible',
 	moderationReasonNote: 'La 2e photo montre le numéro.',
 	userId: 'owner-correlation-key',
-} satisfies Partial<Record<keyof LostItem, string>>
+	// A5 counts this in aggregate; no public screen reads one listing's day.
+	// A Date, so the greppable form is the one JSON writes.
+	resolvedAt: new Date('2019-03-07T11:22:33.000Z'),
+} satisfies Partial<Record<keyof LostItem, string | Date>>
 
 const withheldFields = Object.keys(WITHHELD) as (keyof typeof WITHHELD)[]
+
+const serialised = (value: string | Date) =>
+	value instanceof Date ? value.toISOString() : value
 
 const projected = () =>
 	toPublicLostItem(
@@ -62,6 +68,6 @@ describe('the public projection', () => {
 		const output = projected()
 
 		expect(output).not.toHaveProperty(field)
-		expect(JSON.stringify(output)).not.toContain(WITHHELD[field])
+		expect(JSON.stringify(output)).not.toContain(serialised(WITHHELD[field]))
 	})
 })

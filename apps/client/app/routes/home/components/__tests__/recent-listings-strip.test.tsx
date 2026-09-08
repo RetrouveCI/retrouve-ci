@@ -20,9 +20,16 @@ function listing(overrides: Partial<LostItem> = {}): LostItem {
 	}
 }
 
-function renderStrip(recent: HomeRecentListings | null) {
+// The count no longer rides on the listings: it comes from the counters
+// endpoint, so the link and the hero badge cannot disagree.
+function renderStrip(recent: HomeRecentListings | null, published?: number) {
 	const Stub = createRoutesStub([
-		{ path: '/', Component: () => <RecentListingsStrip recent={recent} /> },
+		{
+			path: '/',
+			Component: () => (
+				<RecentListingsStrip recent={recent} published={published} />
+			),
+		},
 	])
 	render(<Stub initialEntries={['/']} />)
 }
@@ -37,7 +44,7 @@ afterEach(() => {
 
 describe('RecentListingsStrip', () => {
 	it('links each card to the listing it shows', async () => {
-		renderStrip({ listings: [listing()], total: 412 })
+		renderStrip({ listings: [listing()] }, 412)
 
 		await expect
 			.element(page.getByRole('link', { name: /Téléphone Tecno noir/ }))
@@ -50,7 +57,6 @@ describe('RecentListingsStrip', () => {
 				listing({ id: 'a1', type: 'lost' }),
 				listing({ id: 'a2', type: 'found', title: 'Trousseau de clés' }),
 			],
-			total: 2,
 		})
 
 		await expect.element(page.getByText('Perdu')).toBeInTheDocument()
@@ -58,15 +64,31 @@ describe('RecentListingsStrip', () => {
 	})
 
 	it('carries the real total into the link when there is one', async () => {
-		renderStrip({ listings: [listing()], total: 412 })
+		renderStrip({ listings: [listing()] }, 412)
 
 		await expect
 			.element(page.getByRole('link', { name: 'Voir les 412 annonces' }))
 			.toHaveAttribute('href', '/posts')
 	})
 
+	it('groups the thousands in that link', async () => {
+		renderStrip({ listings: [listing()] }, 1234)
+
+		await expect
+			.element(page.getByRole('link', { name: 'Voir les 1 234 annonces' }))
+			.toBeInTheDocument()
+	})
+
+	it('falls back to « Tout voir » when no count came', async () => {
+		renderStrip({ listings: [listing()] })
+
+		await expect
+			.element(page.getByRole('link', { name: 'Tout voir' }))
+			.toHaveAttribute('href', '/posts')
+	})
+
 	it('shows an empty state that invites the first listing', async () => {
-		renderStrip({ listings: [], total: 0 })
+		renderStrip({ listings: [] }, 0)
 
 		await expect
 			.element(page.getByText(/Aucune annonce pour l/))

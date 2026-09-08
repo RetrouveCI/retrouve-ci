@@ -29,6 +29,8 @@ const INVENTORY: Record<string, string[]> = {
 		'ViewLostItemUseCase',
 	],
 	'presentations/matching/matching.controller.ts': ['FindMatchesUseCase'],
+	// Two numbers and nothing else, which is what keeps it off `PROJECTED`.
+	'presentations/stats/stats.controller.ts': ['GetPublicCountersUseCase'],
 	'presentations/qr-codes/qr-codes.controller.ts': [
 		'ContactQrTokenOwnerUseCase',
 		'GetQrTokenPublicViewUseCase',
@@ -47,6 +49,7 @@ const ANSWERS: Record<string, string> = {
 	GetEventByIdUseCase: 'Event',
 	GetPaginatedEventsUseCase: 'EventListResponse',
 	GetPublicLostItemsUseCase: 'PublicLostItemListResponse',
+	GetPublicCountersUseCase: 'PublicCounters',
 	GetQrTokenPublicViewUseCase: 'QrTokenPublicView',
 	ReachQrTokenOwnerUseCase: 'ReachQrTokenOwnerOutput',
 	ViewLostItemUseCase: 'LostItem | PublicLostItem',

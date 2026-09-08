@@ -22,8 +22,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
 	return (
 		<main>
-			<HeroSection publishedCount={recent?.total} />
-			<RecentListingsStrip recent={recent} />
+			<HeroSection publishedCount={loaderData.counters?.published} />
+			<RecentListingsStrip
+				recent={recent}
+				published={loaderData.counters?.published}
+			/>
 			<StickersSection />
 			{/* <BentoGridSection /> */}
 			<HowItWorksSection />

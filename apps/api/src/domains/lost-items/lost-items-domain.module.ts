@@ -8,6 +8,7 @@ import { GetMyLostItemsSummaryUseCase } from './use-cases/get-my-lost-items-summ
 import { GetMyLostItemsUseCase } from './use-cases/get-my-lost-items.use-case'
 import { GetPaginatedLostItemsUseCase } from './use-cases/get-paginated-lost-items.use-case'
 import { GetPublicLostItemsUseCase } from './use-cases/get-public-lost-items.use-case'
+import { GetPublicCountersUseCase } from './use-cases/get-public-counters.use-case'
 import { ModerateLostItemUseCase } from './use-cases/moderate-lost-item.use-case'
 import { ContactLostItemPosterUseCase } from './use-cases/contact-lost-item-poster.use-case'
 import { UpdateLostItemUseCase } from './use-cases/update-lost-item.use-case'
@@ -20,6 +21,7 @@ const providers = [
 	ContactLostItemPosterUseCase,
 	GetPaginatedLostItemsUseCase,
 	GetPublicLostItemsUseCase,
+	GetPublicCountersUseCase,
 	GetMyLostItemsUseCase,
 	GetMyLostItemsSummaryUseCase,
 	UpdateLostItemUseCase,
