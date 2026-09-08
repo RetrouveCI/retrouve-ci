@@ -1,3 +1,7 @@
+// Required, not decoration: this file imports nothing, and a top-level `await`
+// is only legal in a module (TS1375). An unused import used to stand in for it.
+export {}
+
 const { requireAdminSession } = vi.hoisted(() => ({
 	requireAdminSession: vi.fn(),
 }))

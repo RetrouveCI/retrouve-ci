@@ -6321,8 +6321,20 @@ normatif l'ignorait. Les deux sont retirées avec les quatre closes par ce lot.
 **`pnpm lint` est propre pour la première fois** : 0 erreur **et 0
 avertissement**. Le seul qui restait — un `import { redirect }` inutilisé dans
 `profile.loader.test.ts`, masqué par un `const redirect` local à la ligne 42 —
-était traîné comme « préexistant » depuis R48. Un lot qui s'appelle « solder la
-petite dette » n'a aucune raison de le laisser.
+était traîné comme « préexistant » depuis R48.
+
+> ⚠️ **Cet import inutilisé était PORTEUR, et la CI seule l'a vu.** Le retirer a
+> laissé le fichier **sans aucun import ni export**, donc ce n'était plus un
+> module — et son `await import(...)` de haut niveau devient illégal
+> (**TS1375**). Remplacé par un `export {}` que son commentaire déclare
+> nécessaire, pour que personne ne le retire à son tour ; le retrait de cette
+> ligne fait bien échouer le typecheck, vérifié.
+>
+> **Et c'est une faute de méthode, pas de connaissance** : après cette retouche
+> j'ai relancé `lint` et non `typecheck`. Le `pnpm build` qui a suivi n'a rien
+> dit non plus, `react-router build` ne type-checkant pas. **Relancer la chaîne
+> ENTIÈRE après la dernière retouche, y compris quand elle ne fait qu'une
+> ligne** — R58 et R59 l'avaient fait, ce lot l'a sauté et la CI a répondu.
 
 **Fichiers** : `packages/ui/src/components/ui/field.tsx`,
 `client/app/shared/__tests__/field-error.test.tsx` (neuf),
@@ -6340,11 +6352,11 @@ premier jet**, le pire ratio de la série parce que le lot est petit : 137 ligne
 dont les correctifs tiennent en une ligne chacun et le raisonnement en dix. Neuf
 blocs condensés, et le raisonnement déplacé ici et dans la PR, où il a sa place.
 
-**Les deux gardes vérifiées en rouge puis restaurées** : l'ancienne
+**Les trois gardes vérifiées en rouge puis restaurées** : l'ancienne
 implémentation de `FieldError` fait tomber deux cas sur cinq, l'alerte vide et
-le doublon ; et une catégorie du contrat privée de libellé fait tomber le
-**typecheck**, pas un test. Restauration contrôlée au `grep` et au
-`git diff --stat`.
+le doublon ; une catégorie du contrat privée de libellé fait tomber le
+**typecheck** et pas un test ; et le retrait de l'`export {}` le fait tomber sur
+TS1375. Restauration contrôlée au `grep` et au `git diff --stat`.
 
 **Reste ouvert** : plus rien d'actionnable dans `Known debt`. Ce qui subsiste
 est délibéré et consigné comme tel. Côté étapes, A2, A3, A5 et A6 restent
