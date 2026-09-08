@@ -6492,8 +6492,10 @@ client, la table d'icônes est passée de `Record<NotificationType, …>` à
 et ne nomme plus ceux du bureau, qui ne lui arriveront jamais.
 
 **Migration** hors ligne, Postgres 17 en développement — les cinq valeurs d'enum
-en une migration demandent PG ≥ 12, ⚠️ **et la version de production n'a pas pu
-être vérifiée d'ici**. SQL relu, égal au diff avec `HEAD`, sans décoration.
+en une migration demandent PG ≥ 12. **Confirmé par le commanditaire le
+2026-09-08 : la production tourne aussi en Postgres 17**, donc la réserve que
+cette ligne portait est levée, ici comme pour N3. SQL relu, égal au diff avec
+`HEAD`, sans décoration.
 
 **Fichiers** : `database/prisma/` (schéma + migration),
 `contracts/notifications/` (types, audiences, `audienceOf`, deux specs),
@@ -6705,11 +6707,89 @@ approxime au-delà d'un mois. `formatShortRelativeDistance` existe et dit « il 
 a 2 mois » — à trancher avec le commanditaire, c'est un choix de ton et non un
 défaut.
 
-#### N3 — Les transitions de commande qui restent _(facultatif)_
+#### N3 — Les transitions de commande qui restent — **LIVRÉE**
 
-`update-sticker-order-status` ne notifie que `delivered`. « En préparation » et
-« expédiée » intéressent l'acheteur d'un pack payé à la livraison, et la
-mécanique de transition existe déjà. Petit lot, sans migration.
+`update-sticker-order-status` ne notifiait que `delivered`. Donc un acheteur
+d'un pack **payé à la livraison** n'apprenait rien entre le moment où il
+commandait et le coup à la porte : ni que le colis se préparait, ni qu'il
+partait, ni — surtout — qu'il avait été annulé.
+
+> ⚠️ **Deux écarts avec la description ci-dessus, mesurés et assumés.**
+>
+> **La migration était nécessaire**, contrairement au « sans migration » que ce
+> plan annonçait : `NotificationType` ne portait **aucun** type de transition de
+> commande — N1 avait posé `order_placed`, qui parle au bureau, et rien pour
+> l'acheteur. Trois valeurs ajoutées (`ORDER_PROCESSING`, `ORDER_SHIPPED`,
+> `ORDER_CANCELLED`), sûres puisque le commanditaire a confirmé **Postgres 17 en
+> production** le 2026-09-08.
+>
+> **`cancelled` part avec elles**, alors que cette section ne nommait que « en
+> préparation » et « expédiée ». C'est la transition la plus lourde pour
+> l'acheteur — aucun coursier ne viendra — et elle vit dans le même fichier et
+> la même migration : l'omettre coûtait une seconde migration d'enum plus tard
+> pour une seule valeur.
+
+1. **Une table par statut**, `Record<StickerOrderStatus, StatusNotice | null>`,
+   donc un statut ajouté au contrat est une erreur de compilation. `pending`
+   rend `null` délibérément : c'est l'état de naissance, le bureau l'a su par
+   `order_placed`, et l'acheteur vient de commander.
+2. **Le verrou passe de `delivered` à la transition tout court.** Le code
+   testait `status === 'delivered' && before.status !== 'delivered'` ; il
+   compare maintenant `status !== before.status`, ce qui vaut pour les quatre
+   avis.
+3. **Le libellé de `delivered` n'a pas bougé** — il parle aux acheteurs depuis
+   R15, et l'uniformiser n'était pas demandé.
+4. **L'avis de départ nomme l'argent liquide** :
+   `Prévoyez 11 000 FCFA en espèces pour le coursier`. C'est tout l'objet de R59
+   — une commande engage un encaissement à l'arrivée, et le seul moment utile
+   pour le dire est quand le colis part.
+
+**Le troisième `formatPrice` évité.** Il en existait déjà **deux** copies
+identiques dans le client — `account/orders/helpers/order-progress.ts` et une
+fonction fléchée locale dans `stickers/order/_index.tsx` — et l'API en aurait
+fait une troisième. Il vit désormais dans `@app/contracts/sticker-orders`, à
+côté du catalogue et de `DELIVERY_FEE` qu'il formate ; le helper du client
+devient un ré-export (trois importateurs intouchés) et la copie locale part.
+
+> ⚠️ **Ne pas assurer une somme formatée contre une chaîne écrite à la main.**
+> `Intl.NumberFormat('fr-FR')` sépare les milliers par une espace **insécable
+> fine** (U+202F), pas par une espace ordinaire : le test qui attendait
+> `'11 000 FCFA'` a échoué alors que le message était juste. L'assertion passe
+> par `formatPrice` — elle ne peut pas dériver avec ICU.
+
+**Un producteur non avaleur en moins.** N2 en avait laissé trois ouverts ;
+celui-ci se replie sur `notifyUser`, et c'était le bon cas — la ligne est déjà
+écrite, donc un Redis absent répondait 500 à l'administrateur qui venait de
+déplacer la commande. **Restent deux** : `notify-matches`, où l'échec doit
+relancer le job BullMQ et où c'est donc juste, et `contact-qr-token-owner`, la
+seule écriture publique encore concernée.
+
+**Fichiers** : `database/prisma/` (schéma + migration),
+`contracts/notifications/` (les trois types, son spec),
+`contracts/sticker-orders/` (`formatPrice`),
+`api/domains/notifications/mappers/` (les deux switches),
+`api/domains/sticker-orders/` (le use-case, son spec),
+`client/routes/notifications/` (trois icônes),
+`client/routes/{account/orders,stickers/order}/` (le ré-export et la copie
+retirée). **Flux** : C. **Changements de contrat et de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur, 0 avertissement · `format:check`
+propre · `pnpm build` vert. Chaque suite seule : api **701** (+10), contracts
+**423** (+6), admin **438** et client **1011** en `node` / **379** en `ui`
+(inchangés).
+
+**Les quatre gardes vérifiées en rouge** : une valeur au schéma mais pas au
+contrat fait tomber le spec de parité des deux enums (celui de N1, qui a grandi
+tout seul en itérant `NOTIFICATION_TYPES`) ; `order_shipped` mal classé côté
+bureau fait tomber le **typecheck au producteur**, pas un test — la leçon de N1
+rejouée ; le verrou de transition retiré fait tomber quatre cas ; et la somme
+assurée en dur, ci-dessus.
+
+> ⚠️ **Une garde mal injectée teste autre chose.** Le premier jet de la garde
+> d'audience a retiré `order_shipped` de `NOTIFICATION_TYPES` au lieu de la
+> déplacer entre les deux tables — le motif `sed` matchait la première liste. Le
+> rouge obtenu était celui de la garde précédente. Toujours **relire ce que
+> l'injection a réellement changé** avant de croire au rouge.
 
 ---
 

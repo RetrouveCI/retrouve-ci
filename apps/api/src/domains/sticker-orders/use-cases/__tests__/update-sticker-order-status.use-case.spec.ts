@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { formatPrice } from '@app/contracts/sticker-orders'
 import {
 	buildRepository,
 	buildStickerOrder,
@@ -86,20 +87,91 @@ describe('UpdateStickerOrderStatusUseCase', () => {
 		)
 	})
 
-	it('says nothing when the order was already delivered', async () => {
-		await transition('delivered', 'delivered')
+	it.each([
+		'pending',
+		'processing',
+		'shipped',
+		'delivered',
+		'cancelled',
+	] as const)('says nothing when %s was already the status', async status => {
+		await transition(status, status)
 
 		expect(createNotification.execute).not.toHaveBeenCalled()
 	})
 
-	it.each(['pending', 'processing', 'shipped', 'cancelled'] as const)(
-		'says nothing on the way to %s',
-		async status => {
-			await transition('pending', status)
+	it('says nothing on the way back to pending', async () => {
+		await transition('processing', 'pending')
 
-			expect(createNotification.execute).not.toHaveBeenCalled()
-		},
-	)
+		expect(createNotification.execute).not.toHaveBeenCalled()
+	})
+
+	// Only `delivered` was announced, so a buyer paying on delivery learnt
+	// nothing between ordering and the knock.
+	describe('the transitions N3 added', () => {
+		const notice = () =>
+			vi.mocked(createNotification.execute).mock.calls[0]?.[0]
+
+		it('tells the buyer the pack is being prepared', async () => {
+			await transition('pending', 'processing', { userId: 'user-7' })
+
+			expect(notice()).toEqual(
+				expect.objectContaining({
+					type: 'order_processing',
+					title: 'Votre commande est en préparation',
+					link: '/account/orders',
+					userId: 'user-7',
+				}),
+			)
+		})
+
+		// ⚠️ Asserted through `formatPrice`, not against « 11 000 » spelt out:
+		// `Intl` separates thousands with a narrow no-break space (R59's cash).
+		it('names the cash to have ready when the pack ships', async () => {
+			await transition('processing', 'shipped', { total: 11000 })
+
+			expect(notice()).toEqual(
+				expect.objectContaining({ type: 'order_shipped' }),
+			)
+			expect(notice()?.message).toContain(`${formatPrice(11000)} FCFA`)
+			expect(notice()?.message).toContain('espèces')
+		})
+
+		// Cancelled means no courier is coming — the heaviest transition.
+		it('tells the buyer nobody will come when the order is cancelled', async () => {
+			await transition('processing', 'cancelled', {
+				orderNumber: 'CMD-2026-000042',
+			})
+
+			expect(notice()).toEqual(
+				expect.objectContaining({
+					type: 'order_cancelled',
+					link: '/account/orders',
+				}),
+			)
+			expect(notice()?.message).toContain('CMD-2026-000042')
+			expect(notice()?.message).toContain('Aucun coursier')
+		})
+
+		it.each([
+			[1, 'Votre sticker est'],
+			[4, 'Vos 4 stickers sont'],
+		] as const)('agrees the verb for %i sticker(s)', async (quantity, said) => {
+			await transition('pending', 'processing', { quantity })
+
+			expect(notice()?.message).toContain(said)
+		})
+
+		// The row is already written: losing the notice must not answer 500.
+		it('still moves the order when the notice fails', async () => {
+			vi.mocked(createNotification.execute).mockRejectedValue(
+				new Error('redis down'),
+			)
+
+			await expect(transition('pending', 'shipped')).resolves.toMatchObject({
+				status: 'shipped',
+			})
+		})
+	})
 
 	/** An admin action: it checks no ownership, by design. */
 	it('updates an order owned by somebody else', async () => {

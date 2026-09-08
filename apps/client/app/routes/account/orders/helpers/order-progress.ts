@@ -33,9 +33,7 @@ export function isOrderInFlight(order: Order): boolean {
 	return order.status !== 'delivered' && order.status !== 'cancelled'
 }
 
-export function formatPrice(price: number): string {
-	return new Intl.NumberFormat('fr-FR').format(price)
-}
+export { formatPrice } from '@app/contracts/sticker-orders'
 
 export function formatOrderDate(value: string): string {
 	return new Date(value).toLocaleDateString('fr-FR', {

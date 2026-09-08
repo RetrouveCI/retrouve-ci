@@ -47,6 +47,12 @@ export function toPrismaType(type: NotificationType): PrismaNotificationType {
 			return PrismaNotificationType.ORDER_PLACED
 		case 'contact_received':
 			return PrismaNotificationType.CONTACT_RECEIVED
+		case 'order_processing':
+			return PrismaNotificationType.ORDER_PROCESSING
+		case 'order_shipped':
+			return PrismaNotificationType.ORDER_SHIPPED
+		case 'order_cancelled':
+			return PrismaNotificationType.ORDER_CANCELLED
 	}
 }
 
@@ -68,6 +74,12 @@ export function toDomainType(type: PrismaNotificationType): NotificationType {
 			return 'order_placed'
 		case PrismaNotificationType.CONTACT_RECEIVED:
 			return 'contact_received'
+		case PrismaNotificationType.ORDER_PROCESSING:
+			return 'order_processing'
+		case PrismaNotificationType.ORDER_SHIPPED:
+			return 'order_shipped'
+		case PrismaNotificationType.ORDER_CANCELLED:
+			return 'order_cancelled'
 	}
 }
 

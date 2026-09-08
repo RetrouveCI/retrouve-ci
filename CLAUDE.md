@@ -467,10 +467,23 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   courier, so an order commits a delivery with cash expected on arrival) and
   `create-contact-message`. On the visitor's side, `moderate-lost-item` and
   `contact-lost-item-poster` were added by N2, and `reach-qr-token-owner` folded
-  its own copy of the swallow onto the helper. ⚠️ Three visitor producers still
-  do **not** swallow — `contact-qr-token-owner`, `notify-matches` and
-  `update-sticker-order-status`; for a BullMQ consumer that is right, since the
-  failure must retry the job.
+  its own copy of the swallow onto the helper, as `update-sticker-order-status`
+  did in N3. ⚠️ Two visitor producers still do **not** swallow —
+  `notify-matches`, where that is right because the failure must retry the
+  BullMQ job, and `contact-qr-token-owner`, the one public write where an
+  unreachable Redis still answers 500.
+- **An order tells its buyer at every step, on the transition alone.**
+  `UpdateStickerOrderStatusUseCase` holds a
+  `Record<StickerOrderStatus, StatusNotice | null>`, so a status added to the
+  contract is a compilation error rather than a silent gap, and it notifies only
+  when the status actually changed — the backoffice saving the same one twice
+  tells the buyer once. `pending` maps to `null` on purpose: the desk heard
+  about it through `order_placed`. The shipping notice names the cash to have
+  ready, because a pack is paid to the courier. `formatPrice` lives in
+  `@app/contracts/sticker-orders`, beside the catalogue it formats, so the
+  notice and the tracking card cannot read differently — ⚠️ and it separates
+  thousands with a narrow no-break space, so assert through it rather than
+  against a hand-written « 11 000 ».
 - **A moderation decision that changes nothing does nothing.**
   `ModerateLostItemUseCase` compares the row before the write with the row after
   it, on all three moderation columns, and raises `listing_moderated` only when

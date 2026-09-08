@@ -1,6 +1,14 @@
 import { Link } from 'react-router'
 import type { FetcherWithComponents } from 'react-router'
-import { Gavel, MessageCircle, Package, QrCode, Sparkles } from 'lucide-react'
+import {
+	Gavel,
+	MessageCircle,
+	Package,
+	PackageX,
+	QrCode,
+	Sparkles,
+	Truck,
+} from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import type { Notification } from '@/shared/types/notification'
 import type { UserNotificationType } from '@/routes/notifications/types/notifications.types'
@@ -13,6 +21,9 @@ const TYPE_ICONS: Record<UserNotificationType, React.ElementType> = {
 	stickers_delivered: Package,
 	listing_moderated: Gavel,
 	listing_contacted: MessageCircle,
+	order_processing: Package,
+	order_shipped: Truck,
+	order_cancelled: PackageX,
 }
 
 interface NotificationItemProps {

@@ -15,6 +15,9 @@ describe('notificationTypeSchema', () => {
 			'listing_contacted',
 			'order_placed',
 			'contact_received',
+			'order_processing',
+			'order_shipped',
+			'order_cancelled',
 		])
 	})
 
