@@ -1,4 +1,8 @@
-import { formatDistanceToNow, formatDistanceToNowStrict } from 'date-fns'
+import {
+	format,
+	formatDistanceToNow,
+	formatDistanceToNowStrict,
+} from 'date-fns'
 import { fr } from 'date-fns/locale'
 
 /** « il y a 3 jours » — lower case, so it can be read inside a sentence. */
@@ -19,4 +23,10 @@ export function formatShortRelativeDistance(isoDate: string): string {
 		addSuffix: true,
 		locale: fr,
 	})
+}
+
+// « 3 sept. 2026 »: a finder compares a day, not a duration. Abbreviated
+// because the card it sits in truncates.
+export function formatEventDate(isoDate: string): string {
+	return format(new Date(isoDate), 'd MMM yyyy', { locale: fr })
 }

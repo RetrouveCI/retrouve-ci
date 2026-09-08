@@ -46,7 +46,7 @@ function StripCard({ listing }: { listing: LostItem }) {
 				<p className="text-muted-foreground mt-1.5 flex items-center gap-1.5 text-xs">
 					<MapPin className="h-3 w-3 shrink-0" />
 					<span className="truncate">
-						{listing.ville} · {listing.date}
+						{listing.ville} · {listing.postedAt}
 					</span>
 				</p>
 			</div>

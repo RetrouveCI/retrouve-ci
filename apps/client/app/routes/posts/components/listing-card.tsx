@@ -125,7 +125,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 							</span>
 							<span className="flex items-center gap-1">
 								<Clock className="h-3 w-3 shrink-0" />
-								{listing.date}
+								{listing.postedAt}
 							</span>
 							<span className="text-primary-green-text ml-auto hidden items-center gap-1 font-medium opacity-0 transition-opacity group-hover:opacity-100 sm:flex">
 								Voir <ArrowRight className="h-3 w-3" />
@@ -162,7 +162,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 							</span>
 							<span className="text-muted-foreground flex items-center gap-1 text-xs">
 								<Clock className="h-3 w-3 shrink-0" />
-								{listing.date}
+								{listing.postedAt}
 							</span>
 						</div>
 						<span className="text-primary-green-text flex translate-x-0 items-center gap-1 text-xs font-semibold transition-transform group-hover:translate-x-0.5">

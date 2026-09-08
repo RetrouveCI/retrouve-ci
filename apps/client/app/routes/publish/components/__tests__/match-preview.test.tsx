@@ -8,7 +8,8 @@ const MATCH: LostItem = {
 	title: 'Téléphone Android noir',
 	description: 'Trouvé dans un gbaka.',
 	location: 'Cocody, Abidjan',
-	date: 'hier',
+	postedAt: 'hier',
+	eventDate: '1 août 2026',
 	type: 'found',
 	category: 'phone',
 }

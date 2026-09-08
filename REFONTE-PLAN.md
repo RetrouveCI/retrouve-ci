@@ -6637,6 +6637,74 @@ relancer le job. Pour `contact-qr-token-owner`, qui est une écriture publique,
 un Redis absent répond 500 au visiteur ; c'est antérieur à N2 et le corriger est
 un changement de comportement, pas un repli de helper. À trancher avec N3.
 
+#### N5 — Une carte dit depuis quand l'annonce est là, pas depuis quand l'objet manque — **LIVRÉE**
+
+Remontée du commanditaire, venue des premiers utilisateurs : la ligne relative
+d'une carte se calculait depuis `eventDate`, la date de perte **déclarée**. Donc
+une annonce déposée hier pour une pièce perdue en juin s'affichait « Il y a 3
+mois », et paraissait morte. Ce n'était pas une erreur de rendu : les deux dates
+répondent à deux questions et une seule était affichée.
+
+> ⚠️ **Le compte, lui, avait déjà raison.** `buildTimelineLabel` lisait
+> `createdAt` depuis R11, et son commentaire nommait même la distinction — « the
+> date is the publication date, not the event date the public card shows ». La
+> divergence était donc **connue et écrite**, mais du mauvais côté : c'est
+> l'invariant du flux A (§2.2, « le même couple lieu/date sur les cinq écrans »)
+> qui tranche, et il donne raison au compte.
+
+**Tranché par le commanditaire** : garder les deux sur le détail plutôt que
+remplacer. `eventDate` n'était affiché **nulle part ailleurs** — le formulaire
+le demande, le rapprochement s'en sert, et seul ce mappeur le lisait — donc le
+basculer aurait rendu invisible le jour même que le trouveur compare.
+
+1. **`toLostItem`** rend `postedAt` (relatif, depuis `createdAt`) et `eventDate`
+   (absolu, « 10 juin 2026 »). `date` et `dateISO` disparaissent : le premier
+   était devenu ambigu à deux dates, le second était mappé et **lu par
+   personne**.
+2. **Le détail porte trois cartes méta** — Lieu, « Perdu le » / « Retrouvé le »,
+   « Date de publication » — en grille plutôt qu'en rangée, pour que la
+   troisième se replie sous `sm`. Le libellé suit l'axe du **type**, comme la
+   pastille au-dessus (§2.3 règle 2).
+3. **Les cinq cartes** (accueil, `/posts` en liste et en grille, feuille de
+   correspondances, aperçu de publication) lisent `postedAt`.
+
+**Aucun changement d'API** : `createdAt` était déjà dans `LostItemBaseApiDto` et
+n'est pas retiré par la projection `PublicLostItem` — vérifié sur
+`toPublicLostItem`, et les cinq appelants de `toLostItem` passent tous par elle,
+`find-matches` compris.
+
+> ⚠️ **Deux fixtures ne posaient pas `createdAt`**, parce que rien ne le lisait.
+> `formatDistanceToNow(new Date(undefined))` lève
+> `RangeError: Invalid time value` — donc l'omission a **cassé franchement** au
+> lieu d'afficher « Invalid Date ». Le champ était bien déclaré sur le type des
+> deux DTO : la fixture mentait, pas le contrat.
+
+**Fichiers** : `client/shared/` (l'utilitaire, le type, le mappeur, son spec),
+`client/routes/posts/details/` (les trois cartes, deux specs),
+`client/routes/{home,posts,publish,account/posts}/` (les cinq lieux de rendu et
+leurs fixtures). **Flux** : A, B et D.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur, 0 avertissement · `format:check`
+propre. Chaque suite seule : api **691**, contracts **417**, admin **438**
+(inchangées), client **1011** en `node` (+6) et **379** en `ui` (+2). Densité de
+commentaires 9,1 % — 14,7 % au premier jet, six blocs condensés.
+
+**La garde vérifiée en rouge** : `postedAt` remis sur `eventDate` fait tomber
+**4 tests dans 3 fichiers** — le mappeur, le loader de `/posts` et celui du
+détail. Restauration contrôlée par `diff -q` contre la copie d'avant injection,
+et non par `git checkout` — voir le piège ci-dessous.
+
+> ⚠️ **`git checkout <fichier>` restaure depuis l'INDEX.** En N2, restaurer une
+> garde ainsi a aussi annulé un renommage d'import non indexé du même fichier,
+> **en silence** : `git status` ne montrait plus rien, et seul `pnpm typecheck`
+> a attrapé le `Cannot find module`. Copier avant d'injecter, `cp` pour
+> restaurer.
+
+**Reste ouvert** : « il y a environ 2 mois » vient de `formatDistanceToNow`, qui
+approxime au-delà d'un mois. `formatShortRelativeDistance` existe et dit « il y
+a 2 mois » — à trancher avec le commanditaire, c'est un choix de ton et non un
+défaut.
+
 #### N3 — Les transitions de commande qui restent _(facultatif)_
 
 `update-sticker-order-status` ne notifie que `delivered`. « En préparation » et

@@ -1,3 +1,4 @@
+import { formatRelativeDate } from '@/shared/utils/date'
 import { ApiError } from '@/shared/utils/api-fetch'
 
 const { getLostItemById } = vi.hoisted(() => ({ getLostItemById: vi.fn() }))
@@ -13,6 +14,7 @@ const DTO = {
 	ville: 'Abidjan',
 	commune: 'Cocody',
 	eventDate: '2026-08-01T10:00:00.000Z',
+	createdAt: '2026-08-20T10:00:00.000Z',
 	type: 'lost',
 	category: 'bag',
 	photos: ['https://cdn/a.jpg'],
@@ -53,8 +55,21 @@ describe('postDetailLoader', () => {
 			id: 'post-1',
 			title: 'Sac à dos noir',
 			location: 'Cocody, Abidjan',
-			dateISO: '2026-08-01',
+			eventDate: '1 août 2026',
 		})
+	})
+
+	// ⚠️ It used to come from `eventDate`. The fixture's two dates are 19 days
+	// apart, so neither can pass for the other.
+	it('counts the relative line from the posting date, not the loss date', async () => {
+		const { listing } = await load()
+
+		expect(listing.postedAt).toBe(
+			formatRelativeDate('2026-08-20T10:00:00.000Z'),
+		)
+		expect(listing.postedAt).not.toBe(
+			formatRelativeDate('2026-08-01T10:00:00.000Z'),
+		)
 	})
 
 	it('carries the poster name, and whether they can be reached', async () => {

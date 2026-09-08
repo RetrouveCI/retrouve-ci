@@ -34,7 +34,7 @@ function MatchRow({ item }: { item: LostItem }) {
 			<div className="min-w-0 flex-1">
 				<p className="line-clamp-1 text-sm font-semibold">{item.title}</p>
 				<p className="text-muted-foreground mt-0.5 truncate text-xs">
-					{item.location} · {item.date}
+					{item.location} · {item.postedAt}
 				</p>
 			</div>
 

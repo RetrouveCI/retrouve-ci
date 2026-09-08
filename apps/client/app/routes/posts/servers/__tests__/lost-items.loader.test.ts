@@ -1,3 +1,4 @@
+import { formatRelativeDate } from '@/shared/utils/date'
 import { POSTS_PAGE_SIZE } from '../../helpers/parse-posts-filters'
 
 const { getLostItems } = vi.hoisted(() => ({ getLostItems: vi.fn() }))
@@ -16,6 +17,7 @@ const dto = (id: string) => ({
 	ville: 'Abidjan',
 	commune: 'Cocody',
 	eventDate: '2026-08-01T10:00:00.000Z',
+	createdAt: '2026-08-20T10:00:00.000Z',
 	type: 'lost',
 	category: 'bag',
 	photos: [],
@@ -87,7 +89,28 @@ describe('postsLoader', () => {
 		expect(listings[0]).toMatchObject({
 			id: 'post-1',
 			location: 'Cocody, Abidjan',
+			eventDate: '1 août 2026',
 		})
+	})
+
+	// ⚠️ It used to come from `eventDate` — the regression the first users
+	// reported. The fixture's two dates are 19 days apart.
+	it('counts the card line from the posting date, not the loss date', async () => {
+		getLostItems.mockResolvedValue({
+			items: [dto('post-1')],
+			total: 1,
+			page: 1,
+			pageSize: POSTS_PAGE_SIZE,
+		})
+
+		const { listings } = await postsLoader({ request: requestFor() })
+
+		expect(listings[0]?.postedAt).toBe(
+			formatRelativeDate('2026-08-20T10:00:00.000Z'),
+		)
+		expect(listings[0]?.postedAt).not.toBe(
+			formatRelativeDate('2026-08-01T10:00:00.000Z'),
+		)
 	})
 
 	// The pager reads these, so they come from the API's answer rather than from
