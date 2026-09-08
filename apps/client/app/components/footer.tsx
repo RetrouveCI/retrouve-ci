@@ -11,6 +11,7 @@ const footerLinks = {
 		{ href: '/stickers', label: 'Stickers QR' },
 		{ href: '/download', label: "Installer l'app" },
 		{ href: '/objet-perdu-cote-divoire', label: 'Que faire en cas de perte' },
+		{ href: '/carte-identite-perdue', label: 'Pièce ou carte perdue' },
 	],
 	legal: [
 		{ href: '/about', label: 'À propos' },

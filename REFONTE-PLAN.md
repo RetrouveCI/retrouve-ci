@@ -6038,6 +6038,120 @@ commander des stickers — n'ont toujours aucun plafond. Elles ne coûtent qu'un
 ligne en base, donc c'est un risque de spam et non de facture ; le jour où la
 modération croule, le seau existe et il suffira d'y nommer les chemins.
 
+#### R58 — Une page pour la recherche qui restait, et un sitemap qui ne peut plus mentir — **LIVRÉE**
+
+Le « reste ouvert » de R48, mot pour mot : « les recherches associées de la
+capture se gagnent avec des **pages**, pas des balises. La fonctionnalité pièces
+existe (A7, R35) ; aucune page ne la cible. » Trois recherches étaient nommées,
+R49 en a fermé une.
+
+**« Retrouver carte identité perdue » a une page**, `/carte-identite-perdue`, et
+son contenu vient du contrat plutôt que de souvenirs. Les sept types de
+`DOCUMENT_TYPES` ont chacun leur `h3` et leur paragraphe, et l'axe sur lequel la
+page les différencie est **déjà dans le dépôt** : `DOCUMENT_FIELDS[type]` n'a
+pas de champ `issuer` quand l'État délivre la pièce. Une pièce d'État se réédite
+auprès de l'administration ; une carte bancaire, une carte d'assurance ou une
+carte étudiante se réédite auprès de l'organisme que le formulaire nomme. Un
+test **vérifie l'accord des deux tables** — pas leur orthographe — donc elles ne
+peuvent plus se contredire sur qui réédite quoi.
+
+> ⚠️ **La règle de R49 tient ici deux fois plus fort.** Rien dans ce dépôt ne
+> peut vérifier un tarif, un délai ni les pièces qu'un guichet demande, et la
+> page n'en énonce aucun : l'étape administrative renvoie à
+> `/objet-perdu-cote-divoire` au lieu de la réécrire. Un test refuse tout
+> chiffre suivi de F, FCFA, franc, jour, euro ou semaine dans les sept entrées.
+> Ce que la page affirme, c'est ce que la plateforme fait — et c'est vérifiable.
+
+**La carte bancaire est la seule à porter un geste préalable** : faire
+opposition avant de publier. Un test vérifie qu'elle est la seule, pour que
+`first` reste l'exception et non un champ qu'on remplit partout. Et son
+paragraphe dit ce que `documentFieldIssues` impose déjà : les quatre derniers
+chiffres, jamais le numéro complet.
+
+**« site objets perdus » n'a PAS eu de page, et c'est le point du lot.** La page
+qui _est_ le site des objets perdus, c'est `/posts` — et son `<title>` disait «
+Annonces », un mot interne que personne ne cherche, alors que son `h1` disait
+déjà « Objets Perdus & Retrouvés ». Le correctif est celui de R49 sur l'accueil
+: la page se décrit elle-même. Une page ajoutée pour cette recherche aurait été
+une page-tunnel, exactement ce que Google sanctionne. L'onglet de navigation
+garde « Annonces » — §2.3 règle 2 vise un mot par sens, et le sens de l'onglet
+n'est pas celui du titre.
+
+> ⚠️ **La garde de R48 sur les pages indexables passait à vide.**
+> `it.each(INDEXABLE_PATHS)('leaves %s indexable')` boucle sur les routes
+> **filtrées** par ce chemin : quand aucune route ne correspond, le corps ne
+> tourne pas et le test **passe**. Donc une entrée listée sans page derrière
+> mettait un 404 au sitemap sans que rien ne bronche. Et `mountedRoutes()` ne
+> lisait que `route(` : l'accueil, monté par `index(`, n'était vu par **aucune**
+> des assertions qui le nomment.
+
+**La propriété, énoncée sans nommer un chemin** : toute page montée appartient à
+**exactement une** des trois classes — indexable, exclue, ou énumérée par le
+sitemap. La troisième existait sans nom (`/posts/:id`, que le sitemap déroule
+une par une) et s'appelle maintenant `ENUMERATED_PATHS`. C'est une partition, la
+forme que R51 avait trouvée : totale dans les deux sens, donc une page publique
+ajoutée et oubliée hors du sitemap est un test rouge et non un silence.
+
+**Et la garde que R49 avait énoncée sans l'écrire** : « un sitemap fait
+parcourir une page, un lien la rend digne d'être classée. » `orphans.test.ts`
+vérifie que chaque page indexable est liée depuis au moins un fichier de l'app.
+Elle n'exige pas le pied de page, parce que `/stickers/order` est atteinte
+depuis `/stickers` et que c'est juste. La nouvelle page est liée deux fois : le
+pied de page, et la section « Une pièce d'identité perdue, c'est différent » de
+R49, qui attendait exactement ce lien.
+
+**Mesuré sur le vrai serveur, avec un bouchon d'API.** `/carte-identite-perdue`
+répond 200 avec son `h1`, ses quatre `h2` et ses **sept** `h3` dans le HTML
+servi, sa canonical et son `og:url` absolus sur `https://retrouveci.com`, et
+aucune balise `robots`. Le sitemap la nomme, en douze entrées. `/posts` sert le
+nouveau titre, et sa canonical reste nue sous `?category=phone&page=2`. ⚠️ Le
+premier essai a servi le titre de `root` sur un **500** : le loader de `/posts`
+appelle l'API, et une adresse morte fait rendre la frontière d'erreur. Un
+bouchon de dix lignes lève la mesure, là où R48 avait dû s'en passer pour
+`/q/:code`.
+
+**Aucun appariement de couleurs neuf** : la page n'emploie que `bg-card`,
+`border-border`, `text-muted-foreground`, `text-primary-green-text` — tous déjà
+servis par la page de R49 — et `text-foreground` sur `bg-card`, que `/q/:code`
+sert déjà et qui est la paire de contraste maximal du système dans les deux
+thèmes. Aucune couleur en dur, et les cinq tailles employées sont des barreaux
+déclarés (13, 15, 16, 18, 26).
+
+**Fichiers** : `client/routes/document-guide/` (page, contenu, deux specs),
+`client/routes/seo/seo.const.ts` (`ENUMERATED_PATHS`, la nouvelle page),
+`client/routes/seo/__tests__/noindex.test.ts` (l'accueil enfin vu, la
+partition), `client/routes/seo/__tests__/orphans.test.ts`,
+`client/routes/posts/_index.tsx` (son `meta`),
+`client/routes/lost-guide/_index.tsx` (le lien réciproque),
+`client/components/footer.tsx`, `routes.ts`, `CLAUDE.md` — dont la liste de
+routes ne nommait **ni** cette page **ni** celle de R49. **Flux** : A. **Aucun
+changement d'API, de contrat ni de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert, `sw.js` émis. Chaque suite
+seule : api **583**, contracts **390**, admin **438** (inchangées) et client
+**1384** (1012 en `node`, +55, et 372 en `ui`, +15). Densité de commentaires 9,3
+%.
+
+**Les trois gardes vérifiées en rouge puis restaurées** : la page retirée
+d'`INDEXABLE_PATHS` fait tomber la partition ; une entrée listée sans page
+derrière fait tomber « a mounted page behind » — le cas que l'ancienne garde
+laissait passer ; et les deux liens vers la page retirés font tomber la garde
+des orphelins. Restauration contrôlée au `grep` et au `git diff --stat`.
+
+⚠️ **Un passage du projet `ui` a rendu 1 échec sur 372, sans le nommer ; les
+deux passages suivants ont rendu 372/372.** C'est la flakinesse sous charge que
+le chantier documente, pas une régression — mais elle n'a pas été identifiée,
+donc elle est notée telle quelle.
+
+**Reste ouvert** : « objet perdu Côte d'Ivoire » et les deux recherches de la
+capture sont couvertes, donc la liste de R48 est **close**. Ce que le
+commanditaire doit relire n'a pas bougé : l'étape administrative de
+`/objet-perdu-cote-divoire`, à laquelle cette page renvoie désormais au lieu de
+la dupliquer. Et la garde des orphelins reconnaît un lien par la présence du
+chemin en chaîne littérale, pas par une balise `<a>` : elle attrape l'oubli réel
+— une page listée et jamais liée — sans prouver qu'un visiteur peut cliquer.
+
 ---
 
 ## 6. Ce qui ne bouge pas

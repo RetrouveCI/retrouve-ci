@@ -87,6 +87,13 @@ export default function LostGuidePage() {
 						porte son type et le nom de son titulaire, ce qui suffit à la
 						rapprocher d&apos;une pièce trouvée et à la vérifier à la remise.
 					</p>
+					<Link
+						to="/carte-identite-perdue"
+						className="text-primary-green-text mt-3 inline-flex min-h-11 items-center gap-1.5 font-semibold"
+					>
+						Carte d&apos;identité, passeport, carte bancaire
+						<ArrowRight className="h-4 w-4 shrink-0" />
+					</Link>
 				</section>
 			</div>
 		</main>
