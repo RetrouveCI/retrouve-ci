@@ -7,6 +7,9 @@ export const NOTIFICATION_TYPES = [
 	'listing_contacted',
 	'order_placed',
 	'contact_received',
+	'order_processing',
+	'order_shipped',
+	'order_cancelled',
 ] as const
 
 /**
@@ -30,4 +33,7 @@ export const USER_NOTIFICATION_TYPES = [
 	'stickers_delivered',
 	'listing_moderated',
 	'listing_contacted',
+	'order_processing',
+	'order_shipped',
+	'order_cancelled',
 ] as const

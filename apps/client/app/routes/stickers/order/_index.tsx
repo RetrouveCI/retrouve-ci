@@ -14,6 +14,7 @@ import {
 	type StickerOrderInput,
 } from './order.schema'
 import { orderAction } from './servers/order.action'
+import { formatPrice } from '@app/contracts/sticker-orders'
 import {
 	DELIVERY_FEE,
 	FREE_DELIVERY_COUPONS,
@@ -85,9 +86,6 @@ export default function CommanderPage() {
 	const selectedPackData = PACKS.find(pack => pack.id === values.packId)
 	const deliveryFee = appliedCoupon ? 0 : DELIVERY_FEE
 	const totalPrice = (selectedPackData?.price ?? 0) + deliveryFee
-
-	const formatPrice = (price: number) =>
-		new Intl.NumberFormat('fr-FR').format(price)
 
 	const handleApplyCoupon = () => {
 		const code = couponInput.trim().toUpperCase()

@@ -36,3 +36,9 @@ export const FREE_DELIVERY_COUPONS: readonly string[] = [
 	'LIVRAISON0',
 	'WELCOME2025',
 ]
+
+// « 4 500 », beside the catalogue it formats: the order screens, the tracking
+// card and the API's shipping notice all read the same figure.
+export function formatPrice(price: number): string {
+	return new Intl.NumberFormat('fr-FR').format(price)
+}

@@ -94,6 +94,9 @@ enum NotificationType {
   LISTING_CONTACTED
   ORDER_PLACED
   CONTACT_RECEIVED
+  ORDER_PROCESSING
+  ORDER_SHIPPED
+  ORDER_CANCELLED
 }
 
 /// Who a notification speaks to. An ADMIN row carries no userId: it addresses
