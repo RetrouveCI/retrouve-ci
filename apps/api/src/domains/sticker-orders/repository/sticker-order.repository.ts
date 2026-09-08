@@ -3,6 +3,7 @@ import { StickerOrderStatus as PrismaStickerOrderStatus } from '@app/database'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
 import {
 	toDomainStickerOrder,
+	toPrismaSource,
 	toPrismaStatus,
 } from '../mappers/sticker-order.mapper'
 import { OPEN_STICKER_ORDER_STATUSES } from '../constants'
@@ -30,6 +31,7 @@ export class StickerOrderRepository {
 				deliveryFee: data.deliveryFee,
 				total: data.total,
 				paymentMethod: data.paymentMethod,
+				source: toPrismaSource(data.source),
 				deliveryAddress: data.deliveryAddress,
 				deliveryCity: data.deliveryCity,
 				deliveryNotes: data.deliveryNotes ?? null,

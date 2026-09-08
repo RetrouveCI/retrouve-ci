@@ -30,12 +30,15 @@ const placedOrder: Order = {
 	deliveryAddress: 'Cocody Riviera 2',
 }
 
-function renderPage(action: (args: { request: Request }) => unknown) {
+function renderPage(
+	action: (args: { request: Request }) => unknown,
+	search = '',
+) {
 	const Stub = createRoutesStub([
 		{ path: '/stickers/order', Component: CommanderPage, action },
 	])
 
-	render(<Stub initialEntries={['/stickers/order']} />)
+	render(<Stub initialEntries={[`/stickers/order${search}`]} />)
 }
 
 const pack = (name: string) =>
@@ -201,5 +204,49 @@ describe('CommanderPage', () => {
 			.element(page.getByText('Code invalide ou expiré.'))
 			.toBeInTheDocument()
 		expect(success).not.toHaveBeenCalled()
+	})
+
+	// The marker has to survive two « Continuer » clicks and reach the body —
+	// ⚠️ narrowed to the enum first, so an unnamed word never travels.
+	describe('the marker the entry link carried', () => {
+		const submittedSource = async (
+			action: ReturnType<typeof vi.fn>,
+		): Promise<string | null> => {
+			const request = action.mock.calls[0]?.[0]?.request as Request
+			return (await request.formData()).get('source') as string | null
+		}
+
+		const placeOrder = async () => {
+			await reachDeliveryStep()
+			await fillDelivery()
+			await userEvent.click(confirmOrder())
+		}
+
+		it('carries it through the two steps and into the body', async () => {
+			const action = vi.fn(ok)
+			renderPage(action, '?from=home')
+
+			await placeOrder()
+
+			expect(await submittedSource(action)).toBe('home')
+		})
+
+		it('sends a direct arrival when the URL carries no marker', async () => {
+			const action = vi.fn(ok)
+			renderPage(action)
+
+			await placeOrder()
+
+			expect(await submittedSource(action)).toBe('direct')
+		})
+
+		it('refuses a word the contract does not name', async () => {
+			const action = vi.fn(ok)
+			renderPage(action, '?from=facebook')
+
+			await placeOrder()
+
+			expect(await submittedSource(action)).toBe('direct')
+		})
 	})
 })

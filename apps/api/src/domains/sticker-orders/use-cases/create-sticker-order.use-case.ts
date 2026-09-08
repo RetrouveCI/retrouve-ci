@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { PAYMENT_ON_DELIVERY } from '@app/contracts/sticker-orders'
+import {
+	DEFAULT_STICKER_ORDER_SOURCE,
+	PAYMENT_ON_DELIVERY,
+} from '@app/contracts/sticker-orders'
 import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
 import { computeDeliveryFee } from '../helpers/compute-delivery-fee'
 import { generateOrderNumber } from '../helpers/generate-order-number'
@@ -45,6 +48,9 @@ export class CreateStickerOrderUseCase implements IDomainUseCase<
 			deliveryFee,
 			total: pack.price + deliveryFee,
 			paymentMethod: PAYMENT_ON_DELIVERY,
+			// Absent means nobody marked the arrival: the body may name a source,
+			// never invent one.
+			source: data.source ?? DEFAULT_STICKER_ORDER_SOURCE,
 			deliveryAddress: data.deliveryAddress,
 			deliveryCity: data.deliveryCity,
 			deliveryNotes: data.deliveryNotes,

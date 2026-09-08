@@ -45,9 +45,10 @@ describe('StickersSection', () => {
 	it('opens the order tunnel and the explainer, not one or the other', async () => {
 		renderSection()
 
+		// The marker is part of the href: this block is one of the five entries.
 		await expect
 			.element(page.getByRole('link', { name: /Commander/ }))
-			.toHaveAttribute('href', '/stickers/order')
+			.toHaveAttribute('href', '/stickers/order?from=home')
 		await expect
 			.element(page.getByRole('link', { name: 'Voir comment ça marche' }))
 			.toHaveAttribute('href', '/stickers')

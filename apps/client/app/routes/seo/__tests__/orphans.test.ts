@@ -28,11 +28,16 @@ describe('the pages the sitemap offers', () => {
 		expect(files.length).toBeGreaterThan(100)
 	})
 
+	/**
+	 * ⚠️ The path has to be **terminated**, not merely present: a closing quote,
+	 * or a query string or hash before it. A6 put `?from=` on five links and the
+	 * old closed-literal match called the route an orphan; matching a bare prefix
+	 * instead would let `/stickers/orders` vouch for `/stickers/order`.
+	 */
 	it.each(INDEXABLE_PATHS)('is linked to from somewhere (%s)', path => {
-		const targets = [`'${path}'`, `"${path}"`, `\`${path}\``]
-		const linking = markup.filter(source =>
-			targets.some(target => source.includes(target)),
-		)
+		const escaped = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+		const linked = new RegExp(`['"\`]${escaped}(?=['"\`?#])`)
+		const linking = markup.filter(source => linked.test(source))
 
 		expect(linking.length).toBeGreaterThan(0)
 	})

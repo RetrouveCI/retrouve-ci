@@ -31,6 +31,7 @@ export async function orderAction(
 						deliveryCity: order.city,
 						deliveryNotes: `Contact: ${order.name} (${order.phone}).`,
 						...(order.couponCode ? { couponCode: order.couponCode } : {}),
+						...(order.source ? { source: order.source } : {}),
 					},
 					request,
 				),

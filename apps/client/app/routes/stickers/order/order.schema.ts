@@ -1,5 +1,8 @@
 import { z } from 'zod'
-import { stickerPackIdSchema } from '@app/contracts/sticker-orders'
+import {
+	stickerOrderSourceSchema,
+	stickerPackIdSchema,
+} from '@app/contracts/sticker-orders'
 import {
 	ASSIGNABLE_PHONE_ERROR_MESSAGE,
 	isAssignableLocalNumber,
@@ -26,6 +29,8 @@ export const stickerOrderSchema = z.object({
 		.min(2, 'La ville est requise')
 		.max(120, 'Maximum 120 caractères'),
 	couponCode: z.string().max(30, 'Maximum 30 caractères').optional(),
+	// Already narrowed to the enum, and revalidated here before the API.
+	source: stickerOrderSourceSchema.optional(),
 })
 
 export type StickerOrderInput = z.input<typeof stickerOrderSchema>
