@@ -7,16 +7,21 @@ import {
 	LostItemNotFoundError,
 	LostItemUnreachableError,
 } from '../../errors/lost-item.errors'
+import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
 import type { LostItemRepository } from '../../repository/lost-item.repository'
 import { ContactLostItemPosterUseCase } from '../contact-lost-item-poster.use-case'
 
 describe('ContactLostItemPosterUseCase', () => {
 	let repository: LostItemRepository
+	let notifier: CreateNotificationUseCase
 	let useCase: ContactLostItemPosterUseCase
 
 	beforeEach(() => {
 		repository = buildRepository()
-		useCase = new ContactLostItemPosterUseCase(repository)
+		notifier = {
+			execute: vi.fn().mockResolvedValue(undefined),
+		} as unknown as CreateNotificationUseCase
+		useCase = new ContactLostItemPosterUseCase(repository, notifier)
 	})
 
 	const published = (over: Record<string, unknown> = {}) =>
@@ -60,6 +65,7 @@ describe('ContactLostItemPosterUseCase', () => {
 			LostItemUnreachableError,
 		)
 		expect(repository.incrementContacts).not.toHaveBeenCalled()
+		expect(notifier.execute).not.toHaveBeenCalled()
 	})
 
 	it('throws when the item does not exist, without counting a contact', async () => {
@@ -80,5 +86,55 @@ describe('ContactLostItemPosterUseCase', () => {
 			LostItemNotFoundError,
 		)
 		expect(repository.incrementContacts).not.toHaveBeenCalled()
+	})
+
+	// What the step adds over `contactsCount`: a trace of who was sent and when,
+	// where the count is only a number.
+	describe('telling the poster', () => {
+		const notice = () => vi.mocked(notifier.execute).mock.calls[0]?.[0]
+
+		it('addresses the owner and names the listing', async () => {
+			vi.mocked(repository.findById).mockResolvedValue(
+				published({ title: 'Sac à dos noir', userId: 'user-7' }),
+			)
+
+			await useCase.execute('lost-item-1')
+
+			expect(notice()).toEqual(
+				expect.objectContaining({
+					type: 'listing_contacted',
+					userId: 'user-7',
+					link: '/account/posts',
+				}),
+			)
+			expect(notice()?.message).toContain('« Sac à dos noir »')
+		})
+
+		// Read from the poster's side, where the WhatsApp text is read from the
+		// other: a lost item was found, a found one is claimed.
+		it.each([
+			['lost', 'pense avoir trouvé'],
+			['found', 'lui appartient'],
+		] as const)(
+			'words a %s listing from the poster’s side',
+			async (type, sentence) => {
+				vi.mocked(repository.findById).mockResolvedValue(published({ type }))
+
+				await useCase.execute('lost-item-1')
+
+				expect(notice()?.message).toContain(sentence)
+			},
+		)
+
+		// The count is already written by then: losing the notice must not answer
+		// 500 to the finder who is being sent to WhatsApp.
+		it('still answers the target when the notice fails', async () => {
+			vi.mocked(repository.findById).mockResolvedValue(published())
+			vi.mocked(notifier.execute).mockRejectedValue(new Error('redis down'))
+
+			await expect(useCase.execute('lost-item-1')).resolves.toHaveProperty(
+				'url',
+			)
+		})
 	})
 })

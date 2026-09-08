@@ -6,7 +6,7 @@ import { generateOrderNumber } from '../helpers/generate-order-number'
 import { getStickerPack } from '../helpers/get-sticker-pack'
 import { StickerOrderRepository } from '../repository/sticker-order.repository'
 import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
-import { notifyDesk } from '@/domains/notifications/helpers/notify-desk'
+import { notifyDesk } from '@/domains/notifications/helpers/notify'
 import { MAX_OPEN_STICKER_ORDERS } from '../constants'
 import { TooManyOpenStickerOrdersError } from '../errors/sticker-order.errors'
 import type {

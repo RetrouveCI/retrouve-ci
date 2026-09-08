@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
 import { ContactMessageRepository } from '../repository/contact-message.repository'
 import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
-import { notifyDesk } from '@/domains/notifications/helpers/notify-desk'
+import { notifyDesk } from '@/domains/notifications/helpers/notify'
 import type {
 	ContactMessage,
 	CreateContactMessageData,

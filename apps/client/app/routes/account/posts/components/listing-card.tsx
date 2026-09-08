@@ -25,6 +25,7 @@ import {
 	Trash2,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { moderationReasonSentence } from '@app/contracts/lost-items'
 import type { UserLostItem } from '@/shared/types/lost-item'
 import { cn } from '@app/ui/utils'
 import { imageUrl } from '@/shared/utils/image'
@@ -35,7 +36,6 @@ import {
 	buildTimelineLabel,
 } from '../helpers/listing-labels'
 import { listingStatusFor } from '../helpers/listing-status'
-import { moderationReasonSentence } from '../helpers/moderation-notice'
 import {
 	ListingActionsSheet,
 	type ListingSheetAction,

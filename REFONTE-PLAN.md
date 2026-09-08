@@ -6544,7 +6544,7 @@ nom complet » — deux formulations d'une même chose, ce que §2.3 règle 2 n'
 pas —, et la variable s'appelle encore `firstName` alors qu'elle porte un nom
 complet. Petit lot, sans migration.
 
-#### N2 — Le poseur apprend ce qui arrive à son annonce
+#### N2 — Le poseur apprend ce qui arrive à son annonce — **LIVRÉE**
 
 1. **`moderate-lost-item` → `listing_moderated`** : publiée ou masquée, avec le
    motif qu'A1 a posé. Aujourd'hui le poseur ne l'apprend qu'en revenant sur la
@@ -6556,6 +6556,86 @@ complet. Petit lot, sans migration.
    quand, là où `contactsCount` n'est qu'un nombre.
 
 **Flux** : A et D. **Aucun changement de base** — l'enum de N1 les couvre déjà.
+
+**Livrée telle que décrite, plus un doublement qu'elle a trouvé en chemin.**
+
+**La phrase du motif est montée dans le contrat.** A1 avait posé la table des
+phrases dans `apps/client`, avec l'argument que « chaque app écrit la sienne —
+un modérateur veut un libellé court, son propriétaire une explication complète
+». L'avis de N2 est lu par le **propriétaire**, donc il veut la même phrase que
+la carte : deux tables auraient fait lire une même faute de deux façons, ce que
+§2.3 règle 2 refuse. `moderationReasonSentence` vit désormais dans
+`@app/contracts/lost-items` et la carte l'y lit — un seul appelant côté client,
+donc pas de ré-export, contrairement au motif de `shared/phone.ts`. Ses trois
+tests partent avec elle.
+
+**Un avaleur, deux façades.** `notifyDesk` était typé sur les seuls types
+d'administration, ce qui est la garantie qu'il ne peut pas parler à un visiteur
+— à garder. Mais l'avaleur d'erreur valait pour les deux côtés. Donc
+`helpers/notify.ts` : un corps privé `notify`, et `notifyDesk` / `notifyUser`
+qui n'en sont que deux entrées, chacune sur son type étroit. Deux façades sur un
+corps, plutôt que deux corps à tenir en phase. `reach-qr-token-owner`, seul
+autre producteur qui avalait déjà, s'y replie ; son journal nomme maintenant le
+type au lieu de la classe, que le contexte du logger de Nest porte déjà.
+
+**Les deux avis se cumulent, délibérément.** Publier produit `listing_moderated`
+**et** `match_found` pour la même annonce, et c'est juste : le premier dit que
+l'annonce est visible, le second nomme un candidat. Deux faits, deux liens. Ce
+qui ne devait pas se doubler est autre chose.
+
+> ⚠️ **Le doublement réel était une republication.** La route lisait
+> `lostItem.moderationStatus === 'published'` sur la ligne **rendue** — donc
+> vraie que la publication ait changé quelque chose ou non. Un modérateur qui
+> cliquait « Publier » deux fois relançait la recherche de correspondances, et
+> `notify-matches` crée un avis par correspondance à chaque passage : le poseur
+> recevait deux fois le même `match_found`. La route lit maintenant une
+> **transition** (`becamePublished`) que le use-case calcule à partir de la
+> ligne d'avant, déjà chargée par `requireLostItem` — donc à coût nul.
+
+**Une décision qui ne change rien ne prévient personne.** Même règle pour l'avis
+: le use-case compare la ligne d'avant et la ligne d'après sur les trois champs
+de modération, et se tait si elles sont égales. Un remasquage pour un **autre**
+motif est en revanche un nouveau verdict à lire, et il part.
+
+**Le message ne promet aucun retour**, la règle d'A1 : `repository.update()`
+n'écrit aucun statut de modération, donc corriger une annonce masquée ne la
+remet pas en ligne. Les trois verdicts sont une table
+`Record<ModerationStatus, …>` — un statut ajouté au contrat serait une erreur de
+compilation — et un spec balaie les trois × les sept motifs contre
+`/republi|remettre en ligne|reparaît/i`.
+
+**`listing_contacted` porte ce que `contactsCount` ne peut pas** : le titre de
+l'annonce et l'instant. La phrase se lit du côté du poseur là où le message
+WhatsApp se lit du côté de l'inverse — « une personne pense avoir trouvé « X » »
+pour une annonce de perte, « pense que « X » lui appartient » pour une
+trouvaille. La route reste `@AllowAnonymous()` et plafonnée par `public-write`
+(10/h par adresse) : la même exposition que `contactsCount` avait déjà.
+
+**Les deux liens pointent `/account/posts`** et non `/account/posts/:id`, qui
+est la page d'**édition** : c'est la liste qui porte la bannière d'A1 et le
+motif sur la carte. Un lien vers l'annonce publique aurait été faux pour un
+masquage, la page n'étant plus servie.
+
+**Fichiers** : `contracts/lost-items/` (la phrase du motif, son spec, l'index),
+`api/domains/notifications/helpers/` (`notify.ts` remplace `notify-desk.ts`, +
+un spec qu'il n'avait pas), `api/domains/lost-items/` (les deux use-cases, le
+type `ModerationOutcome`, deux specs), `api/domains/qr-codes/` (le repli),
+`api/presentations/lost-items/` (la transition, + un cas),
+`client/routes/account/posts/` (la table retirée, la carte pointée sur le
+contrat, trois tests déplacés). **Aucun changement de base, aucun de front
+au-delà d'un import.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur, 0 avertissement · `format:check`
+propre · `pnpm build` vert. Chaque suite seule : api **691** (+30), contracts
+**417** (+9), admin **438** (inchangée), client **1005** en `node` (−8, les
+trois tests montés dans le contrat) et **377** en `ui` (inchangée).
+
+**Restées ouvertes, mesurées et non corrigées** : `contact-qr-token-owner`,
+`notify-matches` et `update-sticker-order-status` n'avalent **pas** leur avis.
+Pour un consommateur BullMQ (`notify-matches`) c'est juste — l'échec doit
+relancer le job. Pour `contact-qr-token-owner`, qui est une écriture publique,
+un Redis absent répond 500 au visiteur ; c'est antérieur à N2 et le corriger est
+un changement de comportement, pas un repli de helper. À trancher avec N3.
 
 #### N3 — Les transitions de commande qui restent _(facultatif)_
 

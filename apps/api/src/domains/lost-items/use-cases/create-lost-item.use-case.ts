@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { LinkQrTokenToLostItemUseCase } from '@/domains/qr-codes/use-cases/link-qr-token-to-lost-item.use-case'
 import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
-import { notifyDesk } from '@/domains/notifications/helpers/notify-desk'
+import { notifyDesk } from '@/domains/notifications/helpers/notify'
 import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
 import { LostItemRepository } from '../repository/lost-item.repository'
 import type { CreateLostItemData, LostItem } from '../types/lost-item.types'

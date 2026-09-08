@@ -316,7 +316,12 @@ used to prefix `+225` unconditionally onto a field its own regex let through at
 pipe now strips an attempt to rewrite them. Both fronts keep only their labels —
 `publish.const.ts`'s `OBJECT_TYPES` and the backoffice's `posts.const.ts` are
 `Record<LostItemCategory, …>` tables composed onto the contract's values, so a
-new category is a type error rather than a missing label.
+new category is a type error rather than a missing label. The **moderation
+reason's sentence** lives here too (`moderation-reason.ts`), because the poster
+reads it in two places — on the card in « Mes annonces » and in the
+`listing_moderated` notification the API raises — and one fault must read one
+way. What stays per-app is the backoffice's short **label** for the same code,
+which is a moderator's vocabulary and not the owner's.
 
 ### Database package (`packages/database`)
 
@@ -444,20 +449,39 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   contract pairs each type with its side (`audienceOf`, plus
   `ADMIN_NOTIFICATION_TYPES` / `USER_NOTIFICATION_TYPES`), and the **compiler**
   holds that pairing at each producer: `notifyDesk` takes an
-  `AdminNotificationType`, and a visitor's notification does not build without a
-  `userId`. ⚠️ `whereFor(scope)` in `domains/notifications/repository/` is the
-  **only** place a notification `where` clause is built — the audience
-  separation lives there and nowhere above, so add no second one. Its
-  `userId: null` is load-bearing: without it the desk's clause would also match
-  an administrator's own visitor rows.
-- **Telling the desk must not put the write at risk.** `notifyDesk` swallows and
-  logs at error level, because the row already exists by then: an unreachable
-  Redis must not answer 500 to the poster who just published. The three desk
-  producers are `create-lost-item` (a listing is created `PENDING`, and
-  publication is the only moment matching runs, so until the desk acts nothing
-  happens at all), `create-sticker-order` (paid to the courier, so an order
-  commits a delivery with cash expected on arrival) and
-  `create-contact-message`.
+  `AdminNotificationType`, `notifyUser` a `UserNotificationType`, and a
+  visitor's notification does not build without a `userId`. ⚠️ `whereFor(scope)`
+  in `domains/notifications/repository/` is the **only** place a notification
+  `where` clause is built — the audience separation lives there and nowhere
+  above, so add no second one. Its `userId: null` is load-bearing: without it
+  the desk's clause would also match an administrator's own visitor rows.
+- **Raising a notification must not put the write at risk.**
+  `domains/notifications/helpers/notify.ts` holds one swallowing body and two
+  façades over it — `notifyDesk` and `notifyUser`, each typed on its own narrow
+  side, which is what keeps the compiler's guarantee that neither can address
+  the other audience. It logs at error level, because the row already exists by
+  then: an unreachable Redis must not answer 500 to the poster who just
+  published. The three desk producers are `create-lost-item` (a listing is
+  created `PENDING`, and publication is the only moment matching runs, so until
+  the desk acts nothing happens at all), `create-sticker-order` (paid to the
+  courier, so an order commits a delivery with cash expected on arrival) and
+  `create-contact-message`. On the visitor's side, `moderate-lost-item` and
+  `contact-lost-item-poster` were added by N2, and `reach-qr-token-owner` folded
+  its own copy of the swallow onto the helper. ⚠️ Three visitor producers still
+  do **not** swallow — `contact-qr-token-owner`, `notify-matches` and
+  `update-sticker-order-status`; for a BullMQ consumer that is right, since the
+  failure must retry the job.
+- **A moderation decision that changes nothing does nothing.**
+  `ModerateLostItemUseCase` compares the row before the write with the row after
+  it, on all three moderation columns, and raises `listing_moderated` only when
+  they differ — so re-hiding for a different reason notifies, and publishing
+  twice does not. It answers a `ModerationOutcome`, whose `becamePublished` is a
+  **transition**, not a state: the controller dispatches matching on that rather
+  than on `moderationStatus === 'published'`, which was true whether the write
+  changed anything or not and made a second publish search — and notify — again.
+  The verdict wording is a `Record<ModerationStatus, …>`, and it deliberately
+  promises no return online, because `repository.update()` writes no moderation
+  status.
 - Background jobs (e.g. match notifications, OTP SMS) run on **BullMQ** backed
   by Redis. Every queue shares one connection, built by
   `infrastructures/queue/queue.config.ts`. `REDIS_URL` is **required in

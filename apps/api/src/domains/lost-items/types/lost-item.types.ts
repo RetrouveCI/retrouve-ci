@@ -41,6 +41,16 @@ export interface ModerationDecision {
 }
 
 /**
+ * What a moderation write settled. `becamePublished` is a transition, not a
+ * state: publication is the only moment matching runs, so a second publish of
+ * an already-published listing must not look for matches again.
+ */
+export interface ModerationOutcome {
+	lostItem: LostItem
+	becamePublished: boolean
+}
+
+/**
  * The repository also narrows by owner and by resolution status. Neither is a
  * query parameter: both come from the use-case.
  */
