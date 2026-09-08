@@ -6152,6 +6152,115 @@ la dupliquer. Et la garde des orphelins reconnaît un lien par la présence du
 chemin en chaîne littérale, pas par une balise `<a>` : elle attrape l'oubli réel
 — une page listée et jamais liée — sans prouver qu'un visiteur peut cliquer.
 
+#### R59 — Chaque écriture bornée par ce qu'elle engage — **LIVRÉE**
+
+Le « reste ouvert » de R57, et **la passation avait tort en le décrivant**. Elle
+écrivait : « publier et commander ne coûtent qu'une ligne en base, donc c'est un
+risque de spam et non de facture ». C'est vrai d'une annonce. C'est faux d'une
+commande.
+
+> ⚠️ **Les stickers sont payés au coursier, donc une commande engage une
+> livraison avec de l'espèce à encaisser à l'arrivée.**
+> `CreateStickerOrderUseCase` estampille `PAYMENT_ON_DELIVERY`, n'accepte aucun
+> champ de paiement, et n'avait **aucun** garde-fou : ni plafond, ni contrôle
+> des encours. Un compte authentifié pouvait donc engager autant de courses
+> qu'il voulait. Pour un pilote Abidjan avec de vrais livreurs, c'est une
+> exposition financière et pas du spam.
+
+**D'où deux bornes de nature différente, chacune ajustée à ce que la route
+engage** — et c'est le point du lot, pas un plafond uniforme :
+
+1. **La commande : un encours, pas un débit.** Un compte ne peut pas dépasser
+   `MAX_OPEN_STICKER_ORDERS` commandes ouvertes. Ce qui expose, c'est l'impayé
+   en cours de route, donc borner _ce qu'un compte détient à un instant_ vaut
+   mieux qu'un plafond horaire, qui ne borne que la rafale. C'est une règle
+   métier, donc elle vit dans le use-case et non dans la politique.
+2. **L'annonce : une rafale.** `LOST_ITEM_PER_USER`, dix par heure. Ce qu'une
+   inondation dépense, c'est la file de modération, et dix est bien au-dessus
+   des une à trois annonces qu'un poseur réel dépose.
+
+> ⚠️ **« Ouvert » est déclaré comme une PARTITION des statuts du contrat**, et
+> asserté comme telle dans les deux sens. Sans ça, un statut ajouté au contrat
+> compterait comme soldé **par omission**, et un compte pourrait empiler des
+> commandes dans cet état sans limite. C'est la forme de R51 et R58, une
+> troisième fois.
+
+**Une seule copie du plafond par compte.** `UploadBudget` de R57 était générique
+à un constant et une phrase près ; en écrire un deuxième puis un troisième
+aurait été la duplication que `@app/web-kit` existe pour éviter. Il devient
+`AccountBudget` dans `shared/rate-limit/`, piloté par un `AccountLimit` de la
+politique. `infrastructures/storage/` n'en porte plus rien.
+
+**Et un seul endroit fabrique le 429.** R57 le montait dans une méthode privée
+du contrôleur, avec un `@Res({ passthrough: true })`, parce qu'« une exception
+Nest ne porte pas d'en-tête ». Or **un filtre atteint la réponse** :
+`AccountBudgetFilter` répond le corps et le `Retry-After` du hook, une fois pour
+toutes les routes. `UploadsController` a donc perdu son `@Res` et sa méthode.
+
+> ⚠️ **La garde a trouvé une route que personne ne cherchait.** Sa propriété :
+> toute route d'écriture tombe dans **exactement une** classe — plafonnée par
+> `limitFor`, réservée aux administrateurs (lu dans `@Roles`), ou nommée comme
+> agissant sur une ligne que l'appelant possède déjà. Écrite avec une liste
+> d'exemptions **vide** exprès, elle a énuméré huit routes ; sept étaient bien
+> des écritures sur du possédé, la huitième était
+> **`POST /account/set-initial-password`** — le seul écrit de mot de passe monté
+> **hors** de `/api/auth/*`, donc le seul que la règle de préfixe manquait. Or
+> poser un mot de passe le hache, et un hachage est coûteux exprès. Rattachée au
+> seau `auth` plutôt qu'exemptée.
+
+**Deux classes sur trois sont dérivées de la source** — le verbe et le `@Roles`
+sont lus dans le bloc de décorateurs — donc une route ajoutée plus tard ne peut
+pas passer en ressemblant à une déjà comptée. La liste des écritures « possédées
+» est vérifiée dans les deux sens : un chemin qui cesse d'être une route, ou qui
+gagne un plafond, doit en sortir.
+
+**Le spec de R57 assertait littéralement les deux chemins de ce lot comme non
+plafonnés** (« leaves the authenticated writes that cost nothing alone »,
+nommant `/sticker-orders` et `/lost-items`). Retourné, comme R57 avait retourné
+celui de R42.
+
+**Aucun changement de front, et c'est mesuré et non supposé.** L'action de
+publication passe par `withApiOperationError`, celle de commande par
+`withApiOperationData`, et les deux pages rendent `FormRootError` — vérifié
+fichier par fichier. `TooManyOpenStickerOrdersError` ne nomme **aucun champ**,
+puisque le refus concerne les commandes du compte et aucune saisie du
+formulaire, donc il atterrit sur `root` exactement comme R55 l'a construit.
+
+> ⚠️ **Le compte-puis-crée n'est pas atomique** : deux envois simultanés peuvent
+> passer tous les deux. Borner l'exposition est le but, pas la séquencer — le
+> seau par adresse tient la rafale, et une contrainte « au plus N lignes
+> vérifiant un prédicat » demanderait un déclencheur Postgres. Assumé, écrit
+> dans le code.
+
+**Fichiers** : `api/shared/rate-limit/` (`account-budget.service.ts`,
+`.error.ts`, `.filter.ts`, `rate-limit.module.ts`, `rate-limit.tokens.ts`,
+`rate-limit.policy.ts`), `api/domains/sticker-orders/` (`constants.ts`,
+l'erreur, le dépôt, le use-case), `api/presentations/` (`lost-items`,
+`uploads`), `api/main.ts`, quatre specs neufs et trois retournés, `CLAUDE.md`.
+Quatre fichiers de `infrastructures/storage/` **supprimés**, leur capacité ayant
+déménagé. **Flux** : A et C. **Aucun changement de contrat, de base ni de
+front.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : api
+**624** (+41), contracts **390**, admin **438** et client **1384** (inchangés).
+Densité de commentaires 9,9 % — 16,1 % au premier jet, quinze blocs `/** */`
+condensés.
+
+**Les quatre gardes vérifiées en rouge puis restaurées** : la commande retirée
+du seau fait tomber la garde totale **et** l'assertion des deux routes qui
+coûtent de l'argent ; le mot de passe retiré du seau `auth` la fait tomber en
+nommant la route ; le contrôle des encours retiré du use-case fait tomber cinq
+cas ; et un statut qui ne tombe d'aucun côté fait tomber la partition.
+Restauration contrôlée au `grep` et au `git diff --stat`.
+
+**Reste ouvert** : les écritures « possédées » n'ont toujours aucun plafond, et
+c'est la décision du lot — ce qu'elles peuvent dépenser est borné par ce que
+l'appelant détient. Si un jour l'une d'elles cesse de l'être, la garde ne le
+dira pas : elle vérifie qu'un chemin est **nommé**, pas que le raisonnement
+tient encore. Et `CATEGORY_LABELS` plus la renumérotation de `dashboard/home`
+attendent toujours.
+
 ---
 
 ## 6. Ce qui ne bouge pas

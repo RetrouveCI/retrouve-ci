@@ -5,6 +5,8 @@ import { computeDeliveryFee } from '../helpers/compute-delivery-fee'
 import { generateOrderNumber } from '../helpers/generate-order-number'
 import { getStickerPack } from '../helpers/get-sticker-pack'
 import { StickerOrderRepository } from '../repository/sticker-order.repository'
+import { MAX_OPEN_STICKER_ORDERS } from '../constants'
+import { TooManyOpenStickerOrdersError } from '../errors/sticker-order.errors'
 import type {
 	CreateStickerOrderData,
 	StickerOrder,
@@ -22,6 +24,8 @@ export class CreateStickerOrderUseCase implements IDomainUseCase<
 	 * payment method: stickers are paid to the courier.
 	 */
 	async execute(data: CreateStickerOrderData): Promise<StickerOrder> {
+		await this.requireRoomForAnotherOrder(data.userId)
+
 		const pack = getStickerPack(data.packId)
 		const deliveryFee = computeDeliveryFee(data.couponCode)
 
@@ -39,5 +43,15 @@ export class CreateStickerOrderUseCase implements IDomainUseCase<
 			deliveryNotes: data.deliveryNotes,
 			userId: data.userId,
 		})
+	}
+
+	// ⚠️ Count-then-create is not atomic: bounding the exposure is the point, not
+	// sequencing it. The address bucket holds the burst.
+	private async requireRoomForAnotherOrder(userId: string): Promise<void> {
+		const open = await this.repository.countOpenOrders(userId)
+
+		if (open >= MAX_OPEN_STICKER_ORDERS) {
+			throw new TooManyOpenStickerOrdersError()
+		}
 	}
 }

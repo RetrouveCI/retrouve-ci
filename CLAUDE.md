@@ -400,13 +400,35 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   interceptor — a Nest throttler would miss `send-otp` entirely. The hook is
   registered before `NestFactory.create`, reads its rules from
   `shared/rate-limit/rate-limit.policy.ts` (`otp`, `auth`, `public-write`,
-  `public-read`, `upload`) and keys them on the caller: `X-Client-Ip` when a
-  front forwarded it, the socket address otherwise. It **fails open**, loudly —
-  a limiter that cannot reach Redis must not take sign-in down with it. Two
-  ceilings sit **inside** Nest instead, where the identity is known and an
-  address cannot be rotated: `OtpDispatcher` counts per phone number, and
-  `UploadBudget` per account. Those are the two routes that spend money, an SMS
-  and a Cloudinary image, and both hold at the same time as the address one.
+  `public-read`, `upload`, `authenticated-write`) and keys them on the caller:
+  `X-Client-Ip` when a front forwarded it, the socket address otherwise. It
+  **fails open**, loudly — a limiter that cannot reach Redis must not take
+  sign-in down with it. More ceilings sit **inside** Nest, where the identity is
+  known and an address cannot be rotated: `OtpDispatcher` counts per phone
+  number, and `AccountBudget` (`shared/rate-limit/`) per account, driven by an
+  `AccountLimit` from the same policy — one service for every such ceiling,
+  since all that differed between two of them was a constant and a sentence. It
+  answers through `AccountBudgetFilter`, which shapes the **same** 429 body and
+  `Retry-After` the hook does, so a front reads one shape whichever ceiling
+  refused; a Nest exception carries no header, which is why this is a filter and
+  not a per-controller helper. Every ceiling holds at the same time as the
+  address one, and every one of them fails open.
+- **A sticker order is bounded by what it commits, not by how fast it is
+  placed.** Stickers are paid to the courier, so an open order is unpaid
+  exposure: `CreateStickerOrderUseCase` refuses a new one while the account
+  already holds `MAX_OPEN_STICKER_ORDERS`. `OPEN_STICKER_ORDER_STATUSES` and
+  `SETTLED_STICKER_ORDER_STATUSES` are declared as a **partition** of the
+  contract's statuses and asserted as one, so a status added there forces a
+  decision instead of counting as settled by omission. Count-then-create is not
+  atomic — bounding the exposure is the point, not sequencing it.
+- **Every write route is accounted for.** `write-routes.spec.ts` discovers each
+  `@Post`/`@Patch`/`@Put`/`@Delete` in `presentations/` and requires it to fall
+  in exactly one class: capped by `limitFor`, admin-only (read from `@Roles`),
+  or named as owner-scoped — a write on a row the caller already owns, bounded
+  by what they hold. A route added later lands in none and turns the guard red.
+  That is how `POST /account/set-initial-password` was found: the **one**
+  password write mounted outside `/api/auth/*`, so the only one the prefix rule
+  missed, and setting a password hashes it.
 - Background jobs (e.g. match notifications, OTP SMS) run on **BullMQ** backed
   by Redis. Every queue shares one connection, built by
   `infrastructures/queue/queue.config.ts`. `REDIS_URL` is **required in
@@ -903,7 +925,7 @@ deliberately declined.
   tidiness gap rather than a working one.
 - **`@app/vitest-config` has no `node` (SWC) preset.** Deliberate: it is only
   needed when a spec builds a NestJS testing module and lets the container
-  inject. None of the api's 91 spec files does — they instantiate classes by
+  inject. None of the api's 106 spec files does — they instantiate classes by
   hand (`new XxxController(deps)`), so no decorator emission is required. Adding
   `unplugin-swc` and `@swc/core` now would be two dependencies for a capability
   nothing exercises.

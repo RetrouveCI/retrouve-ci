@@ -45,6 +45,8 @@ import { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-it
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 import { MatchingDispatcher } from '@/infrastructures/queue/matching-dispatcher.service'
+import { AccountBudget } from '@/shared/rate-limit/account-budget.service'
+import { LOST_ITEM_PER_USER } from '@/shared/rate-limit/rate-limit.policy'
 
 @ApiTags('lost-items')
 @ApiBearerAuth()
@@ -62,14 +64,19 @@ export class LostItemsController {
 		private readonly moderateLostItemUseCase: ModerateLostItemUseCase,
 		private readonly deleteLostItemUseCase: DeleteLostItemUseCase,
 		private readonly matchingDispatcher: MatchingDispatcher,
+		private readonly accountBudget: AccountBudget,
 	) {}
 
 	@Post()
 	@ApiZodBody(createLostItemSchema)
-	create(
+	async create(
 		@Session() session: UserSession<Auth>,
 		@Body(new ZodValidationPipe(createLostItemSchema)) data: CreateLostItemData,
 	) {
+		// What a flood of listings spends is the moderation queue, so the ceiling
+		// is checked before the row is written.
+		await this.accountBudget.require(LOST_ITEM_PER_USER, session.user.id)
+
 		return this.createLostItemUseCase.execute({
 			...data,
 			eventDate: new Date(data.eventDate),

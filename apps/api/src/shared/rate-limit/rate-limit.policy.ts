@@ -1,5 +1,10 @@
 export type RateLimitBucket =
-	'otp' | 'auth' | 'public-write' | 'public-read' | 'upload'
+	| 'otp'
+	| 'auth'
+	| 'public-write'
+	| 'public-read'
+	| 'upload'
+	| 'authenticated-write'
 
 export interface RateLimitRule {
 	bucket: RateLimitBucket
@@ -48,8 +53,33 @@ const UPLOAD: RateLimitRule = {
 	windowSeconds: HOUR,
 }
 
+// Keyed on the account rather than the address: it carries its own message and
+// key prefix, so one service serves every such ceiling.
+export interface AccountLimit {
+	keyPrefix: string
+	max: number
+	windowSeconds: number
+	message: string
+}
+
 /** Six listings' worth of photos an hour, retries and re-crops included. */
-export const UPLOAD_PER_USER = { max: 30, windowSeconds: HOUR }
+export const UPLOAD_PER_USER: AccountLimit = {
+	keyPrefix: 'upload-user',
+	max: 30,
+	windowSeconds: HOUR,
+	message:
+		'Trop de photos envoyées pour ce compte. Merci de patienter avant de réessayer.',
+}
+
+// Publishing costs a row and not a bill, so what a flood spends is the
+// moderation queue. Ten an hour is well above what a genuine poster files.
+export const LOST_ITEM_PER_USER: AccountLimit = {
+	keyPrefix: 'lost-item-user',
+	max: 10,
+	windowSeconds: HOUR,
+	message:
+		'Trop d’annonces publiées depuis ce compte. Merci de patienter avant d’en publier une autre.',
+}
 
 // The same numbers as `OTP`, keyed on the number. Both hold at once: an address
 // is forwarded and rotatable, while a number is what an SMS costs money on.
@@ -59,6 +89,10 @@ export const OTP_PER_NUMBER = {
 }
 
 const AUTH_PREFIXES = ['/api/auth/', '/api/admin-auth/']
+
+// The one password write mounted outside those prefixes, so the only one the
+// prefix rule missed — and setting a password hashes it, which costs CPU.
+const AUTH_PATHS = ['/account/set-initial-password']
 
 /** The two better-auth routes that send a message rather than read a session. */
 const OTP_PATHS = [
@@ -76,6 +110,16 @@ const PUBLIC_WRITE_PATHS = [
 
 /** Authenticated, so every request here already has an owner to charge. */
 const UPLOAD_PATHS = [/^\/uploads\/[^/]+$/]
+
+// Authenticated writes that commit something outside the database. Generous,
+// because a carrier puts many accounts behind one address.
+const AUTHENTICATED_WRITE: RateLimitRule = {
+	bucket: 'authenticated-write',
+	max: 60,
+	windowSeconds: HOUR,
+}
+
+const AUTHENTICATED_WRITE_PATHS = [/^\/sticker-orders$/, /^\/lost-items$/]
 
 /** An allowlist, so no future read — `get-session` above all — falls in by resembling one. */
 const PUBLIC_READ_PATHS = [/^\/qr-codes\/[^/]+\/scan$/]
@@ -102,9 +146,13 @@ export function limitFor(method: string, url: string): RateLimitRule | null {
 	}
 
 	if (OTP_PATHS.includes(path)) return OTP
+	if (AUTH_PATHS.includes(path)) return AUTH
 	if (AUTH_PREFIXES.some(prefix => path.startsWith(prefix))) return AUTH
 	if (UPLOAD_PATHS.some(shape => shape.test(path))) return UPLOAD
 	if (PUBLIC_WRITE_PATHS.some(shape => shape.test(path))) return PUBLIC_WRITE
+	if (AUTHENTICATED_WRITE_PATHS.some(shape => shape.test(path))) {
+		return AUTHENTICATED_WRITE
+	}
 
 	return null
 }

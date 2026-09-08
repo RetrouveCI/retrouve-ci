@@ -109,8 +109,28 @@ describe('limitFor', () => {
 		})
 	})
 
-	it('leaves the authenticated writes that cost nothing alone', () => {
-		expect(limitFor('POST', '/sticker-orders')).toBeNull()
-		expect(limitFor('POST', '/lost-items')).toBeNull()
+	// R57 asserted these two uncapped, on the grounds that they cost only a row.
+	// That is true of a listing and false of an order: stickers are paid to the
+	// courier, so an order dispatches a delivery with cash expected.
+	describe('the authenticated-write bucket', () => {
+		it.each(['/sticker-orders', '/lost-items'])('caps a POST to %s', path => {
+			expect(limitFor('POST', path)?.bucket).toBe('authenticated-write')
+		})
+
+		it('is generous enough for a carrier, and hourly', () => {
+			const rule = limitFor('POST', '/sticker-orders')
+
+			expect(rule?.max).toBe(60)
+			expect(rule?.windowSeconds).toBe(3600)
+		})
+
+		// Anchored on both ends: the collection is capped, an item under it is not.
+		it.each([
+			'/sticker-orders/clx0000000000',
+			'/lost-items/clx0000000000',
+			'/lost-items/clx0000000000/contact',
+		])('leaves %s to its own rule', path => {
+			expect(limitFor('PATCH', path)?.bucket).not.toBe('authenticated-write')
+		})
 	})
 })
