@@ -20,7 +20,9 @@ export class CreateNotificationUseCase implements IDomainUseCase<
 		const notification = await this.repository.create(data)
 
 		this.logger.log(
-			`Notification ${notification.id} (${data.type}) raised for user ${data.userId}`,
+			`Notification ${notification.id} (${data.type}) raised for ${
+				data.userId ? `user ${data.userId}` : 'the desk'
+			}`,
 		)
 
 		return notification

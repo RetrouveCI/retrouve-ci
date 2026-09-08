@@ -57,9 +57,6 @@ export function BottomTabBar({
 					label="Scanner"
 					icon={ScanLine}
 					active={isActiveTab(pathname, '/scan')}
-					// Scanning is an action, not a place. The pill says so at rest,
-					// which is why it does not wait for the tab to be active.
-					accent
 					count={pendingStickers}
 				/>
 				{isAuthenticated ? (

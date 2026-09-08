@@ -25,10 +25,10 @@ export const otpSchema = z.object({
  * — so this step overwrites it rather than filling a blank.
  */
 export const firstNameSchema = z
-	.string({ error: 'Votre prénom est requis' })
+	.string({ error: 'Votre nom est requis' })
 	.trim()
-	.min(2, 'Votre prénom est requis')
-	.max(120, 'Votre prénom est trop long')
+	.min(2, 'Votre nom est requis')
+	.max(120, 'Votre nom est trop long')
 
 export const newPasswordSchema = withPasswordConfirmation(
 	z.object({

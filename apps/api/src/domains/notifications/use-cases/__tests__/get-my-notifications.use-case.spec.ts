@@ -1,10 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+	buildDeskNotification,
 	buildNotification,
 	buildRepository,
 } from '../../__tests__/notification.fixture'
 import type { NotificationRepository } from '../../repository/notification.repository'
 import { GetMyNotificationsUseCase } from '../get-my-notifications.use-case'
+
+const VISITOR = { audience: 'user', userId: 'user-1' } as const
+const DESK = { audience: 'admin' } as const
+const PAGE = { page: 1, pageSize: 20 }
 
 describe('GetMyNotificationsUseCase', () => {
 	let repository: NotificationRepository
@@ -13,69 +18,53 @@ describe('GetMyNotificationsUseCase', () => {
 	beforeEach(() => {
 		repository = buildRepository()
 		useCase = new GetMyNotificationsUseCase(repository)
+		vi.mocked(repository.list).mockResolvedValue({
+			items: [],
+			total: 0,
+			...PAGE,
+		})
 	})
 
-	it('scopes the listing to the given user', async () => {
-		const response = {
-			items: [buildNotification()],
-			total: 1,
-			page: 1,
-			pageSize: 20,
-		}
+	it("scopes the listing to the visitor's own", async () => {
+		const response = { items: [buildNotification()], total: 1, ...PAGE }
 		vi.mocked(repository.list).mockResolvedValue(response)
 
-		const result = await useCase.execute({
-			userId: 'user-1',
-			filter: { page: 1, pageSize: 20 },
-		})
+		const result = await useCase.execute({ scope: VISITOR, filter: PAGE })
 
-		expect(repository.list).toHaveBeenCalledWith({
-			page: 1,
-			pageSize: 20,
-			userId: 'user-1',
-		})
+		expect(repository.list).toHaveBeenCalledWith({ ...PAGE, scope: VISITOR })
 		expect(result).toEqual(response)
 	})
 
-	/**
-	 * The session's user id is applied last, so a filter carrying someone else's
-	 * id cannot widen the scope.
-	 */
-	it('overrides a userId smuggled in through the filter', async () => {
-		vi.mocked(repository.list).mockResolvedValue({
-			items: [],
-			total: 0,
-			page: 1,
-			pageSize: 20,
-		})
+	it("scopes the listing to the desk's, which belong to nobody", async () => {
+		const response = { items: [buildDeskNotification()], total: 1, ...PAGE }
+		vi.mocked(repository.list).mockResolvedValue(response)
 
+		const result = await useCase.execute({ scope: DESK, filter: PAGE })
+
+		expect(repository.list).toHaveBeenCalledWith({ ...PAGE, scope: DESK })
+		expect(result).toEqual(response)
+	})
+
+	// The scope is applied last, so a filter claiming the other audience cannot
+	// widen it. It used to be a `userId` smuggled in; it is a `scope` now.
+	it('overrides a scope smuggled in through the filter', async () => {
 		await useCase.execute({
-			userId: 'user-1',
-			filter: { page: 1, pageSize: 20, userId: 'someone-else' } as never,
+			scope: VISITOR,
+			filter: { ...PAGE, scope: DESK } as never,
 		})
 
 		const [call] = vi.mocked(repository.list).mock.calls
-		expect(call?.[0]?.userId).toBe('user-1')
+
+		expect(call?.[0]?.scope).toEqual(VISITOR)
 	})
 
 	it('carries the read filter through', async () => {
-		vi.mocked(repository.list).mockResolvedValue({
-			items: [],
-			total: 0,
-			page: 1,
-			pageSize: 20,
-		})
-
-		await useCase.execute({
-			userId: 'user-1',
-			filter: { page: 1, pageSize: 20, read: false },
-		})
+		await useCase.execute({ scope: VISITOR, filter: { ...PAGE, read: false } })
 
 		expect(repository.list).toHaveBeenCalledWith({
-			page: 1,
-			pageSize: 20,
+			...PAGE,
 			read: false,
-			userId: 'user-1',
+			scope: VISITOR,
 		})
 	})
 })

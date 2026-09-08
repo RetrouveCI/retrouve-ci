@@ -89,6 +89,18 @@ enum NotificationType {
   MATCH_FOUND
   QR_SCAN
   STICKERS_DELIVERED
+  LISTING_PENDING
+  LISTING_MODERATED
+  LISTING_CONTACTED
+  ORDER_PLACED
+  CONTACT_RECEIVED
+}
+
+/// Who a notification speaks to. An ADMIN row carries no userId: it addresses
+/// the desk, so the first administrator who reads it reads it for all.
+enum NotificationAudience {
+  USER
+  ADMIN
 }
 
 model User {
@@ -261,19 +273,21 @@ model StickerOrder {
 
 
 model Notification {
-  id        String           @id @default(uuid())
+  id        String               @id @default(uuid())
   type      NotificationType
+  audience  NotificationAudience @default(USER)
   title     String
   message   String
   link      String?
-  read      Boolean          @default(false)
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime         @default(now())
+  read      Boolean              @default(false)
+  userId    String?
+  user      User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime             @default(now())
   readAt    DateTime?
 
   @@index([userId])
   @@index([userId, read])
+  @@index([audience, read])
   @@map("notification")
 }
 

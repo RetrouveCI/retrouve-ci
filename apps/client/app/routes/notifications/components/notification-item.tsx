@@ -1,14 +1,18 @@
 import { Link } from 'react-router'
 import type { FetcherWithComponents } from 'react-router'
-import { Package, QrCode, Sparkles } from 'lucide-react'
+import { Gavel, MessageCircle, Package, QrCode, Sparkles } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import type { Notification } from '@/shared/types/notification'
-import type { NotificationType } from '@/routes/notifications/types/notifications.types'
+import type { UserNotificationType } from '@/routes/notifications/types/notifications.types'
 
-const TYPE_ICONS: Record<NotificationType, React.ElementType> = {
+// Keyed on the visitor's types alone: the audience filter means the desk's never
+// arrive here, and a visitor type added to the contract fails to compile.
+const TYPE_ICONS: Record<UserNotificationType, React.ElementType> = {
 	match_found: Sparkles,
 	qr_scan: QrCode,
 	stickers_delivered: Package,
+	listing_moderated: Gavel,
+	listing_contacted: MessageCircle,
 }
 
 interface NotificationItemProps {
@@ -20,7 +24,7 @@ export function NotificationItem({
 	notification,
 	actionFetcher,
 }: NotificationItemProps) {
-	const Icon = TYPE_ICONS[notification.type] ?? Sparkles
+	const Icon = TYPE_ICONS[notification.type as UserNotificationType] ?? Sparkles
 
 	const handleClick = () => {
 		if (notification.read) return

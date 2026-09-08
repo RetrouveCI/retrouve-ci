@@ -4,17 +4,16 @@ import { NotificationRepository } from '../repository/notification.repository'
 import type {
 	ListNotificationsFilter,
 	NotificationListResponse,
+	NotificationScope,
 } from '../types/notification.types'
 
 interface GetMyNotificationsInput {
-	userId: string
-	filter: Omit<ListNotificationsFilter, 'userId'>
+	scope: NotificationScope
+	filter: Omit<ListNotificationsFilter, 'scope'>
 }
 
-/**
- * The `userId` comes from the session, never from the query, so a caller cannot
- * read someone else's notifications by asking.
- */
+// The scope comes from the session and the guard, never from the query: a caller
+// can neither read someone else's nor claim the desk's by asking.
 @Injectable()
 export class GetMyNotificationsUseCase implements IDomainUseCase<
 	GetMyNotificationsInput,
@@ -23,9 +22,9 @@ export class GetMyNotificationsUseCase implements IDomainUseCase<
 	constructor(private readonly repository: NotificationRepository) {}
 
 	async execute({
-		userId,
+		scope,
 		filter,
 	}: GetMyNotificationsInput): Promise<NotificationListResponse> {
-		return this.repository.list({ ...filter, userId })
+		return this.repository.list({ ...filter, scope })
 	}
 }

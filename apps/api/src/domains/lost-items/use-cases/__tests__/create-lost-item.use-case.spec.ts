@@ -6,6 +6,7 @@ import {
 import type { LinkQrTokenToLostItemUseCase } from '@/domains/qr-codes/use-cases/link-qr-token-to-lost-item.use-case'
 import type { LostItemRepository } from '../../repository/lost-item.repository'
 import type { CreateLostItemData } from '../../types/lost-item.types'
+import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
 import { CreateLostItemUseCase } from '../create-lost-item.use-case'
 
 const data: CreateLostItemData = {
@@ -23,6 +24,7 @@ const data: CreateLostItemData = {
 describe('CreateLostItemUseCase', () => {
 	let repository: LostItemRepository
 	let linkQrToken: LinkQrTokenToLostItemUseCase
+	let notifier: CreateNotificationUseCase
 	let useCase: CreateLostItemUseCase
 
 	beforeEach(() => {
@@ -30,7 +32,10 @@ describe('CreateLostItemUseCase', () => {
 		linkQrToken = {
 			execute: vi.fn().mockResolvedValue(undefined),
 		} as unknown as LinkQrTokenToLostItemUseCase
-		useCase = new CreateLostItemUseCase(repository, linkQrToken)
+		notifier = {
+			execute: vi.fn().mockResolvedValue(undefined),
+		} as unknown as CreateNotificationUseCase
+		useCase = new CreateLostItemUseCase(repository, linkQrToken, notifier)
 	})
 
 	it('creates the lost item from the data it is given', async () => {
@@ -74,5 +79,41 @@ describe('CreateLostItemUseCase', () => {
 		expect(await useCase.execute({ ...data, stickerCode: 'RCI-NOPE' })).toEqual(
 			created,
 		)
+	})
+
+	// The chain this unblocks: a listing is created PENDING and publication is the
+	// only moment matching runs, so until the desk acts nothing happens at all.
+	describe('telling the desk', () => {
+		beforeEach(() => {
+			vi.mocked(repository.create).mockResolvedValue(buildLostItem())
+		})
+
+		it('raises a desk notification naming the listing', async () => {
+			await useCase.execute(data)
+
+			expect(notifier.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: 'listing_pending',
+					link: '/posts?status=pending',
+				}),
+			)
+		})
+
+		// A desk notification carries no owner: that is what makes it the desk's.
+		it('addresses the desk and nobody', async () => {
+			await useCase.execute(data)
+
+			const [call] = vi.mocked(notifier.execute).mock.calls
+
+			expect(call?.[0]).not.toHaveProperty('userId')
+		})
+
+		// The row already exists by then: losing the notice must not answer 500
+		// to the poster who just published.
+		it('still publishes when the notice fails', async () => {
+			vi.mocked(notifier.execute).mockRejectedValue(new Error('redis down'))
+
+			await expect(useCase.execute(data)).resolves.toBeDefined()
+		})
 	})
 })

@@ -433,6 +433,31 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   That is how `POST /account/set-initial-password` was found: the **one**
   password write mounted outside `/api/auth/*`, so the only one the prefix rule
   missed, and setting a password hashes it.
+- **A notification speaks either to a visitor or to the desk, never to both.**
+  `Notification.audience` is `USER` or `ADMIN`, and an `ADMIN` row carries **no
+  `userId`**: it addresses the backoffice, so the first administrator who reads
+  it reads it for all — the read state is shared, which is what a work queue
+  wants. Which audience a read touches follows the **auth** audience
+  `SessionGuard` resolved (attached to the request, not recomputed), so
+  `/notifications/mine` needs no parameter and neither front-end had to change;
+  the name is a misnomer for the backoffice, which reads the desk's. The
+  contract pairs each type with its side (`audienceOf`, plus
+  `ADMIN_NOTIFICATION_TYPES` / `USER_NOTIFICATION_TYPES`), and the **compiler**
+  holds that pairing at each producer: `notifyDesk` takes an
+  `AdminNotificationType`, and a visitor's notification does not build without a
+  `userId`. ⚠️ `whereFor(scope)` in `domains/notifications/repository/` is the
+  **only** place a notification `where` clause is built — the audience
+  separation lives there and nowhere above, so add no second one. Its
+  `userId: null` is load-bearing: without it the desk's clause would also match
+  an administrator's own visitor rows.
+- **Telling the desk must not put the write at risk.** `notifyDesk` swallows and
+  logs at error level, because the row already exists by then: an unreachable
+  Redis must not answer 500 to the poster who just published. The three desk
+  producers are `create-lost-item` (a listing is created `PENDING`, and
+  publication is the only moment matching runs, so until the desk acts nothing
+  happens at all), `create-sticker-order` (paid to the courier, so an order
+  commits a delivery with cash expected on arrival) and
+  `create-contact-message`.
 - Background jobs (e.g. match notifications, OTP SMS) run on **BullMQ** backed
   by Redis. Every queue shares one connection, built by
   `infrastructures/queue/queue.config.ts`. `REDIS_URL` is **required in

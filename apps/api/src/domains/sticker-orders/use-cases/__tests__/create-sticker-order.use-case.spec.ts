@@ -8,7 +8,13 @@ import type { StickerOrderRepository } from '../../repository/sticker-order.repo
 import type { CreateStickerOrderData } from '../../types/sticker-order.types'
 import { MAX_OPEN_STICKER_ORDERS } from '../../constants'
 import { TooManyOpenStickerOrdersError } from '../../errors/sticker-order.errors'
+import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
 import { CreateStickerOrderUseCase } from '../create-sticker-order.use-case'
+function buildNotifier(): CreateNotificationUseCase {
+	return {
+		execute: vi.fn().mockResolvedValue(undefined),
+	} as unknown as CreateNotificationUseCase
+}
 
 const data: CreateStickerOrderData = {
 	packId: 'pack-4',
@@ -20,10 +26,12 @@ const data: CreateStickerOrderData = {
 describe('CreateStickerOrderUseCase', () => {
 	let repository: StickerOrderRepository
 	let useCase: CreateStickerOrderUseCase
+	let notifier: CreateNotificationUseCase
 
 	beforeEach(() => {
 		repository = buildRepository()
-		useCase = new CreateStickerOrderUseCase(repository)
+		notifier = buildNotifier()
+		useCase = new CreateStickerOrderUseCase(repository, notifier)
 	})
 
 	/** The price and the payment method come from the code, not from a body. */
@@ -115,6 +123,40 @@ describe('CreateStickerOrderUseCase', () => {
 				.catch((error: unknown) => error)
 
 			expect((thrown as TooManyOpenStickerOrdersError).field).toBeUndefined()
+		})
+	})
+
+	describe('telling the desk', () => {
+		beforeEach(() => {
+			vi.mocked(repository.create).mockResolvedValue(buildStickerOrder())
+		})
+
+		it('raises a desk notification naming the pack and the city', async () => {
+			await useCase.execute(data)
+
+			const [call] = vi.mocked(notifier.execute).mock.calls
+
+			expect(call?.[0]).toMatchObject({
+				type: 'order_placed',
+				link: '/orders?status=pending',
+			})
+			expect((call?.[0] as { message: string }).message).toContain('Abidjan')
+		})
+
+		it('still records the order when the notice fails', async () => {
+			vi.mocked(notifier.execute).mockRejectedValue(new Error('redis down'))
+
+			await expect(useCase.execute(data)).resolves.toBeDefined()
+		})
+
+		// A refused order writes nothing, so it must tell nobody either.
+		it('tells the desk nothing when the ceiling refuses', async () => {
+			vi.mocked(repository.countOpenOrders).mockResolvedValue(
+				MAX_OPEN_STICKER_ORDERS,
+			)
+
+			await expect(useCase.execute(data)).rejects.toThrow()
+			expect(notifier.execute).not.toHaveBeenCalled()
 		})
 	})
 })

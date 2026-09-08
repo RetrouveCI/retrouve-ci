@@ -6365,6 +6365,204 @@ ses deux autres lignes vivantes, `A1 avant ou après R13` et la règle de la
 récupération de mot de passe, renvoient à des étapes **livrées** et pourraient
 être barrées.
 
+### Étapes de notification
+
+Demande du commanditaire, en production avec les premiers utilisateurs : « nous
+n'avons pas encore clairement travaillé sur le système de notification inApp des
+apps client et admin ». Audit fait avant de rien proposer, et il a trouvé un
+blocage de produit et non un manque de confort.
+
+**Ce qui existait.** Les deux surfaces sont là : le client a une cloche dans
+`components/header.tsx` — visible à **toutes** les largeurs, sondant toutes les
+60 s — plus `/notifications` et un lien depuis le résumé du compte ; le
+back-office a sa page et son badge, alimenté par le loader du tableau de bord.
+Les **producteurs** étaient quatre, et tous destinés à un visiteur :
+`notify-matches` (`match_found`), `contact-qr-token-owner` et
+`reach-qr-token-owner` (`qr_scan`), et `update-sticker-order-status`
+(`stickers_delivered`, sur la transition seule).
+
+> ⚠️ **Le back-office n'avait AUCUN producteur.** Sa page lit
+> `/notifications/mine`, donc les notifications de l'administrateur connecté, et
+> rien n'en créait pour un administrateur : la page était structurellement vide
+> et le badge structurellement à zéro.
+
+> ⚠️ **Et la chaîne de modération bloquait le produit.** `moderationStatus` vaut
+> `PENDING` par défaut, et la publication est le **seul** moment où la recherche
+> de correspondances part. Donc : un utilisateur publie → l'annonce est
+> invisible sur `/posts` → aucune correspondance ne tourne → personne n'est
+> prévenu → l'annonce reste morte jusqu'à ce qu'un administrateur ouvre le
+> back-office par hasard. Ce n'est pas une notification manquante, c'est le
+> produit qui ne tourne pas.
+
+**Tranché par le commanditaire** (2026-09-08) : l'option **(b)**, une colonne
+`audience` avec `userId` nullable, contre l'éventail d'une ligne par
+administrateur. La raison est que l'éventail se paierait au premier
+administrateur qui poste une annonce — étant aussi un utilisateur ordinaire, son
+propre `match_found` s'afficherait dans le back-office et un avis
+d'administration dans la cloche du client. Et une migration d'enum étant de
+toute façon nécessaire pour les nouveaux types, autant n'en faire qu'une.
+
+> **L'audience d'une liste suit l'audience d'AUTHENTIFICATION.** `SessionGuard`
+> la résout déjà par l'`Origin` — qu'une page ne peut ni forger ni retirer —
+> avec `X-Auth-Audience` en repli pour les appels serveur. Elle sera **attachée
+> à la requête** plutôt que recalculée, et lue par les use-cases de lecture.
+> Donc : aucun paramètre de requête à falsifier, et **aucun changement de
+> front** dans le back-office, `/notifications/mine` gardant son chemin. Le nom
+> devient impropre pour un administrateur ; c'est le prix d'un front intouché.
+
+> **Conséquence assumée, et non un effet de bord** : `userId` étant nul sur un
+> avis d'administration, son état « lu » est **partagé** — le premier
+> administrateur qui le lit le marque pour tous. C'est le bon comportement pour
+> une file de travail, où ce qui compte est que quelqu'un l'ait vu.
+
+#### N1 — Une notification sait à qui elle parle, et le back-office apprend ce qui l'attend — **LIVRÉE**
+
+**Le socle et les trois producteurs d'administration dans la même étape**, parce
+qu'un socle sans consommateur ne se vérifie pas de bout en bout et que le
+saignement de production s'arrête plus tôt.
+
+1. **Migration** : un enum `NotificationAudience` (`USER` | `ADMIN`),
+   `Notification.audience` avec `USER` par défaut — donc les lignes existantes
+   sont justes sans reprise —, `userId` nullable, et un index sur
+   `(audience, read)` pour le compteur du badge. Plus les nouveaux
+   `NotificationType`. ⚠️ Pas de Docker dans cette distro :
+   `migrate diff --from-schema`, et n'aligner que ce modèle.
+2. **Contrat** : `NOTIFICATION_TYPES` gagne `listing_pending`, `order_placed` et
+   `contact_received` ; `NOTIFICATION_AUDIENCES` est nouveau. Le
+   `Record<NotificationType, …>` du client devient une erreur de compilation
+   jusqu'à ce qu'il nomme les nouveaux types — ce qui est voulu.
+3. **`SessionGuard` attache l'audience résolue**, et les use-cases de lecture
+   filtrent dessus : `public` rend `audience = USER AND userId = moi`, `admin`
+   rend `audience = ADMIN`.
+4. **Trois producteurs** : `create-lost-item` → `listing_pending` (le
+   déblocage), `create-sticker-order` → `order_placed` (elle engage un coursier
+   avec encaissement à l'arrivée, R59), `create-contact-message` →
+   `contact_received`. Chacun lie vers sa page du back-office.
+
+**La garde qui compte** : une notification d'une audience ne doit **jamais**
+atteindre l'autre. La propriété se formule sans nommer de fichier — _toute
+lecture est filtrée par l'audience que la garde a résolue, et par aucun
+paramètre_ — et se tient par une partition des types sur leur audience, plus une
+assertion que la lecture publique ne rend aucune ligne `ADMIN` et
+réciproquement.
+
+**Flux** : tous. **Changements d'API, de contrat ET de base.**
+
+**Livrée telle que décrite, avec deux dessins qui valent d'être notés.**
+
+**Une portée, pas deux paramètres.** `NotificationScope` est une union
+discriminée — `{ audience: 'user'; userId }` ou `{ audience: 'admin' }` — donc
+le compilateur interdit de demander les avis du bureau avec un propriétaire, et
+l'inverse. Et `CreateNotificationData` a **deux formes** discriminées par le
+type, donc `notifyDesk` ne peut pas envoyer un avis de visiteur et un avis de
+visiteur ne se construit pas sans `userId`.
+
+**Un seul endroit fabrique la clause `where`.** `whereFor(scope)` est la seule
+fonction du dépôt qui compose un filtre de notification, donc aucune requête ne
+peut franchir l'audience en oubliant de la nommer. C'est là qu'est la garde, et
+pas au-dessus : tout le reste ne fait que passer une portée, et continuerait de
+la passer si la clause cessait de nommer une audience. ⚠️ Le `userId: null` de
+la branche du bureau n'est pas décoratif — sans lui, la clause du bureau
+matcherait aussi les avis de visiteur de l'administrateur lui-même.
+
+> ⚠️ **Un spec de partition peut être auto-cohérent, donc inutile.** Le premier
+> jet vérifiait que `ADMIN_NOTIFICATION_TYPES` et `USER_NOTIFICATION_TYPES`
+> s'accordent avec `audienceOf` — or `audienceOf` **dérive de ces mêmes
+> tables**. Déplacer `contact_received` d'un côté à l'autre a laissé les **408
+> tests verts**. Ce qui l'attrape, mesuré, c'est le **compilateur** au
+> producteur :
+> `Type '"contact_received"' is not assignable to type '"listing_pending" | "order_placed"'`.
+> Le spec dit désormais lui-même ce qu'il ne couvre pas — un commentaire
+> trompeur sur une garde vaut moins que pas de commentaire.
+
+**Ce que le spec garde vraiment** : la complétude (un type ajouté et oublié
+casse), et surtout que les **trois types déjà en production** restent du côté
+visiteur — la seule régression ici qu'un échange de tables ne peut pas cacher.
+
+**Un avis manqué ne perd pas l'écriture.** `notifyDesk` avale et journalise en
+erreur : la ligne existe déjà quand il tourne, donc un Redis absent ne doit pas
+répondre 500 au poseur qui vient de publier. Même motif que le lien de sticker
+refusé qui ne fait pas échouer la publication.
+
+**Aucun changement de front n'a été nécessaire côté back-office** :
+`/notifications/mine` garde son chemin, et c'est l'audience résolue par
+`SessionGuard` — attachée à la requête plutôt que recalculée — qui décide. Côté
+client, la table d'icônes est passée de `Record<NotificationType, …>` à
+`Record<UserNotificationType, …>` : elle nomme les deux nouveaux types visiteur
+et ne nomme plus ceux du bureau, qui ne lui arriveront jamais.
+
+**Migration** hors ligne, Postgres 17 en développement — les cinq valeurs d'enum
+en une migration demandent PG ≥ 12, ⚠️ **et la version de production n'a pas pu
+être vérifiée d'ici**. SQL relu, égal au diff avec `HEAD`, sans décoration.
+
+**Fichiers** : `database/prisma/` (schéma + migration),
+`contracts/notifications/` (types, audiences, `audienceOf`, deux specs),
+`api/domains/notifications/` (types, mappeur, dépôt, quatre use-cases, deux
+helpers, trois specs),
+`api/domains/{lost-items,sticker-orders,contact-messages}/` (les trois
+producteurs, leurs modules, leurs specs), `api/shared/auth/` (la garde, le
+décorateur), `api/presentations/notifications/`, `client/routes/notifications/`.
+**Flux** : tous. **Changements d'API, de contrat et de base.**
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur, 0 avertissement · `format:check`
+propre · `pnpm build` vert. Chaque suite seule : api **661** (+14), contracts
+**408** (+18), admin **438** (inchangée) et client **1013** en `node`
+(inchangée). Densité de commentaires 9,8 % — 14,5 % au premier jet, treize blocs
+condensés.
+
+**Les trois gardes vérifiées en rouge puis restaurées** : le `userId: null`
+retiré de la clause du bureau fait tomber sa garde ; le producteur retiré de
+`create-lost-item` fait tomber deux cas ; et un type mal classé fait tomber le
+**typecheck**, pas un test. Plus la quatrième, celle qui **n'a pas** échoué et
+qui a fait réécrire le commentaire.
+
+> ⚠️ **Le lot porte une seconde chose, à la demande du commanditaire.** Il a
+> édité `create-password-step-section.tsx` pendant la session — « Votre prénom »
+> devient « Votre nom complet » — ce qui cassait `register-flow.test.tsx`, qui
+> cherchait `getByLabelText('Votre prénom')` (dépassement de 15 s ; **mesuré** :
+> 14/14 avec la version de `HEAD`, 13/14 avec l'édition). Il a demandé que son
+> fichier soit committé, donc N1 emporte aussi ce que cette édition rendait
+> **faux** — voir N4, dont la moitié part avec ce lot.
+
+#### N4 — Un mot, un sens pour le champ nom — **À MOITIÉ LIVRÉE PAR N1**
+
+Le commanditaire a tranché le vocabulaire en éditant l'écran : le champ est un
+**nom complet**. Ce que son édition rendait **faux** part avec N1, puisqu'il a
+demandé que son fichier soit committé et qu'un arbre rouge n'est pas une option
+:
+
+- `register.schema.ts` répondait « Votre **prénom** est requis » et « trop long
+  » à un champ étiqueté « nom complet » — devenu « Votre nom » ;
+- `autoComplete="given-name"` annonçait un prénom au remplissage automatique du
+  navigateur — devenu `name` ;
+- et les deux assertions de `register-flow.test.tsx` suivent le libellé qui part
+  en production. Aucune occurrence de « prénom » ne reste dans `routes/auth/`.
+
+**Reste ouvert**, et délibérément hors de N1 parce que l'édition ne les rend pas
+faux : `account/settings` dit « Nom et **prénoms** » là où l'inscription dit «
+nom complet » — deux formulations d'une même chose, ce que §2.3 règle 2 n'aime
+pas —, et la variable s'appelle encore `firstName` alors qu'elle porte un nom
+complet. Petit lot, sans migration.
+
+#### N2 — Le poseur apprend ce qui arrive à son annonce
+
+1. **`moderate-lost-item` → `listing_moderated`** : publiée ou masquée, avec le
+   motif qu'A1 a posé. Aujourd'hui le poseur ne l'apprend qu'en revenant sur la
+   page. ⚠️ La publication déclenche déjà la recherche de correspondances : les
+   deux avis ne doivent pas se doubler pour la même annonce.
+2. **`contact-lost-item-poster` → `listing_contacted`** — retenu par le
+   commanditaire, contre l'argument qu'un message WhatsApp est déjà l'avis. Ce
+   qu'il apporte : une **trace dans l'application** de qui a été contacté et
+   quand, là où `contactsCount` n'est qu'un nombre.
+
+**Flux** : A et D. **Aucun changement de base** — l'enum de N1 les couvre déjà.
+
+#### N3 — Les transitions de commande qui restent _(facultatif)_
+
+`update-sticker-order-status` ne notifie que `delivered`. « En préparation » et
+« expédiée » intéressent l'acheteur d'un pack payé à la livraison, et la
+mécanique de transition existe déjà. Petit lot, sans migration.
+
 ---
 
 ## 6. Ce qui ne bouge pas

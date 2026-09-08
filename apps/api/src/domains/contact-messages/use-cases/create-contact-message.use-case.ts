@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
 import { ContactMessageRepository } from '../repository/contact-message.repository'
+import { CreateNotificationUseCase } from '@/domains/notifications/use-cases/create-notification.use-case'
+import { notifyDesk } from '@/domains/notifications/helpers/notify-desk'
 import type {
 	ContactMessage,
 	CreateContactMessageData,
@@ -13,12 +15,22 @@ export class CreateContactMessageUseCase implements IDomainUseCase<
 > {
 	private readonly logger = new Logger(CreateContactMessageUseCase.name)
 
-	constructor(private readonly repository: ContactMessageRepository) {}
+	constructor(
+		private readonly repository: ContactMessageRepository,
+		private readonly createNotification: CreateNotificationUseCase,
+	) {}
 
 	async execute(data: CreateContactMessageData): Promise<ContactMessage> {
 		const contactMessage = await this.repository.create(data)
 
 		this.logger.log(`Contact message ${contactMessage.id} created`)
+
+		await notifyDesk(this.createNotification, this.logger, {
+			type: 'contact_received',
+			title: 'Nouveau message de contact',
+			message: `${contactMessage.name} — ${contactMessage.subject}`,
+			link: '/contact-messages?status=new',
+		})
 
 		return contactMessage
 	}

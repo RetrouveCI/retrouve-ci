@@ -86,15 +86,15 @@ export function CreatePasswordStepSection({
 
 			<div className="space-y-2">
 				<Label htmlFor="first-name" className="text-sm font-semibold">
-					Votre prénom
+					Votre nom complet
 				</Label>
 				<Input
 					id="first-name"
 					name="name"
 					value={firstName.field.value}
 					onChange={firstName.field.onChange}
-					placeholder="Konan"
-					autoComplete="given-name"
+					placeholder="Konan Ouattara Grégoire"
+					autoComplete="name"
 					disabled={fetcher.isSubmitting}
 					className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-control rounded-xl border-[1.5px] transition-all focus:ring-[3px]"
 				/>
