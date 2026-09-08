@@ -1,4 +1,5 @@
 import { ApiError } from '@/shared/utils/api-fetch'
+import type { ActionResult } from '@/shared/types/action'
 
 const { requireAdminSession, markAsRead, markAllAsRead } = vi.hoisted(() => ({
 	requireAdminSession: vi.fn(),
@@ -25,14 +26,8 @@ function submit(fields: Record<string, string>) {
 	})
 }
 
-/** The action answers `data(...)` on refusal, a plain object on success. */
-function bodyOf(result: unknown) {
-	const asData = result as { data?: unknown; init?: { status?: number } }
-	return {
-		body: (asData.data ?? result) as { ok: boolean; error?: string },
-		status: asData.init?.status,
-	}
-}
+const rootOf = (result: ActionResult) =>
+	result.success ? undefined : result.errors?.root?.message
 
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
@@ -54,76 +49,62 @@ describe('notificationsAction', () => {
 		expect(markAllAsRead).not.toHaveBeenCalled()
 	})
 
-	// The badge is revalidated from the layout loader, so the action echoes the
-	// intent rather than a count.
-	it('marks one notification read and echoes the intent', async () => {
-		const { body } = bodyOf(
-			await submit({ intent: 'mark-read', id: 'notif-1' }),
-		)
-
-		expect(body).toEqual({
-			ok: true,
-			notification: NOTIFICATION,
-			intent: 'mark-read',
+	// The badge is revalidated from the layout loader, so the action reports the
+	// outcome and nothing else.
+	it('marks one notification read', async () => {
+		expect(await submit({ intent: 'mark-read', id: 'notif-1' })).toEqual({
+			success: true,
 		})
 		expect(markAsRead).toHaveBeenCalledWith('notif-1', expect.any(Request))
 		expect(markAllAsRead).not.toHaveBeenCalled()
 	})
 
 	it('marks everything read without needing an id', async () => {
-		const { body } = bodyOf(await submit({ intent: 'mark-all-read' }))
-
-		expect(body).toEqual({ ok: true, intent: 'mark-all-read' })
+		expect(await submit({ intent: 'mark-all-read' })).toEqual({ success: true })
 		expect(markAllAsRead).toHaveBeenCalledWith(expect.any(Request))
 		expect(markAsRead).not.toHaveBeenCalled()
 	})
 
-	/**
-	 * Current behaviour, asserted rather than implied: the id is part of the
-	 * `mark-read` condition, so a submission that names the right intent with no
-	 * id is reported as an **unknown intent**, which names the wrong problem.
-	 * Unlike the other admin actions, this one has no `ID manquant` branch.
-	 */
-	it('reports a mark-read with no id as an unknown intent', async () => {
-		const { body, status } = bodyOf(await submit({ intent: 'mark-read' }))
-
-		expect(status).toBe(400)
-		expect(body).toEqual({ ok: false, error: 'Intent inconnu' })
+	// The debt this closes: the id sat inside the `mark-read` condition, so a
+	// submission naming the right intent with no id read « Intent inconnu ».
+	it('names the missing id on a mark-read that carries none', async () => {
+		expect(rootOf(await submit({ intent: 'mark-read' }))).toBe('ID manquant')
 		expect(markAsRead).not.toHaveBeenCalled()
 	})
 
 	it.each(['mark-unread', 'delete', ''])(
-		'answers 400 for intent %p',
+		'names an unknown intent %p',
 		async intent => {
-			const { body, status } = bodyOf(await submit({ intent, id: 'notif-1' }))
-
-			expect(status).toBe(400)
-			expect(body).toEqual({ ok: false, error: 'Intent inconnu' })
+			expect(rootOf(await submit({ intent, id: 'notif-1' }))).toBe(
+				'Intent inconnu',
+			)
 			expect(markAsRead).not.toHaveBeenCalled()
 			expect(markAllAsRead).not.toHaveBeenCalled()
 		},
 	)
 
-	it.each([404, 401])(
-		'passes the API message and status through on a %i',
-		async statusCode => {
-			markAsRead.mockRejectedValue(new ApiError(statusCode, 'Introuvable'))
+	it('reports the API message as a root error', async () => {
+		markAsRead.mockRejectedValue(new ApiError(404, 'Introuvable'))
 
-			const { body, status } = bodyOf(
-				await submit({ intent: 'mark-read', id: 'notif-1' }),
-			)
+		expect(rootOf(await submit({ intent: 'mark-read', id: 'notif-1' }))).toBe(
+			'Introuvable',
+		)
+	})
 
-			expect(status).toBe(statusCode)
-			expect(body).toEqual({ ok: false, error: 'Introuvable' })
-		},
-	)
+	it('sends a dead session back to the login page', async () => {
+		markAsRead.mockRejectedValue(new ApiError(401, 'Unauthorized'))
 
-	it('answers a generic 500 for anything that is not an ApiError', async () => {
+		await expect(
+			submit({ intent: 'mark-read', id: 'notif-1' }),
+		).rejects.toBeInstanceOf(Response)
+	})
+
+	// Not an outcome but a bug: it belongs in the error boundary.
+	it('lets a non-API failure through', async () => {
 		markAllAsRead.mockRejectedValue(new Error('ECONNREFUSED 127.0.0.1:3002'))
 
-		const { body, status } = bodyOf(await submit({ intent: 'mark-all-read' }))
-
-		expect(status).toBe(500)
-		expect(body).toEqual({ ok: false, error: 'Erreur serveur' })
+		await expect(submit({ intent: 'mark-all-read' })).rejects.toThrow(
+			'ECONNREFUSED',
+		)
 	})
 })

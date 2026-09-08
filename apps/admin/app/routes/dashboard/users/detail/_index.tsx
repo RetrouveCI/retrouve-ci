@@ -1,5 +1,7 @@
-import { useEffect } from 'react'
-import { useFetcher, useRevalidator } from 'react-router'
+import { useRef } from 'react'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import { useRevalidator } from 'react-router'
 import { UserProfileSidebar } from './components/user-profile-sidebar'
 import { userLoader } from './servers/user.loader'
 import { usersAction } from '../servers/users.action'
@@ -17,32 +19,29 @@ export const handle: RouteHandle = {
 	breadcrumb: [{ label: 'Utilisateurs', to: '/users' }],
 }
 
-interface ActionResult {
-	ok: boolean
-	intent?: string
-	error?: string
-}
-
 export default function UserDetailPage({ loaderData }: Route.ComponentProps) {
 	const { user } = loaderData
 	const revalidator = useRevalidator()
-	const fetcher = useFetcher<ActionResult>()
+	const fetcher = useActionFetcher<typeof usersAction>()
+	// The page knows what it asked: the action has no business echoing it back.
+	const asked = useRef<'ban' | 'unban'>('ban')
 
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-		if (fetcher.data.ok) {
+	useSettledSubmission(fetcher.response, result => {
+		if (result.success) {
 			toast.success(
-				fetcher.data.intent === 'ban' ? 'Compte désactivé' : 'Compte activé',
+				asked.current === 'ban' ? 'Compte désactivé' : 'Compte activé',
 			)
 			revalidator.revalidate()
-		} else if (fetcher.data.error) {
-			toast.error(fetcher.data.error)
+			return
 		}
-	}, [fetcher.state, fetcher.data, revalidator])
+
+		if (result.errors?.root?.message) toast.error(result.errors.root.message)
+	})
 
 	const handleToggleBan = () => {
+		asked.current = user.status === 'active' ? 'ban' : 'unban'
 		fetcher.submit(
-			{ intent: user.status === 'active' ? 'ban' : 'unban', userId: user.id },
+			{ intent: asked.current, userId: user.id },
 			{ method: 'post' },
 		)
 	}

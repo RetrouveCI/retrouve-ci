@@ -5878,6 +5878,89 @@ répondent toujours pas `ActionResult` — leurs composants lisent `ok` et ne
 peuvent donc rien recevoir de tout ceci. C'est la moitié restante de la dette
 d'E7, et elle touche des composants, pas seulement des actions.
 
+#### R56 — Le back-office répond le même contrat que le client — **LIVRÉE**
+
+L'autre moitié de la dette d'E7, celle que R55 laissait ouverte : sans elle, le
+mécanisme de R55 n'atteignait aucun écran du back-office.
+
+> ⚠️ **La dette était plus large que ce que `CLAUDE.md` en disait.** Il nommait
+> deux actions ; il y en avait **six** — `users`, `orders`, `posts`,
+> `contact-messages`, `notifications` et `qr-token` —, et surtout **sept pages
+> déclaraient chacune une `interface ActionResult` locale**. Un nom, huit
+> significations, dont une seule était le contrat partagé.
+
+**Les six actions répondent `ActionResult`**, et l'appel à l'API passe par
+`withApiOperationData` / `withApiOperationError` — donc elles héritent d'un coup
+des trois comportements que le client avait déjà : les erreurs de champ de R55,
+le `redirectOnUnauthorized`, et le rejet de ce qui n'est pas une `ApiError`.
+
+**Deux changements de comportement, assumés et consignés** :
+
+1. **Une action ne répond plus de statut non-200.** Le résultat est dans le
+   corps, comme dans `apps/client`. C'est le contrat, pas un oubli.
+2. **Ce qui n'est pas une `ApiError` est relancé** vers la frontière d'erreur au
+   lieu de devenir un toast. `ECONNREFUSED 127.0.0.1:3002` n'est pas une issue
+   métier : c'est un bug, et React Router assainit le message avant le
+   navigateur. Les quatorze actions du client fonctionnent ainsi depuis E7.
+
+**Trois dettes fermées au passage**, toutes trois documentées dans `CLAUDE.md` :
+
+- `users.action` n'avait **aucun** `redirectOnUnauthorized` — une session morte
+  sortait en 500 dans un tableau de bord que le visiteur ne pouvait plus voir ;
+- `notificationsAction` mettait l'id **dans** la condition
+  (`intent === 'mark-read' && id`), donc un `mark-read` sans id répondait «
+  Intent inconnu », en nommant le mauvais problème. Même défaut trouvé dans
+  `postsAction`, que la dette n'avait pas vu ;
+- et les six actions n'annonçaient pas le contrat.
+
+**`useSettledSubmission` monte dans `@app/web-kit/action`**, où vivent déjà les
+quatre autres fichiers partagés : les sept pages réécrivaient à la main l'effet
+« une fois par réponse » que ce hook documente, avec les deux pièges qu'il nomme
+(un drapeau posé à côté de `submit()` est déjà vrai, et le rendu `submitting`
+n'est pas garanti). Le client garde son ré-export d'une ligne, le back-office en
+gagne un. Le hook est désormais **génériqué sur sa charge utile**, donc
+`result.data` est typé chez l'appelant.
+
+> ⚠️ **`users` et `users/detail` lisaient l'intention dans la réponse** pour
+> choisir entre « Compte désactivé » et « Compte activé ». La page sait ce
+> qu'elle a demandé : l'intention vit dans un `useRef` posé au moment du submit,
+> et l'action n'a plus à renvoyer en écho ce que le client lui a envoyé.
+
+**Le gain visible** : une refusal de schéma dans la modération d'annonce
+atterrit sur `moderationReason` ou `moderationStatus` — le champ que le
+modérateur vient de remplir — au lieu d'un bandeau. C'est R55 qui le permet, R56
+qui le branche.
+
+**Fichiers** : les six actions et leurs six specs, les sept pages,
+`web-kit/src/action/use-settled-submission.ts` (déplacé, génériqué) et son
+index, deux ré-exports d'app. **Flux** : aucun (back-office). **Aucun changement
+d'API, de contrat ni de base.** Le lot **retire 46 lignes de plus qu'il n'en
+ajoute**.
+
+**Chiffres** : typecheck 9/9 · lint 0 erreur (1 avertissement préexistant dans
+`admin`) · `format:check` propre · `pnpm build` vert. Chaque suite seule : admin
+**438** (+7), api **569**, contracts **390** et client **1312** (inchangés).
+Densité de commentaires 8,9 %.
+
+**Les trois gardes vérifiées en rouge puis restaurées** : une action ramenée à
+une forme hors contrat fait tomber quatre cas ; l'id remis dans la condition de
+`mark-read` fait tomber sa garde ; et le `redirectOnUnauthorized` retiré fait
+tomber « sends a dead session back to the login page ».
+
+**Reste ouvert** : `CATEGORY_LABELS` du tableau de bord est toujours un
+`Record<string, string>` avec un repli `?? row.category`, et `dashboard/home`
+renumérote ses activités par position. Ni l'un ni l'autre n'a de rapport avec le
+contrat des actions.
+
+> ⚠️ **La CI a attrapé ce qu'aucune commande locale ne pouvait voir.** Le hook
+> déplacé importe `react`, que `packages/web-kit` ne déclarait pas : ici `react`
+> est hissé dans le `node_modules` de la racine, donc TypeScript le résolvait en
+> remontant l'arborescence et `pnpm typecheck` passait — l'install isolée de la
+> CI, elle, échouait. Déclaré comme `packages/ui` le fait (pair `^19` plus
+> devDependency), **et gardé** : un test compare les imports de `src/` aux
+> dépendances du manifeste, dans `apps/client` puisque `web-kit` n'a pas de
+> runner. Vérifié en rouge en retirant la déclaration.
+
 ---
 
 ## 6. Ce qui ne bouge pas

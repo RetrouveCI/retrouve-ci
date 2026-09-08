@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
-import { useFetcher, useRevalidator, useSearchParams } from 'react-router'
+import { useRef, useState } from 'react'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import { useRevalidator, useSearchParams } from 'react-router'
 import { BentoCard } from '@/components/bento-card'
 import { UsersStatsGrid } from './components/users-stats-grid'
 import { UsersFilters } from './components/users-filters'
@@ -19,30 +21,26 @@ export const action = usersAction
 
 export const handle: RouteHandle = { title: 'Utilisateurs' }
 
-interface ActionResult {
-	ok: boolean
-	intent?: string
-	error?: string
-}
-
 export default function UsersPage({ loaderData }: Route.ComponentProps) {
 	const { users, total, statusFilter } = loaderData
 	const revalidator = useRevalidator()
 	const [searchParams, setSearchParams] = useSearchParams()
 	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-	const fetcher = useFetcher<ActionResult>()
+	const fetcher = useActionFetcher<typeof usersAction>()
+	// The page knows what it asked: the action has no business echoing it back.
+	const asked = useRef<'ban' | 'unban'>('ban')
 
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-		if (fetcher.data.ok) {
+	useSettledSubmission(fetcher.response, result => {
+		if (result.success) {
 			toast.success(
-				fetcher.data.intent === 'ban' ? 'Compte désactivé' : 'Compte activé',
+				asked.current === 'ban' ? 'Compte désactivé' : 'Compte activé',
 			)
 			revalidator.revalidate()
-		} else if (fetcher.data.error) {
-			toast.error(fetcher.data.error)
+			return
 		}
-	}, [fetcher.state, fetcher.data, revalidator])
+
+		if (result.errors?.root?.message) toast.error(result.errors.root.message)
+	})
 
 	const handleStatusFilter = (value: string) => {
 		const next = new URLSearchParams(searchParams)
@@ -52,8 +50,9 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 	}
 
 	const handleToggleBan = (user: User) => {
+		asked.current = user.status === 'active' ? 'ban' : 'unban'
 		fetcher.submit(
-			{ intent: user.status === 'active' ? 'ban' : 'unban', userId: user.id },
+			{ intent: asked.current, userId: user.id },
 			{ method: 'post' },
 		)
 	}

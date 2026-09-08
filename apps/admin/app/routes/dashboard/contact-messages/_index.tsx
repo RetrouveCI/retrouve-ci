@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react'
-import { useSearchParams, useFetcher } from 'react-router'
+import { useState } from 'react'
+import type { FieldValues } from 'react-hook-form'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import { useSearchParams } from 'react-router'
 import { Badge, Button } from '@app/ui/components'
 import { BentoCard } from '@/components/bento-card'
 import { DataTable } from '@/components/data-table'
@@ -44,12 +47,6 @@ const STATUS_BADGE: Record<
 	archived: { label: 'Archivé', className: STATUS_TONE_CLASSES.neutral },
 }
 
-interface ActionResult {
-	ok: boolean
-	message?: ContactMessage
-	error?: string
-}
-
 export default function ContactMessagesPage({
 	loaderData,
 }: Route.ComponentProps) {
@@ -60,31 +57,33 @@ export default function ContactMessagesPage({
 	)
 	const [detailOpen, setDetailOpen] = useState(false)
 
-	const viewFetcher = useFetcher<ActionResult>()
-	const archiveFetcher = useFetcher<ActionResult>()
+	const viewFetcher = useActionFetcher<
+		typeof contactMessagesAction,
+		FieldValues,
+		ContactMessage
+	>()
+	const archiveFetcher = useActionFetcher<
+		typeof contactMessagesAction,
+		FieldValues,
+		ContactMessage
+	>()
 
 	const isArchiving = archiveFetcher.state !== 'idle'
 
-	useEffect(() => {
-		if (viewFetcher.state !== 'idle' || !viewFetcher.data) return
-		if (viewFetcher.data.ok && viewFetcher.data.message) {
-			setSelectedMessage(viewFetcher.data.message)
-		}
-	}, [viewFetcher.state, viewFetcher.data])
+	useSettledSubmission(viewFetcher.response, result => {
+		if (result.success && result.data) setSelectedMessage(result.data)
+	})
 
-	useEffect(() => {
-		if (archiveFetcher.state !== 'idle' || !archiveFetcher.data) return
-		if (archiveFetcher.data.ok) {
+	useSettledSubmission(archiveFetcher.response, result => {
+		if (result.success) {
 			toast.success('Message archivé')
-			if (archiveFetcher.data.message) {
-				setSelectedMessage(archiveFetcher.data.message)
-			}
+			if (result.data) setSelectedMessage(result.data)
 		} else {
 			toast.error(
-				archiveFetcher.data.error ?? "Impossible d'archiver le message",
+				result.errors?.root?.message ?? "Impossible d'archiver le message",
 			)
 		}
-	}, [archiveFetcher.state, archiveFetcher.data])
+	})
 
 	const handleView = (message: ContactMessage) => {
 		setSelectedMessage(message)

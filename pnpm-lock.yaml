@@ -1193,9 +1193,15 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.3
+      '@types/react':
+        specifier: 19.2.17
+        version: 19.2.17
       eslint:
         specifier: 'catalog:'
         version: 9.39.5(jiti@2.7.0)(supports-color@10.2.2)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.8
       typescript:
         specifier: 'catalog:'
         version: 5.9.2
