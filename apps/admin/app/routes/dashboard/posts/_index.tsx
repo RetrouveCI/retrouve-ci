@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react'
-import { useSearchParams, useFetcher } from 'react-router'
+import { useState } from 'react'
+import type { FieldValues } from 'react-hook-form'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import { useSearchParams } from 'react-router'
 import {
 	Badge,
 	Button,
@@ -50,13 +53,6 @@ export const action = postsAction
 
 export const handle: RouteHandle = { title: 'Posts' }
 
-interface ActionResult {
-	ok: boolean
-	post?: Post
-	intent?: string
-	error?: string
-}
-
 export default function PostsPage({ loaderData }: Route.ComponentProps) {
 	const { posts, total, statusFilter, typeFilter } = loaderData
 	const [searchParams, setSearchParams] = useSearchParams()
@@ -65,25 +61,29 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 	const [detailOpen, setDetailOpen] = useState(false)
 	const [hidingPost, setHidingPost] = useState<Post | null>(null)
 
-	const moderateFetcher = useFetcher<ActionResult>()
+	const moderateFetcher = useActionFetcher<
+		typeof postsAction,
+		FieldValues,
+		Post
+	>()
 
-	useEffect(() => {
-		if (moderateFetcher.state !== 'idle' || !moderateFetcher.data) return
-		if (moderateFetcher.data.ok) {
-			const post = moderateFetcher.data.post
-			if (post) {
-				toast.success(
-					`"${post.title}" — ${MODERATION_CONFIG[post.moderationStatus].label}`,
-				)
-
-				if (selectedPost?.id === post.id) {
-					setSelectedPost(post)
-				}
-			}
-		} else {
-			toast.error(moderateFetcher.data.error ?? 'Impossible de modérer ce post')
+	useSettledSubmission(moderateFetcher.response, result => {
+		if (!result.success) {
+			toast.error(
+				result.errors?.root?.message ?? 'Impossible de modérer ce post',
+			)
+			return
 		}
-	}, [moderateFetcher.state, moderateFetcher.data, selectedPost?.id])
+
+		const post = result.data
+		if (!post) return
+
+		toast.success(
+			`"${post.title}" — ${MODERATION_CONFIG[post.moderationStatus].label}`,
+		)
+
+		if (selectedPost?.id === post.id) setSelectedPost(post)
+	})
 
 	const handleModerate = (
 		id: string,

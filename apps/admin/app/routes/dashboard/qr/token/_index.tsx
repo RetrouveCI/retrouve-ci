@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react'
-import { Link, useFetcher } from 'react-router'
+import { useState } from 'react'
+import type { FieldValues } from 'react-hook-form'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import { Link } from 'react-router'
 import { Button } from '@app/ui/components'
 import { AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
@@ -26,32 +29,29 @@ export const handle: RouteHandle = {
 	breadcrumb: [{ label: 'Stickers / QR', to: '/qr' }],
 }
 
-interface ActionResult {
-	ok: boolean
-	token?: QrToken
-	error?: string
-}
-
 export default function QrTokenDetailPage({
 	loaderData,
 }: Route.ComponentProps) {
 	const [token, setToken] = useState(loaderData.token)
 	const [showRevokeDialog, setShowRevokeDialog] = useState(false)
 
-	const fetcher = useFetcher<ActionResult>()
+	const fetcher = useActionFetcher<typeof qrTokenAction, FieldValues, QrToken>()
 	const isRevoking = fetcher.state !== 'idle'
 
-	useEffect(() => {
-		if (fetcher.state !== 'idle' || !fetcher.data) return
-		if (fetcher.data.ok && fetcher.data.token) {
-			setToken(fetcher.data.token)
-			setShowRevokeDialog(false)
-			toast.success(`Token ${fetcher.data.token.code} révoqué`)
-		} else if (!fetcher.data.ok) {
-			setShowRevokeDialog(false)
-			toast.error(fetcher.data.error ?? 'Impossible de révoquer ce token')
+	useSettledSubmission(fetcher.response, result => {
+		setShowRevokeDialog(false)
+
+		if (result.success && result.data) {
+			setToken(result.data)
+			toast.success(`Token ${result.data.code} révoqué`)
+			return
 		}
-	}, [fetcher.state, fetcher.data])
+
+		if (!result.success)
+			toast.error(
+				result.errors?.root?.message ?? 'Impossible de révoquer ce token',
+			)
+	})
 
 	const handleRevoke = () => {
 		fetcher.submit({ intent: 'revoke' }, { method: 'post' })

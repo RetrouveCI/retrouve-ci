@@ -751,6 +751,14 @@ Identical to the client app conventions above, with these admin-specific notes:
   response directly: `routes/dashboard/profile/helpers/profile.client.ts` calls
   `authClient.changePassword`, and `context/auth.tsx` calls
   `authClient.signIn.email` from the provider's `login`.
+- **Every action answers `ActionResult`**, the client's contract, and every page
+  reads it through `useActionFetcher` + `useSettledSubmission`. Seven pages used
+  to declare a local `interface ActionResult { ok, … }` — one name, eight
+  meanings — and read `fetcher.data.ok`; none does now. Two consequences worth
+  knowing: an action no longer answers a non-200 status (the outcome is in the
+  body, as it is in `apps/client`), and anything that is not an `ApiError`
+  **rethrows** to the error boundary rather than becoming a toast, since a
+  connection string is a bug and not an outcome.
 - `users` and `administrators` have no API domain of their own: their
   `servers/*.service.ts` call better-auth's `admin()` plugin endpoints
   (`list-users`, `create-user`, `set-role`, `ban-user`, `unban-user`,
@@ -906,18 +914,6 @@ deliberately declined.
 
 ### `apps/admin`
 
-- **`users.action` and `qr-token.action` do not answer `ActionResult`.** They
-  return `data({ ok, error }, { status })`, so their components read `ok`
-  instead of `success`, and `useActionFetcher` cannot hand `errors` to
-  react-hook-form. Aligning them means touching the components too.
-- **`users.action` alone has no `redirectOnUnauthorized`**, where
-  `administratorsAction` and `generateQrAction` both do. A dead backoffice
-  session therefore surfaces as a 500 inside a dashboard the visitor can no
-  longer see, instead of a return to `/login`.
-- **`notificationsAction` puts the id inside the `mark-read` condition**
-  (`intent === 'mark-read' && id`), so a `mark-read` with no id answers
-  `Intent inconnu` — naming the wrong problem. The other three admin actions
-  have an `ID manquant` branch.
 - **The dashboard's `CATEGORY_LABELS` is a `Record<string, string>`** with a
   `?? row.category` fallback, where `posts.const.ts` types its own table against
   `LostItemCategory`. A category added to the contract would show a French

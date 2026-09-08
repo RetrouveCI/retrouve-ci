@@ -11,11 +11,6 @@ vi.mock('../orders.service', () => ({ updateOrderStatus }))
 const { ordersAction } = await import('../orders.action')
 
 /** The action answers `{ ok, error }`, wrapped in `data()` on a failure. */
-const payloadOf = async (result: unknown) => {
-	const value = result as { data?: unknown }
-	return (value.data ?? result) as { ok: boolean; error?: string }
-}
-
 function requestFor(fields: Record<string, string>) {
 	const body = new FormData()
 	for (const [key, value] of Object.entries(fields)) body.append(key, value)
@@ -50,7 +45,7 @@ describe('ordersAction', () => {
 			status,
 			expect.any(Request),
 		)
-		expect(result).toMatchObject({ ok: true })
+		expect(result).toMatchObject({ success: true })
 	})
 
 	it.each([
@@ -64,9 +59,11 @@ describe('ordersAction', () => {
 		async fields => {
 			const result = await ordersAction({ request: requestFor(fields) })
 
-			expect(await payloadOf(result)).toEqual({
-				ok: false,
-				error: 'Paramètres invalides',
+			expect(result).toEqual({
+				success: false,
+				errors: {
+					root: { type: 'custom', message: 'Paramètres invalides' },
+				},
 			})
 			expect(updateOrderStatus).not.toHaveBeenCalled()
 		},

@@ -1,4 +1,8 @@
 import { ApiError } from '@/shared/utils/api-fetch'
+import type { ActionResult } from '@/shared/types/action'
+
+const rootOf = (result: ActionResult<unknown>) =>
+	result.success ? undefined : result.errors?.root?.message
 
 const { requireAdminSession, revokeQrToken } = vi.hoisted(() => ({
 	requireAdminSession: vi.fn(),
@@ -23,15 +27,6 @@ function submit(fields: Record<string, string>, code = 'RCI-ABC123') {
 	})
 }
 
-/** The action answers `data(...)` on refusal, a plain object on success. */
-function bodyOf(result: unknown) {
-	const asData = result as { data?: unknown; init?: { status?: number } }
-	return {
-		body: (asData.data ?? result) as { ok: boolean; error?: string },
-		status: asData.init?.status,
-	}
-}
-
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
 	revokeQrToken
@@ -52,11 +47,9 @@ describe('qrTokenAction', () => {
 	})
 
 	it('revokes the token named by the route param', async () => {
-		const { body } = bodyOf(await submit({ intent: 'revoke' }, 'RCI-XYZ789'))
-
-		expect(body).toEqual({
-			ok: true,
-			token: { code: 'RCI-ABC123', status: 'revoked' },
+		expect(await submit({ intent: 'revoke' }, 'RCI-XYZ789')).toEqual({
+			success: true,
+			data: { code: 'RCI-ABC123', status: 'revoked' },
 		})
 		expect(revokeQrToken).toHaveBeenCalledWith(
 			'RCI-XYZ789',
@@ -65,12 +58,9 @@ describe('qrTokenAction', () => {
 	})
 
 	it.each(['activate', '', 'delete'])(
-		'answers 400 for intent %p, revoking nothing',
+		'names an unknown intent %p, revoking nothing',
 		async intent => {
-			const { body, status } = bodyOf(await submit({ intent }))
-
-			expect(status).toBe(400)
-			expect(body).toEqual({ ok: false, error: 'Intent inconnu' })
+			expect(rootOf(await submit({ intent }))).toBe('Intent inconnu')
 			expect(revokeQrToken).not.toHaveBeenCalled()
 		},
 	)
@@ -79,37 +69,31 @@ describe('qrTokenAction', () => {
 	 * The API refuses a token that is not the caller's, and its own message names
 	 * the code. The visitor gets a sentence about what they may do instead.
 	 */
-	it('rewrites a 403 into an explanation, keeping the status', async () => {
+	it('rewrites a 403 into an explanation', async () => {
 		revokeQrToken.mockRejectedValue(new ApiError(403, 'Forbidden'))
 
-		const { body, status } = bodyOf(await submit({ intent: 'revoke' }))
-
-		expect(status).toBe(403)
-		expect(body).toEqual({
-			ok: false,
-			error: 'Vous ne pouvez pas révoquer ce token.',
-		})
+		expect(rootOf(await submit({ intent: 'revoke' }))).toBe(
+			'Vous ne pouvez pas révoquer ce token.',
+		)
 	})
 
-	it.each([404, 400, 401])(
-		'passes the API message through on a %i',
-		async statusCode => {
-			revokeQrToken.mockRejectedValue(new ApiError(statusCode, 'Token inconnu'))
+	it.each([404, 400])('reports a %i as a root error', async statusCode => {
+		revokeQrToken.mockRejectedValue(new ApiError(statusCode, 'Token inconnu'))
 
-			const { body, status } = bodyOf(await submit({ intent: 'revoke' }))
+		expect(rootOf(await submit({ intent: 'revoke' }))).toBe('Token inconnu')
+	})
 
-			expect(status).toBe(statusCode)
-			expect(body).toEqual({ ok: false, error: 'Token inconnu' })
-		},
-	)
+	it('sends a dead session back to the login page', async () => {
+		revokeQrToken.mockRejectedValue(new ApiError(401, 'Unauthorized'))
 
-	// A non-API failure must not leak a stack trace or an internal message.
-	it('answers a generic 500 for anything that is not an ApiError', async () => {
+		await expect(submit({ intent: 'revoke' })).rejects.toBeInstanceOf(Response)
+	})
+
+	// A stack trace is not an outcome: it reaches the error boundary, which
+	// React Router sanitises before the browser sees it.
+	it('lets a non-API failure through', async () => {
 		revokeQrToken.mockRejectedValue(new Error('ECONNREFUSED 127.0.0.1:3002'))
 
-		const { body, status } = bodyOf(await submit({ intent: 'revoke' }))
-
-		expect(status).toBe(500)
-		expect(body).toEqual({ ok: false, error: 'Erreur serveur' })
+		await expect(submit({ intent: 'revoke' })).rejects.toThrow('ECONNREFUSED')
 	})
 })

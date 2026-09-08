@@ -1,4 +1,8 @@
 import { MODERATION_STATUSES } from '@app/contracts/lost-items'
+import type { ActionResult } from '@/shared/types/action'
+
+const rootOf = (result: ActionResult<unknown>) =>
+	result.success ? undefined : result.errors?.root?.message
 
 const { requireAdminSession, moderatePost } = vi.hoisted(() => ({
 	requireAdminSession: vi.fn(),
@@ -19,11 +23,6 @@ const requestFor = (fields: Record<string, string>) => {
 }
 
 /** The action answers `{ ok, error }`, wrapped in `data()` on a failure. */
-const payloadOf = async (result: unknown) => {
-	const value = result as { data?: unknown }
-	return (value.data ?? result) as { ok: boolean; error?: string }
-}
-
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
 	moderatePost.mockReset().mockResolvedValue({ id: 'post-1' })
@@ -55,11 +54,7 @@ describe('postsAction', () => {
 			{ id: 'post-1', moderationStatus },
 			expect.any(Request),
 		)
-		expect(result).toEqual({
-			ok: true,
-			post: { id: 'post-1' },
-			intent: 'moderate',
-		})
+		expect(result).toEqual({ success: true, data: { id: 'post-1' } })
 	})
 
 	it('carries the reason and its note when the dialog gave them', async () => {
@@ -113,9 +108,16 @@ describe('postsAction', () => {
 			}),
 		})
 
-		expect(await payloadOf(result)).toEqual({
-			ok: false,
-			error: "Un motif ne s'attache qu'à un masquage",
+		// A schema refusal names its field, so the dialog shows it where the
+		// moderator chose the reason rather than in a banner.
+		expect(result).toEqual({
+			success: false,
+			errors: {
+				moderationReason: {
+					type: 'custom',
+					message: "Un motif ne s'attache qu'à un masquage",
+				},
+			},
 		})
 		expect(moderatePost).not.toHaveBeenCalled()
 	})
@@ -129,9 +131,14 @@ describe('postsAction', () => {
 			}),
 		})
 
-		expect(await payloadOf(result)).toEqual({
-			ok: false,
-			error: 'Statut de modération invalide',
+		expect(result).toEqual({
+			success: false,
+			errors: {
+				moderationStatus: {
+					type: 'custom',
+					message: 'Statut de modération invalide',
+				},
+			},
 		})
 		expect(moderatePost).not.toHaveBeenCalled()
 	})
@@ -141,14 +148,13 @@ describe('postsAction', () => {
 			request: requestFor({ intent: 'burn' }),
 		})
 
-		expect(await payloadOf(result)).toEqual({
-			ok: false,
-			error: 'Intent inconnu',
-		})
+		expect(rootOf(result)).toBe('Intent inconnu')
 		expect(moderatePost).not.toHaveBeenCalled()
 	})
 
-	it('refuses a moderate intent with no id', async () => {
+	// It used to answer « Intent inconnu », naming the wrong problem: the intent
+	// was right and the id was missing.
+	it('names the missing id on a moderate intent that carries none', async () => {
 		const result = await postsAction({
 			request: requestFor({
 				intent: 'moderate',
@@ -156,10 +162,7 @@ describe('postsAction', () => {
 			}),
 		})
 
-		expect(await payloadOf(result)).toEqual({
-			ok: false,
-			error: 'Intent inconnu',
-		})
+		expect(rootOf(result)).toBe('ID manquant')
 		expect(moderatePost).not.toHaveBeenCalled()
 	})
 
@@ -174,26 +177,21 @@ describe('postsAction', () => {
 			}),
 		})
 
-		expect(await payloadOf(result)).toEqual({
-			ok: false,
-			error: 'Annonce introuvable',
-		})
+		expect(rootOf(result)).toBe('Annonce introuvable')
 	})
 
-	it('reports a generic error for anything else', async () => {
+	// Not an outcome but a bug: it belongs in the error boundary.
+	it('lets a non-API failure through', async () => {
 		moderatePost.mockRejectedValue(new Error('boom'))
 
-		const result = await postsAction({
-			request: requestFor({
-				intent: 'moderate',
-				id: 'post-1',
-				moderationStatus: 'published',
+		await expect(
+			postsAction({
+				request: requestFor({
+					intent: 'moderate',
+					id: 'post-1',
+					moderationStatus: 'published',
+				}),
 			}),
-		})
-
-		expect(await payloadOf(result)).toEqual({
-			ok: false,
-			error: 'Erreur serveur',
-		})
+		).rejects.toThrow('boom')
 	})
 })

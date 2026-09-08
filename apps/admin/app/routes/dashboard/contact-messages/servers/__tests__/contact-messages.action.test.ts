@@ -1,4 +1,5 @@
 import { ApiError } from '@/shared/utils/api-fetch'
+import type { ActionResult } from '@/shared/types/action'
 
 const {
 	requireAdminSession,
@@ -32,14 +33,8 @@ function submit(fields: Record<string, string>) {
 	})
 }
 
-/** The action answers `data(...)` on refusal, a plain object on success. */
-function bodyOf(result: unknown) {
-	const asData = result as { data?: unknown; init?: { status?: number } }
-	return {
-		body: (asData.data ?? result) as { ok: boolean; error?: string },
-		status: asData.init?.status,
-	}
-}
+const rootOf = (result: ActionResult<unknown>) =>
+	result.success ? undefined : result.errors?.root?.message
 
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
@@ -64,9 +59,10 @@ describe('contactMessagesAction', () => {
 	})
 
 	it('reads one message on view', async () => {
-		const { body } = bodyOf(await submit({ intent: 'view', id: 'msg-1' }))
-
-		expect(body).toEqual({ ok: true, message: MESSAGE })
+		expect(await submit({ intent: 'view', id: 'msg-1' })).toEqual({
+			success: true,
+			data: MESSAGE,
+		})
 		expect(getContactMessageById).toHaveBeenCalledWith(
 			'msg-1',
 			expect.any(Request),
@@ -75,9 +71,9 @@ describe('contactMessagesAction', () => {
 
 	// The status is the action's own decision, not the form's.
 	it('archives by sending the status the API expects', async () => {
-		const { body } = bodyOf(await submit({ intent: 'archive', id: 'msg-1' }))
+		const result = await submit({ intent: 'archive', id: 'msg-1' })
 
-		expect(body.ok).toBe(true)
+		expect(result.success).toBe(true)
 		expect(updateContactMessageStatus).toHaveBeenCalledWith(
 			'msg-1',
 			'archived',
@@ -88,51 +84,47 @@ describe('contactMessagesAction', () => {
 	// The id check runs before the intent check, so a missing id is reported as
 	// such even for an intent the action would have refused anyway.
 	it.each(['view', 'archive', 'supprimer', ''])(
-		'answers 400 for intent %p with no id',
+		'names the missing id for intent %p',
 		async intent => {
-			const { body, status } = bodyOf(await submit({ intent }))
-
-			expect(status).toBe(400)
-			expect(body).toEqual({ ok: false, error: 'ID manquant' })
+			expect(rootOf(await submit({ intent }))).toBe('ID manquant')
 			expect(getContactMessageById).not.toHaveBeenCalled()
 			expect(updateContactMessageStatus).not.toHaveBeenCalled()
 		},
 	)
 
-	it('answers 400 for an unknown intent', async () => {
-		const { body, status } = bodyOf(
-			await submit({ intent: 'supprimer', id: 'msg-1' }),
+	it('names an unknown intent', async () => {
+		expect(rootOf(await submit({ intent: 'supprimer', id: 'msg-1' }))).toBe(
+			'Intent inconnu',
 		)
-
-		expect(status).toBe(400)
-		expect(body).toEqual({ ok: false, error: 'Intent inconnu' })
 	})
 
-	it.each([404, 403, 401])(
-		'passes the API message and status through on a %i',
-		async statusCode => {
-			getContactMessageById.mockRejectedValue(
-				new ApiError(statusCode, 'Message introuvable'),
-			)
+	it.each([404, 403])('reports a %i as a root error', async statusCode => {
+		getContactMessageById.mockRejectedValue(
+			new ApiError(statusCode, 'Message introuvable'),
+		)
 
-			const { body, status } = bodyOf(await submit({ intent: 'view', id: 'm' }))
+		expect(rootOf(await submit({ intent: 'view', id: 'm' }))).toBe(
+			'Message introuvable',
+		)
+	})
 
-			expect(status).toBe(statusCode)
-			expect(body).toEqual({ ok: false, error: 'Message introuvable' })
-		},
-	)
+	it('sends a dead session back to the login page', async () => {
+		getContactMessageById.mockRejectedValue(new ApiError(401, 'Unauthorized'))
 
-	// A non-API failure must not leak a connection string to the browser.
-	it('answers a generic 500 for anything that is not an ApiError', async () => {
+		await expect(submit({ intent: 'view', id: 'm' })).rejects.toBeInstanceOf(
+			Response,
+		)
+	})
+
+	// A connection string is not an outcome: it reaches the error boundary,
+	// which React Router sanitises before the browser sees it.
+	it('lets a non-API failure through', async () => {
 		updateContactMessageStatus.mockRejectedValue(
 			new Error('ECONNREFUSED 127.0.0.1:3002'),
 		)
 
-		const { body, status } = bodyOf(
-			await submit({ intent: 'archive', id: 'm' }),
+		await expect(submit({ intent: 'archive', id: 'm' })).rejects.toThrow(
+			'ECONNREFUSED',
 		)
-
-		expect(status).toBe(500)
-		expect(body).toEqual({ ok: false, error: 'Erreur serveur' })
 	})
 })
