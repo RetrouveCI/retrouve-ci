@@ -673,10 +673,23 @@ Route structure (all under `app/`):
   public page can no longer be added and left out of the sitemap in silence.
 - `/about`, `/contact`, `/download`, `/privacy`, `/terms`
 
-Four paths are **resource routes** — a `servers/*.loader.ts` mounted with no
-component, `fetcher.load`ed by a hook rather than fetched per navigation:
+Four paths are **resource routes read by a hook** — a `servers/*.loader.ts`
+mounted with no component, `fetcher.load`ed rather than fetched per navigation:
 `scan/status`, `publish/matches`, `account/posts/matches` and
 `account/stickers/pending`.
+
+⚠️ **Eight paths in `routes.ts` point straight at a `servers/*.ts`, and every
+one of them must export a `loader`** — the four above, `robots.txt`,
+`sitemap.xml`, and the two that carry only an `action`: `posts/:id/contact` and
+`q/:code/reach`. Having no component means having no error boundary, so a GET a
+resource route cannot answer is served **as the page**: React Router answers
+`400 {"message":"Unexpected Server Error"}`, which is what a visitor read in
+production on the contact route. And the GET is not exotic — those two post with
+`target="_blank"`, so the opened tab's own URL _is_ the route, and a reload, a
+restore, or a jump no dialer follows lands on it. Their `loader` therefore
+redirects back to the page the visitor came from.
+`app/shared/__tests__/resource-route-get.test.ts` holds that property for all
+eight, so a ninth cannot be mounted without one.
 
 > **`apps/client` uses the target layout**:
 >

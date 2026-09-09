@@ -8,7 +8,7 @@ vi.mock('../../../servers/lost-items.service', () => ({
 	contactLostItemPoster,
 }))
 
-const { action } = await import('../contact.action')
+const { action, loader } = await import('../contact.action')
 
 const ID = 'lost-item-9'
 const TARGET = 'https://wa.me/2250700000000?text=Bonjour'
@@ -63,6 +63,14 @@ describe('the listing contact action', () => {
 			)
 		},
 	)
+
+	// A reload of the opened tab, which used to render a `400` JSON page.
+	it('sends a GET back to the listing', () => {
+		const response = loader({ params: { id: ID } })
+
+		expect(response.status).toBe(302)
+		expect(response.headers.get('Location')).toBe(`/posts/${ID}`)
+	})
 
 	// A finder must never meet an error boundary in a fresh tab.
 	it('folds a non-API failure into it too', async () => {
