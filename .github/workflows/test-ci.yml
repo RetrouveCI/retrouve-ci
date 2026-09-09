@@ -122,6 +122,20 @@ jobs:
         run: pnpm exec turbo run build --filter=@app/database
 
       # Component tests run in a real browser (Vitest browser mode), so the
+      # `--with-deps` runs `apt-get update`, which fails on **any** broken
+      # repository in the runner image — not only the ones it needs. Measured on
+      # 2026-09-09: Google's chrome mirror served an inconsistent index
+      # (`Hash Sum mismatch`) for over half an hour and took this job down three
+      # times in a row, before a single test had run. Playwright's system
+      # libraries come from Ubuntu's own repositories, so that one is dead weight.
+      # The listing is kept in the log: if the file is ever named otherwise, a
+      # silent no-op here would look like the outage coming back.
+      - name: Drop the apt repositories Playwright does not need
+        run: |
+          ls -l /etc/apt/sources.list.d/ || true
+          sudo rm -f /etc/apt/sources.list.d/google*.list
+          sudo rm -f /etc/apt/sources.list.d/google*.sources
+
       # Chromium build and its system libraries have to be present before
       # `pnpm test`. One install is enough for both front-ends: Playwright caches
       # browsers per machine, not per workspace.
