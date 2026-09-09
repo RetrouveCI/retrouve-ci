@@ -4641,6 +4641,42 @@ VAPID, table d'abonnements, envoi branché sur le domaine `matching`. Le lot 8 s
 livre sans. À décider quand l'installation aura des chiffres — pousser des
 notifications à personne n'a pas d'intérêt.
 
+> ⚠️ **Cette condition était circulaire, et c'est ce qui bloquait l'étape.**
+> `start_url` vaut `/` sans marqueur, donc un lancement depuis l'écran d'accueil
+> est indistinguable d'une visite ; rien côté API ne compte une installation ;
+> et §8 dit qu'ajouter une couche d'événements est une décision produit et
+> juridique. L'instrument le moins cher pour produire ces chiffres était donc
+> **la table d'abonnements qu'A3 construit**.
+>
+> **La sortie** : un abonnement push n'est pas une mesure d'audience, c'est un
+> enregistrement de capacité **consenti**, et il exige à la fois d'avoir
+> installé et d'avoir accordé la permission. Le compter répond à la question
+> d'origine sans analytique. L'étape se scinde donc :
+
+##### A3a — L'assise et le chiffre — **LIVRÉE**
+
+Le contrat (`pushSubscriptionSchema`, la forme que `PushSubscription.toJSON()`
+produit, prise telle quelle), le modèle `PushSubscription` et sa migration, le
+repository, trois use-cases, `POST` / `DELETE /notifications/push` et
+`GET /stats/push-subscriptions` qui répond un **nombre nu**.
+
+⚠️ **La garde des routes d'écriture a tiré, comme prévu**, en nommant les deux
+routes non classées. Et elle a attrapé une erreur au classement : `limitFor`
+matche sur le **chemin** et non sur la méthode, donc `POST` et `DELETE` d'un
+même `/notifications/push` **ne peuvent pas** tomber dans deux classes. Les deux
+sont plafonnées, ce qu'exige de toute façon la création — un appelant pourrait
+sinon forger une ligne par endpoint inventé.
+
+**Rien n'envoie encore.** Jusqu'à A3b le chiffre se lit par `/docs` ou en curl.
+
+##### A3b — Le navigateur s'abonne _(à faire)_
+
+VAPID (`VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT`), l'invite de
+permission, l'appel `pushManager.subscribe()` derrière le service worker, et le
+chiffre posé sur le tableau de bord du back-office. C'est cette moitié qui fera
+monter le compte au-dessus de zéro ; l'envoi sur correspondance reste à décider
+ensuite, sur un chiffre lu.
+
 #### R36 — L'arrivée des stickers devient un signal — **LIVRÉE**
 
 Ouverte par le commanditaire en relisant l'accueil : le pavé noir de R22, posé

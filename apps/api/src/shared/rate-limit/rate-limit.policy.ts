@@ -119,7 +119,13 @@ const AUTHENTICATED_WRITE: RateLimitRule = {
 	windowSeconds: HOUR,
 }
 
-const AUTHENTICATED_WRITE_PATHS = [/^\/sticker-orders$/, /^\/lost-items$/]
+// A subscription is a row a caller could otherwise forge without end, one per
+// invented endpoint — where a delete only reaches what they already hold.
+const AUTHENTICATED_WRITE_PATHS = [
+	/^\/sticker-orders$/,
+	/^\/lost-items$/,
+	/^\/notifications\/push$/,
+]
 
 /** An allowlist, so no future read — `get-session` above all — falls in by resembling one. */
 const PUBLIC_READ_PATHS = [/^\/qr-codes\/[^/]+\/scan$/]

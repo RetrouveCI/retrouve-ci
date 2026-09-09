@@ -501,6 +501,24 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   `notify-matches` the single named exemption. That distinction is load-bearing:
   `notify-matches` holds its dependency under a different field name, so a probe
   grepping `createNotification.execute` sees six producers and misses it.
+- **A push subscription is a consented capability, not an audience
+  measurement.** `PushSubscription` holds one row per browser, keyed on the
+  endpoint the vendor issued, so a browser re-subscribing after its keys rotated
+  **moves** the row rather than adding one; the owner is written on both sides
+  of the upsert, so a device changing hands re-registers under the new account.
+  A delete is scoped to the caller, and says nothing when the row is already
+  gone — a browser whose permission was revoked elsewhere still calls it. ⚠️
+  **Both routes share one path** (`POST` and `DELETE /notifications/push`), and
+  `limitFor` matches on the path and not the method, so they cannot be
+  classified apart: both are capped as an authenticated write, which is what the
+  create needs since a caller could otherwise forge a row per invented endpoint.
+  `GET /stats/push-subscriptions` answers the count as a **bare number**, the
+  way `/notifications/unread-count` does. That count is the point: a
+  subscription needs an install **and** a granted permission, so counting them
+  answers « would a push reach anyone » without measuring anyone's usage — which
+  is how A3's condition was unblocked without adding an analytics layer §8 calls
+  a product and legal decision. **Nothing sends yet**: VAPID and the browser's
+  own subscribe call are A3b's half.
 - **A stored photo is bounded in pixels, not only in bytes.**
   `uploadImageBuffer` passes an **incoming** `transformation`
   (`c_limit,w_2000`), applied before Cloudinary stores the asset — ⚠️ not
