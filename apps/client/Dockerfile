@@ -36,6 +36,9 @@ FROM node:24-bookworm-slim AS runner
 # `API_URL` is read at runtime, so one image serves every environment. It is
 # required: the server refuses to start without it rather than silently calling
 # its own origin, which is what the former build-time `VITE_API_URL` did.
+# `VAPID_PUBLIC_KEY` is read the same way and is **optional**: it is the public
+# half of the pair whose private half stays on the API, and unset, the app
+# offers no push switch rather than a button that cannot work.
 ENV NODE_ENV="production" \
 	PORT="3000"
 

@@ -7,7 +7,7 @@ import { StatCard } from '@/components/stat-card'
 import { NotificationList } from './components/notification-list'
 import { notificationsLoader } from './servers/notifications.loader'
 import { notificationsAction } from './servers/notifications.action'
-import { CheckCheck, Bell, BellOff } from 'lucide-react'
+import { CheckCheck, Bell, BellOff, BellRing } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@app/ui/utils'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
@@ -21,7 +21,7 @@ export const handle: RouteHandle = { title: 'Notifications' }
 export default function NotificationsPage({
 	loaderData,
 }: Route.ComponentProps) {
-	const { notifications, total, readFilter } = loaderData
+	const { notifications, total, readFilter, pushDevices } = loaderData
 	const [searchParams, setSearchParams] = useSearchParams()
 
 	const readFetcher = useActionFetcher<typeof notificationsAction>()
@@ -78,7 +78,7 @@ export default function NotificationsPage({
 		<>
 			<div>
 				<div className="space-y-4 p-4 lg:p-6">
-					<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+					<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 						<StatCard highlight title="Total" value={total} icon={Bell} />
 						<StatCard
 							tone="warning"
@@ -91,6 +91,14 @@ export default function NotificationsPage({
 							title="Lues"
 							value={total - unreadCount}
 							icon={CheckCheck}
+						/>
+						{/* The figure A3 waits on: a subscription needs an install and a
+						    granted permission, so it says whether a push would reach
+						    anyone. Sending is not wired yet. */}
+						<StatCard
+							title="Appareils abonnés"
+							value={pushDevices ?? '—'}
+							icon={BellRing}
 						/>
 					</div>
 

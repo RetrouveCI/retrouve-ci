@@ -37,11 +37,28 @@ export const deleteAccountSchema = z.object({
 	password: currentPasswordSchema,
 })
 
+// Flat, because a form posts flat fields; the service reassembles the nested
+// shape `@app/contracts/notifications` declares. The browser produced all three,
+// so the bounds live server-side where the contract enforces them.
+export const subscribePushSchema = z.object({
+	intent: z.literal('subscribe-push'),
+	endpoint: z.string().min(1),
+	p256dh: z.string().min(1),
+	auth: z.string().min(1),
+})
+
+export const unsubscribePushSchema = z.object({
+	intent: z.literal('unsubscribe-push'),
+	endpoint: z.string().min(1),
+})
+
 export const settingsActionSchema = z.discriminatedUnion('intent', [
 	updateNameSchema,
 	updateZoneSchema,
 	sendPhoneOtpSchema,
 	deleteAccountSchema,
+	subscribePushSchema,
+	unsubscribePushSchema,
 ])
 
 // Client-side only (handled via authClient, not the route action).

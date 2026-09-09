@@ -4669,13 +4669,37 @@ sinon forger une ligne par endpoint inventé.
 
 **Rien n'envoie encore.** Jusqu'à A3b le chiffre se lit par `/docs` ou en curl.
 
-##### A3b — Le navigateur s'abonne _(à faire)_
+##### A3b — Le navigateur s'abonne — **LIVRÉE**
 
-VAPID (`VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT`), l'invite de
-permission, l'appel `pushManager.subscribe()` derrière le service worker, et le
-chiffre posé sur le tableau de bord du back-office. C'est cette moitié qui fera
-monter le compte au-dessus de zéro ; l'envoi sur correspondance reste à décider
-ensuite, sur un chiffre lu.
+`VAPID_PUBLIC_KEY` dans `PublicEnv` — lu au **runtime** comme `API_URL`, jamais
+par `import.meta.env` —, `helpers/push.client.ts` pour la plomberie navigateur,
+`DevicePushRow` dans les réglages, et le chiffre sur la page **Notifications**
+du back-office.
+
+⚠️ **L'interrupteur est par appareil, pas une préférence.** Un abonnement
+appartient à un navigateur ; les deux interrupteurs au-dessus sont des
+préférences par type que rien ne stocke encore, donc la pastille « bientôt
+disponible » ne concerne qu'eux. C'est le navigateur qui dit si l'appareil est
+abonné, lu au montage — pas le compte.
+
+**Quatre refus nommés** plutôt qu'un bouton mort : `unsupported`,
+`unconfigured`, `denied`, `dismissed`. Une installation sans clé VAPID désactive
+la ligne **et dit pourquoi**.
+
+> ⚠️ **Ce qu'aucun test d'ici ne peut couvrir.** Le chemin accordé demande une
+> vraie invite de permission et un worker enregistré : le projet `ui` atteint le
+> refus, pas l'acceptation. Ce qui est mesurable l'est —
+> `helpers/__tests__/push.test.ts` couvre l'aller-retour base64url sur une vraie
+> clé VAPID de 87 caractères, cas où `atob` seul lève. Et le test de la ligne a
+> **mesuré au passage** que Chromium porte bien `PushManager` et `Notification`
+> : c'est l'absence de clé qui bloque, pas l'API.
+
+##### A3c — L'envoi _(à faire, et à décider)_
+
+`VAPID_PRIVATE_KEY` / `VAPID_SUBJECT`, l'envoi branché sur le domaine
+`matching`, et le gestionnaire `push` du service worker — sans lui Chrome
+affiche son propre avis générique, puisque `userVisibleOnly` promet une
+notification visible. À décider sur le chiffre, maintenant qu'il existe.
 
 #### R36 — L'arrivée des stickers devient un signal — **LIVRÉE**
 
