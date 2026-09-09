@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+	PUSH_AUTH_LENGTH,
+	PUSH_P256DH_LENGTH,
+} from '@app/contracts/notifications'
 import type { GetMyNotificationsUseCase } from '@/domains/notifications/use-cases/get-my-notifications.use-case'
 import type { GetUnreadNotificationsCountUseCase } from '@/domains/notifications/use-cases/get-unread-notifications-count.use-case'
 import type { MarkAllNotificationsAsReadUseCase } from '@/domains/notifications/use-cases/mark-all-notifications-as-read.use-case'
@@ -44,7 +48,10 @@ describe('NotificationsController', () => {
 	describe('push', () => {
 		const SUBSCRIPTION = {
 			endpoint: 'https://fcm.googleapis.com/fcm/send/abc',
-			keys: { p256dh: 'a'.repeat(88), auth: 'b'.repeat(24) },
+			keys: {
+				p256dh: 'a'.repeat(PUSH_P256DH_LENGTH),
+				auth: 'b'.repeat(PUSH_AUTH_LENGTH),
+			},
 		}
 
 		// The owner comes from the session, so a body naming someone else stores

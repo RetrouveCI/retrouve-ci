@@ -4671,6 +4671,27 @@ sinon forger une ligne par endpoint inventé.
 
 ##### A3b — Le navigateur s'abonne — **LIVRÉE**
 
+> ⚠️ **Livrée avec un défaut, trouvé et réparé juste après (#237).** Le contrat
+> épinglait les longueurs **avec** padding — 88 et 24 — alors que
+> `PushSubscription.toJSON()` émet du base64url **sans** padding : 87 et 22.
+> L'API aurait donc répondu 400 à **chaque** abonnement que le navigateur peut
+> produire. Le compte serait resté à zéro pour toujours, et le chiffre sur
+> lequel A3c doit se décider aurait dit « personne n'en veut » — le pire mode de
+> défaillance possible : muet, et dans la direction d'une fausse conclusion.
+>
+> **Pourquoi les tests ne l'ont pas vu**, et c'est le motif de toute cette
+> session : le spec du contrat fabriquait ses valeurs depuis ses **propres**
+> constantes, celui du helper affirmait sa **propre** croyance. Chacun était
+> cohérent avec lui-même ; **aucun ne traversait la couture**. Le correctif
+> durable est l'assertion qui la traverse, côté client puisque lui seul peut
+> importer les deux : elle parse ce que `toRegistration()` produit avec
+> `pushSubscriptionSchema`. Essayée en rouge contre l'ancien contrat, elle nomme
+> les deux clés refusées.
+>
+> Et l'invariant est désormais la taille **décodée** (65 et 16 octets), la
+> longueur encodée en étant dérivée — avec `87` et `22` épinglés en littéral
+> dans le spec, pour la raison de N4.
+
 `VAPID_PUBLIC_KEY` dans `PublicEnv` — lu au **runtime** comme `API_URL`, jamais
 par `import.meta.env` —, `helpers/push.client.ts` pour la plomberie navigateur,
 `DevicePushRow` dans les réglages, et le chiffre sur la page **Notifications**

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+	PUSH_AUTH_BYTES,
 	PUSH_AUTH_LENGTH,
 	PUSH_ENDPOINT_MAX_LENGTH,
+	PUSH_P256DH_BYTES,
 	PUSH_P256DH_LENGTH,
 	pushSubscriptionSchema,
 	pushUnsubscribeSchema,
@@ -17,6 +19,12 @@ const subscription = (over: Record<string, unknown> = {}) => ({
 })
 
 describe('the push subscription a browser hands over', () => {
+	// ⚠️ Literals: every other case derives from these, so a wrong one stays green.
+	it('pins the encoded lengths the browser actually produces', () => {
+		expect([PUSH_P256DH_BYTES, PUSH_AUTH_BYTES]).toEqual([65, 16])
+		expect([PUSH_P256DH_LENGTH, PUSH_AUTH_LENGTH]).toEqual([87, 22])
+	})
+
 	it('accepts what `PushSubscription.toJSON()` produces', () => {
 		expect(pushSubscriptionSchema.safeParse(subscription()).success).toBe(true)
 	})

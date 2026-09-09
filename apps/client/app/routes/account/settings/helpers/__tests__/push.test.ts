@@ -1,3 +1,4 @@
+import { pushSubscriptionSchema } from '@app/contracts/notifications'
 import { decodeVapidKey, pushUnavailable, toRegistration } from '../push.client'
 
 // A real VAPID public key: 65 bytes of P-256 point, so 87 base64url characters
@@ -43,6 +44,23 @@ describe('reading a subscription', () => {
 		// The lengths the contract pins, which is what makes the row storable.
 		expect(registration.p256dh).toHaveLength(87)
 		expect(registration.auth).toHaveLength(22)
+	})
+
+	// ⚠️ The seam: each side's spec agreed with itself, not with the other.
+	it('produces exactly what the contract accepts', () => {
+		const registration = toRegistration({
+			endpoint: 'https://fcm.googleapis.com/fcm/send/abc',
+			getKey: (name: string) =>
+				name === 'p256dh' ? bufferOf(4, 65) : bufferOf(7, 16),
+		} as unknown as PushSubscription)
+
+		const parsed = pushSubscriptionSchema.safeParse({
+			endpoint: registration.endpoint,
+			keys: { p256dh: registration.p256dh, auth: registration.auth },
+		})
+
+		expect(parsed.error?.issues ?? []).toEqual([])
+		expect(parsed.success).toBe(true)
 	})
 
 	it('answers an empty key rather than throwing when there is none', () => {

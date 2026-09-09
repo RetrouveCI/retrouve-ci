@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+	PUSH_AUTH_LENGTH,
+	PUSH_P256DH_LENGTH,
+} from '@app/contracts/notifications'
 import type { PushSubscriptionRepository } from '../../repository/push-subscription.repository'
 import { CountPushSubscriptionsUseCase } from '../count-push-subscriptions.use-case'
 import { SubscribeToPushUseCase } from '../subscribe-to-push.use-case'
@@ -8,8 +12,8 @@ const ENDPOINT = 'https://fcm.googleapis.com/fcm/send/abc'
 
 const RECORD = {
 	endpoint: ENDPOINT,
-	p256dh: 'a'.repeat(88),
-	auth: 'b'.repeat(24),
+	p256dh: 'a'.repeat(PUSH_P256DH_LENGTH),
+	auth: 'b'.repeat(PUSH_AUTH_LENGTH),
 }
 
 function buildRepository(): PushSubscriptionRepository {
