@@ -1046,8 +1046,28 @@ deliberately declined.
 
 ### Catalog and tooling
 
-- **`typescript` is pinned at `5.9.2`**, where the target is `^6.0.3`. Left for
-  last on purpose: it moves every workspace at once.
+- **`typescript` sits at `^6.0.3`, and `7.x` is blocked on the toolchain, not on
+  this repo.** The 6 bump is done — it moved all nine `typecheck` tasks at once,
+  and the one thing it broke is worth knowing, because it is not a TypeScript 6
+  quirk but the rule from 6 onwards: **`@types/*` packages are no longer
+  auto-included**, so a project must name what it needs in `types`. Only
+  `packages/auth` actually went red, and the reason the others did not is
+  incidental — a package still gets the Node globals when any `.d.ts` in its
+  import graph imports a Node builtin, which NestJS and `pg` do and
+  `better-auth` and `zod` do not. `apps/api` uses `process` in nine files on
+  that accident alone, so `types: ["node"]` is declared in `nest.json` and in
+  `database`'s config as well: there it is a safety net, not a fix. Deliberately
+  **not** added to `base.json`, since `react-library.json` extends it and a
+  browser component library must not typecheck `process.env`. **Do not try `7.x`
+  as a version bump.** `typescript@7` is the native compiler and its package
+  exports exactly two keys, `version` and `versionMajorMinor` — no compiler API
+  — which was measured, not read: `nest build` dies on
+  `tsBinary.getParsedCommandLineOfConfigFile is not a function`, and
+  `typescript-eslint` refuses outright (`if (versionMajor >= 7) throw`), its
+  peer being `>=4.8.4 <6.1.0`. Its own error names the way in: run 7 **side by
+  side** with the 6.0 API. So adopting 7 means keeping two compilers, which is a
+  lot of its own and not this one. Track `typescript-eslint` issue #10940 for
+  TS >= 7.1.
 - **`@app/eslint-config` has no `nest` preset.** `apps/api` extends `base`.
   Nothing in `apps/api/src` currently needs an `eslint-disable`, so this is a
   tidiness gap rather than a working one.
@@ -1072,11 +1092,15 @@ deliberately declined.
 
 ### Security advisories
 
-`pnpm audit` reports **thirteen** (recounted 2026-09-04), none of them
-reachable. Re-run the count rather than trusting this paragraph — the set moves
-— and re-check the reasoning before dismissing a **new** one. Expect Dependabot
-to disagree: it counts on the default branch, `pnpm audit` on this checkout's
-lockfile, so a mismatch is not a signal on its own.
+`pnpm audit` reports **eighteen** (recounted 2026-09-09). Thirteen are the ones
+reasoned about below and none of those is reachable; **five are new and not yet
+triaged** — `hono` (three moderate), `js-yaml` (one high) and `morgan` (one
+moderate) arrived in the five days since the previous count. They are listed
+here rather than dismissed, because this section's rule is to re-check the
+reasoning before dismissing a **new** one. Re-run the count rather than trusting
+this paragraph — the set moves. Expect Dependabot to disagree: it counts on the
+default branch, `pnpm audit` on this checkout's lockfile, so a mismatch is not a
+signal on its own.
 
 - **`qs` — was reachable, now pinned.** Two moderate denial-of-service
   advisories hit `qs@6.15.3`, which arrives through `@react-router/serve` →
