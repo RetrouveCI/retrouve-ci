@@ -278,8 +278,8 @@ Une ligne = une branche = une PR = une session.
 | **R37** | Accueil  | Le hero regroupe ses filtres ✅             | `refonte-r37-hero-filter-group`            | `client/home`                        | 0,3 j  | R16, R33     |
 
 Les étapes ouvertes après le découpage initial, dans l'ordre de leur
-identifiant. Toutes livrées ; **A3 est la seule étape du plan qui reste**, et
-elle attend une décision (§8).
+identifiant. **Toutes livrées, A3 comprise** — elle s'est scindée en trois, et
+§8 n'a plus aucune question ouverte.
 
 | #       | Étape                                                                         | PR   |
 | ------- | ----------------------------------------------------------------------------- | ---- |
@@ -314,6 +314,9 @@ elle attend une décision (§8).
 | **N3**  | Les transitions de commande qui restent                                       | #224 |
 | **N4**  | Un mot, un sens pour le champ nom                                             | #225 |
 | **N5**  | Une carte dit depuis quand l'annonce est là                                   | #223 |
+| **A3a** | Push : l'assise et le chiffre                                                 | #235 |
+| **A3b** | Push : le navigateur s'abonne                                                 | #236 |
+| **A3c** | Push : l'envoi                                                                | #238 |
 
 **Total ≈ 38,5 j** en séquentiel, dont ≈ 6 j côté API et ≈ 4 j pour le lot 9.
 R2/R3, R11/R12 et R26/R29 se parallélisent ; les lots 3 à 6 s'ouvrent ensemble
@@ -4635,11 +4638,17 @@ en fait tomber deux.
 > haut niveau y est refusé (TS1309) là où les specs du client s'en servent. Un
 > `import` statique suffit — `vi.mock` est hissé au-dessus de lui.
 
-#### A3 — Notifications poussées sur correspondance _(facultatif)_
+#### A3 — Notifications poussées sur correspondance — **LIVRÉE en A3a, A3b, A3c**
 
 VAPID, table d'abonnements, envoi branché sur le domaine `matching`. Le lot 8 se
 livre sans. À décider quand l'installation aura des chiffres — pousser des
 notifications à personne n'a pas d'intérêt.
+
+> **Ce qui précède est l'énoncé d'origine, gardé tel quel.** Il portait une
+> condition impossible à satisfaire ; c'est en la nommant qu'elle s'est
+> débloquée. Le branchement final n'est d'ailleurs **pas** sur `matching` comme
+> écrit ici, mais sur `CreateNotificationUseCase` : une seule place, les sept
+> types visiteur d'un coup.
 
 > ⚠️ **Cette condition était circulaire, et c'est ce qui bloquait l'étape.**
 > `start_url` vaut `/` sans marqueur, donc un lancement depuis l'écran d'accueil
@@ -7243,14 +7252,14 @@ assurée en dur, ci-dessus.
 
 ## 8. Points à trancher
 
-| Sujet                            | Question                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | À trancher avant |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| ~~Pagination~~                   | **Tranché** : pagination compacte, pour la position partageable dans l'URL — contre la note de décision de la maquette, qui disait chargement continu.                                                                                                                                                                                                                                                                                                                                  | ~~R9~~           |
-| ~~Motif de masquage~~            | **Sans objet** : la question portait sur l'ordre, A1 avant ou après R13. Les deux sont livrées — R13 en #172, A1 en #192 — donc dans l'ordre inverse de celui que la condition envisageait, et il n'y a plus rien à trancher.                                                                                                                                                                                                                                                           | ~~R13~~          |
-| ~~Bloc stickers de l'accueil~~   | **Tranché** : le nombre de commandes par semaine, relevé sur `/orders` du backoffice avant et après la mise en ligne du bloc. Le dépôt n'a aucune analytique — ni fournisseur tiers, ni couche d'événements — et en ajouter une est une décision produit et juridique, pas une étape d'interface. L'attribution **par bloc** demande une colonne `source` sur `StickerOrder` : elle part en **A6**. Aucun marqueur `?from=` n'a été posé, il n'aurait rien produit que personne ne lit. | ~~R17~~          |
-| Web push                         | A3 vaut-elle son coût ? Le lot 8 se livre sans.                                                                                                                                                                                                                                                                                                                                                                                                                                         | R25              |
-| ~~Récupération de mot de passe~~ | **Tranché dans le code** : non, la longueur seule, comme la connexion. `password-forgotten.schema.ts` refine sur `isValidLocalNumber` et le dit — une récupération lit un compte existant, donc elle accepte ce que ce compte porte déjà. Seule l'inscription exige un préfixe attribuable (`isAssignableLocalNumber`), là où le numéro est neuf.                                                                                                                                       | ~~R26~~          |
-| ~~Compteurs du panneau auth~~    | **Tranché** : ni l'un ni l'autre pour l'instant. R30 se clôt sans bande, et la question part en **A5**, à traiter une fois le pilote démarré.                                                                                                                                                                                                                                                                                                                                           | ~~R30~~          |
+| Sujet                            | Question                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | À trancher avant |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| ~~Pagination~~                   | **Tranché** : pagination compacte, pour la position partageable dans l'URL — contre la note de décision de la maquette, qui disait chargement continu.                                                                                                                                                                                                                                                                                                                                        | ~~R9~~           |
+| ~~Motif de masquage~~            | **Sans objet** : la question portait sur l'ordre, A1 avant ou après R13. Les deux sont livrées — R13 en #172, A1 en #192 — donc dans l'ordre inverse de celui que la condition envisageait, et il n'y a plus rien à trancher.                                                                                                                                                                                                                                                                 | ~~R13~~          |
+| ~~Bloc stickers de l'accueil~~   | **Tranché** : le nombre de commandes par semaine, relevé sur `/orders` du backoffice avant et après la mise en ligne du bloc. Le dépôt n'a aucune analytique — ni fournisseur tiers, ni couche d'événements — et en ajouter une est une décision produit et juridique, pas une étape d'interface. L'attribution **par bloc** demande une colonne `source` sur `StickerOrder` : elle part en **A6**. Aucun marqueur `?from=` n'a été posé, il n'aurait rien produit que personne ne lit.       | ~~R17~~          |
+| ~~Web push~~                     | **Tranché en la rendant décidable.** La question attendait un chiffre que rien ne produisait — la sortie fut de voir qu'un abonnement push n'est pas une mesure d'audience mais une capacité **consentie**, donc que le compter répond sans analytique. A3 se scinde en A3a (l'assise et le chiffre), A3b (le navigateur s'abonne) et A3c (l'envoi), toutes livrées. Reste à vérifier sur un vrai appareil qu'un push atterrit : le compte dit qu'on s'est abonné, pas que le message arrive. | ~~R25~~          |
+| ~~Récupération de mot de passe~~ | **Tranché dans le code** : non, la longueur seule, comme la connexion. `password-forgotten.schema.ts` refine sur `isValidLocalNumber` et le dit — une récupération lit un compte existant, donc elle accepte ce que ce compte porte déjà. Seule l'inscription exige un préfixe attribuable (`isAssignableLocalNumber`), là où le numéro est neuf.                                                                                                                                             | ~~R26~~          |
+| ~~Compteurs du panneau auth~~    | **Tranché** : ni l'un ni l'autre pour l'instant. R30 se clôt sans bande, et la question part en **A5**, à traiter une fois le pilote démarré.                                                                                                                                                                                                                                                                                                                                                 | ~~R30~~          |
 
 ---
 
