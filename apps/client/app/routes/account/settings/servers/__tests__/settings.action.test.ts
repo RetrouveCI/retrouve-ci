@@ -1,3 +1,7 @@
+import {
+	PUSH_AUTH_LENGTH,
+	PUSH_P256DH_LENGTH,
+} from '@app/contracts/notifications'
 import { ApiError } from '@/shared/utils/api-fetch'
 
 const {
@@ -223,8 +227,8 @@ describe('settingsAction', () => {
 	describe('push on this device', () => {
 		const REGISTRATION = {
 			endpoint: 'https://fcm.googleapis.com/fcm/send/abc',
-			p256dh: 'a'.repeat(88),
-			auth: 'b'.repeat(24),
+			p256dh: 'a'.repeat(PUSH_P256DH_LENGTH),
+			auth: 'b'.repeat(PUSH_AUTH_LENGTH),
 		}
 
 		it('hands the flat fields to the service', async () => {

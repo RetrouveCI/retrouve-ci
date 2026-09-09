@@ -5,10 +5,15 @@ import { z } from 'zod'
 // above what FCM, Mozilla and WNS emit.
 export const PUSH_ENDPOINT_MAX_LENGTH = 1024
 
-// base64url of fixed-size values: 65 bytes for the P-256 point, 16 for the
-// auth secret, hence 88 and 24 characters.
-export const PUSH_P256DH_LENGTH = 88
-export const PUSH_AUTH_LENGTH = 24
+// ⚠️ Decoded size is the invariant, encoded length derives from it: `toJSON()`
+// emits base64url **unpadded**, and the padded 88/24 refused every real one.
+export const PUSH_P256DH_BYTES = 65
+export const PUSH_AUTH_BYTES = 16
+
+const encodedLength = (bytes: number) => Math.ceil((bytes * 4) / 3)
+
+export const PUSH_P256DH_LENGTH = encodedLength(PUSH_P256DH_BYTES)
+export const PUSH_AUTH_LENGTH = encodedLength(PUSH_AUTH_BYTES)
 
 const BASE64URL = /^[A-Za-z0-9_-]+=*$/
 

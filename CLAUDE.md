@@ -520,7 +520,20 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   a product and legal decision. The figure is read on the backoffice's
   **notifications** page, and a counter it cannot reach shows a dash rather than
   a zero nobody measured. The browser's half sits in `routes/account/settings`:
-  `helpers/push.client.ts` holds the plumbing (base64url both ways,
+  ⚠️ **The invariant on those two keys is the _decoded_ size, and the encoded
+  length is derived from it.** `PushSubscription.toJSON()` emits base64url
+  **unpadded**, so 65 bytes of P-256 point are **87** characters and the 16-byte
+  secret is **22** — not the 88 and 24 a padded encoding gives. A3b shipped the
+  padded pair, which made the API answer 400 to every subscription the browser
+  could produce: the count would have read zero for ever and the figure A3 rests
+  on would have said « nobody wants push ». Neither side's spec saw it, because
+  each built its fixtures from its own assumption — the contract's from its own
+  constants, the client's from its own belief. What catches it is the one
+  assertion that **crosses the seam**, in `apps/client`'s
+  `helpers/__tests__/push.test.ts`, which can import both sides: it parses what
+  `toRegistration()` produces through `pushSubscriptionSchema`. The contract's
+  spec pins `87` and `22` as **literals** for the same reason `fullNameSchema`
+  does. `helpers/push.client.ts` holds the plumbing (base64url both ways,
   `userVisibleOnly` being Chrome's requirement and not a choice) and
   `DevicePushRow` the switch. ⚠️ **That switch is per-device, not a preference**
   — a subscription belongs to one browser, where the two switches above it are
