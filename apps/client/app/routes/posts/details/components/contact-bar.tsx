@@ -19,9 +19,9 @@ interface LostItem {
  * it pins while there is article left to read and comes to rest at the end of it.
  * The offset clears the tab bar, which is `fixed` at `bottom-0` under `lg`.
  *
- * A form and not a link since R46: the poster's line used to sit in this HTML,
- * and in every card of the list. `target="_blank"` keeps R10's separate tab —
- * measured, the browser posts and follows the `Location` there.
+ * A form and not a link since R46: the poster's line used to sit in this HTML.
+ * No `target`, the shape `q/:code/reach` proved — R46's blank tab meant WhatsApp
+ * never opened at all on a phone.
  */
 export function ContactBar({ listing }: { listing: LostItem }) {
 	return (
@@ -32,7 +32,6 @@ export function ContactBar({ listing }: { listing: LostItem }) {
 				<Form
 					method="post"
 					action={`/posts/${listing.id}/contact`}
-					target="_blank"
 					reloadDocument
 					className="flex-1"
 				>

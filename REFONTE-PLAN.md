@@ -5359,6 +5359,17 @@ le nouvel onglet, **y** suit le 302, et laisse la page d'origine intacte.
 L'onglet séparé de R10 est donc conservé sans rien perdre — sans cette mesure,
 la forme restait un pari sur l'UX.
 
+> ⚠️ **Et cette mesure était fausse là où ça compte.** Elle a tourné dans
+> **Chromium de bureau** seulement, or c'est précisément l'environnement où un
+> onglet vierge fonctionne. Signalé en production : sur téléphone, WhatsApp ne
+> s'ouvrait **jamais**. Le `target` a été retiré — la barre prend la forme que
+> `q/:code/reach` portait depuis toujours, `reloadDocument` sans `target`, où le
+> navigateur suit la redirection dans l'onglet courant et l'OS reçoit le
+> `https://wa.me/…`. Le bureau perd l'onglet séparé de R10 ; c'est le prix d'un
+> saut qui marche sur l'appareil de la majorité des visiteurs. **La leçon n'est
+> pas « mesurer » mais « mesurer là où l'utilisateur est »** : une mesure faite
+> dans le seul environnement favorable est un pari déguisé en preuve.
+
 **Trois duplications refermées au passage** : `toWhatsAppUrl` remonte dans
 `@app/contracts/shared`, à côté de `toE164`, et est lue par les **deux** sites
 qui adressent un vrai destinataire — `reach-target.ts` d'A8 et le nouveau

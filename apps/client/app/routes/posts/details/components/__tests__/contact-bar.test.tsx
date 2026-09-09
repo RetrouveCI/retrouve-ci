@@ -47,14 +47,14 @@ describe('the contact bar', () => {
 		expect(form?.getAttribute('method')).toBe('post')
 	})
 
-	// R10's separate tab, kept: measured, the browser posts and follows there.
-	it('opens WhatsApp out of the tab', async () => {
+	// This used to pin `_blank`, so it held the defect in place.
+	it('posts in this tab, so the browser follows the jump itself', async () => {
 		renderBar()
 
 		await expect.element(contact()).toBeVisible()
-		expect(contact().element().closest('form')?.getAttribute('target')).toBe(
-			'_blank',
-		)
+		const form = contact().element().closest('form')
+
+		expect(form?.getAttribute('target')).toBeNull()
 	})
 
 	it('says so rather than offering the action, when it cannot be reached', async () => {

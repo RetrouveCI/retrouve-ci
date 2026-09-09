@@ -22,10 +22,10 @@ const DTO = {
 	contactReachable: true,
 }
 
-const load = () =>
+const load = (search = '') =>
 	postDetailLoader({
 		params: { id: 'post-1' },
-		request: new Request('http://localhost:3000/posts/post-1'),
+		request: new Request(`http://localhost:3000/posts/post-1${search}`),
 	} as Parameters<typeof postDetailLoader>[0])
 
 const statusOf = (value: unknown) =>
@@ -81,6 +81,20 @@ describe('postDetailLoader', () => {
 	})
 
 	// A deleted or unpublished listing must render the 404 page, not an error.
+	it.each(['failed', 'throttled'])(
+		'carries a %s contact back to the page',
+		async outcome => {
+			expect((await load(`?contact=${outcome}`)).contact).toBe(outcome)
+		},
+	)
+
+	it.each(['', '?contact=', '?contact=nope'])(
+		'answers no outcome for %s',
+		async search => {
+			expect((await load(search)).contact).toBeNull()
+		},
+	)
+
 	it('turns the API 404 into a 404 response', async () => {
 		getLostItemById.mockRejectedValue(new ApiError(404, 'Introuvable'))
 
