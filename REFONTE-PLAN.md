@@ -218,6 +218,19 @@ deviennent l'axe principal du produit, ou si les deux actions se révèlent
 
 Une ligne = une branche = une PR = une session.
 
+> ⚠️ **Le tableau ci-dessous est le découpage _initial_, pas l'inventaire du
+> chantier.** Il s'arrête à R37 : les trente et une étapes ouvertes ensuite —
+> chacune par ce que la précédente avait mis au jour — n'y ont jamais été
+> ajoutées, et sa colonne `Charge` est une estimation d'avant, qu'il n'y aurait
+> aucun sens à inventer après coup. **L'autorité est §5**, qui les détaille
+> toutes. L'index qui suit le tableau les liste avec leur PR, pour que la
+> traçabilité ne dépende plus d'un `grep`.
+>
+> ⚠️ Et **le marqueur `— LIVRÉE` de §5 n'est pas un indicateur d'avancement** :
+> il n'a été posé que sur les familles A et N. R18 à R34 sont livrées sans le
+> porter, donc un `grep -v LIVRÉE` rend une vingtaine de faux positifs. Ce qui
+> fait foi, c'est la PR mergée.
+
 | #       | Lot      | Étape                                       | Branche                                    | Scope commit                         | Charge | Dépend de    |
 | ------- | -------- | ------------------------------------------- | ------------------------------------------ | ------------------------------------ | ------ | ------------ |
 | **R1**  | Socle    | Zones sûres de l'appareil                   | `refonte-r1-safe-areas`                    | `client`                             | 0,2 j  | —            |
@@ -263,6 +276,44 @@ Une ligne = une branche = une PR = une session.
 | **A8**  | API      | Joindre le propriétaire d'un sticker ✅     | `refonte-a8-sticker-reach`                 | `api/qr-codes`                       | 1,5 j  | R19          |
 | **R36** | Accueil  | L'arrivée des stickers devient un signal    | `refonte-r36-sticker-arrival-notification` | `client/home` + `api/sticker-orders` | 1 j    | R15, R17     |
 | **R37** | Accueil  | Le hero regroupe ses filtres ✅             | `refonte-r37-hero-filter-group`            | `client/home`                        | 0,3 j  | R16, R33     |
+
+Les étapes ouvertes après le découpage initial, dans l'ordre de leur
+identifiant. Toutes livrées ; **A3 est la seule étape du plan qui reste**, et
+elle attend une décision (§8).
+
+| #       | Étape                                                                         | PR   |
+| ------- | ----------------------------------------------------------------------------- | ---- |
+| **A4**  | Prénom au compte                                                              | #193 |
+| **A5**  | Compteurs publics du panneau d'authentification                               | #226 |
+| **A9**  | Le sticker et l'annonce se répondent                                          | #202 |
+| **R38** | Le plancher de 16 px tenu par le système, pas par la vigilance                | #194 |
+| **R39** | `CLAUDE.md` remis d'aplomb sur ce que le dépôt fait                           | #195 |
+| **R40** | Le seul avis atteignable, épinglé                                             | #196 |
+| **R41** | La hauteur d'un select décidée par `cn()`, pas par la spécificité             | #197 |
+| **R42** | Un plafond sur ce qui coûte de l'argent                                       | #200 |
+| **R43** | La règle des photos tenue par l'API, pas par le formulaire                    | #203 |
+| **R44** | Les plafonds comptaient une seule adresse pour tout le monde                  | #204 |
+| **R45** | `Documents` en tête des pastilles, mais pas présélectionné                    | #205 |
+| **R46** | Le compteur de contacts, et le numéro qui quittait la page                    | #206 |
+| **R47** | La déconnexion ramenait sur le compte qu'on quittait                          | #207 |
+| **R48** | Ce qui fait vraiment remonter le site                                         | #208 |
+| **R49** | Être citable par un aperçu IA                                                 | #209 |
+| **R50** | Vingt-deux appels parlaient encore pour le conteneur                          | #210 |
+| **R51** | Une lecture publique se construit, elle ne se soustrait pas                   | #211 |
+| **R52** | La trace de scan, telle que la maquette la dessine                            | #212 |
+| **R53** | Les finitions, dont deux qui n'existaient plus                                | #213 |
+| **R54** | Les comptes listés du plus récent au plus ancien                              | #214 |
+| **R55** | Un refus de l'API atteint le champ qu'il concerne                             | #215 |
+| **R56** | Le back-office répond le même contrat que le client                           | #216 |
+| **R57** | La seule autre route qui dépense de l'argent                                  | #217 |
+| **R58** | Une page pour la recherche qui restait, et un sitemap qui ne peut plus mentir | #218 |
+| **R59** | Chaque écriture bornée par ce qu'elle engage                                  | #219 |
+| **R60** | Solder la petite dette, et deux entrées qui n'existaient plus                 | #220 |
+| **N1**  | Une notification sait à qui elle parle, et le desk apprend ce qui l'attend    | #221 |
+| **N2**  | Le poseur apprend ce qui arrive à son annonce                                 | #222 |
+| **N3**  | Les transitions de commande qui restent                                       | #224 |
+| **N4**  | Un mot, un sens pour le champ nom                                             | #225 |
+| **N5**  | Une carte dit depuis quand l'annonce est là                                   | #223 |
 
 **Total ≈ 38,5 j** en séquentiel, dont ≈ 6 j côté API et ≈ 4 j pour le lot 9.
 R2/R3, R11/R12 et R26/R29 se parallélisent ; les lots 3 à 6 s'ouvrent ensemble
@@ -7070,14 +7121,14 @@ assurée en dur, ci-dessus.
 
 ## 8. Points à trancher
 
-| Sujet                          | Question                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | À trancher avant |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| ~~Pagination~~                 | **Tranché** : pagination compacte, pour la position partageable dans l'URL — contre la note de décision de la maquette, qui disait chargement continu.                                                                                                                                                                                                                                                                                                                                  | ~~R9~~           |
-| Motif de masquage              | A1 avant ou après R13 ? Avant, si la modération masque déjà des annonces en production.                                                                                                                                                                                                                                                                                                                                                                                                 | R13              |
-| ~~Bloc stickers de l'accueil~~ | **Tranché** : le nombre de commandes par semaine, relevé sur `/orders` du backoffice avant et après la mise en ligne du bloc. Le dépôt n'a aucune analytique — ni fournisseur tiers, ni couche d'événements — et en ajouter une est une décision produit et juridique, pas une étape d'interface. L'attribution **par bloc** demande une colonne `source` sur `StickerOrder` : elle part en **A6**. Aucun marqueur `?from=` n'a été posé, il n'aurait rien produit que personne ne lit. | ~~R17~~          |
-| Web push                       | A3 vaut-elle son coût ? Le lot 8 se livre sans.                                                                                                                                                                                                                                                                                                                                                                                                                                         | R25              |
-| Récupération de mot de passe   | La règle stricte s'y applique-t-elle ? Non par défaut, comme la connexion — mais un numéro non conforme ne recevra jamais son SMS.                                                                                                                                                                                                                                                                                                                                                      | R26              |
-| ~~Compteurs du panneau auth~~  | **Tranché** : ni l'un ni l'autre pour l'instant. R30 se clôt sans bande, et la question part en **A5**, à traiter une fois le pilote démarré.                                                                                                                                                                                                                                                                                                                                           | ~~R30~~          |
+| Sujet                            | Question                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | À trancher avant |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| ~~Pagination~~                   | **Tranché** : pagination compacte, pour la position partageable dans l'URL — contre la note de décision de la maquette, qui disait chargement continu.                                                                                                                                                                                                                                                                                                                                  | ~~R9~~           |
+| ~~Motif de masquage~~            | **Sans objet** : la question portait sur l'ordre, A1 avant ou après R13. Les deux sont livrées — R13 en #172, A1 en #192 — donc dans l'ordre inverse de celui que la condition envisageait, et il n'y a plus rien à trancher.                                                                                                                                                                                                                                                           | ~~R13~~          |
+| ~~Bloc stickers de l'accueil~~   | **Tranché** : le nombre de commandes par semaine, relevé sur `/orders` du backoffice avant et après la mise en ligne du bloc. Le dépôt n'a aucune analytique — ni fournisseur tiers, ni couche d'événements — et en ajouter une est une décision produit et juridique, pas une étape d'interface. L'attribution **par bloc** demande une colonne `source` sur `StickerOrder` : elle part en **A6**. Aucun marqueur `?from=` n'a été posé, il n'aurait rien produit que personne ne lit. | ~~R17~~          |
+| Web push                         | A3 vaut-elle son coût ? Le lot 8 se livre sans.                                                                                                                                                                                                                                                                                                                                                                                                                                         | R25              |
+| ~~Récupération de mot de passe~~ | **Tranché dans le code** : non, la longueur seule, comme la connexion. `password-forgotten.schema.ts` refine sur `isValidLocalNumber` et le dit — une récupération lit un compte existant, donc elle accepte ce que ce compte porte déjà. Seule l'inscription exige un préfixe attribuable (`isAssignableLocalNumber`), là où le numéro est neuf.                                                                                                                                       | ~~R26~~          |
+| ~~Compteurs du panneau auth~~    | **Tranché** : ni l'un ni l'autre pour l'instant. R30 se clôt sans bande, et la question part en **A5**, à traiter une fois le pilote démarré.                                                                                                                                                                                                                                                                                                                                           | ~~R30~~          |
 
 ---
 
