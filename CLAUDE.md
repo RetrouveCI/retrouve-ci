@@ -489,10 +489,18 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   `create-contact-message`. On the visitor's side, `moderate-lost-item` and
   `contact-lost-item-poster` were added by N2, and `reach-qr-token-owner` folded
   its own copy of the swallow onto the helper, as `update-sticker-order-status`
-  did in N3. ⚠️ Two visitor producers still do **not** swallow —
-  `notify-matches`, where that is right because the failure must retry the
-  BullMQ job, and `contact-qr-token-owner`, the one public write where an
-  unreachable Redis still answers 500.
+  did in N3. `contact-qr-token-owner` was the last one left, and it was the
+  worst place for it: the finder's message is written before the notice is
+  raised, so an unreachable Redis answered 500 to someone whose message _had_
+  been recorded — and who would send it again. ⚠️ **Exactly one producer still
+  does not swallow, and must not**: `notify-matches` runs inside a BullMQ job,
+  so the failure has to reach the queue for the job to be retried.
+  `domains/notifications/__tests__/notification-producers.spec.ts` holds that,
+  and it reads a **property** rather than a spelling — every use-case naming
+  `CreateNotificationUseCase` must go through `notifyDesk` / `notifyUser`, with
+  `notify-matches` the single named exemption. That distinction is load-bearing:
+  `notify-matches` holds its dependency under a different field name, so a probe
+  grepping `createNotification.execute` sees six producers and misses it.
 - **A stored photo is bounded in pixels, not only in bytes.**
   `uploadImageBuffer` passes an **incoming** `transformation`
   (`c_limit,w_2000`), applied before Cloudinary stores the asset — ⚠️ not
