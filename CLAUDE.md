@@ -14,11 +14,14 @@ overview, applications, shared packages, business flows and operations. This
 file stays **normative**: where the two disagree, this one wins and `docs/` has
 a bug.
 
-An interface overhaul of `apps/client` is under way — mobile-first, with a QR
-scanner, a completed dark theme and a PWA build-out. Its plan is
-[`REFONTE-PLAN.md`](REFONTE-PLAN.md): one step, one branch, one PR, one session,
-the same cycle the migration used. Read its §2 before touching any screen — it
-holds the interface and flow invariants every step is reviewed against.
+The interface overhaul of `apps/client` is **closed** — mobile-first, a QR
+scanner, a completed dark theme, a PWA build-out and, last, web push. Its plan
+is [`REFONTE-PLAN.md`](REFONTE-PLAN.md): one step, one branch, one PR, one
+session, the same cycle the migration used. Every step is delivered and §8 has
+no question left open, so the file is a **record** now, as `MIGRATION-PLAN.md`
+became one — but it stays the reference for _why_ a screen is the way it is.
+Read its §2 before touching any screen — it holds the interface and flow
+invariants every step is reviewed against.
 
 ## Commands
 
