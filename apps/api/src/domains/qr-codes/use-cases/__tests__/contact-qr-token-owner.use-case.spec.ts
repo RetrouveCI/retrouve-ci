@@ -95,6 +95,16 @@ describe('ContactQrTokenOwnerUseCase', () => {
 		},
 	)
 
+	it('still answers when the notice cannot be raised', async () => {
+		vi.mocked(repository.findByCode).mockResolvedValue(
+			buildQrToken({ status: 'activated', userId: 'owner-1' }),
+		)
+		vi.mocked(createNotification.execute).mockRejectedValue(new Error('down'))
+
+		await expect(useCase.execute(input)).resolves.toBeUndefined()
+		expect(createContactMessage.execute).toHaveBeenCalledOnce()
+	})
+
 	// `userId` is nullable, and a message with no recipient would be unreachable.
 	it('refuses an activated token with no owner', async () => {
 		vi.mocked(repository.findByCode).mockResolvedValue(
