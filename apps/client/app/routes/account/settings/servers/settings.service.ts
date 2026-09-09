@@ -40,3 +40,30 @@ export async function deleteAccount(
 		},
 	)
 }
+
+// Reassembles the nested shape the contract declares. `DELETE` carries the
+// endpoint as a query param, a body on a delete being unevenly supported.
+export async function subscribeToPush(
+	request: Request,
+	{
+		endpoint,
+		p256dh,
+		auth,
+	}: { endpoint: string; p256dh: string; auth: string },
+): Promise<void> {
+	await apiFetch('/notifications/push', {
+		method: 'POST',
+		body: JSON.stringify({ endpoint, keys: { p256dh, auth } }),
+		request,
+	})
+}
+
+export async function unsubscribeFromPush(
+	request: Request,
+	endpoint: string,
+): Promise<void> {
+	await apiFetch(
+		`/notifications/push?endpoint=${encodeURIComponent(endpoint)}`,
+		{ method: 'DELETE', request },
+	)
+}

@@ -7,6 +7,8 @@ import { settingsActionSchema } from '../settings.schema'
 import {
 	deleteAccount,
 	sendPhoneChangeOtp,
+	subscribeToPush,
+	unsubscribeFromPush,
 	updateProfile,
 } from './settings.service'
 
@@ -44,6 +46,12 @@ export async function settingsAction({
 					break
 				case 'delete-account':
 					await deleteAccount(values.password, request)
+					break
+				case 'subscribe-push':
+					await subscribeToPush(request, values)
+					break
+				case 'unsubscribe-push':
+					await unsubscribeFromPush(request, values.endpoint)
 					break
 			}
 		},

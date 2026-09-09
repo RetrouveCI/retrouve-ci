@@ -28,6 +28,13 @@ export async function getUnreadCount(request: Request): Promise<number> {
 	})
 }
 
+/** A bare number, as `/notifications/unread-count` answers one. */
+export async function getPushSubscriptionCount(
+	request: Request,
+): Promise<number> {
+	return apiFetch<number>('/stats/push-subscriptions', { request })
+}
+
 export async function markAsRead(
 	id: string,
 	request: Request,

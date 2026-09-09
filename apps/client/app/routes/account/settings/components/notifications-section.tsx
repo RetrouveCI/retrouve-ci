@@ -1,10 +1,12 @@
 import { Badge, Switch } from '@app/ui/components'
+import { DevicePushRow } from './device-push-row'
 
 /**
  * The artboard draws both switches **on**. Nothing backs them: `User` carries
  * no preference column and the API exposes no endpoint, so a switch that moved
  * would promise a setting no one stores. They stay off and disabled until
- * there is something to save.
+ * there is something to save — the badge belongs to them, not to the device row
+ * below, which A3b made real.
  */
 const ALERTS = [
 	{
@@ -30,6 +32,8 @@ export function NotificationsSection() {
 			</h2>
 
 			<div className="space-y-2">
+				<DevicePushRow />
+
 				{ALERTS.map(alert => (
 					<div
 						key={alert.key}

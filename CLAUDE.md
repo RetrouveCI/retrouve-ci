@@ -517,8 +517,23 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   subscription needs an install **and** a granted permission, so counting them
   answers « would a push reach anyone » without measuring anyone's usage — which
   is how A3's condition was unblocked without adding an analytics layer §8 calls
-  a product and legal decision. **Nothing sends yet**: VAPID and the browser's
-  own subscribe call are A3b's half.
+  a product and legal decision. The figure is read on the backoffice's
+  **notifications** page, and a counter it cannot reach shows a dash rather than
+  a zero nobody measured. The browser's half sits in `routes/account/settings`:
+  `helpers/push.client.ts` holds the plumbing (base64url both ways,
+  `userVisibleOnly` being Chrome's requirement and not a choice) and
+  `DevicePushRow` the switch. ⚠️ **That switch is per-device, not a preference**
+  — a subscription belongs to one browser, where the two switches above it are
+  per-type preferences nothing stores yet, so the « bientôt disponible » badge
+  belongs to them alone. The browser is the source of truth for whether the
+  device is subscribed, read on mount. `VAPID_PUBLIC_KEY` travels in
+  `PublicEnv`, read at **runtime** like `API_URL` and never through
+  `import.meta.env`; it is the public half by design and its private half never
+  leaves the API. Unset, the row disables itself and **says which** of the four
+  reasons applies rather than showing a dead button. ⚠️ **Nothing sends yet, and
+  the service worker carries no `push` handler.** Wiring the send onto
+  `matching` — and that handler, without which Chrome shows its own generic
+  notice — is what remains of A3.
 - **A stored photo is bounded in pixels, not only in bytes.**
   `uploadImageBuffer` passes an **incoming** `transformation`
   (`c_limit,w_2000`), applied before Cloudinary stores the asset — ⚠️ not
