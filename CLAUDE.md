@@ -692,10 +692,21 @@ one of them must export a `loader`** — the four above, `robots.txt`,
 `q/:code/reach`. Having no component means having no error boundary, so a GET a
 resource route cannot answer is served **as the page**: React Router answers
 `400 {"message":"Unexpected Server Error"}`, which is what a visitor read in
-production on the contact route. And the GET is not exotic — those two post with
-`target="_blank"`, so the opened tab's own URL _is_ the route, and a reload, a
-restore, or a jump no dialer follows lands on it. Their `loader` therefore
-redirects back to the page the visitor came from.
+production on the contact route. And the GET is not exotic: a reload, a restore,
+or a jump no dialer follows all land on it, so their `loader` redirects back to
+the page the visitor came from.
+
+⚠️ **Both post with `reloadDocument` and no `target`, and the `target` is the
+part that matters.** The browser must follow the `Location` in the tab it is
+already in — that is what lets the OS take a `https://wa.me/…` or a `tel:…` and
+hand it to the app, and it needs no JavaScript. `q/:code/reach` was always this
+shape; R46 gave the listing bar a `target="_blank"` instead, to keep R10's
+separate tab, and **on a phone WhatsApp then never opened at all**. The
+measurement behind R46 was real but ran in desktop Chromium only, which is
+exactly where a blank tab does work. When those two actions refuse, they
+redirect back with `?contact=` / `?reach=`, and **both pages narrow that param
+in their loader and render it** — not a toast, since a jump that needs no
+JavaScript must not need it to explain itself either.
 `app/shared/__tests__/resource-route-get.test.ts` holds that property for all
 eight, so a ninth cannot be mounted without one.
 

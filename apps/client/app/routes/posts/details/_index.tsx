@@ -5,12 +5,23 @@ import { toast } from 'sonner'
 import { PostContent } from './components/post-content'
 import { PostGallery } from './components/post-gallery'
 import { ContactBar } from './components/contact-bar'
-import { postDetailLoader } from './servers/lost-items.loader'
+import {
+	postDetailLoader,
+	type ContactOutcome,
+} from './servers/lost-items.loader'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
 import { rememberViewedListing } from '@/shared/helpers/viewed-listings'
 
 export const loader = postDetailLoader
+
+// Rendered, not toasted: the jump needs no JavaScript, nor may its refusal.
+const CONTACT_FAILURE: Record<ContactOutcome, string> = {
+	failed:
+		'WhatsApp n’a pas pu être ouvert. Merci de réessayer dans un instant.',
+	throttled:
+		'Trop de mises en relation depuis votre connexion. Patientez quelques minutes avant de réessayer.',
+}
 
 export function meta({ data }: Route.MetaArgs) {
 	if (!data) return pageMeta({ title: 'Annonce non trouvée' })
@@ -25,7 +36,7 @@ export function meta({ data }: Route.MetaArgs) {
 export default function ListingDetailPage({
 	loaderData,
 }: Route.ComponentProps) {
-	const { listing } = loaderData
+	const { listing, contact } = loaderData
 	const navigate = useNavigate()
 	const [searchParams] = useSearchParams()
 
@@ -74,6 +85,15 @@ export default function ListingDetailPage({
 
 			<div className="px-4 py-5 sm:px-0">
 				<PostContent listing={listing} />
+
+				{contact && (
+					<p
+						role="alert"
+						className="border-border bg-card text-muted-foreground mt-4 rounded-[14px] border p-4 text-sm"
+					>
+						{CONTACT_FAILURE[contact]}
+					</p>
+				)}
 			</div>
 
 			<ContactBar listing={listing} />
