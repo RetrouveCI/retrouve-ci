@@ -5450,8 +5450,8 @@ packages:
     resolution: {integrity: sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  morgan@1.11.0:
-    resolution: {integrity: sha512-zSkVu3t18r39pw4ixfBKvfZi3y2UOqr7d4WYwcj3m8nXpEQK4rPO6GLzs/CExoRgmX3y9EjmmcXqv6jq0SK46g==}
+  morgan@1.12.0:
+    resolution: {integrity: sha512-OHpTRQwn2ezasILW8iKe+Yww1XsfWsZIpUOLF7RDb2g5GwO3trPaRwi7+8BDiJ7HFx2Kg2mfUdCBcVhwYlOz2g==}
     engines: {node: '>= 0.8.0'}
 
   mri@1.2.0:
@@ -8892,7 +8892,7 @@ snapshots:
       compression: 1.8.1(supports-color@10.2.2)
       express: 4.22.2(supports-color@10.2.2)
       get-port: 5.1.1
-      morgan: 1.11.0(supports-color@10.2.2)
+      morgan: 1.12.0(supports-color@10.2.2)
       react-router: 7.18.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       source-map-support: 0.5.21
     transitivePeerDependencies:
@@ -11358,7 +11358,7 @@ snapshots:
 
   minipass@7.1.3: {}
 
-  morgan@1.11.0(supports-color@10.2.2):
+  morgan@1.12.0(supports-color@10.2.2):
     dependencies:
       basic-auth: 2.0.1
       debug: 2.6.9(supports-color@10.2.2)

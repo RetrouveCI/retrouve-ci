@@ -1092,15 +1092,35 @@ deliberately declined.
 
 ### Security advisories
 
-`pnpm audit` reports **eighteen** (recounted 2026-09-09). Thirteen are the ones
-reasoned about below and none of those is reachable; **five are new and not yet
-triaged** — `hono` (three moderate), `js-yaml` (one high) and `morgan` (one
-moderate) arrived in the five days since the previous count. They are listed
-here rather than dismissed, because this section's rule is to re-check the
-reasoning before dismissing a **new** one. Re-run the count rather than trusting
-this paragraph — the set moves. Expect Dependabot to disagree: it counts on the
-default branch, `pnpm audit` on this checkout's lockfile, so a mismatch is not a
-signal on its own.
+`pnpm audit` reports **seventeen** (recounted 2026-09-09), none of them
+reachable. Re-run the count rather than trusting this paragraph — the set moves
+— and re-check the reasoning before dismissing a **new** one. Expect Dependabot
+to disagree: it counts on the default branch, `pnpm audit` on this checkout's
+lockfile, so a mismatch is not a signal on its own.
+
+⚠️ **Severity does not rank the work here; the dependency path does.** The
+triage of the four advisories that arrived on 2026-09-09 landed the opposite way
+round from how they were listed: the **high** one was inert and a **moderate**
+one was live.
+
+- **`morgan` — was reachable, now updated.** It is a production dependency of
+  both fronts through `@react-router/serve`, the `CMD` of both front-end
+  Dockerfiles, and `cli.js` calls `app.use(morgan('tiny'))` unconditionally — so
+  it logs every request. `tiny` logs `:url`, which the caller controls, and
+  1.11.0 passed **U+2028 through unescaped**: measured, not argued, by compiling
+  the format and reading the emitted line. A URL carrying that separator forged
+  a second entry in any log consumer that treats it as a line break. Unlike
+  `qs`, no override was needed — the patched `1.12.0` sits **inside**
+  `@react-router/serve`'s own `^1.10.1`, so the lockfile alone moves it, and
+  1.12.0 was checked to emit a literal `\u2028` instead.
+- **`js-yaml`, one high — not reachable.** Two copies are on disk and only
+  `4.3.1` is in the advisory's `>=4.0.0 <4.3.2`. Its sole consumers are
+  `@eslint/eslintrc` and `cosmiconfig` (under `@nestjs/cli`), both **dev**. What
+  production carries is `5.3.0`, through `@nestjs/swagger` — above the range.
+- **`hono`, three moderate — not reachable.** Same family as `@hono/node-server`
+  below: it arrives under the Prisma CLI (`better-auth` → `prisma` →
+  `@prisma/dev`). Nothing in `apps/*` or `packages/*` imports `@prisma/dev`, and
+  neither does better-auth's own `dist`.
 
 - **`qs` — was reachable, now pinned.** Two moderate denial-of-service
   advisories hit `qs@6.15.3`, which arrives through `@react-router/serve` →
