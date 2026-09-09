@@ -10,6 +10,7 @@ import {
 	shellAssetsFrom,
 	strategyFor,
 } from './cache-policy'
+import { toPushNotice } from './push-payload'
 
 const worker = self as unknown as ServiceWorkerGlobalScope
 
@@ -21,6 +22,28 @@ worker.addEventListener('install', event => {
 
 worker.addEventListener('activate', event => {
 	event.waitUntil(dropRetiredCaches().then(() => worker.clients.claim()))
+})
+
+worker.addEventListener('push', event => {
+	const notice = toPushNotice(event.data?.text())
+
+	event.waitUntil(
+		worker.registration.showNotification(notice.title, {
+			body: notice.body,
+			icon: '/icon-192.png',
+			badge: '/icon-192.png',
+			data: { link: notice.link },
+		}),
+	)
+})
+
+// Focuses a tab already on the app rather than opening a second one, and
+// navigates it — a finder who taps twice must not collect windows.
+worker.addEventListener('notificationclick', event => {
+	const link = (event.notification.data as { link?: string })?.link ?? '/'
+
+	event.notification.close()
+	event.waitUntil(openApp(link))
 })
 
 worker.addEventListener('fetch', event => {
@@ -202,4 +225,22 @@ async function trim(name: string): Promise<void> {
 	await Promise.all(
 		keys.slice(0, keys.length - limit).map(key => cache.delete(key)),
 	)
+}
+
+async function openApp(link: string): Promise<void> {
+	const clients = await worker.clients.matchAll({
+		type: 'window',
+		includeUncontrolled: true,
+	})
+	const open = clients.find(client =>
+		client.url.startsWith(worker.location.origin),
+	)
+
+	if (open) {
+		await open.focus()
+		await open.navigate(link).catch(() => undefined)
+		return
+	}
+
+	await worker.clients.openWindow(link)
 }

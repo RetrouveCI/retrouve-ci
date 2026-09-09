@@ -29,6 +29,19 @@ export class PushSubscriptionRepository {
 		return count
 	}
 
+	findForUser(userId: string): Promise<PushSubscriptionRecord[]> {
+		return this.prisma.pushSubscription.findMany({
+			where: { userId },
+			select: { endpoint: true, p256dh: true, auth: true },
+		})
+	}
+
+	// Not scoped to an owner, unlike `deleteOwn`: the push service said this
+	// endpoint is gone, and it belongs to whoever it belongs to.
+	async deleteByEndpoint(endpoint: string): Promise<void> {
+		await this.prisma.pushSubscription.deleteMany({ where: { endpoint } })
+	}
+
 	countAll(): Promise<number> {
 		return this.prisma.pushSubscription.count()
 	}

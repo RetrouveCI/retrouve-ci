@@ -7,6 +7,7 @@ import { GetUnreadNotificationsCountUseCase } from './use-cases/get-unread-notif
 import { MarkAllNotificationsAsReadUseCase } from './use-cases/mark-all-notifications-as-read.use-case'
 import { MarkNotificationAsReadUseCase } from './use-cases/mark-notification-as-read.use-case'
 import { CountPushSubscriptionsUseCase } from './use-cases/count-push-subscriptions.use-case'
+import { PushToSubscribersUseCase } from './use-cases/push-to-subscribers.use-case'
 import { SubscribeToPushUseCase } from './use-cases/subscribe-to-push.use-case'
 import { UnsubscribeFromPushUseCase } from './use-cases/unsubscribe-from-push.use-case'
 
@@ -22,6 +23,7 @@ import { UnsubscribeFromPushUseCase } from './use-cases/unsubscribe-from-push.us
 		SubscribeToPushUseCase,
 		UnsubscribeFromPushUseCase,
 		CountPushSubscriptionsUseCase,
+		PushToSubscribersUseCase,
 	],
 	exports: [
 		NotificationRepository,
@@ -34,6 +36,7 @@ import { UnsubscribeFromPushUseCase } from './use-cases/unsubscribe-from-push.us
 		SubscribeToPushUseCase,
 		UnsubscribeFromPushUseCase,
 		CountPushSubscriptionsUseCase,
+		PushToSubscribersUseCase,
 	],
 })
 export class NotificationsDomainModule {}

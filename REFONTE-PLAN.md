@@ -4715,12 +4715,42 @@ la ligne **et dit pourquoi**.
 > **mesuré au passage** que Chromium porte bien `PushManager` et `Notification`
 > : c'est l'absence de clé qui bloque, pas l'API.
 
-##### A3c — L'envoi _(à faire, et à décider)_
+##### A3c — L'envoi — **LIVRÉE**
 
-`VAPID_PRIVATE_KEY` / `VAPID_SUBJECT`, l'envoi branché sur le domaine
-`matching`, et le gestionnaire `push` du service worker — sans lui Chrome
-affiche son propre avis générique, puisque `userVisibleOnly` promet une
-notification visible. À décider sur le chiffre, maintenant qu'il existe.
+`web-push` au catalogue, `PushConfig` + `WebPushClient` en infrastructure,
+`PushToSubscribersUseCase` au domaine, et les gestionnaires `push` /
+`notificationclick` du worker.
+
+**Deux décisions du commanditaire, prises sur des faits relevés avant :**
+
+1. **`web-push` plutôt que du `node:crypto` écrit à la main.** Le paquet dort
+   depuis janvier 2024 et amène 5 dépendances transitives — mais l'alternative
+   était de la cryptographie (ECDH, HKDF, dérivation de nonce) invérifiable
+   depuis ce checkout, dont une erreur subtile se traduit par des push qui ne se
+   déchiffrent pas, **en silence**. Mesuré après coup : l'ajout fait 10 paquets
+   et **zéro avis nouveau**, le compte reste à 17.
+2. **Branché sur `CreateNotificationUseCase`, pas sur `matching`.** Une seule
+   place, les sept types visiteur d'un coup, et un huitième l'aura gratuitement.
+
+> ⚠️ **Le piège vu en lisant, avant d'écrire.** `notify-matches` n'avale **pas**
+> ses échecs, délibérément, pour que BullMQ relance son job. Un envoi push qui
+> remonterait jusque-là ferait **recréer les lignes de notification**. D'où
+> l'avalement pour son propre compte dans `CreateNotificationUseCase`, et un
+> test qui le tient.
+
+> ⚠️ **Ce que le plan ne demandait pas et qui était indispensable.** Un service
+> de push répond 404 ou 410 pour un abonnement que le navigateur a lâché. Sans
+> supprimer la ligne, le compte se gonflerait d'appareils morts — et comme ce
+> compte **est** l'instrument de la décision d'A3, il mentirait. `gone`
+> supprime.
+
+> ⚠️ **Et la destination est bornée à un chemin interne.** Le `link` arrive par
+> le réseau ; un lien capable d'ouvrir n'importe quelle origine serait une
+> redirection ouverte avec une notification pour interface.
+
+**Reste à vérifier en production**, et c'est hors de portée d'ici : qu'un push
+arrive vraiment sur un téléphone. Le compte au back-office dit si un appareil
+s'est abonné ; seul un vrai appareil dira si le message atterrit.
 
 #### R36 — L'arrivée des stickers devient un signal — **LIVRÉE**
 

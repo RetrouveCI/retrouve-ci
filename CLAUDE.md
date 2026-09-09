@@ -543,10 +543,26 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   `PublicEnv`, read at **runtime** like `API_URL` and never through
   `import.meta.env`; it is the public half by design and its private half never
   leaves the API. Unset, the row disables itself and **says which** of the four
-  reasons applies rather than showing a dead button. ⚠️ **Nothing sends yet, and
-  the service worker carries no `push` handler.** Wiring the send onto
-  `matching` — and that handler, without which Chrome shows its own generic
-  notice — is what remains of A3.
+  reasons applies rather than showing a dead button. **A3c wired the sending.**
+  It hangs off `CreateNotificationUseCase`, not off `matching`, so all seven
+  visitor types push at once and an eighth gets it for free. ⚠️ **It swallows on
+  its own account, and that is load-bearing**: `notify-matches` deliberately
+  does not swallow so BullMQ retries its job, and a retry re-creates the rows —
+  a failing push must never reach that far. `WebPushClient`
+  (`infrastructures/push/`) answers `sent` / `gone` / `failed` / `unconfigured`
+  and never throws, being a side effect of a row that already exists. ⚠️
+  **`gone` — a 404 or 410 — deletes the row**, because a count padded with
+  dropped browsers would lie to the very decision it informs.
+  `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` are read by
+  `PushConfig`, and ⚠️ **an incomplete set is never fatal, production included**
+  — unlike `LetextoConfig`: push is opt-in, and refusing to boot over it would
+  trade a silence for an outage. The worker's `push` and `notificationclick`
+  handlers read `app/sw/push-payload.ts`, split out like `cache-policy.ts` so it
+  is testable in the `node` project. It never throws and always answers
+  something showable, since `userVisibleOnly` is a promise to the browser; and
+  it accepts only an internal path as the destination — a link arrives over the
+  wire, and one that could open any origin would be an open redirect with a
+  notification for a UI.
 - **A stored photo is bounded in pixels, not only in bytes.**
   `uploadImageBuffer` passes an **incoming** `transformation`
   (`c_limit,w_2000`), applied before Cloudinary stores the asset — ⚠️ not

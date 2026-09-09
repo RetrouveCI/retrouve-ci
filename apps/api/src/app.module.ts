@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { AuthModule } from '@/infrastructures/auth/auth.module'
 import { PrismaModule } from '@/infrastructures/database/prisma.module'
+import { PushModule } from '@/infrastructures/push/push.module'
 import { QueueModule } from '@/infrastructures/queue/queue.module'
 import { SmsModule } from '@/infrastructures/sms/sms.module'
 import { SeederModule } from '@/infrastructures/seeder/seeder.module'
@@ -23,6 +24,7 @@ import { UploadsModule } from '@/presentations/uploads/uploads.module'
 			isGlobal: true,
 		}),
 		PrismaModule,
+		PushModule,
 		QueueModule,
 		SmsModule,
 		SeederModule,
