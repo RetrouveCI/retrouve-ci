@@ -29,7 +29,7 @@ import {
 import { verifyPhoneChange } from '../helpers/settings.client'
 import type { action } from '../_index'
 
-export function EditPhoneDialog() {
+export function EditPhoneDialog({ trigger }: { trigger: React.ReactNode }) {
 	const revalidator = useRevalidator()
 	const [open, setOpen] = useState(false)
 	const [step, setStep] = useState<'phone' | 'code'>('phone')
@@ -105,11 +105,7 @@ export function EditPhoneDialog() {
 				if (!next) resetAll()
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="sm" className="rounded-lg text-xs">
-					Modifier
-				</Button>
-			</DialogTrigger>
+			<DialogTrigger asChild>{trigger}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Numéro de téléphone</DialogTitle>
@@ -135,7 +131,7 @@ export function EditPhoneDialog() {
 										Numéro de téléphone
 									</InputLabel>
 									<div className="flex gap-2">
-										<div className="bg-muted text-muted-foreground flex h-11 shrink-0 items-center rounded-md border px-3 text-sm">
+										<div className="bg-muted text-muted-foreground h-control flex shrink-0 items-center rounded-md border px-3 text-sm">
 											+225
 										</div>
 										<Input
@@ -146,7 +142,7 @@ export function EditPhoneDialog() {
 											maxLength={14}
 											value={field.value ?? ''}
 											placeholder="07 XX XX XX XX"
-											className="h-11 flex-1"
+											className="h-control flex-1"
 											aria-invalid={fieldState.invalid || undefined}
 										/>
 									</div>
@@ -167,7 +163,7 @@ export function EditPhoneDialog() {
 						<Button
 							type="submit"
 							disabled={sendFetcher.isSubmitting}
-							className="bg-primary-green hover:bg-primary-green-dark h-11 w-full gap-2 rounded-xl text-white"
+							className="bg-primary-green hover:bg-primary-green-dark h-control w-full gap-2 rounded-xl text-white"
 						>
 							{sendFetcher.isSubmitting ? (
 								<>
@@ -210,7 +206,7 @@ export function EditPhoneDialog() {
 										inputMode="numeric"
 										maxLength={OTP_LENGTH}
 										placeholder="123456"
-										className="h-11"
+										className="h-control"
 										aria-invalid={fieldState.invalid || undefined}
 									/>
 									{fieldState.error && (
@@ -227,7 +223,7 @@ export function EditPhoneDialog() {
 							<Button
 								type="button"
 								variant="outline"
-								className="h-11 rounded-xl"
+								className="h-control rounded-xl"
 								onClick={() => setStep('phone')}
 							>
 								Retour
@@ -235,7 +231,7 @@ export function EditPhoneDialog() {
 							<Button
 								type="submit"
 								disabled={isVerifying}
-								className="bg-primary-green hover:bg-primary-green-dark h-11 flex-1 gap-2 rounded-xl text-white"
+								className="bg-primary-green hover:bg-primary-green-dark h-control flex-1 gap-2 rounded-xl text-white"
 							>
 								{isVerifying ? (
 									<>

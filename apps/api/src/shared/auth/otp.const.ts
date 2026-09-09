@@ -1,6 +1,3 @@
-/** Five minutes, which is also better-auth's own default. */
-export const OTP_TTL_SECONDS = 300
-
 /**
  * One SMS segment. Past it Letexto bills — and may split — the message, so the
  * templates below are asserted against it in `otp-message.spec.ts` rather than

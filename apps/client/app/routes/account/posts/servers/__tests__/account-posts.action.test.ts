@@ -51,7 +51,7 @@ describe('accountPostsAction', () => {
 			request: requestFor({ intent: 'delete', id: 'post-1' }),
 		}).catch((error: unknown) => error)
 
-		expect(redirectTo(thrown)).toBe('/auth/login')
+		expect(redirectTo(thrown)).toBe('/login')
 		expect(deleteLostItem).not.toHaveBeenCalled()
 	})
 
@@ -147,6 +147,6 @@ describe('accountPostsAction', () => {
 			request: requestFor({ intent: 'delete', id: 'post-1' }),
 		}).catch((error: unknown) => error)
 
-		expect(redirectTo(thrown)).toBe('/auth/login')
+		expect(redirectTo(thrown)).toBe('/login')
 	})
 })

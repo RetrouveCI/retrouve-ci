@@ -11,8 +11,8 @@ export const action = forgotPasswordAction
 function BackToLogin() {
 	return (
 		<Link
-			to="/auth/login"
-			className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
+			to="/login"
+			className="touch-target text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
 		>
 			<ArrowLeft className="h-4 w-4" />
 			Retour à la connexion

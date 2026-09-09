@@ -3,10 +3,22 @@ import { NOTIFICATION_TYPES } from '../notifications.const'
 import { notificationTypeSchema } from '../type.schema'
 
 describe('notificationTypeSchema', () => {
-	// The API's own constant listed `match_found` alone, while its mapper and the
-	// Prisma enum both carry `qr_scan`. The contract is the complete list.
+	// Frozen so the list changes only on purpose. That it matches the Prisma enum
+	// is asserted in the api, the one place both are visible.
 	it('covers every type the database can hold', () => {
-		expect(NOTIFICATION_TYPES).toEqual(['match_found', 'qr_scan'])
+		expect(NOTIFICATION_TYPES).toEqual([
+			'match_found',
+			'qr_scan',
+			'stickers_delivered',
+			'listing_pending',
+			'listing_moderated',
+			'listing_contacted',
+			'order_placed',
+			'contact_received',
+			'order_processing',
+			'order_shipped',
+			'order_cancelled',
+		])
 	})
 
 	it.each(NOTIFICATION_TYPES)('accepts %s', type => {

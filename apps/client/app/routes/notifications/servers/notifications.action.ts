@@ -15,7 +15,7 @@ export async function action({
 	request: Request
 }): Promise<ActionResult> {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth/login')
+	if (!session) throw redirect('/login')
 
 	const submission = notificationActionSchema.safeParse(
 		Object.fromEntries(await request.formData()),
@@ -31,6 +31,6 @@ export async function action({
 			data.intent === 'mark-read'
 				? markNotificationAsRead(data.id, request)
 				: markAllNotificationsAsRead(request),
-		{ redirectOnUnauthorized: '/auth/login' },
+		{ redirectOnUnauthorized: '/login' },
 	)
 }

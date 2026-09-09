@@ -6,6 +6,7 @@ import {
 import {
 	LostItemForbiddenError,
 	LostItemNotFoundError,
+	LostItemPhotosRefusedError,
 } from '../../errors/lost-item.errors'
 import type { LostItemRepository } from '../../repository/lost-item.repository'
 import { UpdateLostItemUseCase } from '../update-lost-item.use-case'
@@ -32,9 +33,11 @@ describe('UpdateLostItemUseCase', () => {
 			data: { title: 'Nouveau titre' },
 		})
 
-		expect(repository.update).toHaveBeenCalledWith('lost-item-1', {
-			title: 'Nouveau titre',
-		})
+		expect(repository.update).toHaveBeenCalledWith(
+			'lost-item-1',
+			{ title: 'Nouveau titre' },
+			undefined,
+		)
 		expect(result).toEqual(updated)
 	})
 
@@ -64,5 +67,106 @@ describe('UpdateLostItemUseCase', () => {
 			}),
 		).rejects.toThrow(LostItemNotFoundError)
 		expect(repository.update).not.toHaveBeenCalled()
+	})
+})
+
+/** R43: the category is not patchable, so the stored row is the only witness. */
+describe('UpdateLostItemUseCase — photos on a document listing', () => {
+	let repository: LostItemRepository
+	let useCase: UpdateLostItemUseCase
+
+	beforeEach(() => {
+		repository = buildRepository()
+		useCase = new UpdateLostItemUseCase(repository)
+	})
+
+	const edit = (
+		category: 'documents' | 'wallet',
+		photos: string[] | undefined,
+	) => {
+		vi.mocked(repository.findById).mockResolvedValue(
+			buildLostItem({ userId: 'user-1', category }),
+		)
+		vi.mocked(repository.update).mockResolvedValue(buildLostItem())
+
+		return useCase.execute({
+			id: 'lost-item-1',
+			userId: 'user-1',
+			data: { photos },
+		})
+	}
+
+	it('refuses a photo added to a stored document listing', async () => {
+		await expect(edit('documents', ['https://cdn/cni.jpg'])).rejects.toThrow(
+			LostItemPhotosRefusedError,
+		)
+		expect(repository.update).not.toHaveBeenCalled()
+	})
+
+	// What the edit screen actually sends: it says how many will be removed.
+	it.each([[[]], [undefined]])(
+		'lets %o through, carrying nothing',
+		async photos => {
+			await edit('documents', photos)
+
+			expect(repository.update).toHaveBeenCalled()
+		},
+	)
+
+	it('leaves a photo on any other category alone', async () => {
+		await edit('wallet', ['https://cdn/wallet.jpg'])
+
+		expect(repository.update).toHaveBeenCalled()
+	})
+})
+
+// ⚠️ It may only move when the state does, or re-saving a resolved listing
+// would push the day it was handed back into this month.
+describe('the day a listing was handed back', () => {
+	let repository: LostItemRepository
+	let useCase: UpdateLostItemUseCase
+
+	beforeEach(() => {
+		repository = buildRepository()
+		useCase = new UpdateLostItemUseCase(repository)
+	})
+
+	const move = async (
+		from: 'active' | 'resolved' | 'expired',
+		to: 'active' | 'resolved' | 'expired',
+	) => {
+		vi.mocked(repository.findById).mockResolvedValue(
+			buildLostItem({ userId: 'user-1', resolutionStatus: from }),
+		)
+		vi.mocked(repository.update).mockResolvedValue(buildLostItem())
+
+		await useCase.execute({
+			id: 'lost-item-1',
+			userId: 'user-1',
+			data: { resolutionStatus: to },
+		})
+
+		return vi.mocked(repository.update).mock.calls[0]?.[2]
+	}
+
+	it('stamps the day when the listing becomes resolved', async () => {
+		expect(await move('active', 'resolved')).toBeInstanceOf(Date)
+	})
+
+	it('clears it when the listing is reopened', async () => {
+		expect(await move('resolved', 'active')).toBeNull()
+	})
+
+	it('leaves it alone when the status did not change', async () => {
+		expect(await move('resolved', 'resolved')).toBeUndefined()
+	})
+
+	it('clears it on any other move out of resolved', async () => {
+		expect(await move('resolved', 'expired')).toBeNull()
+	})
+
+	// Clearing an already-null column is a no-op, and cheaper than a third branch.
+	it('clears it even on a move that never touches resolved', async () => {
+		expect(await move('active', 'expired')).toBeNull()
 	})
 })

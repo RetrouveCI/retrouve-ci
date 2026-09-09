@@ -1,15 +1,19 @@
 import { z } from 'zod'
 import { calendarDateSchema } from '../shared/calendar-date'
 import {
-	PHONE_ERROR_MESSAGE,
-	isValidLocalNumber,
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
+	isAssignableLocalNumber,
 	toE164,
 } from '../shared/phone'
+import {
+	documentFieldsShape,
+	pushLostItemWriteIssues,
+} from './documents.schema'
 import { lostItemCategorySchema, lostItemTypeSchema } from './enums.schema'
 import {
 	MAX_DESCRIPTION_LENGTH,
 	MAX_PHOTOS,
-	MIN_DESCRIPTION_LENGTH,
+	MAX_STICKER_CODE_LENGTH,
 } from './lost-items.const'
 
 export const lostItemEventDateSchema = calendarDateSchema({
@@ -23,10 +27,15 @@ export const lostItemEventDateSchema = calendarDateSchema({
 export const contactWhatsappSchema = z
 	.string()
 	.trim()
-	.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE)
+	.refine(isAssignableLocalNumber, ASSIGNABLE_PHONE_ERROR_MESSAGE)
 	.transform(toE164)
 
-export const createLostItemSchema = z.object({
+/**
+ * The fields alone, no cross-field rule attached: Zod 4 throws on `.omit()` and
+ * `.partial()` over an object carrying refinements, and `updateLostItemSchema`
+ * derives from this one.
+ */
+export const lostItemFieldsSchema = z.object({
 	type: lostItemTypeSchema,
 	category: lostItemCategorySchema,
 	title: z
@@ -34,13 +43,10 @@ export const createLostItemSchema = z.object({
 		.trim()
 		.min(3, 'Le titre doit contenir au moins 3 caractères')
 		.max(120, 'Maximum 120 caractères'),
+	/** The floor is a rule of its own, below: a piece of ID does not need one. */
 	description: z
 		.string()
 		.trim()
-		.min(
-			MIN_DESCRIPTION_LENGTH,
-			`La description doit contenir au moins ${MIN_DESCRIPTION_LENGTH} caractères`,
-		)
 		.max(
 			MAX_DESCRIPTION_LENGTH,
 			`Maximum ${MAX_DESCRIPTION_LENGTH} caractères`,
@@ -62,7 +68,26 @@ export const createLostItemSchema = z.object({
 		.array(z.string().trim().min(1, 'Photo invalide'))
 		.max(MAX_PHOTOS, `Vous ne pouvez pas ajouter plus de ${MAX_PHOTOS} photos`)
 		.optional(),
+	...documentFieldsShape,
 })
+
+/**
+ * Extended before the rule is attached, never after: Zod 4 throws on `.extend()`
+ * over a checked object, and `update` derives from `lostItemFieldsSchema` — so
+ * the sticker link stays a publication field, as decided.
+ */
+export const createLostItemSchema = lostItemFieldsSchema
+	.extend({
+		// Ownership is not a shape a schema can check: the API resolves the code
+		// against the poster's own tokens and refuses anything else.
+		stickerCode: z
+			.string()
+			.trim()
+			.min(1, 'Code de sticker invalide')
+			.max(MAX_STICKER_CODE_LENGTH, 'Code de sticker invalide')
+			.optional(),
+	})
+	.check(ctx => pushLostItemWriteIssues(ctx, { requireHolderName: true }))
 
 export type CreateLostItemInput = z.input<typeof createLostItemSchema>
 export type CreateLostItemData = z.output<typeof createLostItemSchema>

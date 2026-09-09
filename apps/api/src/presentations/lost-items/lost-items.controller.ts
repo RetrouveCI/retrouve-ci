@@ -13,11 +13,13 @@ import {
 	adminListLostItemsFilterSchema,
 	createLostItemSchema,
 	listLostItemsFilterSchema,
+	myLostItemsFilterSchema,
 	updateLostItemSchema,
 	updateModerationStatusSchema,
 	type AdminListLostItemsFilterData,
 	type CreateLostItemData,
 	type ListLostItemsFilterData,
+	type MyLostItemsFilterData,
 	type UpdateLostItemData,
 	type UpdateModerationStatusData,
 } from '@app/contracts/lost-items'
@@ -32,15 +34,19 @@ import type { Auth } from '@/infrastructures/auth/auth.config'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
 import { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
 import { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
+import { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
 import { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
+import { GetPublicLostItemsUseCase } from '@/domains/lost-items/use-cases/get-public-lost-items.use-case'
 import { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
-import { RecordLostItemContactUseCase } from '@/domains/lost-items/use-cases/record-lost-item-contact.use-case'
+import { ContactLostItemPosterUseCase } from '@/domains/lost-items/use-cases/contact-lost-item-poster.use-case'
 import { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
 import { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 import { MatchingDispatcher } from '@/infrastructures/queue/matching-dispatcher.service'
+import { AccountBudget } from '@/shared/rate-limit/account-budget.service'
+import { LOST_ITEM_PER_USER } from '@/shared/rate-limit/rate-limit.policy'
 
 @ApiTags('lost-items')
 @ApiBearerAuth()
@@ -49,21 +55,28 @@ export class LostItemsController {
 	constructor(
 		private readonly createLostItemUseCase: CreateLostItemUseCase,
 		private readonly viewLostItemUseCase: ViewLostItemUseCase,
-		private readonly recordLostItemContactUseCase: RecordLostItemContactUseCase,
+		private readonly contactLostItemPosterUseCase: ContactLostItemPosterUseCase,
 		private readonly getPaginatedLostItemsUseCase: GetPaginatedLostItemsUseCase,
+		private readonly getPublicLostItemsUseCase: GetPublicLostItemsUseCase,
 		private readonly getMyLostItemsUseCase: GetMyLostItemsUseCase,
+		private readonly getMyLostItemsSummaryUseCase: GetMyLostItemsSummaryUseCase,
 		private readonly updateLostItemUseCase: UpdateLostItemUseCase,
 		private readonly moderateLostItemUseCase: ModerateLostItemUseCase,
 		private readonly deleteLostItemUseCase: DeleteLostItemUseCase,
 		private readonly matchingDispatcher: MatchingDispatcher,
+		private readonly accountBudget: AccountBudget,
 	) {}
 
 	@Post()
 	@ApiZodBody(createLostItemSchema)
-	create(
+	async create(
 		@Session() session: UserSession<Auth>,
 		@Body(new ZodValidationPipe(createLostItemSchema)) data: CreateLostItemData,
 	) {
+		// What a flood of listings spends is the moderation queue, so the ceiling
+		// is checked before the row is written.
+		await this.accountBudget.require(LOST_ITEM_PER_USER, session.user.id)
+
 		return this.createLostItemUseCase.execute({
 			...data,
 			eventDate: new Date(data.eventDate),
@@ -78,18 +91,15 @@ export class LostItemsController {
 		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
 		filter: ListLostItemsFilterData,
 	) {
-		return this.getPaginatedLostItemsUseCase.execute({
-			...this.toListFilter(filter),
-			moderationStatus: 'published',
-		})
+		return this.getPublicLostItemsUseCase.execute(this.toListFilter(filter))
 	}
 
 	@Get('mine')
-	@ApiZodQuery(listLostItemsFilterSchema)
+	@ApiZodQuery(myLostItemsFilterSchema)
 	listMine(
 		@Session() session: UserSession<Auth>,
-		@Query(new ZodValidationPipe(listLostItemsFilterSchema))
-		filter: ListLostItemsFilterData,
+		@Query(new ZodValidationPipe(myLostItemsFilterSchema))
+		filter: MyLostItemsFilterData,
 	) {
 		return this.getMyLostItemsUseCase.execute({
 			userId: session.user.id,
@@ -97,8 +107,19 @@ export class LostItemsController {
 		})
 	}
 
+	/**
+	 * The counts « Mes annonces » puts on its filter pills and in its moderation
+	 * banner. They are deliberately unfiltered: a pill says how many the visitor
+	 * owns in that bucket, and an exception must not be hidden by a search.
+	 */
+	@Get('mine/summary')
+	listMineSummary(@Session() session: UserSession<Auth>) {
+		return this.getMyLostItemsSummaryUseCase.execute(session.user.id)
+	}
+
+	/** Both audiences' extra axis, so one translation serves the three routes. */
 	private toListFilter(
-		filter: AdminListLostItemsFilterData,
+		filter: AdminListLostItemsFilterData & MyLostItemsFilterData,
 	): ListLostItemsFilter {
 		const { dateFrom, dateTo, ...rest } = filter
 
@@ -131,13 +152,12 @@ export class LostItemsController {
 		@Body(new ZodValidationPipe(updateModerationStatusSchema))
 		data: UpdateModerationStatusData,
 	) {
-		const lostItem = await this.moderateLostItemUseCase.execute({
-			id,
-			moderationStatus: data.moderationStatus,
-		})
+		const { lostItem, becamePublished } =
+			await this.moderateLostItemUseCase.execute({ id, ...data })
 
-		/** Publication is the only moment a listing becomes matchable. */
-		if (lostItem.moderationStatus === 'published') {
+		// Publication is the only moment a listing becomes matchable — the
+		// transition, not the state, so publishing twice searches once.
+		if (becamePublished) {
 			await this.matchingDispatcher.dispatch(id)
 		}
 
@@ -156,10 +176,11 @@ export class LostItemsController {
 		})
 	}
 
+	// Answers a target the front turns into a `Location`, and already capped.
 	@Post(':id/contact')
 	@AllowAnonymous()
-	recordContact(@Param('id') id: string) {
-		return this.recordLostItemContactUseCase.execute(id)
+	contactPoster(@Param('id') id: string) {
+		return this.contactLostItemPosterUseCase.execute(id)
 	}
 
 	@Patch(':id')

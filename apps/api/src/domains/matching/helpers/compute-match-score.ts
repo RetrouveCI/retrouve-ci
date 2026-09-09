@@ -7,9 +7,13 @@ import {
 	SCORE_EVENT_DATE_NEAR,
 	SCORE_SAME_CATEGORY,
 	SCORE_SAME_COMMUNE,
+	SCORE_SAME_DOCUMENT_NUMBER,
+	SCORE_SAME_DOCUMENT_TYPE,
+	SCORE_SAME_HOLDER_NAME,
 	SCORE_SAME_VILLE,
 	SCORE_TEXT_OVERLAP,
 } from '../constants'
+import { compareHolderNames, sameDocumentNumber } from './normalize-document'
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
 
@@ -17,7 +21,42 @@ export function computeMatchScore(
 	source: LostItem,
 	candidate: LostItem,
 ): number {
+	const sameNumber = sameDocumentNumber(
+		source.documentNumber,
+		candidate.documentNumber,
+	)
+	const holder = compareHolderNames(
+		source.documentHolderName,
+		candidate.documentHolderName,
+	)
+
+	/**
+	 * Two documents in one town clear the threshold on their category and their
+	 * town alone, so without this the cards of two strangers in Abidjan notify
+	 * each other. A disagreement on the one identifying field both sides filled
+	 * in outweighs that — unless the numbers agree, in which case it is the name
+	 * that was mistyped.
+	 */
+	if (holder === 'mismatch' && !sameNumber) {
+		return 0
+	}
+
 	let score = 0
+
+	if (sameNumber) {
+		score += SCORE_SAME_DOCUMENT_NUMBER
+	}
+
+	if (holder === 'match') {
+		score += SCORE_SAME_HOLDER_NAME
+	}
+
+	if (
+		source.documentType !== null &&
+		source.documentType === candidate.documentType
+	) {
+		score += SCORE_SAME_DOCUMENT_TYPE
+	}
 
 	if (source.category === candidate.category) {
 		score += SCORE_SAME_CATEGORY

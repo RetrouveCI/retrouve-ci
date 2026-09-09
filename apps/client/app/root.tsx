@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
 	isRouteErrorResponse,
 	Links,
@@ -5,18 +6,31 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useLocation,
 	useRouteLoaderData,
 } from 'react-router'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/context/auth'
-import { ActivityHub } from '@/components/activity-hub'
 import { ThemeProvider } from '@/context/theme'
-import { getThemeFromRequest } from '@/shared/helpers/theme.server'
+import {
+	DEFAULT_THEME_PREFERENCE,
+	THEME_COLOR,
+	THEME_COOKIE,
+	type ThemePreference,
+} from '@/shared/helpers/theme'
+import { getThemePreferenceFromRequest } from '@/shared/helpers/theme.server'
 import { publicEnv } from '@/shared/helpers/env'
 import { PublicEnvScript } from '@/components/public-env-script'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { NotFoundContent } from '@/components/not-found-content'
+import { OfflineContent } from '@/components/offline-content'
+import { InstallPrompt } from '@/components/install-prompt'
+import { registerServiceWorker } from '@/shared/helpers/service-worker'
+import {
+	INSTALL_PROMPT_SCRIPT,
+	startInstallPromptCapture,
+} from '@/shared/helpers/install-prompt'
 
 import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
@@ -26,54 +40,49 @@ import './app.css'
 
 import type { Route } from './+types/root'
 import {
-	BRAND_COLOR,
 	OG_IMAGE,
 	OG_LOCALE,
+	PLATFORM_STATEMENT,
 	SITE_NAME,
 } from '@/shared/helpers/page-meta'
+import { SEO_KEYWORDS_CONTENT } from '@/shared/constants/seo-keywords'
+import { requestOrigin } from '@/shared/helpers/origin'
+import { structuredData } from '@/shared/helpers/structured-data'
 
 export function loader({ request }: Route.LoaderArgs) {
-	return { theme: getThemeFromRequest(request), env: publicEnv() }
+	return {
+		themePreference: getThemePreferenceFromRequest(request),
+		env: publicEnv(),
+		// `new URL(request.url).origin` reads `http` behind Traefik, and a
+		// canonical on the wrong scheme is worse than none.
+		origin: requestOrigin(request),
+	}
 }
 
 export function meta() {
 	const title = `${SITE_NAME} - Perdre un objet n'est plus une fatalité`
-	const description =
-		"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire. Publiez une annonce ou utilisez nos stickers QR pour protéger vos objets."
+	const description = PLATFORM_STATEMENT
 
 	return [
 		{ title },
 		{ name: 'description', content: description },
-		{
-			name: 'keywords',
-			content:
-				"objets perdus, objets retrouvés, Côte d'Ivoire, QR code, RetrouveCI, lost and found",
-		},
-		{ name: 'theme-color', content: BRAND_COLOR },
+		{ name: 'keywords', content: SEO_KEYWORDS_CONTENT },
 		{ property: 'og:type', content: 'website' },
 		{ property: 'og:locale', content: OG_LOCALE },
 		{ property: 'og:site_name', content: SITE_NAME },
 		{ property: 'og:title', content: title },
-		{
-			property: 'og:description',
-			content:
-				"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
-		},
-		{ property: 'og:image', content: OG_IMAGE },
+		{ property: 'og:description', content: description },
 		{ name: 'twitter:card', content: 'summary_large_image' },
 		{ name: 'twitter:title', content: title },
-		{
-			name: 'twitter:description',
-			content:
-				"Plateforme de gestion des objets perdus et retrouvés en Côte d'Ivoire.",
-		},
-		{ name: 'twitter:image', content: OG_IMAGE },
+		{ name: 'twitter:description', content: description },
 	]
 }
 
 export function links() {
 	return [
-		{ rel: 'icon', href: '/logo.png' },
+		{ rel: 'manifest', href: '/manifest.webmanifest' },
+		{ rel: 'icon', type: 'image/png', sizes: '192x192', href: '/icon-192.png' },
+		{ rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
 		// The stylesheet only reveals the font file once parsed, so the first paint
 		// swaps. Preload the latin subset — the only one a French page matches.
 		// `crossOrigin` is required even same-origin: a font is fetched in CORS
@@ -88,21 +97,92 @@ export function links() {
 	]
 }
 
+/**
+ * Resolves the theme **before the first paint**, which is the only place it can
+ * be done without a flash: `system` depends on `prefers-color-scheme`, a media
+ * query the server cannot evaluate. The client hint that mirrors it is not sent
+ * on a first request — the very visit that has to be right — so a blocking
+ * classic script in `<head>` is what closes the gap.
+ *
+ * It reads the cookie itself rather than being handed a value, so the same code
+ * is correct whether the preference is stored or absent.
+ */
+const THEME_SCRIPT = `(function(){try{
+var m=document.cookie.match(/(?:^|;\\s*)${THEME_COOKIE}=(light|dark|system)/);
+var p=m?m[1]:'${DEFAULT_THEME_PREFERENCE}';
+var d=p==='dark'||(p==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);
+var r=document.documentElement;
+r.classList.toggle('dark',d);
+r.style.colorScheme=p==='system'?'light dark':p;
+var t=document.querySelector('meta[name="theme-color"]');
+if(t)t.setAttribute('content',d?'${THEME_COLOR.dark}':'${THEME_COLOR.light}');
+}catch(e){}})()`
+
 export function Layout({ children }: { children: React.ReactNode }) {
 	const data = useRouteLoaderData<typeof loader>('root')
+	const { pathname } = useLocation()
 
-	const theme = data?.theme ?? 'light'
+	const preference: ThemePreference =
+		data?.themePreference ?? DEFAULT_THEME_PREFERENCE
 
+	/**
+	 * Only the request knows the origin, and these have to be absolute. The
+	 * canonical drops the query on purpose: `/posts?category=phone&page=2` is
+	 * the same page, and the sitemap names every listing anyway.
+	 */
+	const origin = data?.origin
+	const canonical = origin ? `${origin}${pathname}` : undefined
+	const image = origin ? `${origin}${OG_IMAGE}` : undefined
+
+	/**
+	 * Server-side, `system` cannot be resolved, so the document goes out neutral
+	 * and the script above settles it. An explicit choice is rendered here, which
+	 * saves the script any work at all.
+	 */
 	return (
 		<html
 			lang="fr"
-			className={theme === 'dark' ? 'dark' : ''}
-			style={{ colorScheme: theme }}
+			className={preference === 'dark' ? 'dark' : ''}
+			style={{
+				colorScheme: preference === 'system' ? 'light dark' : preference,
+			}}
 			suppressHydrationWarning
 		>
 			<head>
 				<meta charSet="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<meta
+					name="viewport"
+					content="width=device-width, initial-scale=1, viewport-fit=cover"
+				/>
+				{/* One tag, no `media`: three theme states, and the chosen one may
+				    contradict the device. `system` is unresolvable server-side, so
+				    this goes out light and the script above corrects it. */}
+				<meta
+					name="theme-color"
+					content={THEME_COLOR[preference === 'dark' ? 'dark' : 'light']}
+				/>
+				{/* Older iOS ignores the manifest and labels from `<title>`. */}
+				<meta name="apple-mobile-web-app-title" content={SITE_NAME} />
+				<script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+				<script dangerouslySetInnerHTML={{ __html: INSTALL_PROMPT_SCRIPT }} />
+				{canonical && (
+					<>
+						<link rel="canonical" href={canonical} />
+						<meta property="og:url" content={canonical} />
+					</>
+				)}
+				{image && (
+					<>
+						<meta property="og:image" content={image} />
+						<meta name="twitter:image" content={image} />
+					</>
+				)}
+				{origin && (
+					<script
+						type="application/ld+json"
+						dangerouslySetInnerHTML={{ __html: structuredData(origin) }}
+					/>
+				)}
 				<Meta />
 				<Links />
 			</head>
@@ -117,11 +197,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App({ loaderData }: Route.ComponentProps) {
+	// Only the built app serves `/sw.js`; the dev server has no such file, and a
+	// registration that 404s would leave a failed worker on the origin.
+	useEffect(() => {
+		if (import.meta.env.PROD) registerServiceWorker()
+	}, [])
+
+	// Adopts whatever the head script caught before hydration, and keeps
+	// listening for an offer that lands later.
+	useEffect(startInstallPromptCapture, [])
+
 	return (
-		<ThemeProvider initialTheme={loaderData.theme}>
+		<ThemeProvider initialPreference={loaderData.themePreference}>
 			<AuthProvider>
 				<Outlet />
-				<ActivityHub />
+				<InstallPrompt />
 				<Toaster
 					position="bottom-right"
 					richColors
@@ -138,12 +228,37 @@ export default function App({ loaderData }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+	const location = useLocation()
+
+	/**
+	 * Read once, at the first render: a client-side navigation whose loader
+	 * cannot reach the network lands here rather than on the worker's redirect,
+	 * and settling this in an effect would flash « Une erreur est survenue »
+	 * first. `false` on the server, where an error page still came over the wire
+	 * and so is never an offline one.
+	 */
+	const [isOffline] = useState(
+		() => typeof navigator !== 'undefined' && !navigator.onLine,
+	)
+
 	if (isRouteErrorResponse(error) && error.status === 404) {
 		return (
-			<ThemeProvider initialTheme="light">
+			<ThemeProvider initialPreference={DEFAULT_THEME_PREFERENCE}>
 				<AuthProvider>
 					<Header />
 					<NotFoundContent />
+					<Footer />
+				</AuthProvider>
+			</ThemeProvider>
+		)
+	}
+
+	if (isOffline) {
+		return (
+			<ThemeProvider initialPreference={DEFAULT_THEME_PREFERENCE}>
+				<AuthProvider>
+					<Header />
+					<OfflineContent retryTo={`${location.pathname}${location.search}`} />
 					<Footer />
 				</AuthProvider>
 			</ThemeProvider>

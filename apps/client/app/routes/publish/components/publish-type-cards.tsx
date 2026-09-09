@@ -86,8 +86,8 @@ export function PublishTypeCards() {
 													className={cn(
 														'h-4 w-4 shrink-0',
 														isOrange
-															? 'text-accent-orange'
-															: 'text-primary-green',
+															? 'text-accent-orange-text'
+															: 'text-primary-green-text',
 													)}
 												/>
 												<span className="text-muted-foreground">{perk}</span>
@@ -97,10 +97,10 @@ export function PublishTypeCards() {
 
 									<div
 										className={cn(
-											'mt-auto flex items-center justify-center gap-2 rounded-full py-3 font-semibold text-white transition-all',
+											'mt-auto flex items-center justify-center gap-2 rounded-full py-3 font-semibold transition-all',
 											isOrange
-												? 'bg-accent-orange group-hover:bg-accent-orange-dark'
-												: 'bg-primary-green group-hover:bg-primary-green-dark',
+												? 'bg-accent-orange text-accent-orange-foreground group-hover:bg-accent-orange-dark'
+												: 'bg-primary-green group-hover:bg-primary-green-dark text-white',
 										)}
 									>
 										{cta}

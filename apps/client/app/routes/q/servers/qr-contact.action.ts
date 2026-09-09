@@ -21,6 +21,10 @@ export async function qrContactAction({
 	const { email, ...rest } = submission.data
 
 	return withApiOperationError(() =>
-		contactQrOwner(params.code, { ...rest, ...(email ? { email } : {}) }),
+		contactQrOwner(
+			params.code,
+			{ ...rest, ...(email ? { email } : {}) },
+			request,
+		),
 	)
 }

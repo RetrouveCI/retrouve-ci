@@ -1,3 +1,5 @@
+import { requestOrigin } from '@/shared/helpers/origin'
+
 /**
  * Default landing page once an admin is authenticated and no specific
  * destination was requested.
@@ -28,13 +30,32 @@ export function toRoutePath(requestUrl: string): string {
 }
 
 /**
+ * The auth pages, which a `redirectTo` may never point at: landing on one after
+ * signing in is a loop. They used to share an `/auth` prefix and this was a
+ * prefix test; without one, the set has to be named. A path added here must be
+ * added to `routes.ts` too, and the reverse — `sanitizeRedirect`'s spec walks
+ * this list.
+ */
+export const AUTH_PATHS = [
+	'/login',
+	'/forgot-password',
+	'/reset-password',
+] as const
+
+/** An auth page whatever query or trailing slash the value carries. */
+function isAuthPath(value: string): boolean {
+	const pathname = (value.split(/[?#]/)[0] ?? '').replace(/\/+$/, '')
+	return AUTH_PATHS.some(path => pathname === path)
+}
+
+/**
  * Keep only internal, non-auth paths. This avoids open redirects (external
- * URLs, protocol-relative `//host`) and login loops (`/auth/*` destinations).
+ * URLs, protocol-relative `//host`) and login loops (an auth destination).
  */
 export function sanitizeRedirect(value: string | null | undefined): string {
 	if (!value) return DEFAULT_REDIRECT
 	if (!value.startsWith('/') || value.startsWith('//')) return DEFAULT_REDIRECT
-	if (value === '/auth' || value.startsWith('/auth/')) return DEFAULT_REDIRECT
+	if (isAuthPath(value)) return DEFAULT_REDIRECT
 	if (isDataPath(value)) return DEFAULT_REDIRECT
 	return value
 }
@@ -51,7 +72,7 @@ export function withRedirect(path: string, redirectTo: string | null): string {
 
 /** Build the login URL that remembers the page the admin came from. */
 export function loginUrlWithRedirect(redirectTo: string | null): string {
-	return withRedirect('/auth/login', redirectTo)
+	return withRedirect('/login', redirectTo)
 }
 
 /**
@@ -64,5 +85,5 @@ export function loginUrlWithRedirect(redirectTo: string | null): string {
  */
 export function appUrl(path: string, request: Request): string {
 	const configured = process.env['ADMIN_APP_URL']?.trim()
-	return new URL(path, configured || new URL(request.url).origin).toString()
+	return new URL(path, configured || requestOrigin(request)).toString()
 }

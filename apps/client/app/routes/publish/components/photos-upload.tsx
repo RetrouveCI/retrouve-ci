@@ -20,6 +20,8 @@ interface PhotosUploadProps {
 	variant?: 'optional' | 'recommended'
 	accentColor: string
 	max?: number
+	/** Lets the step-3 summary count photos the picker holds in the DOM. */
+	onCountChange?: (count: number) => void
 }
 
 export function PhotosUpload({
@@ -27,6 +29,7 @@ export function PhotosUpload({
 	variant = 'optional',
 	accentColor,
 	max = MAX_PHOTOS,
+	onCountChange,
 }: PhotosUploadProps) {
 	const [slots, setSlots] = useState<PhotoSlot[]>(() =>
 		initialPhotos.map((url, index) => ({
@@ -39,6 +42,13 @@ export function PhotosUpload({
 
 	const fileMapRef = useRef<Map<string, File>>(new Map())
 	const nextIdRef = useRef(0)
+
+	const onCountChangeRef = useRef(onCountChange)
+	onCountChangeRef.current = onCountChange
+
+	useEffect(() => {
+		onCountChangeRef.current?.(slots.length)
+	}, [slots.length])
 
 	// Revoke object URLs created for newly added files on unmount.
 	useEffect(() => {

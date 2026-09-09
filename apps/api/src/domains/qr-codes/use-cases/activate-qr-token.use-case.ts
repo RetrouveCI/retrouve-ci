@@ -30,11 +30,11 @@ export class ActivateQrTokenUseCase implements IDomainUseCase<
 		const qrToken = await requireQrToken(this.repository, code)
 
 		if (qrToken.status === 'activated') {
-			throw new QrTokenAlreadyActivatedError(code)
+			throw new QrTokenAlreadyActivatedError()
 		}
 
 		if (qrToken.status === 'revoked') {
-			throw new QrTokenRevokedError(code)
+			throw new QrTokenRevokedError()
 		}
 
 		return this.repository.activate(code, userId, data)

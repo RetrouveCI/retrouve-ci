@@ -1,5 +1,32 @@
 import { ApiError, toApiErrorMessage, type ApiErrorBody } from './api-error'
 
+/** What the API's rate limiter keys a bucket on. */
+export const CLIENT_IP_HEADER = 'X-Client-Ip'
+
+function firstHop(request: Request, header: string): string | undefined {
+	return request.headers.get(header)?.split(',')[0]?.trim() || undefined
+}
+
+/** The first hop only: the API trusts it as given, a chain would name a proxy. */
+export function callerAddress(request: Request): string | undefined {
+	return firstHop(request, 'x-forwarded-for') ?? firstHop(request, 'x-real-ip')
+}
+
+// `request` is **required**, and that is the guard: it carries the cookie and
+// the address the rate limiter keys on, so a call omitting it speaks for this
+// container and every visitor of a capped route shares one bucket. R44 wired it
+// by hand and missed six calls, each already passing an `Origin`.
+export type ApiFetchInit = RequestInit & { request: Request }
+
+function forwardedHeaders(request: Request): Record<string, string> {
+	const address = callerAddress(request)
+
+	return {
+		Cookie: request.headers.get('cookie') ?? '',
+		...(address ? { [CLIENT_IP_HEADER]: address } : {}),
+	}
+}
+
 interface CreateApiFetchOptions {
 	/**
 	 * Where the API lives, resolved **per call** rather than when this module is
@@ -27,15 +54,18 @@ export function createApiFetch({
 }: CreateApiFetchOptions) {
 	return async function apiFetch<T>(
 		path: string,
-		init?: RequestInit,
+		init: ApiFetchInit,
 	): Promise<T> {
+		const { request, ...rest } = init
+
 		const response = await fetch(`${baseUrl()}${path}`, {
-			...init,
+			...rest,
 			credentials: 'include',
 			headers: {
 				'Content-Type': 'application/json',
 				...defaultHeaders,
-				...init?.headers,
+				...forwardedHeaders(request),
+				...init.headers,
 			},
 		})
 
@@ -49,6 +79,7 @@ export function createApiFetch({
 				body
 					? toApiErrorMessage(body, response.statusText)
 					: response.statusText,
+				body?.errors,
 			)
 		}
 

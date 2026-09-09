@@ -13,10 +13,12 @@ import {
 	generateQrTokensSchema,
 	listQrTokensFilterSchema,
 	qrTokenDetailsSchema,
+	reachOwnerSchema,
 	type ContactOwnerData,
 	type GenerateQrTokensData,
 	type ListQrTokensFilterData,
 	type QrTokenDetailsData,
+	type ReachOwnerData,
 } from '@app/contracts/qr-codes'
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth'
 import type { UserSession } from '@thallesp/nestjs-better-auth'
@@ -25,9 +27,11 @@ import { ActivateQrTokenUseCase } from '@/domains/qr-codes/use-cases/activate-qr
 import { ContactQrTokenOwnerUseCase } from '@/domains/qr-codes/use-cases/contact-qr-token-owner.use-case'
 import { GenerateQrTokensUseCase } from '@/domains/qr-codes/use-cases/generate-qr-tokens.use-case'
 import { GetMyQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-my-qr-tokens.use-case'
+import { GetMyStickerSummaryUseCase } from '@/domains/qr-codes/use-cases/get-my-sticker-summary.use-case'
 import { GetPaginatedQrTokensUseCase } from '@/domains/qr-codes/use-cases/get-paginated-qr-tokens.use-case'
 import { GetQrTokenByCodeUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-by-code.use-case'
 import { GetQrTokenPublicViewUseCase } from '@/domains/qr-codes/use-cases/get-qr-token-public-view.use-case'
+import { ReachQrTokenOwnerUseCase } from '@/domains/qr-codes/use-cases/reach-qr-token-owner.use-case'
 import { RevokeQrTokenUseCase } from '@/domains/qr-codes/use-cases/revoke-qr-token.use-case'
 import { UpdateQrTokenDetailsUseCase } from '@/domains/qr-codes/use-cases/update-qr-token-details.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
@@ -46,7 +50,9 @@ export class QrCodesController {
 		private readonly updateQrTokenDetailsUseCase: UpdateQrTokenDetailsUseCase,
 		private readonly getPaginatedQrTokensUseCase: GetPaginatedQrTokensUseCase,
 		private readonly getMyQrTokensUseCase: GetMyQrTokensUseCase,
+		private readonly getMyStickerSummaryUseCase: GetMyStickerSummaryUseCase,
 		private readonly contactQrTokenOwnerUseCase: ContactQrTokenOwnerUseCase,
+		private readonly reachQrTokenOwnerUseCase: ReachQrTokenOwnerUseCase,
 	) {}
 
 	@Post('generate')
@@ -80,6 +86,16 @@ export class QrCodesController {
 			userId: session.user.id,
 			filter,
 		})
+	}
+
+	/**
+	 * A route of its own rather than a field on `mine`: that list holds only the
+	 * tokens the visitor owns, and a sticker waiting to be activated has no
+	 * owner yet, so it appears in no list.
+	 */
+	@Get('mine/summary')
+	listMineSummary(@Session() session: UserSession<Auth>) {
+		return this.getMyStickerSummaryUseCase.execute(session.user.id)
 	}
 
 	@Get(':code/scan')
@@ -122,6 +138,23 @@ export class QrCodesController {
 		await this.contactQrTokenOwnerUseCase.execute({ code, ...data })
 
 		return { success: true }
+	}
+
+	/**
+	 * Answers the jump's target, which the front turns into a `Location` header.
+	 * `POST` is also what puts the route in the `public-write` bucket.
+	 */
+	@Post(':code/reach')
+	@AllowAnonymous()
+	@ApiZodBody(reachOwnerSchema)
+	reachOwner(
+		@Param('code') code: string,
+		@Body(new ZodValidationPipe(reachOwnerSchema)) data: ReachOwnerData,
+	) {
+		return this.reachQrTokenOwnerUseCase.execute({
+			code,
+			channel: data.channel,
+		})
 	}
 
 	@Patch(':code')

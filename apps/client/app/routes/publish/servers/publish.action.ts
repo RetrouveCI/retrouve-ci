@@ -13,7 +13,7 @@ export async function publishAction(
 	type: LostItemType,
 ): Promise<ActionResult> {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth/login')
+	if (!session) throw redirect('/login')
 
 	const formData = await request.formData()
 	const submission = publishFormSchema.safeParse(Object.fromEntries(formData))
@@ -27,11 +27,16 @@ export async function publishAction(
 	// The success path redirects, so it throws from inside the wrapper:
 	// `withApiOperationError` only converts an `ApiError` into a form error and
 	// rethrows everything else, the `redirect()` response included.
+	// A photo of a piece of ID hands over the name, the number and the date of
+	// birth at once, so the picker is not rendered — and the files are not
+	// uploaded either, whatever the submitted form happened to carry.
+	const isDocument = values.objectType === 'documents'
+
 	return withApiOperationError(
 		async () => {
-			const photos = await collectPhotoUrls(formData, request)
+			const photos = isDocument ? [] : await collectPhotoUrls(formData, request)
 
-			const created = await createLostItem(
+			await createLostItem(
 				{
 					type,
 					category: values.objectType,
@@ -43,12 +48,21 @@ export async function publishAction(
 					contactName: values.name,
 					contactWhatsapp: values.whatsapp,
 					photos: photos.length ? photos : undefined,
+					documentType: values.documentType,
+					documentHolderName: values.documentHolderName || undefined,
+					documentNumber: values.documentNumber || undefined,
+					documentIssuer: values.documentIssuer || undefined,
+					stickerCode: values.stickerCode,
 				},
 				request,
 			)
 
-			throw redirect(`/posts/${created.id}`)
+			// Not the listing itself: a new one is `pending`, so its public page
+			// would answer 404 to the person who just wrote it. « Mes annonces »
+			// is where it exists, and where the banner explains that a moderator
+			// has to pass before anyone else can see it.
+			throw redirect('/account/posts')
 		},
-		{ redirectOnUnauthorized: '/auth/login' },
+		{ redirectOnUnauthorized: '/login' },
 	)
 }

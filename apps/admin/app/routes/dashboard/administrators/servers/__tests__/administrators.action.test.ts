@@ -63,9 +63,7 @@ function errorsOf(result: ActionResult): FormErrors {
 
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
-	appUrl
-		.mockReset()
-		.mockReturnValue('http://localhost:3001/auth/reset-password')
+	appUrl.mockReset().mockReturnValue('http://localhost:3001/reset-password')
 	for (const fn of [
 		banAdminUser,
 		removeAdminUser,
@@ -94,10 +92,10 @@ describe('administratorsAction', () => {
 		expect(removeAdminUser).not.toHaveBeenCalled()
 	})
 
-	it('forwards the request cookie and origin to every call', async () => {
+	it('hands the request itself to every call', async () => {
 		await submit({ intent: 'delete', id: 'adm-1' })
 
-		expect(removeAdminUser).toHaveBeenCalledWith(HEADERS, 'adm-1')
+		expect(removeAdminUser).toHaveBeenCalledWith(expect.any(Request), 'adm-1')
 	})
 
 	// The endpoints read the backoffice cookie, so a 401 is a dead session, not
@@ -115,7 +113,7 @@ describe('administratorsAction', () => {
 			const result = await submit({ intent: 'create', ...VALID_CREATE })
 
 			expect(result).toEqual({ success: true })
-			expect(createAdminUser).toHaveBeenCalledWith(HEADERS, {
+			expect(createAdminUser).toHaveBeenCalledWith(expect.any(Request), {
 				name: 'Awa Traoré',
 				email: 'awa@retrouveci.com',
 				password: 'Azertyuiop1',
@@ -190,7 +188,11 @@ describe('administratorsAction', () => {
 			expect(
 				await submit({ intent: 'update', id: 'adm-1', role: 'moderator' }),
 			).toEqual({ success: true })
-			expect(setAdminRole).toHaveBeenCalledWith(HEADERS, 'adm-1', 'moderator')
+			expect(setAdminRole).toHaveBeenCalledWith(
+				expect.any(Request),
+				'adm-1',
+				'moderator',
+			)
 		})
 
 		// Validation runs before the id check, so a bad role is reported as a
@@ -225,7 +227,7 @@ describe('administratorsAction', () => {
 					status: 'inactive',
 				}),
 			).toEqual({ success: true })
-			expect(banAdminUser).toHaveBeenCalledWith(HEADERS, 'adm-1')
+			expect(banAdminUser).toHaveBeenCalledWith(expect.any(Request), 'adm-1')
 			expect(unbanAdminUser).not.toHaveBeenCalled()
 		})
 
@@ -234,7 +236,7 @@ describe('administratorsAction', () => {
 		it.each(['active', ''])('unbans on status %p', async status => {
 			await submit({ intent: 'toggle-status', id: 'adm-1', status })
 
-			expect(unbanAdminUser).toHaveBeenCalledWith(HEADERS, 'adm-1')
+			expect(unbanAdminUser).toHaveBeenCalledWith(expect.any(Request), 'adm-1')
 			expect(banAdminUser).not.toHaveBeenCalled()
 		})
 
@@ -277,13 +279,13 @@ describe('administratorsAction', () => {
 
 			expect(result).toEqual({ success: true })
 			expect(appUrl).toHaveBeenCalledWith(
-				'/auth/reset-password',
+				'/reset-password',
 				expect.any(Request),
 			)
 			expect(sendPasswordReset).toHaveBeenCalledWith(
-				HEADERS,
+				expect.any(Request),
 				'awa@retrouveci.com',
-				'http://localhost:3001/auth/reset-password',
+				'http://localhost:3001/reset-password',
 			)
 		})
 

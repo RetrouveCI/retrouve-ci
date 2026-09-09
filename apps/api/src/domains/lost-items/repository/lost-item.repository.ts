@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
 import {
 	toDomainLostItem,
+	toDomainModerationStatus,
+	toDomainResolutionStatus,
 	toPrismaCategory,
+	toPrismaDocumentType,
+	toPrismaModerationReason,
 	toPrismaModerationStatus,
 	toPrismaResolutionStatus,
 	toPrismaType,
@@ -13,10 +17,45 @@ import type {
 	ListLostItemsFilter,
 	LostItem,
 	LostItemListResponse,
+	LostItemOwnerSummary,
 	MatchCandidatesFilter,
+	ModerationDecision,
 	ModerationStatus,
+	ResolutionStatus,
+	ResolvedAtWrite,
 	UpdateLostItemData,
 } from '../types/lost-item.types'
+
+const EMPTY_LIFECYCLE: Record<ResolutionStatus, number> = {
+	active: 0,
+	resolved: 0,
+	expired: 0,
+}
+
+const EMPTY_MODERATION: Record<ModerationStatus, number> = {
+	pending: 0,
+	published: 0,
+	hidden: 0,
+}
+
+/** A form posts an empty string for a field it left alone; the column holds
+ * `null` or a value, never the difference between the two. */
+function toPrismaDocumentFields(data: CreateLostItemData | UpdateLostItemData) {
+	return {
+		...(data.documentType !== undefined && {
+			documentType: toPrismaDocumentType(data.documentType),
+		}),
+		...(data.documentHolderName !== undefined && {
+			documentHolderName: data.documentHolderName || null,
+		}),
+		...(data.documentNumber !== undefined && {
+			documentNumber: data.documentNumber || null,
+		}),
+		...(data.documentIssuer !== undefined && {
+			documentIssuer: data.documentIssuer || null,
+		}),
+	}
+}
 
 @Injectable()
 export class LostItemRepository {
@@ -35,6 +74,7 @@ export class LostItemRepository {
 				contactName: data.contactName,
 				contactWhatsapp: data.contactWhatsapp,
 				photos: data.photos ?? [],
+				...toPrismaDocumentFields(data),
 				userId: data.userId,
 			},
 		})
@@ -92,6 +132,42 @@ export class LostItemRepository {
 		return toPaginated(items.map(toDomainLostItem), total, filter)
 	}
 
+	/**
+	 * Two `groupBy` calls rather than a scan: the owner's page is capped, so any
+	 * count taken from it stops being true at the cap. Both are narrowed by
+	 * `userId`, which is the whole authorisation of this route.
+	 */
+	async summarizeByOwner(userId: string): Promise<LostItemOwnerSummary> {
+		const [byLifecycle, byModeration] = await Promise.all([
+			this.prisma.lostItem.groupBy({
+				by: ['resolutionStatus'],
+				where: { userId },
+				_count: { _all: true },
+			}),
+			this.prisma.lostItem.groupBy({
+				by: ['moderationStatus'],
+				where: { userId },
+				_count: { _all: true },
+			}),
+		])
+
+		const lifecycle = { ...EMPTY_LIFECYCLE }
+		let total = 0
+		for (const row of byLifecycle) {
+			lifecycle[toDomainResolutionStatus(row.resolutionStatus)] =
+				row._count._all
+			total += row._count._all
+		}
+
+		const moderation = { ...EMPTY_MODERATION }
+		for (const row of byModeration) {
+			moderation[toDomainModerationStatus(row.moderationStatus)] =
+				row._count._all
+		}
+
+		return { total, lifecycle, moderation }
+	}
+
 	async findMatchCandidates(
 		filter: MatchCandidatesFilter,
 	): Promise<LostItem[]> {
@@ -112,7 +188,11 @@ export class LostItemRepository {
 		return items.map(toDomainLostItem)
 	}
 
-	async update(id: string, data: UpdateLostItemData): Promise<LostItem> {
+	async update(
+		id: string,
+		data: UpdateLostItemData,
+		resolvedAt: ResolvedAtWrite = undefined,
+	): Promise<LostItem> {
 		const lostItem = await this.prisma.lostItem.update({
 			where: { id },
 			data: {
@@ -129,23 +209,50 @@ export class LostItemRepository {
 				...(data.contactWhatsapp !== undefined && {
 					contactWhatsapp: data.contactWhatsapp,
 				}),
+				...toPrismaDocumentFields(data),
 				...(data.photos !== undefined && { photos: data.photos }),
 				...(data.resolutionStatus !== undefined && {
 					resolutionStatus: toPrismaResolutionStatus(data.resolutionStatus),
 				}),
+				...(resolvedAt !== undefined && { resolvedAt }),
 			},
 		})
 
 		return toDomainLostItem(lostItem)
 	}
 
+	// ⚠️ `published` and nothing else, exactly what `GetPublicLostItemsUseCase`
+	// applies — so the two screens cannot show different figures.
+	async countPublished(): Promise<number> {
+		return this.prisma.lostItem.count({
+			where: { moderationStatus: 'PUBLISHED' },
+		})
+	}
+
+	// Not `updatedAt`: it moves on any edit, so it could never answer « ce mois ».
+	async countResolvedSince(since: Date): Promise<number> {
+		return this.prisma.lostItem.count({
+			where: { resolutionStatus: 'RESOLVED', resolvedAt: { gte: since } },
+		})
+	}
+
 	async updateModerationStatus(
 		id: string,
-		moderationStatus: ModerationStatus,
+		{
+			moderationStatus,
+			moderationReason,
+			moderationReasonNote,
+		}: ModerationDecision,
 	): Promise<LostItem> {
 		const lostItem = await this.prisma.lostItem.update({
 			where: { id },
-			data: { moderationStatus: toPrismaModerationStatus(moderationStatus) },
+			data: {
+				moderationStatus: toPrismaModerationStatus(moderationStatus),
+				moderationReason: moderationReason
+					? toPrismaModerationReason(moderationReason)
+					: null,
+				moderationReasonNote: moderationReasonNote ?? null,
+			},
 		})
 
 		return toDomainLostItem(lostItem)

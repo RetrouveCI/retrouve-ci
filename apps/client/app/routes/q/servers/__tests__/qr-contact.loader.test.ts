@@ -13,7 +13,14 @@ const TOKEN = {
 	ownerFirstName: 'Awa',
 	label: 'Mes clés',
 	linkedObject: 'trousseau',
+	directContact: false,
 }
+
+const scan = (code: string, search = '') =>
+	qrContactLoader({
+		request: new Request(`http://localhost/q/${code}${search}`),
+		params: { code },
+	})
 
 beforeEach(() => {
 	getQrTokenPublicView.mockReset().mockResolvedValue(TOKEN)
@@ -26,10 +33,11 @@ afterEach(() => {
 describe('qrContactLoader', () => {
 	// Deliberately ungated: whoever finds the object is a stranger.
 	it('reads the public view for the scanned code', async () => {
-		expect(await qrContactLoader({ params: { code: 'RCI-ABC123' } })).toEqual({
-			token: TOKEN,
-		})
-		expect(getQrTokenPublicView).toHaveBeenCalledWith('RCI-ABC123')
+		expect(await scan('RCI-ABC123')).toEqual({ token: TOKEN, reach: null })
+		expect(getQrTokenPublicView).toHaveBeenCalledWith(
+			'RCI-ABC123',
+			expect.any(Request),
+		)
 	})
 
 	/**
@@ -41,11 +49,9 @@ describe('qrContactLoader', () => {
 
 		// `data()` yields a DataWithResponseInit; react-router builds the Response.
 		let thrown: { data?: unknown; init?: { status?: number } } | undefined
-		await qrContactLoader({ params: { code: 'RCI-NOPE' } }).catch(
-			(error: unknown) => {
-				thrown = error as { data?: unknown; init?: { status?: number } }
-			},
-		)
+		await scan('RCI-NOPE').catch((error: unknown) => {
+			thrown = error as { data?: unknown; init?: { status?: number } }
+		})
 
 		expect(thrown?.init?.status).toBe(404)
 		expect(thrown?.data).toBeNull()
@@ -56,17 +62,25 @@ describe('qrContactLoader', () => {
 		const error = new ApiError(status, 'boom')
 		getQrTokenPublicView.mockRejectedValue(error)
 
-		await expect(
-			qrContactLoader({ params: { code: 'RCI-ABC123' } }),
-		).rejects.toBe(error)
+		await expect(scan('RCI-ABC123')).rejects.toBe(error)
 	})
 
 	it('rethrows a non-API failure untouched', async () => {
 		const error = new Error('network down')
 		getQrTokenPublicView.mockRejectedValue(error)
 
-		await expect(
-			qrContactLoader({ params: { code: 'RCI-ABC123' } }),
-		).rejects.toBe(error)
+		await expect(scan('RCI-ABC123')).rejects.toBe(error)
+	})
+
+	// An unknown value reaches a `Record` lookup, so it would render `undefined`
+	// inside a `role="alert"`.
+	it.each([
+		['?reach=failed', 'failed'],
+		['?reach=throttled', 'throttled'],
+		['?reach=whatever', null],
+		['?reach=', null],
+		['', null],
+	])('reads %s as %o', async (search, expected) => {
+		expect((await scan('RCI-ABC123', search)).reach).toBe(expected)
 	})
 })

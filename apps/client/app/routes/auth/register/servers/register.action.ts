@@ -6,7 +6,7 @@ import {
 	sendOtpActionSchema,
 	setInitialPasswordActionSchema,
 } from '../register.schema'
-import { setInitialPassword, sendOtp } from './register.service'
+import { setDisplayName, setInitialPassword, sendOtp } from './register.service'
 
 export async function registerAction({
 	request,
@@ -40,9 +40,10 @@ export async function registerAction({
 				}
 			}
 
-			return withApiOperationError(() =>
-				setInitialPassword(submission.data.newPassword, request),
-			)
+			return withApiOperationError(async () => {
+				await setDisplayName(submission.data.name, request)
+				await setInitialPassword(submission.data.newPassword, request)
+			})
 		}
 		default:
 			return { success: false }

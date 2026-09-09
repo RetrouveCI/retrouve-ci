@@ -7,6 +7,8 @@ import { settingsActionSchema } from '../settings.schema'
 import {
 	deleteAccount,
 	sendPhoneChangeOtp,
+	subscribeToPush,
+	unsubscribeFromPush,
 	updateProfile,
 } from './settings.service'
 
@@ -16,7 +18,7 @@ export async function settingsAction({
 	request: Request
 }): Promise<ActionResult> {
 	const session = await getServerSession(request)
-	if (!session) throw redirect('/auth/login')
+	if (!session) throw redirect('/login')
 
 	const submission = settingsActionSchema.safeParse(
 		Object.fromEntries(await request.formData()),
@@ -45,8 +47,14 @@ export async function settingsAction({
 				case 'delete-account':
 					await deleteAccount(values.password, request)
 					break
+				case 'subscribe-push':
+					await subscribeToPush(request, values)
+					break
+				case 'unsubscribe-push':
+					await unsubscribeFromPush(request, values.endpoint)
+					break
 			}
 		},
-		{ redirectOnUnauthorized: '/auth/login' },
+		{ redirectOnUnauthorized: '/login' },
 	)
 }

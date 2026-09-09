@@ -7,5 +7,20 @@ export interface Sticker {
 	isActive: boolean
 	label: string | null
 	linkedObject: string | null
+	/** Whether a finder may be handed the owner's line. Closed by default. */
+	directContact: boolean
 	activatedAt: string | null
+	/** What the owner reads on the card: when it was last read, by anyone. */
+	lastScannedAt: string | null
+	messagesCount: number
+}
+
+/**
+ * A sticker waiting to be activated carries no owner, so `delivered` is read
+ * off the orders and only `activated` off the tokens.
+ */
+export interface StickerActivationSummary {
+	delivered: number
+	activated: number
+	pending: number
 }

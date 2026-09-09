@@ -1,7 +1,5 @@
 import {
 	Button,
-	Input,
-	Label,
 	Dialog,
 	DialogContent,
 	DialogDescription,
@@ -10,120 +8,138 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@app/ui/components'
-import { useEffect, useState } from 'react'
-import { Plus } from 'lucide-react'
+import { FormInputField, FormRootError } from '@app/ui/components/form'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
+import { Loader2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import {
+	activateStickerSchema,
+	type ActivateStickerData,
+	type ActivateStickerInput,
+} from '../stickers.schema'
 import type { stickersAction } from '../servers/stickers.action'
 
-export function ActivateStickerDialog() {
-	const fetcher = useActionFetcher<typeof stickersAction>()
-	const [hasSubmitted, setHasSubmitted] = useState(false)
+const EMPTY: ActivateStickerInput = {
+	intent: 'activate',
+	code: '',
+	label: '',
+	linkedObject: '',
+}
+
+export function ActivateStickerDialog({
+	trigger,
+}: {
+	trigger?: React.ReactNode
+}) {
+	const fetcher = useActionFetcher<
+		typeof stickersAction,
+		ActivateStickerInput
+	>()
 	const [open, setOpen] = useState(false)
-	const [code, setCode] = useState('')
-	const [label, setLabel] = useState('')
-	const [linkedObject, setLinkedObject] = useState('')
 
-	useEffect(() => {
-		if (!hasSubmitted || fetcher.state !== 'idle') return
+	const form = useForm<ActivateStickerInput, unknown, ActivateStickerData>({
+		resolver: standardSchemaResolver(activateStickerSchema),
+		mode: 'onSubmit',
+		reValidateMode: 'onChange',
+		errors: fetcher.errors,
+		defaultValues: EMPTY,
+	})
 
-		setHasSubmitted(false)
+	// A failure needs no toast: `FormRootError` already carries it, inside the
+	// dialog the reader is looking at.
+	useSettledSubmission(fetcher.response, result => {
+		if (!result.success) return
 
-		if (fetcher.isOk) {
-			toast.success('Sticker activé avec succès')
-			setCode('')
-			setLabel('')
-			setLinkedObject('')
-			setOpen(false)
-		} else {
-			toast.error(
-				fetcher.errors?.root?.message ?? "Impossible d'activer ce sticker",
-			)
-		}
-	}, [hasSubmitted, fetcher.state, fetcher.isOk, fetcher.errors])
+		toast.success('Sticker activé')
+		form.reset(EMPTY)
+		setOpen(false)
+	})
 
-	const handleSubmit = () => {
-		if (!code || !label) {
-			toast.error('Veuillez remplir le code et le nom')
-			return
-		}
-		setHasSubmitted(true)
+	const onSubmit = (values: ActivateStickerData) => {
 		void fetcher.submit(
-			{
-				intent: 'activate',
-				code: code.toUpperCase(),
-				label,
-				linkedObject,
-			},
+			{ ...values, code: values.code.toUpperCase() },
 			{ method: 'post' },
 		)
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog
+			open={open}
+			onOpenChange={next => {
+				setOpen(next)
+				if (next) form.reset(EMPTY)
+			}}
+		>
 			<DialogTrigger asChild>
-				<Button className="bg-primary-green hover:bg-primary-green-dark gap-2 rounded-xl text-white">
-					<Plus className="h-4 w-4" />
-					Activer un sticker
-				</Button>
+				{trigger ?? (
+					<Button className="bg-primary-green hover:bg-primary-green-dark h-control w-full gap-2 rounded-[14px] text-lg text-white">
+						<Plus className="h-4.5 w-4.5" />
+						Activer un sticker
+					</Button>
+				)}
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Activer un nouveau sticker</DialogTitle>
+					<DialogTitle>Activer un sticker</DialogTitle>
 					<DialogDescription>
-						Entrez le code du sticker QR imprimé sur votre étiquette.
+						Le code est imprimé sous le QR de chaque sticker.
 					</DialogDescription>
 				</DialogHeader>
-				<div className="space-y-4 py-4">
-					<div className="space-y-2">
-						<Label htmlFor="sticker-code">Code du sticker *</Label>
-						<Input
-							id="sticker-code"
-							value={code}
-							onChange={e => setCode(e.target.value)}
-							placeholder="Ex: RCI-XXXXXX"
-							className="h-11 rounded-xl font-mono uppercase"
-						/>
-					</div>
-					<div className="space-y-2">
-						<Label htmlFor="sticker-label">Nom / Label *</Label>
-						<Input
-							id="sticker-label"
-							value={label}
-							onChange={e => setLabel(e.target.value)}
-							placeholder="Ex: Clés de voiture"
-							className="h-11 rounded-xl"
-						/>
-					</div>
-					<div className="space-y-2">
-						<Label htmlFor="sticker-object">
-							Description de l&apos;objet (optionnel)
-						</Label>
-						<Input
-							id="sticker-object"
-							value={linkedObject}
-							onChange={e => setLinkedObject(e.target.value)}
-							placeholder="Ex: Clés Toyota avec porte-clés bleu"
-							className="h-11 rounded-xl"
-						/>
-					</div>
-				</div>
-				<DialogFooter>
-					<Button
-						variant="outline"
-						onClick={() => setOpen(false)}
-						className="rounded-xl"
-					>
-						Annuler
-					</Button>
-					<Button
-						onClick={handleSubmit}
-						disabled={fetcher.isSubmitting}
-						className="bg-primary-green hover:bg-primary-green-dark rounded-xl text-white"
-					>
-						Activer
-					</Button>
-				</DialogFooter>
+
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					noValidate
+					className="space-y-4"
+				>
+					<FormRootError message={form.formState.errors.root?.message} />
+
+					<FormInputField
+						control={form.control}
+						name="code"
+						label="Code du sticker"
+						required
+						placeholder="RCI-XXXX-XXXX"
+						className="h-11 tracking-wider uppercase"
+					/>
+					<FormInputField
+						control={form.control}
+						name="label"
+						label="Nom du sticker"
+						required
+						placeholder="Ex : Clés de la maison"
+					/>
+					<FormInputField
+						control={form.control}
+						name="linkedObject"
+						label="Description de l'objet (optionnel)"
+						placeholder="Ex : Trousseau avec porte-clés bleu"
+					/>
+
+					<DialogFooter>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => setOpen(false)}
+							className="rounded-xl"
+						>
+							Annuler
+						</Button>
+						<Button
+							type="submit"
+							disabled={fetcher.isSubmitting}
+							className="bg-primary-green hover:bg-primary-green-dark gap-2 rounded-xl text-white"
+						>
+							{fetcher.isSubmitting && (
+								<Loader2 className="h-4 w-4 animate-spin" />
+							)}
+							Activer
+						</Button>
+					</DialogFooter>
+				</form>
 			</DialogContent>
 		</Dialog>
 	)

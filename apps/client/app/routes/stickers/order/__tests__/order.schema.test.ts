@@ -1,4 +1,4 @@
-import { PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
 import { stickerOrderSchema } from '../order.schema'
 import { PACKS } from '../stickers-order.const'
 
@@ -30,7 +30,7 @@ describe('stickerOrderSchema', () => {
 	it('answers in French for every blank the form can post', () => {
 		expect(messageFor({ packId: '' })).toBe('Sélectionnez un pack')
 		expect(messageFor({ name: '' })).toBe('Votre nom est requis')
-		expect(messageFor({ phone: '' })).toBe(PHONE_ERROR_MESSAGE)
+		expect(messageFor({ phone: '' })).toBe(ASSIGNABLE_PHONE_ERROR_MESSAGE)
 		expect(messageFor({ address: '' })).toBe('Adresse trop courte')
 		expect(messageFor({ city: '' })).toBe('La ville est requise')
 	})
@@ -59,10 +59,20 @@ describe('stickerOrderSchema', () => {
 	 * below — a number nobody can be reached on — and refused the spaced form a
 	 * visitor is most likely to type.
 	 */
-	it('holds the delivery phone to the shared ten-digit rule', () => {
-		expect(messageFor({ phone: '01234567' })).toBe(PHONE_ERROR_MESSAGE)
-		expect(messageFor({ phone: '0'.repeat(17) })).toBe(PHONE_ERROR_MESSAGE)
-		expect(messageFor({ phone: 'pas-un-numero' })).toBe(PHONE_ERROR_MESSAGE)
+	it('holds the delivery phone to the shared ivorian rule', () => {
+		expect(messageFor({ phone: '01234567' })).toBe(
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
+		)
+		expect(messageFor({ phone: '0'.repeat(17) })).toBe(
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
+		)
+		expect(messageFor({ phone: 'pas-un-numero' })).toBe(
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
+		)
+		// The courier has to call this number the day of the delivery.
+		expect(messageFor({ phone: '0600000000' })).toBe(
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
+		)
 	})
 
 	it.each(['0700000000', '07 00 00 00 00', '+2250700000000', '2250700000000'])(

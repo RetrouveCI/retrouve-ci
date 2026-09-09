@@ -26,7 +26,7 @@ export function OrderSummaryCard({
 			<div className="space-y-4">
 				<div className="flex items-center gap-3 border-b pb-4">
 					<div className="bg-primary-green/10 flex h-12 w-12 items-center justify-center rounded-xl">
-						<QrCode className="text-primary-green h-6 w-6" />
+						<QrCode className="text-primary-green-text h-6 w-6" />
 					</div>
 					<div>
 						<p className="font-medium">Pack {selectedPackData.name}</p>
@@ -44,7 +44,7 @@ export function OrderSummaryCard({
 					<div className="flex items-center justify-between">
 						<span className="text-muted-foreground">Livraison</span>
 						{deliveryFee === 0 ? (
-							<span className="text-primary-green flex items-center gap-1">
+							<span className="text-primary-green-text flex items-center gap-1">
 								<Tag className="h-3 w-3" /> Gratuite
 							</span>
 						) : (

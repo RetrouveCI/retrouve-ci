@@ -20,6 +20,10 @@ export function configureCloudinary(credentials: CloudinaryCredentials): void {
 	})
 }
 
+// Above the widest the front asks for (1600 device pixels). `MAX_PHOTO_SIZE`
+// bounds bytes, not pixels: 5 Mo of JPEG can be 6000 px wide.
+export const MAX_STORED_PHOTO_WIDTH = 2000
+
 export function uploadImageBuffer(
 	buffer: Buffer,
 	options: { folder: string },
@@ -29,6 +33,10 @@ export function uploadImageBuffer(
 			{
 				folder: options.folder,
 				resource_type: 'image',
+				// ⚠️ Incoming, not `eager`: an eager transformation pre-generates extra
+				// derivatives and leaves the master at full size. `c_limit` never
+				// upscales, and no `q_auto` — the display URL applies one.
+				transformation: [{ width: MAX_STORED_PHOTO_WIDTH, crop: 'limit' }],
 			},
 			(error, result?: UploadApiResponse) => {
 				if (error || !result) {

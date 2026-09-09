@@ -70,7 +70,7 @@ export function NotificationBell() {
 				>
 					<Bell className="h-4 w-4" />
 					{unreadCount > 0 && (
-						<Badge className="absolute -top-1 -right-1 h-5 min-w-5 justify-center rounded-full px-1 text-[10px]">
+						<Badge className="absolute -top-1 -right-1 h-5 min-w-5 justify-center rounded-full px-1 text-xs">
 							{unreadCount > 9 ? '9+' : unreadCount}
 						</Badge>
 					)}
@@ -84,7 +84,7 @@ export function NotificationBell() {
 							type="button"
 							onClick={handleMarkAllAsRead}
 							disabled={actionFetcher.state !== 'idle'}
-							className="text-primary-green hover:text-primary-green-dark text-xs font-medium disabled:opacity-50"
+							className="text-primary-green-text text-xs font-medium hover:underline disabled:opacity-50"
 						>
 							Tout marquer comme lu
 						</button>
@@ -119,7 +119,7 @@ export function NotificationBell() {
 							<Link
 								to="/notifications"
 								onClick={() => setOpen(false)}
-								className="text-primary-green hover:bg-muted/50 block rounded-md px-3 py-2 text-center text-sm font-medium transition-colors"
+								className="text-primary-green-text hover:bg-muted/50 block rounded-md px-3 py-2 text-center text-sm font-medium transition-colors"
 							>
 								Voir toutes les notifications
 							</Link>

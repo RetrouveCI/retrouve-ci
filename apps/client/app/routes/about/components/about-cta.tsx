@@ -10,13 +10,14 @@ export function AboutCta() {
 						<h2 className="mb-2 text-2xl font-bold md:text-3xl">
 							Rejoignez la communauté
 						</h2>
-						<p className="text-white/80">
+						<p className="text-white">
 							Publiez votre première annonce gratuitement dès aujourd&apos;hui.
 						</p>
 					</div>
+					{/* Brand green, not the ink token: the pill is white in both themes. */}
 					<Link
 						to="/publish"
-						className="text-primary-green inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold transition-colors hover:bg-white/90"
+						className="text-primary-green h-control inline-flex shrink-0 items-center gap-2 rounded-full bg-white px-6 text-lg font-semibold transition-colors hover:bg-white/90"
 					>
 						Publier une annonce
 						<ArrowRight className="h-4 w-4" />

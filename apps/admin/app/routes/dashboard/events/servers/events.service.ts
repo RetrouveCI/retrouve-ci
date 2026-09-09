@@ -17,7 +17,7 @@ export async function listEvents(
 	if (params.status) query.set('status', params.status)
 
 	return apiFetch<EventListResponse>(`/events/admin?${query.toString()}`, {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -28,7 +28,7 @@ export async function createEvent(
 	return apiFetch<Event>('/events', {
 		method: 'POST',
 		body: JSON.stringify(body),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -40,13 +40,13 @@ export async function updateEvent(
 	return apiFetch<Event>(`/events/${id}`, {
 		method: 'PATCH',
 		body: JSON.stringify(body),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
 export async function deleteEvent(id: string, request: Request): Promise<void> {
 	return apiFetch<void>(`/events/${id}`, {
 		method: 'DELETE',
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

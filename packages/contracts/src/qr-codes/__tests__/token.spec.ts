@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { qrTokenDetailsSchema } from '../token.schema'
+import { directContactSchema, qrTokenDetailsSchema } from '../token.schema'
 
 const parse = (input: unknown) => qrTokenDetailsSchema.safeParse(input)
 
@@ -24,5 +24,30 @@ describe('qrTokenDetailsSchema', () => {
 		expect(tooLong.success).toBe(false)
 		expect(tooLong.error?.issues[0]?.message).toBe(expected)
 		expect(parse({ [field]: 'a'.repeat(max) }).success).toBe(true)
+	})
+
+	// Absent is not `false`: `update` leaves a stored consent alone, where a
+	// posted `false` withdraws it.
+	it('keeps an absent consent absent', () => {
+		expect(parse({ label: 'Clés' }).data).toEqual({ label: 'Clés' })
+	})
+})
+
+describe('directContactSchema', () => {
+	it.each([
+		[true, true],
+		[false, false],
+		['true', true],
+		['false', false],
+	])('reads %o as %o', (input, expected) => {
+		expect(directContactSchema.parse(input)).toBe(expected)
+	})
+
+	// A bare `z.union` reports « Invalid input » in English.
+	it.each(['on', 'oui', '1', 1, null])('refuses %o in French', input => {
+		const result = directContactSchema.safeParse(input)
+
+		expect(result.success).toBe(false)
+		expect(result.error?.issues[0]?.message).toBe('Doit valoir true ou false')
 	})
 })

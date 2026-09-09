@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useController, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
-import { FormRootError } from '@app/ui/components/form'
+import { Input, Label } from '@app/ui/components'
+import { FieldError, FormRootError } from '@app/ui/components/form'
 import { toErrorList } from '../../helpers/field-errors'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import {
@@ -11,6 +12,7 @@ import {
 	type NewPasswordData,
 	type NewPasswordInput,
 } from '../register.schema'
+import { AuthSubmitButton } from '../../components/auth-submit-button'
 import { PasswordStep } from '../../components/password-step'
 import type { action } from '../_index'
 
@@ -29,7 +31,7 @@ export function CreatePasswordStepSection({
 		mode: 'onSubmit',
 		errors: fetcher.errors,
 		reValidateMode: 'onChange',
-		defaultValues: { newPassword: '', confirmPassword: '' },
+		defaultValues: { newPassword: '', confirmPassword: '', name: '' },
 	})
 
 	const newPassword = useController({
@@ -40,11 +42,16 @@ export function CreatePasswordStepSection({
 		control: form.control,
 		name: 'confirmPassword',
 	})
+	const fullName = useController({ control: form.control, name: 'name' })
 
 	const onSubmit = (values: NewPasswordData) => {
 		setHasSubmitted(true)
 		void fetcher.submit(
-			{ intent: 'set-initial-password', newPassword: values.newPassword },
+			{
+				intent: 'set-initial-password',
+				newPassword: values.newPassword,
+				name: values.name,
+			},
 			{ method: 'post' },
 		)
 	}
@@ -60,14 +67,14 @@ export function CreatePasswordStepSection({
 	}, [hasSubmitted, fetcher.isOk, navigate, redirectTo])
 
 	return (
-		<form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-			<FormRootError
-				message={form.formState.errors.root?.message}
-				className="mb-5"
-			/>
+		<form
+			onSubmit={form.handleSubmit(onSubmit)}
+			noValidate
+			className="space-y-6"
+		>
+			<FormRootError message={form.formState.errors.root?.message} />
 
 			<PasswordStep
-				step="create-password"
 				newPassword={newPassword.field.value}
 				setNewPassword={newPassword.field.onChange}
 				confirmPassword={confirmPassword.field.value}
@@ -76,6 +83,35 @@ export function CreatePasswordStepSection({
 				confirmPasswordErrors={toErrorList(confirmPassword.fieldState.error)}
 				isSubmitting={fetcher.isSubmitting}
 			/>
+
+			<div className="space-y-2">
+				<Label htmlFor="first-name" className="text-sm font-semibold">
+					Votre nom complet
+				</Label>
+				<Input
+					id="first-name"
+					name="name"
+					value={fullName.field.value}
+					onChange={fullName.field.onChange}
+					placeholder="Konan Ouattara Grégoire"
+					autoComplete="name"
+					disabled={fetcher.isSubmitting}
+					className="border-border bg-background focus:border-primary-green focus:ring-primary-green/15 h-control rounded-xl border-[1.5px] transition-all focus:ring-[3px]"
+				/>
+				<FieldError errors={toErrorList(fullName.fieldState.error)} />
+				{/* The artboard added « Votre nom complet reste privé » — there is no
+				    second, private name to keep, so the promise is left unsaid. */}
+				<p className="text-muted-foreground text-xs">
+					Affiché sur vos annonces, à la personne qui trouve votre objet.
+				</p>
+			</div>
+
+			<AuthSubmitButton
+				isSubmitting={fetcher.isSubmitting}
+				pendingLabel="Création du compte..."
+			>
+				Créer mon compte
+			</AuthSubmitButton>
 		</form>
 	)
 }

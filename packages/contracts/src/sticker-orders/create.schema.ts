@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { stickerPackIdSchema } from './pack.schema'
+import { stickerOrderSourceSchema } from './source.schema'
 
 export const createStickerOrderSchema = z.object({
 	packId: stickerPackIdSchema,
@@ -19,6 +20,9 @@ export const createStickerOrderSchema = z.object({
 		.max(500, 'Maximum 500 caractères')
 		.optional(),
 	couponCode: z.string().trim().max(30, 'Maximum 30 caractères').optional(),
+	// Optional: a direct arrival carries none, and the use-case stamps the
+	// default rather than trusting the body to name it.
+	source: stickerOrderSourceSchema.optional(),
 })
 
 export type CreateStickerOrderInput = z.input<typeof createStickerOrderSchema>

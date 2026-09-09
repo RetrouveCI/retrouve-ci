@@ -21,13 +21,13 @@ export function PostsHero({
 
 			<div className="relative container mx-auto px-4 pt-12 pb-8">
 				<div className="mx-auto max-w-2xl text-center">
-					<div className="border-primary-green/20 bg-primary-green/10 text-primary-green mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
+					<div className="border-primary-green/20 bg-primary-green/10 text-primary-green-text mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
 						<TrendingUp className="h-3.5 w-3.5" />
 						{listingsCount} annonces disponibles
 					</div>
 					<h1 className="mb-3 text-4xl font-bold tracking-tight text-balance md:text-5xl">
-						Objets <span className="text-primary-green">Perdus</span> &amp;{' '}
-						<span className="text-accent-orange">Retrouvés</span>
+						Objets <span className="text-primary-green-text">Perdus</span> &amp;{' '}
+						<span className="text-accent-orange-text">Retrouvés</span>
 					</h1>
 					<p className="text-muted-foreground mb-8 text-base md:text-lg">
 						Retrouvez votre objet ou aidez quelqu&apos;un à récupérer le sien.

@@ -102,7 +102,7 @@ describe('requireServerSession', () => {
 		).catch((error: unknown) => error)
 
 		expect((thrown as Response).headers.get('Location')).toBe(
-			'/auth/login?redirectTo=%2Fnotifications',
+			'/login?redirectTo=%2Fnotifications',
 		)
 	})
 
@@ -115,7 +115,7 @@ describe('requireServerSession', () => {
 
 		expect(thrown).toBeInstanceOf(Response)
 		expect((thrown as Response).headers.get('Location')).toBe(
-			'/auth/login?redirectTo=%2Faccount%2Fposts',
+			'/login?redirectTo=%2Faccount%2Fposts',
 		)
 	})
 })
@@ -129,7 +129,7 @@ describe('redirectIfAuthenticated', () => {
 		mockedApiFetch.mockResolvedValue(sessionFor('admin'))
 
 		const thrown = await redirectIfAuthenticated(
-			new Request('https://retrouve.ci/auth/login'),
+			new Request('https://retrouve.ci/login'),
 		).catch((error: unknown) => error)
 
 		expect(thrown).toBeInstanceOf(Response)
@@ -139,7 +139,7 @@ describe('redirectIfAuthenticated', () => {
 		mockedApiFetch.mockResolvedValue(null)
 
 		await expect(
-			redirectIfAuthenticated(new Request('https://retrouve.ci/auth/login')),
+			redirectIfAuthenticated(new Request('https://retrouve.ci/login')),
 		).resolves.toBeUndefined()
 	})
 
@@ -147,7 +147,7 @@ describe('redirectIfAuthenticated', () => {
 		mockedApiFetch.mockResolvedValue(sessionFor('user'))
 
 		const thrown = await redirectIfAuthenticated(
-			new Request('https://retrouve.ci/auth/login?redirectTo=%2Fpublish'),
+			new Request('https://retrouve.ci/login?redirectTo=%2Fpublish'),
 		).catch((error: unknown) => error)
 
 		expect(thrown).toBeInstanceOf(Response)

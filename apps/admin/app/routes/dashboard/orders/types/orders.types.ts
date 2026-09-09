@@ -1,4 +1,7 @@
-import type { StickerOrderStatus } from '@app/contracts/sticker-orders'
+import type {
+	StickerOrderSource,
+	StickerOrderStatus,
+} from '@app/contracts/sticker-orders'
 
 export type OrderStatus = StickerOrderStatus
 
@@ -13,6 +16,7 @@ export interface StickerOrder {
 	total: number
 	status: OrderStatus
 	paymentMethod: string
+	source: StickerOrderSource
 	deliveryAddress: string
 	deliveryCity: string
 	deliveryNotes: string | null

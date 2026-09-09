@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { Controller, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
@@ -6,9 +6,9 @@ import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { otpSchema, type OtpData, type OtpInput } from '../register.schema'
 import { verifyPhoneOtp } from '../../helpers/phone-auth.client'
 import { OtpStep } from '../../components/otp-step'
+import { useOtpCountdown } from '../../hooks/use-otp-countdown'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import type { action } from '../_index'
-
-const OTP_EXPIRY_SECONDS = 120
 
 interface OtpStepSectionProps {
 	phoneNumber: string
@@ -21,9 +21,8 @@ export function OtpStepSection({
 }: OtpStepSectionProps) {
 	const [otpError, setOtpError] = useState(false)
 	const [isVerifying, setIsVerifying] = useState(false)
-	const [timeLeft, setTimeLeft] = useState(OTP_EXPIRY_SECONDS)
-	const [resendKey, setResendKey] = useState(0)
-	const [hasRequestedResend, setHasRequestedResend] = useState(false)
+
+	const countdown = useOtpCountdown()
 
 	const form = useForm<OtpInput, unknown, OtpData>({
 		resolver: standardSchemaResolver(otpSchema),
@@ -36,47 +35,21 @@ export function OtpStepSection({
 	// reported with a toast rather than through the form's own errors.
 	const resendFetcher = useActionFetcher<typeof action>()
 
-	useEffect(() => {
-		if (!hasRequestedResend || resendFetcher.state !== 'idle') return
+	const { restart } = countdown
 
-		if (resendFetcher.isOk) {
-			toast.success('Nouveau code envoyé !')
-			form.setValue('otp', '')
-			setOtpError(false)
-			setResendKey(k => k + 1)
-		} else {
+	useSettledSubmission(resendFetcher.response, result => {
+		if (!result.success) {
 			toast.error('Impossible d’envoyer le code', {
-				description: resendFetcher.errors?.root?.message,
+				description: result.errors?.root?.message,
 			})
+			return
 		}
 
-		setHasRequestedResend(false)
-	}, [
-		hasRequestedResend,
-		resendFetcher.state,
-		resendFetcher.isOk,
-		resendFetcher.errors,
-		form,
-	])
-
-	useEffect(() => {
-		setTimeLeft(OTP_EXPIRY_SECONDS)
-		const interval = setInterval(() => {
-			setTimeLeft(prev => {
-				if (prev <= 1) {
-					clearInterval(interval)
-					return 0
-				}
-				return prev - 1
-			})
-		}, 1000)
-		return () => clearInterval(interval)
-	}, [resendKey])
-
-	const formatTime = (s: number) =>
-		`${Math.floor(s / 60)
-			.toString()
-			.padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
+		toast.success('Nouveau code envoyé !')
+		form.setValue('otp', '')
+		setOtpError(false)
+		restart()
+	})
 
 	const onSubmit = async (values: OtpData) => {
 		setIsVerifying(true)
@@ -84,9 +57,6 @@ export function OtpStepSection({
 		setIsVerifying(false)
 		if (!ok) {
 			setOtpError(true)
-			toast.error('Code incorrect', {
-				description: 'Vérifiez le code reçu et réessayez.',
-			})
 			form.setValue('otp', '')
 			return
 		}
@@ -94,7 +64,6 @@ export function OtpStepSection({
 	}
 
 	const handleResend = () => {
-		setHasRequestedResend(true)
 		void resendFetcher.submit(
 			{ intent: 'send-otp', phoneNumber },
 			{ method: 'post' },
@@ -112,9 +81,14 @@ export function OtpStepSection({
 						setOtp={field.onChange}
 						otpError={otpError}
 						setOtpError={setOtpError}
-						timeLeft={timeLeft}
+						// The mockup gives this step no button: the six digits are the
+						// submission, so the code leaves as soon as it is complete. The
+						// value is passed straight through — reading it back off the form
+						// would race the change that just produced it.
+						onComplete={otp => void onSubmit({ otp })}
+						resendIn={countdown.resendIn}
+						canResend={countdown.canResend}
 						isSubmitting={isVerifying || resendFetcher.isSubmitting}
-						formatTime={formatTime}
 						onResend={handleResend}
 					/>
 				)}

@@ -28,7 +28,7 @@ export function StickerInfoSection() {
 										key={item.name}
 										className="bg-background flex items-center gap-2 rounded-full border px-3 py-2 text-sm"
 									>
-										<item.icon className="text-primary-green h-4 w-4" />
+										<item.icon className="text-primary-green-text h-4 w-4" />
 										<span>{item.name}</span>
 									</div>
 								))}
@@ -37,7 +37,7 @@ export function StickerInfoSection() {
 
 						<div className="grid grid-cols-2 gap-4 md:col-span-2">
 							<div className="bg-background flex flex-col justify-center rounded-2xl border p-5">
-								<div className="text-primary-green text-3xl font-bold">
+								<div className="text-primary-green-text text-3xl font-bold">
 									100%
 								</div>
 								<p className="text-muted-foreground text-sm">
@@ -45,7 +45,7 @@ export function StickerInfoSection() {
 								</p>
 							</div>
 							<div className="bg-background flex flex-col justify-center rounded-2xl border p-5">
-								<div className="text-accent-orange text-3xl font-bold">
+								<div className="text-accent-orange-text text-3xl font-bold">
 									2 min
 								</div>
 								<p className="text-muted-foreground text-sm">Pour activer</p>

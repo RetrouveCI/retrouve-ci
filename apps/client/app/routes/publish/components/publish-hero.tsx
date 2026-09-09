@@ -6,7 +6,7 @@ export function PublishHero() {
 				<div className="bg-accent-orange/5 absolute bottom-0 left-0 h-64 w-64 rounded-full blur-3xl" />
 			</div>
 			<div className="relative container mx-auto px-4 pt-12 pb-10 text-center">
-				<div className="border-primary-green/20 bg-primary-green/10 text-primary-green mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
+				<div className="border-primary-green/20 bg-primary-green/10 text-primary-green-text mb-5 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold">
 					Publier est 100 % gratuit
 				</div>
 				<h1 className="mb-3 text-4xl font-bold tracking-tight text-balance md:text-5xl">

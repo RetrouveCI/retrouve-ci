@@ -23,7 +23,13 @@ import {
 } from '../settings.schema'
 import type { action } from '../_index'
 
-export function EditNameDialog({ currentName }: { currentName: string }) {
+export function EditNameDialog({
+	currentName,
+	trigger,
+}: {
+	currentName: string
+	trigger: React.ReactNode
+}) {
 	const [open, setOpen] = useState(false)
 	const [hasSubmitted, setHasSubmitted] = useState(false)
 
@@ -63,16 +69,12 @@ export function EditNameDialog({ currentName }: { currentName: string }) {
 				if (next) form.reset({ intent: 'update-name', name: currentName })
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="sm" className="rounded-lg text-xs">
-					Modifier
-				</Button>
-			</DialogTrigger>
+			<DialogTrigger asChild>{trigger}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Nom et prénoms</DialogTitle>
+					<DialogTitle>Nom complet</DialogTitle>
 					<DialogDescription className="sr-only">
-						Modifier votre nom et prénoms
+						Modifier votre nom complet
 					</DialogDescription>
 				</DialogHeader>
 				<form
@@ -87,13 +89,13 @@ export function EditNameDialog({ currentName }: { currentName: string }) {
 						name="name"
 						render={({ field, fieldState }) => (
 							<div className="space-y-2">
-								<InputLabel htmlFor={field.name}>Nom et prénoms</InputLabel>
+								<InputLabel htmlFor={field.name}>Nom complet</InputLabel>
 								<Input
 									{...field}
 									id={field.name}
 									value={field.value ?? ''}
 									placeholder="Ex : Adjoua Konan"
-									className="h-11"
+									className="h-control"
 									aria-invalid={fieldState.invalid || undefined}
 								/>
 								{fieldState.error && (
@@ -106,7 +108,7 @@ export function EditNameDialog({ currentName }: { currentName: string }) {
 					<Button
 						type="submit"
 						disabled={fetcher.isSubmitting}
-						className="bg-primary-green hover:bg-primary-green-dark h-11 w-full gap-2 rounded-xl text-white"
+						className="bg-primary-green hover:bg-primary-green-dark h-control w-full gap-2 rounded-xl text-white"
 					>
 						{fetcher.isSubmitting ? (
 							<>

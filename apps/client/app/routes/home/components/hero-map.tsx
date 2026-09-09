@@ -343,21 +343,21 @@ function PersonMarker({
 }) {
 	const scale = hub ? 1.5 : minor ? 0.85 : 1.15
 	const haloR = hub ? 9 : minor ? 5.5 : 7.5
-	const colorClass = hub ? 'fill-accent-orange' : 'fill-primary-green'
+	const colorClass = hub ? 'fill-accent-orange-text' : 'fill-primary-green'
 
 	return (
 		<g transform={`translate(${x} ${y})`}>
 			{hub && (
 				<circle
 					r={11}
-					className="fill-accent-orange animate-ping"
+					className="fill-accent-orange-text animate-ping"
 					opacity={0.3}
 					style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
 				/>
 			)}
 			<circle
 				r={haloR}
-				className={hub ? 'fill-accent-orange/15' : 'fill-primary-green/12'}
+				className={hub ? 'fill-accent-orange-text/15' : 'fill-primary-green/12'}
 			/>
 			<g transform={`scale(${scale})`} className={colorClass}>
 				<circle cy={-3} r={1.9} />
@@ -371,7 +371,7 @@ export function HeroMap() {
 	return (
 		<div
 			aria-hidden
-			className="animate-scale-in pointer-events-none absolute top-1/2 -right-10 hidden h-136 w-128 -translate-y-1/2 xl:block 2xl:-right-4"
+			className="animate-scale-in pointer-events-none h-full w-full"
 		>
 			<svg
 				viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
@@ -446,7 +446,7 @@ export function HeroMap() {
 								cx={from.x}
 								cy={from.y}
 								r={2.4}
-								className="fill-accent-orange"
+								className="fill-accent-orange-text"
 								filter="url(#map-glow)"
 							>
 								<animateMotion
@@ -476,8 +476,8 @@ export function HeroMap() {
 							textAnchor={city.labelAnchor ?? 'middle'}
 							className={
 								city.minor
-									? 'fill-muted-foreground/80 text-[8px] font-medium'
-									: 'fill-muted-foreground text-[9px] font-medium'
+									? 'fill-muted-foreground/80 text-xs font-medium'
+									: 'fill-muted-foreground text-xs font-medium'
 							}
 						>
 							{city.name}

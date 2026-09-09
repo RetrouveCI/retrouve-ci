@@ -1,12 +1,18 @@
 import type {
 	GenerateQrTokensData,
+	ReachChannel,
 	ListQrTokensFilterData,
 	QrTokenDetailsData,
 	QrTokenStatus,
 } from '@app/contracts/qr-codes'
 import type { Paginated } from '@/shared/utils/pagination.util'
 
-export type { GenerateQrTokensData, QrTokenDetailsData, QrTokenStatus }
+export type {
+	GenerateQrTokensData,
+	QrTokenDetailsData,
+	QrTokenStatus,
+	ReachChannel,
+}
 
 /** The admin list is unscoped; `listMine` narrows it to the session's user. */
 export type ListQrTokensFilter = ListQrTokensFilterData & {
@@ -18,6 +24,33 @@ export interface QrTokenPublicView {
 	ownerFirstName: string | null
 	label: string | null
 	linkedObject: string | null
+	/** Deliberately a boolean: it says a button may be drawn, never who to call. */
+	directContact: boolean
+	/** Only when published and still active; `null` also covers « not linked ». */
+	lostItem: LinkedLostItem | null
+}
+
+/** What `/q/:code` may say about a linked listing: enough to open it, no more. */
+export interface LinkedLostItem {
+	id: string
+	title: string
+	ville: string
+	photo: string | null
+}
+
+/** What the public view read hands back, the trace kept out of the response. */
+export interface QrTokenPublicViewRead {
+	view: QrTokenPublicView
+	lastScannedAt: Date | null
+}
+
+/** Read only by the reach use-case: the one shape here carrying a phone number. */
+export interface QrTokenOwnerReach {
+	status: QrTokenStatus
+	directContact: boolean
+	label: string | null
+	ownerUserId: string | null
+	ownerPhoneNumber: string | null
 }
 
 export interface QrToken {
@@ -27,10 +60,33 @@ export interface QrToken {
 	batch: string | null
 	label: string | null
 	linkedObject: string | null
+	directContact: boolean
+	lostItemId: string | null
 	userId: string | null
 	createdAt: Date
 	activatedAt: Date | null
 	revokedAt: Date | null
+	lastScannedAt: Date | null
+}
+
+/**
+ * What the owner's own list adds: a count, not a column, so it stays off the
+ * entity. `/q/:code` counts as one message per contact form sent through it.
+ */
+export interface OwnedQrToken extends QrToken {
+	messagesCount: number
 }
 
 export type QrTokenListResponse = Paginated<QrToken>
+export type OwnedQrTokenListResponse = Paginated<OwnedQrToken>
+
+/**
+ * `activated` is counted on the tokens, `delivered` on the orders: a
+ * `generated` token carries no owner, so what a visitor holds cannot be
+ * counted on the tokens at all.
+ */
+export interface StickerActivationSummary {
+	delivered: number
+	activated: number
+	pending: number
+}

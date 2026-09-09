@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
+import { PostDocumentBlock } from './post-document-block'
 import { PostPhotos } from './post-photos'
 import type { Post, ModerationStatus } from '../types/posts.types'
 import { CATEGORY_LABELS, MODERATION_CONFIG } from '../posts.const'
@@ -36,6 +37,8 @@ interface PostDetailDialogProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
 	onModerate: (id: string, status: ModerationStatus) => void
+	/** Hiding asks for a reason, so it goes through its own dialog. */
+	onHide: (post: Post) => void
 	isModerating?: boolean
 }
 
@@ -44,6 +47,7 @@ export function PostDetailDialog({
 	open,
 	onOpenChange,
 	onModerate,
+	onHide,
 	isModerating = false,
 }: PostDetailDialogProps) {
 	if (!post) return null
@@ -63,7 +67,7 @@ export function PostDetailDialog({
 		{ icon: User, value: post.contactName },
 		{ icon: Phone, value: post.contactWhatsapp },
 		{ icon: Eye, value: `${post.views} vues` },
-		{ icon: MessageCircle, value: `${post.contactsCount} contacts` },
+		{ icon: MessageCircle, value: `${post.contactsCount} prises de contact` },
 	]
 
 	return (
@@ -100,11 +104,16 @@ export function PostDetailDialog({
 						)}
 					</div>
 
-					<div className="bg-muted/40 rounded-xl border p-4">
-						<p className="text-sm leading-relaxed whitespace-pre-line">
-							{post.description}
-						</p>
-					</div>
+					{/* A described piece of ID needs no paragraph, so it may have none. */}
+					{post.description && (
+						<div className="bg-muted/40 rounded-xl border p-4">
+							<p className="text-sm leading-relaxed whitespace-pre-line">
+								{post.description}
+							</p>
+						</div>
+					)}
+
+					<PostDocumentBlock post={post} />
 
 					<div className="grid gap-2.5 sm:grid-cols-2">
 						{metaItems.map(({ icon: Icon, value }, i) => (
@@ -146,7 +155,7 @@ export function PostDetailDialog({
 						<Button
 							variant="outline"
 							className="text-destructive hover:bg-destructive/10"
-							onClick={() => onModerate(post.id, 'hidden')}
+							onClick={() => onHide(post)}
 							disabled={isModerating}
 						>
 							<EyeOff className="mr-2 h-4 w-4" />

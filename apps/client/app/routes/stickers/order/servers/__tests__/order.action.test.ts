@@ -1,4 +1,4 @@
-import { PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
 import type { ActionResult } from '@/shared/types/action'
 import type { Order } from '../../../../account/orders/types/orders.types'
 import { ApiError } from '@/shared/utils/api-fetch'
@@ -129,12 +129,13 @@ describe('orderAction', () => {
 				id: 'order-1',
 				orderNumber: 'CMD-2026-000001',
 				date: '2026-08-01T10:00:00.000Z',
-				pack: { name: 'Starter', quantity: 4, price: 2000 },
+				pack: { id: 'pack-4', name: 'Starter', quantity: 4, price: 2000 },
 				deliveryFee: 1000,
 				total: 3000,
 				status: 'pending',
 				paymentMethod: 'cash-on-delivery',
 				deliveryAddress: 'Rue 12, Cocody, Abidjan',
+				deliveryNotes: undefined,
 				trackingNumber: undefined,
 			},
 		})
@@ -148,7 +149,7 @@ describe('orderAction', () => {
 	it('refuses an eight-digit phone', async () => {
 		const result = await submit({ ...VALID, phone: '07000000' })
 
-		expect(errorsOf(result).phone?.message).toBe(PHONE_ERROR_MESSAGE)
+		expect(errorsOf(result).phone?.message).toBe(ASSIGNABLE_PHONE_ERROR_MESSAGE)
 		expect(createStickerOrder).not.toHaveBeenCalled()
 	})
 

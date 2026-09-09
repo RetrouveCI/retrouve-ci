@@ -7,10 +7,13 @@ export interface QrTokenApiDto {
 	batch: string | null
 	label: string | null
 	linkedObject: string | null
+	directContact: boolean
 	userId: string | null
 	createdAt: string
 	activatedAt: string | null
 	revokedAt: string | null
+	lastScannedAt: string | null
+	messagesCount: number
 }
 
 export interface QrTokenListApiResponse {

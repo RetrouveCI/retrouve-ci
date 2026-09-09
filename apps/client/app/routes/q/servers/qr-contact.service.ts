@@ -1,4 +1,5 @@
 import type { z } from 'zod'
+import type { ReachChannel } from '@app/contracts/qr-codes'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type { qrContactSchema } from '../qr-contact.schema'
 
@@ -7,20 +8,55 @@ export interface QrTokenPublicView {
 	ownerFirstName: string | null
 	label: string | null
 	linkedObject: string | null
+	/** Whether the owner accepted being reached directly. Never a number. */
+	directContact: boolean
+	/** The listing, and only when the API judged it showable. */
+	lostItem: LinkedLostItem | null
 }
 
+export interface LinkedLostItem {
+	id: string
+	title: string
+	ville: string
+	photo: string | null
+}
+
+// Anonymous, so no cookie — but `request` still travels: it is what tells the
+// rate limiter which visitor is asking, and all of them shared one bucket (R44).
 export async function getQrTokenPublicView(
 	code: string,
+	request: Request,
 ): Promise<QrTokenPublicView> {
-	return apiFetch<QrTokenPublicView>(`/qr-codes/${code}/scan`)
+	return apiFetch<QrTokenPublicView>(`/qr-codes/${code}/scan`, { request })
 }
 
 export async function contactQrOwner(
 	code: string,
 	data: z.infer<typeof qrContactSchema>,
+	request: Request,
 ): Promise<void> {
 	await apiFetch(`/qr-codes/${code}/contact`, {
 		method: 'POST',
 		body: JSON.stringify(data),
+		request,
 	})
+}
+
+/**
+ * Answers where the jump goes, from a `servers/` action only: the number lives
+ * here for one server-side call, then leaves as a `Location` header. A page
+ * script cannot read it — a `manual` redirect is opaque in a browser.
+ */
+export async function reachQrOwner(
+	code: string,
+	channel: ReachChannel,
+	request: Request,
+): Promise<string> {
+	const { url } = await apiFetch<{ url: string }>(`/qr-codes/${code}/reach`, {
+		method: 'POST',
+		body: JSON.stringify({ channel }),
+		request,
+	})
+
+	return url
 }

@@ -20,7 +20,7 @@ interface AuthContextType {
 		phone: string,
 		password: string,
 	) => Promise<{ success: boolean; error?: string }>
-	logout: () => void
+	logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -72,9 +72,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		[],
 	)
 
-	const logout = useCallback(() => {
-		void authClient.signOut()
-		navigate('/auth/login')
+	/**
+	 * Awaited, and that is the whole fix: `/login`'s loader bounces a visitor who
+	 * still holds a session, and it bounces them to `/account`. `replace` keeps
+	 * that page out of history, where Back rendered it from cache.
+	 */
+	const logout = useCallback(async () => {
+		await authClient.signOut()
+		navigate('/login', { replace: true })
 	}, [navigate])
 
 	return (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { useForm, useWatch } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
@@ -13,11 +14,14 @@ import {
 	type StickerOrderInput,
 } from './order.schema'
 import { orderAction } from './servers/order.action'
+import { formatPrice } from '@app/contracts/sticker-orders'
 import {
 	DELIVERY_FEE,
 	FREE_DELIVERY_COUPONS,
 	PACKS,
 } from './stickers-order.const'
+import { readPackParam } from './helpers/read-pack-param'
+import { readSourceParam } from './helpers/read-source-param'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import type { Order } from '../../account/orders/types/orders.types'
 import { pageMeta } from '@/shared/helpers/page-meta'
@@ -48,6 +52,7 @@ const PACK_FIELDS = ['packId'] as const
 
 export default function CommanderPage() {
 	const fetcher = useActionFetcher<typeof action, StickerOrderInput, Order>()
+	const [searchParams] = useSearchParams()
 
 	const [step, setStep] = useState<Step>('select')
 	const [order, setOrder] = useState<Order | null>(null)
@@ -60,7 +65,12 @@ export default function CommanderPage() {
 		resolver: standardSchemaResolver(stickerOrderSchema),
 		mode: 'onSubmit',
 		reValidateMode: 'onChange',
-		defaultValues: EMPTY_VALUES,
+		// « Commander à nouveau » lands here with the pack it wants; anything the
+		// catalogue does not sell is ignored rather than shown as a dead choice.
+		defaultValues: {
+			...EMPTY_VALUES,
+			packId: readPackParam(searchParams.get('pack')),
+		},
 		errors: fetcher.errors,
 	})
 
@@ -77,9 +87,6 @@ export default function CommanderPage() {
 	const selectedPackData = PACKS.find(pack => pack.id === values.packId)
 	const deliveryFee = appliedCoupon ? 0 : DELIVERY_FEE
 	const totalPrice = (selectedPackData?.price ?? 0) + deliveryFee
-
-	const formatPrice = (price: number) =>
-		new Intl.NumberFormat('fr-FR').format(price)
 
 	const handleApplyCoupon = () => {
 		const code = couponInput.trim().toUpperCase()
@@ -117,7 +124,12 @@ export default function CommanderPage() {
 	const onSubmit = (submitted: StickerOrderData) => {
 		setHasSubmitted(true)
 		void fetcher.submit(
-			{ ...submitted, couponCode: submitted.couponCode ?? '' },
+			{
+				...submitted,
+				couponCode: submitted.couponCode ?? '',
+				// The steps are in-page state, so the marker is still in the URL.
+				source: readSourceParam(searchParams.get('from')),
+			},
 			{ method: 'post' },
 		)
 	}

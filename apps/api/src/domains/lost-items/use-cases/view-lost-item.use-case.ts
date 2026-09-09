@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common'
 import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
 import { LostItemNotFoundError } from '../errors/lost-item.errors'
 import { requireLostItem } from '../helpers/require-lost-item'
+import { toPublicLostItem } from '../mappers/lost-item.mapper'
 import { LostItemRepository } from '../repository/lost-item.repository'
-import type { LostItem } from '../types/lost-item.types'
+import type { LostItem, PublicLostItem } from '../types/lost-item.types'
 
 interface ViewLostItemInput {
 	id: string
@@ -14,11 +15,14 @@ interface ViewLostItemInput {
 @Injectable()
 export class ViewLostItemUseCase implements IDomainUseCase<
 	ViewLostItemInput,
-	LostItem
+	LostItem | PublicLostItem
 > {
 	constructor(private readonly repository: LostItemRepository) {}
 
-	async execute({ id, viewerId }: ViewLostItemInput): Promise<LostItem> {
+	async execute({
+		id,
+		viewerId,
+	}: ViewLostItemInput): Promise<LostItem | PublicLostItem> {
 		const lostItem = await requireLostItem(this.repository, id)
 		const isOwner = viewerId !== undefined && lostItem.userId === viewerId
 
@@ -31,13 +35,16 @@ export class ViewLostItemUseCase implements IDomainUseCase<
 			throw new LostItemNotFoundError(id)
 		}
 
-		/** An author re-reading their own listing is not an audience figure. */
+		/**
+		 * An author re-reading their own listing is not an audience figure, and
+		 * is the only reader served the number the edit form needs back.
+		 */
 		if (isOwner) {
 			return lostItem
 		}
 
 		await this.repository.incrementViews(id)
 
-		return { ...lostItem, views: lostItem.views + 1 }
+		return toPublicLostItem({ ...lostItem, views: lostItem.views + 1 })
 	}
 }

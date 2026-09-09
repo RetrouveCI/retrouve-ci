@@ -46,13 +46,13 @@ describe('withApiOperationError', () => {
 			async () => {
 				throw new ApiError(401, 'Unauthorized')
 			},
-			{ redirectOnUnauthorized: '/auth/login' },
+			{ redirectOnUnauthorized: '/login' },
 		).catch((error: unknown) => error)
 
 		expect(thrown).toBeInstanceOf(Response)
 		const response = thrown as Response
 		expect(response.status).toBe(302)
-		expect(response.headers.get('Location')).toBe('/auth/login')
+		expect(response.headers.get('Location')).toBe('/login')
 	})
 
 	it('reports a 401 as a form error when no redirect target is given', async () => {
@@ -71,7 +71,7 @@ describe('withApiOperationError', () => {
 			async () => {
 				throw new ApiError(403, 'Accès refusé.')
 			},
-			{ redirectOnUnauthorized: '/auth/login' },
+			{ redirectOnUnauthorized: '/login' },
 		)
 
 		expect(result).toEqual({
@@ -116,11 +116,11 @@ describe('withApiOperationData', () => {
 			async () => {
 				throw new ApiError(401, 'Unauthorized')
 			},
-			{ redirectOnUnauthorized: '/auth/login' },
+			{ redirectOnUnauthorized: '/login' },
 		).catch((error: unknown) => error)
 
 		expect(thrown).toBeInstanceOf(Response)
-		expect((thrown as Response).headers.get('Location')).toBe('/auth/login')
+		expect((thrown as Response).headers.get('Location')).toBe('/login')
 	})
 
 	it('rethrows anything that is not an ApiError', async () => {
@@ -147,5 +147,105 @@ describe('getApiErrorMessage', () => {
 		expect(getApiErrorMessage(new ApiError(500, ''), 'Échec de l’envoi.')).toBe(
 			'Échec de l’envoi.',
 		)
+	})
+})
+
+// The debt this closes: `ApiErrorBody` declared no `errors`, so the map a 400
+// carries was read by nobody and every message reached a form as a banner.
+describe('the API field errors', () => {
+	const failing = (error: ApiError) => async () => {
+		throw error
+	}
+
+	it('lands each message on the field it belongs to', async () => {
+		const result = await withApiOperationError(
+			failing(
+				new ApiError(400, 'Validation failed', {
+					email: ["L'adresse e-mail est invalide"],
+					password: ['8 caractères minimum'],
+				}),
+			),
+		)
+
+		expect(result).toEqual({
+			success: false,
+			errors: {
+				email: { type: 'server', message: "L'adresse e-mail est invalide" },
+				password: { type: 'server', message: '8 caractères minimum' },
+			},
+		})
+	})
+
+	// « Validation failed » is what the pipe answers beside the map: it says
+	// nothing a visitor can act on once the fields carry their own sentence.
+	it('drops the envelope message once a field carries one', async () => {
+		const result = await withApiOperationError(
+			failing(new ApiError(400, 'Validation failed', { name: ['Requis'] })),
+		)
+
+		expect(result.success).toBe(false)
+		expect(result.success === false && result.errors).not.toHaveProperty('root')
+	})
+
+	it('renames a field the form spells differently', async () => {
+		const result = await withApiOperationError(
+			failing(
+				new ApiError(400, 'Validation failed', {
+					deliveryAddress: ['Adresse requise'],
+				}),
+			),
+			{ fields: { deliveryAddress: 'address' } },
+		)
+
+		expect(result).toEqual({
+			success: false,
+			errors: {
+				address: { type: 'server', message: 'Adresse requise' },
+			},
+		})
+	})
+
+	// A name the form does not have would hold an error RHF renders nowhere.
+	it('folds a field the form does not have into root', async () => {
+		const result = await withApiOperationError(
+			failing(
+				new ApiError(400, 'Validation failed', {
+					deliveryNotes: ['Note trop longue'],
+				}),
+			),
+			{ fields: { deliveryAddress: 'address' } },
+		)
+
+		expect(result).toEqual({
+			success: false,
+			errors: { root: { type: 'custom', message: 'Note trop longue' } },
+		})
+	})
+
+	it('joins the several messages one field can carry', async () => {
+		const result = await withApiOperationError(
+			failing(
+				new ApiError(400, 'Validation failed', {
+					password: ['8 caractères minimum', 'Une majuscule est requise'],
+				}),
+			),
+		)
+
+		expect(
+			result.success === false && result.errors?.['password']?.message,
+		).toBe('8 caractères minimum Une majuscule est requise')
+	})
+
+	it('keeps the root error when the API names no field at all', async () => {
+		const result = await withApiOperationError(
+			failing(new ApiError(409, 'Ce sticker est déjà activé')),
+		)
+
+		expect(result).toEqual({
+			success: false,
+			errors: {
+				root: { type: 'custom', message: 'Ce sticker est déjà activé' },
+			},
+		})
 	})
 })

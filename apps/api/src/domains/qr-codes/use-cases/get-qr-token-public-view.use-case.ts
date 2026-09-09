@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
 import { QrTokenNotFoundError } from '../errors/qr-token.errors'
+import { shouldRecordScan } from '../helpers/should-record-scan'
 import { QrTokenRepository } from '../repository/qr-token.repository'
 import type { QrTokenPublicView } from '../types/qr-token.types'
 
@@ -12,13 +13,22 @@ export class GetQrTokenPublicViewUseCase implements IDomainUseCase<
 > {
 	constructor(private readonly repository: QrTokenRepository) {}
 
+	// A read that writes, as `ViewLostItemUseCase` already is: this endpoint is
+	// the only moment anyone learns the sticker was read. The trace stays out of
+	// the response — it is the owner's, not the finder's.
 	async execute(code: string): Promise<QrTokenPublicView> {
-		const view = await this.repository.findPublicView(code)
+		const read = await this.repository.findPublicView(code)
 
-		if (!view) {
+		if (!read) {
 			throw new QrTokenNotFoundError(code)
 		}
 
-		return view
+		const now = new Date()
+
+		if (shouldRecordScan(read.lastScannedAt, now)) {
+			await this.repository.recordScan(code, now)
+		}
+
+		return read.view
 	}
 }

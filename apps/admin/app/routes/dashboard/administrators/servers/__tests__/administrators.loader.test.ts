@@ -47,23 +47,23 @@ describe('administratorsLoader', () => {
 		expect(listAdminUsers).not.toHaveBeenCalled()
 	})
 
-	/**
-	 * `admin/list-users` reads the backoffice cookie and `SessionGuard` picks the
-	 * instance from the `Origin`, so both have to be forwarded or the call comes
-	 * back 401 against the public app's session.
-	 */
-	it('forwards the cookie and the origin to the service', async () => {
-		await administratorsLoader({ request: requestFor(WITH_HEADERS) })
+	// The request travels whole, so both the cookie `admin/list-users` reads and
+	// the address the limiter keys on arrive: pulling the two out by hand is what
+	// left this call speaking for the container (R50).
+	it('hands the request down to the service', async () => {
+		const request = requestFor(WITH_HEADERS)
 
-		expect(listAdminUsers).toHaveBeenCalledWith(WITH_HEADERS)
+		await administratorsLoader({ request })
+
+		expect(listAdminUsers).toHaveBeenCalledWith(request)
 	})
 
-	// A server-side call carries no Origin, and an empty string is what the
-	// service must send rather than the literal `null` the header getter returns.
-	it('sends empty strings when the request carries neither header', async () => {
-		await administratorsLoader({ request: requestFor() })
+	it('hands it down even when it carries no cookie of its own', async () => {
+		const request = requestFor()
 
-		expect(listAdminUsers).toHaveBeenCalledWith({ cookie: '', origin: '' })
+		await administratorsLoader({ request })
+
+		expect(listAdminUsers).toHaveBeenCalledWith(request)
 	})
 
 	it('hands the list back under the key the page reads', async () => {

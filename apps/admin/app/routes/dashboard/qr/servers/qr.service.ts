@@ -17,7 +17,7 @@ export async function listQrTokens(
 	if (params.status) query.set('status', params.status)
 
 	return apiFetch<QrTokenListResponse>(`/qr-codes?${query.toString()}`, {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -26,7 +26,7 @@ export async function getQrTokenByCode(
 	request: Request,
 ): Promise<QrToken> {
 	return apiFetch<QrToken>(`/qr-codes/${code}`, {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -36,7 +36,7 @@ export async function revokeQrToken(
 ): Promise<QrToken> {
 	return apiFetch<QrToken>(`/qr-codes/${code}/revoke`, {
 		method: 'POST',
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }
 
@@ -48,6 +48,6 @@ export async function generateQrTokens(
 	return apiFetch<QrToken[]>('/qr-codes/generate', {
 		method: 'POST',
 		body: JSON.stringify({ count, batch }),
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 }

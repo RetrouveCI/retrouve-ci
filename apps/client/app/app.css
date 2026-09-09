@@ -9,4 +9,18 @@
 :root {
 	--font-sans: 'Geist Variable', 'Geist Fallback';
 	--font-mono: 'Geist Mono Variable', 'Geist Mono Fallback';
+
+	/* The device cutouts are read here and nowhere else in the app. */
+	--safe-top: env(safe-area-inset-top, 0px);
+	--safe-right: env(safe-area-inset-right, 0px);
+	--safe-bottom: env(safe-area-inset-bottom, 0px);
+	--safe-left: env(safe-area-inset-left, 0px);
+}
+
+/* Goes on the element that paints the background, so the colour and the border
+   still reach the edge while the content clears the cutout. It adds to the base
+   gutter — the page's `px-4`, the header's `px-6` — rather than replacing it. */
+@utility safe-x {
+	padding-left: var(--safe-left);
+	padding-right: var(--safe-right);
 }

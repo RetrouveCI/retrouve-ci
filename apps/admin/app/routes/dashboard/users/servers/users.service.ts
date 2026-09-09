@@ -1,3 +1,4 @@
+import { requestOrigin } from '@/shared/helpers/origin'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type { User, UserStatus } from '../types/users.types'
 
@@ -24,13 +25,17 @@ function mapUser(u: BetterAuthUser): User {
 	}
 }
 
+// Sorted by the database, not by this list: the limit is a ceiling rather than
+// pagination, so an unsorted call answers an arbitrary 500 accounts.
+const LIST_QUERY = 'limit=500&sortBy=createdAt&sortDirection=desc'
+
 export async function listUsers(
-	cookie: string,
+	request: Request,
 	statusFilter?: UserStatus,
 ): Promise<{ users: User[]; total: number }> {
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
-		'/api/admin-auth/admin/list-users?limit=500&filterField=role&filterOperator=eq&filterValue=user',
-		{ headers: { Cookie: cookie } },
+		`/api/admin-auth/admin/list-users?${LIST_QUERY}&filterField=role&filterOperator=eq&filterValue=user`,
+		{ request },
 	)
 
 	let users = res.users.filter(u => u.role === 'user').map(mapUser)
@@ -44,37 +49,34 @@ export async function listUsers(
 }
 
 export async function getUserById(
-	cookie: string,
+	request: Request,
 	userId: string,
 ): Promise<User | null> {
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
 		`/api/admin-auth/admin/list-users?filterField=id&filterOperator=eq&filterValue=${encodeURIComponent(userId)}`,
-		{ headers: { Cookie: cookie } },
+		{ request },
 	)
 	const found = res.users.find(u => u.role === 'user')
 	return found ? mapUser(found) : null
 }
 
-export async function banUser(
-	cookie: string,
-	origin: string,
-	userId: string,
-): Promise<void> {
+export async function banUser(request: Request, userId: string): Promise<void> {
 	await apiFetch('/api/admin-auth/admin/ban-user', {
 		method: 'POST',
-		headers: { Cookie: cookie, Origin: origin },
+		request,
+		headers: { Origin: requestOrigin(request) },
 		body: JSON.stringify({ userId }),
 	})
 }
 
 export async function unbanUser(
-	cookie: string,
-	origin: string,
+	request: Request,
 	userId: string,
 ): Promise<void> {
 	await apiFetch('/api/admin-auth/admin/unban-user', {
 		method: 'POST',
-		headers: { Cookie: cookie, Origin: origin },
+		request,
+		headers: { Origin: requestOrigin(request) },
 		body: JSON.stringify({ userId }),
 	})
 }

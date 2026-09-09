@@ -1,0 +1,57 @@
+{
+	"id": "/",
+	"name": "RetrouveCI",
+	"short_name": "RetrouveCI",
+	"description": "Publiez une annonce d'objet perdu ou retrouvé, et activez vos stickers QR.",
+	"lang": "fr",
+	"dir": "ltr",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"theme_color": "#ffffff",
+	"background_color": "#ffffff",
+	"icons": [
+		{
+			"src": "/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/icon-maskable-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		}
+	],
+	"shortcuts": [
+		{
+			"name": "Scanner un sticker",
+			"short_name": "Scanner",
+			"url": "/scan",
+			"icons": [{ "src": "/shortcut-scan.png", "sizes": "96x96", "type": "image/png" }]
+		},
+		{
+			"name": "Publier une annonce",
+			"short_name": "Publier",
+			"url": "/publish",
+			"icons": [
+				{ "src": "/shortcut-publish.png", "sizes": "96x96", "type": "image/png" }
+			]
+		},
+		{
+			"name": "Rechercher un objet",
+			"short_name": "Rechercher",
+			"url": "/posts",
+			"icons": [
+				{ "src": "/shortcut-search.png", "sizes": "96x96", "type": "image/png" }
+			]
+		}
+	]
+}

@@ -1,18 +1,32 @@
+import {
+	PUSH_AUTH_LENGTH,
+	PUSH_P256DH_LENGTH,
+} from '@app/contracts/notifications'
 import { ApiError } from '@/shared/utils/api-fetch'
 
-const { getServerSession, updateProfile, sendPhoneChangeOtp, deleteAccount } =
-	vi.hoisted(() => ({
-		getServerSession: vi.fn(),
-		updateProfile: vi.fn(),
-		sendPhoneChangeOtp: vi.fn(),
-		deleteAccount: vi.fn(),
-	}))
+const {
+	getServerSession,
+	updateProfile,
+	sendPhoneChangeOtp,
+	deleteAccount,
+	subscribeToPush,
+	unsubscribeFromPush,
+} = vi.hoisted(() => ({
+	getServerSession: vi.fn(),
+	updateProfile: vi.fn(),
+	sendPhoneChangeOtp: vi.fn(),
+	deleteAccount: vi.fn(),
+	subscribeToPush: vi.fn(),
+	unsubscribeFromPush: vi.fn(),
+}))
 
 vi.mock('@/shared/helpers/session.server', () => ({ getServerSession }))
 vi.mock('../settings.service', () => ({
 	updateProfile,
 	sendPhoneChangeOtp,
 	deleteAccount,
+	subscribeToPush,
+	unsubscribeFromPush,
 }))
 
 const { settingsAction } = await import('../settings.action')
@@ -37,6 +51,8 @@ beforeEach(() => {
 	updateProfile.mockReset().mockResolvedValue(undefined)
 	sendPhoneChangeOtp.mockReset().mockResolvedValue(undefined)
 	deleteAccount.mockReset().mockResolvedValue(undefined)
+	subscribeToPush.mockReset().mockResolvedValue(undefined)
+	unsubscribeFromPush.mockReset().mockResolvedValue(undefined)
 })
 
 afterEach(() => {
@@ -51,7 +67,7 @@ describe('settingsAction', () => {
 			request: requestFor({ intent: 'update-name', name: 'Awa' }),
 		}).catch((error: unknown) => error)
 
-		expect(isRedirectTo(thrown, '/auth/login')).toBe(true)
+		expect(isRedirectTo(thrown, '/login')).toBe(true)
 		expect(updateProfile).not.toHaveBeenCalled()
 	})
 
@@ -205,6 +221,61 @@ describe('settingsAction', () => {
 			request: requestFor({ intent: 'update-name', name: 'Awa' }),
 		}).catch((error: unknown) => error)
 
-		expect(isRedirectTo(thrown, '/auth/login')).toBe(true)
+		expect(isRedirectTo(thrown, '/login')).toBe(true)
+	})
+
+	describe('push on this device', () => {
+		const REGISTRATION = {
+			endpoint: 'https://fcm.googleapis.com/fcm/send/abc',
+			p256dh: 'a'.repeat(PUSH_P256DH_LENGTH),
+			auth: 'b'.repeat(PUSH_AUTH_LENGTH),
+		}
+
+		it('hands the flat fields to the service', async () => {
+			const result = await settingsAction({
+				request: requestFor({ intent: 'subscribe-push', ...REGISTRATION }),
+			})
+
+			expect(result).toEqual({ success: true })
+			expect(subscribeToPush).toHaveBeenCalledWith(
+				expect.any(Request),
+				expect.objectContaining(REGISTRATION),
+			)
+		})
+
+		it('unsubscribes by endpoint', async () => {
+			await settingsAction({
+				request: requestFor({
+					intent: 'unsubscribe-push',
+					endpoint: REGISTRATION.endpoint,
+				}),
+			})
+
+			expect(unsubscribeFromPush).toHaveBeenCalledWith(
+				expect.any(Request),
+				REGISTRATION.endpoint,
+			)
+		})
+
+		// The API bounds the shape; the front only refuses an empty field, so a
+		// blank endpoint never reaches a round trip.
+		it('refuses an empty endpoint without calling the API', async () => {
+			const result = await settingsAction({
+				request: requestFor({ intent: 'unsubscribe-push', endpoint: '' }),
+			})
+
+			expect(result).toMatchObject({ success: false })
+			expect(unsubscribeFromPush).not.toHaveBeenCalled()
+		})
+
+		it('turns an API refusal into a root error', async () => {
+			subscribeToPush.mockRejectedValue(new ApiError(400, 'Validation failed'))
+
+			const result = await settingsAction({
+				request: requestFor({ intent: 'subscribe-push', ...REGISTRATION }),
+			})
+
+			expect(result).toMatchObject({ success: false })
+		})
 	})
 })

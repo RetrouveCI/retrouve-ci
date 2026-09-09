@@ -11,22 +11,8 @@ import {
 import { Badge } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
 import type { UserLostItem } from '@/shared/types/lost-item'
-
-const STATUS_CONFIG = {
-	pending: { label: 'En attente', color: 'bg-yellow-500 text-white' },
-	hidden: { label: 'Masquée', color: 'bg-muted text-muted-foreground' },
-	active: { label: 'Active', color: 'bg-primary-green text-white' },
-	resolved: { label: 'Résolue', color: 'bg-blue-500 text-white' },
-	expired: { label: 'Expirée', color: 'bg-muted text-muted-foreground' },
-} as const
-
-type DisplayStatus = keyof typeof STATUS_CONFIG
-
-function getDisplayStatus(listing: UserLostItem): DisplayStatus {
-	if (listing.moderationStatus === 'pending') return 'pending'
-	if (listing.moderationStatus === 'hidden') return 'hidden'
-	return listing.status
-}
+import { imageUrl } from '@/shared/utils/image'
+import { listingStatusFor } from '@/routes/account/posts/helpers/listing-status'
 
 interface RecentListingsProps {
 	listings: UserLostItem[]
@@ -50,13 +36,13 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 		>
 			<div className="flex items-center justify-between border-b px-5 py-4">
 				<div className="flex items-center gap-2">
-					<FileText className="text-primary-green h-5 w-5" />
+					<FileText className="text-primary-green-text h-5 w-5" />
 					<h2 className="font-bold">Mes annonces récentes</h2>
 				</div>
 				{listings.length > 0 && (
 					<Link
 						to="/account/posts"
-						className="text-primary-green inline-flex items-center gap-1 text-sm font-medium hover:underline"
+						className="text-primary-green-text inline-flex items-center gap-1 text-sm font-medium hover:underline"
 					>
 						Voir tout
 						<ArrowRight className="h-3.5 w-3.5" />
@@ -84,7 +70,7 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 			) : (
 				<div className="divide-y">
 					{recent.map(listing => {
-						const status = getDisplayStatus(listing)
+						const status = listingStatusFor(listing)
 						return (
 							<Link
 								key={listing.id}
@@ -94,8 +80,10 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 								<div className="bg-muted relative h-14 w-14 shrink-0 overflow-hidden rounded-xl">
 									{listing.image ? (
 										<img
-											src={listing.image}
+											src={imageUrl(listing.image, { width: 112 })}
 											alt={listing.title}
+											loading="lazy"
+											decoding="async"
 											className="absolute inset-0 h-full w-full object-cover"
 										/>
 									) : (
@@ -106,20 +94,19 @@ export function RecentListings({ listings, className }: RecentListingsProps) {
 								</div>
 								<div className="min-w-0 flex-1">
 									<div className="mb-1 flex items-center gap-2">
-										<Badge
-											className={cn(
-												'text-[10px] font-medium',
-												STATUS_CONFIG[status].color,
-											)}
-										>
-											{STATUS_CONFIG[status].label}
-										</Badge>
+										{status.label && (
+											<Badge
+												className={cn('text-xs font-medium', status.badge)}
+											>
+												{status.label}
+											</Badge>
+										)}
 										<span
 											className={cn(
-												'text-[10px] font-medium',
+												'text-xs font-medium',
 												listing.type === 'lost'
 													? 'text-red-500'
-													: 'text-primary-green',
+													: 'text-primary-green-text',
 											)}
 										>
 											{listing.type === 'lost' ? 'Perdu' : 'Trouvé'}

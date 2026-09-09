@@ -5,6 +5,7 @@ import {
 	AccordionTrigger,
 } from '@app/ui/components'
 import { Lock, MessageCircle, Power, Smartphone, RefreshCw } from 'lucide-react'
+
 const FAQ_ITEMS = [
 	{
 		question: 'Mes coordonnées sont-elles publiques ?',
@@ -63,7 +64,7 @@ export function FaqSection() {
 								<AccordionTrigger className="py-4 hover:no-underline">
 									<div className="flex items-center gap-3 text-left">
 										<div className="bg-primary-green/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-											<item.icon className="text-primary-green h-4 w-4" />
+											<item.icon className="text-primary-green-text h-4 w-4" />
 										</div>
 										<span className="text-sm font-medium md:text-base">
 											{item.question}

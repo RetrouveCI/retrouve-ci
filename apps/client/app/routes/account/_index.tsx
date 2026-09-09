@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { User, LogIn } from 'lucide-react'
 import type { UserLostItem } from '@/shared/types/lost-item'
 import type { Sticker } from '@/shared/types/sticker'
+import type { ActivitySummary as Summary } from '@/shared/types/activity'
 import { getServerSession } from '@/shared/helpers/session.server'
 import { toUserLostItem } from '@/shared/mappers/lost-item.mapper'
 import { getMyLostItems } from '@/routes/account/posts/servers/account-posts.service'
@@ -10,10 +11,14 @@ import { toSticker } from '@/routes/account/stickers/mappers/sticker.mapper'
 import { getMyStickers } from '@/routes/account/stickers/servers/stickers.service'
 import { getMyStickerOrders } from '@/routes/account/orders/servers/orders.service'
 import { ProfileHeader } from './components/profile-header'
+import { NameReminder } from './components/name-reminder'
 import { AccountStats } from './components/account-stats'
 import { RecentListings } from './components/recent-listings'
 import { AccountNav } from './components/account-nav'
+import { ActivitySummary } from './components/activity-summary'
+import { getActivitySummary } from './servers/activity.service'
 import { useAuth } from '@/context/auth'
+import { isPhoneLikeName } from '@/shared/utils/display-name'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
 
@@ -21,23 +26,27 @@ export function meta() {
 	return pageMeta({
 		title: 'Mon compte',
 		description: 'Gérez vos annonces, vos informations et vos préférences.',
+		noindex: true,
 	})
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
 	const session = await getServerSession(request)
-	if (!session) return { listings: [], stickers: [], ordersCount: 0 }
+	if (!session)
+		return { listings: [], stickers: [], ordersCount: 0, summary: null }
 
-	const [items, stickerItems, orders] = await Promise.all([
+	const [items, stickerItems, orders, summary] = await Promise.all([
 		getMyLostItems(request),
 		getMyStickers(request),
 		getMyStickerOrders(request),
+		getActivitySummary(request),
 	])
 
 	return {
 		listings: items.map(toUserLostItem),
 		stickers: stickerItems.map(toSticker),
 		ordersCount: orders.length,
+		summary,
 	}
 }
 
@@ -51,7 +60,7 @@ function NotLoggedInView() {
 			<div className="relative container mx-auto px-4">
 				<div className="mx-auto max-w-md text-center">
 					<div className="bg-primary-green/10 mb-6 inline-flex h-20 w-20 items-center justify-center rounded-2xl">
-						<User className="text-primary-green h-10 w-10" />
+						<User className="text-primary-green-text h-10 w-10" />
 					</div>
 					<h1 className="mb-3 text-2xl font-bold md:text-3xl">
 						Connectez-vous
@@ -64,7 +73,7 @@ function NotLoggedInView() {
 						size="lg"
 						className="bg-primary-green hover:bg-primary-green-dark h-12 w-full rounded-xl text-white"
 					>
-						<Link to="/auth/login" className="gap-2">
+						<Link to="/login" className="gap-2">
 							<LogIn className="h-5 w-5" />
 							Se connecter
 						</Link>
@@ -72,8 +81,8 @@ function NotLoggedInView() {
 					<p className="text-muted-foreground mt-4 text-sm">
 						Pas encore de compte ?{' '}
 						<Link
-							to="/auth/register"
-							className="text-primary-green font-medium hover:underline"
+							to="/register"
+							className="text-primary-green-text font-medium hover:underline"
 						>
 							Créer un compte
 						</Link>
@@ -88,10 +97,12 @@ function DashboardView({
 	listings,
 	stickers,
 	ordersCount,
+	summary,
 }: {
 	listings: UserLostItem[]
 	stickers: Sticker[]
 	ordersCount: number
+	summary: Summary | null
 }) {
 	const { user, logout } = useAuth()
 
@@ -100,6 +111,8 @@ function DashboardView({
 	return (
 		<main className="flex-1">
 			<ProfileHeader user={user} onLogout={logout} />
+			{isPhoneLikeName(user.name) && <NameReminder />}
+			<ActivitySummary summary={summary} />
 			<AccountStats listings={listings} stickers={stickers} />
 			<section className="pb-12">
 				<div className="container mx-auto px-4">
@@ -134,6 +147,7 @@ export default function ComptePage({ loaderData }: Route.ComponentProps) {
 			listings={loaderData.listings}
 			stickers={loaderData.stickers}
 			ordersCount={loaderData.ordersCount}
+			summary={loaderData.summary}
 		/>
 	) : (
 		<NotLoggedInView />

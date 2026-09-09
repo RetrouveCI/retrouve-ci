@@ -1,6 +1,7 @@
 // Online payment parked: stickers are paid in cash to the courier, so the
 // order flow is Pack -> Livraison -> Confirmation and nothing renders this
-// step. Kept intact — with `PAYMENT_METHODS` in `stickers-order.const.ts` and
+// step. Kept on disk, unreferenced — with `PAYMENT_METHODS` in
+// `stickers-order.const.ts` and
 // the icons in `public/payments/` — for the day a mobile-money gateway is
 // wired in.
 /*
@@ -121,7 +122,7 @@ export function PaymentStep({
 													{method.name}
 												</span>
 												{field.value === method.id && (
-													<Check className="text-primary-green absolute top-2 right-2 h-4 w-4" />
+													<Check className="text-primary-green-text absolute top-2 right-2 h-4 w-4" />
 												)}
 											</label>
 										))}
@@ -151,7 +152,7 @@ export function PaymentStep({
 				</div>
 
 				<div className="border-accent-orange/20 bg-accent-orange/10 rounded-xl border p-4">
-					<p className="text-accent-orange flex items-center gap-2 text-sm font-medium">
+					<p className="text-accent-orange-text flex items-center gap-2 text-sm font-medium">
 						<Shield className="h-4 w-4" />
 						Paiement sécurisé et crypté
 					</p>

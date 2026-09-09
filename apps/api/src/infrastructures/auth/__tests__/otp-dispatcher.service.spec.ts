@@ -2,6 +2,9 @@ import type { Queue } from 'bullmq'
 import { describe, expect, it, vi } from 'vitest'
 import { OTP_ATTEMPTS, OTP_BACKOFF_DELAY_MS } from '@/shared/auth/otp.const'
 import { SEND_OTP_JOB } from '@/infrastructures/queue/queue.constants'
+import { OTP_PER_NUMBER } from '@/shared/rate-limit/rate-limit.policy'
+import type { RateLimitCounter } from '@/shared/rate-limit/rate-limit.store'
+import { OtpBudgetExceededError } from '../otp-budget.error'
 import { OtpDispatcher, type SendOtpJobData } from '../otp-dispatcher.service'
 
 function buildDispatcher(add = vi.fn().mockResolvedValue(undefined)) {
@@ -66,5 +69,74 @@ describe('OtpDispatcher', () => {
 		)
 
 		await expect(dispatcher.dispatch(JOB)).rejects.toThrow('redis down')
+	})
+})
+
+/** R44's second guard: an address is rotatable, an SMS costs money on a number. */
+describe('OtpDispatcher — the per-number budget', () => {
+	const build = (counter?: RateLimitCounter) => {
+		const add = vi.fn().mockResolvedValue(undefined)
+		const dispatcher = new OtpDispatcher(
+			{ add } as unknown as Queue<SendOtpJobData>,
+			counter,
+		)
+		return { dispatcher, add }
+	}
+
+	const counterAt = (count: number): RateLimitCounter => ({
+		hit: vi.fn().mockResolvedValue({ count, ttlSeconds: 300 }),
+		close: vi.fn(),
+	})
+
+	it('counts on the number in local form, however it was stored', async () => {
+		const counter = counterAt(1)
+		const { dispatcher } = build(counter)
+
+		await dispatcher.dispatch(JOB)
+
+		expect(counter.hit).toHaveBeenCalledWith(
+			'rl:otp-number:0585743342',
+			OTP_PER_NUMBER.windowSeconds,
+		)
+	})
+
+	it('queues the send while the number is under its budget', async () => {
+		const { dispatcher, add } = build(counterAt(OTP_PER_NUMBER.max))
+
+		await dispatcher.dispatch(JOB)
+
+		expect(add).toHaveBeenCalledTimes(1)
+	})
+
+	it('refuses past it, without queueing anything', async () => {
+		const { dispatcher, add } = build(counterAt(OTP_PER_NUMBER.max + 1))
+
+		await expect(dispatcher.dispatch(JOB)).rejects.toBeInstanceOf(
+			OtpBudgetExceededError,
+		)
+		expect(add).not.toHaveBeenCalled()
+	})
+
+	// Same stance as the request hook: a counter that cannot reach Redis must
+	// not stop every sign-in on the platform.
+	it('lets the send through when the store is unreachable', async () => {
+		const counter: RateLimitCounter = {
+			hit: vi.fn().mockRejectedValue(new Error('down')),
+			close: vi.fn(),
+		}
+		const { dispatcher, add } = build(counter)
+
+		await dispatcher.dispatch(JOB)
+
+		expect(add).toHaveBeenCalledTimes(1)
+	})
+
+	// `REDIS_URL` unset outside production: the budget is simply not counted.
+	it('counts nothing when no counter was provided', async () => {
+		const { dispatcher, add } = build(undefined)
+
+		await dispatcher.dispatch(JOB)
+
+		expect(add).toHaveBeenCalledTimes(1)
 	})
 })

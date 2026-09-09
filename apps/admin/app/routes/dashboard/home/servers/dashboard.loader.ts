@@ -1,9 +1,12 @@
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import type { LostItemCategory } from '@app/contracts/lost-items'
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import { apiFetch } from '@/shared/utils/api-fetch'
 
-const CATEGORY_LABELS: Record<string, string> = {
+// The API reads the column as text, so it sends the Prisma enum's casing, which
+// `Uppercase<>` derives: a category added to the contract fails to compile here.
+const CATEGORY_LABELS: Record<Uppercase<LostItemCategory>, string> = {
 	PHONE: 'Téléphones',
 	KEYS: 'Clés',
 	WALLET: 'Portefeuilles',
@@ -33,11 +36,15 @@ interface StatsApiResponse {
 	}>
 }
 
+function categoryLabel(category: string): string {
+	return CATEGORY_LABELS[category as Uppercase<LostItemCategory>] ?? category
+}
+
 export async function dashboardLoader({ request }: { request: Request }) {
 	await requireAdminSession(request)
 
 	const data = await apiFetch<StatsApiResponse>('/stats', {
-		headers: { Cookie: request.headers.get('cookie') ?? '' },
+		request,
 	})
 
 	return {
@@ -52,15 +59,17 @@ export async function dashboardLoader({ request }: { request: Request }) {
 		},
 		activityChart: data.activityChart,
 		categoryChart: data.categoryChart.map(row => ({
-			category: CATEGORY_LABELS[row.category] ?? row.category,
+			category: categoryLabel(row.category),
 			lost: row.lost,
 			found: row.found,
 		})),
-		activities: data.recentActivities.map((a, i) => ({
-			id: i + 1,
-			type: a.type,
-			text: a.text,
-			timestamp: formatDistanceToNow(new Date(a.createdAt), {
+		// The API's own id: renumbering by position discarded it, and the React
+		// key would not have survived a sort.
+		activities: data.recentActivities.map(activity => ({
+			id: activity.id,
+			type: activity.type,
+			text: activity.text,
+			timestamp: formatDistanceToNow(new Date(activity.createdAt), {
 				locale: fr,
 				addSuffix: true,
 			}),

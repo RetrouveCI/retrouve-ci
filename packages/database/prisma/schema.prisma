@@ -27,6 +27,26 @@ enum LostItemCategory {
   OTHER
 }
 
+enum DocumentType {
+  NATIONAL_ID
+  DRIVER_LICENCE
+  BANK_CARD
+  INSURANCE_CARD
+  PASSPORT
+  STUDENT_CARD
+  OTHER
+}
+
+enum ModerationReason {
+  DOCUMENT_NUMBER_VISIBLE
+  UNCLEAR_PHOTO
+  VAGUE_DESCRIPTION
+  CONTACT_IN_DESCRIPTION
+  DUPLICATE
+  OFF_TOPIC
+  OTHER
+}
+
 enum ModerationStatus {
   PENDING
   PUBLISHED
@@ -59,6 +79,15 @@ enum StickerOrderStatus {
   CANCELLED
 }
 
+/// Where a sale came from. DIRECT is what an order carries when no marker came,
+/// including every row written before A6 — nobody knows where those came from.
+enum StickerOrderSource {
+  HOME
+  STICKERS_PAGE
+  ACCOUNT
+  DIRECT
+}
+
 enum ContactMessageStatus {
   NEW
   READ
@@ -68,6 +97,22 @@ enum ContactMessageStatus {
 enum NotificationType {
   MATCH_FOUND
   QR_SCAN
+  STICKERS_DELIVERED
+  LISTING_PENDING
+  LISTING_MODERATED
+  LISTING_CONTACTED
+  ORDER_PLACED
+  CONTACT_RECEIVED
+  ORDER_PROCESSING
+  ORDER_SHIPPED
+  ORDER_CANCELLED
+}
+
+/// Who a notification speaks to. An ADMIN row carries no userId: it addresses
+/// the desk, so the first administrator who reads it reads it for all.
+enum NotificationAudience {
+  USER
+  ADMIN
 }
 
 model User {
@@ -92,6 +137,7 @@ model User {
   qrTokens            QrToken[]
   stickerOrders       StickerOrder[]
   notifications       Notification[]
+  pushSubscriptions   PushSubscription[]
 
   @@unique([email])
   @@unique([phoneNumber])
@@ -150,25 +196,35 @@ model Verification {
 
 
 model LostItem {
-  id               String           @id @default(uuid())
-  type             LostItemType
-  category         LostItemCategory
-  title            String
-  description      String
-  ville            String
-  commune          String?
-  eventDate        DateTime
-  contactName      String
-  contactWhatsapp  String
-  photos           String[]         @default([])
-  moderationStatus ModerationStatus @default(PENDING)
-  resolutionStatus ResolutionStatus @default(ACTIVE)
-  views            Int              @default(0)
-  contactsCount    Int              @default(0)
-  userId           String
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  id                   String            @id @default(uuid())
+  type                 LostItemType
+  category             LostItemCategory
+  title                String
+  description          String
+  ville                String
+  commune              String?
+  eventDate            DateTime
+  contactName          String
+  contactWhatsapp      String
+  photos               String[]          @default([])
+  documentType         DocumentType?
+  documentHolderName   String?
+  documentNumber       String?
+  documentIssuer       String?
+  moderationStatus     ModerationStatus  @default(PENDING)
+  moderationReason     ModerationReason?
+  moderationReasonNote String?
+  resolutionStatus     ResolutionStatus  @default(ACTIVE)
+  /// When the owner marked it handed back; null before A5 and while active.
+  /// updatedAt moves on every edit, so it could never answer « ce mois ».
+  resolvedAt           DateTime?
+  views                Int               @default(0)
+  contactsCount        Int               @default(0)
+  userId               String
+  user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  qrTokens             QrToken[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
   @@index([userId])
   @@index([type, moderationStatus, resolutionStatus])
@@ -179,20 +235,25 @@ model LostItem {
 
 
 model QrToken {
-  id           String        @id @default(uuid())
-  code         String        @unique
-  status       QrTokenStatus @default(GENERATED)
-  batch        String?
-  label        String?
-  linkedObject String?
-  userId       String?
-  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  createdAt    DateTime      @default(now())
-  activatedAt  DateTime?
-  revokedAt    DateTime?
+  id            String        @id @default(uuid())
+  code          String        @unique
+  status        QrTokenStatus @default(GENERATED)
+  batch         String?
+  label         String?
+  linkedObject  String?
+  directContact Boolean       @default(false)
+  lostItemId    String?
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  lostItem      LostItem?     @relation(fields: [lostItemId], references: [id], onDelete: SetNull)
+  createdAt     DateTime      @default(now())
+  activatedAt   DateTime?
+  revokedAt     DateTime?
+  lastScannedAt DateTime?
 
   @@index([userId])
   @@index([status])
+  @@index([lostItemId])
   @@map("qr_token")
 }
 
@@ -208,6 +269,7 @@ model StickerOrder {
   deliveryFee     Int
   total           Int
   status          StickerOrderStatus @default(PENDING)
+  source          StickerOrderSource @default(DIRECT)
   paymentMethod   String
   deliveryAddress String
   deliveryCity    String
@@ -228,20 +290,38 @@ model StickerOrder {
 
 
 model Notification {
-  id        String           @id @default(uuid())
+  id        String               @id @default(uuid())
   type      NotificationType
+  audience  NotificationAudience @default(USER)
   title     String
   message   String
   link      String?
-  read      Boolean          @default(false)
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime         @default(now())
+  read      Boolean              @default(false)
+  userId    String?
+  user      User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime             @default(now())
   readAt    DateTime?
 
   @@index([userId])
   @@index([userId, read])
+  @@index([audience, read])
   @@map("notification")
+}
+
+// One row per browser, keyed on the endpoint the vendor issued. It records a
+// capability the visitor granted, not an audience measurement.
+model PushSubscription {
+  id        String   @id @default(uuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("push_subscription")
 }
 
 model Event {
@@ -276,5 +356,6 @@ model ContactMessage {
 
   @@index([status])
   @@index([recipientUserId])
+  @@index([qrTokenCode])
   @@map("contact_message")
 }

@@ -18,7 +18,7 @@ function AuthBackLink({ to, children }: { to: string; children: string }) {
 	return (
 		<Link
 			to={to}
-			className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
+			className="touch-target text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
 		>
 			<ArrowLeft className="h-4 w-4" />
 			{children}
@@ -37,7 +37,7 @@ export default function ResetPasswordPage({
 				title="Lien invalide"
 				description="Ce lien de réinitialisation est invalide ou a expiré. Refaites une demande pour en recevoir un nouveau."
 				footer={
-					<AuthBackLink to="/auth/forgot-password">
+					<AuthBackLink to="/forgot-password">
 						Demander un nouveau lien
 					</AuthBackLink>
 				}
@@ -49,9 +49,7 @@ export default function ResetPasswordPage({
 		<AuthCard
 			title="Nouveau mot de passe"
 			description="Choisissez un mot de passe sécurisé pour votre compte."
-			footer={
-				<AuthBackLink to="/auth/login">Retour à la connexion</AuthBackLink>
-			}
+			footer={<AuthBackLink to="/login">Retour à la connexion</AuthBackLink>}
 		>
 			<ResetPasswordForm token={token} />
 		</AuthCard>

@@ -29,11 +29,13 @@ const COMMUNE_CITY = 'Abidjan'
 interface EditZoneDialogProps {
 	currentCity: string | null
 	currentCommune: string | null
+	trigger: React.ReactNode
 }
 
 export function EditZoneDialog({
 	currentCity,
 	currentCommune,
+	trigger,
 }: EditZoneDialogProps) {
 	const [open, setOpen] = useState(false)
 	const [hasSubmitted, setHasSubmitted] = useState(false)
@@ -72,7 +74,7 @@ export function EditZoneDialog({
 
 	const chipClass = (active: boolean) =>
 		cn(
-			'rounded-full border px-3.5 py-2 text-xs font-medium transition-all',
+			'flex h-chip items-center rounded-full border px-3.5 text-xs font-medium transition-all',
 			active
 				? 'bg-primary-green border-primary-green text-white'
 				: 'bg-background text-muted-foreground hover:border-primary-green/40 hover:text-foreground',
@@ -92,14 +94,10 @@ export function EditZoneDialog({
 					})
 			}}
 		>
-			<DialogTrigger asChild>
-				<Button variant="ghost" size="sm" className="rounded-lg text-xs">
-					Modifier
-				</Button>
-			</DialogTrigger>
+			<DialogTrigger asChild>{trigger}</DialogTrigger>
 			<DialogContent className="max-h-[85vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Zone</DialogTitle>
+					<DialogTitle>Ville et commune</DialogTitle>
 					<DialogDescription className="sr-only">
 						Modifier votre lieu d&apos;habitation
 					</DialogDescription>
@@ -157,7 +155,7 @@ export function EditZoneDialog({
 					<Button
 						type="submit"
 						disabled={fetcher.isSubmitting}
-						className="bg-primary-green hover:bg-primary-green-dark h-11 w-full gap-2 rounded-xl text-white"
+						className="bg-primary-green hover:bg-primary-green-dark h-control w-full gap-2 rounded-xl text-white"
 					>
 						{fetcher.isSubmitting ? (
 							<>

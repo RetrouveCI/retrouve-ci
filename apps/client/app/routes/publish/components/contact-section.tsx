@@ -40,7 +40,7 @@ export function ContactSection({
 							id={field.name}
 							value={field.value ?? ''}
 							placeholder="Votre nom"
-							className="h-11"
+							className="h-control"
 							aria-invalid={fieldState.invalid || undefined}
 						/>
 						{fieldState.error && (
@@ -57,7 +57,7 @@ export function ContactSection({
 					<div className="space-y-2">
 						<InputLabel htmlFor={field.name}>Numéro WhatsApp</InputLabel>
 						<div className="flex gap-2">
-							<div className="bg-muted text-muted-foreground flex h-11 shrink-0 items-center rounded-md border px-3 text-sm">
+							<div className="bg-muted text-muted-foreground h-control flex shrink-0 items-center rounded-md border px-3 text-sm">
 								+225
 							</div>
 							<Input
@@ -66,7 +66,7 @@ export function ContactSection({
 								type="tel"
 								value={field.value ?? ''}
 								placeholder="07 XX XX XX XX"
-								className="h-11 flex-1"
+								className="h-control flex-1"
 								aria-invalid={fieldState.invalid || undefined}
 							/>
 						</div>
@@ -79,7 +79,7 @@ export function ContactSection({
 
 			{showPrivacyNote && (
 				<div className="bg-muted/50 text-muted-foreground flex items-start gap-2 rounded-xl border p-3 text-xs">
-					<Lock className="text-primary-green mt-0.5 h-3.5 w-3.5 shrink-0" />
+					<Lock className="text-primary-green-text mt-0.5 h-3.5 w-3.5 shrink-0" />
 					<span>
 						Votre numéro ne sera jamais affiché publiquement. Le contact se fait
 						via notre messagerie sécurisée.

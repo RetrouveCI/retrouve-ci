@@ -1,10 +1,14 @@
 import {
+	StickerOrderSource as PrismaStickerOrderSource,
 	StickerOrderStatus as PrismaStickerOrderStatus,
 	type StickerOrder as PrismaStickerOrder,
 } from '@app/database'
 
 import type { StickerOrder } from '../types/sticker-order.types'
-import type { StickerOrderStatus } from '../types/sticker-order.types'
+import type {
+	StickerOrderSource,
+	StickerOrderStatus,
+} from '../types/sticker-order.types'
 
 export function toDomainStickerOrder(
 	stickerOrder: PrismaStickerOrder,
@@ -20,6 +24,7 @@ export function toDomainStickerOrder(
 		total: stickerOrder.total,
 		status: toDomainStatus(stickerOrder.status),
 		paymentMethod: stickerOrder.paymentMethod,
+		source: toDomainSource(stickerOrder.source),
 		deliveryAddress: stickerOrder.deliveryAddress,
 		deliveryCity: stickerOrder.deliveryCity,
 		deliveryNotes: stickerOrder.deliveryNotes,
@@ -29,6 +34,36 @@ export function toDomainStickerOrder(
 		updatedAt: stickerOrder.updatedAt,
 		shippedAt: stickerOrder.shippedAt,
 		deliveredAt: stickerOrder.deliveredAt,
+	}
+}
+
+export function toPrismaSource(
+	source: StickerOrderSource,
+): PrismaStickerOrderSource {
+	switch (source) {
+		case 'home':
+			return PrismaStickerOrderSource.HOME
+		case 'stickers_page':
+			return PrismaStickerOrderSource.STICKERS_PAGE
+		case 'account':
+			return PrismaStickerOrderSource.ACCOUNT
+		case 'direct':
+			return PrismaStickerOrderSource.DIRECT
+	}
+}
+
+export function toDomainSource(
+	source: PrismaStickerOrderSource,
+): StickerOrderSource {
+	switch (source) {
+		case PrismaStickerOrderSource.HOME:
+			return 'home'
+		case PrismaStickerOrderSource.STICKERS_PAGE:
+			return 'stickers_page'
+		case PrismaStickerOrderSource.ACCOUNT:
+			return 'account'
+		case PrismaStickerOrderSource.DIRECT:
+			return 'direct'
 	}
 }
 

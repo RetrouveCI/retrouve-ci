@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { formatPhoneForDisplay } from '../helpers/format-phone'
 
 interface SessionUser {
 	name: string
@@ -34,7 +35,7 @@ export function toUserProfile(user: SessionUser): UserProfile {
 	return {
 		name: user.name,
 		email: user.email,
-		phone: user.phoneNumber,
+		phone: formatPhoneForDisplay(user.phoneNumber),
 		phoneVerified: Boolean(user.phoneNumberVerified),
 		city: user.city,
 		commune: user.commune,

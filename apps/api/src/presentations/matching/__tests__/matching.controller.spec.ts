@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { buildLostItem } from '@/domains/lost-items/__tests__/lost-item.fixture'
+import { buildPublicLostItem } from '@/domains/lost-items/__tests__/lost-item.fixture'
 import type { FindMatchesUseCase } from '@/domains/matching/use-cases/find-matches.use-case'
 import { MatchingController } from '../matching.controller'
 
@@ -15,7 +15,7 @@ describe('MatchingController', () => {
 	})
 
 	it('delegates to the use-case', async () => {
-		const matches = [{ lostItem: buildLostItem(), score: 75 }]
+		const matches = [{ lostItem: buildPublicLostItem(), score: 75 }]
 		vi.mocked(findMatchesUseCase.execute).mockResolvedValue(matches)
 
 		expect(await controller.findMatches('lost-item-1')).toEqual(matches)

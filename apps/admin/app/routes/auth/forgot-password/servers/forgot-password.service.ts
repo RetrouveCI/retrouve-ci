@@ -1,3 +1,4 @@
+import { requestOrigin } from '@/shared/helpers/origin'
 import { appUrl } from '@/shared/helpers/redirect'
 import { apiFetch } from '@/shared/utils/api-fetch'
 
@@ -9,8 +10,9 @@ export async function requestPasswordReset(
 		method: 'POST',
 		body: JSON.stringify({
 			email,
-			redirectTo: appUrl('/auth/reset-password', request),
+			redirectTo: appUrl('/reset-password', request),
 		}),
-		headers: { Origin: new URL(request.url).origin },
+		request,
+		headers: { Origin: requestOrigin(request) },
 	})
 }

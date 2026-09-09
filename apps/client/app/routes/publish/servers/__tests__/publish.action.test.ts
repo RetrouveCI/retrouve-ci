@@ -62,18 +62,19 @@ describe('publishAction', () => {
 			(error: unknown) => error,
 		)
 
-		expect(redirectTo(thrown)).toBe('/auth/login')
+		expect(redirectTo(thrown)).toBe('/login')
 		expect(collectPhotoUrls).not.toHaveBeenCalled()
 		expect(createLostItem).not.toHaveBeenCalled()
 	})
 
 	// The success path is a redirect, so it leaves through the throw channel.
-	it('redirects to the created listing', async () => {
+	// A new listing is `pending`, so its public page would 404 on the poster.
+	it('redirects to the listings of the person who wrote it', async () => {
 		const thrown = await publishAction(requestFor(), 'lost').catch(
 			(error: unknown) => error,
 		)
 
-		expect(redirectTo(thrown)).toBe('/posts/post-1')
+		expect(redirectTo(thrown)).toBe('/account/posts')
 	})
 
 	it('publishes under the type the route chose, not a form field', async () => {
@@ -147,6 +148,78 @@ describe('publishAction', () => {
 		expect(collectPhotoUrls).not.toHaveBeenCalled()
 	})
 
+	// A piece of ID is described by its type and its holder, so the API has to
+	// receive them under the names the contract uses.
+	it('forwards the four document fields', async () => {
+		await publishAction(
+			requestFor({
+				...VALID,
+				objectType: 'documents',
+				description: '',
+				documentType: 'insurance_card',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: 'POL-2026-88123',
+				documentIssuer: 'NSIA',
+			}),
+			'found',
+		).catch(() => undefined)
+
+		expect(createLostItem).toHaveBeenCalledWith(
+			expect.objectContaining({
+				documentType: 'insurance_card',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: 'POL-2026-88123',
+				documentIssuer: 'NSIA',
+			}),
+			expect.any(Request),
+		)
+	})
+
+	it('leaves the four fields absent when no piece was declared', async () => {
+		await publishAction(requestFor(), 'lost').catch(() => undefined)
+
+		const body = createLostItem.mock.calls[0]?.[0]
+
+		expect(body.documentType).toBeUndefined()
+		expect(body.documentHolderName).toBeUndefined()
+		expect(body.documentNumber).toBeUndefined()
+		expect(body.documentIssuer).toBeUndefined()
+	})
+
+	// A photo of a piece hands over the name, the number and the date of birth
+	// at once — so nothing is uploaded, whatever the submitted form carried.
+	it('uploads no photo for a piece of ID', async () => {
+		collectPhotoUrls.mockResolvedValue(['https://cdn/cni.jpg'])
+
+		await publishAction(
+			requestFor({
+				...VALID,
+				objectType: 'documents',
+				documentType: 'national_id',
+				documentHolderName: 'KOUASSI Jean',
+			}),
+			'found',
+		).catch(() => undefined)
+
+		expect(collectPhotoUrls).not.toHaveBeenCalled()
+		expect(createLostItem.mock.calls[0]?.[0].photos).toBeUndefined()
+	})
+
+	it('refuses a piece whose holder is not named', async () => {
+		const result = await publishAction(
+			requestFor({
+				...VALID,
+				objectType: 'documents',
+				documentType: 'national_id',
+			}),
+			'found',
+		)
+
+		expect(result.success).toBe(false)
+		expect(errorsOf(result)?.documentHolderName).toBeDefined()
+		expect(createLostItem).not.toHaveBeenCalled()
+	})
+
 	it('reports an API refusal as a root error', async () => {
 		createLostItem.mockRejectedValue(new ApiError(400, 'Annonce refusée'))
 
@@ -166,7 +239,7 @@ describe('publishAction', () => {
 			(error: unknown) => error,
 		)
 
-		expect(redirectTo(thrown)).toBe('/auth/login')
+		expect(redirectTo(thrown)).toBe('/login')
 	})
 
 	// A failed upload must not leave a listing with missing photos behind.
@@ -177,5 +250,35 @@ describe('publishAction', () => {
 
 		expect(result).toMatchObject({ success: false })
 		expect(createLostItem).not.toHaveBeenCalled()
+	})
+})
+
+/** A9: the code the poster picked travels; the API decides whether it is theirs. */
+describe('publishAction — the sticker a listing names', () => {
+	// The success path throws its `redirect()`, as every case above does.
+	const publish = (fields?: Record<string, string>) =>
+		publishAction(requestFor(fields), 'lost').catch(() => undefined)
+
+	const sent = () =>
+		createLostItem.mock.calls[0]?.[0] as Record<string, unknown>
+
+	it('forwards the picked code', async () => {
+		await publish({ ...VALID, stickerCode: 'RCI-ABC123' })
+
+		expect(sent().stickerCode).toBe('RCI-ABC123')
+	})
+
+	// The select posts an empty string for « Aucun sticker », and the API wants
+	// the key absent rather than blank.
+	it.each(['', '   '])('sends nothing at all for %o', async value => {
+		await publish({ ...VALID, stickerCode: value })
+
+		expect(sent().stickerCode).toBeUndefined()
+	})
+
+	it('sends nothing when the form carried no such field', async () => {
+		await publish()
+
+		expect(sent().stickerCode).toBeUndefined()
 	})
 })

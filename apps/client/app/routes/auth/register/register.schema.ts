@@ -1,16 +1,20 @@
 import { z } from 'zod'
 import {
+	fullNameSchema,
 	otpCodeSchema,
 	passwordSchema,
 	withPasswordConfirmation,
 } from '@app/contracts/shared'
-import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
+import {
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
+	isAssignableLocalNumber,
+} from '@/shared/utils/phone'
 
 export const phoneNumberSchema = z.object({
 	phoneNumber: z
 		.string()
 		.trim()
-		.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
+		.refine(isAssignableLocalNumber, ASSIGNABLE_PHONE_ERROR_MESSAGE),
 })
 
 export const otpSchema = z.object({
@@ -21,6 +25,8 @@ export const newPasswordSchema = withPasswordConfirmation(
 	z.object({
 		newPassword: passwordSchema,
 		confirmPassword: z.string(),
+		// A sign-up by phone already stored the number as the name; this overwrites.
+		name: fullNameSchema,
 	}),
 )
 
@@ -32,6 +38,7 @@ export const sendOtpActionSchema = z.object({
 export const setInitialPasswordActionSchema = z.object({
 	intent: z.literal('set-initial-password'),
 	newPassword: passwordSchema,
+	name: fullNameSchema,
 })
 
 export type PhoneNumberInput = z.input<typeof phoneNumberSchema>

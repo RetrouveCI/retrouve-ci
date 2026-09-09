@@ -9,7 +9,6 @@ export async function editPostLoader(request: Request, id: string) {
 	const item = items.find(i => i.id === id)
 
 	if (!item) throw redirect('/account/posts')
-	if (item.moderationStatus !== 'pending') throw redirect(`/posts/${item.id}`)
 
 	return { item }
 }

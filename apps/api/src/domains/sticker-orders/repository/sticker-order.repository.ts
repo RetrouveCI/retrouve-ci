@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common'
+import { StickerOrderStatus as PrismaStickerOrderStatus } from '@app/database'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
 import {
 	toDomainStickerOrder,
+	toPrismaSource,
 	toPrismaStatus,
 } from '../mappers/sticker-order.mapper'
+import { OPEN_STICKER_ORDER_STATUSES } from '../constants'
 import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 import type {
 	CreateStickerOrderRecord,
@@ -28,6 +31,7 @@ export class StickerOrderRepository {
 				deliveryFee: data.deliveryFee,
 				total: data.total,
 				paymentMethod: data.paymentMethod,
+				source: toPrismaSource(data.source),
 				deliveryAddress: data.deliveryAddress,
 				deliveryCity: data.deliveryCity,
 				deliveryNotes: data.deliveryNotes ?? null,
@@ -44,6 +48,31 @@ export class StickerOrderRepository {
 		})
 
 		return stickerOrder ? toDomainStickerOrder(stickerOrder) : null
+	}
+
+	/**
+	 * How many stickers the visitor actually holds. Only a delivered order has
+	 * arrived, so only its quantity counts — a pending pack is not yet a sticker
+	 * anybody can stick on anything.
+	 */
+	async sumDeliveredQuantity(userId: string): Promise<number> {
+		const { _sum } = await this.prisma.stickerOrder.aggregate({
+			where: { userId, status: PrismaStickerOrderStatus.DELIVERED },
+			_sum: { quantity: true },
+		})
+
+		return _sum.quantity ?? 0
+	}
+
+	// What this account has committed and not settled: a delivery is dispatched
+	// with cash expected on arrival.
+	async countOpenOrders(userId: string): Promise<number> {
+		return this.prisma.stickerOrder.count({
+			where: {
+				userId,
+				status: { in: OPEN_STICKER_ORDER_STATUSES.map(toPrismaStatus) },
+			},
+		})
 	}
 
 	async list(

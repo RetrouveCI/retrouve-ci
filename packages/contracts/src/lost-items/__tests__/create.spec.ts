@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '../../shared/phone'
 import { createLostItemSchema } from '../create.schema'
-import { MAX_PHOTOS, MIN_DESCRIPTION_LENGTH } from '../lost-items.const'
+import { updateLostItemSchema } from '../update.schema'
+import {
+	MAX_PHOTOS,
+	MAX_STICKER_CODE_LENGTH,
+	MIN_DESCRIPTION_LENGTH,
+} from '../lost-items.const'
 
 const VALID = {
 	type: 'lost',
@@ -63,7 +69,7 @@ describe('createLostItemSchema', () => {
 		expect(messageFor({ contactName: '' })).toBe('Veuillez indiquer votre nom')
 		expect(messageFor({ eventDate: '' })).toBe('La date est requise')
 		expect(messageFor({ contactWhatsapp: '' })).toBe(
-			'Entrez un numéro à 10 chiffres',
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
 		)
 	})
 
@@ -125,5 +131,43 @@ describe('createLostItemSchema', () => {
 
 	it('strips a field the schema does not know', () => {
 		expect(parse({ userId: 'user-1' }).data).not.toHaveProperty('userId')
+	})
+})
+
+/** A9: the sticker a listing names — a publication field, and only that. */
+describe('createLostItemSchema — stickerCode', () => {
+	it('is optional, and absent stays absent', () => {
+		expect(parse().data?.stickerCode).toBeUndefined()
+	})
+
+	it('trims the code it keeps', () => {
+		expect(parse({ stickerCode: '  RCI-ABC123 ' }).data?.stickerCode).toBe(
+			'RCI-ABC123',
+		)
+	})
+
+	it.each(['', ' ', 'a'.repeat(MAX_STICKER_CODE_LENGTH + 1)])(
+		'refuses %o in French',
+		stickerCode => {
+			expect(messageFor({ stickerCode })).toBe('Code de sticker invalide')
+		},
+	)
+
+	it('accepts a code right at the ceiling', () => {
+		const code = 'a'.repeat(MAX_STICKER_CODE_LENGTH)
+
+		expect(parse({ stickerCode: code }).data?.stickerCode).toBe(code)
+	})
+
+	// The pipe strips what a schema does not declare, which is what keeps an edit
+	// from silently re-pointing a sticker.
+	it('is not a field an update can carry', () => {
+		const edited = updateLostItemSchema.safeParse({
+			title: 'iPhone 13 perdu',
+			stickerCode: 'RCI-ABC123',
+		})
+
+		expect(edited.success).toBe(true)
+		expect(edited.data).not.toHaveProperty('stickerCode')
 	})
 })

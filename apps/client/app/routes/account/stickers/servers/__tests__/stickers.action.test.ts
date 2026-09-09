@@ -1,15 +1,15 @@
 import type { ActionResult } from '@/shared/types/action'
 import { ApiError } from '@/shared/utils/api-fetch'
 
-const { getServerSession, activateSticker, updateSticker, revokeSticker } =
+const { requireServerSession, activateSticker, updateSticker, revokeSticker } =
 	vi.hoisted(() => ({
-		getServerSession: vi.fn(),
+		requireServerSession: vi.fn(),
 		activateSticker: vi.fn(),
 		updateSticker: vi.fn(),
 		revokeSticker: vi.fn(),
 	}))
 
-vi.mock('@/shared/helpers/session.server', () => ({ getServerSession }))
+vi.mock('@/shared/helpers/session.server', () => ({ requireServerSession }))
 vi.mock('../stickers.service', () => ({
 	activateSticker,
 	updateSticker,
@@ -36,7 +36,7 @@ function errorsOf(result: ActionResult) {
 }
 
 beforeEach(() => {
-	getServerSession.mockReset().mockResolvedValue({ user: { id: 'user-1' } })
+	requireServerSession.mockReset().mockResolvedValue({ user: { id: 'user-1' } })
 	activateSticker.mockReset().mockResolvedValue({ code: 'RCI-ABC123' })
 	updateSticker.mockReset().mockResolvedValue({ code: 'RCI-ABC123' })
 	revokeSticker.mockReset().mockResolvedValue({ code: 'RCI-ABC123' })
@@ -47,22 +47,26 @@ afterEach(() => {
 })
 
 describe('stickersAction', () => {
-	/**
-	 * This one gates with `getServerSession` and its own `redirect`, where the
-	 * loaders next to it use `requireServerSession`. The outcome is the same and
-	 * is asserted here; the inconsistency is recorded in the plan.
-	 */
-	it('redirects to login when there is no session, reading no body', async () => {
-		getServerSession.mockResolvedValue(null)
+	it('gates on the session before reading the body', async () => {
+		const redirect = new Response(null, {
+			status: 302,
+			headers: { location: '/login?redirectTo=%2Faccount%2Fstickers' },
+		})
+		requireServerSession.mockRejectedValue(redirect)
 
 		const thrown = await submit({
 			intent: 'revoke',
 			code: 'RCI-ABC123',
-		}).catch((error: unknown) => error as Response)
+		}).catch((error: unknown) => error)
 
-		expect(thrown).toBeInstanceOf(Response)
-		expect((thrown as Response).headers.get('location')).toBe('/auth/login')
+		expect(thrown).toBe(redirect)
 		expect(revokeSticker).not.toHaveBeenCalled()
+	})
+
+	it('reads the session through the shared gate, not its own', async () => {
+		await submit({ intent: 'revoke', code: 'RCI-ABC123' })
+
+		expect(requireServerSession).toHaveBeenCalledTimes(1)
 	})
 
 	describe('activate', () => {
@@ -77,7 +81,7 @@ describe('stickersAction', () => {
 			expect(result).toEqual({ success: true })
 			expect(activateSticker).toHaveBeenCalledWith(
 				'RCI-ABC123',
-				{ label: 'Mes clés', linkedObject: 'trousseau' },
+				{ label: 'Mes clés', linkedObject: 'trousseau', directContact: false },
 				expect.any(Request),
 			)
 			expect(updateSticker).not.toHaveBeenCalled()
@@ -111,7 +115,11 @@ describe('stickersAction', () => {
 		expect(result).toEqual({ success: true })
 		expect(updateSticker).toHaveBeenCalledWith(
 			'RCI-ABC123',
-			{ label: 'Sac de sport', linkedObject: undefined },
+			{
+				label: 'Sac de sport',
+				linkedObject: undefined,
+				directContact: false,
+			},
 			expect.any(Request),
 		)
 		expect(activateSticker).not.toHaveBeenCalled()
@@ -164,11 +172,53 @@ describe('stickersAction', () => {
 		).rejects.toBeInstanceOf(Response)
 	})
 
+	it('refuses a name too short to identify a sticker', async () => {
+		const result = await submit({
+			intent: 'activate',
+			code: 'RCI-ABC123',
+			label: 'x',
+		})
+
+		expect(errorsOf(result).label?.message).toBe('Donnez un nom à ce sticker')
+		expect(activateSticker).not.toHaveBeenCalled()
+	})
+
 	it('lets a non-API failure through', async () => {
 		updateSticker.mockRejectedValue(new Error('boom'))
 
 		await expect(
-			submit({ intent: 'update', code: 'RCI-ABC123', label: 'x' }),
+			submit({ intent: 'update', code: 'RCI-ABC123', label: 'Sac' }),
 		).rejects.toThrow('boom')
+	})
+})
+
+// The chain, end to end: the API refuses on `code`, `ApiError` carries the map,
+// and the dialog's own `code` field renders it — where it read « QR token
+// "RCI-ABC123" is already activated » in a banner.
+describe('a refusal the API lands on a field', () => {
+	it('puts the message on the code field, not in the banner', async () => {
+		activateSticker.mockRejectedValue(
+			new ApiError(400, 'Ce sticker est déjà activé', {
+				code: ['Ce sticker est déjà activé'],
+			}),
+		)
+
+		const errors = errorsOf(
+			await submit({ intent: 'activate', code: 'RCI-ABC123', label: 'Clés' }),
+		)
+
+		expect(errors['code']?.message).toBe('Ce sticker est déjà activé')
+		expect(errors['root']).toBeUndefined()
+	})
+
+	it('keeps a refusal with no field in the banner', async () => {
+		activateSticker.mockRejectedValue(new ApiError(500, 'Service indisponible'))
+
+		const errors = errorsOf(
+			await submit({ intent: 'activate', code: 'RCI-ABC123', label: 'Clés' }),
+		)
+
+		expect(errors['root']?.message).toBe('Service indisponible')
+		expect(errors['code']).toBeUndefined()
 	})
 })

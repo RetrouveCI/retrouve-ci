@@ -15,7 +15,7 @@ import {
 import type { action } from '../_index'
 
 const CONTROL_CLASSNAME =
-	'bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 w-full rounded-xl border px-4 text-sm transition-all outline-none focus:ring-2'
+	'bg-muted/30 focus:border-primary-green/50 focus:ring-primary-green/30 w-full rounded-xl border px-4 text-field transition-all outline-none focus:ring-2'
 
 const INITIAL_VALUES: CreateContactMessageInput = {
 	name: '',
@@ -54,7 +54,7 @@ function TextField({
 						type={type}
 						value={field.value ?? ''}
 						placeholder={placeholder}
-						className={cn('h-11', CONTROL_CLASSNAME)}
+						className={cn('h-control', CONTROL_CLASSNAME)}
 					/>
 					{fieldState.error && (
 						<FieldError errors={[fieldState.error]} className="text-xs" />
@@ -95,7 +95,7 @@ export function ContactForm() {
 		return (
 			<div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
 				<div className="bg-primary-green/10 flex h-16 w-16 items-center justify-center rounded-full">
-					<CheckCircle2 className="text-primary-green h-8 w-8" />
+					<CheckCircle2 className="text-primary-green-text h-8 w-8" />
 				</div>
 				<div>
 					<p className="mb-1 text-lg font-semibold">Message envoyé !</p>
@@ -108,7 +108,7 @@ export function ContactForm() {
 						setSubmitted(false)
 						form.reset()
 					}}
-					className="text-primary-green text-sm hover:underline"
+					className="text-primary-green-text text-sm hover:underline"
 				>
 					Envoyer un autre message
 				</button>
@@ -173,7 +173,7 @@ export function ContactForm() {
 			<button
 				type="submit"
 				disabled={fetcher.isSubmitting}
-				className="bg-primary-green hover:bg-primary-green-dark flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium text-white transition-colors disabled:opacity-70"
+				className="bg-primary-green hover:bg-primary-green-dark h-control flex w-full items-center justify-center gap-2 rounded-xl text-lg font-medium text-white transition-colors disabled:opacity-70"
 			>
 				<Send className="h-4 w-4" />
 				{fetcher.isSubmitting ? 'Envoi en cours...' : 'Envoyer le message'}

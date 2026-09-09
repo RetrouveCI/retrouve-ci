@@ -5,7 +5,7 @@ import type { ActionResult } from '@/shared/types/action'
 import { withApiOperationError } from '@/shared/utils/api-operation'
 import { createEvent, deleteEvent, updateEvent } from './events.service'
 
-const API_OPTIONS = { redirectOnUnauthorized: '/auth/login' }
+const API_OPTIONS = { redirectOnUnauthorized: '/login' }
 
 export async function eventsAction({
 	request,

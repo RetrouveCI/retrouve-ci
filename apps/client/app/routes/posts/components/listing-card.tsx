@@ -1,48 +1,13 @@
 import { Link } from 'react-router'
-import {
-	MapPin,
-	Clock,
-	ArrowRight,
-	Package,
-	Smartphone,
-	Key,
-	Wallet,
-	Briefcase,
-	Laptop,
-	Shirt,
-	Gem,
-	FileText,
-} from 'lucide-react'
+import { MapPin, Clock, ArrowRight } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import type { LostItem } from '@/shared/types/lost-item'
+import { imageUrl } from '@/shared/utils/image'
+import { categoryIcon, categoryLabel } from '../posts.const'
 
 interface ListingCardProps {
 	listing: LostItem
 	variant?: 'grid' | 'list'
-}
-
-const CATEGORY_ICONS: Record<string, React.ElementType> = {
-	phone: Smartphone,
-	keys: Key,
-	wallet: Wallet,
-	bag: Briefcase,
-	electronics: Laptop,
-	clothing: Shirt,
-	jewelry: Gem,
-	documents: FileText,
-	other: Package,
-}
-
-const CATEGORY_LABELS: Record<string, string> = {
-	phone: 'Téléphone',
-	keys: 'Clés',
-	wallet: 'Portefeuille',
-	bag: 'Sac',
-	electronics: 'Électronique',
-	clothing: 'Vêtement',
-	jewelry: 'Bijoux',
-	documents: 'Documents',
-	other: 'Autre',
 }
 
 function ListingThumbnail({
@@ -56,8 +21,10 @@ function ListingThumbnail({
 		<div className="bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
 			{listing.image ? (
 				<img
-					src={listing.image}
+					src={imageUrl(listing.image, { width: 160 })}
 					alt={listing.title}
+					loading="lazy"
+					decoding="async"
 					className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
 				/>
 			) : (
@@ -82,15 +49,17 @@ function ListingImage({
 		<div className="bg-muted relative aspect-video shrink-0 overflow-hidden">
 			{listing.image ? (
 				<img
-					src={listing.image}
+					src={imageUrl(listing.image, { width: 1000 })}
 					alt={listing.title}
+					loading="lazy"
+					decoding="async"
 					className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 				/>
 			) : (
 				<div className="from-muted to-muted/70 absolute inset-0 flex flex-col items-center justify-center gap-2 bg-linear-to-br">
 					<CategoryIcon className="text-muted-foreground/25 h-10 w-10" />
-					<span className="text-muted-foreground/50 text-[10px] font-medium tracking-widest uppercase">
-						{CATEGORY_LABELS[listing.category] ?? 'Objet'}
+					<span className="text-muted-foreground/50 text-xs font-medium tracking-widest uppercase">
+						{categoryLabel(listing.category)}
 					</span>
 				</div>
 			)}
@@ -99,17 +68,17 @@ function ListingImage({
 
 			<div
 				className={cn(
-					'absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold shadow-sm',
-					isLost ? 'bg-red-500 text-white' : 'bg-primary-green text-white',
+					'absolute top-3 left-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold shadow-sm',
+					isLost ? 'bg-red-600 text-white' : 'bg-primary-green text-white',
 				)}
 			>
 				<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/80" />
 				{isLost ? 'Perdu' : 'Retrouvé'}
 			</div>
 
-			<div className="bg-background/90 text-muted-foreground absolute top-3 right-3 flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium shadow-sm backdrop-blur-sm">
+			<div className="bg-background/90 text-muted-foreground absolute top-3 right-3 flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium shadow-sm backdrop-blur-sm">
 				<CategoryIcon className="h-3 w-3" />
-				{CATEGORY_LABELS[listing.category] ?? 'Autre'}
+				{categoryLabel(listing.category)}
 			</div>
 		</div>
 	)
@@ -117,7 +86,7 @@ function ListingImage({
 
 export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 	const isLost = listing.type === 'lost'
-	const CategoryIcon = CATEGORY_ICONS[listing.category] ?? Package
+	const CategoryIcon = categoryIcon(listing.category)
 
 	if (variant === 'list') {
 		return (
@@ -128,15 +97,16 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 					<div className="flex min-w-0 flex-1 flex-col justify-between">
 						<div>
 							<div className="mb-1 flex items-start justify-between gap-2">
-								<h3 className="group-hover:text-primary-green line-clamp-1 text-sm leading-snug font-semibold transition-colors">
+								<h3 className="group-hover:text-primary-green-text line-clamp-1 text-sm leading-snug font-semibold transition-colors">
 									{listing.title}
 								</h3>
 								<span
 									className={cn(
-										'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase',
+										'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-bold tracking-wide uppercase',
 										isLost
-											? 'bg-red-50 text-red-600'
-											: 'text-primary-green bg-green-50',
+											? 'bg-red-50 text-red-700'
+											: // `bg-green-50` does not follow the theme, so its ink must not either.
+												'text-primary-green bg-green-50',
 									)}
 								>
 									{isLost ? 'Perdu' : 'Retrouvé'}
@@ -155,9 +125,9 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 							</span>
 							<span className="flex items-center gap-1">
 								<Clock className="h-3 w-3 shrink-0" />
-								{listing.date}
+								{listing.postedAt}
 							</span>
-							<span className="text-primary-green ml-auto flex items-center gap-1 font-medium opacity-0 transition-opacity group-hover:opacity-100">
+							<span className="text-primary-green-text ml-auto hidden items-center gap-1 font-medium opacity-0 transition-opacity group-hover:opacity-100 sm:flex">
 								Voir <ArrowRight className="h-3 w-3" />
 							</span>
 						</div>
@@ -177,7 +147,7 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 				/>
 
 				<div className="flex flex-1 flex-col p-3">
-					<h3 className="group-hover:text-primary-green mb-1 line-clamp-1 text-sm leading-snug font-semibold transition-colors">
+					<h3 className="group-hover:text-primary-green-text mb-1 line-clamp-1 text-sm leading-snug font-semibold transition-colors">
 						{listing.title}
 					</h3>
 					<p className="text-muted-foreground mb-2.5 line-clamp-2 flex-1 text-xs leading-relaxed">
@@ -186,16 +156,16 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 
 					<div className="flex items-center justify-between border-t pt-2.5">
 						<div className="flex flex-col gap-0.5">
-							<span className="text-muted-foreground flex items-center gap-1 text-[11px]">
+							<span className="text-muted-foreground flex items-center gap-1 text-xs">
 								<MapPin className="h-3 w-3 shrink-0" />
 								<span className="max-w-27.5 truncate">{listing.location}</span>
 							</span>
-							<span className="text-muted-foreground flex items-center gap-1 text-[11px]">
+							<span className="text-muted-foreground flex items-center gap-1 text-xs">
 								<Clock className="h-3 w-3 shrink-0" />
-								{listing.date}
+								{listing.postedAt}
 							</span>
 						</div>
-						<span className="text-primary-green flex translate-x-0 items-center gap-1 text-xs font-semibold transition-transform group-hover:translate-x-0.5">
+						<span className="text-primary-green-text flex translate-x-0 items-center gap-1 text-xs font-semibold transition-transform group-hover:translate-x-0.5">
 							Voir
 							<ArrowRight className="h-3.5 w-3.5" />
 						</span>

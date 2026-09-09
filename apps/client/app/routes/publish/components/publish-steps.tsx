@@ -29,7 +29,7 @@ export function PublishSteps() {
 					>
 						<div className="mb-3 flex items-center gap-3">
 							<div className="bg-primary-green/10 flex h-10 w-10 items-center justify-center rounded-xl">
-								<Icon className="text-primary-green h-5 w-5" />
+								<Icon className="text-primary-green-text h-5 w-5" />
 							</div>
 							<span className="text-muted-foreground/40 text-2xl font-bold">
 								{index + 1}

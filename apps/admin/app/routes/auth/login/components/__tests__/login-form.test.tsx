@@ -8,9 +8,9 @@ vi.mock('@/context/auth', () => ({
 	useAuth: () => ({ user: null, isLoading: false, login, logout: vi.fn() }),
 }))
 
-function renderLogin(initialEntry = '/auth/login') {
+function renderLogin(initialEntry = '/login') {
 	const Stub = createRoutesStub([
-		{ path: '/auth/login', Component: () => <LoginForm /> },
+		{ path: '/login', Component: () => <LoginForm /> },
 		{ path: '/', Component: () => <p>Tableau de bord</p> },
 		{ path: '/qr', Component: () => <p>Jetons QR</p> },
 	])
@@ -85,7 +85,7 @@ describe('LoginForm', () => {
 
 	it('honours the redirectTo query param on success', async () => {
 		login.mockResolvedValue({ success: true })
-		renderLogin('/auth/login?redirectTo=%2Fqr')
+		renderLogin('/login?redirectTo=%2Fqr')
 
 		await fillCredentials()
 		await userEvent.click(page.getByRole('button', { name: 'Se connecter' }))
@@ -95,7 +95,7 @@ describe('LoginForm', () => {
 
 	it('ignores an external redirectTo and falls back to the dashboard home', async () => {
 		login.mockResolvedValue({ success: true })
-		renderLogin('/auth/login?redirectTo=https%3A%2F%2Fevil.example')
+		renderLogin('/login?redirectTo=https%3A%2F%2Fevil.example')
 
 		await fillCredentials()
 		await userEvent.click(page.getByRole('button', { name: 'Se connecter' }))

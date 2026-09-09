@@ -25,6 +25,6 @@ export async function generateQrAction({
 
 	return withApiOperationData(
 		() => generateQrTokens(count, batch || undefined, request),
-		{ redirectOnUnauthorized: '/auth/login' },
+		{ redirectOnUnauthorized: '/login' },
 	)
 }

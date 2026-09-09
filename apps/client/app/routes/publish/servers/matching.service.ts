@@ -13,11 +13,10 @@ export interface FindMatchingLostItemsParams {
 	ville: string
 }
 
-export async function findMatchingLostItems({
-	type,
-	category,
-	ville,
-}: FindMatchingLostItemsParams): Promise<LostItemApiDto[]> {
+export async function findMatchingLostItems(
+	{ type, category, ville }: FindMatchingLostItemsParams,
+	request: Request,
+): Promise<LostItemApiDto[]> {
 	const params = new URLSearchParams({
 		type,
 		category,
@@ -27,6 +26,7 @@ export async function findMatchingLostItems({
 
 	const response = await apiFetch<LostItemListApiResponse>(
 		`/lost-items?${params}`,
+		{ request },
 	)
 
 	return response.items

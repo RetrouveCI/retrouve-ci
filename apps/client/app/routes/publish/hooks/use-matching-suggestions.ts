@@ -11,6 +11,8 @@ interface MatchingSuggestionsParams {
 interface MatchingSuggestionsResult {
 	matches: LostItem[]
 	isLoading: boolean
+	/** The resource route answers `null` when the API could not be reached. */
+	hasFailed: boolean
 }
 
 export function useMatchingSuggestions({
@@ -18,7 +20,7 @@ export function useMatchingSuggestions({
 	ville,
 	formType,
 }: MatchingSuggestionsParams): MatchingSuggestionsResult {
-	const fetcher = useFetcher<{ items: LostItem[] }>()
+	const fetcher = useFetcher<{ items: LostItem[] | null }>()
 
 	useEffect(() => {
 		if (!objectType || !ville) return
@@ -34,11 +36,12 @@ export function useMatchingSuggestions({
 	}, [objectType, ville, formType])
 
 	if (!objectType || !ville) {
-		return { matches: [], isLoading: false }
+		return { matches: [], isLoading: false, hasFailed: false }
 	}
 
 	return {
 		matches: fetcher.data?.items ?? [],
 		isLoading: fetcher.state === 'loading',
+		hasFailed: fetcher.data?.items === null,
 	}
 }

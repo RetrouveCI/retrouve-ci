@@ -62,13 +62,14 @@ describe('dashboardLoader', () => {
 		expect(apiFetch).not.toHaveBeenCalled()
 	})
 
-	// `/stats`, not `/api/stats`: the API has no global prefix.
-	it('reads /stats with the session cookie forwarded', async () => {
-		await dashboardLoader({ request: requestFor() })
+	// `/stats`, not `/api/stats`: the API has no global prefix. And the request
+	// itself travels, so the caller's address reaches the rate limiter (R44).
+	it('reads /stats, handing the incoming request over', async () => {
+		const request = requestFor()
 
-		expect(apiFetch).toHaveBeenCalledWith('/stats', {
-			headers: { Cookie: COOKIE },
-		})
+		await dashboardLoader({ request })
+
+		expect(apiFetch).toHaveBeenCalledWith('/stats', { request })
 	})
 
 	it('keeps the seven counters the tiles read', async () => {
@@ -94,12 +95,8 @@ describe('dashboardLoader', () => {
 		).toEqual(activityChart)
 	})
 
-	/**
-	 * The guard the table's type does not give: it is a `Record<string, string>`,
-	 * so a category added to the contract would fall through to `?? row.category`
-	 * and show a French admin the raw Prisma enum — `JEWELRY`, not `Bijoux`.
-	 * `posts.const.ts` types its own table against `LostItemCategory` instead.
-	 */
+	// The type catches a missing label; this catches what it cannot — a casing
+	// drift, which would fall through and show a French admin `JEWELRY`.
 	it('has a French label for every category the contract knows', async () => {
 		apiFetch.mockResolvedValue(
 			statsResponse({
@@ -131,7 +128,7 @@ describe('dashboardLoader', () => {
 		expect(categoryChart).toEqual([{ category: 'BICYCLE', lost: 2, found: 0 }])
 	})
 
-	it('renumbers the activities by position, dropping the API ids', async () => {
+	it('keeps the id the API sends for each activity', async () => {
 		vi.useFakeTimers()
 		vi.setSystemTime(new Date('2026-08-26T12:00:00Z'))
 		apiFetch.mockResolvedValue(
@@ -155,7 +152,7 @@ describe('dashboardLoader', () => {
 
 		const { activities } = await dashboardLoader({ request: requestFor() })
 
-		expect(activities.map(a => a.id)).toEqual([1, 2])
+		expect(activities.map(a => a.id)).toEqual(['act-a', 'act-b'])
 		expect(activities[0]?.text).toBe('Sticker scanné')
 	})
 

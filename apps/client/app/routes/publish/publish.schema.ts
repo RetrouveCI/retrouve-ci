@@ -1,13 +1,17 @@
 import { z } from 'zod'
 import {
+	DOCUMENT_TYPE_ERROR,
 	MAX_DESCRIPTION_LENGTH,
-	MIN_DESCRIPTION_LENGTH,
+	MAX_DOCUMENT_NUMBER_LENGTH,
+	MAX_STICKER_CODE_LENGTH,
+	documentTypeSchema,
 	lostItemCategorySchema,
+	pushLostItemWriteIssues,
 } from '@app/contracts/lost-items'
 import {
-	PHONE_ERROR_MESSAGE,
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
 	calendarDateSchema,
-	isValidLocalNumber,
+	isAssignableLocalNumber,
 } from '@app/contracts/shared'
 
 /**
@@ -16,7 +20,7 @@ import {
  * "nothing selected yet" state a form has and an API body does not. The rules
  * themselves come from `@app/contracts/lost-items`.
  */
-export const publishFormSchema = z.object({
+const publishFormFields = z.object({
 	title: z
 		.string({ error: 'Le titre est requis' })
 		.min(3, 'Le titre doit contenir au moins 3 caractères')
@@ -28,12 +32,11 @@ export const publishFormSchema = z.object({
 		.string({ error: "Sélectionnez un type d'objet" })
 		.min(1, "Sélectionnez un type d'objet")
 		.pipe(lostItemCategorySchema),
+	// No floor here: whether one applies depends on the document fields, so the
+	// contract's own rule below owns it — see `pushLostItemWriteIssues`.
 	description: z
 		.string({ error: 'La description est requise' })
-		.min(
-			MIN_DESCRIPTION_LENGTH,
-			`La description doit contenir au moins ${MIN_DESCRIPTION_LENGTH} caractères`,
-		)
+		.trim()
 		.max(
 			MAX_DESCRIPTION_LENGTH,
 			`Maximum ${MAX_DESCRIPTION_LENGTH} caractères`,
@@ -56,8 +59,66 @@ export const publishFormSchema = z.object({
 	whatsapp: z
 		.string({ error: 'Votre numéro WhatsApp est requis' })
 		.trim()
-		.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
+		.refine(isAssignableLocalNumber, ASSIGNABLE_PHONE_ERROR_MESSAGE),
+	// A `Select` starts out on `''`, which no closed enum accepts, so the empty
+	// choice is spelled out and folded back to « absent » on the way through.
+	documentType: z
+		.union([z.literal(''), documentTypeSchema], { error: DOCUMENT_TYPE_ERROR })
+		.optional()
+		.transform(value => value || undefined),
+	documentHolderName: z
+		.string()
+		.trim()
+		.max(120, 'Maximum 120 caractères')
+		.optional(),
+	documentNumber: z
+		.string()
+		.trim()
+		.max(
+			MAX_DOCUMENT_NUMBER_LENGTH,
+			`Maximum ${MAX_DOCUMENT_NUMBER_LENGTH} caractères`,
+		)
+		.optional(),
+	documentIssuer: z
+		.string()
+		.trim()
+		.max(120, 'Maximum 120 caractères')
+		.optional(),
+	// A `Select` starts out on `''`, like `documentType` above; the API resolves
+	// the code against the poster's own stickers, so no shape is checked here.
+	stickerCode: z
+		.string()
+		.trim()
+		.max(MAX_STICKER_CODE_LENGTH, 'Code de sticker invalide')
+		.optional()
+		.transform(value => value || undefined),
 })
+
+const NO_DOCUMENT = {
+	documentType: undefined,
+	documentHolderName: undefined,
+	documentNumber: undefined,
+	documentIssuer: undefined,
+}
+
+/**
+ * The block is only reachable under `documents`, so a piece left behind by a
+ * category the poster then changed must not travel: it would carry a stranger's
+ * name on an annonce nobody can see it in, floor exemption included.
+ */
+function underDeclaredCategory<T extends { objectType: string }>(values: T): T {
+	return values.objectType === 'documents'
+		? values
+		: { ...values, ...NO_DOCUMENT }
+}
+
+/**
+ * The description floor, the holder's name and the bank card's four digits are
+ * the contract's rules, run here so the browser refuses what the API would.
+ */
+export const publishFormSchema = publishFormFields
+	.transform(underDeclaredCategory)
+	.check(ctx => pushLostItemWriteIssues(ctx, { requireHolderName: true }))
 
 export type PublishFormInput = z.input<typeof publishFormSchema>
 export type PublishFormData = z.output<typeof publishFormSchema>

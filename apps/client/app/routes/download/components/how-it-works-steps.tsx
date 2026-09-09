@@ -1,3 +1,6 @@
+// Superseded by R25: `/download` now installs the PWA rather than selling a
+// native app that does not exist. Kept on disk, unreferenced, in case the
+// store listing ever ships.
 import { Smartphone, QrCode, Bell, ArrowRight } from 'lucide-react'
 
 const steps = [
@@ -37,11 +40,11 @@ export function HowItWorksSteps() {
 							key={i}
 							className="bg-background relative rounded-2xl border p-6 text-center"
 						>
-							<div className="text-muted-foreground/10 mb-3 text-5xl font-bold">
+							<div className="text-muted-foreground/10 mb-3 text-4xl font-bold">
 								{item.step}
 							</div>
 							<div className="bg-primary-green/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl">
-								<item.icon className="text-primary-green h-6 w-6" />
+								<item.icon className="text-primary-green-text h-6 w-6" />
 							</div>
 							<h3 className="mb-2 font-semibold">{item.title}</h3>
 							<p className="text-muted-foreground text-sm">{item.desc}</p>

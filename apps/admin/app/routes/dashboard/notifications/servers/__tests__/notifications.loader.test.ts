@@ -1,12 +1,17 @@
 import type { ListNotificationsFilterData } from '@app/contracts/notifications'
 
-const { requireAdminSession, listNotifications } = vi.hoisted(() => ({
-	requireAdminSession: vi.fn(),
-	listNotifications: vi.fn(),
-}))
+const { requireAdminSession, listNotifications, getPushSubscriptionCount } =
+	vi.hoisted(() => ({
+		requireAdminSession: vi.fn(),
+		listNotifications: vi.fn(),
+		getPushSubscriptionCount: vi.fn(),
+	}))
 
 vi.mock('@/shared/helpers/session.server', () => ({ requireAdminSession }))
-vi.mock('../notifications.service', () => ({ listNotifications }))
+vi.mock('../notifications.service', () => ({
+	listNotifications,
+	getPushSubscriptionCount,
+}))
 
 const { notificationsLoader } = await import('../notifications.loader')
 
@@ -24,6 +29,7 @@ const readSent = () =>
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
 	listNotifications.mockReset().mockResolvedValue({ items: [], total: 0 })
+	getPushSubscriptionCount.mockReset().mockResolvedValue(0)
 })
 
 afterEach(() => {
@@ -92,5 +98,25 @@ describe('notificationsLoader', () => {
 
 		expect(result.notifications).toEqual([{ id: 'n-1' }])
 		expect(result.total).toBe(1)
+	})
+
+	describe('the subscribed-device figure', () => {
+		it.each([0, 5])('carries %i through', async count => {
+			getPushSubscriptionCount.mockResolvedValue(count)
+
+			expect(
+				(await notificationsLoader({ request: requestFor() })).pushDevices,
+			).toBe(count)
+		})
+
+		// A figure must never take the page down; the card then shows a dash
+		// rather than announcing a zero nobody measured.
+		it('answers null when the counter cannot be reached', async () => {
+			getPushSubscriptionCount.mockRejectedValue(new Error('down'))
+
+			expect(
+				(await notificationsLoader({ request: requestFor() })).pushDevices,
+			).toBeNull()
+		})
 	})
 })

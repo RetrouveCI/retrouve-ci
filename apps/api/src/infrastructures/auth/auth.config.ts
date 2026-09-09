@@ -1,10 +1,9 @@
 import { createAuth as createSharedAuth } from '@app/auth'
 import { phoneNumber } from 'better-auth/plugins'
-import { isValidLocalNumber } from '@app/contracts/shared'
+import { isValidLocalNumber, OTP_TTL_SECONDS } from '@app/contracts/shared'
 import type { PrismaClient } from '@app/database'
 import { getAllowedOrigins } from '@/shared/auth/allowed-origins'
 import { getCookieDomain } from '@/shared/auth/cookie-domain'
-import { OTP_TTL_SECONDS } from '@/shared/auth/otp.const'
 import type { OtpDispatcher } from './otp-dispatcher.service'
 
 export const ADMIN_AUTH_BASE_PATH = '/api/admin-auth'
@@ -18,6 +17,8 @@ export function createClientAuth(prisma: PrismaClient, otp: OtpDispatcher) {
 		plugins: [
 			phoneNumber({
 				expiresIn: OTP_TTL_SECONDS,
+				// Guards /sign-in/phone-number and /phone-number/send-otp only, so it is
+				// the sign-in predicate: strict here would lock out existing accounts.
 				phoneNumberValidator: isValidLocalNumber,
 				sendOTP: ({ phoneNumber, code }) =>
 					otp.dispatch({ purpose: 'sign-in', phoneNumber, code }),

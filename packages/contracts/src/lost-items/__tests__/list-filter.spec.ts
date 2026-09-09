@@ -7,11 +7,13 @@ import {
 import {
 	adminListLostItemsFilterSchema,
 	listLostItemsFilterSchema,
+	myLostItemsFilterSchema,
 } from '../list-filter.schema'
 
 const parse = (input: unknown) => listLostItemsFilterSchema.safeParse(input)
 const parseAdmin = (input: unknown) =>
 	adminListLostItemsFilterSchema.safeParse(input)
+const parseMine = (input: unknown) => myLostItemsFilterSchema.safeParse(input)
 
 describe('listLostItemsFilterSchema', () => {
 	it('keeps the pagination defaults it extends', () => {
@@ -81,6 +83,14 @@ describe('listLostItemsFilterSchema', () => {
 			'moderationStatus',
 		)
 	})
+
+	// The lifecycle axis belongs to the owner's own listing: a visitor browsing
+	// « Annonces » sees every published item, resolved ones included.
+	it('has no resolutionStatus of its own', () => {
+		expect(parse({ resolutionStatus: 'resolved' }).data).not.toHaveProperty(
+			'resolutionStatus',
+		)
+	})
 })
 
 describe('adminListLostItemsFilterSchema', () => {
@@ -96,5 +106,39 @@ describe('adminListLostItemsFilterSchema', () => {
 		expect(
 			parseAdmin({ moderationStatus: 'valide' }).error?.issues[0]?.message,
 		).toBe('Statut de modération invalide')
+	})
+})
+
+describe('myLostItemsFilterSchema', () => {
+	it('adds a lifecycle status to the public filter', () => {
+		expect(parseMine({ resolutionStatus: 'resolved' }).data).toEqual({
+			resolutionStatus: 'resolved',
+			page: DEFAULT_PAGE,
+			pageSize: DEFAULT_PAGE_SIZE,
+		})
+	})
+
+	it('accepts the three lifecycle values the enum holds', () => {
+		for (const value of ['active', 'resolved', 'expired'])
+			expect(parseMine({ resolutionStatus: value }).success).toBe(true)
+	})
+
+	it('refuses an unknown lifecycle status, in French', () => {
+		expect(
+			parseMine({ resolutionStatus: 'archivee' }).error?.issues[0]?.message,
+		).toBe('Statut invalide')
+	})
+
+	// « Mes annonces » searches and paginates on the same call as it filters.
+	it('keeps the search and pagination fields it extends', () => {
+		expect(
+			parseMine({ search: '  sac  ', page: '3', pageSize: '12' }).data,
+		).toEqual({ search: 'sac', page: 3, pageSize: 12 })
+	})
+
+	it('grants no moderation status to the owner', () => {
+		expect(parseMine({ moderationStatus: 'hidden' }).data).not.toHaveProperty(
+			'moderationStatus',
+		)
 	})
 })

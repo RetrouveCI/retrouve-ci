@@ -1,14 +1,19 @@
 import type { QrTokenApiDto } from '../../types/stickers.types'
 
-const { requireServerSession, getMyStickers } = vi.hoisted(() => ({
-	requireServerSession: vi.fn(),
-	getMyStickers: vi.fn(),
-}))
+const { requireServerSession, getMyStickers, getMyStickerSummary } = vi.hoisted(
+	() => ({
+		requireServerSession: vi.fn(),
+		getMyStickers: vi.fn(),
+		getMyStickerSummary: vi.fn(),
+	}),
+)
 
 vi.mock('@/shared/helpers/session.server', () => ({ requireServerSession }))
-vi.mock('../stickers.service', () => ({ getMyStickers }))
+vi.mock('../stickers.service', () => ({ getMyStickers, getMyStickerSummary }))
 
 const { stickersLoader } = await import('../stickers.loader')
+
+const SUMMARY = { delivered: 12, activated: 3, pending: 9 }
 
 const DTO: QrTokenApiDto = {
 	id: 'qr-1',
@@ -17,10 +22,13 @@ const DTO: QrTokenApiDto = {
 	batch: 'lot-aout',
 	label: 'Mes clés',
 	linkedObject: 'trousseau',
+	directContact: false,
 	userId: 'user-1',
 	createdAt: '2026-08-01T10:00:00.000Z',
 	activatedAt: '2026-08-02T10:00:00.000Z',
 	revokedAt: null,
+	lastScannedAt: null,
+	messagesCount: 0,
 }
 
 function requestFor() {
@@ -32,6 +40,7 @@ function requestFor() {
 beforeEach(() => {
 	requireServerSession.mockReset().mockResolvedValue({ user: { id: 'user-1' } })
 	getMyStickers.mockReset().mockResolvedValue([DTO])
+	getMyStickerSummary.mockReset().mockResolvedValue(SUMMARY)
 })
 
 afterEach(() => {
@@ -55,6 +64,7 @@ describe('stickersLoader', () => {
 			redirect,
 		)
 		expect(getMyStickers).not.toHaveBeenCalled()
+		expect(getMyStickerSummary).not.toHaveBeenCalled()
 	})
 
 	it('hands the request to the service', async () => {
@@ -63,6 +73,18 @@ describe('stickersLoader', () => {
 		await stickersLoader({ request })
 
 		expect(getMyStickers).toHaveBeenCalledWith(request)
+		expect(getMyStickerSummary).toHaveBeenCalledWith(request)
+	})
+
+	/**
+	 * The list holds only the tokens the visitor owns, and a sticker waiting to
+	 * be activated has no owner: what is left to do can only come from the
+	 * summary, which counts the delivered orders.
+	 */
+	it('carries the activation summary beside the list', async () => {
+		const { summary } = await stickersLoader({ request: requestFor() })
+
+		expect(summary).toEqual(SUMMARY)
 	})
 
 	/**
@@ -89,10 +111,13 @@ describe('stickersLoader', () => {
 		expect(Object.keys(stickers[0] ?? {}).sort()).toEqual([
 			'activatedAt',
 			'code',
+			'directContact',
 			'id',
 			'isActive',
 			'label',
+			'lastScannedAt',
 			'linkedObject',
+			'messagesCount',
 			'status',
 		])
 	})
@@ -102,11 +127,20 @@ describe('stickersLoader', () => {
 
 		expect(await stickersLoader({ request: requestFor() })).toEqual({
 			stickers: [],
+			summary: SUMMARY,
 		})
 	})
 
 	it('lets a service failure through to the error boundary', async () => {
 		getMyStickers.mockRejectedValue(new Error('api down'))
+
+		await expect(stickersLoader({ request: requestFor() })).rejects.toThrow(
+			'api down',
+		)
+	})
+
+	it('lets a failed summary through to the error boundary', async () => {
+		getMyStickerSummary.mockRejectedValue(new Error('api down'))
 
 		await expect(stickersLoader({ request: requestFor() })).rejects.toThrow(
 			'api down',

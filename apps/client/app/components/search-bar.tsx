@@ -6,33 +6,47 @@ import { cn } from '@app/ui/utils'
 
 type Size = 'xs' | 'sm' | 'md' | 'lg'
 
+/** Only the shell changes with the size: §2.1 puts every field at 16 px. */
 const SIZE: Record<
 	Size,
-	{ shell: string; input: string; icon: string; button: string }
+	{
+		shell: string
+		input: string
+		icon: string
+		button: string
+		/** Round submit, kept a touch smaller than the shell it sits inside. */
+		iconButton: string
+	}
 > = {
 	xs: {
 		shell: 'py-0.5 pl-3.5 pr-1.5',
-		input: 'h-9 text-sm',
+		input: 'h-9 text-field',
 		icon: 'h-4 w-4',
 		button: 'h-8 px-4 text-sm',
+		iconButton: 'size-7',
 	},
 	sm: {
 		shell: 'py-1 pl-3.5 pr-1.5',
-		input: 'h-10 text-sm',
+		input: 'h-10 text-field',
 		icon: 'h-4 w-4',
 		button: 'h-8 px-4 text-sm',
+		iconButton: 'size-8',
 	},
 	md: {
 		shell: 'py-1.5 pl-4 pr-1.5',
-		input: 'h-11 text-sm md:text-base',
+		input: 'h-11 text-field',
 		icon: 'h-5 w-5',
 		button: 'h-9 px-5',
+		iconButton: 'size-9',
 	},
 	lg: {
-		shell: 'py-1.5 pl-5 pr-1.5',
-		input: 'h-12 text-base',
+		// 56 px on a phone, near the artboard's 54: the field is already at
+		// §2.1's 48 px floor, so the padding is all there was left to give back.
+		shell: 'py-0.5 pl-4 pr-1 lg:py-1.5 lg:pl-5 lg:pr-1.5',
+		input: 'h-control text-field',
 		icon: 'h-5 w-5',
 		button: 'h-12 px-6',
+		iconButton: 'size-11',
 	},
 }
 
@@ -50,7 +64,14 @@ type SearchBarProps = BaseProps &
 				action?: string
 				defaultValue?: string
 				autoFocus?: boolean
-				showSubmit?: boolean
+				/**
+				 * `icon` is the header's: at 1024 px the search takes the free space
+				 * the layout used to waste, and a worded button would eat the width it
+				 * just gained. `responsive` is the hero's — the artboards word the
+				 * button only on desktop, because at 390 px « Rechercher » left the
+				 * field 167 px and truncated its own placeholder.
+				 */
+				submit?: 'label' | 'icon' | 'none' | 'responsive'
 				onSubmit?: () => void
 		  }
 		| {
@@ -105,7 +126,7 @@ export function SearchBar(props: SearchBarProps) {
 		)
 	}
 
-	const showSubmit = props.showSubmit ?? true
+	const submit = props.submit ?? 'label'
 
 	return (
 		<Form
@@ -128,15 +149,30 @@ export function SearchBar(props: SearchBarProps) {
 					placeholder={props.placeholder ?? 'Quel objet recherchez-vous ?'}
 					className={inputClass}
 				/>
-				{showSubmit && (
+				{(submit === 'label' || submit === 'responsive') && (
 					<Button
 						type="submit"
 						className={cn(
 							'bg-primary-green hover:bg-primary-green-dark shrink-0 rounded-full text-white',
 							size.button,
+							submit === 'responsive' && 'hidden lg:inline-flex',
 						)}
 					>
 						Rechercher
+					</Button>
+				)}
+				{(submit === 'icon' || submit === 'responsive') && (
+					<Button
+						type="submit"
+						size="icon"
+						aria-label="Rechercher"
+						className={cn(
+							'bg-primary-green hover:bg-primary-green-dark shrink-0 rounded-full text-white',
+							size.iconButton,
+							submit === 'responsive' && 'lg:hidden',
+						)}
+					>
+						<Search className={size.icon} />
 					</Button>
 				)}
 			</div>

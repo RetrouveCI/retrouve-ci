@@ -7,6 +7,11 @@
 
 export interface PublicEnv {
 	API_URL: string
+	/**
+	 * The **public** half of the VAPID pair; the private half stays on the API.
+	 * Unset, the app offers no push switch rather than a dead button.
+	 */
+	VAPID_PUBLIC_KEY: string
 }
 
 declare global {
@@ -40,7 +45,16 @@ export function apiUrl(): string {
 	return url
 }
 
+/** Absent rather than empty-string-checked at every call site. */
+export function vapidPublicKey(): string {
+	if (typeof window !== 'undefined') {
+		return window.ENV?.VAPID_PUBLIC_KEY ?? ''
+	}
+
+	return fromProcess('VAPID_PUBLIC_KEY') ?? ''
+}
+
 /** What the root loader hands to the browser. Never put a secret in here. */
 export function publicEnv(): PublicEnv {
-	return { API_URL: apiUrl() }
+	return { API_URL: apiUrl(), VAPID_PUBLIC_KEY: vapidPublicKey() }
 }

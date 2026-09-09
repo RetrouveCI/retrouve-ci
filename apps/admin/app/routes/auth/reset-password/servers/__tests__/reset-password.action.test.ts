@@ -18,7 +18,7 @@ function submit(fields: Record<string, string>) {
 	for (const [key, value] of Object.entries(fields)) body.append(key, value)
 
 	return resetPasswordAction({
-		request: new Request('http://localhost:3001/auth/reset-password', {
+		request: new Request('http://localhost:3001/reset-password', {
 			method: 'POST',
 			body,
 		}),

@@ -21,7 +21,7 @@ export default [
 		route('administrators', 'routes/dashboard/administrators/_index.tsx'),
 		route('profile', 'routes/dashboard/profile/_index.tsx'),
 	]),
-	route('auth', 'routes/auth/layout.tsx', [
+	layout('routes/auth/layout.tsx', [
 		route('login', 'routes/auth/login/_index.tsx'),
 		route('forgot-password', 'routes/auth/forgot-password/_index.tsx'),
 		route('reset-password', 'routes/auth/reset-password/_index.tsx'),

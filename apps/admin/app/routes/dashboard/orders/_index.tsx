@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { useSearchParams, useFetcher, Link } from 'react-router'
+import { useState } from 'react'
+import { useSearchParams, Link } from 'react-router'
 import {
 	Button,
 	Badge,
@@ -22,6 +22,9 @@ import { OrderDetailDialog } from './components/order-detail-dialog'
 import { OrderStatsGrid } from './components/order-stats-grid'
 import { ordersLoader } from './servers/orders.loader'
 import { ordersAction } from './servers/orders.action'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import type { FieldValues } from 'react-hook-form'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
@@ -78,12 +81,6 @@ const STATUS_CONFIG: Record<
 	},
 }
 
-interface ActionResult {
-	ok: boolean
-	order?: StickerOrder
-	error?: string
-}
-
 export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 	const { orders, statusFilter } = loaderData
 	const [searchParams, setSearchParams] = useSearchParams()
@@ -91,22 +88,27 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 	const [selectedOrder, setSelectedOrder] = useState<StickerOrder | null>(null)
 	const [detailOpen, setDetailOpen] = useState(false)
 
-	const statusFetcher = useFetcher<ActionResult>()
+	const statusFetcher = useActionFetcher<
+		typeof ordersAction,
+		FieldValues,
+		StickerOrder
+	>()
 
-	useEffect(() => {
-		if (statusFetcher.state !== 'idle' || !statusFetcher.data) return
-		if (statusFetcher.data.ok) {
-			const order = statusFetcher.data.order
-			if (order)
-				toast.success(
-					`Commande ${order.orderNumber} — ${STATUS_CONFIG[order.status].label}`,
-				)
-		} else {
+	useSettledSubmission(statusFetcher.response, result => {
+		if (!result.success) {
 			toast.error(
-				statusFetcher.data.error ?? 'Impossible de mettre à jour le statut',
+				result.errors?.root?.message ?? 'Impossible de mettre à jour le statut',
 			)
+			return
 		}
-	}, [statusFetcher.state, statusFetcher.data])
+
+		const order = result.data
+
+		if (order)
+			toast.success(
+				`Commande ${order.orderNumber} — ${STATUS_CONFIG[order.status].label}`,
+			)
+	})
 
 	const updateStatus = (id: string, status: OrderStatus) => {
 		statusFetcher.submit({ id, status }, { method: 'post' })

@@ -14,17 +14,22 @@ describe('GetMyQrTokensUseCase', () => {
 
 	it('narrows the list to the caller', async () => {
 		const response = {
-			items: [buildQrToken({ userId: 'user-1', status: 'activated' as const })],
+			items: [
+				{
+					...buildQrToken({ userId: 'user-1', status: 'activated' as const }),
+					messagesCount: 2,
+				},
+			],
 			total: 1,
 			page: 1,
 			pageSize: 20,
 		}
-		vi.mocked(repository.list).mockResolvedValue(response)
+		vi.mocked(repository.listByOwner).mockResolvedValue(response)
 
 		const filter = { page: 1, pageSize: 20 }
 		const result = await useCase.execute({ userId: 'user-1', filter })
 
-		expect(repository.list).toHaveBeenCalledWith({
+		expect(repository.listByOwner).toHaveBeenCalledWith({
 			...filter,
 			userId: 'user-1',
 		})
@@ -33,7 +38,7 @@ describe('GetMyQrTokensUseCase', () => {
 
 	/** The scoping rule: a filter cannot widen the scope to somebody else. */
 	it('overrides a userId carried by the filter', async () => {
-		vi.mocked(repository.list).mockResolvedValue({
+		vi.mocked(repository.listByOwner).mockResolvedValue({
 			items: [],
 			total: 0,
 			page: 1,
@@ -45,7 +50,7 @@ describe('GetMyQrTokensUseCase', () => {
 			filter: { page: 1, pageSize: 20, userId: 'user-2' },
 		})
 
-		expect(repository.list).toHaveBeenCalledWith(
+		expect(repository.listByOwner).toHaveBeenCalledWith(
 			expect.objectContaining({ userId: 'user-1' }),
 		)
 	})

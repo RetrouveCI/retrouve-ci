@@ -10,7 +10,7 @@ export function StickersCta() {
 			<div className="container mx-auto px-4">
 				<div className="mx-auto max-w-3xl text-center">
 					<div className="bg-primary-green/10 mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl">
-						<Shield className="text-primary-green h-7 w-7" />
+						<Shield className="text-primary-green-text h-7 w-7" />
 					</div>
 					<h2 className="mb-4 text-3xl font-bold md:text-4xl">
 						Prêt à protéger vos objets ?
@@ -25,14 +25,14 @@ export function StickersCta() {
 							size="lg"
 							className="bg-primary-green hover:bg-primary-green-dark h-12 px-8 text-white"
 						>
-							<Link to="/stickers/order">
+							<Link to="/stickers/order?from=stickers_page">
 								Commander maintenant
 								<ArrowRight className="ml-2 h-4 w-4" />
 							</Link>
 						</Button>
 						{!isAuthenticated && (
 							<Button asChild size="lg" variant="outline" className="h-12 px-6">
-								<Link to="/auth/register">Créer un compte</Link>
+								<Link to="/register">Créer un compte</Link>
 							</Button>
 						)}
 					</div>

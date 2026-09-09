@@ -39,7 +39,7 @@ describe('requireAdminSession', () => {
 		mockedApiFetch.mockResolvedValue(sessionFor('user'))
 
 		expect(await locationOf('https://bo.retrouve.ci/orders')).toBe(
-			'/auth/login?redirectTo=%2Forders',
+			'/login?redirectTo=%2Forders',
 		)
 	})
 
@@ -53,7 +53,7 @@ describe('requireAdminSession', () => {
 			await locationOf(
 				'https://bo.retrouve.ci/orders.data?_routes=routes%2Fdashboard%2Forders%2F_index',
 			),
-		).toBe('/auth/login?redirectTo=%2Forders')
+		).toBe('/login?redirectTo=%2Forders')
 	})
 
 	it('drops only the internal param from a real query string', async () => {
@@ -63,7 +63,7 @@ describe('requireAdminSession', () => {
 			await locationOf(
 				'https://bo.retrouve.ci/orders.data?_routes=x&status=pending',
 			),
-		).toBe('/auth/login?redirectTo=%2Forders%3Fstatus%3Dpending')
+		).toBe('/login?redirectTo=%2Forders%3Fstatus%3Dpending')
 	})
 })
 

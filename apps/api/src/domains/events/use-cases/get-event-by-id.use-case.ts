@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import type { IDomainUseCase } from '@/shared/types/domain-use-case.type'
-import { requireEvent } from '../helpers/require-event'
+import { requirePublishedEvent } from '../helpers/require-published-event'
 import { EventRepository } from '../repository/event.repository'
 import type { Event } from '../types/event.types'
 
@@ -8,7 +8,8 @@ import type { Event } from '../types/event.types'
 export class GetEventByIdUseCase implements IDomainUseCase<string, Event> {
 	constructor(private readonly repository: EventRepository) {}
 
+	/** Read by the anonymous route alone, so the published rule lives here. */
 	async execute(id: string): Promise<Event> {
-		return requireEvent(this.repository, id)
+		return requirePublishedEvent(this.repository, id)
 	}
 }

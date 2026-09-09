@@ -1,6 +1,9 @@
 import { notificationReadSchema } from '@app/contracts/notifications'
 import { requireAdminSession } from '@/shared/helpers/session.server'
-import { listNotifications } from './notifications.service'
+import {
+	getPushSubscriptionCount,
+	listNotifications,
+} from './notifications.service'
 
 export async function notificationsLoader({ request }: { request: Request }) {
 	await requireAdminSession(request)
@@ -15,5 +18,20 @@ export async function notificationsLoader({ request }: { request: Request }) {
 		request,
 	)
 
-	return { notifications: items, total, readFilter: rawRead ?? 'all' }
+	return {
+		notifications: items,
+		total,
+		readFilter: rawRead ?? 'all',
+		pushDevices: await readPushDevices(request),
+	}
+}
+
+// A figure must never take the page down, so an unreachable counter reads null
+// — and the card then says so rather than announcing a zero.
+async function readPushDevices(request: Request): Promise<number | null> {
+	try {
+		return await getPushSubscriptionCount(request)
+	} catch {
+		return null
+	}
 }

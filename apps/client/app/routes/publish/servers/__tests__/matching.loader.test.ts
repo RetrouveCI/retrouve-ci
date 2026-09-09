@@ -25,11 +25,14 @@ describe('the matching loader', () => {
 	it('asks the API for the three criteria it was given', async () => {
 		await loader({ request: requestFor(VALID) })
 
-		expect(findMatchingLostItems).toHaveBeenCalledWith({
-			type: 'lost',
-			category: LOST_ITEM_CATEGORIES[0],
-			ville: 'Abidjan',
-		})
+		expect(findMatchingLostItems).toHaveBeenCalledWith(
+			{
+				type: 'lost',
+				category: LOST_ITEM_CATEGORIES[0],
+				ville: 'Abidjan',
+			},
+			expect.any(Request),
+		)
 	})
 
 	// The panel loads while the form is still being filled in, so a partial query
@@ -62,6 +65,7 @@ describe('the matching loader', () => {
 				ville: 'Abidjan',
 				commune: 'Cocody',
 				eventDate: '2026-08-01T10:00:00.000Z',
+				createdAt: '2026-08-20T10:00:00.000Z',
 				photos: [],
 			},
 		])
@@ -69,11 +73,22 @@ describe('the matching loader', () => {
 		const { items } = await loader({ request: requestFor(VALID) })
 
 		expect(items).toHaveLength(1)
-		expect(items[0]).toMatchObject({
+		expect(items?.[0]).toMatchObject({
 			id: 'post-1',
 			title: 'Sac noir',
 			location: 'Cocody, Abidjan',
-			dateISO: '2026-08-01',
+			eventDate: '1 août 2026',
+		})
+	})
+
+	// `null` is the failure state and `[]` the empty one: read as « aucune
+	// correspondance », an unreachable API would tell the poster the one thing
+	// that reassures them, on no evidence at all.
+	it('answers null when the API cannot be reached', async () => {
+		findMatchingLostItems.mockRejectedValue(new Error('boom'))
+
+		expect(await loader({ request: requestFor(VALID) })).toEqual({
+			items: null,
 		})
 	})
 })

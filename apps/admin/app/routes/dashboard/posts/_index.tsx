@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react'
-import { useSearchParams, useFetcher } from 'react-router'
+import { useState } from 'react'
+import type { FieldValues } from 'react-hook-form'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import { useSearchParams } from 'react-router'
 import {
 	Badge,
 	Button,
@@ -22,6 +25,10 @@ import { BentoCard } from '@/components/bento-card'
 import { DataTable } from '@/components/data-table'
 import { PostsStatsGrid } from './components/posts-stats-grid'
 import { PostDetailDialog } from './components/post-detail-dialog'
+import {
+	HidePostDialog,
+	type HideDecision,
+} from './components/hide-post-dialog'
 import { postsLoader } from './servers/posts.loader'
 import { postsAction } from './servers/posts.action'
 import { format } from 'date-fns'
@@ -46,45 +53,60 @@ export const action = postsAction
 
 export const handle: RouteHandle = { title: 'Posts' }
 
-interface ActionResult {
-	ok: boolean
-	post?: Post
-	intent?: string
-	error?: string
-}
-
 export default function PostsPage({ loaderData }: Route.ComponentProps) {
 	const { posts, total, statusFilter, typeFilter } = loaderData
 	const [searchParams, setSearchParams] = useSearchParams()
 
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null)
 	const [detailOpen, setDetailOpen] = useState(false)
+	const [hidingPost, setHidingPost] = useState<Post | null>(null)
 
-	const moderateFetcher = useFetcher<ActionResult>()
+	const moderateFetcher = useActionFetcher<
+		typeof postsAction,
+		FieldValues,
+		Post
+	>()
 
-	useEffect(() => {
-		if (moderateFetcher.state !== 'idle' || !moderateFetcher.data) return
-		if (moderateFetcher.data.ok) {
-			const post = moderateFetcher.data.post
-			if (post) {
-				toast.success(
-					`"${post.title}" — ${MODERATION_CONFIG[post.moderationStatus].label}`,
-				)
-
-				if (selectedPost?.id === post.id) {
-					setSelectedPost(post)
-				}
-			}
-		} else {
-			toast.error(moderateFetcher.data.error ?? 'Impossible de modérer ce post')
+	useSettledSubmission(moderateFetcher.response, result => {
+		if (!result.success) {
+			toast.error(
+				result.errors?.root?.message ?? 'Impossible de modérer ce post',
+			)
+			return
 		}
-	}, [moderateFetcher.state, moderateFetcher.data, selectedPost?.id])
 
-	const handleModerate = (id: string, moderationStatus: ModerationStatus) => {
+		const post = result.data
+		if (!post) return
+
+		toast.success(
+			`"${post.title}" — ${MODERATION_CONFIG[post.moderationStatus].label}`,
+		)
+
+		if (selectedPost?.id === post.id) setSelectedPost(post)
+	})
+
+	const handleModerate = (
+		id: string,
+		moderationStatus: ModerationStatus,
+		decision: HideDecision = {},
+	) => {
 		moderateFetcher.submit(
-			{ intent: 'moderate', id, moderationStatus },
+			{
+				intent: 'moderate',
+				id,
+				moderationStatus,
+				moderationReason: decision.moderationReason ?? '',
+				moderationReasonNote: decision.moderationReasonNote ?? '',
+			},
 			{ method: 'post' },
 		)
+	}
+
+	const handleHide = (decision: HideDecision) => {
+		if (!hidingPost) return
+
+		handleModerate(hidingPost.id, 'hidden', decision)
+		setHidingPost(null)
 	}
 
 	const handleStatusFilter = (value: string) => {
@@ -190,10 +212,10 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 							)}
 							{post.moderationStatus !== 'hidden' && (
 								<DropdownMenuItem
-									onClick={() => handleModerate(post.id, 'hidden')}
+									onClick={() => setHidingPost(post)}
 									className="text-destructive focus:text-destructive"
 								>
-									<EyeOff className="mr-2 h-4 w-4" /> Masquer
+									<EyeOff className="mr-2 h-4 w-4" /> Masquer…
 								</DropdownMenuItem>
 							)}
 							{post.moderationStatus !== 'pending' && (
@@ -285,7 +307,15 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 					if (!open) setSelectedPost(null)
 				}}
 				onModerate={handleModerate}
+				onHide={setHidingPost}
 				isModerating={moderateFetcher.state !== 'idle'}
+			/>
+
+			<HidePostDialog
+				post={hidingPost}
+				submitting={moderateFetcher.state !== 'idle'}
+				onOpenChange={open => !open && setHidingPost(null)}
+				onConfirm={handleHide}
 			/>
 		</>
 	)

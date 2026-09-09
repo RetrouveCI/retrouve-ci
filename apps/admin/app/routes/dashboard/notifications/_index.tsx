@@ -1,15 +1,15 @@
-import { useEffect } from 'react'
-import { useSearchParams, useFetcher } from 'react-router'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import { useSearchParams } from 'react-router'
 import { Button } from '@app/ui/components'
 import { BentoCard } from '@/components/bento-card'
 import { StatCard } from '@/components/stat-card'
 import { NotificationList } from './components/notification-list'
 import { notificationsLoader } from './servers/notifications.loader'
 import { notificationsAction } from './servers/notifications.action'
-import { CheckCheck, Bell, BellOff } from 'lucide-react'
+import { CheckCheck, Bell, BellOff, BellRing } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@app/ui/utils'
-import type { Notification } from './types/notifications.types'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
 
@@ -18,37 +18,30 @@ export const action = notificationsAction
 
 export const handle: RouteHandle = { title: 'Notifications' }
 
-interface ActionResult {
-	ok: boolean
-	notification?: Notification
-	intent?: string
-	error?: string
-}
-
 export default function NotificationsPage({
 	loaderData,
 }: Route.ComponentProps) {
-	const { notifications, total, readFilter } = loaderData
+	const { notifications, total, readFilter, pushDevices } = loaderData
 	const [searchParams, setSearchParams] = useSearchParams()
 
-	const readFetcher = useFetcher<ActionResult>()
-	const markAllFetcher = useFetcher<ActionResult>()
+	const readFetcher = useActionFetcher<typeof notificationsAction>()
+	const markAllFetcher = useActionFetcher<typeof notificationsAction>()
 
-	useEffect(() => {
-		if (readFetcher.state !== 'idle' || !readFetcher.data) return
-		if (!readFetcher.data.ok) {
-			toast.error(readFetcher.data.error ?? 'Impossible de marquer comme lu')
-		}
-	}, [readFetcher.state, readFetcher.data])
+	useSettledSubmission(readFetcher.response, result => {
+		if (!result.success)
+			toast.error(
+				result.errors?.root?.message ?? 'Impossible de marquer comme lu',
+			)
+	})
 
-	useEffect(() => {
-		if (markAllFetcher.state !== 'idle' || !markAllFetcher.data) return
-		if (markAllFetcher.data.ok) {
+	useSettledSubmission(markAllFetcher.response, result => {
+		if (result.success) {
 			toast.success('Toutes les notifications ont été marquées comme lues')
-		} else {
-			toast.error(markAllFetcher.data.error ?? 'Erreur')
+			return
 		}
-	}, [markAllFetcher.state, markAllFetcher.data])
+
+		toast.error(result.errors?.root?.message ?? 'Erreur')
+	})
 
 	const handleMarkAsRead = (id: string) => {
 		readFetcher.submit({ intent: 'mark-read', id }, { method: 'post' })
@@ -85,7 +78,7 @@ export default function NotificationsPage({
 		<>
 			<div>
 				<div className="space-y-4 p-4 lg:p-6">
-					<div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+					<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
 						<StatCard highlight title="Total" value={total} icon={Bell} />
 						<StatCard
 							tone="warning"
@@ -98,6 +91,14 @@ export default function NotificationsPage({
 							title="Lues"
 							value={total - unreadCount}
 							icon={CheckCheck}
+						/>
+						{/* The figure A3 waits on: a subscription needs an install and a
+						    granted permission, so it says whether a push would reach
+						    anyone. Sending is not wired yet. */}
+						<StatCard
+							title="Appareils abonnés"
+							value={pushDevices ?? '—'}
+							icon={BellRing}
 						/>
 					</div>
 

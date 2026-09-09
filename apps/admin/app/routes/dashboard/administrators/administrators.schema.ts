@@ -1,6 +1,9 @@
 import { z } from 'zod'
-import { passwordSchema } from '@app/contracts/shared'
-import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
+import { fullNameSchema, passwordSchema } from '@app/contracts/shared'
+import {
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
+	isAssignableLocalNumber,
+} from '@/shared/utils/phone'
 
 /**
  * The two roles this interface can hand out — `super_admin` is not one of them.
@@ -12,10 +15,7 @@ export const editableRoleSchema = z.enum(['admin', 'moderator'], {
 })
 
 export const adminCreateSchema = z.object({
-	name: z
-		.string()
-		.min(2, 'Minimum 2 caractères')
-		.max(80, 'Maximum 80 caractères'),
+	name: fullNameSchema,
 	email: z.email({
 		error: issue => (issue.input ? 'Email invalide' : "L'email est requis"),
 	}),
@@ -26,8 +26,8 @@ export const adminCreateSchema = z.object({
 	phone: z
 		.string()
 		.refine(
-			value => value === '' || isValidLocalNumber(value),
-			PHONE_ERROR_MESSAGE,
+			value => value === '' || isAssignableLocalNumber(value),
+			ASSIGNABLE_PHONE_ERROR_MESSAGE,
 		)
 		.optional()
 		.transform(value => (value === '' ? undefined : value)),

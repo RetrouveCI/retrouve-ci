@@ -1,5 +1,5 @@
 import { createRoutesStub } from 'react-router'
-import { PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
+import { ASSIGNABLE_PHONE_ERROR_MESSAGE } from '@app/contracts/shared'
 import { PAYMENT_ON_DELIVERY } from '@app/contracts/sticker-orders'
 import { page, render, userEvent } from '@/shared/helpers/testing'
 import type { ActionResult } from '@/shared/types/action'
@@ -22,7 +22,7 @@ const placedOrder: Order = {
 	id: 'ord-1',
 	orderNumber: 'RCI-0001',
 	date: '2026-08-20T10:00:00.000Z',
-	pack: { name: 'Famille', quantity: 8, price: 3500 },
+	pack: { id: 'pack-8', name: 'Famille', quantity: 8, price: 3500 },
 	deliveryFee: 1000,
 	total: 4500,
 	status: 'pending',
@@ -30,12 +30,15 @@ const placedOrder: Order = {
 	deliveryAddress: 'Cocody Riviera 2',
 }
 
-function renderPage(action: (args: { request: Request }) => unknown) {
+function renderPage(
+	action: (args: { request: Request }) => unknown,
+	search = '',
+) {
 	const Stub = createRoutesStub([
 		{ path: '/stickers/order', Component: CommanderPage, action },
 	])
 
-	render(<Stub initialEntries={['/stickers/order']} />)
+	render(<Stub initialEntries={[`/stickers/order${search}`]} />)
 }
 
 const pack = (name: string) =>
@@ -106,7 +109,7 @@ describe('CommanderPage', () => {
 			.element(page.getByText('Votre nom est requis'))
 			.toBeInTheDocument()
 		await expect
-			.element(page.getByText(PHONE_ERROR_MESSAGE))
+			.element(page.getByText(ASSIGNABLE_PHONE_ERROR_MESSAGE))
 			.toBeInTheDocument()
 		await expect
 			.element(page.getByText('Adresse trop courte'))
@@ -201,5 +204,49 @@ describe('CommanderPage', () => {
 			.element(page.getByText('Code invalide ou expiré.'))
 			.toBeInTheDocument()
 		expect(success).not.toHaveBeenCalled()
+	})
+
+	// The marker has to survive two « Continuer » clicks and reach the body —
+	// ⚠️ narrowed to the enum first, so an unnamed word never travels.
+	describe('the marker the entry link carried', () => {
+		const submittedSource = async (
+			action: ReturnType<typeof vi.fn>,
+		): Promise<string | null> => {
+			const request = action.mock.calls[0]?.[0]?.request as Request
+			return (await request.formData()).get('source') as string | null
+		}
+
+		const placeOrder = async () => {
+			await reachDeliveryStep()
+			await fillDelivery()
+			await userEvent.click(confirmOrder())
+		}
+
+		it('carries it through the two steps and into the body', async () => {
+			const action = vi.fn(ok)
+			renderPage(action, '?from=home')
+
+			await placeOrder()
+
+			expect(await submittedSource(action)).toBe('home')
+		})
+
+		it('sends a direct arrival when the URL carries no marker', async () => {
+			const action = vi.fn(ok)
+			renderPage(action)
+
+			await placeOrder()
+
+			expect(await submittedSource(action)).toBe('direct')
+		})
+
+		it('refuses a word the contract does not name', async () => {
+			const action = vi.fn(ok)
+			renderPage(action, '?from=facebook')
+
+			await placeOrder()
+
+			expect(await submittedSource(action)).toBe('direct')
+		})
 	})
 })

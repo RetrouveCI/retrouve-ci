@@ -1,5 +1,6 @@
 import {
 	DEFAULT_REDIRECT,
+	AUTH_PATHS,
 	loginUrlWithRedirect,
 	sanitizeRedirect,
 	toRoutePath,
@@ -47,8 +48,13 @@ describe('sanitizeRedirect', () => {
 		expect(sanitizeRedirect('//evil.example')).toBe(DEFAULT_REDIRECT)
 	})
 
-	it('refuses an auth path, which would loop', () => {
-		expect(sanitizeRedirect('/auth/login')).toBe(DEFAULT_REDIRECT)
+	// Walks AUTH_PATHS on purpose: the guard used to be a prefix test on `/auth`,
+	// and a path added to the app without being added there would be a redirect
+	// straight back into the login screen.
+	it.each(AUTH_PATHS)('refuses %s, which would loop', path => {
+		expect(sanitizeRedirect(path)).toBe(DEFAULT_REDIRECT)
+		expect(sanitizeRedirect(`${path}?redirectTo=%2F`)).toBe(DEFAULT_REDIRECT)
+		expect(sanitizeRedirect(`${path}/`)).toBe(DEFAULT_REDIRECT)
 	})
 
 	// A `.data` destination serves the raw turbo-stream payload instead of a page.
@@ -64,11 +70,11 @@ describe('sanitizeRedirect', () => {
 describe('loginUrlWithRedirect', () => {
 	it('remembers a real destination', () => {
 		expect(loginUrlWithRedirect('/account/posts')).toBe(
-			'/auth/login?redirectTo=%2Faccount%2Fposts',
+			'/login?redirectTo=%2Faccount%2Fposts',
 		)
 	})
 
 	it('omits the param when the destination is the default', () => {
-		expect(loginUrlWithRedirect(DEFAULT_REDIRECT)).toBe('/auth/login')
+		expect(loginUrlWithRedirect(DEFAULT_REDIRECT)).toBe('/login')
 	})
 })

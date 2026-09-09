@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
 	buildLostItem,
+	buildPublicLostItem,
 	buildRepository,
 } from '../../__tests__/lost-item.fixture'
 import { LostItemNotFoundError } from '../../errors/lost-item.errors'
@@ -24,7 +25,34 @@ describe('ViewLostItemUseCase', () => {
 			const result = await useCase.execute({ id: 'lost-item-1' })
 
 			expect(repository.incrementViews).toHaveBeenCalledWith('lost-item-1')
-			expect(result).toEqual({ ...lostItem, views: 6 })
+			expect(result).toEqual(buildPublicLostItem({ views: 6 }))
+		})
+
+		/**
+		 * The author is the only reader served the number — the edit form needs
+		 * it back — and every other visitor is served the projection.
+		 */
+		it('keeps the document number for the author and drops it for anyone else', async () => {
+			const lostItem = buildLostItem({
+				userId: 'user-1',
+				documentType: 'national_id',
+				documentHolderName: 'KOUASSI Jean',
+				documentNumber: 'CI0012345678',
+			})
+			vi.mocked(repository.findById).mockResolvedValue(lostItem)
+
+			const forAuthor = await useCase.execute({
+				id: 'lost-item-1',
+				viewerId: 'user-1',
+			})
+			const forVisitor = await useCase.execute({
+				id: 'lost-item-1',
+				viewerId: 'user-2',
+			})
+
+			expect(forAuthor.documentNumber).toBe('CI0012345678')
+			expect(forVisitor).not.toHaveProperty('documentNumber')
+			expect(forVisitor.documentHolderName).toBe('KOUASSI Jean')
 		})
 
 		it('counts the view of a signed-in visitor who is not the author', async () => {

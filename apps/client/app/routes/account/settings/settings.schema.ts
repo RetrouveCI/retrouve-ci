@@ -1,18 +1,19 @@
 import { z } from 'zod'
 import {
 	currentPasswordSchema,
+	fullNameSchema,
 	otpCodeSchema,
 	passwordSchema,
 	withPasswordConfirmation,
 } from '@app/contracts/shared'
-import { isValidLocalNumber, PHONE_ERROR_MESSAGE } from '@/shared/utils/phone'
+import {
+	ASSIGNABLE_PHONE_ERROR_MESSAGE,
+	isAssignableLocalNumber,
+} from '@/shared/utils/phone'
 
 export const updateNameSchema = z.object({
 	intent: z.literal('update-name'),
-	name: z
-		.string({ error: 'Votre nom est requis' })
-		.min(2, 'Votre nom est requis')
-		.max(120),
+	name: fullNameSchema,
 })
 
 export const updateZoneSchema = z.object({
@@ -28,7 +29,7 @@ export const sendPhoneOtpSchema = z.object({
 	phone: z
 		.string({ error: 'Votre numéro est requis' })
 		.trim()
-		.refine(isValidLocalNumber, PHONE_ERROR_MESSAGE),
+		.refine(isAssignableLocalNumber, ASSIGNABLE_PHONE_ERROR_MESSAGE),
 })
 
 export const deleteAccountSchema = z.object({
@@ -36,11 +37,28 @@ export const deleteAccountSchema = z.object({
 	password: currentPasswordSchema,
 })
 
+// Flat, because a form posts flat fields; the service reassembles the nested
+// shape `@app/contracts/notifications` declares. The browser produced all three,
+// so the bounds live server-side where the contract enforces them.
+export const subscribePushSchema = z.object({
+	intent: z.literal('subscribe-push'),
+	endpoint: z.string().min(1),
+	p256dh: z.string().min(1),
+	auth: z.string().min(1),
+})
+
+export const unsubscribePushSchema = z.object({
+	intent: z.literal('unsubscribe-push'),
+	endpoint: z.string().min(1),
+})
+
 export const settingsActionSchema = z.discriminatedUnion('intent', [
 	updateNameSchema,
 	updateZoneSchema,
 	sendPhoneOtpSchema,
 	deleteAccountSchema,
+	subscribePushSchema,
+	unsubscribePushSchema,
 ])
 
 // Client-side only (handled via authClient, not the route action).

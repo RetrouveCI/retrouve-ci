@@ -4,6 +4,7 @@ import {
 	QrCode,
 	Package,
 	Settings,
+	Download,
 	ChevronRight,
 	Plus,
 } from 'lucide-react'
@@ -51,6 +52,9 @@ export function AccountNav({
 			count: ordersCount,
 		},
 		{ href: '/account/settings', icon: Settings, label: 'Paramètres' },
+		// The permanent way in: the sheet only ever appears after a success, and
+		// « Plus tard » closes it for good (§ R25).
+		{ href: '/download', icon: Download, label: "Installer l'application" },
 	]
 
 	return (
@@ -85,7 +89,7 @@ export function AccountNav({
 					className="group border-accent-orange/30 bg-accent-orange/5 hover:border-accent-orange/50 hover:bg-accent-orange/10 flex items-center gap-3 rounded-2xl border-2 border-dashed p-4 transition-all"
 				>
 					<div className="bg-accent-orange flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-						<Plus className="h-5 w-5 text-white" />
+						<Plus className="text-accent-orange-foreground h-5 w-5" />
 					</div>
 					<div>
 						<p className="text-sm font-semibold">Nouvelle annonce</p>

@@ -1,14 +1,18 @@
 import { Link } from 'react-router'
-import { AlertCircle, Lock } from 'lucide-react'
-import { qrContactLoader } from './servers/qr-contact.loader'
+import { AlertCircle, Lock, ShieldCheck } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import { qrContactLoader, type ReachOutcome } from './servers/qr-contact.loader'
 import { qrContactAction } from './servers/qr-contact.action'
 import { QrOwnerCard } from './components/qr-owner-card'
 import { QrContactForm } from './components/qr-contact-form'
+import { QrReachActions } from './components/qr-reach-actions'
+import { QrLostItemCard } from './components/qr-lost-item-card'
 import { pageMeta } from '@/shared/helpers/page-meta'
+import type { QrTokenPublicView } from './servers/qr-contact.service'
 import type { Route } from './+types/_index'
 
-export const loader = ({ params }: Route.LoaderArgs) =>
-	qrContactLoader({ params })
+export const loader = ({ request, params }: Route.LoaderArgs) =>
+	qrContactLoader({ request, params })
 
 export const action = ({ request, params }: Route.ActionArgs) =>
 	qrContactAction({ request, params })
@@ -18,66 +22,142 @@ export function meta() {
 		title: 'Objet perdu',
 		description:
 			'Vous avez trouvé cet objet ? Contactez son propriétaire via RetrouveCI.',
+		noindex: true,
 	})
 }
 
-export default function QrContactPage({ loaderData }: Route.ComponentProps) {
-	const { token } = loaderData
+/** The one statement of the screen, so the note below only ever explains it. */
+function headline({ status, ownerFirstName }: QrTokenPublicView) {
+	if (status === 'revoked') return 'Sticker désactivé'
+	if (status === 'generated') return 'Sticker non activé'
+
+	return ownerFirstName
+		? `Merci ! Cet objet appartient à ${ownerFirstName}`
+		: "Merci ! Cet objet appartient à quelqu'un"
+}
+
+/**
+ * The mockup's promise, honest in both states. Without consent it is the
+ * mockup's own sentence, word for word; with consent it says what a `tel:` or a
+ * `wa.me` jump actually does, since neither can hide the line it dials.
+ */
+function privacyNote({ directContact, ownerFirstName }: QrTokenPublicView) {
+	if (!directContact)
+		return 'Le numéro du propriétaire ne vous est jamais montré.'
+
+	const owner = ownerFirstName ?? 'Le propriétaire'
+
+	return `${owner} accepte d'être joint directement — son numéro s'affichera dans votre téléphone.`
+}
+
+const REACH_FAILURE: Record<ReachOutcome, string> = {
+	failed:
+		"Le contact direct n'a pas pu être établi. Laissez plutôt un message.",
+	throttled:
+		'Trop de tentatives depuis votre connexion. Patientez quelques minutes, ou laissez un message.',
+}
+
+interface StatusNoteProps {
+	icon: LucideIcon
+	children: string
+}
+
+function StatusNote({ icon: Icon, children }: StatusNoteProps) {
+	return (
+		<div className="border-border bg-card flex items-start gap-3 rounded-[14px] border p-5">
+			<Icon className="text-muted-foreground mt-0.5 h-5 w-5 shrink-0" />
+			<p className="text-muted-foreground text-sm">{children}</p>
+		</div>
+	)
+}
+
+export default function QrContactPage({
+	loaderData,
+	params,
+}: Route.ComponentProps) {
+	const { token, reach } = loaderData
 
 	return (
-		<div className="flex min-h-screen flex-col bg-gray-50">
-			<header className="flex items-center justify-center py-6">
-				<Link to="/" className="flex items-center gap-2">
+		<div className="bg-background safe-x flex min-h-screen flex-col">
+			<header
+				className="flex items-center justify-center py-6"
+				style={{ paddingTop: 'calc(1.5rem + var(--safe-top))' }}
+			>
+				<Link to="/" className="flex min-h-11 items-center gap-2 px-3">
 					<img src="/logo.png" alt="RetrouveCI" className="h-8 w-8" />
 					<span className="font-bold">RetrouveCI</span>
 				</Link>
 			</header>
 
-			<main className="flex flex-1 items-start justify-center px-4 py-8">
-				<div className="w-full max-w-md space-y-6">
-					<div className="text-center">
-						<p className="text-muted-foreground text-sm">
-							Vous avez trouvé un objet avec ce sticker
-						</p>
-						<h1 className="mt-1 text-2xl font-bold">
-							Contacter le propriétaire
+			<main className="flex flex-1 items-start justify-center px-4 py-6">
+				<div className="w-full max-w-md space-y-5">
+					<div className="space-y-2 text-center">
+						<h1 className="text-2xl leading-tight font-bold text-balance">
+							{headline(token)}
 						</h1>
+						{token.status === 'activated' && (
+							<p className="text-muted-foreground mx-auto max-w-xs text-sm">
+								Prévenez-le en un geste. Vous n&apos;avez pas besoin de compte.
+							</p>
+						)}
 					</div>
 
 					<QrOwnerCard token={token} />
 
+					{token.lostItem && <QrLostItemCard lostItem={token.lostItem} />}
+
 					{token.status === 'activated' ? (
-						<div className="rounded-2xl border bg-white p-6 shadow-sm">
-							<h2 className="mb-4 font-semibold">Envoyer un message</h2>
-							<QrContactForm />
-						</div>
+						<>
+							{reach && (
+								<p
+									role="alert"
+									className="border-border bg-card text-muted-foreground rounded-[14px] border p-4 text-sm"
+								>
+									{REACH_FAILURE[reach]}
+								</p>
+							)}
+
+							{token.directContact && (
+								<>
+									<QrReachActions
+										code={params.code}
+										ownerFirstName={token.ownerFirstName}
+									/>
+									<div className="flex items-center gap-3">
+										<span className="bg-border h-px flex-1" />
+										<span className="text-muted-foreground text-xs">
+											ou laissez un message
+										</span>
+										<span className="bg-border h-px flex-1" />
+									</div>
+								</>
+							)}
+
+							<div className="border-border bg-card rounded-[14px] border p-5">
+								<QrContactForm />
+							</div>
+							<p className="text-muted-foreground flex items-center justify-center gap-1.5 text-center text-xs">
+								<ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+								{privacyNote(token)}
+							</p>
+						</>
 					) : token.status === 'revoked' ? (
-						<div className="flex items-start gap-3 rounded-2xl border bg-white p-6 shadow-sm">
-							<Lock className="text-muted-foreground mt-0.5 h-5 w-5 shrink-0" />
-							<div>
-								<p className="font-medium">Sticker désactivé</p>
-								<p className="text-muted-foreground mt-1 text-sm">
-									Le propriétaire a désactivé ce sticker. Il n&apos;est plus
-									possible de le contacter via ce lien.
-								</p>
-							</div>
-						</div>
+						<StatusNote icon={Lock}>
+							Le propriétaire a désactivé ce sticker. Il n&apos;est plus
+							possible de le contacter via ce lien.
+						</StatusNote>
 					) : (
-						<div className="flex items-start gap-3 rounded-2xl border bg-white p-6 shadow-sm">
-							<AlertCircle className="text-muted-foreground mt-0.5 h-5 w-5 shrink-0" />
-							<div>
-								<p className="font-medium">Sticker non activé</p>
-								<p className="text-muted-foreground mt-1 text-sm">
-									Ce sticker n&apos;a pas encore été activé par son
-									propriétaire.
-								</p>
-							</div>
-						</div>
+						<StatusNote icon={AlertCircle}>
+							Ce sticker n&apos;a pas encore été activé par son propriétaire.
+						</StatusNote>
 					)}
 				</div>
 			</main>
 
-			<footer className="py-6 text-center">
+			<footer
+				className="py-6 text-center"
+				style={{ paddingBottom: 'max(1.5rem, var(--safe-bottom))' }}
+			>
 				<p className="text-muted-foreground text-xs">
 					Propulsé par{' '}
 					<Link to="/" className="hover:text-foreground underline">

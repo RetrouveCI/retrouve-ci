@@ -3,18 +3,27 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type {
 	CreateLostItemData,
 	ListLostItemsFilterData,
+	MyLostItemsFilterData,
 	UpdateLostItemData,
 } from '@app/contracts/lost-items'
-import { buildLostItem } from '@/domains/lost-items/__tests__/lost-item.fixture'
+import {
+	buildLostItem,
+	buildPublicLostItem,
+} from '@/domains/lost-items/__tests__/lost-item.fixture'
 import type { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
 import type { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
+import type { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
 import type { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import type { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
+import type { GetPublicLostItemsUseCase } from '@/domains/lost-items/use-cases/get-public-lost-items.use-case'
 import type { ModerateLostItemUseCase } from '@/domains/lost-items/use-cases/moderate-lost-item.use-case'
-import type { RecordLostItemContactUseCase } from '@/domains/lost-items/use-cases/record-lost-item-contact.use-case'
+import type { ContactLostItemPosterUseCase } from '@/domains/lost-items/use-cases/contact-lost-item-poster.use-case'
 import type { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
 import type { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import type { Auth } from '@/infrastructures/auth/auth.config'
+import { AccountBudget } from '@/shared/rate-limit/account-budget.service'
+import { LOST_ITEM_PER_USER } from '@/shared/rate-limit/rate-limit.policy'
+import { AccountBudgetExceededError } from '@/shared/rate-limit/account-budget.error'
 import { LostItemsController } from '../lost-items.controller'
 
 const session = {
@@ -32,51 +41,61 @@ function buildMatchingDispatcher() {
 describe('LostItemsController', () => {
 	let createLostItem: CreateLostItemUseCase
 	let viewLostItem: ViewLostItemUseCase
-	let recordLostItemContact: RecordLostItemContactUseCase
+	let contactLostItemPoster: ContactLostItemPosterUseCase
 	let getPaginatedLostItems: GetPaginatedLostItemsUseCase
+	let getPublicLostItems: GetPublicLostItemsUseCase
 	let getMyLostItems: GetMyLostItemsUseCase
+	let getMyLostItemsSummary: GetMyLostItemsSummaryUseCase
 	let updateLostItem: UpdateLostItemUseCase
 	let moderateLostItem: ModerateLostItemUseCase
 	let deleteLostItem: DeleteLostItemUseCase
 	let matchingDispatcher: ReturnType<typeof buildMatchingDispatcher>
+	let accountBudget: AccountBudget
 	let controller: LostItemsController
 
 	beforeEach(() => {
 		createLostItem = buildUseCase<CreateLostItemUseCase>()
 		viewLostItem = buildUseCase<ViewLostItemUseCase>()
-		recordLostItemContact = buildUseCase<RecordLostItemContactUseCase>()
+		contactLostItemPoster = buildUseCase<ContactLostItemPosterUseCase>()
 		getPaginatedLostItems = buildUseCase<GetPaginatedLostItemsUseCase>()
+		getPublicLostItems = buildUseCase<GetPublicLostItemsUseCase>()
 		getMyLostItems = buildUseCase<GetMyLostItemsUseCase>()
+		getMyLostItemsSummary = buildUseCase<GetMyLostItemsSummaryUseCase>()
 		updateLostItem = buildUseCase<UpdateLostItemUseCase>()
 		moderateLostItem = buildUseCase<ModerateLostItemUseCase>()
 		deleteLostItem = buildUseCase<DeleteLostItemUseCase>()
 		matchingDispatcher = buildMatchingDispatcher()
+		accountBudget = { require: vi.fn() } as unknown as AccountBudget
 		controller = new LostItemsController(
 			createLostItem,
 			viewLostItem,
-			recordLostItemContact,
+			contactLostItemPoster,
 			getPaginatedLostItems,
+			getPublicLostItems,
 			getMyLostItems,
+			getMyLostItemsSummary,
 			updateLostItem,
 			moderateLostItem,
 			deleteLostItem,
 			matchingDispatcher as never,
+			accountBudget,
 		)
 	})
 
 	describe('create', () => {
+		const dto: CreateLostItemData = {
+			type: 'lost',
+			category: 'phone',
+			title: 'iPhone 13 perdu',
+			description:
+				'Perdu près du marché de Cocody, coque noire avec autocollant',
+			ville: 'Abidjan',
+			eventDate: '2026-01-01',
+			contactName: 'Jean Dupont',
+			contactWhatsapp: '+2250700000000',
+		}
+
 		it('converts the eventDate string and forwards the session user id', async () => {
-			const dto: CreateLostItemData = {
-				type: 'lost',
-				category: 'phone',
-				title: 'iPhone 13 perdu',
-				description:
-					'Perdu près du marché de Cocody, coque noire avec autocollant',
-				ville: 'Abidjan',
-				eventDate: '2026-01-01',
-				contactName: 'Jean Dupont',
-				contactWhatsapp: '+2250700000000',
-			}
 			const created = buildLostItem()
 			vi.mocked(createLostItem.execute).mockResolvedValue(created)
 
@@ -89,25 +108,51 @@ describe('LostItemsController', () => {
 			})
 			expect(result).toEqual(created)
 		})
+
+		// What a flood of listings spends is the moderation queue, so the ceiling
+		// is asked before the row is written.
+		it('asks the account ceiling for the poster', async () => {
+			vi.mocked(createLostItem.execute).mockResolvedValue(buildLostItem())
+
+			await controller.create(session, dto)
+
+			expect(accountBudget.require).toHaveBeenCalledWith(
+				LOST_ITEM_PER_USER,
+				'user-1',
+			)
+		})
+
+		it('writes nothing when the ceiling refuses', async () => {
+			vi.mocked(accountBudget.require).mockRejectedValue(
+				new AccountBudgetExceededError(LOST_ITEM_PER_USER.message, 900),
+			)
+
+			await expect(controller.create(session, dto)).rejects.toBeInstanceOf(
+				AccountBudgetExceededError,
+			)
+			expect(createLostItem.execute).not.toHaveBeenCalled()
+		})
 	})
 
 	describe('list', () => {
-		it('forces the moderation status to published', async () => {
+		/**
+		 * Publication and the projection moved into `GetPublicLostItemsUseCase`:
+		 * a controller that carries them is one a new route can forget to copy.
+		 */
+		it('delegates the public listing to its own use-case', async () => {
 			const query: ListLostItemsFilterData = { page: 1, pageSize: 20 }
 			const response = {
-				items: [buildLostItem()],
+				items: [buildPublicLostItem()],
 				total: 1,
 				page: 1,
 				pageSize: 20,
 			}
-			vi.mocked(getPaginatedLostItems.execute).mockResolvedValue(response)
+			vi.mocked(getPublicLostItems.execute).mockResolvedValue(response)
 
 			const result = await controller.list(query)
 
-			expect(getPaginatedLostItems.execute).toHaveBeenCalledWith({
-				...query,
-				moderationStatus: 'published',
-			})
+			expect(getPublicLostItems.execute).toHaveBeenCalledWith(query)
+			expect(getPaginatedLostItems.execute).not.toHaveBeenCalled()
 			expect(result).toEqual(response)
 		})
 
@@ -119,7 +164,7 @@ describe('LostItemsController', () => {
 				dateFrom: '2026-01-01',
 				dateTo: '2026-01-31',
 			}
-			vi.mocked(getPaginatedLostItems.execute).mockResolvedValue({
+			vi.mocked(getPublicLostItems.execute).mockResolvedValue({
 				items: [],
 				total: 0,
 				page: 1,
@@ -128,13 +173,12 @@ describe('LostItemsController', () => {
 
 			await controller.list(query)
 
-			expect(getPaginatedLostItems.execute).toHaveBeenCalledWith({
+			expect(getPublicLostItems.execute).toHaveBeenCalledWith({
 				page: 1,
 				pageSize: 20,
 				commune: 'Cocody',
 				dateFrom: new Date('2026-01-01T00:00:00.000Z'),
 				dateTo: new Date('2026-01-31T23:59:59.999Z'),
-				moderationStatus: 'published',
 			})
 		})
 	})
@@ -157,6 +201,51 @@ describe('LostItemsController', () => {
 				filter: query,
 			})
 			expect(result).toEqual(response)
+		})
+
+		/**
+		 * The lifecycle filter is what « Mes annonces » puts in the URL, and the
+		 * repository has always honoured it — until R11 no schema let it through,
+		 * so the front had to fetch everything and filter in the browser.
+		 */
+		it('forwards the lifecycle status the owner filtered on', async () => {
+			const query: MyLostItemsFilterData = {
+				page: 2,
+				pageSize: 12,
+				resolutionStatus: 'resolved',
+				search: 'sac',
+			}
+			vi.mocked(getMyLostItems.execute).mockResolvedValue({
+				items: [],
+				total: 0,
+				page: 2,
+				pageSize: 12,
+			})
+
+			await controller.listMine(session, query)
+
+			expect(getMyLostItems.execute).toHaveBeenCalledWith({
+				userId: 'user-1',
+				filter: query,
+			})
+		})
+	})
+
+	describe('listMineSummary', () => {
+		it('scopes the counts to the session user and nothing else', async () => {
+			const summary = {
+				total: 6,
+				lifecycle: { active: 3, resolved: 2, expired: 1 },
+				moderation: { pending: 1, published: 4, hidden: 1 },
+			}
+			vi.mocked(getMyLostItemsSummary.execute).mockResolvedValue(summary)
+
+			const result = await controller.listMineSummary(session)
+
+			expect(getMyLostItemsSummary.execute).toHaveBeenCalledExactlyOnceWith(
+				'user-1',
+			)
+			expect(result).toEqual(summary)
 		})
 	})
 
@@ -187,15 +276,14 @@ describe('LostItemsController', () => {
 		})
 	})
 
-	describe('recordContact', () => {
-		it('delegates to the use-case', async () => {
-			const lostItem = buildLostItem({ contactsCount: 1 })
-			vi.mocked(recordLostItemContact.execute).mockResolvedValue(lostItem)
+	describe('contactPoster', () => {
+		it('is open to an anonymous finder and answers only the target', async () => {
+			const target = { url: 'https://wa.me/2250700000000?text=Bonjour' }
+			vi.mocked(contactLostItemPoster.execute).mockResolvedValue(target)
 
-			const result = await controller.recordContact('lost-item-1')
-
-			expect(recordLostItemContact.execute).toHaveBeenCalledWith('lost-item-1')
-			expect(result).toEqual(lostItem)
+			expect(await controller.contactPoster('lost-item-1')).toEqual(target)
+			expect(contactLostItemPoster.execute).toHaveBeenCalledWith('lost-item-1')
+			expect(Reflect.getMetadata('PUBLIC', controller.contactPoster)).toBe(true)
 		})
 	})
 
@@ -272,8 +360,11 @@ describe('LostItemsController', () => {
 		})
 
 		it('delegates to the use-case and enqueues a matching job on publication', async () => {
-			const moderated = buildLostItem({ moderationStatus: 'published' })
-			vi.mocked(moderateLostItem.execute).mockResolvedValue(moderated)
+			const lostItem = buildLostItem({ moderationStatus: 'published' })
+			vi.mocked(moderateLostItem.execute).mockResolvedValue({
+				lostItem,
+				becamePublished: true,
+			})
 
 			const result = await controller.updateModerationStatus('lost-item-1', {
 				moderationStatus: 'published',
@@ -284,16 +375,18 @@ describe('LostItemsController', () => {
 				moderationStatus: 'published',
 			})
 			expect(matchingDispatcher.dispatch).toHaveBeenCalledWith('lost-item-1')
-			expect(result).toEqual(moderated)
+			// The outcome is the use-case's shape; the route still answers the row.
+			expect(result).toEqual(lostItem)
 		})
 
 		/** Publication is the only transition that makes a listing matchable. */
 		it.each(['pending', 'hidden'] as const)(
 			'enqueues nothing when moderating to %s',
 			async moderationStatus => {
-				vi.mocked(moderateLostItem.execute).mockResolvedValue(
-					buildLostItem({ moderationStatus }),
-				)
+				vi.mocked(moderateLostItem.execute).mockResolvedValue({
+					lostItem: buildLostItem({ moderationStatus }),
+					becamePublished: false,
+				})
 
 				await controller.updateModerationStatus('lost-item-1', {
 					moderationStatus,
@@ -302,6 +395,22 @@ describe('LostItemsController', () => {
 				expect(matchingDispatcher.dispatch).not.toHaveBeenCalled()
 			},
 		)
+
+		// ⚠️ The route reads the transition, not the state: a second publish of an
+		// already-published listing used to search for matches — and notify —
+		// again, since the row it answers says `published` either way.
+		it('enqueues nothing when publication changed nothing', async () => {
+			vi.mocked(moderateLostItem.execute).mockResolvedValue({
+				lostItem: buildLostItem({ moderationStatus: 'published' }),
+				becamePublished: false,
+			})
+
+			await controller.updateModerationStatus('lost-item-1', {
+				moderationStatus: 'published',
+			})
+
+			expect(matchingDispatcher.dispatch).not.toHaveBeenCalled()
+		})
 	})
 
 	describe('delete', () => {

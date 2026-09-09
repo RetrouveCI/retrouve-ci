@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto'
-import { QR_CODE_PREFIX, QR_CODE_RANDOM_LENGTH } from '../constants'
+import { QR_CODE_PREFIX, QR_CODE_RANDOM_LENGTH } from '@app/contracts/qr-codes'
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 

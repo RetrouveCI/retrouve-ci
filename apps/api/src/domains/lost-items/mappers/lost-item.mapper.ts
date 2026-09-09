@@ -1,15 +1,20 @@
 import {
+	DocumentType as PrismaDocumentType,
 	LostItemCategory as PrismaLostItemCategory,
 	LostItemType as PrismaLostItemType,
+	ModerationReason as PrismaModerationReason,
 	ModerationStatus as PrismaModerationStatus,
 	ResolutionStatus as PrismaResolutionStatus,
 	type LostItem as PrismaLostItem,
 } from '@app/database'
 
-import type { LostItem } from '../types/lost-item.types'
+import { isValidLocalNumber } from '@app/contracts/shared'
+import type { LostItem, PublicLostItem } from '../types/lost-item.types'
 import type {
+	DocumentType,
 	LostItemCategory,
 	LostItemType,
+	ModerationReason,
 	ModerationStatus,
 	ResolutionStatus,
 } from '../types/lost-item.types'
@@ -27,11 +32,53 @@ export function toDomainLostItem(lostItem: PrismaLostItem): LostItem {
 		contactName: lostItem.contactName,
 		contactWhatsapp: lostItem.contactWhatsapp,
 		photos: lostItem.photos,
+		documentType: lostItem.documentType
+			? toDomainDocumentType(lostItem.documentType)
+			: null,
+		documentHolderName: lostItem.documentHolderName,
+		documentNumber: lostItem.documentNumber,
+		documentIssuer: lostItem.documentIssuer,
 		moderationStatus: toDomainModerationStatus(lostItem.moderationStatus),
+		moderationReason: lostItem.moderationReason
+			? toDomainModerationReason(lostItem.moderationReason)
+			: null,
+		moderationReasonNote: lostItem.moderationReasonNote,
 		resolutionStatus: toDomainResolutionStatus(lostItem.resolutionStatus),
+		resolvedAt: lostItem.resolvedAt,
 		views: lostItem.views,
 		contactsCount: lostItem.contactsCount,
 		userId: lostItem.userId,
+		createdAt: lostItem.createdAt,
+		updatedAt: lostItem.updatedAt,
+	}
+}
+
+/**
+ * Names what a public read carries rather than subtracting what it must not: a
+ * spread left every column added to the table public from its first day. The
+ * holder's name stays — it is what lets a person recognise their own document —
+ * while a moderation note is addressed to one poster.
+ */
+export function toPublicLostItem(lostItem: LostItem): PublicLostItem {
+	return {
+		id: lostItem.id,
+		type: lostItem.type,
+		category: lostItem.category,
+		title: lostItem.title,
+		description: lostItem.description,
+		ville: lostItem.ville,
+		commune: lostItem.commune,
+		eventDate: lostItem.eventDate,
+		contactName: lostItem.contactName,
+		contactReachable: isValidLocalNumber(lostItem.contactWhatsapp),
+		photos: lostItem.photos,
+		documentType: lostItem.documentType,
+		documentHolderName: lostItem.documentHolderName,
+		documentIssuer: lostItem.documentIssuer,
+		moderationStatus: lostItem.moderationStatus,
+		resolutionStatus: lostItem.resolutionStatus,
+		views: lostItem.views,
+		contactsCount: lostItem.contactsCount,
 		createdAt: lostItem.createdAt,
 		updatedAt: lostItem.updatedAt,
 	}
@@ -101,6 +148,40 @@ export function toDomainModerationStatus(
 			: 'hidden'
 }
 
+// Two tables rather than a ternary ladder: seven values, and each direction is
+// checked for exhaustiveness by its `Record` key.
+const REASON_TO_PRISMA: Record<ModerationReason, PrismaModerationReason> = {
+	document_number_visible: PrismaModerationReason.DOCUMENT_NUMBER_VISIBLE,
+	unclear_photo: PrismaModerationReason.UNCLEAR_PHOTO,
+	vague_description: PrismaModerationReason.VAGUE_DESCRIPTION,
+	contact_in_description: PrismaModerationReason.CONTACT_IN_DESCRIPTION,
+	duplicate: PrismaModerationReason.DUPLICATE,
+	off_topic: PrismaModerationReason.OFF_TOPIC,
+	other: PrismaModerationReason.OTHER,
+}
+
+const REASON_TO_DOMAIN: Record<PrismaModerationReason, ModerationReason> = {
+	DOCUMENT_NUMBER_VISIBLE: 'document_number_visible',
+	UNCLEAR_PHOTO: 'unclear_photo',
+	VAGUE_DESCRIPTION: 'vague_description',
+	CONTACT_IN_DESCRIPTION: 'contact_in_description',
+	DUPLICATE: 'duplicate',
+	OFF_TOPIC: 'off_topic',
+	OTHER: 'other',
+}
+
+export function toPrismaModerationReason(
+	reason: ModerationReason,
+): PrismaModerationReason {
+	return REASON_TO_PRISMA[reason]
+}
+
+export function toDomainModerationReason(
+	reason: PrismaModerationReason,
+): ModerationReason {
+	return REASON_TO_DOMAIN[reason]
+}
+
 export function toPrismaResolutionStatus(
 	status: ResolutionStatus,
 ): PrismaResolutionStatus {
@@ -119,4 +200,36 @@ export function toDomainResolutionStatus(
 		: status === PrismaResolutionStatus.RESOLVED
 			? 'resolved'
 			: 'expired'
+}
+
+const DOCUMENT_TYPE_TO_PRISMA: Record<DocumentType, PrismaDocumentType> = {
+	national_id: PrismaDocumentType.NATIONAL_ID,
+	driver_licence: PrismaDocumentType.DRIVER_LICENCE,
+	bank_card: PrismaDocumentType.BANK_CARD,
+	insurance_card: PrismaDocumentType.INSURANCE_CARD,
+	passport: PrismaDocumentType.PASSPORT,
+	student_card: PrismaDocumentType.STUDENT_CARD,
+	other: PrismaDocumentType.OTHER,
+}
+
+const DOCUMENT_TYPE_TO_DOMAIN: Record<PrismaDocumentType, DocumentType> = {
+	NATIONAL_ID: 'national_id',
+	DRIVER_LICENCE: 'driver_licence',
+	BANK_CARD: 'bank_card',
+	INSURANCE_CARD: 'insurance_card',
+	PASSPORT: 'passport',
+	STUDENT_CARD: 'student_card',
+	OTHER: 'other',
+}
+
+export function toPrismaDocumentType(
+	documentType: DocumentType,
+): PrismaDocumentType {
+	return DOCUMENT_TYPE_TO_PRISMA[documentType]
+}
+
+export function toDomainDocumentType(
+	documentType: PrismaDocumentType,
+): DocumentType {
+	return DOCUMENT_TYPE_TO_DOMAIN[documentType]
 }

@@ -1,118 +1,118 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { ArrowRight, ShieldCheck, Users, MapPin } from 'lucide-react'
-import { cn } from '@app/ui/utils'
+import { CircleAlert, Check } from 'lucide-react'
+import { formatNumber } from '@app/contracts/shared'
+import type { LostItemCategory } from '@app/contracts/lost-items'
 import { SearchBar } from '@/components/search-bar'
+import { filterPillClassName } from '@/components/filter-pill'
+import { useMediaQuery } from '@/shared/hooks/use-media-query'
+import { CATEGORY_FILTERS } from '../../posts/posts.const'
 import { HeroMap } from './hero-map'
 
-const CYCLING_WORDS = [
-	'un objet',
-	'un téléphone',
-	'une clé',
-	'un portefeuille',
-	'un sac',
-	'un bijou',
+// A category dropped from the contract is a type error here; `flatMap` keeps the
+// drawn order without asserting the lookup cannot miss.
+const SHORTCUT_IDS: readonly LostItemCategory[] = [
+	'phone',
+	'keys',
+	'documents',
+	'bag',
 ]
 
-const TRUST_POINTS = [
-	{ icon: ShieldCheck, label: 'Contact 100 % sécurisé' },
-	{ icon: Users, label: "Une communauté d'entraide" },
-	{ icon: MapPin, label: 'Partout en Côte d’Ivoire' },
-]
+const SHORTCUTS = SHORTCUT_IDS.flatMap(id => {
+	const filter = CATEGORY_FILTERS.find(entry => entry.id === id)
 
-function CyclingWord() {
-	const [index, setIndex] = useState(0)
-	const [isVisible, setIsVisible] = useState(true)
+	return filter ? [filter] : []
+})
 
-	useEffect(() => {
-		const interval = setInterval(() => {
-			setIsVisible(false)
-			setTimeout(() => {
-				setIndex(i => (i + 1) % CYCLING_WORDS.length)
-				setIsVisible(true)
-			}, 300)
-		}, 2500)
-		return () => clearInterval(interval)
-	}, [])
+export function HeroSection({ publishedCount }: { publishedCount?: number }) {
+	// The map's column exists from `md`; below it, the map is never mounted.
+	const showMap = useMediaQuery('(min-width: 768px)')
 
 	return (
-		<span
-			className={cn(
-				'inline-block transition-all duration-300 ease-out',
-				isVisible ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0',
-			)}
-		>
-			{CYCLING_WORDS[index]}
-		</span>
-	)
-}
-
-export function HeroSection() {
-	return (
-		<section className="relative flex min-h-[85vh] items-center overflow-hidden">
+		<section className="relative overflow-hidden">
 			<div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-size-[4rem_4rem]" />
 			<div className="bg-primary-green/15 absolute top-1/4 -right-20 h-125 w-125 rounded-full bg-linear-to-br to-transparent blur-3xl" />
 			<div className="bg-accent-orange/10 absolute bottom-1/4 -left-20 h-100 w-100 rounded-full bg-linear-to-tl to-transparent blur-3xl" />
-			<HeroMap />
 
-			<div className="relative z-10 container mx-auto px-4 py-20">
-				<div className="mx-auto max-w-5xl">
-					<h1 className="mb-6 text-center text-4xl leading-[1.1] font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-						<span className="block">
-							Perdre{' '}
-							<span className="relative inline-block min-w-45 text-left sm:min-w-60 md:min-w-75">
-								<CyclingWord />
-								<span className="bg-accent-orange/20 absolute right-0 -bottom-1 left-0 h-3 -skew-x-6 rounded" />
+			<div className="relative z-10 container mx-auto px-4 py-8 md:py-12 lg:py-16">
+				{/* Uncapped, every pixel past 620 fell between the two columns. */}
+				<div className="mx-auto grid max-w-7xl items-center gap-8 md:grid-cols-[1.05fr_0.95fr] md:gap-7 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+					<div className="flex min-w-0 flex-col items-start gap-5 lg:max-w-155 lg:gap-6">
+						{/* Real or absent — §3 forbids a reassurance figure written by hand. */}
+						{publishedCount !== undefined && publishedCount > 0 && (
+							<span className="bg-primary-green/12 text-primary-green-text flex h-7 items-center gap-2 rounded-full px-3 text-xs font-semibold">
+								<span className="bg-primary-green h-1.5 w-1.5 rounded-full" />
+								{formatNumber(publishedCount)} annonces en ligne
 							</span>
-						</span>
-						<span className="mt-2 block">
-							n&apos;est plus{' '}
-							<span className="text-primary-green">une fatalité</span>
-						</span>
-					</h1>
+						)}
 
-					<p className="text-muted-foreground mx-auto mb-10 max-w-2xl text-center text-lg md:text-xl">
-						Signalez, recherchez et retrouvez vos objets perdus grâce à notre
-						communauté active dans toute la Côte d&apos;Ivoire.
-					</p>
+						<h1 className="text-3xl leading-[1.14] font-bold tracking-tight text-balance md:text-4xl lg:text-5xl xl:text-[3.375rem] xl:leading-[1.06]">
+							Perdu quelque chose&nbsp;?
+							<br />
+							<span className="text-primary-green-text">
+								La communauté cherche avec vous.
+							</span>
+						</h1>
 
-					<div className="mx-auto mb-4 max-w-2xl">
-						<SearchBar
-							mode="navigate"
-							action="/posts"
-							size="lg"
-							className="shadow-lg"
-						/>
-					</div>
+						{/* Declarative since R49: the heading asks a question, so nothing
+						    said what RetrouveCI *is* — nor that it handles documents. */}
+						<p className="text-muted-foreground hidden max-w-125 text-xl lg:block">
+							RetrouveCI est la plateforme ivoirienne des objets et documents
+							perdus&nbsp;: publiez une annonce, cherchez parmi celles des
+							autres, ou collez un sticker QR pour être joint sans donner votre
+							numéro.
+						</p>
 
-					<p className="text-muted-foreground mb-16 text-center text-sm">
-						Vous avez trouvé un objet ?{' '}
-						<Link
-							to="/publish"
-							className="text-primary-green inline-flex items-center gap-1 font-medium hover:underline"
-						>
-							Signalez-le
-							<ArrowRight className="h-3.5 w-3.5" />
-						</Link>
-					</p>
+						{/* One block: the shortcuts narrow the very list the field
+						    searches. The form is a flex item, so the width sits above it. */}
+						<div className="flex w-full flex-col gap-2.5 lg:max-w-140 lg:gap-3">
+							<SearchBar
+								mode="navigate"
+								action="/posts"
+								size="lg"
+								submit="responsive"
+								className="shadow-lg"
+							/>
 
-					<div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 md:gap-x-12">
-						{TRUST_POINTS.map(({ icon: Icon, label }) => (
-							<div
-								key={label}
-								className="text-muted-foreground flex items-center gap-2 text-sm font-medium"
-							>
-								<Icon className="text-primary-green h-5 w-5" />
-								{label}
+							{/* A secondary list, so it may scroll (§2.1); `gap-2` clears the
+							    3 px each pill's tap zone overhangs. No negative margin: it
+							    widens the flex column, which the grid item cannot shrink. */}
+							<div className="scrollbar-hide flex w-full gap-2 overflow-x-auto pt-0.5 lg:flex-wrap">
+								{SHORTCUTS.map(({ id, label, icon: Icon }) => (
+									<Link
+										key={id}
+										to={`/posts?category=${id}`}
+										className={filterPillClassName(false)}
+									>
+										<Icon className="h-4 w-4 shrink-0" />
+										{label}
+									</Link>
+								))}
 							</div>
-						))}
-					</div>
-				</div>
-			</div>
+						</div>
 
-			<div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-				<div className="border-muted-foreground/30 flex h-10 w-6 justify-center rounded-full border-2 pt-2">
-					<div className="bg-muted-foreground/50 h-2 w-1 animate-bounce rounded-full" />
+						{/* §2.3 rule 3's two words; white on the orange reads 2.70:1. */}
+						<div className="mt-1 flex w-full gap-2.5 lg:mt-2 lg:w-auto">
+							<Link
+								to="/publish/lost"
+								className="bg-accent-orange text-accent-orange-foreground hover:bg-accent-orange-dark h-control flex flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-lg font-semibold transition-colors lg:flex-initial lg:px-7"
+							>
+								<CircleAlert className="h-4.5 w-4.5" />
+								J&apos;ai perdu
+							</Link>
+							<Link
+								to="/publish/found"
+								className="bg-primary-green hover:bg-primary-green-dark h-control flex flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-lg font-semibold text-white transition-colors lg:flex-initial lg:px-7"
+							>
+								<Check className="h-4.5 w-4.5" />
+								J&apos;ai trouvé
+							</Link>
+						</div>
+					</div>
+
+					{/* Height-driven and ratio-locked: past 2xl it letterboxes. */}
+					<div className="hidden h-74 md:block lg:h-105 2xl:h-125">
+						{showMap && <HeroMap />}
+					</div>
 				</div>
 			</div>
 		</section>

@@ -17,6 +17,7 @@ export function buildStickerOrder(
 		total: 3000,
 		status: 'pending',
 		paymentMethod: PAYMENT_ON_DELIVERY,
+		source: 'direct',
 		deliveryAddress: 'Cocody Riviera 3, Abidjan',
 		deliveryCity: 'Abidjan',
 		deliveryNotes: null,
@@ -37,5 +38,8 @@ export function buildRepository(): StickerOrderRepository {
 		findById: vi.fn(),
 		list: vi.fn(),
 		updateStatus: vi.fn(),
+		sumDeliveredQuantity: vi.fn(),
+		// Defaults to room for another order, so a spec opts in to the refusal.
+		countOpenOrders: vi.fn().mockResolvedValue(0),
 	} as unknown as StickerOrderRepository
 }

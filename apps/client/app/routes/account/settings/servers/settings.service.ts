@@ -1,3 +1,4 @@
+import { requestOrigin } from '@/shared/helpers/origin'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import { toE164 } from '@/shared/utils/phone'
 
@@ -8,10 +9,8 @@ export async function updateProfile(
 	await apiFetch('/api/auth/update-user', {
 		method: 'POST',
 		body: JSON.stringify(fields),
-		headers: {
-			Cookie: request.headers.get('cookie') ?? '',
-			Origin: new URL(request.url).origin,
-		},
+		request,
+		headers: { Origin: requestOrigin(request) },
 	})
 }
 
@@ -22,7 +21,8 @@ export async function sendPhoneChangeOtp(
 	await apiFetch('/api/auth/phone-number/send-otp', {
 		method: 'POST',
 		body: JSON.stringify({ phoneNumber: toE164(phone) }),
-		headers: { Origin: new URL(request.url).origin },
+		request,
+		headers: { Origin: requestOrigin(request) },
 	})
 }
 
@@ -35,10 +35,35 @@ export async function deleteAccount(
 		{
 			method: 'POST',
 			body: JSON.stringify({ password }),
-			headers: {
-				Cookie: request.headers.get('cookie') ?? '',
-				Origin: new URL(request.url).origin,
-			},
+			request,
+			headers: { Origin: requestOrigin(request) },
 		},
+	)
+}
+
+// Reassembles the nested shape the contract declares. `DELETE` carries the
+// endpoint as a query param, a body on a delete being unevenly supported.
+export async function subscribeToPush(
+	request: Request,
+	{
+		endpoint,
+		p256dh,
+		auth,
+	}: { endpoint: string; p256dh: string; auth: string },
+): Promise<void> {
+	await apiFetch('/notifications/push', {
+		method: 'POST',
+		body: JSON.stringify({ endpoint, keys: { p256dh, auth } }),
+		request,
+	})
+}
+
+export async function unsubscribeFromPush(
+	request: Request,
+	endpoint: string,
+): Promise<void> {
+	await apiFetch(
+		`/notifications/push?endpoint=${encodeURIComponent(endpoint)}`,
+		{ method: 'DELETE', request },
 	)
 }

@@ -53,7 +53,7 @@ export function PackSelectionStep({
 					>
 						{pack.popular && (
 							<div className="absolute -top-3 left-1/2 -translate-x-1/2">
-								<span className="bg-accent-orange rounded-full px-3 py-1 text-xs font-semibold text-white">
+								<span className="bg-accent-orange text-accent-orange-foreground rounded-full px-3 py-1 text-xs font-semibold">
 									Populaire
 								</span>
 							</div>
@@ -67,7 +67,7 @@ export function PackSelectionStep({
 
 						<div className="mb-4">
 							<div className="bg-primary-green/10 mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl">
-								<Package className="text-primary-green h-6 w-6" />
+								<Package className="text-primary-green-text h-6 w-6" />
 							</div>
 							<h3 className="text-lg font-bold">{pack.name}</h3>
 							<p className="text-muted-foreground text-sm">
@@ -88,7 +88,7 @@ export function PackSelectionStep({
 						<ul className="space-y-2">
 							{pack.features.map((feature, i) => (
 								<li key={i} className="flex items-center gap-2 text-sm">
-									<CheckCircle2 className="text-primary-green h-4 w-4 shrink-0" />
+									<CheckCircle2 className="text-primary-green-text h-4 w-4 shrink-0" />
 									<span>{feature}</span>
 								</li>
 							))}
