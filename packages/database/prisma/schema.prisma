@@ -137,6 +137,7 @@ model User {
   qrTokens            QrToken[]
   stickerOrders       StickerOrder[]
   notifications       Notification[]
+  pushSubscriptions   PushSubscription[]
 
   @@unique([email])
   @@unique([phoneNumber])
@@ -305,6 +306,22 @@ model Notification {
   @@index([userId, read])
   @@index([audience, read])
   @@map("notification")
+}
+
+// One row per browser, keyed on the endpoint the vendor issued. It records a
+// capability the visitor granted, not an audience measurement.
+model PushSubscription {
+  id        String   @id @default(uuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("push_subscription")
 }
 
 model Event {

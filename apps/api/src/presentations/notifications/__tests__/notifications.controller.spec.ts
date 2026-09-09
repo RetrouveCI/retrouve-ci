@@ -3,6 +3,8 @@ import type { GetMyNotificationsUseCase } from '@/domains/notifications/use-case
 import type { GetUnreadNotificationsCountUseCase } from '@/domains/notifications/use-cases/get-unread-notifications-count.use-case'
 import type { MarkAllNotificationsAsReadUseCase } from '@/domains/notifications/use-cases/mark-all-notifications-as-read.use-case'
 import type { MarkNotificationAsReadUseCase } from '@/domains/notifications/use-cases/mark-notification-as-read.use-case'
+import type { SubscribeToPushUseCase } from '@/domains/notifications/use-cases/subscribe-to-push.use-case'
+import type { UnsubscribeFromPushUseCase } from '@/domains/notifications/use-cases/unsubscribe-from-push.use-case'
 import { NotificationsController } from '../notifications.controller'
 
 function buildUseCase<T>(): T {
@@ -18,6 +20,8 @@ describe('NotificationsController', () => {
 	let getUnreadCount: GetUnreadNotificationsCountUseCase
 	let markAllAsRead: MarkAllNotificationsAsReadUseCase
 	let markAsRead: MarkNotificationAsReadUseCase
+	let subscribeToPush: SubscribeToPushUseCase
+	let unsubscribeFromPush: UnsubscribeFromPushUseCase
 	let controller: NotificationsController
 
 	beforeEach(() => {
@@ -25,12 +29,45 @@ describe('NotificationsController', () => {
 		getUnreadCount = buildUseCase<GetUnreadNotificationsCountUseCase>()
 		markAllAsRead = buildUseCase<MarkAllNotificationsAsReadUseCase>()
 		markAsRead = buildUseCase<MarkNotificationAsReadUseCase>()
+		subscribeToPush = buildUseCase<SubscribeToPushUseCase>()
+		unsubscribeFromPush = buildUseCase<UnsubscribeFromPushUseCase>()
 		controller = new NotificationsController(
 			getMyNotifications,
 			getUnreadCount,
 			markAllAsRead,
 			markAsRead,
+			subscribeToPush,
+			unsubscribeFromPush,
 		)
+	})
+
+	describe('push', () => {
+		const SUBSCRIPTION = {
+			endpoint: 'https://fcm.googleapis.com/fcm/send/abc',
+			keys: { p256dh: 'a'.repeat(88), auth: 'b'.repeat(24) },
+		}
+
+		// The owner comes from the session, so a body naming someone else stores
+		// the row under the caller regardless.
+		it('flattens the browser payload under the session owner', async () => {
+			await controller.subscribe(session, SUBSCRIPTION)
+
+			expect(subscribeToPush.execute).toHaveBeenCalledWith({
+				userId: 'user-1',
+				endpoint: SUBSCRIPTION.endpoint,
+				p256dh: SUBSCRIPTION.keys.p256dh,
+				auth: SUBSCRIPTION.keys.auth,
+			})
+		})
+
+		it('scopes an unsubscribe to the caller', async () => {
+			await controller.unsubscribe(session, { endpoint: SUBSCRIPTION.endpoint })
+
+			expect(unsubscribeFromPush.execute).toHaveBeenCalledWith({
+				userId: 'user-1',
+				endpoint: SUBSCRIPTION.endpoint,
+			})
+		})
 	})
 
 	/**
