@@ -5,6 +5,11 @@ import { reachQrOwner } from './qr-contact.service'
 
 const TOO_MANY_REQUESTS = 429
 
+// The same hole as the listing's contact route, and the same GET.
+export function loader({ params }: { params: { code: string } }) {
+	return redirect(`/q/${params.code}`)
+}
+
 /**
  * The buttons post here with `reloadDocument`, so the browser performs the jump
  * itself and the page they left never held the number. Measured: Chromium

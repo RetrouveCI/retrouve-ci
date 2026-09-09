@@ -4,7 +4,7 @@ const { reachQrOwner } = vi.hoisted(() => ({ reachQrOwner: vi.fn() }))
 
 vi.mock('../qr-contact.service', () => ({ reachQrOwner }))
 
-const { action } = await import('../qr-reach.action')
+const { action, loader } = await import('../qr-reach.action')
 
 const CODE = 'RCI-ABC123'
 
@@ -96,5 +96,12 @@ describe('the reach action', () => {
 		expect((await jump('call')).headers.get('Location')).toBe(
 			`/q/${CODE}?reach=failed`,
 		)
+	})
+
+	it('sends a GET back to the contact screen', () => {
+		const response = loader({ params: { code: CODE } })
+
+		expect(response.status).toBe(302)
+		expect(response.headers.get('Location')).toBe(`/q/${CODE}`)
 	})
 })

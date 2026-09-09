@@ -4,6 +4,12 @@ import { contactLostItemPoster } from '../../servers/lost-items.service'
 
 const TOO_MANY_REQUESTS = 429
 
+// This route is the opened tab's own URL, so a reload arrives as a GET — which
+// a resource route answered with a `400` JSON page. Measured.
+export function loader({ params }: { params: { id: string } }) {
+	return redirect(`/posts/${params.id}`)
+}
+
 // The bar posts here in its own tab. The API counts the contact in the same
 // call, which is why `contactsCount` finally moves.
 export async function action({
