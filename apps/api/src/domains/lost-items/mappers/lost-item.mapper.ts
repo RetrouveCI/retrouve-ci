@@ -47,6 +47,8 @@ export function toDomainLostItem(lostItem: PrismaLostItem): LostItem {
 		resolvedAt: lostItem.resolvedAt,
 		views: lostItem.views,
 		contactsCount: lostItem.contactsCount,
+		official: lostItem.official,
+		postedFor: lostItem.postedFor,
 		userId: lostItem.userId,
 		createdAt: lostItem.createdAt,
 		updatedAt: lostItem.updatedAt,
@@ -79,6 +81,7 @@ export function toPublicLostItem(lostItem: LostItem): PublicLostItem {
 		resolutionStatus: lostItem.resolutionStatus,
 		views: lostItem.views,
 		contactsCount: lostItem.contactsCount,
+		official: lostItem.official,
 		createdAt: lostItem.createdAt,
 		updatedAt: lostItem.updatedAt,
 	}

@@ -14,6 +14,7 @@ import {
 import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 import type {
 	CreateLostItemData,
+	CreateOfficialLostItemData,
 	ListLostItemsFilter,
 	LostItem,
 	LostItemListResponse,
@@ -40,7 +41,9 @@ const EMPTY_MODERATION: Record<ModerationStatus, number> = {
 
 /** A form posts an empty string for a field it left alone; the column holds
  * `null` or a value, never the difference between the two. */
-function toPrismaDocumentFields(data: CreateLostItemData | UpdateLostItemData) {
+function toPrismaDocumentFields(
+	data: CreateLostItemData | CreateOfficialLostItemData | UpdateLostItemData,
+) {
 	return {
 		...(data.documentType !== undefined && {
 			documentType: toPrismaDocumentType(data.documentType),
@@ -75,6 +78,35 @@ export class LostItemRepository {
 				contactWhatsapp: data.contactWhatsapp,
 				photos: data.photos ?? [],
 				...toPrismaDocumentFields(data),
+				userId: data.userId,
+			},
+		})
+
+		return toDomainLostItem(lostItem)
+	}
+
+	/**
+	 * The team's own write. `official`, `postedFor` and `moderationStatus` come
+	 * from the use-case, never from the body — the caller may fill the listing in,
+	 * not decide that it skips moderation.
+	 */
+	async createOfficial(data: CreateOfficialLostItemData): Promise<LostItem> {
+		const lostItem = await this.prisma.lostItem.create({
+			data: {
+				type: toPrismaType(data.type),
+				category: toPrismaCategory(data.category),
+				title: data.title,
+				description: data.description,
+				ville: data.ville,
+				commune: data.commune ?? null,
+				eventDate: data.eventDate,
+				contactName: data.contactName,
+				contactWhatsapp: data.contactWhatsapp,
+				photos: data.photos ?? [],
+				...toPrismaDocumentFields(data),
+				official: data.official,
+				postedFor: data.postedFor ?? null,
+				moderationStatus: toPrismaModerationStatus(data.moderationStatus),
 				userId: data.userId,
 			},
 		})

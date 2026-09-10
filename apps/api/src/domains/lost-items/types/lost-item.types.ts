@@ -1,6 +1,7 @@
 import type {
 	AdminListLostItemsFilterData,
 	CreateLostItemData as CreateLostItemContract,
+	CreateOfficialLostItemData as CreateOfficialLostItemContract,
 	DocumentType,
 	LostItemCategory,
 	LostItemType,
@@ -24,6 +25,21 @@ export type {
 export type CreateLostItemData = Omit<CreateLostItemContract, 'eventDate'> & {
 	eventDate: Date
 	userId: string
+}
+
+/**
+ * What the repository writes for a team listing. `official`, `postedFor` and
+ * `moderationStatus` are stamped by the use-case, never read from the body —
+ * the same rule the sticker order's price and payment method follow.
+ */
+export type CreateOfficialLostItemData = Omit<
+	CreateOfficialLostItemContract,
+	'eventDate'
+> & {
+	eventDate: Date
+	userId: string
+	official: true
+	moderationStatus: ModerationStatus
 }
 
 export type UpdateLostItemData = Omit<UpdateLostItemContract, 'eventDate'> & {
@@ -106,6 +122,8 @@ export interface LostItem {
 	resolvedAt: Date | null
 	views: number
 	contactsCount: number
+	official: boolean
+	postedFor: string | null
 	userId: string
 	createdAt: Date
 	updatedAt: Date
@@ -127,6 +145,7 @@ export type PublicLostItem = Omit<
 	| 'contactWhatsapp'
 	| 'userId'
 	| 'resolvedAt'
+	| 'postedFor'
 > & {
 	documentNumber?: never
 	moderationReason?: never
@@ -137,6 +156,8 @@ export type PublicLostItem = Omit<
 	userId?: never
 	/** Counted by A5 in aggregate; no public screen reads one listing's day. */
 	resolvedAt?: never
+	/** The desk's own note on a team listing; it names a third party. */
+	postedFor?: never
 	contactReachable: boolean
 }
 

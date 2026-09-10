@@ -54,6 +54,8 @@ const PROD = {
 	NODE_ENV: 'production',
 	SUPER_ADMIN_EMAIL: 'ops@retrouveci.com',
 	SUPER_ADMIN_PASSWORD: 'A-real-Secret-1',
+	SYSTEM_ACCOUNT_PASSWORD: 'A-real-Secret-2',
+	SYSTEM_ACCOUNT_PHONE: '+2250700000009',
 }
 
 describe('SeederService', () => {
@@ -81,7 +83,7 @@ describe('SeederService', () => {
 
 			await service.onApplicationBootstrap()
 
-			expect(auth.api.signUpEmail).not.toHaveBeenCalled()
+			expect(emailsSignedUp(auth)).not.toContain('ops@retrouveci.com')
 		})
 
 		/** The point: a failure here is a failed start, not a log line. */
@@ -133,7 +135,10 @@ describe('SeederService', () => {
 			await service.onApplicationBootstrap()
 
 			const signUpEmails = emailsSignedUp(auth)
-			expect(signUpEmails).toEqual(['ops@retrouveci.com'])
+			expect(signUpEmails).toEqual([
+				'ops@retrouveci.com',
+				'equipe@retrouveci.ci',
+			])
 			expect(signUpEmails).not.toContain('test@retrouveci.ci')
 		})
 
@@ -152,6 +157,64 @@ describe('SeederService', () => {
 			auth.api.signUpEmail
 				.mockResolvedValueOnce({ user: { id: 'created' } })
 				.mockRejectedValueOnce(new Error('nope'))
+
+			await expect(service.onApplicationBootstrap()).resolves.toBeUndefined()
+		})
+	})
+
+	// A listing needs an owner and it cannot be the administrator who filed it:
+	// the relation cascades, so their departure would erase everything the team
+	// ever published.
+	describe('the system account', () => {
+		it('is created in production, unlike the mock user', async () => {
+			const { service, auth } = build(PROD)
+
+			await service.onApplicationBootstrap()
+
+			expect(emailsSignedUp(auth)).toContain('equipe@retrouveci.ci')
+		})
+
+		it('is not created twice', async () => {
+			const { service, auth } = build(PROD, ['equipe@retrouveci.ci'])
+
+			await service.onApplicationBootstrap()
+
+			expect(emailsSignedUp(auth)).not.toContain('equipe@retrouveci.ci')
+		})
+
+		it('carries the phone number team listings display', async () => {
+			const { service, prisma } = build(PROD)
+
+			await service.onApplicationBootstrap()
+
+			expect(prisma.user.update).toHaveBeenCalledWith({
+				where: { id: 'created' },
+				data: {
+					phoneNumber: '+2250700000009',
+					phoneNumberVerified: true,
+					emailVerified: true,
+				},
+			})
+		})
+
+		// The same reason the super admin's password is required: the development
+		// fallback is public in this repository, and this account can sign in.
+		it('refuses to boot in production without a password', async () => {
+			const { service } = build({
+				...PROD,
+				SYSTEM_ACCOUNT_PASSWORD: '',
+			})
+
+			await expect(service.onApplicationBootstrap()).rejects.toThrow(
+				'SYSTEM_ACCOUNT_PASSWORD',
+			)
+		})
+
+		it('needs no password once the account exists, even in production', async () => {
+			const { service } = build({ ...PROD, SYSTEM_ACCOUNT_PASSWORD: '' }, [
+				'ops@retrouveci.com',
+				'equipe@retrouveci.ci',
+			])
 
 			await expect(service.onApplicationBootstrap()).resolves.toBeUndefined()
 		})

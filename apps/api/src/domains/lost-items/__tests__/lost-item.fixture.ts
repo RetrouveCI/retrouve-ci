@@ -27,6 +27,8 @@ export function buildLostItem(overrides: Partial<LostItem> = {}): LostItem {
 		resolvedAt: null,
 		views: 0,
 		contactsCount: 0,
+		official: false,
+		postedFor: null,
 		userId: 'user-1',
 		createdAt: new Date('2026-01-01'),
 		updatedAt: new Date('2026-01-01'),

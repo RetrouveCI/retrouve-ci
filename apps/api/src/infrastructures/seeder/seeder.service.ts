@@ -7,6 +7,10 @@ import { PrismaService } from '@/infrastructures/database/prisma.service'
 const DEV_SUPER_ADMIN_EMAIL = 'admin@retrouveci.ci'
 const DEV_SUPER_ADMIN_PASSWORD = 'admin1234'
 
+const DEV_SYSTEM_ACCOUNT_EMAIL = 'equipe@retrouveci.ci'
+const DEV_SYSTEM_ACCOUNT_PASSWORD = 'equipe1234'
+const DEV_SYSTEM_ACCOUNT_PHONE = '+2250758412209'
+
 @Injectable()
 export class SeederService implements OnApplicationBootstrap {
 	private readonly logger = new Logger(SeederService.name)
@@ -19,6 +23,7 @@ export class SeederService implements OnApplicationBootstrap {
 
 	async onApplicationBootstrap(): Promise<void> {
 		await this.seedSuperAdmin()
+		await this.seedSystemAccount()
 		await this.seedMockUser()
 	}
 
@@ -120,6 +125,68 @@ export class SeederService implements OnApplicationBootstrap {
 		} catch (error) {
 			this.logger.error(
 				`Échec de la création de l'utilisateur mock : ${String(error)}`,
+			)
+		}
+	}
+
+	/**
+	 * The account every team listing belongs to. Unlike the mock user this one
+	 * is seeded **in production too**: a listing needs an owner, and it cannot be
+	 * the administrator who filed it — the relation cascades, so their departure
+	 * would erase everything the team ever published.
+	 *
+	 * It signs in like any account, but nobody is meant to: the password is
+	 * required in production for the same reason the super admin's is, and the
+	 * phone number is the team's public line, the one team listings display.
+	 */
+	private async seedSystemAccount(): Promise<void> {
+		const email = this.config.get<string>(
+			'SYSTEM_ACCOUNT_EMAIL',
+			DEV_SYSTEM_ACCOUNT_EMAIL,
+		)
+
+		const existing = await this.prisma.user.findUnique({ where: { email } })
+
+		if (existing) {
+			this.logger.log(`Compte système ${email} déjà créé.`)
+			return
+		}
+
+		const password = this.requiredInProduction(
+			'SYSTEM_ACCOUNT_PASSWORD',
+			DEV_SYSTEM_ACCOUNT_PASSWORD,
+		)
+
+		const name = this.config.get<string>(
+			'SYSTEM_ACCOUNT_NAME',
+			'Équipe RetrouveCI',
+		)
+
+		const phone = this.requiredInProduction(
+			'SYSTEM_ACCOUNT_PHONE',
+			DEV_SYSTEM_ACCOUNT_PHONE,
+		)
+
+		try {
+			const result = await this.authService.api.signUpEmail({
+				body: { email, password, name },
+			})
+
+			await this.prisma.user.update({
+				where: { id: result.user.id },
+				data: {
+					phoneNumber: phone,
+					phoneNumberVerified: true,
+					emailVerified: true,
+				},
+			})
+
+			this.logger.log(`Compte système créé : ${email} / tél. ${phone}`)
+		} catch (error) {
+			// Loud, and not fatal: the API still serves every other route, and a
+			// failure here only refuses the backoffice's own publication.
+			this.logger.error(
+				`Échec de la création du compte système : ${String(error)}`,
 			)
 		}
 	}

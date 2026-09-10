@@ -11,6 +11,7 @@ import {
 	buildPublicLostItem,
 } from '@/domains/lost-items/__tests__/lost-item.fixture'
 import type { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
+import type { CreateOfficialLostItemUseCase } from '@/domains/lost-items/use-cases/create-official-lost-item.use-case'
 import type { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
 import type { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
 import type { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
@@ -40,6 +41,7 @@ function buildMatchingDispatcher() {
 
 describe('LostItemsController', () => {
 	let createLostItem: CreateLostItemUseCase
+	let createOfficialLostItem: CreateOfficialLostItemUseCase
 	let viewLostItem: ViewLostItemUseCase
 	let contactLostItemPoster: ContactLostItemPosterUseCase
 	let getPaginatedLostItems: GetPaginatedLostItemsUseCase
@@ -64,10 +66,12 @@ describe('LostItemsController', () => {
 		updateLostItem = buildUseCase<UpdateLostItemUseCase>()
 		moderateLostItem = buildUseCase<ModerateLostItemUseCase>()
 		deleteLostItem = buildUseCase<DeleteLostItemUseCase>()
+		createOfficialLostItem = buildUseCase<CreateOfficialLostItemUseCase>()
 		matchingDispatcher = buildMatchingDispatcher()
 		accountBudget = { require: vi.fn() } as unknown as AccountBudget
 		controller = new LostItemsController(
 			createLostItem,
+			createOfficialLostItem,
 			viewLostItem,
 			contactLostItemPoster,
 			getPaginatedLostItems,
@@ -130,6 +134,71 @@ describe('LostItemsController', () => {
 			await expect(controller.create(session, dto)).rejects.toBeInstanceOf(
 				AccountBudgetExceededError,
 			)
+			expect(createLostItem.execute).not.toHaveBeenCalled()
+		})
+	})
+
+	describe('createOfficial', () => {
+		const dto = {
+			type: 'found',
+			category: 'documents',
+			title: "Carte nationale d'identité au nom de Konan Aya",
+			description: 'Déposée au bureau par un chauffeur de taxi communal.',
+			ville: 'Abidjan',
+			eventDate: '2026-09-06',
+			contactName: 'Équipe RetrouveCI',
+			contactWhatsapp: '+2250758412209',
+			documentType: 'national_id',
+			documentHolderName: 'Konan Aya',
+			postedFor: 'Koffi Yao',
+		} as Parameters<typeof controller.createOfficial>[0]
+
+		it('converts the eventDate and passes no session user id', async () => {
+			vi.mocked(createOfficialLostItem.execute).mockResolvedValue(
+				buildLostItem({ official: true }),
+			)
+
+			await controller.createOfficial(dto)
+
+			expect(createOfficialLostItem.execute).toHaveBeenCalledWith({
+				...dto,
+				eventDate: new Date('2026-09-06'),
+			})
+		})
+
+		// It is born published, and publication is the only moment matching runs.
+		it('dispatches matching, since the listing is already public', async () => {
+			vi.mocked(createOfficialLostItem.execute).mockResolvedValue(
+				buildLostItem({ id: 'official-1', official: true }),
+			)
+
+			await controller.createOfficial(dto)
+
+			expect(matchingDispatcher.dispatch).toHaveBeenCalledWith('official-1')
+		})
+
+		/**
+		 * `LOST_ITEM_PER_USER` bounds a flood of visitor listings by what it
+		 * spends — the moderation queue — which this route does not use. What
+		 * bounds this one is `@Roles(['admin'])`.
+		 */
+		it('asks no account ceiling', async () => {
+			vi.mocked(createOfficialLostItem.execute).mockResolvedValue(
+				buildLostItem({ official: true }),
+			)
+
+			await controller.createOfficial(dto)
+
+			expect(accountBudget.require).not.toHaveBeenCalled()
+		})
+
+		it('does not go through the visitor use-case', async () => {
+			vi.mocked(createOfficialLostItem.execute).mockResolvedValue(
+				buildLostItem({ official: true }),
+			)
+
+			await controller.createOfficial(dto)
+
 			expect(createLostItem.execute).not.toHaveBeenCalled()
 		})
 	})
