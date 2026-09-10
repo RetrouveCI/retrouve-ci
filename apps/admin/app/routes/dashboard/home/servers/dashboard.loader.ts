@@ -12,8 +12,6 @@ const CATEGORY_LABELS: Record<Uppercase<LostItemCategory>, string> = {
 	WALLET: 'Portefeuilles',
 	BAG: 'Sacs',
 	ELECTRONICS: 'Électronique',
-	CLOTHING: 'Vêtements',
-	JEWELRY: 'Bijoux',
 	DOCUMENTS: 'Documents',
 	OTHER: 'Autres',
 }

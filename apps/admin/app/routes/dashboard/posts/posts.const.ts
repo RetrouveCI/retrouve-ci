@@ -16,8 +16,6 @@ export const CATEGORY_LABELS: Record<LostItemCategory, string> = {
 	wallet: 'Portefeuille',
 	bag: 'Sac',
 	electronics: 'Électronique',
-	clothing: 'Vêtement',
-	jewelry: 'Bijou',
 	documents: 'Documents',
 	other: 'Autre',
 }
