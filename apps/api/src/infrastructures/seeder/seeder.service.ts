@@ -9,7 +9,7 @@ const DEV_SUPER_ADMIN_PASSWORD = 'admin1234'
 
 const DEV_SYSTEM_ACCOUNT_EMAIL = 'equipe@retrouveci.ci'
 const DEV_SYSTEM_ACCOUNT_PASSWORD = 'equipe1234'
-const DEV_SYSTEM_ACCOUNT_PHONE = '+2250758412209'
+const DEV_SYSTEM_ACCOUNT_PHONE = '+2250700000000'
 
 @Injectable()
 export class SeederService implements OnApplicationBootstrap {
