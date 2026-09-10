@@ -49,8 +49,13 @@ Identique à celle des deux chantiers précédents. Elle n'est pas rappelée par
 politesse : c'est elle qui a permis de livrer la refonte sans casser la prod.
 
 - **Une étape, une branche, une PR, une session.** Branche
-  `evolution-f<n>-<sujet>`. La PR suit le gabarit What / Why / How / Testing de
-  `AGENTS.md` — jamais `gh pr create --fill`.
+  `evolution/f<n>-<sujet>`, avec une **barre oblique** — mesuré en ouvrant F1 :
+  `guard-git.sh` bloque toute commande de push contenant `-f`, et il la cherche
+  n'importe où après `git push`, donc une branche nommée `evolution-f1-…` est
+  refusée comme si c'était un `--force`. Les chantiers précédents ne l'ont
+  jamais rencontré parce que ni `migration-e<n>` ni `refonte-r<n>` ne portent la
+  lettre. La PR suit le gabarit What / Why / How / Testing de `AGENTS.md` —
+  jamais `gh pr create --fill`.
 - **Demander avant chaque commit**, et commiter par pathspec
   (`git commit -- <chemins>`), jamais l'index entier : l'arbre bouge en
   parallèle.
