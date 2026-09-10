@@ -636,8 +636,14 @@ filtres reste possible.
 Elles n'empêchent aucune étape de démarrer, mais elles se posent avant la
 première PR de leur lot.
 
-1. **Quel numéro WhatsApp pour le compte système ?** F2 en a besoin, et c'est
-   une décision d'exploitation, pas de code.
+1. ~~**Quel numéro WhatsApp pour le compte système ?**~~ **Tranché le
+   2026-09-10** : il vit dans l'environnement du déploiement, sous
+   `SYSTEM_ACCOUNT_PHONE`, et **pas dans le dépôt**. `.env.example` et le repli
+   de développement du seeder portent `+2250700000000`, le placeholder que les
+   fixtures utilisent déjà. La variable est requise en production exactement
+   pour ça : la vraie ligne doit être énoncée au déploiement, jamais héritée
+   d'un défaut du code qui deviendrait faux le jour où l'équipe change de
+   numéro.
 2. **Commentaire et motif de modération : un canal ou deux ?** Par défaut deux,
    à confirmer en F3.
 3. **L'assistant est-il ouvert aux visiteurs anonymes ?** Le plafond n'est pas
