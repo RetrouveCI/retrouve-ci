@@ -5,15 +5,22 @@ import type { PrismaClient } from '@app/database'
 import { getAllowedOrigins } from '@/shared/auth/allowed-origins'
 import { getCookieDomain } from '@/shared/auth/cookie-domain'
 import type { OtpDispatcher } from './otp-dispatcher.service'
+import { resolveSystemAccountEmail } from './system-account.email'
 
 export const ADMIN_AUTH_BASE_PATH = '/api/admin-auth'
 
 const ADMIN_APP_NAME = 'retrouveci-admin'
 
+/** Read per call, like the origins: both instances expose the `admin()` routes. */
+function protectedEmails(): string[] {
+	return [resolveSystemAccountEmail(process.env['SYSTEM_ACCOUNT_EMAIL'])]
+}
+
 export function createClientAuth(prisma: PrismaClient, otp: OtpDispatcher) {
 	return createSharedAuth(prisma, {
 		trustedOrigins: getAllowedOrigins(),
 		cookieDomain: getCookieDomain(),
+		protectedEmails: protectedEmails(),
 		plugins: [
 			phoneNumber({
 				expiresIn: OTP_TTL_SECONDS,
@@ -45,6 +52,7 @@ export function createAdminAuth(prisma: PrismaClient) {
 		cookiePrefix: ADMIN_APP_NAME,
 		trustedOrigins: getAllowedOrigins(),
 		cookieDomain: getCookieDomain(),
+		protectedEmails: protectedEmails(),
 	})
 }
 

@@ -54,10 +54,10 @@ export function logSecretDelivery(
  * backoffice form states would be advisory, and an admin could be created with
  * a password they could never reset to.
  */
-const enforcePasswordRule = createAuthMiddleware(ctx => {
-	if (ctx.path !== '/admin/create-user') return Promise.resolve()
+export function enforcePasswordRule(path: string, body: unknown): void {
+	if (path !== '/admin/create-user') return
 
-	const { password } = (ctx.body ?? {}) as { password?: unknown }
+	const { password } = (body ?? {}) as { password?: unknown }
 	const result = passwordSchema.safeParse(password)
 
 	if (!result.success) {
@@ -65,9 +65,64 @@ const enforcePasswordRule = createAuthMiddleware(ctx => {
 			message: result.error.issues[0]?.message ?? 'Mot de passe invalide',
 		})
 	}
+}
 
-	return Promise.resolve()
-})
+/**
+ * The `admin()` routes that act on another account, each naming it by `userId`.
+ * Removing one cascades to everything it owns, changing its email loses the
+ * lookup that finds it, and impersonating it hands out its listings.
+ */
+export const ACCOUNT_WRITE_PATHS = [
+	'/admin/remove-user',
+	'/admin/ban-user',
+	'/admin/set-role',
+	'/admin/set-user-password',
+	'/admin/impersonate-user',
+	'/admin/update-user',
+] as const
+
+export const PROTECTED_ACCOUNT_MESSAGE =
+	"Ce compte appartient à l'équipe RetrouveCI : il porte ses annonces et ne peut être ni supprimé, ni banni, ni modifié."
+
+/** The account a request acts on, when it is one of those routes. */
+export function accountWriteTarget(
+	path: string,
+	body: unknown,
+): string | undefined {
+	if (!(ACCOUNT_WRITE_PATHS as readonly string[]).includes(path))
+		return undefined
+
+	// better-auth coerces the id to a string, so a number must not slip past.
+	const { userId } = (body ?? {}) as { userId?: unknown }
+	if (typeof userId !== 'string' && typeof userId !== 'number') return undefined
+
+	return String(userId) || undefined
+}
+
+type FindUserById = (id: string) => Promise<{ email: string } | null>
+
+/**
+ * Refuses a write on a protected account. Checked on the stored email rather
+ * than on an id the package cannot know, which is sound because
+ * `/admin/update-user` is one of the refused routes: the email cannot move.
+ */
+export async function refuseProtectedAccountWrite(
+	path: string,
+	body: unknown,
+	protectedEmails: readonly string[],
+	findUserById: FindUserById,
+): Promise<void> {
+	if (!protectedEmails.length) return
+
+	const target = accountWriteTarget(path, body)
+	if (!target) return
+
+	const user = await findUserById(target)
+
+	if (user && protectedEmails.includes(user.email.toLowerCase())) {
+		throw new APIError('FORBIDDEN', { message: PROTECTED_ACCOUNT_MESSAGE })
+	}
+}
 
 export interface CreateAuthOptions {
 	appName?: string
@@ -82,6 +137,12 @@ export interface CreateAuthOptions {
 	cookieDomain?: string
 	plugins?: BetterAuthPlugin[]
 	trustedOrigins?: string[]
+	/**
+	 * Accounts no administrator may remove, ban, re-role, re-password,
+	 * impersonate or edit. These routes are middleware mounted before any
+	 * framework guard, so this hook is the only place the refusal can live.
+	 */
+	protectedEmails?: string[]
 }
 
 export function createAuth(
@@ -93,8 +154,19 @@ export function createAuth(
 		cookieDomain,
 		plugins = [],
 		trustedOrigins,
+		protectedEmails = [],
 	}: CreateAuthOptions = {},
 ) {
+	const guardWrites = createAuthMiddleware(async ctx => {
+		enforcePasswordRule(ctx.path, ctx.body)
+		await refuseProtectedAccountWrite(
+			ctx.path,
+			ctx.body,
+			protectedEmails.map(email => email.toLowerCase()),
+			id => ctx.context.internalAdapter.findUserById(id),
+		)
+	})
+
 	const advanced = {
 		...(cookiePrefix ? { cookiePrefix } : {}),
 		...(cookieDomain
@@ -121,7 +193,7 @@ export function createAuth(
 				return Promise.resolve()
 			},
 		},
-		hooks: { before: enforcePasswordRule },
+		hooks: { before: guardWrites },
 		user: {
 			additionalFields: {
 				city: { type: 'string', required: false, input: true },
