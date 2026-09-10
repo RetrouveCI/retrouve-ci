@@ -61,6 +61,11 @@ politesse : c'est elle qui a permis de livrer la refonte sans casser la prod.
   parallèle.
 - **Messages de commit et de PR en anglais**, conversation en français,
   interface en français, identifiants de code en anglais.
+- **Après un squash, vérifier `main`, pas le badge.** Mesuré le 2026-09-10 :
+  #244 a été fusionné pendant que trois commits du plan partaient encore sur sa
+  branche. GitHub affichait « MERGED » et `main` n'en avait aucun ; ils ont été
+  repris par F2b. Chercher dans `origin/main` un marqueur du dernier commit
+  poussé avant de considérer une PR comme arrivée.
 - **Relire la §2 avant chaque PR.** Les invariants y sont, et une PR qui en
   casse un est refusée même si elle est verte.
 - **Relancer toute la chaîne après la dernière retouche** :
@@ -358,7 +363,7 @@ F17 serait inventer.
 
 ### Lot 1 — Retours immédiats
 
-#### F1 — Retirer « Vêtement » et « Bijoux »
+#### F1 — Retirer « Vêtement » et « Bijoux » _(livré — #245)_
 
 **Objectif.** Les deux catégories disparaissent du produit, et les annonces
 existantes restent lisibles.
@@ -393,7 +398,7 @@ plus les deux valeurs. La chaîne complète est verte.
 
 ### Lot 2 — Le canal équipe
 
-#### F2a — Colonnes, compte système et route de publication
+#### F2a — Colonnes, compte système et route de publication _(livré — #246)_
 
 **Objectif.** Un administrateur publie une annonce depuis l'administration ;
 elle apparaît dans `/posts` immédiatement, badgée « Équipe RetrouveCI ».
@@ -466,6 +471,29 @@ d'autre : c'est une annonce ordinaire, et la §2.3 dit qu'elle le reste.
 **Garde.** Le compte système ne doit pas être supprimable depuis
 `/administrators` ni `/users`. Le vérifier côté serveur, pas seulement en
 masquant un bouton.
+
+**Écarts mesurés en livrant F2b** (2026-09-10) :
+
+- **Le numéro de l'équipe n'est pas pré-rempli**, seul le nom affiché l'est. La
+  ligne vit dans l'environnement de l'API (`SYSTEM_ACCOUNT_PHONE`) et le front
+  d'administration ne la connaît pas ; la pré-remplir coûterait une variable ou
+  une route de plus.
+- **La garde vit dans `packages/auth`, en `hooks.before`**, parce que les routes
+  `admin()` sont un middleware monté avant Nest. Elle refuse **six** routes, pas
+  seulement la suppression : bannir, changer le rôle ou le mot de passe, usurper
+  l'identité — qui livrerait les annonces de l'équipe — et modifier le compte,
+  puisque la garde le reconnaît à son e-mail et que celui-ci ne doit pas bouger.
+- **La garde est serveur, pas interface.** L'admin ne connaît pas l'e-mail du
+  compte ; le refus remonte par `withApiOperationError` comme toute erreur
+  d'API.
+- **`packages/auth` n'a pas de runner** : les parties pures de la garde sont
+  testées depuis `apps/api`. `enforcePasswordRule`, qui n'avait aucun test, est
+  devenue une fonction simple et en a gagné.
+- **Deux défauts latents de F2a corrigés.** Le seeder lisait
+  `SYSTEM_ACCOUNT_EMAIL` sans `trim()` ni repli, et personne ne passait
+  l'adresse en minuscules alors que better-auth la stocke ainsi : `Equipe@…`
+  aurait créé un compte introuvable. Les trois lecteurs passent par une seule
+  règle, `resolveSystemAccountEmail`.
 
 **Recette de F2b.** Une annonce publiée depuis l'administration est visible sans
 modération, badgée, comptée dans les compteurs publics, et déclenche un
