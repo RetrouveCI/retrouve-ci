@@ -41,6 +41,8 @@ export interface LostItemBaseApiDto {
 	resolutionStatus: LostItemStatus
 	views: number
 	contactsCount: number
+	/** Filed by the RetrouveCI team rather than by a visitor. */
+	official: boolean
 	createdAt: string
 }
 

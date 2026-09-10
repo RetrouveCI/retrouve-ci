@@ -174,6 +174,18 @@ describe('SeederService', () => {
 			expect(emailsSignedUp(auth)).toContain('equipe@retrouveci.ci')
 		})
 
+		// The address the service will look it up under, or the account is lost.
+		it('is created under the lowercased address', async () => {
+			const { service, auth } = build({
+				...PROD,
+				SYSTEM_ACCOUNT_EMAIL: ' Ops-Team@RetrouveCI.com ',
+			})
+
+			await service.onApplicationBootstrap()
+
+			expect(emailsSignedUp(auth)).toContain('ops-team@retrouveci.com')
+		})
+
 		it('is not created twice', async () => {
 			const { service, auth } = build(PROD, ['equipe@retrouveci.ci'])
 

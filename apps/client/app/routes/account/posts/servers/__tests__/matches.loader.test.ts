@@ -35,6 +35,7 @@ const candidate = (id: string, ville = 'Cocody'): MatchCandidateApiDto => ({
 		createdAt: '2026-08-01T09:00:00.000Z',
 		views: 0,
 		contactsCount: 0,
+		official: false,
 	},
 })
 

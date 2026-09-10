@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { MapPin, Clock, ArrowRight } from 'lucide-react'
+import { MapPin, Clock, ArrowRight, BadgeCheck } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import type { LostItem } from '@/shared/types/lost-item'
 import { imageUrl } from '@/shared/utils/image'
@@ -80,6 +80,13 @@ function ListingImage({
 				<CategoryIcon className="h-3 w-3" />
 				{categoryLabel(listing.category)}
 			</div>
+
+			{listing.official && (
+				<div className="bg-background/90 text-primary-green-text absolute bottom-3 left-3 flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold shadow-sm backdrop-blur-sm">
+					<BadgeCheck className="h-3 w-3" />
+					Équipe RetrouveCI
+				</div>
+			)}
 		</div>
 	)
 }
@@ -127,6 +134,12 @@ export function ListingCard({ listing, variant = 'grid' }: ListingCardProps) {
 								<Clock className="h-3 w-3 shrink-0" />
 								{listing.postedAt}
 							</span>
+							{listing.official && (
+								<span className="text-primary-green-text flex items-center gap-1 font-semibold">
+									<BadgeCheck className="h-3 w-3 shrink-0" />
+									Équipe
+								</span>
+							)}
 							<span className="text-primary-green-text ml-auto hidden items-center gap-1 font-medium opacity-0 transition-opacity group-hover:opacity-100 sm:flex">
 								Voir <ArrowRight className="h-3 w-3" />
 							</span>

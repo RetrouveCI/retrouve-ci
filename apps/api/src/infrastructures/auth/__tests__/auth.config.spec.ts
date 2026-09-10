@@ -117,6 +117,17 @@ describe('both instances', () => {
 
 		expect(lastAuthOptions().cookieDomain).toBe(client.cookieDomain)
 	})
+
+	// The `admin()` routes are mounted on both, so the system account must be
+	// protected on both — a gap on one is a gap.
+	it('protect the same system account', () => {
+		createClientAuth(prisma, buildOtpDispatcher())
+		const client = lastAuthOptions()
+		createAdminAuth(prisma)
+
+		expect(client.protectedEmails).toEqual(['equipe@retrouveci.ci'])
+		expect(lastAuthOptions().protectedEmails).toEqual(client.protectedEmails)
+	})
 })
 
 describe('phone-number plugin', () => {

@@ -30,6 +30,7 @@ function dto(id: string): LostItemApiDto {
 		resolutionStatus: 'active',
 		views: 0,
 		contactsCount: 0,
+		official: false,
 		createdAt: '2026-08-30T10:00:00.000Z',
 	}
 }

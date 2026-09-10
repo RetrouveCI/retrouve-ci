@@ -3,11 +3,11 @@ import { ConfigService } from '@nestjs/config'
 import { AuthService } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructures/auth/auth.config'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
+import { resolveSystemAccountEmail } from '@/infrastructures/auth/system-account.email'
 
 const DEV_SUPER_ADMIN_EMAIL = 'admin@retrouveci.ci'
 const DEV_SUPER_ADMIN_PASSWORD = 'admin1234'
 
-const DEV_SYSTEM_ACCOUNT_EMAIL = 'equipe@retrouveci.ci'
 const DEV_SYSTEM_ACCOUNT_PASSWORD = 'equipe1234'
 const DEV_SYSTEM_ACCOUNT_PHONE = '+2250758412209'
 
@@ -140,9 +140,8 @@ export class SeederService implements OnApplicationBootstrap {
 	 * phone number is the team's public line, the one team listings display.
 	 */
 	private async seedSystemAccount(): Promise<void> {
-		const email = this.config.get<string>(
-			'SYSTEM_ACCOUNT_EMAIL',
-			DEV_SYSTEM_ACCOUNT_EMAIL,
+		const email = resolveSystemAccountEmail(
+			this.config.get<string>('SYSTEM_ACCOUNT_EMAIL'),
 		)
 
 		const existing = await this.prisma.user.findUnique({ where: { email } })

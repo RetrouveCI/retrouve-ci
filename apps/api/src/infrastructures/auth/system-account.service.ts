@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
+import { resolveSystemAccountEmail } from './system-account.email'
 
 /**
  * The account every team listing belongs to.
@@ -24,9 +25,8 @@ export class SystemAccountService {
 	) {}
 
 	get email(): string {
-		return (
-			this.config.get<string>('SYSTEM_ACCOUNT_EMAIL')?.trim() ||
-			'equipe@retrouveci.ci'
+		return resolveSystemAccountEmail(
+			this.config.get<string>('SYSTEM_ACCOUNT_EMAIL'),
 		)
 	}
 

@@ -44,6 +44,8 @@ export interface LostItem {
 	image?: string
 	images?: string[]
 	document?: LostItemDocument
+	/** Filed by the team: the listing is ordinary, only its badge differs. */
+	official?: boolean
 }
 
 /** Why a moderator pulled a listing down. Never served on a public read. */
