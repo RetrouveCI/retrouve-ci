@@ -1,14 +1,32 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { PageHeader } from '@/components/page-header'
 import { DateRangePicker } from '@/components/date-range-picker'
 import { useAuth } from '@/context/auth'
 import { StatCard } from '@/components/stat-card'
-import { ActivityChart } from './components/activity-chart'
-import { CategoryChart } from './components/category-chart'
+import { ChartFallback } from './components/chart-fallback'
+import { ACTIVITY_CHART, CATEGORY_CHART } from './components/chart-meta'
 import { PostsSummary } from './components/posts-summary'
 import { RecentActivity } from './components/recent-activity'
 import { dashboardLoader } from './servers/dashboard.loader'
 import type { DateRange } from 'react-day-picker'
+
+/**
+ * `recharts` is a third of this page's JavaScript and the dashboard is where
+ * every administrator lands, so it is fetched after hydration rather than
+ * shipped in the route chunk. `ChartFallback` wears the same card, heading and
+ * legend and reserves the plot's exact height, so nothing moves when it lands.
+ */
+const ActivityChart = lazy(() =>
+	import('./components/activity-chart').then(module => ({
+		default: module.ActivityChart,
+	})),
+)
+
+const CategoryChart = lazy(() =>
+	import('./components/category-chart').then(module => ({
+		default: module.CategoryChart,
+	})),
+)
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
 import { QrCode, Scan, Phone, Users } from 'lucide-react'
@@ -67,7 +85,13 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 			</div>
 
 			<div className="grid gap-4 lg:grid-cols-3">
-				<ActivityChart data={activityChart} className="lg:col-span-2" />
+				<Suspense
+					fallback={
+						<ChartFallback meta={ACTIVITY_CHART} className="lg:col-span-2" />
+					}
+				>
+					<ActivityChart data={activityChart} className="lg:col-span-2" />
+				</Suspense>
 				<PostsSummary
 					lost={stats.postsLost}
 					found={stats.postsFound}
@@ -76,7 +100,9 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 			</div>
 
 			<div className="grid gap-4 lg:grid-cols-2">
-				<CategoryChart data={categoryChart} />
+				<Suspense fallback={<ChartFallback meta={CATEGORY_CHART} />}>
+					<CategoryChart data={categoryChart} />
+				</Suspense>
 				<RecentActivity activities={activities} />
 			</div>
 		</div>

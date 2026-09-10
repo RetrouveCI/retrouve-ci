@@ -1,4 +1,4 @@
-import { documentTypeSchema } from '@app/contracts/lost-items'
+import { DOCUMENT_TYPES, type DocumentType } from '@app/contracts/lost-items'
 import type { PublishFormInput } from '../publish.schema'
 
 const STORAGE_KEY = 'retrouveci.publish-draft.v1'
@@ -58,6 +58,16 @@ export function hasDraftContent(
 }
 
 /**
+ * Narrows rather than parses: the contract's schema would be the obvious tool,
+ * but importing it pulls Zod into the shell — `OfflineContent` reads a draft,
+ * and the shell is on every page. The values are a closed list of literals, so
+ * a predicate over them costs nothing and says the same thing.
+ */
+function isDocumentType(value: unknown): value is DocumentType {
+	return DOCUMENT_TYPES.some(documentType => documentType === value)
+}
+
+/**
  * Everything here comes back from a store the user can edit, so every field is
  * re-checked rather than trusted: a draft written by an older build, or by
  * hand, must read as absent instead of reaching `useForm` as a wrong shape.
@@ -96,8 +106,9 @@ export function readPublishDraft(stepCount: number): PublishDraft | null {
 
 	// A stored type the contract no longer knows must read as « nothing chosen »
 	// rather than reach the `Select` as a value it cannot show.
-	const documentType = documentTypeSchema.safeParse(storedValues.documentType)
-	if (documentType.success) values.documentType = documentType.data
+	if (isDocumentType(storedValues.documentType)) {
+		values.documentType = storedValues.documentType
+	}
 
 	if (!hasDraftContent(values)) return null
 

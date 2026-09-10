@@ -11,25 +11,12 @@ import {
 	ResponsiveContainer,
 } from 'recharts'
 import { ChartTooltip } from './chart-tooltip'
-
-const LOST_COLOR = '#EF4444'
-const FOUND_COLOR = '#1E7F43'
+import { LegendDot } from './chart-legend-dot'
+import { CATEGORY_CHART, FOUND_COLOR, LOST_COLOR } from './chart-meta'
 
 interface CategoryChartProps {
 	data: { category: string; lost: number; found: number }[] | undefined
 	className?: string
-}
-
-function LegendDot({ color, label }: { color: string; label: string }) {
-	return (
-		<span className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-			<span
-				className="h-2.5 w-2.5 rounded-full"
-				style={{ backgroundColor: color }}
-			/>
-			{label}
-		</span>
-	)
 }
 
 export function CategoryChart({ data, className }: CategoryChartProps) {
@@ -42,15 +29,16 @@ export function CategoryChart({ data, className }: CategoryChartProps) {
 		<Card className={cn('overflow-hidden', className)}>
 			<CardHeader className="flex flex-row items-center justify-between gap-4 pb-2">
 				<CardTitle className="text-base font-semibold">
-					Posts par catégorie
+					{CATEGORY_CHART.title}
 				</CardTitle>
 				<div className="flex items-center gap-4">
-					<LegendDot color={LOST_COLOR} label="Perdus" />
-					<LegendDot color={FOUND_COLOR} label="Retrouvés" />
+					{CATEGORY_CHART.legend.map(entry => (
+						<LegendDot key={entry.label} {...entry} />
+					))}
 				</div>
 			</CardHeader>
 			<CardContent className="pb-4">
-				<ResponsiveContainer width="100%" height={260}>
+				<ResponsiveContainer width="100%" height={CATEGORY_CHART.height}>
 					<BarChart
 						data={data}
 						barGap={6}
