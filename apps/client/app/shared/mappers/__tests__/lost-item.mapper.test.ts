@@ -21,10 +21,17 @@ const DTO: LostItemApiDto = {
 	resolutionStatus: 'active',
 	views: 0,
 	contactsCount: 0,
+	official: false,
 	createdAt: '2026-09-01T09:00:00.000Z',
 }
 
 describe('the lost item mapper', () => {
+	// The badge is the whole difference between a team listing and any other.
+	it('carries the team badge the API emits', () => {
+		expect(toLostItem({ ...DTO, official: true }).official).toBe(true)
+		expect(toLostItem(DTO).official).toBe(false)
+	})
+
 	it('carries the piece a listing declared', () => {
 		expect(toLostItem(DTO).document).toEqual({
 			type: 'national_id',

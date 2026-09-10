@@ -1,4 +1,11 @@
-import { MapPin, Clock, CalendarDays, IdCard, ShieldAlert } from 'lucide-react'
+import {
+	MapPin,
+	Clock,
+	CalendarDays,
+	IdCard,
+	ShieldAlert,
+	BadgeCheck,
+} from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { DOCUMENT_TYPE_LABELS } from '@/shared/constants/documents'
 import type { LostItemDocument } from '@/shared/types/lost-item'
@@ -14,6 +21,7 @@ interface LostItem {
 	category: string
 	contact: { name: string }
 	document?: LostItemDocument
+	official?: boolean
 }
 
 /** §2.1's state pastille: 22 px, 10 px capitals, `letter-spacing` 0.04em. */
@@ -110,6 +118,13 @@ export function PostContent({ listing }: { listing: LostItem }) {
 				<Pill className="bg-muted text-muted-foreground">
 					{categoryLabel(listing.category)}
 				</Pill>
+				{/* Filed by the team for someone: the listing is ordinary, the badge says who answers. */}
+				{listing.official && (
+					<Pill className="bg-primary-green/10 text-primary-green-text">
+						<BadgeCheck className="mr-1 h-3.5 w-3.5" />
+						Équipe RetrouveCI
+					</Pill>
+				)}
 			</div>
 
 			<h1 className="text-2xl leading-tight font-bold tracking-tight sm:text-3xl">

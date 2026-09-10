@@ -10,8 +10,11 @@ const APP = 'app'
 const BYPASS = /\bfetch\(/
 const ADDRESSES_THE_API = /apiUrl/
 
-/** Nothing here posts multipart, so no call has a reason to bypass `apiFetch`. */
-const ALLOWED: string[] = []
+/**
+ * A raw `fetch`: multipart needs `FormData`'s own boundary, so no `apiFetch`.
+ * The same exception the client makes, for the same reason.
+ */
+const ALLOWED = ['routes/dashboard/posts/new/servers/upload.service.ts']
 
 function sources(dir: string): string[] {
 	return readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
@@ -42,7 +45,18 @@ describe('every server-side call speaks for the visitor', () => {
 		expect(offenders).toEqual([])
 	})
 
-	it('allows no exception at all', () => {
-		expect(ALLOWED).toEqual([])
+	// Bypassing `apiFetch` without deriving its headers is the R44 bug itself,
+	// and the backoffice has a third: with no `Origin` on a server-side call, the
+	// audience is all that stops the API reading the public session.
+	it.each(ALLOWED)('has %s derive every header by hand', allowed => {
+		const file = sources(APP).find(path => path.endsWith(allowed))
+
+		expect(file, `${allowed} is allowed but absent`).toBeDefined()
+		expect(bypasses(file as string)).toBe(true)
+
+		const source = readFileSync(file as string, 'utf8')
+		expect(source).toContain("Cookie: request.headers.get('cookie')")
+		expect(source).toContain('CLIENT_IP_HEADER')
+		expect(source).toContain("'X-Auth-Audience': 'admin'")
 	})
 })

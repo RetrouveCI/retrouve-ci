@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import {
 	Badge,
 	Button,
@@ -41,10 +41,12 @@ import {
 	EyeOff,
 	Clock,
 	MapPin,
+	Plus,
 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Post, ModerationStatus } from './types/posts.types'
 import { CATEGORY_LABELS, MODERATION_CONFIG } from './posts.const'
+import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
 
@@ -139,7 +141,12 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 			header: 'Titre',
 			cell: ({ row }) => (
 				<div className="max-w-55">
-					<p className="truncate text-sm font-medium">{row.original.title}</p>
+					<p className="flex items-center gap-1.5 text-sm font-medium">
+						{row.original.official && (
+							<Badge className={STATUS_TONE_CLASSES.success}>Équipe</Badge>
+						)}
+						<span className="truncate">{row.original.title}</span>
+					</p>
 					<p className="text-muted-foreground flex items-center gap-1 truncate text-xs">
 						<MapPin className="h-3 w-3 shrink-0" />
 						{row.original.ville}
@@ -240,6 +247,15 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 		<>
 			<div>
 				<div className="space-y-4 p-4 lg:p-6">
+					<div className="flex justify-end">
+						<Button asChild>
+							<Link to="/posts/new">
+								<Plus className="mr-2 h-4 w-4" />
+								Publier pour l’équipe
+							</Link>
+						</Button>
+					</div>
+
 					<PostsStatsGrid
 						total={counts.total}
 						published={counts.published}

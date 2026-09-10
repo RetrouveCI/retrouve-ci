@@ -1,4 +1,7 @@
-import type { UpdateModerationStatusData } from '@app/contracts/lost-items'
+import type {
+	CreateOfficialLostItemInput,
+	UpdateModerationStatusData,
+} from '@app/contracts/lost-items'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type {
 	ModerationStatus,
@@ -37,6 +40,21 @@ export async function moderatePost(
 
 	return apiFetch<Post>(`/lost-items/${id}/moderation`, {
 		method: 'PATCH',
+		body: JSON.stringify(body),
+		request,
+	})
+}
+
+/**
+ * The team's own publication. The API stamps the owner, the badge and the
+ * published status: this body fills the listing in and decides none of them.
+ */
+export async function createOfficialPost(
+	body: CreateOfficialLostItemInput,
+	request: Request,
+): Promise<Post> {
+	return apiFetch<Post>('/lost-items/official', {
+		method: 'POST',
 		body: JSON.stringify(body),
 		request,
 	})

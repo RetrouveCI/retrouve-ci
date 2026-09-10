@@ -38,6 +38,7 @@ export function toLostItem(dto: LostItemBaseApiDto): LostItem {
 		image: dto.photos[0],
 		images: dto.photos,
 		document: toDocument(dto),
+		official: dto.official,
 	}
 }
 

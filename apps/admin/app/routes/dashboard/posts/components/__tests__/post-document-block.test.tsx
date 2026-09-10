@@ -25,6 +25,8 @@ function buildPost(overrides: Partial<Post> = {}): Post {
 		resolutionStatus: 'active',
 		views: 0,
 		contactsCount: 0,
+		official: false,
+		postedFor: null,
 		userId: 'user-1',
 		createdAt: '2026-01-15T00:00:00.000Z',
 		updatedAt: '2026-01-15T00:00:00.000Z',

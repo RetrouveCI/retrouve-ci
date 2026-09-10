@@ -42,6 +42,10 @@ export interface Post {
 	resolutionStatus: ResolutionStatus
 	views: number
 	contactsCount: number
+	/** Filed by the team under the system account rather than by a visitor. */
+	official: boolean
+	/** Who the team filed it for. Admin reads only — the public projection drops it. */
+	postedFor: string | null
 	userId: string
 	createdAt: string
 	updatedAt: string

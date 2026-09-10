@@ -19,6 +19,7 @@ import {
 	CheckCircle2,
 	EyeOff,
 	Clock,
+	Users,
 } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
@@ -70,6 +71,11 @@ export function PostDetailDialog({
 		{ icon: MessageCircle, value: `${post.contactsCount} prises de contact` },
 	]
 
+	// The desk's own note: who the object is held for. Never on a public read.
+	if (post.postedFor) {
+		metaItems.push({ icon: Users, value: `Déposée pour ${post.postedFor}` })
+	}
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[90vh] gap-0 overflow-y-auto p-0 sm:max-w-3xl">
@@ -99,6 +105,11 @@ export function PostDetailDialog({
 						<Badge variant="outline">
 							{CATEGORY_LABELS[post.category] ?? post.category}
 						</Badge>
+						{post.official && (
+							<Badge className={STATUS_TONE_CLASSES.success}>
+								Équipe RetrouveCI
+							</Badge>
+						)}
 						{post.resolutionStatus === 'resolved' && (
 							<Badge className={STATUS_TONE_CLASSES.info}>Résolu</Badge>
 						)}
