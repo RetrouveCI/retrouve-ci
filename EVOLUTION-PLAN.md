@@ -163,6 +163,12 @@ badge. Deux raisons de ne pas mettre l'admin propriétaire : l'annonce survivrai
 au départ de cet admin (le `Cascade` l'effacerait sinon), et elle n'apparaît
 dans le « Mes annonces » de personne.
 
+Une seconde colonne, `postedFor`, est **validée le 2026-09-10** : le nom de la
+personne au nom de qui l'équipe publie. Quand quelqu'un appelle ou dépose un
+objet au bureau, savoir de qui il s'agit est ce qui permet la restitution. ⚠️
+Elle n'est **jamais publique** — `toPublicLostItem` ne la nomme pas, et la sonde
+de projection l'assère, exactement comme pour `resolvedAt`.
+
 ### 3.3 L'assistant de recherche
 
 Version 1 : **le modèle traduit, notre moteur cherche.** Le visiteur écrit une
@@ -192,16 +198,70 @@ peut envoyer à un collègue, un bouton retour, et la place qu'un dialogue n'a p
 pour cinq photos.
 
 Un **artefact de validation** est produit avant d'écrire la moindre ligne de
-refonte. C'est l'étape F7, et c'est le pilote de son lot.
+refonte. C'est l'étape F7, et c'est le pilote de son lot. Il a été livré et relu
+; trois arbitrages en sont sortis le **2026-09-10** :
 
-### 3.5 Le module Événements
+- **Le vert profond est retenu.** La barre latérale passe d'un vert moyen à un
+  vert quasi noir (`#0f2118`). C'est un retrait partiel de la phase 3, assumé :
+  un aplat moyen sur 216 px sature l'œil et prive l'orange de sa force, alors
+  que l'orange est ce qui désigne le travail à faire. Le vert de marque reste,
+  comme aplat d'action et comme encre.
+- **La colonne `postedFor` est retenue** — voir §3.2.
+- **L'action en lot est retenue**, et vaut donc sa route d'écriture côté API.
+  Elle devient l'étape **F18**.
+
+L'artefact a aussi servi de mesure, et il a trouvé deux défauts qui n'étaient
+dans aucune demande : §3.5 et §3.6.
+
+### 3.5 Le sélecteur de période ne filtre rien
+
+`DateRangePicker` est monté sur quatre pages. Sur le **tableau de bord**, la
+plage choisie va dans un `useState` que personne ne relit : elle ne part ni au
+loader, ni dans l'URL, ni à l'API. Le sélecteur est **décoratif**.
+
+Ce qui est cohérent, puisque `getDashboardStats()` ne prend aucun argument : la
+fenêtre est écrite en dur, `INTERVAL '30 days'`, répétée dans les dix requêtes
+brutes du domaine `reporting`. La comparaison aux trente jours précédents existe
+déjà dans ce SQL — elle n'est simplement **jamais dite à l'écran**, si bien
+qu'un « +8 % » ne renseigne sur rien.
+
+Sur Commandes, Stickers et Utilisateurs il filtre, mais **en mémoire, sur le
+paquet déjà chargé**. Combiné au plafond de §3.6, c'est le pire des deux : le
+paquet porte les lignes les plus **récentes**, donc demander une période
+ancienne vide le tableau, et l'opérateur conclut qu'il ne s'est rien passé.
+
+⚠️ Rendre l'intervalle paramétrable veut dire toucher ces dix `$queryRaw`, les
+seules requêtes du dépôt **non couvertes** faute de Postgres en CI. Ce n'est pas
+une ligne de loader.
+
+Deux décisions d'interface en découlent, à tenir : chaque écart **nomme sa
+référence**, et la file « à traiter » est **exclue** du filtre de période — une
+annonce en attente l'est aujourd'hui, pas « sur les trois derniers mois ».
+Mélanger un état courant et une mesure de période est ce qui rend un tableau de
+bord illisible.
+
+### 3.6 Les listes n'atteignent pas leur deuxième page
+
+C'est ce qui fait que le lot 5 n'est pas cosmétique. **Aucun loader de l'admin
+ne lit de paramètre de page.** Chaque service écrit en dur un nombre de lignes —
+20 pour les messages de contact, 25 pour les stickers, 50 pour les annonces, les
+commandes et les notifications, 200 pour les administrateurs, 500 pour les
+utilisateurs — puis `DataTable` re-pagine ce paquet à dix lignes dans le
+navigateur. Ce qui dépasse le plafond n'existe pas pour l'opérateur, et la
+recherche ne cherche que dans ce qui est chargé.
+
+Sur la page Annonces, le total vient de l'API tandis que « publiées », « en
+attente » et « masquées » sont comptées sur le paquet : les trois nombres ne
+s'additionnent pas au total.
+
+### 3.7 Le module Événements
 
 Il est **retiré**, pas réparé. Le journal d'audit qu'il aurait dû être fait
 l'objet d'un chantier à part, plus tard, avec sa propre politique de rétention.
 Retirer le module maintenant évite de refondre une page qui n'a pas de raison
 d'exister, et allège la barre latérale que F10 va restructurer.
 
-### 3.6 Bibliothèque d'animation
+### 3.8 Bibliothèque d'animation
 
 **`motion` (motion.dev), pas GSAP.** Déclaratif, s'accorde avec le rendu
 concurrent de React 19, et `LazyMotion` permet de ne charger qu'un noyau
@@ -219,9 +279,10 @@ contraire — et alors avec une mesure, pas un avis.
 
 ### Lot 2 — Le canal équipe
 
-| Étape  | Sujet                                               | Portée                       |
-| ------ | --------------------------------------------------- | ---------------------------- |
-| **F2** | Compte système + publication admin publiée d'office | database, api, admin, client |
+| Étape   | Sujet                                            | Portée                   |
+| ------- | ------------------------------------------------ | ------------------------ |
+| **F2a** | Colonnes, compte système et route de publication | database, contracts, api |
+| **F2b** | Formulaire d'administration et badge public      | admin, client            |
 
 ### Lot 3 — La conversation sur une annonce
 
@@ -239,13 +300,14 @@ contraire — et alors avec une mesure, pas un avis.
 
 ### Lot 5 — Refonte de l'administration
 
-| Étape   | Sujet                                | Portée    |
-| ------- | ------------------------------------ | --------- |
-| **F7**  | Artefact de validation _(pilote)_    | —         |
-| **F8**  | Identité visuelle                    | admin, ui |
-| **F9**  | Densité des listes et barre d'outils | admin     |
-| **F10** | Navigation, recherche et palette ⌘K  | admin     |
-| **F11** | Fiches de détail en routes dédiées   | admin     |
+| Étape   | Sujet                                | Portée     |
+| ------- | ------------------------------------ | ---------- |
+| **F7**  | Artefact de validation _(pilote)_    | —          |
+| **F8**  | Identité visuelle                    | admin, ui  |
+| **F9**  | Densité des listes et barre d'outils | admin      |
+| **F10** | Navigation, recherche et palette ⌘K  | admin      |
+| **F11** | Fiches de détail en routes dédiées   | admin      |
+| **F18** | Sélection multiple et action en lot  | api, admin |
 
 ### Lot 6 — Animations
 
@@ -265,11 +327,16 @@ contraire — et alors avec une mesure, pas un avis.
 
 ### Chemin critique
 
-`F1` et `F2` sont indépendants de tout et peuvent partir en parallèle. `F3`
-précède `F4` et `F5`, qui sont indépendants l'un de l'autre. `F6` précède le lot
-5, pour ne pas refondre une page destinée à disparaître. `F7` précède `F8`,
-`F9`, `F10` et `F11`. `F12` précède `F13` et `F14`. `F15` précède `F16`, qui
-précède `F17`.
+`F1` et `F2a` sont indépendants de tout. `F2a` précède `F2b`. `F3` précède `F4`
+et `F5`, qui sont indépendants l'un de l'autre. `F6` précède le lot 5, pour ne
+pas refondre une page destinée à disparaître. `F7` est livré et précède `F8`,
+`F9`, `F10`, `F11` et `F18`. `F18` vient après `F9`, qui installe la barre
+d'outils partagée où la sélection vit. `F12` précède `F13` et `F14`. `F15`
+précède `F16`, qui précède `F17`.
+
+⚠️ **F18 porte sa numérotation, pas son rang.** Comme `R33` et `R34` dans le
+plan de refonte, elle a été décidée après le découpage : elle appartient au lot
+5 et s'ouvre à sa place, pas en dernier.
 
 Le lot 7 gagne à venir en dernier : il coûte de l'argent par requête, et il vaut
 mieux le brancher sur une base stable.
@@ -326,7 +393,7 @@ plus les deux valeurs. La chaîne complète est verte.
 
 ### Lot 2 — Le canal équipe
 
-#### F2 — Compte système et publication administrateur
+#### F2a — Colonnes, compte système et route de publication
 
 **Objectif.** Un administrateur publie une annonce depuis l'administration ;
 elle apparaît dans `/posts` immédiatement, badgée « Équipe RetrouveCI ».
@@ -334,6 +401,10 @@ elle apparaît dans `/posts` immédiatement, badgée « Équipe RetrouveCI ».
 **Base de données.**
 
 - Colonne `official Boolean @default(false)` sur `LostItem`.
+- Colonne `postedFor String?` sur `LostItem` — le nom de la personne au nom de
+  qui l'équipe publie. ⚠️ **Jamais publique.** `toPublicLostItem` ne la nomme
+  pas, et la sonde de projection compare les clés émises, donc l'omission est
+  asserée et non pas espérée.
 - Compte système seedé par `SeederService`, à côté de `seedSuperAdmin` et
   `seedMockUser` : `seedSystemAccount`. Son identité (nom affiché, numéro
   WhatsApp de l'équipe) vient de l'environnement, avec la même règle que le
@@ -345,9 +416,13 @@ elle apparaît dans `/posts` immédiatement, badgée « Équipe RetrouveCI ».
   la sonde de projection : c'est une information publique voulue, pas un effet
   de bord.
 - Une route d'écriture réservée aux administrateurs. Elle réutilise
-  `createLostItemSchema` — même formulaire, mêmes règles — sans `stickerCode`
+  `lostItemFieldsSchema` — mêmes champs, mêmes règles — **sans** `stickerCode`
   (un sticker se résout contre les jetons du posteur, ce qui n'a pas de sens
-  ici).
+  ici) et **avec** `postedFor`, borné comme un nom. ⚠️ Zod 4 lève sur
+  `.extend()` au-dessus d'un objet raffiné : dériver depuis
+  `lostItemFieldsSchema`, qui ne porte pas la règle, puis attacher
+  `pushLostItemWriteIssues` — l'ordre que `createLostItemSchema` suit déjà, et
+  pour cette raison.
 - Elle **ne passe pas** par `CreateLostItemUseCase` tel quel : celui-ci lève
   `listing_pending` et laisse l'annonce en `PENDING`. Deux voies possibles, à
   trancher à l'implémentation et à consigner ici :
@@ -357,6 +432,16 @@ elle apparaît dans `/posts` immédiatement, badgée « Équipe RetrouveCI ».
     un drapeau qui change à la fois le statut, la notification et le
     déclenchement du rapprochement est trois décisions cachées dans un booléen.
 - La route tombe dans la classe « admin-only » de `write-routes.spec.ts`.
+
+**Recette de F2a.** Un `POST` administrateur crée une ligne `PUBLISHED`,
+`official: true`, propriétaire = compte système. Aucune notification
+`listing_pending` n'est levée. Le rapprochement tourne. `GET /lost-items` émet
+`official` et **n'émet pas** `postedFor`. La garde des routes d'écriture reste
+verte.
+
+---
+
+#### F2b — Formulaire d'administration et badge public
 
 **Administration.** Un formulaire de publication reprenant **les mêmes champs,
 le même contrat et le même ordre** que celui du client — mais **d'un seul bloc,
@@ -370,12 +455,10 @@ Le contact est pré-rempli avec celui de l'équipe et reste modifiable — l'éq
 publie parfois pour quelqu'un qui veut être joint directement. Pas de
 `stickerCode` : un code se résout contre les jetons de son propriétaire.
 
-⚠️ **Un champ est proposé et n'existe pas dans le contrat** : « déposée pour »,
-le nom de la personne au nom de qui l'équipe publie. Quand quelqu'un appelle ou
-dépose un objet au bureau, savoir de qui il s'agit aide à la restitution. C'est
-une colonne de plus, et il faudrait décider qu'elle n'est **jamais** publique —
-donc l'omettre de `toPublicLostItem` délibérément, pas par oubli. À trancher
-avant d'ouvrir l'étape ; par défaut, **on ne l'ajoute pas**.
+Le champ « déposée pour » est présent, et l'écran dit ce que la publication
+déclenche : publiée aussitôt, rapprochement lancé, badge Équipe, **aucune**
+notification au bureau, **aucun** sticker à lier. Un opérateur ne doit pas avoir
+à deviner qu'il court-circuite la file de modération.
 
 **Client.** Un badge « Équipe RetrouveCI » sur la carte et sur le détail. Rien
 d'autre : c'est une annonce ordinaire, et la §2.3 dit qu'elle le reste.
@@ -384,7 +467,7 @@ d'autre : c'est une annonce ordinaire, et la §2.3 dit qu'elle le reste.
 `/administrators` ni `/users`. Le vérifier côté serveur, pas seulement en
 masquant un bouton.
 
-**Recette.** Une annonce publiée depuis l'administration est visible sans
+**Recette de F2b.** Une annonce publiée depuis l'administration est visible sans
 modération, badgée, comptée dans les compteurs publics, et déclenche un
 rapprochement. Elle n'apparaît dans le « Mes annonces » d'aucun compte humain.
 Le bureau ne reçoit pas de notification « annonce en attente ».
@@ -472,7 +555,7 @@ sa propre étape et sa propre politique de rétention.
 
 ### Lot 5 — Refonte de l'administration _(à détailler avant ouverture)_
 
-#### F7 — Artefact de validation _(pilote)_
+#### F7 — Artefact de validation _(pilote — **livré le 2026-09-10**)_
 
 Un canevas multi-plans présentant la direction retenue, à valider avant toute
 ligne de code : tableau de bord, une liste dense avec sa barre d'outils, une
@@ -494,8 +577,26 @@ tourne.
 
 #### F11 — Fiches de détail en routes dédiées
 
-`posts`, `orders`, `qr`, et alignement de `users` qui a déjà sa route. Les
-dialogues d'**action** restent des dialogues.
+`posts`, `orders`, `qr`, `contact-messages`, et alignement de `users` qui a déjà
+sa route. Trois routes sont à créer, deux existent. Les dialogues d'**action**
+restent des dialogues.
+
+#### F18 — Sélection multiple et action en lot
+
+Décidée après le découpage, elle appartient au lot 5 et s'ouvre après `F9`, qui
+installe la barre d'outils où la sélection vit.
+
+Ce que l'étape doit trancher : quelles actions méritent le lot (publier des
+annonces en attente, marquer des messages traités, faire avancer des commandes),
+et la forme de la route d'écriture — une route par domaine, ou une route qui
+prend une liste d'identifiants et une décision.
+
+⚠️ Trois choses à ne pas perdre de vue. La route tombe dans
+`write-routes.spec.ts` comme les autres. Une modération en lot passe par
+`ModerateLostItemUseCase`, qui ne notifie **que** sur une transition réelle —
+donc republier vingt annonces déjà publiées ne doit pas envoyer vingt
+notifications. Et un lot partiellement en échec doit dire **lesquelles** ont
+abouti : un « 3 sur 8 » muet est pire que l'absence de la fonction.
 
 ---
 
