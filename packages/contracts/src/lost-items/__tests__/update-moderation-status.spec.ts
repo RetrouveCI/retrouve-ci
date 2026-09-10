@@ -103,7 +103,10 @@ describe('the enumerations the two fronts used to declare themselves', () => {
 		expect(lostItemCategorySchema.safeParse(category).success).toBe(true)
 	})
 
-	it('carries the nine categories the client lists', () => {
-		expect(LOST_ITEM_CATEGORIES).toHaveLength(9)
+	// A literal, on purpose: every other case here derives its expectation from
+	// the constant, so removing a category would move both sides and leave the
+	// suite green. `clothing` and `jewelry` were dropped, taking it from 9 to 7.
+	it('carries the seven categories the client lists', () => {
+		expect(LOST_ITEM_CATEGORIES).toHaveLength(7)
 	})
 })

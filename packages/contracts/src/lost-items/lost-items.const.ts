@@ -6,8 +6,6 @@ export const LOST_ITEM_CATEGORIES = [
 	'wallet',
 	'bag',
 	'electronics',
-	'clothing',
-	'jewelry',
 	'documents',
 	'other',
 ] as const

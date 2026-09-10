@@ -98,8 +98,6 @@ const CATEGORY_TO_PRISMA: Record<LostItemCategory, PrismaLostItemCategory> = {
 	wallet: PrismaLostItemCategory.WALLET,
 	bag: PrismaLostItemCategory.BAG,
 	electronics: PrismaLostItemCategory.ELECTRONICS,
-	clothing: PrismaLostItemCategory.CLOTHING,
-	jewelry: PrismaLostItemCategory.JEWELRY,
 	documents: PrismaLostItemCategory.DOCUMENTS,
 	other: PrismaLostItemCategory.OTHER,
 }
@@ -110,8 +108,6 @@ const CATEGORY_TO_DOMAIN: Record<PrismaLostItemCategory, LostItemCategory> = {
 	WALLET: 'wallet',
 	BAG: 'bag',
 	ELECTRONICS: 'electronics',
-	CLOTHING: 'clothing',
-	JEWELRY: 'jewelry',
 	DOCUMENTS: 'documents',
 	OTHER: 'other',
 }

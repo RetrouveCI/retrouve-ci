@@ -9,8 +9,6 @@ import {
 	Wallet,
 	Briefcase,
 	Laptop,
-	Shirt,
-	Gem,
 	FileText,
 	Package,
 } from 'lucide-react'
@@ -30,8 +28,6 @@ const CATEGORIES: Record<
 	wallet: { label: 'Portefeuille', plural: 'Portefeuilles', icon: Wallet },
 	bag: { label: 'Sac', plural: 'Sacs', icon: Briefcase },
 	electronics: { label: 'Électronique', plural: 'Électronique', icon: Laptop },
-	clothing: { label: 'Vêtement', plural: 'Vêtements', icon: Shirt },
-	jewelry: { label: 'Bijoux', plural: 'Bijoux', icon: Gem },
 	documents: { label: 'Documents', plural: 'Documents', icon: FileText },
 	other: { label: 'Autre', plural: 'Autres', icon: Package },
 }

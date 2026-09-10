@@ -96,7 +96,7 @@ describe('dashboardLoader', () => {
 	})
 
 	// The type catches a missing label; this catches what it cannot — a casing
-	// drift, which would fall through and show a French admin `JEWELRY`.
+	// drift, which would fall through and show a French admin `ELECTRONICS`.
 	it('has a French label for every category the contract knows', async () => {
 		apiFetch.mockResolvedValue(
 			statsResponse({
