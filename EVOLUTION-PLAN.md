@@ -358,9 +358,24 @@ elle apparaît dans `/posts` immédiatement, badgée « Équipe RetrouveCI ».
     déclenchement du rapprochement est trois décisions cachées dans un booléen.
 - La route tombe dans la classe « admin-only » de `write-routes.spec.ts`.
 
-**Administration.** Un formulaire de publication, calqué sur celui du client. Le
-contact est pré-rempli avec celui de l'équipe et reste modifiable — l'équipe
-publie parfois pour quelqu'un qui veut être joint directement.
+**Administration.** Un formulaire de publication reprenant **les mêmes champs,
+le même contrat et le même ordre** que celui du client — mais **d'un seul bloc,
+pas en trois étapes**. Le découpage public existe parce que le formulaire est
+fait pour un pouce sur un téléphone (voir `REFONTE-PLAN.md`, R18) ; au bureau,
+avec un clavier et un grand écran, il n'ajoute que des clics. Chaque section
+porte le numéro de l'étape publique dont elle vient, pour que les deux
+formulaires restent lisibles l'un par l'autre.
+
+Le contact est pré-rempli avec celui de l'équipe et reste modifiable — l'équipe
+publie parfois pour quelqu'un qui veut être joint directement. Pas de
+`stickerCode` : un code se résout contre les jetons de son propriétaire.
+
+⚠️ **Un champ est proposé et n'existe pas dans le contrat** : « déposée pour »,
+le nom de la personne au nom de qui l'équipe publie. Quand quelqu'un appelle ou
+dépose un objet au bureau, savoir de qui il s'agit aide à la restitution. C'est
+une colonne de plus, et il faudrait décider qu'elle n'est **jamais** publique —
+donc l'omettre de `toPublicLostItem` délibérément, pas par oubli. À trancher
+avant d'ouvrir l'étape ; par défaut, **on ne l'ajoute pas**.
 
 **Client.** Un badge « Équipe RetrouveCI » sur la carte et sur le détail. Rien
 d'autre : c'est une annonce ordinaire, et la §2.3 dit qu'elle le reste.
