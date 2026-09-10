@@ -23,6 +23,17 @@ became one — but it stays the reference for _why_ a screen is the way it is.
 Read its §2 before touching any screen — it holds the interface and flow
 invariants every step is reviewed against.
 
+A **mobile app is planned but not started**: there is no `apps/mobile`, and the
+one that existed on a `mobile-app` branch in June 2026 was removed and is no
+longer recoverable here. Its plan is [`MOBILE-PLAN.md`](MOBILE-PLAN.md) — an
+Expo app reproducing a Claude Design prototype against **this same API**. Read
+its **§4 before writing any mobile screen**: the prototype is a mock, and on
+five points it promises what the API does not do (a 4-digit OTP where
+`OTP_LENGTH` is 6, an `RC-XXX-XXX` sticker code where the API mints
+`RCI-XXXXXX`, two of three pack prices, a mobile-money step where stickers are
+paid to the courier, and a coupon the browser applies itself). Where the
+prototype and a contract disagree, the **contract wins**.
+
 ## Commands
 
 All commands are run from the repo root using pnpm and Turborepo.
