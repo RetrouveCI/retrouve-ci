@@ -11,25 +11,12 @@ import {
 	ResponsiveContainer,
 } from 'recharts'
 import { ChartTooltip } from './chart-tooltip'
-
-const SCANS_COLOR = '#1E7F43'
-const ACTIVATIONS_COLOR = '#F57C00'
+import { LegendDot } from './chart-legend-dot'
+import { ACTIVATIONS_COLOR, ACTIVITY_CHART, SCANS_COLOR } from './chart-meta'
 
 interface ActivityChartProps {
 	data: { date: string; scans: number; activations: number }[] | undefined
 	className?: string
-}
-
-function LegendDot({ color, label }: { color: string; label: string }) {
-	return (
-		<span className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-			<span
-				className="h-2.5 w-2.5 rounded-full"
-				style={{ backgroundColor: color }}
-			/>
-			{label}
-		</span>
-	)
 }
 
 export function ActivityChart({ data, className }: ActivityChartProps) {
@@ -42,15 +29,16 @@ export function ActivityChart({ data, className }: ActivityChartProps) {
 		<Card className={cn('overflow-hidden', className)}>
 			<CardHeader className="flex flex-row items-center justify-between gap-4 pb-2">
 				<CardTitle className="text-base font-semibold">
-					Activité des 30 derniers jours
+					{ACTIVITY_CHART.title}
 				</CardTitle>
 				<div className="flex items-center gap-4">
-					<LegendDot color={SCANS_COLOR} label="Scans" />
-					<LegendDot color={ACTIVATIONS_COLOR} label="Activations" />
+					{ACTIVITY_CHART.legend.map(entry => (
+						<LegendDot key={entry.label} {...entry} />
+					))}
 				</div>
 			</CardHeader>
 			<CardContent className="pb-4">
-				<ResponsiveContainer width="100%" height={300}>
+				<ResponsiveContainer width="100%" height={ACTIVITY_CHART.height}>
 					<AreaChart
 						data={data}
 						margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
