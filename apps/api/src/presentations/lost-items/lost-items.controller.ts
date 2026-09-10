@@ -12,12 +12,14 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import {
 	adminListLostItemsFilterSchema,
 	createLostItemSchema,
+	createOfficialLostItemSchema,
 	listLostItemsFilterSchema,
 	myLostItemsFilterSchema,
 	updateLostItemSchema,
 	updateModerationStatusSchema,
 	type AdminListLostItemsFilterData,
 	type CreateLostItemData,
+	type CreateOfficialLostItemData,
 	type ListLostItemsFilterData,
 	type MyLostItemsFilterData,
 	type UpdateLostItemData,
@@ -33,6 +35,7 @@ import type { UserSession } from '@thallesp/nestjs-better-auth'
 import type { Auth } from '@/infrastructures/auth/auth.config'
 import type { ListLostItemsFilter } from '@/domains/lost-items/types/lost-item.types'
 import { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-lost-item.use-case'
+import { CreateOfficialLostItemUseCase } from '@/domains/lost-items/use-cases/create-official-lost-item.use-case'
 import { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
 import { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
 import { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
@@ -54,6 +57,7 @@ import { LOST_ITEM_PER_USER } from '@/shared/rate-limit/rate-limit.policy'
 export class LostItemsController {
 	constructor(
 		private readonly createLostItemUseCase: CreateLostItemUseCase,
+		private readonly createOfficialLostItemUseCase: CreateOfficialLostItemUseCase,
 		private readonly viewLostItemUseCase: ViewLostItemUseCase,
 		private readonly contactLostItemPosterUseCase: ContactLostItemPosterUseCase,
 		private readonly getPaginatedLostItemsUseCase: GetPaginatedLostItemsUseCase,
@@ -82,6 +86,31 @@ export class LostItemsController {
 			eventDate: new Date(data.eventDate),
 			userId: session.user.id,
 		})
+	}
+
+	/**
+	 * The team's own publication. Admin-only, and it is the one write that comes
+	 * out `published`: an operator filing a listing at the desk is the moderation
+	 * decision. No `AccountBudget` ceiling — that one bounds a flood of visitor
+	 * listings by spending the moderation queue, which this route does not use;
+	 * what bounds this one is `@Roles`.
+	 */
+	@Post('official')
+	@Roles(['admin'])
+	@ApiZodBody(createOfficialLostItemSchema)
+	async createOfficial(
+		@Body(new ZodValidationPipe(createOfficialLostItemSchema))
+		data: CreateOfficialLostItemData,
+	) {
+		const lostItem = await this.createOfficialLostItemUseCase.execute({
+			...data,
+			eventDate: new Date(data.eventDate),
+		})
+
+		// Born published, and publication is the only moment matching runs.
+		await this.matchingDispatcher.dispatch(lostItem.id)
+
+		return lostItem
 	}
 
 	@Get()

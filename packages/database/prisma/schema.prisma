@@ -218,6 +218,12 @@ model LostItem {
   resolvedAt           DateTime?
   views                Int               @default(0)
   contactsCount        Int               @default(0)
+  /// Published by the team rather than by a visitor. Carried to the public
+  /// projection on purpose: it is what the badge reads.
+  official             Boolean           @default(false)
+  /// Who the team published on behalf of. Never public — the projection
+  /// withholds it, and its spec asserts the omission.
+  postedFor            String?
   userId               String
   user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   qrTokens             QrToken[]

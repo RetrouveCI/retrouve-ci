@@ -24,6 +24,7 @@ const PUBLIC_FIELDS = [
 	'resolutionStatus',
 	'views',
 	'contactsCount',
+	'official',
 	'createdAt',
 	'updatedAt',
 ] as const
@@ -38,6 +39,9 @@ const WITHHELD = {
 	// A5 counts this in aggregate; no public screen reads one listing's day.
 	// A Date, so the greppable form is the one JSON writes.
 	resolvedAt: new Date('2019-03-07T11:22:33.000Z'),
+	// The desk's note on a team listing: it names a third party who never
+	// asked to appear on an indexable page.
+	postedFor: 'Konan Aya, venue au bureau',
 } satisfies Partial<Record<keyof LostItem, string | Date>>
 
 const withheldFields = Object.keys(WITHHELD) as (keyof typeof WITHHELD)[]
