@@ -15,77 +15,8 @@ import {
 import { cn } from '@app/ui/utils'
 import { useAuth } from '@/context/auth'
 import { useDashboard } from '@/context/dashboard'
-import type { LayoutCounts } from '@/shared/types/dashboard'
-import {
-	LayoutDashboard,
-	Users,
-	QrCode,
-	FileText,
-	Activity,
-	LogOut,
-	Menu,
-	Shield,
-	Package,
-	Bell,
-	Mail,
-	PanelLeftClose,
-	PanelLeftOpen,
-	type LucideIcon,
-} from 'lucide-react'
-
-interface MenuItem {
-	to: string
-	icon: LucideIcon
-	label: string
-	exact?: boolean
-	badgeKey?: keyof LayoutCounts
-}
-
-interface MenuSection {
-	label?: string
-	items: MenuItem[]
-}
-
-// The F7 artefact's order: what an operator comes for first, then the work
-// queues, then the rest.
-const menuSections: MenuSection[] = [
-	{
-		items: [
-			{ to: '/', icon: LayoutDashboard, label: 'Tableau de bord', exact: true },
-			{
-				to: '/notifications',
-				icon: Bell,
-				label: 'Notifications',
-				badgeKey: 'notificationsUnread',
-			},
-		],
-	},
-	{
-		label: 'Modération',
-		items: [
-			{ to: '/posts', icon: FileText, label: 'Annonces' },
-			{ to: '/contact-messages', icon: Mail, label: 'Messages' },
-		],
-	},
-	{
-		label: 'Opérations',
-		items: [
-			{ to: '/qr', icon: QrCode, label: 'Stickers & QR' },
-			{ to: '/orders', icon: Package, label: 'Commandes' },
-		],
-	},
-	{
-		label: 'Communauté',
-		items: [
-			{ to: '/users', icon: Users, label: 'Utilisateurs' },
-			{ to: '/events', icon: Activity, label: 'Événements' },
-		],
-	},
-	{
-		label: 'Système',
-		items: [{ to: '/administrators', icon: Shield, label: 'Administrateurs' }],
-	},
-]
+import { LogOut, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { NAV_SECTIONS, type NavItem } from '@/shared/constants/navigation'
 
 function SidebarItem({
 	item,
@@ -93,7 +24,7 @@ function SidebarItem({
 	badge,
 	onItemClick,
 }: {
-	item: MenuItem
+	item: NavItem
 	collapsed: boolean
 	badge: number
 	onItemClick?: () => void
@@ -205,7 +136,7 @@ function SidebarContent({
 					collapsed ? 'px-2' : 'px-3',
 				)}
 			>
-				{menuSections.map((section, index) => (
+				{NAV_SECTIONS.map((section, index) => (
 					<div key={section.label ?? `section-${index}`}>
 						{section.label && !collapsed && (
 							<p className="text-sidebar-foreground/50 mb-2 px-3 text-[11px] font-medium tracking-wider uppercase">

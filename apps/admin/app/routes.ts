@@ -22,6 +22,8 @@ export default [
 		route('administrators', 'routes/dashboard/administrators/_index.tsx'),
 		route('profile', 'routes/dashboard/profile/_index.tsx'),
 	]),
+	// A resource route: no component, read by the ⌘K palette.
+	route('palette', 'routes/dashboard/palette/servers/palette.loader.ts'),
 	layout('routes/auth/layout.tsx', [
 		route('login', 'routes/auth/login/_index.tsx'),
 		route('forgot-password', 'routes/auth/forgot-password/_index.tsx'),
