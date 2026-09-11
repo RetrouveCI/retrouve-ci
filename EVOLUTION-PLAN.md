@@ -605,7 +605,31 @@ dialogue et ce qui devient une page), et le degré de vert dans la coquille — 
 teintes oklch actuelles n'ont jamais été vérifiées visuellement dans une app qui
 tourne.
 
-#### F8 — Identité visuelle
+#### F8 — Identité visuelle _(livré — #254)_
+
+Détaillée à l'ouverture, d'après l'artefact F7 :
+
+- **La barre latérale passe au vert profond** (`#0f2118`, `#0a120d` en sombre).
+  L'élément actif est un aplat à peine plus clair marqué d'un trait **vert** :
+  l'orange ne désigne plus la page courante, il est rendu aux compteurs, en
+  encre sombre.
+- **Le fond tire vers le vert** (`#fbfbf9` / `#0e120f`), et le thème sombre
+  prend ses propres marches — surface, sourdine, bordure — au lieu d'hériter des
+  gris froids du paquet partagé. Tout vit dans `apps/admin/app/app.css` : les
+  jetons de `packages/ui` sont aussi ceux du client, et ne bougent pas.
+- **La navigation prend l'ordre de l'artefact** : tableau de bord et
+  notifications en tête, puis Modération, Opérations, Communauté, Système. «
+  Événements » y reste jusqu'à F6.
+- **L'interface parle français partout** : « Tableau de bord », « Annonces », «
+  Stickers & QR », « Administrateur », et l'onglet « Console RetrouveCI ».
+- **Le compteur de la barre supérieure passe du rouge à l'orange** : le rouge
+  dit une erreur, l'orange ce qui attend quelqu'un.
+
+Laissés à leur étape : la barre d'outils et la densité (F9), la palette et la
+recherche (F10), les fiches en route (F11), et le tableau de bord qui ouvre sur
+le travail avec son sélecteur de période (§3.5, qui touche les dix `$queryRaw`).
+Les pastilles de travail en attente sur la navigation restent « à valider » :
+chacune demande un compteur côté API.
 
 #### F9 — Densité des listes et barre d'outils partagée
 
