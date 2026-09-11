@@ -13,9 +13,8 @@ const STICKER_STATES: Record<QrTokenStatus, string> = {
 }
 
 /**
- * Orders, stickers and messages go to their list narrowed by the search, since
- * they have no detail route yet (F11); stickers and people have one. Listings
- * are left out until their list reads a search (F9c).
+ * Every hit opens its own page. Listings are left out until their list reads a
+ * search (F9c) and their page is a route (F11b).
  */
 export async function searchPalette(
 	query: string,
@@ -30,7 +29,7 @@ export async function searchPalette(
 				id: order.id,
 				label: `Commande ${order.orderNumber}`,
 				detail: `${order.packName} · ${order.deliveryCity}`,
-				to: `/orders?q=${encodeURIComponent(order.orderNumber)}`,
+				to: `/orders/${encodeURIComponent(order.id)}`,
 			})),
 		),
 		listQrTokens(slice, request).then(({ items }) =>
@@ -48,7 +47,7 @@ export async function searchPalette(
 				id: message.id,
 				label: `${message.name} — ${message.subject}`,
 				detail: 'message',
-				to: `/contact-messages?q=${encodeURIComponent(query)}`,
+				to: `/contact-messages/${encodeURIComponent(message.id)}`,
 			})),
 		),
 		searchUsers(request, query, PALETTE_RESULTS_PER_KIND).then(users =>

@@ -27,6 +27,17 @@ export async function listOrders(
 	)
 }
 
+/** Through the desk's own route: `/sticker-orders/:id` answers the buyer alone. */
+export async function getOrder(
+	id: string,
+	request: Request,
+): Promise<StickerOrder> {
+	return apiFetch<StickerOrder>(
+		`/sticker-orders/admin/${encodeURIComponent(id)}`,
+		{ request },
+	)
+}
+
 export async function updateOrderStatus(
 	id: string,
 	status: OrderStatus,
