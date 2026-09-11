@@ -9,15 +9,17 @@ import type { MarkAllNotificationsAsReadUseCase } from '@/domains/notifications/
 import type { MarkNotificationAsReadUseCase } from '@/domains/notifications/use-cases/mark-notification-as-read.use-case'
 import type { SubscribeToPushUseCase } from '@/domains/notifications/use-cases/subscribe-to-push.use-case'
 import type { UnsubscribeFromPushUseCase } from '@/domains/notifications/use-cases/unsubscribe-from-push.use-case'
+import { DeskNotificationsForbiddenError } from '@/domains/notifications/errors/notification.errors'
 import { NotificationsController } from '../notifications.controller'
 
 function buildUseCase<T>(): T {
 	return { execute: vi.fn() } as unknown as T
 }
 
-const session = { user: { id: 'user-1' } } as Parameters<
-	NotificationsController['listMine']
->[0]
+type Caller = Parameters<NotificationsController['listMine']>[0]
+
+const session = { user: { id: 'user-1' } } as Caller
+const administrator = { user: { id: 'admin-1', role: 'admin' } } as Caller
 
 describe('NotificationsController', () => {
 	let getMyNotifications: GetMyNotificationsUseCase
@@ -87,13 +89,13 @@ describe('NotificationsController', () => {
 
 	describe('listMine', () => {
 		it.each([
-			['public', VISITOR],
-			['admin', DESK],
-		] as const)('scopes a %s listing to %j', async (audience, scope) => {
+			['public', session, VISITOR],
+			['admin', administrator, DESK],
+		] as const)('scopes a %s listing', async (audience, caller, scope) => {
 			const response = { items: [], total: 0, page: 1, pageSize: 20 }
 			vi.mocked(getMyNotifications.execute).mockResolvedValue(response as never)
 
-			const result = await controller.listMine(session, audience, {
+			const result = await controller.listMine(caller, audience, {
 				page: 1,
 				pageSize: 20,
 			})
@@ -118,7 +120,7 @@ describe('NotificationsController', () => {
 		it("counts the desk's, not the administrator's own", async () => {
 			vi.mocked(getUnreadCount.execute).mockResolvedValue(1)
 
-			await controller.getUnreadCount(session, 'admin')
+			await controller.getUnreadCount(administrator, 'admin')
 
 			expect(getUnreadCount.execute).toHaveBeenCalledWith(DESK)
 		})
@@ -126,13 +128,16 @@ describe('NotificationsController', () => {
 
 	describe('markAllAsRead', () => {
 		it.each([
-			['public', VISITOR],
-			['admin', DESK],
-		] as const)('marks only what %s can see', async (audience, scope) => {
-			await controller.markAllAsRead(session, audience)
+			['public', session, VISITOR],
+			['admin', administrator, DESK],
+		] as const)(
+			'marks only what %s can see',
+			async (audience, caller, scope) => {
+				await controller.markAllAsRead(caller, audience)
 
-			expect(markAllAsRead.execute).toHaveBeenCalledWith(scope)
-		})
+				expect(markAllAsRead.execute).toHaveBeenCalledWith(scope)
+			},
+		)
 	})
 
 	describe('markAsRead', () => {
@@ -151,6 +156,24 @@ describe('NotificationsController', () => {
 				scope: VISITOR,
 			})
 			expect(result).toEqual(notification)
+		})
+	})
+
+	// Every visitor holds a password account and can sign in to the backoffice's
+	// instance with it: the audience alone must not open the desk's queue.
+	describe('a backoffice session without the role', () => {
+		it('reads nothing of the desk', () => {
+			expect(() =>
+				controller.listMine(session, 'admin', { page: 1, pageSize: 20 }),
+			).toThrow(DeskNotificationsForbiddenError)
+			expect(getMyNotifications.execute).not.toHaveBeenCalled()
+		})
+
+		it('marks nothing of the desk read', () => {
+			expect(() => controller.markAllAsRead(session, 'admin')).toThrow(
+				DeskNotificationsForbiddenError,
+			)
+			expect(markAllAsRead.execute).not.toHaveBeenCalled()
 		})
 	})
 })
