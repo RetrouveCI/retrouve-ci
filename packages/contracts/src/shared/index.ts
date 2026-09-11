@@ -1,3 +1,4 @@
+export * from './batch'
 export * from './calendar-date'
 export * from './locations'
 export * from './name'

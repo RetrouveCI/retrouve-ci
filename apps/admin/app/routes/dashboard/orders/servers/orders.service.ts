@@ -1,3 +1,5 @@
+import type { BatchUpdateStickerOrderStatusData } from '@app/contracts/sticker-orders'
+import type { BatchOutcome } from '@app/contracts/shared'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type {
 	OrderStatus,
@@ -46,6 +48,18 @@ export async function updateOrderStatus(
 	return apiFetch<StickerOrder>(`/sticker-orders/${id}/status`, {
 		method: 'PATCH',
 		body: JSON.stringify({ status }),
+		request,
+	})
+}
+
+/** Moving a selection forward. The API runs them one at a time and says which. */
+export async function updateOrderStatusBatch(
+	body: BatchUpdateStickerOrderStatusData,
+	request: Request,
+): Promise<BatchOutcome> {
+	return apiFetch<BatchOutcome>('/sticker-orders/status/batch', {
+		method: 'PATCH',
+		body: JSON.stringify(body),
 		request,
 	})
 }

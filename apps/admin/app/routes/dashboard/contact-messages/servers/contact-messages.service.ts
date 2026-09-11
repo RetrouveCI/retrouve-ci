@@ -1,9 +1,23 @@
+import type { BatchUpdateContactMessageStatusData } from '@app/contracts/contact-messages'
+import type { BatchOutcome } from '@app/contracts/shared'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type {
 	ContactMessage,
 	ContactMessageListResponse,
 	ContactMessageStatus,
 } from '../types/contact-messages.types'
+
+/** Archiving a selection. The API runs them one at a time and says which. */
+export async function updateContactMessageStatusBatch(
+	body: BatchUpdateContactMessageStatusData,
+	request: Request,
+): Promise<BatchOutcome> {
+	return apiFetch<BatchOutcome>('/contact-messages/status/batch', {
+		method: 'PATCH',
+		body: JSON.stringify(body),
+		request,
+	})
+}
 
 export async function listContactMessages(
 	params: {

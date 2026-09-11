@@ -16,6 +16,7 @@ import {
 import { MODERATION_CONFIG, MODERATION_REASON_LABELS } from '../../posts.const'
 import type { postsAction } from '../../servers/posts.action'
 import type { ModerationStatus, Post } from '../../types/posts.types'
+import { isBatchOutcome } from '@/shared/helpers/batch-report'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 
@@ -37,8 +38,9 @@ export function PostModerationCard({ post }: { post: Post }) {
 			return
 		}
 
+		// The page's action serves the list's selection too, so it answers a union.
 		const moderated = result.data
-		if (moderated)
+		if (moderated && !isBatchOutcome(moderated))
 			toast.success(MODERATION_CONFIG[moderated.moderationStatus].label)
 	})
 

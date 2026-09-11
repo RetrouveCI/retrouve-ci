@@ -439,6 +439,69 @@ describe('LostItemsController', () => {
 		})
 	})
 
+	describe('moderateBatch', () => {
+		const outcome = (becamePublished: boolean) => ({
+			lostItem: buildLostItem({ moderationStatus: 'published' }),
+			becamePublished,
+		})
+
+		it('is restricted to admins', () => {
+			expect(Reflect.getMetadata('ROLES', controller.moderateBatch)).toEqual([
+				'admin',
+			])
+		})
+
+		// Through the single use-case, which is what keeps the guarantee that a
+		// listing already published notifies nobody and is not searched again.
+		it('publishes each id through the same use-case', async () => {
+			vi.mocked(moderateLostItem.execute).mockResolvedValue(outcome(true))
+
+			const result = await controller.moderateBatch({
+				ids: ['a', 'b'],
+				moderationStatus: 'published',
+			})
+
+			expect(moderateLostItem.execute).toHaveBeenCalledTimes(2)
+			expect(moderateLostItem.execute).toHaveBeenCalledWith({
+				id: 'a',
+				moderationStatus: 'published',
+			})
+			expect(result).toEqual({ succeeded: ['a', 'b'], failed: [] })
+		})
+
+		it('searches only for the listings that actually became published', async () => {
+			vi.mocked(moderateLostItem.execute)
+				.mockResolvedValueOnce(outcome(true))
+				.mockResolvedValueOnce(outcome(false))
+
+			await controller.moderateBatch({
+				ids: ['a', 'b'],
+				moderationStatus: 'published',
+			})
+
+			expect(matchingDispatcher.dispatch).toHaveBeenCalledTimes(1)
+			expect(matchingDispatcher.dispatch).toHaveBeenCalledWith('a')
+		})
+
+		// A row deleted in another tab must not take the rest of the batch down.
+		it('names the one that failed and keeps the others', async () => {
+			vi.mocked(moderateLostItem.execute)
+				.mockResolvedValueOnce(outcome(true))
+				.mockRejectedValueOnce(new Error('Annonce introuvable'))
+				.mockResolvedValueOnce(outcome(true))
+
+			const result = await controller.moderateBatch({
+				ids: ['a', 'b', 'c'],
+				moderationStatus: 'published',
+			})
+
+			expect(result).toEqual({
+				succeeded: ['a', 'c'],
+				failed: [{ id: 'b', reason: 'Annonce introuvable' }],
+			})
+		})
+	})
+
 	describe('updateModerationStatus', () => {
 		it('is restricted to admins', () => {
 			expect(

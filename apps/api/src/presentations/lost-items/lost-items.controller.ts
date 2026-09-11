@@ -11,6 +11,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import {
 	adminListLostItemsFilterSchema,
+	batchModerateLostItemsSchema,
 	createLostItemSchema,
 	createOfficialLostItemSchema,
 	listLostItemsFilterSchema,
@@ -18,6 +19,7 @@ import {
 	updateLostItemSchema,
 	updateModerationStatusSchema,
 	type AdminListLostItemsFilterData,
+	type BatchModerateLostItemsData,
 	type CreateLostItemData,
 	type CreateOfficialLostItemData,
 	type ListLostItemsFilterData,
@@ -47,6 +49,7 @@ import { ContactLostItemPosterUseCase } from '@/domains/lost-items/use-cases/con
 import { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
 import { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { settleBatch } from '@/shared/utils/batch.util'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 import { MatchingDispatcher } from '@/infrastructures/queue/matching-dispatcher.service'
 import { AccountBudget } from '@/shared/rate-limit/account-budget.service'
@@ -201,6 +204,29 @@ export class LostItemsController {
 		}
 
 		return lostItem
+	}
+
+	/**
+	 * Publishing a selection, one listing at a time through the same use-case as
+	 * the single decision — which is what keeps the guarantee that a listing
+	 * already published notifies nobody and is not searched again. A row that
+	 * refuses leaves the others alone, and the answer names it.
+	 */
+	@Patch('moderation/batch')
+	@Roles(['admin'])
+	@ApiZodBody(batchModerateLostItemsSchema)
+	async moderateBatch(
+		@Body(new ZodValidationPipe(batchModerateLostItemsSchema))
+		{ ids, moderationStatus }: BatchModerateLostItemsData,
+	) {
+		return settleBatch(ids, async id => {
+			const { becamePublished } = await this.moderateLostItemUseCase.execute({
+				id,
+				moderationStatus,
+			})
+
+			if (becamePublished) await this.matchingDispatcher.dispatch(id)
+		})
 	}
 
 	@Get(':id')

@@ -121,6 +121,47 @@ describe('StickerOrdersController', () => {
 		})
 	})
 
+	describe('updateStatusBatch', () => {
+		it('is restricted to admins', () => {
+			expect(
+				Reflect.getMetadata('ROLES', controller.updateStatusBatch),
+			).toEqual(['admin'])
+		})
+
+		// Through the single use-case, so each buyer's notice stays right and an
+		// order already in that status still tells nobody.
+		it('moves each id through the same use-case', async () => {
+			vi.mocked(updateStickerOrderStatus.execute).mockResolvedValue({} as never)
+
+			const result = await controller.updateStatusBatch({
+				ids: ['a', 'b'],
+				status: 'shipped',
+			})
+
+			expect(updateStickerOrderStatus.execute).toHaveBeenCalledWith({
+				id: 'a',
+				status: 'shipped',
+			})
+			expect(result).toEqual({ succeeded: ['a', 'b'], failed: [] })
+		})
+
+		it('names the one that failed and keeps the others', async () => {
+			vi.mocked(updateStickerOrderStatus.execute)
+				.mockRejectedValueOnce(new Error('Commande introuvable'))
+				.mockResolvedValueOnce({} as never)
+
+			const result = await controller.updateStatusBatch({
+				ids: ['a', 'b'],
+				status: 'processing',
+			})
+
+			expect(result).toEqual({
+				succeeded: ['b'],
+				failed: [{ id: 'a', reason: 'Commande introuvable' }],
+			})
+		})
+	})
+
 	describe('updateStatus', () => {
 		it('is restricted to admins', () => {
 			expect(Reflect.getMetadata('ROLES', controller.updateStatus)).toEqual([

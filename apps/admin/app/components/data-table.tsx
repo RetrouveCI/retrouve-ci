@@ -6,6 +6,7 @@ import {
 	TableHeader,
 	TableRow,
 	Button,
+	Checkbox,
 	Input,
 	Select,
 	SelectContent,
@@ -42,6 +43,18 @@ interface DataTableProps<TData, TValue> {
 	 * URL. Without it the table pages what it was given, in the browser.
 	 */
 	pagination?: { page: number; pageSize: number; total: number }
+	/**
+	 * Row selection, for the pages that act on several rows at once. Controlled
+	 * by the page, because what the selection is *for* lives there — and because
+	 * a batch that has just run must be able to clear it.
+	 */
+	selection?: {
+		selected: string[]
+		onChange: (ids: string[]) => void
+		idOf: (row: TData) => string
+		/** What one row is called, for the checkbox nobody sees but a reader. */
+		label: (row: TData) => string
+	}
 }
 
 export function DataTable<TData, TValue>({
@@ -51,15 +64,22 @@ export function DataTable<TData, TValue>({
 	searchPlaceholder = 'Rechercher...',
 	pageSize = 10,
 	pagination,
+	selection,
 }: DataTableProps<TData, TValue>) {
 	const { density } = useTableDensity()
 	const [sorting, setSorting] = useState<SortingState>([])
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 	const [globalFilter, setGlobalFilter] = useState('')
 
+	// The selection column is the table's, not the caller's: every page that
+	// selects wants the same header box and the same per-row box.
+	const allColumns = selection
+		? [selectionColumn<TData, TValue>(selection, data), ...columns]
+		: columns
+
 	const table = useReactTable({
 		data,
-		columns,
+		columns: allColumns,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: pagination ? undefined : getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
@@ -135,7 +155,7 @@ export function DataTable<TData, TValue>({
 						) : (
 							<TableRow>
 								<TableCell
-									colSpan={columns.length}
+									colSpan={allColumns.length}
 									className="text-muted-foreground h-24 text-center"
 								>
 									Aucun résultat trouvé.
@@ -209,4 +229,62 @@ function ClientPager<TData>({
 			</div>
 		</div>
 	)
+}
+
+interface Selection<TData> {
+	selected: string[]
+	onChange: (ids: string[]) => void
+	idOf: (row: TData) => string
+	label: (row: TData) => string
+}
+
+/**
+ * The header box ticks the page, not the base: what is off screen is not what
+ * the operator looked at, and a batch acts on what was looked at. It shows
+ * indeterminate rather than checked when only some rows are ticked, so the box
+ * never claims more than it holds.
+ */
+function selectionColumn<TData, TValue>(
+	selection: Selection<TData>,
+	rows: TData[],
+): ColumnDef<TData, TValue> {
+	const onPage = rows.map(selection.idOf)
+	const pickedOnPage = onPage.filter(id => selection.selected.includes(id))
+	const all = onPage.length > 0 && pickedOnPage.length === onPage.length
+
+	return {
+		id: 'select',
+		size: 32,
+		header: () => (
+			<Checkbox
+				aria-label="Tout sélectionner sur cette page"
+				checked={all ? true : pickedOnPage.length > 0 ? 'indeterminate' : false}
+				onCheckedChange={checked =>
+					selection.onChange(
+						checked === true
+							? [...new Set([...selection.selected, ...onPage])]
+							: selection.selected.filter(id => !onPage.includes(id)),
+					)
+				}
+			/>
+		),
+		cell: ({ row }) => {
+			const id = selection.idOf(row.original)
+			const picked = selection.selected.includes(id)
+
+			return (
+				<Checkbox
+					aria-label={selection.label(row.original)}
+					checked={picked}
+					onCheckedChange={checked =>
+						selection.onChange(
+							checked === true
+								? [...selection.selected, id]
+								: selection.selected.filter(other => other !== id),
+						)
+					}
+				/>
+			)
+		},
+	}
 }

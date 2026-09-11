@@ -90,6 +90,45 @@ describe('ContactMessagesController', () => {
 		})
 	})
 
+	describe('updateStatusBatch', () => {
+		it('is restricted to admins', () => {
+			expect(
+				Reflect.getMetadata('ROLES', controller.updateStatusBatch),
+			).toEqual(['admin'])
+		})
+
+		it('archives each id through the same use-case', async () => {
+			vi.mocked(updateStatus.execute).mockResolvedValue({} as never)
+
+			const result = await controller.updateStatusBatch({
+				ids: ['a', 'b'],
+				status: 'archived',
+			})
+
+			expect(updateStatus.execute).toHaveBeenCalledWith({
+				id: 'a',
+				status: 'archived',
+			})
+			expect(result).toEqual({ succeeded: ['a', 'b'], failed: [] })
+		})
+
+		it('names the one that failed and keeps the others', async () => {
+			vi.mocked(updateStatus.execute)
+				.mockResolvedValueOnce({} as never)
+				.mockRejectedValueOnce(new Error('Message introuvable'))
+
+			const result = await controller.updateStatusBatch({
+				ids: ['a', 'b'],
+				status: 'archived',
+			})
+
+			expect(result).toEqual({
+				succeeded: ['a'],
+				failed: [{ id: 'b', reason: 'Message introuvable' }],
+			})
+		})
+	})
+
 	describe('updateStatus', () => {
 		it('is restricted to admins', () => {
 			expect(Reflect.getMetadata('ROLES', controller.updateStatus)).toEqual([

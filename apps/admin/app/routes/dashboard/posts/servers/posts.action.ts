@@ -2,20 +2,43 @@ import { rootError, zodErrorToFieldErrors } from '@/shared/helpers/form'
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import type { ActionResult } from '@/shared/types/action'
 import { withApiOperationData } from '@/shared/utils/api-operation'
-import { updateModerationStatusSchema } from '@app/contracts/lost-items'
+import {
+	batchModerateLostItemsSchema,
+	updateModerationStatusSchema,
+} from '@app/contracts/lost-items'
+import type { BatchOutcome } from '@app/contracts/shared'
 import type { Post } from '../types/posts.types'
-import { moderatePost } from './posts.service'
+import { moderatePost, moderatePostsBatch } from './posts.service'
 
 export async function postsAction({
 	request,
 }: {
 	request: Request
-}): Promise<ActionResult<Post>> {
+}): Promise<ActionResult<Post | BatchOutcome>> {
 	await requireAdminSession(request)
 
 	const formData = await request.formData()
 	const intent = String(formData.get('intent') ?? '')
 	const id = String(formData.get('id') ?? '')
+
+	// The selection posts to the same action: one page, one fetcher shape.
+	if (intent === 'moderate-batch') {
+		const parsed = batchModerateLostItemsSchema.safeParse({
+			ids: formData.getAll('ids').map(String),
+			moderationStatus: formData.get('moderationStatus') ?? undefined,
+		})
+
+		if (!parsed.success) {
+			return { success: false, errors: zodErrorToFieldErrors(parsed.error) }
+		}
+
+		return withApiOperationData(
+			() => moderatePostsBatch(parsed.data, request),
+			{
+				redirectOnUnauthorized: '/login',
+			},
+		)
+	}
 
 	if (intent !== 'moderate') return rootError('Intent inconnu')
 	if (!id) return rootError('ID manquant')

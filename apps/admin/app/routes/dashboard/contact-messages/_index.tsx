@@ -1,7 +1,10 @@
 import { Link } from 'react-router'
+import { toast } from 'sonner'
+import type { FieldValues } from 'react-hook-form'
 import { Badge, Button } from '@app/ui/components'
 import { CONTACT_MESSAGE_STATUSES } from '@app/contracts/contact-messages'
 import { BentoCard } from '@/components/bento-card'
+import { BatchBar } from '@/components/batch-bar'
 import { DataTable } from '@/components/data-table'
 import { DensityToggle } from '@/components/density-toggle'
 import { ListToolbar } from '@/components/list-toolbar'
@@ -15,11 +18,23 @@ import type {
 	ContactMessageStatus,
 } from './types/contact-messages.types'
 import { contactMessagesLoader } from './servers/contact-messages.loader'
+import { contactMessagesAction } from './servers/contact-messages.action'
+import {
+	batchMessage,
+	batchSucceeded,
+	isBatchOutcome,
+} from '@/shared/helpers/batch-report'
+import { usePageSelection } from '@/shared/hooks/use-page-selection'
+import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
+import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
+import type { BatchOutcome } from '@app/contracts/shared'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
 
-// Reading and archiving happen on the message's own page now.
+// Reading and archiving one message happen on its own page; the list keeps
+// the action for what a selection archives at once.
 export const loader = contactMessagesLoader
+export const action = contactMessagesAction
 
 export const handle: RouteHandle = { title: 'Messages de contact' }
 
@@ -42,6 +57,36 @@ export default function ContactMessagesPage({
 	loaderData,
 }: Route.ComponentProps) {
 	const { messages, total, page, pageSize, counts } = loaderData
+	const [selected, setSelected] = usePageSelection()
+
+	const batchFetcher = useActionFetcher<
+		typeof contactMessagesAction,
+		FieldValues,
+		BatchOutcome
+	>()
+
+	useSettledSubmission(batchFetcher.response, result => {
+		if (!result.success) {
+			toast.error(
+				result.errors?.root?.message ?? 'Impossible d’archiver la sélection',
+			)
+			return
+		}
+
+		const outcome = result.data
+		if (!isBatchOutcome(outcome)) return
+
+		const message = batchMessage(outcome, {
+			one: 'message archivé',
+			many: 'messages archivés',
+		})
+
+		if (batchSucceeded(outcome)) toast.success(message)
+		else toast.error(message)
+
+		// What stays ticked is what did not go through.
+		setSelected(outcome.failed.map(item => item.id))
+	})
 
 	const columns: ColumnDef<ContactMessage>[] = [
 		{
@@ -120,11 +165,31 @@ export default function ContactMessagesPage({
 				>
 					<DensityToggle />
 				</ListToolbar>
+				<BatchBar
+					selected={selected}
+					onClear={() => setSelected([])}
+					action="Archiver la sélection"
+					confirmTitle={`Archiver ${selected.length} message${selected.length > 1 ? 's' : ''} ?`}
+					confirmBody="Ils quittent la file de traitement. Rien n’est envoyé à leurs expéditeurs, et ils restent consultables par le filtre « Archivés »."
+					submitting={batchFetcher.isSubmitting}
+					onConfirm={() =>
+						batchFetcher.submit(
+							{ intent: 'archive-batch', ids: selected },
+							{ method: 'post' },
+						)
+					}
+				/>
 				<div className="p-4">
 					<DataTable
 						columns={columns}
 						data={messages}
 						pagination={{ page, pageSize, total }}
+						selection={{
+							selected,
+							onChange: setSelected,
+							idOf: message => message.id,
+							label: message => `Sélectionner « ${message.subject} »`,
+						}}
 					/>
 				</div>
 			</BentoCard>
