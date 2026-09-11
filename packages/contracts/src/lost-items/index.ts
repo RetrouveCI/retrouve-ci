@@ -1,6 +1,7 @@
 export * from './lost-items.const'
 export * from './enums.schema'
 export * from './documents.schema'
+export * from './document-fields'
 export * from './create.schema'
 export * from './create-official.schema'
 export * from './list-filter.schema'

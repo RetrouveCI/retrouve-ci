@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Controller, useForm, useWatch } from 'react-hook-form'
+import { Controller, useController, useForm, useWatch } from 'react-hook-form'
+import type { Control } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
 import { toast } from 'sonner'
 import {
@@ -8,6 +9,7 @@ import {
 	CheckCircle2,
 	ImagePlus,
 	Loader2,
+	Pencil,
 	Search,
 	X,
 } from 'lucide-react'
@@ -22,6 +24,7 @@ import {
 	Field,
 	FieldError,
 	FieldLabel,
+	Input,
 	Select,
 	SelectContent,
 	SelectItem,
@@ -30,18 +33,25 @@ import {
 } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
 import {
-	DOCUMENT_TYPES,
+	DOCUMENT_FIELDS,
+	DOCUMENT_TYPE_OPTIONS,
 	LOST_ITEM_CATEGORIES,
 	MAX_PHOTOS,
 	refusesPhotos,
+	type DocumentIssuerSpec,
 } from '@app/contracts/lost-items'
+import {
+	ABIDJAN_COMMUNES,
+	CI_VILLES,
+	COMMUNE_CITY,
+} from '@app/contracts/shared'
 import {
 	FormInputField,
 	FormRootError,
 	FormTextareaField,
 } from '@app/ui/components/form'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
-import { CATEGORY_LABELS, DOCUMENT_TYPE_LABELS } from '../../posts.const'
+import { CATEGORY_LABELS } from '../../posts.const'
 import type { Post } from '../../types/posts.types'
 import {
 	newPostSchema,
@@ -106,6 +116,92 @@ function Section({
 	)
 }
 
+/** Cannot collide with an institution's name, unlike a literal « Autre ». */
+const OTHER_ISSUER = '__other__'
+
+/** A shortcut list for the usual institutions, free text for every other. */
+function IssuerField({
+	control,
+	spec,
+}: {
+	control: Control<NewPostInput, unknown, NewPostData>
+	spec: DocumentIssuerSpec
+}) {
+	const { field, fieldState } = useController({
+		control,
+		name: 'documentIssuer',
+	})
+	const { options } = spec
+	const [isFree, setIsFree] = useState(
+		() => !options || (!!field.value && !options.includes(field.value)),
+	)
+
+	return (
+		<Field data-invalid={fieldState.invalid}>
+			<div className="flex items-baseline justify-between gap-3">
+				<FieldLabel htmlFor="documentIssuer">{spec.label}</FieldLabel>
+				{options && isFree && (
+					<button
+						type="button"
+						onClick={() => {
+							setIsFree(false)
+							field.onChange('')
+						}}
+						className="text-primary-green-text text-xs font-semibold"
+					>
+						Choisir dans la liste
+					</button>
+				)}
+			</div>
+			{options && !isFree ? (
+				<Select
+					value={field.value ?? ''}
+					onValueChange={value => {
+						if (!value) return
+
+						if (value === OTHER_ISSUER) {
+							setIsFree(true)
+							field.onChange('')
+							return
+						}
+
+						field.onChange(value)
+					}}
+					onOpenChange={open => !open && field.onBlur()}
+				>
+					<SelectTrigger
+						id="documentIssuer"
+						className="w-full"
+						aria-invalid={fieldState.invalid}
+					>
+						<SelectValue placeholder={spec.placeholder} />
+					</SelectTrigger>
+					<SelectContent>
+						{options.map(option => (
+							<SelectItem key={option} value={option}>
+								{option}
+							</SelectItem>
+						))}
+						<SelectItem value={OTHER_ISSUER}>
+							<Pencil className="h-3.5 w-3.5" />
+							Autre — je saisis le nom
+						</SelectItem>
+					</SelectContent>
+				</Select>
+			) : (
+				<Input
+					{...field}
+					id="documentIssuer"
+					value={field.value ?? ''}
+					placeholder={spec.placeholder}
+					aria-invalid={fieldState.invalid}
+				/>
+			)}
+			{fieldState.error && <FieldError errors={[fieldState.error]} />}
+		</Field>
+	)
+}
+
 function Note({ children }: { children: React.ReactNode }) {
 	return <p className="text-muted-foreground -mt-2 text-xs">{children}</p>
 }
@@ -132,6 +228,19 @@ export function NewPostForm() {
 	const isDocument = category === 'documents'
 	const [carriesPiece, setCarriesPiece] = useState(false)
 	const showPiece = isDocument || carriesPiece
+
+	// The public form's rules: a new city clears the commune, a new piece its
+	// number and its issuer — so those handlers reach another field.
+	const ville = useController({ control: form.control, name: 'ville' })
+	const commune = useController({ control: form.control, name: 'commune' })
+	const documentType = useController({
+		control: form.control,
+		name: 'documentType',
+	})
+	const hasCommunes = ville.field.value === COMMUNE_CITY
+	const spec = documentType.field.value
+		? DOCUMENT_FIELDS[documentType.field.value]
+		: null
 
 	const [files, setFiles] = useState<File[]>([])
 	const [photoError, setPhotoError] = useState<string | null>(null)
@@ -306,53 +415,72 @@ export function NewPostForm() {
 						hint="Le nom du titulaire est ce qui pèse le plus dans le rapprochement."
 					>
 						<div className="grid gap-4 sm:grid-cols-2">
-							<Controller
-								control={form.control}
-								name="documentType"
-								render={({ field, fieldState }) => (
-									<Field data-invalid={fieldState.invalid}>
-										<FieldLabel htmlFor={field.name}>Type de pièce</FieldLabel>
-										<Select
-											value={field.value ?? ''}
-											onValueChange={field.onChange}
-											onOpenChange={open => !open && field.onBlur()}
-										>
-											<SelectTrigger
-												id={field.name}
-												aria-invalid={fieldState.invalid}
-											>
-												<SelectValue placeholder="Choisir un type" />
-											</SelectTrigger>
-											<SelectContent>
-												{DOCUMENT_TYPES.map(value => (
-													<SelectItem key={value} value={value}>
-														{DOCUMENT_TYPE_LABELS[value]}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										{fieldState.error && (
-											<FieldError errors={[fieldState.error]} />
-										)}
-									</Field>
+							<Field data-invalid={documentType.fieldState.invalid}>
+								<FieldLabel htmlFor="documentType">Type de pièce</FieldLabel>
+								<Select
+									value={documentType.field.value ?? ''}
+									// Radix answers once with an empty value as it mounts a `Select`
+									// that starts with none; the public form guards the same way.
+									onValueChange={value => {
+										if (!value || value === documentType.field.value) return
+
+										documentType.field.onChange(value)
+										// A bank card's digits are not a policy number, and a bank is
+										// not an insurer: neither carries over.
+										form.setValue('documentNumber', '')
+										form.setValue('documentIssuer', '')
+									}}
+									onOpenChange={open => !open && documentType.field.onBlur()}
+								>
+									<SelectTrigger
+										id="documentType"
+										className="w-full"
+										aria-invalid={documentType.fieldState.invalid}
+									>
+										<SelectValue placeholder="Sélectionnez la pièce" />
+									</SelectTrigger>
+									<SelectContent>
+										{DOCUMENT_TYPE_OPTIONS.map(option => (
+											<SelectItem key={option.value} value={option.value}>
+												{option.label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								{documentType.fieldState.error && (
+									<FieldError errors={[documentType.fieldState.error]} />
 								)}
-							/>
-							<FormInputField
-								control={form.control}
-								name="documentHolderName"
-								label="Nom du titulaire"
-							/>
-							<FormInputField
-								control={form.control}
-								name="documentNumber"
-								label="Numéro (optionnel)"
-							/>
-							<FormInputField
-								control={form.control}
-								name="documentIssuer"
-								label="Émetteur (optionnel)"
-								placeholder="ONECI, préfecture…"
-							/>
+							</Field>
+							{spec && (
+								<>
+									<FormInputField
+										control={form.control}
+										name="documentHolderName"
+										label="Nom du titulaire"
+										placeholder="Ex : KOUASSI Jean"
+										required
+									/>
+									<FormInputField
+										control={form.control}
+										name="documentNumber"
+										label={spec.number.label}
+										placeholder={spec.number.placeholder}
+										inputMode={
+											documentType.field.value === 'bank_card'
+												? 'numeric'
+												: undefined
+										}
+									/>
+									{/* Keyed on the piece, so the shortcut list re-seeds with it. */}
+									{spec.issuer && (
+										<IssuerField
+											key={documentType.field.value}
+											control={form.control}
+											spec={spec.issuer}
+										/>
+									)}
+								</>
+							)}
 						</div>
 						<Note>
 							Le numéro n’est jamais affiché publiquement : il sert au
@@ -422,17 +550,67 @@ export function NewPostForm() {
 					hint="Étape 2 du formulaire public"
 				>
 					<div className="grid gap-4 sm:grid-cols-3">
-						<FormInputField
-							control={form.control}
-							name="ville"
-							label="Ville"
-							required
-						/>
-						<FormInputField
-							control={form.control}
-							name="commune"
-							label="Commune ou quartier"
-						/>
+						<Field data-invalid={ville.fieldState.invalid}>
+							<FieldLabel htmlFor="ville">
+								Ville <span className="text-destructive">*</span>
+							</FieldLabel>
+							<Select
+								value={ville.field.value ?? ''}
+								// Radix answers once with an empty value as it mounts; taken
+								// at face value it reads as « the city changed ».
+								onValueChange={value => {
+									if (!value || value === ville.field.value) return
+
+									ville.field.onChange(value)
+									commune.field.onChange('')
+								}}
+								onOpenChange={open => !open && ville.field.onBlur()}
+							>
+								<SelectTrigger
+									id="ville"
+									className="w-full"
+									aria-invalid={ville.fieldState.invalid}
+								>
+									<SelectValue placeholder="Sélectionnez une ville" />
+								</SelectTrigger>
+								<SelectContent>
+									{CI_VILLES.map(city => (
+										<SelectItem key={city} value={city}>
+											{city}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							{ville.fieldState.error && (
+								<FieldError errors={[ville.fieldState.error]} />
+							)}
+						</Field>
+						<Field>
+							<FieldLabel htmlFor="commune">Commune (facultatif)</FieldLabel>
+							<Select
+								value={commune.field.value ?? ''}
+								onValueChange={value => value && commune.field.onChange(value)}
+								onOpenChange={open => !open && commune.field.onBlur()}
+								disabled={!hasCommunes}
+							>
+								<SelectTrigger id="commune" className="w-full">
+									<SelectValue
+										placeholder={
+											hasCommunes
+												? 'Sélectionnez une commune'
+												: 'Abidjan seulement'
+										}
+									/>
+								</SelectTrigger>
+								<SelectContent>
+									{ABIDJAN_COMMUNES.map(name => (
+										<SelectItem key={name} value={name}>
+											{name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</Field>
 						<FormInputField
 							control={form.control}
 							name="eventDate"
