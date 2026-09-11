@@ -1,17 +1,18 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
+import { Button } from '@app/ui/components'
+import { Download } from 'lucide-react'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
-import { useRevalidator, useSearchParams } from 'react-router'
+import { useRevalidator } from 'react-router'
 import { BentoCard } from '@/components/bento-card'
-import { UsersStatsGrid } from './components/users-stats-grid'
-import { UsersFilters } from './components/users-filters'
+import { DensityToggle } from '@/components/density-toggle'
+import { ListToolbar } from '@/components/list-toolbar'
 import { UsersTable } from './components/users-table'
 import { usersLoader } from './servers/users.loader'
 import { usersAction } from './servers/users.action'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
-import type { DateRange } from 'react-day-picker'
 import type { User } from './types/users.types'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
@@ -22,10 +23,8 @@ export const action = usersAction
 export const handle: RouteHandle = { title: 'Utilisateurs' }
 
 export default function UsersPage({ loaderData }: Route.ComponentProps) {
-	const { users, total, statusFilter } = loaderData
+	const { users, total, page, pageSize } = loaderData
 	const revalidator = useRevalidator()
-	const [searchParams, setSearchParams] = useSearchParams()
-	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
 	const fetcher = useActionFetcher<typeof usersAction>()
 	// The page knows what it asked: the action has no business echoing it back.
 	const asked = useRef<'ban' | 'unban'>('ban')
@@ -42,13 +41,6 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 		if (result.errors?.root?.message) toast.error(result.errors.root.message)
 	})
 
-	const handleStatusFilter = (value: string) => {
-		const next = new URLSearchParams(searchParams)
-		if (value === 'all') next.delete('status')
-		else next.set('status', value)
-		setSearchParams(next)
-	}
-
 	const handleToggleBan = (user: User) => {
 		asked.current = user.status === 'active' ? 'ban' : 'unban'
 		fetcher.submit(
@@ -57,17 +49,7 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 		)
 	}
 
-	let filtered = users
-	if (dateRange?.from) {
-		filtered = filtered.filter(u => {
-			const d = new Date(u.createdAt)
-			return d >= dateRange.from! && (!dateRange.to || d <= dateRange.to)
-		})
-	}
-
-	const active = users.filter(u => u.status === 'active').length
-	const inactive = users.filter(u => u.status === 'inactive').length
-
+	// The page on screen, and said so: the list is paged on the server now.
 	const handleExportCSV = () => {
 		const headers = [
 			'ID',
@@ -77,7 +59,7 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 			'Statut',
 			"Date d'inscription",
 		]
-		const rows = filtered.map(u => [
+		const rows = users.map(u => [
 			u.id,
 			u.name,
 			u.email,
@@ -100,18 +82,17 @@ export default function UsersPage({ loaderData }: Route.ComponentProps) {
 		<>
 			<div>
 				<div className="space-y-4 p-4 lg:p-6">
-					<UsersStatsGrid total={total} active={active} inactive={inactive} />
 					<BentoCard variant="table">
-						<UsersFilters
-							statusFilter={statusFilter}
-							dateRange={dateRange}
-							onStatusFilterChange={handleStatusFilter}
-							onDateRangeChange={setDateRange}
-							onExportCSV={handleExportCSV}
-						/>
+						<ListToolbar searchPlaceholder="Nom, ou numéro de téléphone…">
+							<DensityToggle />
+							<Button variant="outline" size="sm" onClick={handleExportCSV}>
+								<Download className="mr-2 h-4 w-4" /> Exporter la page
+							</Button>
+						</ListToolbar>
 						<div className="p-4">
 							<UsersTable
-								data={filtered}
+								data={users}
+								pagination={{ page, pageSize, total }}
 								onToggleBan={handleToggleBan}
 								isBusy={fetcher.state !== 'idle'}
 							/>

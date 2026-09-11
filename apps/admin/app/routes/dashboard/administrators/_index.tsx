@@ -24,9 +24,10 @@ import {
 	AlertDialogTitle,
 } from '@app/ui/components'
 import { BentoCard } from '@/components/bento-card'
+import { DensityToggle } from '@/components/density-toggle'
+import { ListToolbar } from '@/components/list-toolbar'
 import { DataTable } from '@/components/data-table'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
-import { AdminStatsGrid } from './components/admin-stats-grid'
 import { AdminCreateDialog } from './components/admin-create-dialog'
 import { AdminRoleDialog } from './components/admin-role-dialog'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
@@ -80,9 +81,8 @@ const ROLE_CONFIG: Record<
 export default function AdministratorsPage({
 	loaderData,
 }: Route.ComponentProps) {
-	const { admins } = loaderData
+	const { admins, total, page, pageSize } = loaderData
 
-	const [statusFilter, setStatusFilter] = useState<string>('all')
 	const [createOpen, setCreateOpen] = useState(false)
 	const [roleTarget, setRoleTarget] = useState<Admin | null>(null)
 	const [deleteTarget, setDeleteTarget] = useState<Admin | null>(null)
@@ -192,17 +192,6 @@ export default function AdministratorsPage({
 			{ intent: 'reset-password', email: resetTarget.email },
 			{ method: 'post' },
 		)
-	}
-
-	const filtered =
-		statusFilter === 'all'
-			? admins
-			: admins.filter(a => a.status === statusFilter)
-
-	const counts = {
-		total: admins.length,
-		active: admins.filter(a => a.status === 'active').length,
-		superAdmins: admins.filter(a => a.role === 'super_admin').length,
 	}
 
 	const columns: ColumnDef<Admin>[] = [
@@ -329,34 +318,18 @@ export default function AdministratorsPage({
 		<>
 			<div>
 				<div className="space-y-4 p-4 lg:p-6">
-					<AdminStatsGrid
-						total={counts.total}
-						active={counts.active}
-						superAdmins={counts.superAdmins}
-					/>
-
 					<BentoCard variant="table">
-						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
-							<Select value={statusFilter} onValueChange={setStatusFilter}>
-								<SelectTrigger className="h-9 w-40">
-									<SelectValue placeholder="Statut" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">Tous</SelectItem>
-									<SelectItem value="active">Actifs</SelectItem>
-									<SelectItem value="inactive">Inactifs</SelectItem>
-								</SelectContent>
-							</Select>
+						<ListToolbar searchPlaceholder="Nom, ou e-mail…">
+							<DensityToggle />
 							<Button size="sm" onClick={() => setCreateOpen(true)}>
 								<Plus className="mr-2 h-4 w-4" /> Ajouter un admin
 							</Button>
-						</div>
+						</ListToolbar>
 						<div className="p-4">
 							<DataTable
 								columns={columns}
-								data={filtered}
-								searchKey="name"
-								searchPlaceholder="Rechercher par nom..."
+								data={admins}
+								pagination={{ page, pageSize, total }}
 							/>
 						</div>
 					</BentoCard>
