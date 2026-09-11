@@ -1056,6 +1056,16 @@ Identical to the client app conventions above, with these admin-specific notes:
   `packages/auth`, so a `moderator` is refused server-side whatever the UI
   offers. `list-users` is called with a hard `limit`, which is a ceiling, not
   pagination.
+- **A list pages on the server** (F9a: orders, stickers, contact messages). Its
+  loader reads `page`, `pageSize` and `q` through
+  `shared/helpers/list-params.ts`, asks the API for that page alone, and counts
+  each status with `countByStatus` — one `pageSize=1` probe per status, so the
+  chips and the stats grid add up to the total rather than counting the rows on
+  screen; a counter it cannot read comes back `null` and the grid hides. A page
+  past the end redirects to the last one. `ListToolbar` writes the filter and
+  the search into the URL and returns to page 1; `DataTable`'s `pagination` prop
+  hands its footer to `ListPager`. Table density is the `table_density` cookie,
+  read by the layout's loader like the sidebar's collapse.
 - The unread notification count comes from
   `routes/dashboard/servers/dashboard.loader.ts`, the dashboard layout's loader,
   which hands it to `DashboardProvider` as a `counts` prop;

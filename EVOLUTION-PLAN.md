@@ -633,6 +633,38 @@ chacune demande un compteur côté API.
 
 #### F9 — Densité des listes et barre d'outils partagée
 
+Détaillée à l'ouverture, d'après l'artefact F7, et **coupée en trois PR**, une
+par groupe de listes, pour qu'aucune ne soit illisible :
+
+- **F9a** _(livré — #255)_ — le socle, sur Commandes, Stickers et Messages.
+- **F9b** — Notifications, Utilisateurs et Administrateurs, qui passent par
+  `list-users` de better-auth.
+- **F9c** — Annonces, après F4 : F4 réécrit cette page, la toucher avant
+  l'aurait fait entrer en conflit.
+
+Le socle : le loader lit `page`, `pageSize` et `q`, et demande **une page** à
+l'API. Les compteurs viennent de l'API — une sonde `pageSize=1` par statut —
+donc les pastilles et la grille s'additionnent au total, au lieu de compter les
+lignes à l'écran (§3.6). `ListToolbar` écrit le filtre et la recherche dans
+l'URL et revient à la première page ; `ListPager` numérote. La densité est un
+cookie lu au rendu serveur, comme le repli de la barre latérale.
+
+**Écarts mesurés en livrant F9a** (2026-09-11) :
+
+- **La recherche touche l'API**, alors que la portée dit « admin ». L'artefact
+  est net : la recherche suit le même chemin que la pagination. Or seules les
+  annonces avaient un `search` ; commandes, stickers et messages en reçoivent
+  un, borné à 100 caractères, et une recherche qui ne fouillait que les lignes
+  chargées disparaît.
+- **Le sélecteur de période quitte les listes.** Il filtrait en mémoire la page
+  chargée — « trompeur » dans l'artefact — et aucune de ces trois routes n'a de
+  filtre de date côté API. Celui du tableau de bord reste l'affaire du §3.5.
+- **Le filtre de lot des stickers devient la recherche**, qui porte aussi sur le
+  lot : il ne listait que les lots présents dans les lignes chargées.
+- **L'export CSV exporte la page affichée**, et le bouton le dit.
+- **Une grille qui ne peut pas être comptée se masque** plutôt que d'afficher
+  des zéros que personne n'a mesurés.
+
 #### F10 — Navigation, recherche et palette ⌘K
 
 `cmdk` est déjà installé.
