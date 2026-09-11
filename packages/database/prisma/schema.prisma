@@ -63,12 +63,6 @@ enum QrTokenStatus {
   REVOKED
 }
 
-enum EventStatus {
-  DRAFT
-  PUBLISHED
-  CANCELLED
-}
-
 enum StickerOrderStatus {
   PENDING
   PROCESSING
@@ -357,23 +351,6 @@ model PushSubscription {
 
   @@index([userId])
   @@map("push_subscription")
-}
-
-model Event {
-  id          String      @id @default(uuid())
-  title       String
-  description String
-  location    String
-  ville       String
-  commune     String?
-  eventDate   DateTime
-  status      EventStatus @default(DRAFT)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  @@index([status])
-  @@index([eventDate])
-  @@map("event")
 }
 
 model ContactMessage {

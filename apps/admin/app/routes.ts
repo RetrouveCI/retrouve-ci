@@ -18,7 +18,6 @@ export default [
 		route('qr', 'routes/dashboard/qr/_index.tsx'),
 		route('qr/generate', 'routes/dashboard/qr/generate/_index.tsx'),
 		route('qr/:code', 'routes/dashboard/qr/token/_index.tsx'),
-		route('events', 'routes/dashboard/events/_index.tsx'),
 		route('notifications', 'routes/dashboard/notifications/_index.tsx'),
 		route('posts', 'routes/dashboard/posts/_index.tsx'),
 		route('posts/new', 'routes/dashboard/posts/new/_index.tsx'),

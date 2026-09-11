@@ -8,7 +8,6 @@ import { SmsModule } from '@/infrastructures/sms/sms.module'
 import { SeederModule } from '@/infrastructures/seeder/seeder.module'
 import { AccountModule } from '@/presentations/auth/account.module'
 import { ContactMessagesModule } from '@/presentations/contact-messages/contact-messages.module'
-import { EventsModule } from '@/presentations/events/events.module'
 import { HealthModule } from '@/presentations/health/health.module'
 import { ListingCommentsModule } from '@/presentations/listing-comments/listing-comments.module'
 import { LostItemsModule } from '@/presentations/lost-items/lost-items.module'
@@ -33,7 +32,6 @@ import { UploadsModule } from '@/presentations/uploads/uploads.module'
 		AuthModule,
 		AccountModule,
 		ContactMessagesModule,
-		EventsModule,
 		ListingCommentsModule,
 		LostItemsModule,
 		MatchingModule,

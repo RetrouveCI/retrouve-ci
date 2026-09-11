@@ -2,13 +2,13 @@ import { matchesQuery, normalizeForSearch } from '../palette-match'
 
 describe('normalizeForSearch', () => {
 	it('drops the accents and the case', () => {
-		expect(normalizeForSearch('  Événements  ')).toBe('evenements')
+		expect(normalizeForSearch('  Modération  ')).toBe('moderation')
 	})
 })
 
 describe('matchesQuery', () => {
 	it('finds a label typed without its accents', () => {
-		expect(matchesQuery('Événements', 'evene')).toBe(true)
+		expect(matchesQuery('Modération', 'moder')).toBe(true)
 	})
 
 	it('finds a keyword as well as the label', () => {
