@@ -9,7 +9,7 @@ export interface BreadcrumbItem {
  * Route `handle` contract used by the dashboard shell to render the page
  * title and breadcrumb in the top bar. Each route exports:
  *
- *   export const handle: RouteHandle = { title: 'Posts' }
+ *   export const handle: RouteHandle = { title: 'Annonces' }
  *
  * `title` may be a function to derive the label from the route's loader data
  * (e.g. an entity name), and `breadcrumb` lists parent crumbs for deep routes.

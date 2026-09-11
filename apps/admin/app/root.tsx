@@ -29,15 +29,13 @@ export function loader({ request }: Route.LoaderArgs) {
 	return { theme: theme as 'light' | 'dark', env: publicEnv() }
 }
 
-const SITE_NAME = 'RetrouveCI Admin'
+const SITE_NAME = 'Console RetrouveCI'
 
 export function meta({ matches }: Route.MetaArgs) {
 	const { title: pageTitle } = resolveRouteMeta(matches)
-	const title = pageTitle
-		? `${pageTitle} | ${SITE_NAME}`
-		: `${SITE_NAME} - Backoffice`
+	const title = pageTitle ? `${pageTitle} | ${SITE_NAME}` : SITE_NAME
 	const description =
-		'Administration de la plateforme RetrouveCI - Gestion des QR codes, utilisateurs et posts'
+		'Administration de la plateforme RetrouveCI - Gestion des QR codes, utilisateurs et annonces'
 
 	return [
 		{ title },

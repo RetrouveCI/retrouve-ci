@@ -1,8 +1,9 @@
 import { z } from 'zod'
-import { paginationQuerySchema } from '../shared/pagination'
+import { listSearchSchema, paginationQuerySchema } from '../shared/pagination'
 import { qrTokenStatusSchema } from './status.schema'
 
 export const listQrTokensFilterSchema = paginationQuerySchema.extend({
+	search: listSearchSchema.optional(),
 	status: qrTokenStatusSchema.optional(),
 })
 

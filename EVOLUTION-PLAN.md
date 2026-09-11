@@ -670,19 +670,114 @@ dialogue et ce qui devient une page), et le degré de vert dans la coquille — 
 teintes oklch actuelles n'ont jamais été vérifiées visuellement dans une app qui
 tourne.
 
-#### F8 — Identité visuelle
+#### F8 — Identité visuelle _(livré — #254)_
+
+Détaillée à l'ouverture, d'après l'artefact F7 :
+
+- **La barre latérale passe au vert profond** (`#0f2118`, `#0a120d` en sombre).
+  L'élément actif est un aplat à peine plus clair marqué d'un trait **vert** :
+  l'orange ne désigne plus la page courante, il est rendu aux compteurs, en
+  encre sombre.
+- **Le fond tire vers le vert** (`#fbfbf9` / `#0e120f`), et le thème sombre
+  prend ses propres marches — surface, sourdine, bordure — au lieu d'hériter des
+  gris froids du paquet partagé. Tout vit dans `apps/admin/app/app.css` : les
+  jetons de `packages/ui` sont aussi ceux du client, et ne bougent pas.
+- **La navigation prend l'ordre de l'artefact** : tableau de bord et
+  notifications en tête, puis Modération, Opérations, Communauté, Système. «
+  Événements » y reste jusqu'à F6.
+- **L'interface parle français partout** : « Tableau de bord », « Annonces », «
+  Stickers & QR », « Administrateur », et l'onglet « Console RetrouveCI ».
+- **Le compteur de la barre supérieure passe du rouge à l'orange** : le rouge
+  dit une erreur, l'orange ce qui attend quelqu'un.
+
+Laissés à leur étape : la barre d'outils et la densité (F9), la palette et la
+recherche (F10), les fiches en route (F11), et le tableau de bord qui ouvre sur
+le travail avec son sélecteur de période (§3.5, qui touche les dix `$queryRaw`).
+Les pastilles de travail en attente sur la navigation restent « à valider » :
+chacune demande un compteur côté API.
 
 #### F9 — Densité des listes et barre d'outils partagée
 
-#### F10 — Navigation, recherche et palette ⌘K
+Détaillée à l'ouverture, d'après l'artefact F7, et **coupée en trois PR**, une
+par groupe de listes, pour qu'aucune ne soit illisible :
 
-`cmdk` est déjà installé.
+- **F9a** _(livré — #255)_ — le socle, sur Commandes, Stickers et Messages.
+- **F9b** _(livré — #256)_ — Notifications. Utilisateurs et Administrateurs
+  **restent en l'état** : voir la question n° 5 du §6.
+- **F9c** — Annonces, après F4 : F4 réécrit cette page, la toucher avant
+  l'aurait fait entrer en conflit.
+
+Le socle : le loader lit `page`, `pageSize` et `q`, et demande **une page** à
+l'API. Les compteurs viennent de l'API — une sonde `pageSize=1` par statut —
+donc les pastilles et la grille s'additionnent au total, au lieu de compter les
+lignes à l'écran (§3.6). `ListToolbar` écrit le filtre et la recherche dans
+l'URL et revient à la première page ; `ListPager` numérote. La densité est un
+cookie lu au rendu serveur, comme le repli de la barre latérale.
+
+**Écarts mesurés en livrant F9a** (2026-09-11) :
+
+- **La recherche touche l'API**, alors que la portée dit « admin ». L'artefact
+  est net : la recherche suit le même chemin que la pagination. Or seules les
+  annonces avaient un `search` ; commandes, stickers et messages en reçoivent
+  un, borné à 100 caractères, et une recherche qui ne fouillait que les lignes
+  chargées disparaît.
+- **Le sélecteur de période quitte les listes.** Il filtrait en mémoire la page
+  chargée — « trompeur » dans l'artefact — et aucune de ces trois routes n'a de
+  filtre de date côté API. Celui du tableau de bord reste l'affaire du §3.5.
+- **Le filtre de lot des stickers devient la recherche**, qui porte aussi sur le
+  lot : il ne listait que les lots présents dans les lignes chargées.
+- **L'export CSV exporte la page affichée**, et le bouton le dit.
+- **Une grille qui ne peut pas être comptée se masque** plutôt que d'afficher
+  des zéros que personne n'a mesurés.
+
+#### F10 — Navigation, recherche et palette ⌘K _(livré — #257)_
+
+La palette de l'artefact F7 : depuis la barre supérieure ou ⌘K / Ctrl+K, trois
+groupes — « Aller à », « Résultats », « Actions ». Les pages et les actions
+viennent de `shared/constants/navigation.ts`, la liste même de la barre latérale
+; les entités, d'une route ressource `/palette` qui interroge le `search` des
+listes posé par F9a, cinq lignes par sorte.
+
+**Écarts mesurés en livrant F10** (2026-09-11) :
+
+- **Pas d'annonces dans les résultats** tant que leur liste ne lit pas de
+  recherche (F9c) : un résultat qui mènerait à une page qui l'ignore serait un
+  cul-de-sac.
+- **Commandes et messages mènent à leur liste filtrée**, faute de fiche en route
+  avant F11 ; stickers et personnes ont déjà la leur.
+- **Une personne se cherche par son numéro ou son nom**, pas les deux :
+  better-auth ne prend qu'un champ de recherche, et le numéro d'un visiteur vit
+  dans son e-mail (`<numéro>@phone.retrouveci.local`).
+- **Le filtre de cmdk est coupé** : il masquerait un résultat de l'API dont le
+  libellé ne contient pas la requête — un message trouvé par son e-mail.
 
 #### F11 — Fiches de détail en routes dédiées
 
 `posts`, `orders`, `qr`, `contact-messages`, et alignement de `users` qui a déjà
 sa route. Trois routes sont à créer, deux existent. Les dialogues d'**action**
 restent des dialogues.
+
+**F11a** _(livré — #258)_ — Commandes et Messages de contact. Chacune a sa fiche
+en route, sur la mise en page de l'artefact : l'en-tête, une colonne principale,
+une colonne d'actions. La palette y mène désormais. **F11b** — Annonces, après
+F4 : c'est F4 qui a posé le fil dans le dialogue, et la fiche doit l'accueillir.
+
+**Écarts mesurés en livrant F11a** (2026-09-11) :
+
+- **F11 touche l'API.** `GET /sticker-orders/:id` ne répond qu'à l'acheteur,
+  administrateurs compris — mesuré dans `GetStickerOrderUseCase` : la fiche ne
+  pouvait pas se charger. Une route du bureau, `GET /sticker-orders/admin/:id`,
+  réservée aux administrateurs, la lit. ⚠️ F11b rencontrera le même mur :
+  `GET /lost-items/:id` ne montre une annonce non publiée qu'à son auteur.
+- **Ouvrir un message le marque lu**, comme l'ouvrir dans le dialogue le faisait
+  : c'est `GetContactMessageUseCase` qui le décide, à la lecture.
+- **La réponse part par WhatsApp ou par e-mail**, pas d'ici — la règle de
+  l'artefact. La note interne qu'il dessine n'a pas de colonne : elle reste hors
+  de F11.
+- **Annuler une commande demande une confirmation** sur la fiche. La liste garde
+  son annulation directe, telle qu'elle était.
+- **Les transitions d'une commande vivent à un endroit** (`orders.const.ts`) :
+  la liste et la fiche les lisaient chacune de leur côté.
 
 #### F18 — Sélection multiple et action en lot
 
@@ -753,3 +848,14 @@ première PR de leur lot.
 3. **L'assistant est-il ouvert aux visiteurs anonymes ?** Le plafond n'est pas
    le même, et l'ardoise non plus. À trancher en F15.
 4. **Quel budget mensuel pour l'assistant ?** Il fixe le plafond, pas l'inverse.
+5. **Lister les comptes : une route d'API, ou un axe en moins ?** Posée en F9b.
+   Utilisateurs et administrateurs passent par `list-users` de better-auth, qui
+   n'accepte qu'**un** filtre et **une** recherche — mesuré dans sa source
+   (1.6.30). Les deux listes dépensent déjà ce filtre sur le rôle : l'état
+   (banni ou non) ne peut pas s'y ajouter côté serveur. Paginer sur le serveur
+   imposerait de lâcher le rôle — des administrateurs apparaîtraient parmi les
+   utilisateurs — ou de lâcher l'état. La voie propre est une route d'API qui
+   lise les comptes par Prisma, ce que le dépôt s'est jusqu'ici interdit (« no
+   API domain of its own »). En attendant, les deux listes gardent leur plafond
+   (500 et 200) et leur filtrage en mémoire, exact tant que les comptes tiennent
+   sous ce plafond.

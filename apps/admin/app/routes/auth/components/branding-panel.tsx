@@ -4,7 +4,7 @@ const highlights = [
 	{
 		icon: ShieldCheck,
 		title: 'Modération centralisée',
-		description: 'Posts, commandes et signalements au même endroit.',
+		description: 'Annonces, commandes et signalements au même endroit.',
 	},
 	{
 		icon: ScanLine,

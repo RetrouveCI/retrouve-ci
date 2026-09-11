@@ -14,35 +14,49 @@
 		0 4px 8px rgba(16, 24, 40, 0.06), 0 12px 24px rgba(16, 24, 40, 0.1);
 }
 
+/*
+ * The F7 artefact's values, validated on 2026-09-10. Admin-scoped overrides
+ * only: `packages/ui`'s tokens are the client's too, and stay untouched.
+ */
 :root {
 	--font-sans: 'Geist Variable', 'Geist Fallback';
 	--font-mono: 'Geist Mono Variable', 'Geist Mono Fallback';
 	--radius: 0.625rem;
-	--surface-muted: oklch(0.985 0.002 256);
 
-	/* Branded green sidebar (admin only — overrides the neutral package tokens) */
-	--sidebar: oklch(0.32 0.06 150);
-	--sidebar-foreground: oklch(0.95 0.015 150);
-	--sidebar-primary: oklch(0.42 0.08 150);
-	--sidebar-primary-foreground: oklch(0.99 0 0);
-	--sidebar-accent: oklch(0.37 0.07 150);
-	--sidebar-accent-foreground: oklch(0.98 0 0);
-	--sidebar-border: oklch(0.4 0.06 150);
-	--sidebar-ring: oklch(0.65 0.13 150);
+	/* An off-white drawn towards the green, so a white table stands out
+	   without a shadow. */
+	--surface-muted: #fbfbf9;
+
+	/* Deep green rather than a medium one: 216 px of saturated chrome left the
+	   orange no force, and the orange is what points at work to do. The brand
+	   green stays, as the active marker. */
+	--sidebar: #0f2118;
+	--sidebar-foreground: #e7efe9;
+	--sidebar-primary: #1e7f43;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #16301f;
+	--sidebar-accent-foreground: #e7efe9;
+	--sidebar-border: #22402d;
+	--sidebar-ring: #1e7f43;
 }
 
+/* The dark theme has its own steps, not an inversion of the light one. */
 .dark {
-	--surface-muted: oklch(0.16 0.006 256);
+	--surface-muted: #0e120f;
+	--card: #151a16;
+	--popover: #151a16;
+	--muted: #1b211d;
+	--border: #28302a;
+	--input: #28302a;
 
-	/* Deeper green sidebar for dark mode */
-	--sidebar: oklch(0.24 0.05 150);
-	--sidebar-foreground: oklch(0.93 0.015 150);
-	--sidebar-primary: oklch(0.36 0.08 150);
-	--sidebar-primary-foreground: oklch(0.99 0 0);
-	--sidebar-accent: oklch(0.3 0.06 150);
-	--sidebar-accent-foreground: oklch(0.98 0 0);
-	--sidebar-border: oklch(0.32 0.05 150);
-	--sidebar-ring: oklch(0.6 0.13 150);
+	--sidebar: #0a120d;
+	--sidebar-foreground: #e7efe9;
+	--sidebar-primary: #2fa85b;
+	--sidebar-primary-foreground: #0a120d;
+	--sidebar-accent: #101d15;
+	--sidebar-accent-foreground: #e7efe9;
+	--sidebar-border: #1b2f22;
+	--sidebar-ring: #2fa85b;
 }
 
 @layer utilities {

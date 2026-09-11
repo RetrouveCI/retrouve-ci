@@ -32,9 +32,14 @@ const STATUS_CLASS: Record<string, string> = {
 interface QrTokensTableProps {
 	data: QrToken[]
 	onCopy: (text: string, label: string) => void
+	pagination: { page: number; pageSize: number; total: number }
 }
 
-export function QrTokensTable({ data, onCopy }: QrTokensTableProps) {
+export function QrTokensTable({
+	data,
+	onCopy,
+	pagination,
+}: QrTokensTableProps) {
 	const columns: ColumnDef<QrToken>[] = [
 		{
 			accessorKey: 'code',
@@ -139,12 +144,5 @@ export function QrTokensTable({ data, onCopy }: QrTokensTableProps) {
 		},
 	]
 
-	return (
-		<DataTable
-			columns={columns}
-			data={data}
-			searchKey="code"
-			searchPlaceholder="Rechercher par token..."
-		/>
-	)
+	return <DataTable pagination={pagination} columns={columns} data={data} />
 }

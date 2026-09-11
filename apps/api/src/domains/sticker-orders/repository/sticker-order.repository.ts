@@ -16,6 +16,21 @@ import type {
 	StickerOrderStatus,
 } from '../types/sticker-order.types'
 
+// What an operator reads off a parcel or hears on the phone.
+export function orderSearchClause(search?: string) {
+	if (!search) return {}
+
+	const contains = { contains: search, mode: 'insensitive' as const }
+
+	return {
+		OR: [
+			{ orderNumber: contains },
+			{ deliveryCity: contains },
+			{ deliveryAddress: contains },
+		],
+	}
+}
+
 @Injectable()
 export class StickerOrderRepository {
 	constructor(private readonly prisma: PrismaService) {}
@@ -81,6 +96,7 @@ export class StickerOrderRepository {
 		const where = {
 			...(filter.status && { status: toPrismaStatus(filter.status) }),
 			...(filter.userId && { userId: filter.userId }),
+			...orderSearchClause(filter.search),
 		}
 
 		const [items, total] = await Promise.all([

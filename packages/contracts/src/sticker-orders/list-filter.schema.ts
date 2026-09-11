@@ -1,8 +1,9 @@
 import { z } from 'zod'
-import { paginationQuerySchema } from '../shared/pagination'
+import { listSearchSchema, paginationQuerySchema } from '../shared/pagination'
 import { stickerOrderStatusSchema } from './status.schema'
 
 export const listStickerOrdersFilterSchema = paginationQuerySchema.extend({
+	search: listSearchSchema.optional(),
 	status: stickerOrderStatusSchema.optional(),
 })
 

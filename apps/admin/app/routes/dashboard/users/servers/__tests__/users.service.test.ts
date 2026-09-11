@@ -1,4 +1,4 @@
-import { getUserById, listUsers } from '../users.service'
+import { getUserById, listUsers, searchUsers } from '../users.service'
 
 function mockFetch(body = '{"users":[],"total":0}') {
 	const spy = vi.fn().mockResolvedValue(new Response(body, { status: 200 }))
@@ -54,5 +54,30 @@ describe('the users service', () => {
 
 		expect(query.get('filterValue')).toBe('user-1')
 		expect(query.get('sortBy')).toBeNull()
+	})
+
+	// A visitor signs up with a number, stored as the e-mail's local part.
+	it('searches a number through the e-mail it is stored under', async () => {
+		const spy = mockFetch()
+
+		await searchUsers(incoming(), '07 12 66', 5)
+
+		const query = urlOf(spy).searchParams
+
+		expect(query.get('searchField')).toBe('email')
+		expect(query.get('searchValue')).toBe('071266')
+		expect(query.get('limit')).toBe('5')
+		expect(query.get('filterValue')).toBe('user')
+	})
+
+	it('searches a name through the name field', async () => {
+		const spy = mockFetch()
+
+		await searchUsers(incoming(), 'Konan', 5)
+
+		const query = urlOf(spy).searchParams
+
+		expect(query.get('searchField')).toBe('name')
+		expect(query.get('searchValue')).toBe('Konan')
 	})
 })

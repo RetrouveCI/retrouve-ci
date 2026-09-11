@@ -33,4 +33,13 @@ describe('listStickerOrdersFilterSchema', () => {
 		expect(parse({ pageSize: 1000 }).success).toBe(false)
 		expect(parse({ page: 0 }).success).toBe(false)
 	})
+
+	it('trims a search and caps it at 100 characters', () => {
+		expect(parse({ search: '  RCI-2026-0042  ' }).data?.search).toBe(
+			'RCI-2026-0042',
+		)
+		expect(parse({ search: 'a'.repeat(101) }).error?.issues[0]?.message).toBe(
+			'Maximum 100 caractères',
+		)
+	})
 })

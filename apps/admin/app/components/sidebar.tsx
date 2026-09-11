@@ -15,75 +15,8 @@ import {
 import { cn } from '@app/ui/utils'
 import { useAuth } from '@/context/auth'
 import { useDashboard } from '@/context/dashboard'
-import type { LayoutCounts } from '@/shared/types/dashboard'
-import {
-	LayoutDashboard,
-	Users,
-	QrCode,
-	FileText,
-	Activity,
-	LogOut,
-	Menu,
-	Shield,
-	Package,
-	Bell,
-	Mail,
-	PanelLeftClose,
-	PanelLeftOpen,
-	type LucideIcon,
-} from 'lucide-react'
-
-interface MenuItem {
-	to: string
-	icon: LucideIcon
-	label: string
-	exact?: boolean
-	badgeKey?: keyof LayoutCounts
-}
-
-interface MenuSection {
-	label?: string
-	items: MenuItem[]
-}
-
-const menuSections: MenuSection[] = [
-	{
-		items: [
-			{ to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
-		],
-	},
-	{
-		label: 'Modération',
-		items: [
-			{ to: '/posts', icon: FileText, label: 'Posts' },
-			{ to: '/contact-messages', icon: Mail, label: 'Messages de contact' },
-		],
-	},
-	{
-		label: 'Croissance',
-		items: [
-			{ to: '/users', icon: Users, label: 'Utilisateurs' },
-			{ to: '/events', icon: Activity, label: 'Événements' },
-			{
-				to: '/notifications',
-				icon: Bell,
-				label: 'Notifications',
-				badgeKey: 'notificationsUnread',
-			},
-		],
-	},
-	{
-		label: 'Opérations',
-		items: [
-			{ to: '/qr', icon: QrCode, label: 'Stickers / QR' },
-			{ to: '/orders', icon: Package, label: 'Commandes' },
-		],
-	},
-	{
-		label: 'Système',
-		items: [{ to: '/administrators', icon: Shield, label: 'Administrateurs' }],
-	},
-]
+import { LogOut, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { NAV_SECTIONS, type NavItem } from '@/shared/constants/navigation'
 
 function SidebarItem({
 	item,
@@ -91,7 +24,7 @@ function SidebarItem({
 	badge,
 	onItemClick,
 }: {
-	item: MenuItem
+	item: NavItem
 	collapsed: boolean
 	badge: number
 	onItemClick?: () => void
@@ -109,7 +42,7 @@ function SidebarItem({
 					'relative flex items-center rounded-lg text-sm font-medium transition-colors',
 					collapsed ? 'mx-auto h-11 w-11 justify-center' : 'gap-3 px-3 py-2',
 					isActive
-						? 'bg-sidebar-primary text-sidebar-primary-foreground'
+						? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold'
 						: 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
 				)
 			}
@@ -117,7 +50,7 @@ function SidebarItem({
 			{({ isActive }) => (
 				<>
 					{isActive && !collapsed && (
-						<span className="bg-accent absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full" />
+						<span className="bg-sidebar-primary absolute top-1/2 left-0 h-5 w-1 -translate-y-1/2 rounded-r-full" />
 					)}
 					<span className="relative shrink-0">
 						<Icon size={18} />
@@ -191,9 +124,7 @@ function SidebarContent({
 							<h1 className="text-sidebar-foreground text-sm font-semibold">
 								RetrouveCI
 							</h1>
-							<p className="text-sidebar-foreground/60 text-xs">
-								Administration
-							</p>
+							<p className="text-sidebar-foreground/60 text-xs">Console</p>
 						</div>
 					)}
 				</Link>
@@ -205,7 +136,7 @@ function SidebarContent({
 					collapsed ? 'px-2' : 'px-3',
 				)}
 			>
-				{menuSections.map((section, index) => (
+				{NAV_SECTIONS.map((section, index) => (
 					<div key={section.label ?? `section-${index}`}>
 						{section.label && !collapsed && (
 							<p className="text-sidebar-foreground/50 mb-2 px-3 text-[11px] font-medium tracking-wider uppercase">
@@ -262,7 +193,7 @@ function SidebarContent({
 								</Link>
 							</TooltipTrigger>
 							<TooltipContent side="right">
-								{user?.name ?? 'Admin'} · Mon profil
+								{user?.name ?? 'Administrateur'} · Mon profil
 							</TooltipContent>
 						</Tooltip>
 						<Button
@@ -289,10 +220,12 @@ function SidebarContent({
 							</Avatar>
 							<div className="min-w-0 flex-1">
 								<p className="text-sidebar-foreground truncate text-sm font-medium">
-									{user?.name ?? 'Admin'}
+									{user?.name ?? 'Administrateur'}
 								</p>
 								<p className="text-sidebar-foreground/60 truncate text-xs">
-									{user?.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+									{user?.role === 'super_admin'
+										? 'Super administrateur'
+										: 'Administrateur'}
 								</p>
 							</div>
 						</Link>
@@ -335,7 +268,7 @@ export function MobileSidebar() {
 			<SheetTrigger asChild>
 				<Button variant="ghost" size="icon" className="lg:hidden">
 					<Menu size={20} />
-					<span className="sr-only">Toggle menu</span>
+					<span className="sr-only">Ouvrir le menu</span>
 				</Button>
 			</SheetTrigger>
 			<SheetContent side="left" className="w-64 p-0">

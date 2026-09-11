@@ -9,7 +9,12 @@ export default [
 	layout('routes/dashboard/layout.tsx', [
 		index('routes/dashboard/home/_index.tsx'),
 		route('contact-messages', 'routes/dashboard/contact-messages/_index.tsx'),
+		route(
+			'contact-messages/:id',
+			'routes/dashboard/contact-messages/detail/_index.tsx',
+		),
 		route('orders', 'routes/dashboard/orders/_index.tsx'),
+		route('orders/:id', 'routes/dashboard/orders/detail/_index.tsx'),
 		route('qr', 'routes/dashboard/qr/_index.tsx'),
 		route('qr/generate', 'routes/dashboard/qr/generate/_index.tsx'),
 		route('qr/:code', 'routes/dashboard/qr/token/_index.tsx'),
@@ -22,6 +27,8 @@ export default [
 		route('administrators', 'routes/dashboard/administrators/_index.tsx'),
 		route('profile', 'routes/dashboard/profile/_index.tsx'),
 	]),
+	// A resource route: no component, read by the ⌘K palette.
+	route('palette', 'routes/dashboard/palette/servers/palette.loader.ts'),
 	// A resource route: no component. `usePostThread` reads it, the composer
 	// and `useMarkThreadRead` post to it.
 	route(

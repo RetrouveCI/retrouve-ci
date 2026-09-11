@@ -1,24 +1,18 @@
-import { useState } from 'react'
-import { useSearchParams, Link } from 'react-router'
+import { Link } from 'react-router'
 import {
 	Button,
 	Badge,
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@app/ui/components'
+import { STICKER_ORDER_STATUSES } from '@app/contracts/sticker-orders'
 import { BentoCard } from '@/components/bento-card'
 import { DataTable } from '@/components/data-table'
-import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
-import { DateRangePicker } from '@/components/date-range-picker'
-import { OrderDetailDialog } from './components/order-detail-dialog'
+import { DensityToggle } from '@/components/density-toggle'
+import { ListToolbar } from '@/components/list-toolbar'
 import { OrderStatsGrid } from './components/order-stats-grid'
 import { ordersLoader } from './servers/orders.loader'
 import { ordersAction } from './servers/orders.action'
@@ -28,65 +22,33 @@ import type { FieldValues } from 'react-hook-form'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
-import type { DateRange } from 'react-day-picker'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { StickerOrder, OrderStatus } from './types/orders.types'
+import {
+	CANCELLABLE_ORDER_STATUSES,
+	NEXT_ORDER_STATUS,
+	ORDER_STATUS_CONFIG,
+} from './orders.const'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
-import {
-	MoreHorizontal,
-	Eye,
-	Truck,
-	CheckCircle2,
-	XCircle,
-	Download,
-	Package,
-	Clock,
-	PackageCheck,
-} from 'lucide-react'
+import { MoreHorizontal, Eye, XCircle, Download, Package } from 'lucide-react'
 
 export const loader = ordersLoader
 export const action = ordersAction
 
 export const handle: RouteHandle = { title: 'Commandes de stickers' }
 
-const STATUS_CONFIG: Record<
-	OrderStatus,
-	{ label: string; className: string; icon: React.ElementType }
-> = {
-	pending: {
-		label: 'En attente',
-		className: STATUS_TONE_CLASSES.warning,
-		icon: Clock,
-	},
-	processing: {
-		label: 'En traitement',
-		className: STATUS_TONE_CLASSES.info,
-		icon: Package,
-	},
-	shipped: {
-		label: 'Expédiée',
-		className: STATUS_TONE_CLASSES.purple,
-		icon: Truck,
-	},
-	delivered: {
-		label: 'Livrée',
-		className: STATUS_TONE_CLASSES.success,
-		icon: PackageCheck,
-	},
-	cancelled: {
-		label: 'Annulée',
-		className: STATUS_TONE_CLASSES.danger,
-		icon: XCircle,
-	},
+/** What a chip reads, in the plural, for the list it filters to. */
+const STATUS_FILTER_LABELS: Record<OrderStatus, string> = {
+	pending: 'En attente',
+	processing: 'En traitement',
+	shipped: 'Expédiées',
+	delivered: 'Livrées',
+	cancelled: 'Annulées',
 }
 
 export default function OrdersPage({ loaderData }: Route.ComponentProps) {
-	const { orders, statusFilter } = loaderData
-	const [searchParams, setSearchParams] = useSearchParams()
-	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
-	const [selectedOrder, setSelectedOrder] = useState<StickerOrder | null>(null)
-	const [detailOpen, setDetailOpen] = useState(false)
+	const { orders, total, page, pageSize, counts } = loaderData
 
 	const statusFetcher = useActionFetcher<
 		typeof ordersAction,
@@ -106,7 +68,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 
 		if (order)
 			toast.success(
-				`Commande ${order.orderNumber} — ${STATUS_CONFIG[order.status].label}`,
+				`Commande ${order.orderNumber} — ${ORDER_STATUS_CONFIG[order.status].label}`,
 			)
 	})
 
@@ -114,32 +76,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 		statusFetcher.submit({ id, status }, { method: 'post' })
 	}
 
-	const handleFilterChange = (value: string) => {
-		const next = new URLSearchParams(searchParams)
-		if (value === 'all') {
-			next.delete('status')
-		} else {
-			next.set('status', value)
-		}
-		setSearchParams(next)
-	}
-
-	let filteredOrders = orders
-	if (dateRange?.from) {
-		filteredOrders = filteredOrders.filter(o => {
-			const d = new Date(o.createdAt)
-			return d >= dateRange.from! && (!dateRange.to || d <= dateRange.to)
-		})
-	}
-
-	const counts = {
-		total: orders.length,
-		pending: orders.filter(o => o.status === 'pending').length,
-		processing: orders.filter(o => o.status === 'processing').length,
-		shipped: orders.filter(o => o.status === 'shipped').length,
-		delivered: orders.filter(o => o.status === 'delivered').length,
-	}
-
+	// The page on screen, and said so: the list is paged on the server now.
 	const handleExportCSV = () => {
 		const headers = [
 			'N° commande',
@@ -154,12 +91,12 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			'Livré le',
 			'Suivi',
 		]
-		const rows = filteredOrders.map(o => [
+		const rows = orders.map(o => [
 			o.orderNumber,
 			o.packName,
 			o.quantity,
 			o.total,
-			STATUS_CONFIG[o.status].label,
+			ORDER_STATUS_CONFIG[o.status].label,
 			o.deliveryCity,
 			o.deliveryAddress,
 			format(new Date(o.createdAt), 'dd/MM/yyyy', { locale: fr }),
@@ -176,7 +113,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 		const url = URL.createObjectURL(blob)
 		const a = document.createElement('a')
 		a.href = url
-		a.download = 'commandes-stickers.csv'
+		a.download = `commandes-stickers-page-${page}.csv`
 		a.click()
 		URL.revokeObjectURL(url)
 		toast.success('Export CSV téléchargé')
@@ -187,9 +124,12 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			accessorKey: 'orderNumber',
 			header: 'N° commande',
 			cell: ({ row }) => (
-				<span className="font-mono text-sm font-medium">
+				<Link
+					to={`/orders/${row.original.id}`}
+					className="font-mono text-sm font-medium hover:underline"
+				>
 					{row.original.orderNumber}
-				</span>
+				</Link>
 			),
 		},
 		{
@@ -221,7 +161,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			accessorKey: 'status',
 			header: 'Statut',
 			cell: ({ row }) => {
-				const cfg = STATUS_CONFIG[row.original.status]
+				const cfg = ORDER_STATUS_CONFIG[row.original.status]
 				return <Badge className={cfg.className}>{cfg.label}</Badge>
 			},
 		},
@@ -257,6 +197,9 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			header: 'Actions',
 			cell: ({ row }) => {
 				const o = row.original
+				const next = NEXT_ORDER_STATUS[o.status]
+				const NextIcon = next ? ORDER_STATUS_CONFIG[next.status].icon : null
+
 				return (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
@@ -265,35 +208,22 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-52">
-							<DropdownMenuItem
-								onClick={() => {
-									setSelectedOrder(o)
-									setDetailOpen(true)
-								}}
-							>
-								<Eye className="mr-2 h-4 w-4" /> Voir les détails
+							<DropdownMenuItem asChild>
+								<Link to={`/orders/${o.id}`}>
+									<Eye className="mr-2 h-4 w-4" /> Voir la fiche
+								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							{o.status === 'pending' && (
-								<DropdownMenuItem
-									onClick={() => updateStatus(o.id, 'processing')}
-								>
-									<Package className="mr-2 h-4 w-4" /> Marquer en traitement
-								</DropdownMenuItem>
+							{next && NextIcon && (
+								<>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem
+										onClick={() => updateStatus(o.id, next.status)}
+									>
+										<NextIcon className="mr-2 h-4 w-4" /> {next.label}
+									</DropdownMenuItem>
+								</>
 							)}
-							{o.status === 'processing' && (
-								<DropdownMenuItem onClick={() => updateStatus(o.id, 'shipped')}>
-									<Truck className="mr-2 h-4 w-4" /> Marquer comme expédiée
-								</DropdownMenuItem>
-							)}
-							{o.status === 'shipped' && (
-								<DropdownMenuItem
-									onClick={() => updateStatus(o.id, 'delivered')}
-								>
-									<CheckCircle2 className="mr-2 h-4 w-4" /> Marquer comme livrée
-								</DropdownMenuItem>
-							)}
-							{(o.status === 'pending' || o.status === 'processing') && (
+							{CANCELLABLE_ORDER_STATUSES.includes(o.status) && (
 								<>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem
@@ -312,59 +242,44 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 	]
 
 	return (
-		<>
-			<div>
-				<div className="space-y-4 p-4 lg:p-6">
-					<OrderStatsGrid
-						total={counts.total}
-						pending={counts.pending}
-						processing={counts.processing}
-						shipped={counts.shipped}
-						delivered={counts.delivered}
+		<div className="space-y-4 p-4 lg:p-6">
+			{/* Counted by the API over every order: a counter it cannot serve
+			    hides the grid rather than showing zeros. */}
+			{counts && (
+				<OrderStatsGrid
+					total={counts.all ?? 0}
+					pending={counts.pending ?? 0}
+					processing={counts.processing ?? 0}
+					shipped={counts.shipped ?? 0}
+					delivered={counts.delivered ?? 0}
+				/>
+			)}
+
+			<BentoCard variant="table">
+				<ListToolbar
+					chips={[
+						{ value: 'all', label: 'Toutes', count: counts?.all },
+						...STICKER_ORDER_STATUSES.map(status => ({
+							value: status,
+							label: STATUS_FILTER_LABELS[status],
+							count: counts?.[status],
+						})),
+					]}
+					searchPlaceholder="N° de commande, ville, adresse…"
+				>
+					<DensityToggle />
+					<Button variant="outline" size="sm" onClick={handleExportCSV}>
+						<Download className="mr-2 h-4 w-4" /> Exporter la page
+					</Button>
+				</ListToolbar>
+				<div className="p-4">
+					<DataTable
+						columns={columns}
+						data={orders}
+						pagination={{ page, pageSize, total }}
 					/>
-
-					<BentoCard variant="table">
-						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
-							<div className="flex flex-wrap items-center gap-3">
-								<Select value={statusFilter} onValueChange={handleFilterChange}>
-									<SelectTrigger className="h-9 w-44">
-										<SelectValue placeholder="Statut" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Tous les statuts</SelectItem>
-										<SelectItem value="pending">En attente</SelectItem>
-										<SelectItem value="processing">En traitement</SelectItem>
-										<SelectItem value="shipped">Expédiées</SelectItem>
-										<SelectItem value="delivered">Livrées</SelectItem>
-										<SelectItem value="cancelled">Annulées</SelectItem>
-									</SelectContent>
-								</Select>
-								<DateRangePicker
-									dateRange={dateRange}
-									onDateRangeChange={setDateRange}
-								/>
-							</div>
-							<Button variant="outline" size="sm" onClick={handleExportCSV}>
-								<Download className="mr-2 h-4 w-4" /> Exporter CSV
-							</Button>
-						</div>
-						<div className="p-4">
-							<DataTable
-								columns={columns}
-								data={filteredOrders}
-								searchKey="orderNumber"
-								searchPlaceholder="Rechercher par N° commande..."
-							/>
-						</div>
-					</BentoCard>
 				</div>
-			</div>
-
-			<OrderDetailDialog
-				order={selectedOrder}
-				open={detailOpen}
-				onOpenChange={setDetailOpen}
-			/>
-		</>
+			</BentoCard>
+		</div>
 	)
 }
