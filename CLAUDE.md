@@ -1068,6 +1068,16 @@ Identical to the client app conventions above, with these admin-specific notes:
   read by the layout's loader like the sidebar's collapse. ⚠️ Users and
   administrators still load a capped batch: better-auth's `list-users` takes one
   filter, which both spend on the role (question n° 5 of the plan).
+- **The ⌘K palette** (`components/command-palette.tsx`) opens from the top bar
+  or ⌘K / Ctrl+K. Pages and actions come from `shared/constants/navigation.ts` —
+  the sidebar's own list — filtered in the browser, accents aside; entities come
+  from `/palette`, a resource route that fans out to the list services'
+  `search`, five rows per kind, and drops a failing source rather than blanking
+  the others. It answers the query it searched, so a slow answer never lands on
+  a newer one. ⚠️ `Command` runs with `shouldFilter={false}`: cmdk's filter
+  would hide an API hit whose label does not hold the query. Its constants sit
+  in `palette.const.ts`, outside the route module, so the hook does not pull the
+  session helper into the browser.
 - The unread notification count comes from
   `routes/dashboard/servers/dashboard.loader.ts`, the dashboard layout's loader,
   which hands it to `DashboardProvider` as a `counts` prop;
