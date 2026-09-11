@@ -98,4 +98,11 @@ describe('ListToolbar', () => {
 
 		await expect.element(location()).toHaveTextContent(/^$/)
 	})
+
+	// The loader reads a status it does not know as no filter; so does this.
+	it('reads a value no chip carries as « Toutes »', async () => {
+		renderToolbar('/orders?status=rembourse')
+
+		await expect.element(chip(/Toutes/)).toHaveAttribute('aria-pressed', 'true')
+	})
 })
