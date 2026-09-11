@@ -1,6 +1,6 @@
 import { createRoutesStub, useLocation } from 'react-router'
 import { page, render, userEvent } from '@/shared/helpers/testing'
-import { ListToolbar } from '../list-toolbar'
+import { ListChips, ListToolbar } from '../list-toolbar'
 
 function Location() {
 	return <p data-testid="location">{useLocation().search}</p>
@@ -104,5 +104,80 @@ describe('ListToolbar', () => {
 		renderToolbar('/orders?status=rembourse')
 
 		await expect.element(chip(/Toutes/)).toHaveAttribute('aria-pressed', 'true')
+	})
+})
+
+/** The listings page: moderation status and type, each writing its own key. */
+function renderTwoAxes(entry = '/posts') {
+	const Stub = createRoutesStub([
+		{
+			path: '/posts',
+			Component: () => (
+				<>
+					<ListToolbar
+						chips={[
+							{ value: 'all', label: 'Toutes' },
+							{ value: 'pending', label: 'En attente' },
+						]}
+						searchPlaceholder="Titre…"
+					>
+						<ListChips
+							param="type"
+							label="Filtrer par type"
+							chips={[
+								{ value: 'all', label: 'Tous types' },
+								{ value: 'lost', label: 'Perdus' },
+							]}
+						/>
+					</ListToolbar>
+					<Location />
+				</>
+			),
+		},
+	])
+
+	render(<Stub initialEntries={[entry]} />)
+}
+
+describe('ListChips, as a second axis', () => {
+	// `name` matches a substring, so « Filtrer » would also find the type group.
+	it('names each group, so two axes are told apart', async () => {
+		renderTwoAxes()
+
+		await expect
+			.element(page.getByRole('group', { name: /^Filtrer$/ }))
+			.toBeVisible()
+		await expect
+			.element(page.getByRole('group', { name: 'Filtrer par type' }))
+			.toBeVisible()
+		expect(page.getByRole('group').elements()).toHaveLength(2)
+	})
+
+	// Two axes narrow together: choosing one must not drop the other.
+	it('keeps the other axis and the search, and returns to the first page', async () => {
+		renderTwoAxes('/posts?status=pending&q=carte&page=4')
+
+		await userEvent.click(chip(/Perdus/))
+
+		await expect
+			.element(location())
+			.toHaveTextContent('?status=pending&q=carte&type=lost')
+	})
+
+	it('clears only its own axis', async () => {
+		renderTwoAxes('/posts?status=pending&type=lost')
+
+		await userEvent.click(chip(/Tous types/))
+
+		await expect.element(location()).toHaveTextContent('?status=pending')
+	})
+
+	it('marks the type the URL names, whatever the status is', async () => {
+		renderTwoAxes('/posts?status=pending&type=lost')
+
+		await expect.element(chip(/Perdus/)).toHaveAttribute('aria-pressed', 'true')
+		await expect
+			.element(chip(/En attente/))
+			.toHaveAttribute('aria-pressed', 'true')
 	})
 })

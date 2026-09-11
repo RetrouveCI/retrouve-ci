@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { calendarDateSchema } from '../shared/calendar-date'
-import { paginationQuerySchema } from '../shared/pagination'
+import { listSearchSchema, paginationQuerySchema } from '../shared/pagination'
 import {
 	lostItemCategorySchema,
 	lostItemTypeSchema,
@@ -13,7 +13,7 @@ export const listLostItemsFilterSchema = paginationQuerySchema.extend({
 	category: lostItemCategorySchema.optional(),
 	ville: z.string().trim().optional(),
 	commune: z.string().trim().optional(),
-	search: z.string().trim().optional(),
+	search: listSearchSchema.optional(),
 	dateFrom: calendarDateSchema({
 		required: 'Date de début requise',
 		invalid: 'Date de début invalide',

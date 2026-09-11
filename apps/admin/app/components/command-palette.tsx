@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import {
 	Box,
+	FileText,
 	Mail,
 	Plus,
 	QrCode,
@@ -30,6 +31,7 @@ import { usePaletteSearch } from '@/routes/dashboard/palette/hooks/use-palette-s
 import type { PaletteHitKind } from '@/routes/dashboard/palette/types/palette.types'
 
 const HIT_ICONS: Record<PaletteHitKind, LucideIcon> = {
+	listing: FileText,
 	order: Box,
 	sticker: QrCode,
 	message: Mail,

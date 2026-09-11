@@ -704,8 +704,8 @@ par groupe de listes, pour qu'aucune ne soit illisible :
 - **F9a** _(livré — #255)_ — le socle, sur Commandes, Stickers et Messages.
 - **F9b** _(livré — #256)_ — Notifications. Utilisateurs et Administrateurs
   **restent en l'état** : voir la question n° 5 du §6.
-- **F9c** — Annonces, après F4 : F4 réécrit cette page, la toucher avant
-  l'aurait fait entrer en conflit.
+- **F9c** _(livré)_ — Annonces, après F4 : F4 réécrit cette page, la toucher
+  avant l'aurait fait entrer en conflit.
 
 Le socle : le loader lit `page`, `pageSize` et `q`, et demande **une page** à
 l'API. Les compteurs viennent de l'API — une sonde `pageSize=1` par statut —
@@ -730,6 +730,35 @@ cookie lu au rendu serveur, comme le repli de la barre latérale.
 - **Une grille qui ne peut pas être comptée se masque** plutôt que d'afficher
   des zéros que personne n'a mesurés.
 
+**Écarts mesurés en livrant F9c** (2026-09-11) :
+
+- **La page Annonces filtre sur deux axes**, statut de modération et type, là où
+  les six autres listes n'en ont qu'un. Plutôt que de détourner les onglets
+  Radix — un `TabsList` sans `TabsContent` annonce des panneaux qui n'existent
+  pas — le groupe de pastilles sort de `ListToolbar` en un `ListChips` exporté,
+  que la page pose une seconde fois sur `type`. Les quatre autres listes ne
+  changent pas d'un pixel, et chaque axe efface le sien sans toucher à l'autre.
+- **Le type ne porte pas de compteur.** Chaque compteur est une requête : les
+  quatre sondes du statut nourrissent déjà les pastilles **et** la grille, et
+  deux axes comptés en auraient fait sept par affichage. `count` est optionnel
+  sur une pastille depuis F9a, exactement pour ce cas.
+- **Les compteurs de statut sont comptés dans le type et la recherche
+  courants.** C'est ce qui fait qu'ils s'additionnent au total affiché : une
+  sonde qui ignorerait les autres axes rendrait des nombres justes pour une
+  autre liste que celle à l'écran.
+- **Le `search` des annonces est borné à 100 caractères**, comme les trois que
+  F9a a créés : c'était le seul `search` non borné de l'API, et il atteint un
+  `contains`. Il vit dans `listLostItemsFilterSchema`, que le client lit aussi —
+  mais `parsePostsFilters` écarte ce que le contrat refuse au lieu de le
+  transmettre, donc une recherche trop longue y est ignorée, jamais un 400.
+- **Les annonces entrent dans la palette**, ce que l'écart de F10 attendait de
+  cette étape. Elles mènent à leur liste filtrée sur ce qui a été tapé —
+  précédent de F10 pour les commandes et les messages avant F11a — et F11b leur
+  donnera leur route.
+- **La grille parle des annonces**, pas des « posts » : « Total annonces », «
+  Publiées », « Masquées ». Le badge de ligne reste au masculin singulier
+  (`MODERATION_CONFIG`), qui décrit une décision et vit aussi dans un toast.
+
 #### F10 — Navigation, recherche et palette ⌘K _(livré — #257)_
 
 La palette de l'artefact F7 : depuis la barre supérieure ou ⌘K / Ctrl+K, trois
@@ -742,7 +771,7 @@ listes posé par F9a, cinq lignes par sorte.
 
 - **Pas d'annonces dans les résultats** tant que leur liste ne lit pas de
   recherche (F9c) : un résultat qui mènerait à une page qui l'ignore serait un
-  cul-de-sac.
+  cul-de-sac. _Levé par F9c_ : elles y sont, et mènent à la liste filtrée.
 - **Commandes et messages mènent à leur liste filtrée**, faute de fiche en route
   avant F11 ; stickers et personnes ont déjà la leur.
 - **Une personne se cherche par son numéro ou son nom**, pas les deux :

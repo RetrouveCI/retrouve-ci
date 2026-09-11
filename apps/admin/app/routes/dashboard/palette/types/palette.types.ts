@@ -1,4 +1,5 @@
-export type PaletteHitKind = 'order' | 'sticker' | 'message' | 'user'
+export type PaletteHitKind =
+	'listing' | 'order' | 'sticker' | 'message' | 'user'
 
 export interface PaletteHit {
 	kind: PaletteHitKind
