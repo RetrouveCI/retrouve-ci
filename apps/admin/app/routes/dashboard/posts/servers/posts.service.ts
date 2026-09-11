@@ -7,7 +7,9 @@ import type {
 	ModerationStatus,
 	LostItemType,
 	Post,
+	PostComment,
 	PostListResponse,
+	UnreadThread,
 } from '../types/posts.types'
 
 export async function listPosts(
@@ -58,4 +60,40 @@ export async function createOfficialPost(
 		body: JSON.stringify(body),
 		request,
 	})
+}
+
+export async function getPostThread(
+	id: string,
+	request: Request,
+): Promise<PostComment[]> {
+	return apiFetch<PostComment[]>(`/lost-items/${id}/comments`, { request })
+}
+
+/** The desk's own path: the poster's carries a ceiling the desk must not spend. */
+export async function commentOnPost(
+	id: string,
+	body: string,
+	request: Request,
+): Promise<PostComment> {
+	return apiFetch<PostComment>(`/lost-items/${id}/comments/desk`, {
+		method: 'POST',
+		body: JSON.stringify({ body }),
+		request,
+	})
+}
+
+export async function markPostThreadRead(
+	id: string,
+	request: Request,
+): Promise<void> {
+	await apiFetch<void>(`/lost-items/${id}/comments/read`, {
+		method: 'PATCH',
+		request,
+	})
+}
+
+export async function listUnreadThreads(
+	request: Request,
+): Promise<UnreadThread[]> {
+	return apiFetch<UnreadThread[]>('/lost-items/comments/unread', { request })
 }

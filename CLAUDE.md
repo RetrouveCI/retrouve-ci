@@ -1014,7 +1014,10 @@ Route structure (defined in `app/routes.ts`):
 - `/qr`, `/qr/generate`, `/qr/:code` — QR tokens (real API: `qr-codes` domain)
 - `/events` — community events (real API: `events` domain)
 - `/notifications` — admin notifications (real API: `notifications` domain)
-- `/posts` — lost/found listings moderation (real API: `lost-items` domain)
+- `/posts` — lost/found listings moderation (real API: `lost-items` domain). A
+  listing's thread with its poster is a resource route, `posts/:id/comments`,
+  whose loader and action the detail dialog reads and posts to — so the list's
+  own action keeps answering a listing only
 - `/users`, `/users/:id` — user management (real, via better-auth's `admin()`
   plugin — no API domain of its own)
 - `/administrators` — admin account management (real, via better-auth's

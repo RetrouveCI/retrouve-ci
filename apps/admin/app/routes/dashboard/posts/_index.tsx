@@ -46,6 +46,7 @@ import {
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Post, ModerationStatus } from './types/posts.types'
 import { CATEGORY_LABELS, MODERATION_CONFIG } from './posts.const'
+import { unreadRepliesLabel } from './helpers/unread-replies'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
@@ -56,7 +57,7 @@ export const action = postsAction
 export const handle: RouteHandle = { title: 'Posts' }
 
 export default function PostsPage({ loaderData }: Route.ComponentProps) {
-	const { posts, total, statusFilter, typeFilter } = loaderData
+	const { posts, total, statusFilter, typeFilter, unreadReplies } = loaderData
 	const [searchParams, setSearchParams] = useSearchParams()
 
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null)
@@ -146,6 +147,11 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 							<Badge className={STATUS_TONE_CLASSES.success}>Équipe</Badge>
 						)}
 						<span className="truncate">{row.original.title}</span>
+						{unreadReplies[row.original.id] ? (
+							<Badge className={STATUS_TONE_CLASSES.warning}>
+								{unreadRepliesLabel(unreadReplies[row.original.id] ?? 0)}
+							</Badge>
+						) : null}
 					</p>
 					<p className="text-muted-foreground flex items-center gap-1 truncate text-xs">
 						<MapPin className="h-3 w-3 shrink-0" />
