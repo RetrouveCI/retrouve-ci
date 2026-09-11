@@ -26,6 +26,14 @@ export const paginationQuerySchema = z.object({
 		.default(DEFAULT_PAGE_SIZE),
 })
 
+// A free-text filter on a list. Capped, since it reaches a `contains` on the API.
+export const LIST_SEARCH_MAX_LENGTH = 100
+
+export const listSearchSchema = z
+	.string()
+	.trim()
+	.max(LIST_SEARCH_MAX_LENGTH, `Maximum ${LIST_SEARCH_MAX_LENGTH} caractères`)
+
 export type PaginationQueryInput = z.input<typeof paginationQuerySchema>
 export type PaginationQueryData = z.output<typeof paginationQuerySchema>
 

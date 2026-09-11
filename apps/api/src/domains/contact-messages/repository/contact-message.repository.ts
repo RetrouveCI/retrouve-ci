@@ -14,6 +14,16 @@ import type {
 
 import { toPaginated, toPrismaPage } from '@/shared/utils/pagination.util'
 
+export function messageSearchClause(search?: string) {
+	if (!search) return {}
+
+	const contains = { contains: search, mode: 'insensitive' as const }
+
+	return {
+		OR: [{ name: contains }, { email: contains }, { subject: contains }],
+	}
+}
+
 @Injectable()
 export class ContactMessageRepository {
 	constructor(private readonly prisma: PrismaService) {}
@@ -47,6 +57,7 @@ export class ContactMessageRepository {
 	): Promise<ContactMessageListResponse> {
 		const where = {
 			...(filter.status && { status: toPrismaStatus(filter.status) }),
+			...messageSearchClause(filter.search),
 		}
 
 		const [items, total] = await Promise.all([
