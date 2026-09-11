@@ -1112,6 +1112,16 @@ so component class names are included in the generated CSS. No `ui-` prefix is
 used — all Tailwind classes are standard. Apps can add app-specific overrides
 after the import in their own `app/globals.css`.
 
+**Motion is tokenised** (F12). The shared stylesheet names its durations by role
+(`--motion-press`, `--motion-pop`, `--motion-entrance`, the loops) and its
+curves (`--ease-*`); `apps/client/app/shared/__tests__/motion-tokens.test.ts`
+refuses a duration written by hand there, and holds the one
+`@media (prefers-reduced-motion: reduce)` block, which collapses every animation
+and transition to 1 ms rather than removing it. CSS does what a class or a
+keyframe can; `motion` is for what they cannot — an exit, a list reordering, a
+gesture — and then through `LazyMotion`, with its first-render weight written in
+its PR (ceiling: 5 kB gzip).
+
 ### CI/CD and Docker
 
 GitHub Actions workflows live in `.github/workflows/`:
