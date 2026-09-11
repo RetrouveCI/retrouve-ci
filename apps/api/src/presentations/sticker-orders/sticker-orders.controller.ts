@@ -22,6 +22,7 @@ import type { Auth } from '@/infrastructures/auth/auth.config'
 import { CreateStickerOrderUseCase } from '@/domains/sticker-orders/use-cases/create-sticker-order.use-case'
 import { GetMyStickerOrdersUseCase } from '@/domains/sticker-orders/use-cases/get-my-sticker-orders.use-case'
 import { GetPaginatedStickerOrdersUseCase } from '@/domains/sticker-orders/use-cases/get-paginated-sticker-orders.use-case'
+import { GetStickerOrderForDeskUseCase } from '@/domains/sticker-orders/use-cases/get-sticker-order-for-desk.use-case'
 import { GetStickerOrderUseCase } from '@/domains/sticker-orders/use-cases/get-sticker-order.use-case'
 import { UpdateStickerOrderStatusUseCase } from '@/domains/sticker-orders/use-cases/update-sticker-order-status.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
@@ -37,6 +38,7 @@ export class StickerOrdersController {
 		private readonly getPaginatedStickerOrdersUseCase: GetPaginatedStickerOrdersUseCase,
 		private readonly getMyStickerOrdersUseCase: GetMyStickerOrdersUseCase,
 		private readonly updateStickerOrderStatusUseCase: UpdateStickerOrderStatusUseCase,
+		private readonly getStickerOrderForDeskUseCase: GetStickerOrderForDeskUseCase,
 	) {}
 
 	@Post()
@@ -78,6 +80,13 @@ export class StickerOrdersController {
 	@Get(':id')
 	getOne(@Session() session: UserSession<Auth>, @Param('id') id: string) {
 		return this.getStickerOrderUseCase.execute({ id, userId: session.user.id })
+	}
+
+	// The desk's own read: `:id` answers the buyer alone, administrators included.
+	@Get('admin/:id')
+	@Roles(['admin'])
+	getOneForDesk(@Param('id') id: string) {
+		return this.getStickerOrderForDeskUseCase.execute(id)
 	}
 
 	@Patch(':id/status')
