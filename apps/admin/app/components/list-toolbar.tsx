@@ -21,6 +21,14 @@ interface ListToolbarProps {
 	children?: React.ReactNode
 }
 
+interface ListChipsProps {
+	/** The query-string key this group writes. */
+	param: string
+	chips: ListChip[]
+	/** What the group is called, for a page filtering on more than one axis. */
+	label?: string
+}
+
 /**
  * One line for every list: search, the filters with their counts, then the
  * page's own tools. Everything it sets goes into the URL — a view is shared by
@@ -32,6 +40,35 @@ export function ListToolbar({
 	searchPlaceholder,
 	children,
 }: ListToolbarProps) {
+	const [searchParams] = useSearchParams()
+
+	return (
+		<div className="flex flex-wrap items-center gap-2 border-b p-3">
+			{searchPlaceholder && (
+				// Keyed on the URL's search, so going back restores the box too.
+				<SearchBox
+					key={searchParams.get('q') ?? ''}
+					placeholder={searchPlaceholder}
+				/>
+			)}
+
+			{chips.length > 0 && <ListChips param={param} chips={chips} />}
+
+			{children && (
+				<div className="ml-auto flex flex-wrap items-center gap-2">
+					{children}
+				</div>
+			)}
+		</div>
+	)
+}
+
+/**
+ * One filtering axis. Exported on its own because a list may filter on two —
+ * the listings filter by moderation status and by type — and a second axis must
+ * read as the first one rather than as another control.
+ */
+export function ListChips({ param, chips, label = 'Filtrer' }: ListChipsProps) {
 	const [searchParams, setSearchParams] = useSearchParams()
 	const current = searchParams.get(param)
 	// A value no chip carries is read as « all », as the loader reads it.
@@ -48,53 +85,31 @@ export function ListToolbar({
 	}
 
 	return (
-		<div className="flex flex-wrap items-center gap-2 border-b p-3">
-			{searchPlaceholder && (
-				// Keyed on the URL's search, so going back restores the box too.
-				<SearchBox
-					key={searchParams.get('q') ?? ''}
-					placeholder={searchPlaceholder}
-				/>
-			)}
+		<div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
+			{chips.map(chip => {
+				const on = active === chip.value
 
-			{chips.length > 0 && (
-				<div
-					role="group"
-					aria-label="Filtrer"
-					className="flex flex-wrap gap-1.5"
-				>
-					{chips.map(chip => {
-						const on = active === chip.value
-
-						return (
-							<button
-								key={chip.value}
-								type="button"
-								aria-pressed={on}
-								onClick={() => select(chip.value)}
-								className={cn(
-									'bg-card text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors',
-									on &&
-										'border-primary bg-primary/10 text-primary-green-text hover:bg-primary/10 hover:text-primary-green-text font-semibold',
-								)}
-							>
-								{chip.label}
-								{chip.count !== undefined && (
-									<span className="font-mono opacity-80">
-										{formatNumber(chip.count)}
-									</span>
-								)}
-							</button>
-						)
-					})}
-				</div>
-			)}
-
-			{children && (
-				<div className="ml-auto flex flex-wrap items-center gap-2">
-					{children}
-				</div>
-			)}
+				return (
+					<button
+						key={chip.value}
+						type="button"
+						aria-pressed={on}
+						onClick={() => select(chip.value)}
+						className={cn(
+							'bg-card text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors',
+							on &&
+								'border-primary bg-primary/10 text-primary-green-text hover:bg-primary/10 hover:text-primary-green-text font-semibold',
+						)}
+					>
+						{chip.label}
+						{chip.count !== undefined && (
+							<span className="font-mono opacity-80">
+								{formatNumber(chip.count)}
+							</span>
+						)}
+					</button>
+				)
+			})}
 		</div>
 	)
 }

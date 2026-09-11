@@ -2,19 +2,9 @@ import { useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
-import { Link, useSearchParams } from 'react-router'
 import {
 	Badge,
 	Button,
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
@@ -23,6 +13,7 @@ import {
 } from '@app/ui/components'
 import { BentoCard } from '@/components/bento-card'
 import { DataTable } from '@/components/data-table'
+import { PostsFilters } from './components/posts-filters'
 import { PostsStatsGrid } from './components/posts-stats-grid'
 import { PostDetailDialog } from './components/post-detail-dialog'
 import {
@@ -41,7 +32,6 @@ import {
 	EyeOff,
 	Clock,
 	MapPin,
-	Plus,
 } from 'lucide-react'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Post, ModerationStatus } from './types/posts.types'
@@ -57,8 +47,7 @@ export const action = postsAction
 export const handle: RouteHandle = { title: 'Annonces' }
 
 export default function PostsPage({ loaderData }: Route.ComponentProps) {
-	const { posts, total, statusFilter, typeFilter, unreadReplies } = loaderData
-	const [searchParams, setSearchParams] = useSearchParams()
+	const { posts, total, page, pageSize, counts, unreadReplies } = loaderData
 
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null)
 	const [detailOpen, setDetailOpen] = useState(false)
@@ -110,30 +99,6 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 
 		handleModerate(hidingPost.id, 'hidden', decision)
 		setHidingPost(null)
-	}
-
-	const handleStatusFilter = (value: string) => {
-		const next = new URLSearchParams(searchParams)
-		if (value === 'all') next.delete('status')
-		else next.set('status', value)
-		setSearchParams(next)
-	}
-
-	const handleTypeTab = (value: string) => {
-		const next = new URLSearchParams(searchParams)
-		if (value === 'all') next.delete('type')
-		else next.set('type', value)
-		setSearchParams(next)
-	}
-
-	const lostPosts = posts.filter(p => p.type === 'lost')
-	const foundPosts = posts.filter(p => p.type === 'found')
-
-	const counts = {
-		total,
-		published: posts.filter(p => p.moderationStatus === 'published').length,
-		pending: posts.filter(p => p.moderationStatus === 'pending').length,
-		hidden: posts.filter(p => p.moderationStatus === 'hidden').length,
 	}
 
 	const columns: ColumnDef<Post>[] = [
@@ -246,79 +211,30 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 		},
 	]
 
-	const activeTypeTab =
-		typeFilter === 'found' ? 'found' : typeFilter === 'lost' ? 'lost' : 'all'
-
 	return (
 		<>
-			<div>
-				<div className="space-y-4 p-4 lg:p-6">
-					<div className="flex justify-end">
-						<Button asChild>
-							<Link to="/posts/new">
-								<Plus className="mr-2 h-4 w-4" />
-								Publier pour l’équipe
-							</Link>
-						</Button>
-					</div>
-
+			<div className="space-y-4 p-4 lg:p-6">
+				{/* Counted by the API, over every row: hidden rather than showing
+				    figures nobody measured. */}
+				{counts && (
 					<PostsStatsGrid
-						total={counts.total}
-						published={counts.published}
-						pending={counts.pending}
-						hidden={counts.hidden}
+						total={counts.all ?? 0}
+						published={counts.published ?? 0}
+						pending={counts.pending ?? 0}
+						hidden={counts.hidden ?? 0}
 					/>
+				)}
 
-					<BentoCard variant="table">
-						<Tabs value={activeTypeTab} onValueChange={handleTypeTab}>
-							<div className="flex flex-wrap items-center justify-between gap-3 border-b p-4">
-								<TabsList>
-									<TabsTrigger value="all">Tous</TabsTrigger>
-									<TabsTrigger value="lost">Perdus</TabsTrigger>
-									<TabsTrigger value="found">Retrouvés</TabsTrigger>
-								</TabsList>
-								<Select value={statusFilter} onValueChange={handleStatusFilter}>
-									<SelectTrigger className="h-9 w-44">
-										<SelectValue placeholder="Statut" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Tous les statuts</SelectItem>
-										<SelectItem value="pending">En attente</SelectItem>
-										<SelectItem value="published">Publiés</SelectItem>
-										<SelectItem value="hidden">Masqués</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-
-							<div className="p-4">
-								<TabsContent value="all" className="mt-0">
-									<DataTable
-										columns={columns}
-										data={posts}
-										searchKey="title"
-										searchPlaceholder="Rechercher par titre..."
-									/>
-								</TabsContent>
-								<TabsContent value="lost" className="mt-0">
-									<DataTable
-										columns={columns}
-										data={lostPosts}
-										searchKey="title"
-										searchPlaceholder="Rechercher par titre..."
-									/>
-								</TabsContent>
-								<TabsContent value="found" className="mt-0">
-									<DataTable
-										columns={columns}
-										data={foundPosts}
-										searchKey="title"
-										searchPlaceholder="Rechercher par titre..."
-									/>
-								</TabsContent>
-							</div>
-						</Tabs>
-					</BentoCard>
-				</div>
+				<BentoCard variant="table">
+					<PostsFilters counts={counts} />
+					<div className="p-4">
+						<DataTable
+							columns={columns}
+							data={posts}
+							pagination={{ page, pageSize, total }}
+						/>
+					</div>
+				</BentoCard>
 			</div>
 
 			<PostDetailDialog

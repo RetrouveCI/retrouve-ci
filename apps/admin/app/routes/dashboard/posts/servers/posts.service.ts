@@ -16,6 +16,7 @@ export async function listPosts(
 	params: {
 		moderationStatus?: ModerationStatus
 		type?: LostItemType
+		search?: string
 		page?: number
 		pageSize?: number
 	},
@@ -28,6 +29,7 @@ export async function listPosts(
 	if (params.moderationStatus)
 		query.set('moderationStatus', params.moderationStatus)
 	if (params.type) query.set('type', params.type)
+	if (params.search) query.set('search', params.search)
 
 	return apiFetch<PostListResponse>(`/lost-items/admin?${query.toString()}`, {
 		request,

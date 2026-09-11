@@ -16,10 +16,15 @@ export function PostsStatsGrid({
 }: PostsStatsGridProps) {
 	return (
 		<div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-			<StatCard highlight title="Total posts" value={total} icon={FileText} />
+			<StatCard
+				highlight
+				title="Total annonces"
+				value={total}
+				icon={FileText}
+			/>
 			<StatCard
 				tone="success"
-				title="Publiés"
+				title="Publiées"
 				value={published}
 				icon={CheckCircle2}
 			/>
@@ -29,7 +34,7 @@ export function PostsStatsGrid({
 				value={pending}
 				icon={Clock}
 			/>
-			<StatCard tone="neutral" title="Masqués" value={hidden} icon={EyeOff} />
+			<StatCard tone="neutral" title="Masquées" value={hidden} icon={EyeOff} />
 		</div>
 	)
 }

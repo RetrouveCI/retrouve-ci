@@ -1,5 +1,6 @@
 import { listContactMessages } from '../../contact-messages/servers/contact-messages.service'
 import { listOrders } from '../../orders/servers/orders.service'
+import { listPosts } from '../../posts/servers/posts.service'
 import { listQrTokens } from '../../qr/servers/qr.service'
 import type { QrTokenStatus } from '../../qr/types/qr.types'
 import { searchUsers } from '../../users/servers/users.service'
@@ -13,8 +14,9 @@ const STICKER_STATES: Record<QrTokenStatus, string> = {
 }
 
 /**
- * Every hit opens its own page. Listings are left out until their list reads a
- * search (F9c) and their page is a route (F11b).
+ * Every hit opens its own page, except a listing: it leads to its list filtered
+ * on what was typed, as orders and messages did before they had a route of
+ * their own. F11b gives it one.
  */
 export async function searchPalette(
 	query: string,
@@ -23,6 +25,15 @@ export async function searchPalette(
 	const slice = { search: query, page: 1, pageSize: PALETTE_RESULTS_PER_KIND }
 
 	const sources: Promise<PaletteHit[]>[] = [
+		listPosts(slice, request).then(({ items }) =>
+			items.map((post): PaletteHit => ({
+				kind: 'listing',
+				id: post.id,
+				label: post.title,
+				detail: `annonce · ${post.ville}`,
+				to: `/posts?q=${encodeURIComponent(post.title)}`,
+			})),
+		),
 		listOrders(slice, request).then(({ items }) =>
 			items.map((order): PaletteHit => ({
 				kind: 'order',
@@ -61,7 +72,7 @@ export async function searchPalette(
 		),
 	]
 
-	// A source that fails leaves the others: three kinds are still a palette.
+	// A source that fails leaves the others: four kinds are still a palette.
 	const settled = await Promise.allSettled(sources)
 
 	return settled.flatMap(result =>
