@@ -14,6 +14,7 @@ import type { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/creat
 import type { CreateOfficialLostItemUseCase } from '@/domains/lost-items/use-cases/create-official-lost-item.use-case'
 import type { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
 import type { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
+import type { GetLostItemForDeskUseCase } from '@/domains/lost-items/use-cases/get-lost-item-for-desk.use-case'
 import type { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import type { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
 import type { GetPublicLostItemsUseCase } from '@/domains/lost-items/use-cases/get-public-lost-items.use-case'
@@ -43,6 +44,7 @@ describe('LostItemsController', () => {
 	let createLostItem: CreateLostItemUseCase
 	let createOfficialLostItem: CreateOfficialLostItemUseCase
 	let viewLostItem: ViewLostItemUseCase
+	let getLostItemForDesk: GetLostItemForDeskUseCase
 	let contactLostItemPoster: ContactLostItemPosterUseCase
 	let getPaginatedLostItems: GetPaginatedLostItemsUseCase
 	let getPublicLostItems: GetPublicLostItemsUseCase
@@ -58,6 +60,7 @@ describe('LostItemsController', () => {
 	beforeEach(() => {
 		createLostItem = buildUseCase<CreateLostItemUseCase>()
 		viewLostItem = buildUseCase<ViewLostItemUseCase>()
+		getLostItemForDesk = buildUseCase<GetLostItemForDeskUseCase>()
 		contactLostItemPoster = buildUseCase<ContactLostItemPosterUseCase>()
 		getPaginatedLostItems = buildUseCase<GetPaginatedLostItemsUseCase>()
 		getPublicLostItems = buildUseCase<GetPublicLostItemsUseCase>()
@@ -73,6 +76,7 @@ describe('LostItemsController', () => {
 			createLostItem,
 			createOfficialLostItem,
 			viewLostItem,
+			getLostItemForDesk,
 			contactLostItemPoster,
 			getPaginatedLostItems,
 			getPublicLostItems,
@@ -315,6 +319,20 @@ describe('LostItemsController', () => {
 				'user-1',
 			)
 			expect(result).toEqual(summary)
+		})
+	})
+
+	// The desk's own read, which is what the backoffice's detail page opens.
+	describe('getOneForDesk', () => {
+		it('reads the listing through the desk use-case, with no viewer', async () => {
+			const lostItem = buildLostItem({ moderationStatus: 'pending' })
+			vi.mocked(getLostItemForDesk.execute).mockResolvedValue(lostItem)
+
+			const result = await controller.getOneForDesk('lost-item-1')
+
+			expect(getLostItemForDesk.execute).toHaveBeenCalledWith('lost-item-1')
+			expect(viewLostItem.execute).not.toHaveBeenCalled()
+			expect(result).toEqual(lostItem)
 		})
 	})
 

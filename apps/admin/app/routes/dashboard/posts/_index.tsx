@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import type { FieldValues } from 'react-hook-form'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
@@ -15,7 +16,6 @@ import { BentoCard } from '@/components/bento-card'
 import { DataTable } from '@/components/data-table'
 import { PostsFilters } from './components/posts-filters'
 import { PostsStatsGrid } from './components/posts-stats-grid'
-import { PostDetailDialog } from './components/post-detail-dialog'
 import {
 	HidePostDialog,
 	type HideDecision,
@@ -49,8 +49,6 @@ export const handle: RouteHandle = { title: 'Annonces' }
 export default function PostsPage({ loaderData }: Route.ComponentProps) {
 	const { posts, total, page, pageSize, counts, unreadReplies } = loaderData
 
-	const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-	const [detailOpen, setDetailOpen] = useState(false)
 	const [hidingPost, setHidingPost] = useState<Post | null>(null)
 
 	const moderateFetcher = useActionFetcher<
@@ -73,8 +71,6 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 		toast.success(
 			`"${post.title}" — ${MODERATION_CONFIG[post.moderationStatus].label}`,
 		)
-
-		if (selectedPost?.id === post.id) setSelectedPost(post)
 	})
 
 	const handleModerate = (
@@ -111,7 +107,12 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 						{row.original.official && (
 							<Badge className={STATUS_TONE_CLASSES.success}>Équipe</Badge>
 						)}
-						<span className="truncate">{row.original.title}</span>
+						<Link
+							to={`/posts/${row.original.id}`}
+							className="truncate hover:underline"
+						>
+							{row.original.title}
+						</Link>
 						{unreadReplies[row.original.id] ? (
 							<Badge className={STATUS_TONE_CLASSES.warning}>
 								{unreadRepliesLabel(unreadReplies[row.original.id] ?? 0)}
@@ -171,13 +172,10 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-48">
-							<DropdownMenuItem
-								onClick={() => {
-									setSelectedPost(post)
-									setDetailOpen(true)
-								}}
-							>
-								<Eye className="mr-2 h-4 w-4" /> Voir le détail
+							<DropdownMenuItem asChild>
+								<Link to={`/posts/${post.id}`}>
+									<Eye className="mr-2 h-4 w-4" /> Voir le détail
+								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							{post.moderationStatus !== 'published' && (
@@ -236,18 +234,6 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 					</div>
 				</BentoCard>
 			</div>
-
-			<PostDetailDialog
-				post={selectedPost}
-				open={detailOpen}
-				onOpenChange={open => {
-					setDetailOpen(open)
-					if (!open) setSelectedPost(null)
-				}}
-				onModerate={handleModerate}
-				onHide={setHidingPost}
-				isModerating={moderateFetcher.state !== 'idle'}
-			/>
 
 			<HidePostDialog
 				post={hidingPost}

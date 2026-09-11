@@ -753,8 +753,8 @@ cookie lu au rendu serveur, comme le repli de la barre latérale.
   transmettre, donc une recherche trop longue y est ignorée, jamais un 400.
 - **Les annonces entrent dans la palette**, ce que l'écart de F10 attendait de
   cette étape. Elles mènent à leur liste filtrée sur ce qui a été tapé —
-  précédent de F10 pour les commandes et les messages avant F11a — et F11b leur
-  donnera leur route.
+  précédent de F10 pour les commandes et les messages avant F11a. _Levé par
+  F11b_ : elles ont leur route, et la palette y mène.
 - **La grille parle des annonces**, pas des « posts » : « Total annonces », «
   Publiées », « Masquées ». Le badge de ligne reste au masculin singulier
   (`MODERATION_CONFIG`), qui décrit une décision et vit aussi dans un toast.
@@ -788,8 +788,9 @@ restent des dialogues.
 
 **F11a** _(livré — #258)_ — Commandes et Messages de contact. Chacune a sa fiche
 en route, sur la mise en page de l'artefact : l'en-tête, une colonne principale,
-une colonne d'actions. La palette y mène désormais. **F11b** — Annonces, après
-F4 : c'est F4 qui a posé le fil dans le dialogue, et la fiche doit l'accueillir.
+une colonne d'actions. La palette y mène désormais. **F11b** _(livré)_ —
+Annonces, après F4 : c'est F4 qui a posé le fil dans le dialogue, et la fiche
+l'accueille.
 
 **Écarts mesurés en livrant F11a** (2026-09-11) :
 
@@ -807,6 +808,34 @@ F4 : c'est F4 qui a posé le fil dans le dialogue, et la fiche doit l'accueillir
   son annulation directe, telle qu'elle était.
 - **Les transitions d'une commande vivent à un endroit** (`orders.const.ts`) :
   la liste et la fiche les lisaient chacune de leur côté.
+
+**Écarts mesurés en livrant F11b** (2026-09-11) :
+
+- **Le mur annoncé était bien là.** `GET /lost-items/:id` répond « introuvable »
+  sur une annonce non publiée à tout autre que son auteur — donc justement sur
+  celle que le bureau doit ouvrir pour la modérer. `GET /lost-items/admin/:id`,
+  réservée aux administrateurs, la lit, exactement comme
+  `GET /sticker-orders/admin/:id`.
+- **La lecture du bureau ne compte aucune vue.** `ViewLostItemUseCase`
+  incrémente le compteur ; un modérateur qui ouvre une annonce n'est pas une
+  audience, pour la même raison que la relecture par son auteur n'en est pas
+  une. C'est le seul écart de comportement entre les deux lectures, avec la
+  portée.
+- **La règle « pas de fil sur une annonce de l'équipe » descend dans
+  `PostThread`.** Elle vivait dans le dialogue, qui disparaît ; la remettre dans
+  la page l'aurait déplacée sans lui donner de domicile. Elle y est désormais
+  seule, et le fil ne demande même plus le fil à l'API — le compte système ne
+  lit rien.
+- **Le dialogue de lecture est supprimé, celui d'action reste** : c'est la règle
+  du §F11, et le précédent de F11a, qui avait supprimé les deux dialogues de
+  lecture en posant leurs routes. `HidePostDialog` sert maintenant la liste
+  **et** la fiche.
+- **La fiche rappelle la décision déjà prise** — le motif et la note du
+  modérateur — ce que le dialogue ne montrait pas : un second modérateur devait
+  deviner pourquoi une annonce était masquée. C'est une donnée du bureau, jamais
+  publique.
+- **La palette mène à la fiche**, ce que F9c avait laissé à la liste filtrée
+  faute de route.
 
 #### F18 — Sélection multiple et action en lot
 

@@ -7,6 +7,7 @@ import { CreateLostItemUseCase } from './use-cases/create-lost-item.use-case'
 import { CreateOfficialLostItemUseCase } from './use-cases/create-official-lost-item.use-case'
 import { DeleteLostItemUseCase } from './use-cases/delete-lost-item.use-case'
 import { GetMyLostItemsSummaryUseCase } from './use-cases/get-my-lost-items-summary.use-case'
+import { GetLostItemForDeskUseCase } from './use-cases/get-lost-item-for-desk.use-case'
 import { GetMyLostItemsUseCase } from './use-cases/get-my-lost-items.use-case'
 import { GetPaginatedLostItemsUseCase } from './use-cases/get-paginated-lost-items.use-case'
 import { GetPublicLostItemsUseCase } from './use-cases/get-public-lost-items.use-case'
@@ -24,6 +25,7 @@ const providers = [
 	CreateLostItemUseCase,
 	CreateOfficialLostItemUseCase,
 	ViewLostItemUseCase,
+	GetLostItemForDeskUseCase,
 	ContactLostItemPosterUseCase,
 	GetPaginatedLostItemsUseCase,
 	GetPublicLostItemsUseCase,

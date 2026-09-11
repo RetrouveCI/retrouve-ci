@@ -21,7 +21,18 @@ import type { Post, PostComment } from '../types/posts.types'
 // The API keeps an author's account id to itself, so the desk signs as one.
 const DESK_NAME = 'Équipe RetrouveCI'
 
+/**
+ * The system account owns a team listing and reads nothing, so there is no one
+ * to converse with. The rule lives here rather than at each call site, and the
+ * hooks below must not run for a thread that will never be read.
+ */
 export function PostThread({ post }: { post: Post }) {
+	if (post.official) return null
+
+	return <VisitorThread post={post} />
+}
+
+function VisitorThread({ post }: { post: Post }) {
 	const comments = usePostThread(post.id)
 	useMarkThreadRead(post.id, comments)
 
