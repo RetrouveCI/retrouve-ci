@@ -10,6 +10,7 @@ import { AccountModule } from '@/presentations/auth/account.module'
 import { ContactMessagesModule } from '@/presentations/contact-messages/contact-messages.module'
 import { EventsModule } from '@/presentations/events/events.module'
 import { HealthModule } from '@/presentations/health/health.module'
+import { ListingCommentsModule } from '@/presentations/listing-comments/listing-comments.module'
 import { LostItemsModule } from '@/presentations/lost-items/lost-items.module'
 import { MatchingModule } from '@/presentations/matching/matching.module'
 import { NotificationsModule } from '@/presentations/notifications/notifications.module'
@@ -33,6 +34,7 @@ import { UploadsModule } from '@/presentations/uploads/uploads.module'
 		AccountModule,
 		ContactMessagesModule,
 		EventsModule,
+		ListingCommentsModule,
 		LostItemsModule,
 		MatchingModule,
 		NotificationsModule,

@@ -113,7 +113,11 @@ describe('limitFor', () => {
 	// That is true of a listing and false of an order: stickers are paid to the
 	// courier, so an order dispatches a delivery with cash expected.
 	describe('the authenticated-write bucket', () => {
-		it.each(['/sticker-orders', '/lost-items'])('caps a POST to %s', path => {
+		it.each([
+			'/sticker-orders',
+			'/lost-items',
+			'/lost-items/clx0000000000/comments',
+		])('caps a POST to %s', path => {
 			expect(limitFor('POST', path)?.bucket).toBe('authenticated-write')
 		})
 
@@ -129,6 +133,8 @@ describe('limitFor', () => {
 			'/sticker-orders/clx0000000000',
 			'/lost-items/clx0000000000',
 			'/lost-items/clx0000000000/contact',
+			// The desk's comment is bounded by `@Roles`, not by the poster's bucket.
+			'/lost-items/clx0000000000/comments/desk',
 		])('leaves %s to its own rule', path => {
 			expect(limitFor('PATCH', path)?.bucket).not.toBe('authenticated-write')
 		})

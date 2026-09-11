@@ -18,6 +18,8 @@ describe('notificationTypeSchema', () => {
 			'order_processing',
 			'order_shipped',
 			'order_cancelled',
+			'listing_commented',
+			'listing_replied',
 		])
 	})
 

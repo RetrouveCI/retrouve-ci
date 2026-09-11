@@ -9,6 +9,7 @@ const PRESENTATIONS = 'src/presentations'
 // by what they hold. A new route lands in no class and turns this red.
 const OWNER_SCOPED_WRITES: string[] = [
 	'/lost-items/:id',
+	'/lost-items/:id/comments/read',
 	'/notifications/read-all',
 	'/notifications/:id/read',
 	'/qr-codes/:code',
