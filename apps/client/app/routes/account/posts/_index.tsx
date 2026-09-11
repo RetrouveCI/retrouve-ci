@@ -160,7 +160,11 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 						</div>
 					) : listings.length > 0 ? (
 						<>
-							<div className="grid gap-4 lg:grid-cols-2">
+							{/* Keyed on the page, so turning it replays the entry. */}
+							<div
+								key={currentPage}
+								className="animate-stagger grid gap-4 lg:grid-cols-2"
+							>
 								{listings.map(listing => (
 									<ListingCard
 										key={listing.id}

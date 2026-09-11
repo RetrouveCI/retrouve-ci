@@ -58,14 +58,19 @@ export function ListingsContent({
 				)}
 			</p>
 
+			{/* Keyed on the page, so turning it replays the entry rather than
+			    leaving the new cards already in place. */}
 			{viewMode === 'grid' ? (
-				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				<div
+					key={currentPage}
+					className="animate-stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+				>
 					{paginatedListings.map(listing => (
 						<ListingCard key={listing.id} listing={listing} variant="grid" />
 					))}
 				</div>
 			) : (
-				<div className="flex flex-col gap-3">
+				<div key={currentPage} className="animate-stagger flex flex-col gap-3">
 					{paginatedListings.map(listing => (
 						<ListingCard key={listing.id} listing={listing} variant="list" />
 					))}

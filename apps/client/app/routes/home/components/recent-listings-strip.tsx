@@ -115,7 +115,7 @@ export function RecentListingsStrip({
 				) : (
 					// Below `sm` the row scrolls (§2.1, secondary lists); above it, the
 					// cards are a grid so nothing hides off-screen for good.
-					<div className="scrollbar-hide -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 lg:grid-cols-4 lg:gap-5">
+					<div className="animate-stagger scrollbar-hide -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 lg:grid-cols-4 lg:gap-5">
 						{recent.listings.map(listing => (
 							<StripCard key={listing.id} listing={listing} />
 						))}
