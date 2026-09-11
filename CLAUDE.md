@@ -881,6 +881,26 @@ Server-side, `app/shared/helpers/session.server.ts` exposes `getServerSession` /
 > binds its options to a single injection token and a second global registration
 > would take over `AuthService`.
 >
+> **The admin instance admits none but an administrator.** Two cookies decide
+> which session a request carries, not who may obtain one: the shared core
+> exposes `/sign-in/email` on both base paths, and **every visitor holds a
+> password account** — a phone sign-up mints one under
+> `<number>@phone.retrouveci.local`, and `/account/set-initial-password` gives
+> it a password. So any visitor could have signed in on `/api/admin-auth` and
+> been handed the backoffice's cookie; #253 closed what that cookie could read,
+> and `requiredRoles` closes the door itself. It is an option of `createAuth`,
+> empty for the public app by design, and `refuseSignInWithoutRole` in
+> `packages/auth` enforces it in the same `hooks.before` middleware as the
+> password rule — the only place it can live, since these routes are mounted
+> before any Nest guard. ⚠️ **The refusal is word for word better-auth's own
+> `INVALID_EMAIL_OR_PASSWORD`, and it hashes the password first**: a refusal
+> that read differently, or came back faster, would tell an anonymous caller
+> which addresses hold an account. `hasRole` moved into `packages/auth` for it —
+> the package owns the `admin()` plugin that defines the roles — and
+> `shared/auth/has-role.ts` is a re-export, so its call sites are untouched. A
+> role added to `adminRoles` must be added to `requiredRoles` too, or it cannot
+> sign in at all.
+>
 > `ADMIN_ORIGINS` (CSV) lists the backoffice's origins and is **required in
 > production**: without it the API cannot tell the two apps apart, and refuses
 > to start.

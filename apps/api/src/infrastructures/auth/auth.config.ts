@@ -53,6 +53,11 @@ export function createAdminAuth(prisma: PrismaClient) {
 		trustedOrigins: getAllowedOrigins(),
 		cookieDomain: getCookieDomain(),
 		protectedEmails: protectedEmails(),
+		// Every visitor holds a password account — a phone sign-up mints one under
+		// `<number>@phone.retrouveci.local` — and the shared core exposes
+		// `/sign-in/email` here too. Without this, anyone with an account could
+		// obtain the backoffice's cookie.
+		requiredRoles: ['admin'],
 	})
 }
 

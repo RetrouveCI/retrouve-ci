@@ -1,9 +1,6 @@
-/** better-auth stores a user's roles as one comma-separated string. */
-export function hasRole(
-	role: string | null | undefined,
-	required: readonly string[],
-): boolean {
-	const held = (role ?? '').split(',').map(value => value.trim())
-
-	return required.some(name => held.includes(name))
-}
+/**
+ * Re-exported so the call sites keep their path. The rule lives in `@app/auth`,
+ * which owns the `admin()` plugin that defines the roles — and which reads them
+ * itself now, to refuse a sign-in on an instance an account has no role for.
+ */
+export { hasRole } from '@app/auth'
