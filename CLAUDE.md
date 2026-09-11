@@ -990,9 +990,11 @@ better-auth (`adminClient()` plugin, role check `role === 'admin'`).
 Route structure (defined in `app/routes.ts`):
 
 - `/` — dashboard overview (real API: `reporting` domain, via `/stats`)
-- `/contact-messages` — contact form submissions (real API: `contact-messages`
-  domain)
-- `/orders` — sticker orders (real API: `sticker-orders` domain)
+- `/contact-messages`, `/contact-messages/:id` — contact form submissions (real
+  API: `contact-messages` domain); opening a message marks it read
+- `/orders`, `/orders/:id` — sticker orders (real API: `sticker-orders` domain).
+  The page reads through `GET /sticker-orders/admin/:id`, the desk's own route:
+  `/sticker-orders/:id` answers the buyer alone, administrators included
 - `/qr`, `/qr/generate`, `/qr/:code` — QR tokens (real API: `qr-codes` domain)
 - `/events` — community events (real API: `events` domain)
 - `/notifications` — admin notifications (real API: `notifications` domain)
