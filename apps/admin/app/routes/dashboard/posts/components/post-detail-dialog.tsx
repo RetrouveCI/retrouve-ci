@@ -25,6 +25,7 @@ import { cn } from '@app/ui/utils'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
 import { PostDocumentBlock } from './post-document-block'
 import { PostPhotos } from './post-photos'
+import { PostThread } from './post-thread'
 import type { Post, ModerationStatus } from '../types/posts.types'
 import { CATEGORY_LABELS, MODERATION_CONFIG } from '../posts.const'
 
@@ -139,6 +140,9 @@ export function PostDetailDialog({
 							</div>
 						))}
 					</div>
+
+					{/* The system account owns a team listing, and it reads nothing. */}
+					{!post.official && <PostThread post={post} />}
 
 					<p className="text-muted-foreground text-xs">
 						Publié le{' '}

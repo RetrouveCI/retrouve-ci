@@ -1,12 +1,15 @@
 import { LOST_ITEM_TYPES, MODERATION_STATUSES } from '@app/contracts/lost-items'
 
-const { requireAdminSession, listPosts } = vi.hoisted(() => ({
-	requireAdminSession: vi.fn(),
-	listPosts: vi.fn(),
-}))
+const { requireAdminSession, listPosts, listUnreadThreads } = vi.hoisted(
+	() => ({
+		requireAdminSession: vi.fn(),
+		listPosts: vi.fn(),
+		listUnreadThreads: vi.fn(),
+	}),
+)
 
 vi.mock('@/shared/helpers/session.server', () => ({ requireAdminSession }))
-vi.mock('../posts.service', () => ({ listPosts }))
+vi.mock('../posts.service', () => ({ listPosts, listUnreadThreads }))
 
 const { postsLoader } = await import('../posts.loader')
 
@@ -16,6 +19,7 @@ const requestFor = (search = '') =>
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
 	listPosts.mockReset().mockResolvedValue({ items: [], total: 0 })
+	listUnreadThreads.mockReset().mockResolvedValue([])
 })
 
 afterEach(() => {
@@ -37,6 +41,7 @@ describe('postsLoader', () => {
 
 		await expect(postsLoader({ request: requestFor() })).rejects.toBe(redirect)
 		expect(listPosts).not.toHaveBeenCalled()
+		expect(listUnreadThreads).not.toHaveBeenCalled()
 	})
 
 	it.each(MODERATION_STATUSES)(
@@ -102,5 +107,24 @@ describe('postsLoader', () => {
 
 		expect(result.posts).toEqual([{ id: 'post-1' }])
 		expect(result.total).toBe(1)
+	})
+
+	it('marks the listings holding an unread reply', async () => {
+		listUnreadThreads.mockResolvedValue([{ lostItemId: 'post-1', unread: 2 }])
+
+		const result = await postsLoader({ request: requestFor() })
+
+		expect(result.unreadReplies).toEqual({ 'post-1': 2 })
+	})
+
+	// A marker is a hint: the list the desk works from must still arrive.
+	it('still answers the list when the unread replies cannot be read', async () => {
+		listPosts.mockResolvedValue({ items: [{ id: 'post-1' }], total: 1 })
+		listUnreadThreads.mockRejectedValue(new Error('unreachable'))
+
+		const result = await postsLoader({ request: requestFor() })
+
+		expect(result.posts).toEqual([{ id: 'post-1' }])
+		expect(result.unreadReplies).toEqual({})
 	})
 })

@@ -577,12 +577,32 @@ la modération est une décision et le commentaire une suggestion.
 - **Les lectures sont bornées**, pas paginées : les 100 derniers messages d'un
   fil, les 100 fils non lus les plus récents.
 
-#### F4 — Rédiger et suivre côté administration
+#### F4 — Rédiger et suivre côté administration _(livré — #251)_
 
 Le fil sur la fiche d'une annonce. Un indicateur sur la liste pour les annonces
 qui ont une réponse non lue. Cette étape croise F11 (la fiche devient une route)
 : si F11 est déjà passée, le fil s'y installe ; sinon il vit dans le dialogue et
 déménage avec lui.
+
+**Écarts mesurés en livrant F4** (2026-09-11) :
+
+- **F11 n'est pas passée : le fil vit dans le dialogue**, en carte « Échanges
+  avec le posteur », avec le libellé, le texte d'aide et le bouton de l'artefact
+  F7.
+- **Le bureau signe « Équipe RetrouveCI »**, là où l'artefact nomme
+  l'administrateur : F3 garde l'identifiant de l'auteur dans l'API, et c'est
+  aussi la signature que le posteur doit lire.
+- **Le fil a sa propre route ressource**, `posts/:id/comments`, qui porte sa
+  lecture **et** son écriture. Posées sur l'action de la liste, les deux
+  intentions lui faisaient répondre une annonce **ou** un message, et la
+  modération devait trier.
+- **Ouvrir le fil marque lues les réponses du posteur**, et seulement les
+  siennes : un message du bureau non lu est au posteur de le lire.
+- **L'indicateur est une pastille orange** dans la cellule du titre — l'artefact
+  réserve l'orange à ce qui attend quelqu'un. Il est lu à côté de la liste et
+  s'efface en silence si l'API ne répond pas.
+- **Pas de fil sur une annonce de l'équipe** : le compte système n'a personne
+  pour lire.
 
 #### F5 — Lire et répondre côté client
 
