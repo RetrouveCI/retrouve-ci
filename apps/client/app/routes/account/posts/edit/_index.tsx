@@ -28,6 +28,7 @@ import { toLocalDigits } from '@/shared/utils/phone'
 import { OBJECT_TYPES } from '@/routes/publish/publish.const'
 import { editPostLoader } from './servers/edit-post.loader'
 import { editPostAction } from './servers/edit-post.action'
+import { ListingThread } from './components/listing-thread'
 import type { Route } from './+types/_index'
 import { pageMeta } from '@/shared/helpers/page-meta'
 
@@ -61,7 +62,7 @@ const EDIT_NOTICES: Record<ModerationStatus, string> = {
 }
 
 export default function EditPostPage({ loaderData }: Route.ComponentProps) {
-	const { item } = loaderData
+	const { item, thread } = loaderData
 	const isLost = item.type === 'lost'
 	const accentColor = isLost ? 'var(--accent-orange)' : 'var(--primary-green)'
 	const categoryLabel =
@@ -124,6 +125,13 @@ export default function EditPostPage({ loaderData }: Route.ComponentProps) {
 						<AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
 						<p className="text-sm">{EDIT_NOTICES[item.moderationStatus]}</p>
 					</div>
+
+					{/* Above the form: a notification brought the poster here for it. */}
+					<ListingThread
+						listingId={item.id}
+						thread={thread}
+						accentColor={accentColor}
+					/>
 
 					<form onSubmit={onSubmit} noValidate className="space-y-5">
 						<div className="bg-background space-y-5 rounded-2xl border p-6">

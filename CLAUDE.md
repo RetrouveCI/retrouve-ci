@@ -790,11 +790,12 @@ mounted with no component, `fetcher.load`ed rather than fetched per navigation:
 `scan/status`, `publish/matches`, `account/posts/matches` and
 `account/stickers/pending`.
 
-⚠️ **Eight paths in `routes.ts` point straight at a `servers/*.ts`, and every
-one of them must export a `loader`** — the four above, `robots.txt`,
-`sitemap.xml`, and the two that carry only an `action`: `posts/:id/contact` and
-`q/:code/reach`. Having no component means having no error boundary, so a GET a
-resource route cannot answer is served **as the page**: React Router answers
+⚠️ **Nine paths in `routes.ts` point straight at a `servers/*.ts`, and every one
+of them must export a `loader`** — the four above, `robots.txt`, `sitemap.xml`,
+the two that carry only an `action` (`posts/:id/contact` and `q/:code/reach`),
+and `account/posts/:id/comments`, where a poster's reply to the team's thread
+posts. Having no component means having no error boundary, so a GET a resource
+route cannot answer is served **as the page**: React Router answers
 `400 {"message":"Unexpected Server Error"}`, which is what a visitor read in
 production on the contact route. And the GET is not exotic: a reload, a restore,
 or a jump no dialer follows all land on it, so their `loader` redirects back to
@@ -812,7 +813,7 @@ redirect back with `?contact=` / `?reach=`, and **both pages narrow that param
 in their loader and render it** — not a toast, since a jump that needs no
 JavaScript must not need it to explain itself either.
 `app/shared/__tests__/resource-route-get.test.ts` holds that property for all
-eight, so a ninth cannot be mounted without one.
+nine, so a tenth cannot be mounted without one.
 
 > **`apps/client` uses the target layout**:
 >
