@@ -800,7 +800,7 @@ abouti : un « 3 sur 8 » muet est pire que l'absence de la fonction.
 
 ### Lot 6 — Animations _(à détailler avant ouverture)_
 
-#### F12 — Socle d'animation _(pilote)_
+#### F12 — Socle d'animation _(pilote — livré — #259)_
 
 Ce que cette étape doit fixer, et qui liera les deux suivantes : le respect de
 `prefers-reduced-motion` en un seul endroit, la frontière entre ce qui est fait
@@ -808,9 +808,36 @@ en CSS et ce qui justifie `motion`, le budget en kilooctets au premier rendu, et
 les durées et courbes qui deviennent des jetons plutôt que des valeurs écrites à
 la main.
 
+**Ce qui est fixé** (2026-09-11) :
+
+- **La réduction du mouvement vit à un seul endroit** — le bloc global de
+  `packages/ui/src/styles/globals.css`, posé par la refonte : il ramène toute
+  animation et toute transition à 1 ms, sans les supprimer, parce qu'un `reveal`
+  part d'une opacité nulle. Une garde l'assure désormais, et assure qu'il n'en
+  existe pas un second.
+- **Les durées et les courbes sont des jetons** : `--motion-*` par rôle
+  (pression, apparition, entrée, boucles), `--ease-*` par allure. Leurs valeurs
+  sont **celles que les utilitaires écrivaient déjà** : les nommer n'a rien
+  changé à l'écran. La garde refuse une durée écrite à la main dans la feuille
+  partagée.
+- **La frontière.** Le CSS fait tout ce qu'une classe Tailwind ou une keyframe
+  savent faire : survol, pression, entrée d'un élément, boucles, squelettes.
+  `motion` n'est justifié que par ce que le CSS ne sait pas faire — la sortie
+  d'un élément qui se démonte, la réorganisation d'une liste, un geste — et
+  alors par `LazyMotion` et `m`, sous un `MotionConfig reducedMotion="user"` à
+  la racine.
+- **Le budget** : F12 ajoute **0 ko** au premier rendu, puisqu'aucune dépendance
+  n'entre. La PR qui importera `motion` la première écrira son chiffre, sous un
+  plafond de **5 ko gzip** au premier rendu ; le reste se charge à la demande.
+
 #### F13 — Accueil et listes
 
 #### F14 — Parcours et retours d'action
+
+F13 et F14 attendent une décision de produit : le socle est prêt, mais aucun
+artefact ne dessine le mouvement — quels écrans, quels éléments, quelle allure.
+Ce n'est pas au code de l'inventer ; idéalement, un artefact le tranche, comme
+F7 l'a fait pour la refonte.
 
 ---
 

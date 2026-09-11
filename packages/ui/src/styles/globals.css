@@ -67,6 +67,22 @@
 	--sidebar-accent-foreground: oklch(0.22 0.01 256);
 	--sidebar-border: oklch(0.92 0.005 90);
 	--sidebar-ring: oklch(0.52 0.15 145);
+
+	/* Motion (F12): durations by role, curves by pace. The values are the ones the
+	   utilities below wrote by hand, so naming them changed nothing on screen. */
+	--motion-press: 0.3s;
+	--motion-pop: 0.4s;
+	--motion-stagger: 0.5s;
+	--motion-entrance: 0.6s;
+	--motion-loop-fast: 1.2s;
+	--motion-loop: 2s;
+	--motion-spin: 3s;
+	--motion-drift: 4s;
+	--motion-ambient: 15s;
+	--ease-standard: ease;
+	--ease-entrance: ease-out;
+	--ease-drift: ease-in-out;
+	--ease-steady: linear;
 }
 
 .dark {
@@ -340,37 +356,37 @@
 }
 
 .animate-float {
-	animation: float 4s ease-in-out infinite;
+	animation: float var(--motion-drift) var(--ease-drift) infinite;
 }
 
 .animate-float-delayed {
-	animation: float-delayed 4s ease-in-out infinite;
-	animation-delay: 0.5s;
+	animation: float-delayed var(--motion-drift) var(--ease-drift) infinite;
+	animation-delay: var(--motion-stagger);
 }
 
 .animate-gradient {
 	background-size: 400% 400%;
-	animation: gradient-shift 15s ease infinite;
+	animation: gradient-shift var(--motion-ambient) var(--ease-standard) infinite;
 }
 
 .animate-reveal {
-	animation: reveal 0.6s ease-out forwards;
+	animation: reveal var(--motion-entrance) var(--ease-entrance) forwards;
 }
 
 .animate-pulse-soft {
-	animation: pulse-soft 2s ease-in-out infinite;
+	animation: pulse-soft var(--motion-loop) var(--ease-drift) infinite;
 }
 
 .animate-slide-up {
-	animation: slide-up 0.6s ease-out;
+	animation: slide-up var(--motion-entrance) var(--ease-entrance);
 }
 
 .animate-scale-in {
-	animation: scale-in 0.4s ease-out;
+	animation: scale-in var(--motion-pop) var(--ease-entrance);
 }
 
 .animate-shimmer {
-	animation: shimmer 2s infinite;
+	animation: shimmer var(--motion-loop) infinite;
 	background: linear-gradient(
 		90deg,
 		transparent 25%,
@@ -381,11 +397,11 @@
 }
 
 .animate-spin-slow {
-	animation: spin-slow 3s linear infinite;
+	animation: spin-slow var(--motion-spin) var(--ease-steady) infinite;
 }
 
 .animate-flow-dash {
-	animation: flow-dash 1.2s linear infinite;
+	animation: flow-dash var(--motion-loop-fast) var(--ease-steady) infinite;
 }
 
 .glass-effect {
@@ -429,8 +445,8 @@
 
 .elevated-card {
 	transition:
-		transform 0.3s ease,
-		box-shadow 0.3s ease;
+		transform var(--motion-press) var(--ease-standard),
+		box-shadow var(--motion-press) var(--ease-standard);
 }
 
 .elevated-card:hover {
@@ -477,7 +493,7 @@
 
 .scroll-trigger {
 	opacity: 0;
-	animation: reveal 0.6s ease-out forwards;
+	animation: reveal var(--motion-entrance) var(--ease-entrance) forwards;
 }
 
 .ripple {
@@ -499,7 +515,7 @@
 }
 
 .ripple:active::after {
-	animation: ripple-animation 0.6s ease-out;
+	animation: ripple-animation var(--motion-entrance) var(--ease-entrance);
 }
 
 .link-underline {
@@ -515,7 +531,7 @@
 	width: 0;
 	height: 2px;
 	background: var(--primary-green);
-	transition: width 0.3s ease;
+	transition: width var(--motion-press) var(--ease-standard);
 }
 
 .link-underline:hover::after {
