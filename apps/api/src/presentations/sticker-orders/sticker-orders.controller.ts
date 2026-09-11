@@ -9,9 +9,11 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import {
+	batchUpdateStickerOrderStatusSchema,
 	createStickerOrderSchema,
 	listStickerOrdersFilterSchema,
 	updateStickerOrderStatusSchema,
+	type BatchUpdateStickerOrderStatusData,
 	type CreateStickerOrderData,
 	type ListStickerOrdersFilterData,
 	type UpdateStickerOrderStatusData,
@@ -26,6 +28,7 @@ import { GetStickerOrderForDeskUseCase } from '@/domains/sticker-orders/use-case
 import { GetStickerOrderUseCase } from '@/domains/sticker-orders/use-cases/get-sticker-order.use-case'
 import { UpdateStickerOrderStatusUseCase } from '@/domains/sticker-orders/use-cases/update-sticker-order-status.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { settleBatch } from '@/shared/utils/batch.util'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('sticker-orders')
@@ -87,6 +90,24 @@ export class StickerOrdersController {
 	@Roles(['admin'])
 	getOneForDesk(@Param('id') id: string) {
 		return this.getStickerOrderForDeskUseCase.execute(id)
+	}
+
+	/**
+	 * ⚠️ Moving a selection forward, one order at a time through the same
+	 * use-case — which is what keeps each buyer's notice right, and keeps an
+	 * order already in that status silent. The contract refuses `cancelled`
+	 * here: a cancellation is one order's decision, behind its confirmation.
+	 */
+	@Patch('status/batch')
+	@Roles(['admin'])
+	@ApiZodBody(batchUpdateStickerOrderStatusSchema)
+	async updateStatusBatch(
+		@Body(new ZodValidationPipe(batchUpdateStickerOrderStatusSchema))
+		{ ids, status }: BatchUpdateStickerOrderStatusData,
+	) {
+		return settleBatch(ids, id =>
+			this.updateStickerOrderStatusUseCase.execute({ id, status }),
+		)
 	}
 
 	@Patch(':id/status')

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import type { FieldValues } from 'react-hook-form'
+import { usePageSelection } from '@/shared/hooks/use-page-selection'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import {
@@ -13,6 +14,7 @@ import {
 	DropdownMenuTrigger,
 } from '@app/ui/components'
 import { BentoCard } from '@/components/bento-card'
+import { BatchBar } from '@/components/batch-bar'
 import { DataTable } from '@/components/data-table'
 import { PostsFilters } from './components/posts-filters'
 import { PostsStatsGrid } from './components/posts-stats-grid'
@@ -38,6 +40,12 @@ import type { Post, ModerationStatus } from './types/posts.types'
 import { CATEGORY_LABELS, MODERATION_CONFIG } from './posts.const'
 import { unreadRepliesLabel } from './helpers/unread-replies'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
+import {
+	batchMessage,
+	batchSucceeded,
+	isBatchOutcome,
+} from '@/shared/helpers/batch-report'
+import type { BatchOutcome } from '@app/contracts/shared'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
 import type { Route } from './+types/_index'
 
@@ -50,12 +58,43 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 	const { posts, total, page, pageSize, counts, unreadReplies } = loaderData
 
 	const [hidingPost, setHidingPost] = useState<Post | null>(null)
+	const [selected, setSelected] = usePageSelection()
 
 	const moderateFetcher = useActionFetcher<
 		typeof postsAction,
 		FieldValues,
 		Post
 	>()
+
+	const batchFetcher = useActionFetcher<
+		typeof postsAction,
+		FieldValues,
+		BatchOutcome
+	>()
+
+	useSettledSubmission(batchFetcher.response, result => {
+		if (!result.success) {
+			toast.error(
+				result.errors?.root?.message ?? 'Impossible de publier la sélection',
+			)
+			return
+		}
+
+		const outcome = result.data
+		if (!isBatchOutcome(outcome)) return
+
+		const message = batchMessage(outcome, {
+			one: 'annonce publiée',
+			many: 'annonces publiées',
+		})
+
+		if (batchSucceeded(outcome)) toast.success(message)
+		else toast.error(message)
+
+		// What stays ticked is what did not go through: the ids mean nothing to a
+		// reader, so the selection is what answers « lesquelles ».
+		setSelected(outcome.failed.map(item => item.id))
+	})
 
 	useSettledSubmission(moderateFetcher.response, result => {
 		if (!result.success) {
@@ -66,7 +105,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 		}
 
 		const post = result.data
-		if (!post) return
+		if (!post || isBatchOutcome(post)) return
 
 		toast.success(
 			`"${post.title}" — ${MODERATION_CONFIG[post.moderationStatus].label}`,
@@ -225,11 +264,35 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 
 				<BentoCard variant="table">
 					<PostsFilters counts={counts} />
+					<BatchBar
+						selected={selected}
+						onClear={() => setSelected([])}
+						action="Publier la sélection"
+						confirmTitle={`Publier ${selected.length} annonce${selected.length > 1 ? 's' : ''} ?`}
+						confirmBody="Elles deviennent visibles publiquement, et leurs posteurs en sont prévenus. Celles qui sont déjà publiées ne changent pas et ne renvoient rien."
+						submitting={batchFetcher.isSubmitting}
+						onConfirm={() =>
+							batchFetcher.submit(
+								{
+									intent: 'moderate-batch',
+									moderationStatus: 'published',
+									ids: selected,
+								},
+								{ method: 'post' },
+							)
+						}
+					/>
 					<div className="p-4">
 						<DataTable
 							columns={columns}
 							data={posts}
 							pagination={{ page, pageSize, total }}
+							selection={{
+								selected,
+								onChange: setSelected,
+								idOf: post => post.id,
+								label: post => `Sélectionner « ${post.title} »`,
+							}}
 						/>
 					</div>
 				</BentoCard>

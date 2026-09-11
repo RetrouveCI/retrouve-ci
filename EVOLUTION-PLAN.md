@@ -863,7 +863,7 @@ l'accueille.
 - **La palette mène à la fiche**, ce que F9c avait laissé à la liste filtrée
   faute de route.
 
-#### F18 — Sélection multiple et action en lot
+#### F18 — Sélection multiple et action en lot _(livré)_
 
 Décidée après le découpage, elle appartient au lot 5 et s'ouvre après `F9`, qui
 installe la barre d'outils où la sélection vit.
@@ -879,6 +879,41 @@ prend une liste d'identifiants et une décision.
 donc republier vingt annonces déjà publiées ne doit pas envoyer vingt
 notifications. Et un lot partiellement en échec doit dire **lesquelles** ont
 abouti : un « 3 sur 8 » muet est pire que l'absence de la fonction.
+
+**Arbitrage rendu** (2026-09-11) : les **trois** actions, et **une route par
+domaine**. Les commandes ont été retenues contre ma recommandation — j'avais
+posé la réserve que chaque transition promet une livraison à un acheteur — donc
+elles sont livrées avec le garde-fou décrit plus bas.
+
+**Écarts mesurés en livrant F18** (2026-09-11) :
+
+- **Le lot passe par le use-case unitaire, depuis le contrôleur.** Le plan
+  demande de passer par `ModerateLostItemUseCase` ; la règle des domaines
+  interdit à un use-case d'en appeler un autre. C'est donc la **présentation**
+  qui boucle, à travers `settleBatch` — un seul endroit pour « poursuivre après
+  un échec » et « nommer ce qui a abouti », et les trois garanties de transition
+  restent celles du use-case, gratuitement.
+- **Chaque schéma nomme la seule décision qu'un lot peut prendre**, et refuse
+  les autres : `published` pour les annonces, `archived` pour les messages, et
+  pour les commandes tout sauf `cancelled` et `pending`. Masquer est un jugement
+  sur **une** annonce, et une annulation sur **une** commande : ce qui les tient
+  hors du lot est le contrat, pas l'interface.
+- **Les commandes exigent une sélection homogène.** `batchStep` refuse une
+  sélection à deux statuts et **dit pourquoi** plutôt que de se taire : sinon un
+  clic enverrait plusieurs promesses différentes, et l'opérateur ne saurait pas
+  laquelle est partie où. La confirmation nomme la somme en espèces quand
+  l'étape est l'expédition.
+- **La sélection appartient à l'écran.** `usePageSelection` la vide dès que
+  l'URL change — page, taille, recherche, filtre. Sans cela elle porterait sur
+  des lignes que l'opérateur ne voit plus, et l'étape suivante des commandes
+  serait calculée sur une fraction de ce qu'elle déplace.
+- **Ce qui reste coché, c'est ce qui a échoué.** Les identifiants ne disent rien
+  à un lecteur, donc la réponse à « lesquelles » n'est pas dans le message : la
+  page décoche ce qui est passé et laisse le reste. Le message, lui, compte et
+  nomme les motifs **distincts** — vingt lignes en échec pour une même raison
+  font une chose à lire, pas vingt.
+- **Un lot est plafonné à 50** et confirme toujours. C'est le seul geste où un
+  clic de travers se multiplie.
 
 ---
 

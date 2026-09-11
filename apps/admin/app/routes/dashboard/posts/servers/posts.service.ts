@@ -1,7 +1,9 @@
 import type {
+	BatchModerateLostItemsData,
 	CreateOfficialLostItemInput,
 	UpdateModerationStatusData,
 } from '@app/contracts/lost-items'
+import type { BatchOutcome } from '@app/contracts/shared'
 import { apiFetch } from '@/shared/utils/api-fetch'
 import type {
 	ModerationStatus,
@@ -54,6 +56,18 @@ export async function moderatePost(
 	const { id, ...body } = decision
 
 	return apiFetch<Post>(`/lost-items/${id}/moderation`, {
+		method: 'PATCH',
+		body: JSON.stringify(body),
+		request,
+	})
+}
+
+/** Publishing a selection. The API runs them one at a time and says which. */
+export async function moderatePostsBatch(
+	body: BatchModerateLostItemsData,
+	request: Request,
+): Promise<BatchOutcome> {
+	return apiFetch<BatchOutcome>('/lost-items/moderation/batch', {
 		method: 'PATCH',
 		body: JSON.stringify(body),
 		request,

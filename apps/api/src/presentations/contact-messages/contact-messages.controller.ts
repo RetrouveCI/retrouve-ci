@@ -9,9 +9,11 @@ import {
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import {
+	batchUpdateContactMessageStatusSchema,
 	createContactMessageSchema,
 	listContactMessagesFilterSchema,
 	updateContactMessageStatusSchema,
+	type BatchUpdateContactMessageStatusData,
 	type CreateContactMessageData,
 	type ListContactMessagesFilterData,
 	type UpdateContactMessageStatusData,
@@ -22,6 +24,7 @@ import { GetContactMessageUseCase } from '@/domains/contact-messages/use-cases/g
 import { GetPaginatedContactMessagesUseCase } from '@/domains/contact-messages/use-cases/get-paginated-contact-messages.use-case'
 import { UpdateContactMessageStatusUseCase } from '@/domains/contact-messages/use-cases/update-contact-message-status.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { settleBatch } from '@/shared/utils/batch.util'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('contact-messages')
@@ -63,6 +66,23 @@ export class ContactMessagesController {
 	@Roles(['admin'])
 	getOne(@Param('id') id: string) {
 		return this.getContactMessage.execute(id)
+	}
+
+	/**
+	 * Archiving a selection, one message at a time through the same use-case as
+	 * the single change. Nothing leaves the desk when a message is archived, so
+	 * a batch here promises nobody anything.
+	 */
+	@Patch('status/batch')
+	@Roles(['admin'])
+	@ApiZodBody(batchUpdateContactMessageStatusSchema)
+	async updateStatusBatch(
+		@Body(new ZodValidationPipe(batchUpdateContactMessageStatusSchema))
+		{ ids, status }: BatchUpdateContactMessageStatusData,
+	) {
+		return settleBatch(ids, id =>
+			this.updateContactMessageStatus.execute({ id, status }),
+		)
 	}
 
 	@Patch(':id/status')

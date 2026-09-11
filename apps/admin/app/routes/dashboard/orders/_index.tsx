@@ -10,12 +10,20 @@ import {
 } from '@app/ui/components'
 import { STICKER_ORDER_STATUSES } from '@app/contracts/sticker-orders'
 import { BentoCard } from '@/components/bento-card'
+import { BatchBar } from '@/components/batch-bar'
 import { DataTable } from '@/components/data-table'
 import { DensityToggle } from '@/components/density-toggle'
 import { ListToolbar } from '@/components/list-toolbar'
 import { OrderStatsGrid } from './components/order-stats-grid'
 import { ordersLoader } from './servers/orders.loader'
 import { ordersAction } from './servers/orders.action'
+import {
+	batchMessage,
+	batchSucceeded,
+	isBatchOutcome,
+} from '@/shared/helpers/batch-report'
+import { batchStep } from './helpers/batch-step'
+import { usePageSelection } from '@/shared/hooks/use-page-selection'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import type { FieldValues } from 'react-hook-form'
@@ -24,6 +32,7 @@ import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { StickerOrder, OrderStatus } from './types/orders.types'
+import type { BatchOutcome } from '@app/contracts/shared'
 import {
 	CANCELLABLE_ORDER_STATUSES,
 	NEXT_ORDER_STATUS,
@@ -49,6 +58,38 @@ const STATUS_FILTER_LABELS: Record<OrderStatus, string> = {
 
 export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 	const { orders, total, page, pageSize, counts } = loaderData
+	const [selected, setSelected] = usePageSelection()
+	const step = batchStep(orders, selected)
+
+	const batchFetcher = useActionFetcher<
+		typeof ordersAction,
+		FieldValues,
+		BatchOutcome
+	>()
+
+	useSettledSubmission(batchFetcher.response, result => {
+		if (!result.success) {
+			toast.error(
+				result.errors?.root?.message ??
+					'Impossible de faire avancer la sélection',
+			)
+			return
+		}
+
+		const outcome = result.data
+		if (!isBatchOutcome(outcome)) return
+
+		const message = batchMessage(outcome, {
+			one: 'commande mise à jour',
+			many: 'commandes mises à jour',
+		})
+
+		if (batchSucceeded(outcome)) toast.success(message)
+		else toast.error(message)
+
+		// What stays ticked is what did not go through.
+		setSelected(outcome.failed.map(item => item.id))
+	})
 
 	const statusFetcher = useActionFetcher<
 		typeof ordersAction,
@@ -64,9 +105,10 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			return
 		}
 
+		// The list's action serves its selection too, so it answers a union.
 		const order = result.data
 
-		if (order)
+		if (order && !isBatchOutcome(order))
 			toast.success(
 				`Commande ${order.orderNumber} — ${ORDER_STATUS_CONFIG[order.status].label}`,
 			)
@@ -272,11 +314,43 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 						<Download className="mr-2 h-4 w-4" /> Exporter la page
 					</Button>
 				</ListToolbar>
+				<BatchBar
+					selected={selected}
+					onClear={() => setSelected([])}
+					action={step.kind === 'ready' ? step.label : 'Faire avancer'}
+					disabled={step.kind !== 'ready'}
+					hint={step.kind === 'blocked' ? step.reason : undefined}
+					confirmTitle={`Faire avancer ${selected.length} commande${selected.length > 1 ? 's' : ''} ?`}
+					confirmBody={
+						step.kind === 'ready' && step.status === 'shipped'
+							? 'Chaque acheteur est prévenu que sa commande part, avec la somme à préparer en espèces pour le coursier. Cette annonce ne se reprend pas.'
+							: 'Chaque acheteur concerné en est prévenu.'
+					}
+					submitting={batchFetcher.isSubmitting}
+					onConfirm={() => {
+						if (step.kind !== 'ready') return
+
+						batchFetcher.submit(
+							{
+								intent: 'status-batch',
+								status: step.status,
+								ids: selected,
+							},
+							{ method: 'post' },
+						)
+					}}
+				/>
 				<div className="p-4">
 					<DataTable
 						columns={columns}
 						data={orders}
 						pagination={{ page, pageSize, total }}
+						selection={{
+							selected,
+							onChange: setSelected,
+							idOf: order => order.id,
+							label: order => `Sélectionner la commande ${order.orderNumber}`,
+						}}
 					/>
 				</div>
 			</BentoCard>

@@ -18,6 +18,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@app/ui/components'
+import { isBatchOutcome } from '@/shared/helpers/batch-report'
 import { useActionFetcher } from '@/shared/hooks/use-action-fetcher'
 import { useSettledSubmission } from '@/shared/hooks/use-settled-submission'
 import {
@@ -44,9 +45,12 @@ export function OrderStatusCard({ order }: { order: StickerOrder }) {
 			return
 		}
 
-		if (result.data) {
+		// The list's action serves its selection too, so it answers a union.
+		const updated = result.data
+
+		if (updated && !isBatchOutcome(updated)) {
 			toast.success(
-				`Commande ${result.data.orderNumber} — ${ORDER_STATUS_CONFIG[result.data.status].label}`,
+				`Commande ${updated.orderNumber} — ${ORDER_STATUS_CONFIG[updated.status].label}`,
 			)
 		}
 	})
