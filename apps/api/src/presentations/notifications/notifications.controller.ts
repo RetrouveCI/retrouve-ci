@@ -58,7 +58,7 @@ export class NotificationsController {
 		filter: ListNotificationsFilterData,
 	) {
 		return this.getMyNotifications.execute({
-			scope: notificationScope(audience, session.user.id),
+			scope: notificationScope(audience, session.user),
 			filter,
 		})
 	}
@@ -69,7 +69,7 @@ export class NotificationsController {
 		@Audience() audience: SessionAudience,
 	) {
 		return this.getUnreadNotificationsCount.execute(
-			notificationScope(audience, session.user.id),
+			notificationScope(audience, session.user),
 		)
 	}
 
@@ -79,7 +79,7 @@ export class NotificationsController {
 		@Audience() audience: SessionAudience,
 	) {
 		return this.markAllNotificationsAsRead.execute(
-			notificationScope(audience, session.user.id),
+			notificationScope(audience, session.user),
 		)
 	}
 
@@ -124,7 +124,7 @@ export class NotificationsController {
 	) {
 		return this.markNotificationAsRead.execute({
 			id,
-			scope: notificationScope(audience, session.user.id),
+			scope: notificationScope(audience, session.user),
 		})
 	}
 }

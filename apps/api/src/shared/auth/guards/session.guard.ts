@@ -10,6 +10,7 @@ import { Reflector } from '@nestjs/core'
 import { fromNodeHeaders } from 'better-auth/node'
 import type { AdminAuth, Auth } from '@/infrastructures/auth/auth.config'
 import { ADMIN_AUTH, CLIENT_AUTH } from '@/infrastructures/auth/auth.tokens'
+import { hasRole } from '@/shared/auth/has-role'
 import {
 	AUDIENCE_HEADER,
 	getAdminOrigins,
@@ -75,7 +76,7 @@ export class SessionGuard implements CanActivate {
 		}
 
 		const requiredRoles = this.metadata<string[]>(context, ROLES_KEY)
-		if (requiredRoles?.length && !hasRole(session, requiredRoles)) {
+		if (requiredRoles?.length && !hasRole(session.user?.role, requiredRoles)) {
 			throw new ForbiddenException()
 		}
 
@@ -88,11 +89,6 @@ export class SessionGuard implements CanActivate {
 			context.getClass(),
 		])
 	}
-}
-
-function hasRole(session: SessionLike, requiredRoles: string[]): boolean {
-	const roles = (session?.user?.role ?? '').split(',').map(role => role.trim())
-	return requiredRoles.some(required => roles.includes(required))
 }
 
 function readHeader(request: RequestLike, name: string): string | undefined {

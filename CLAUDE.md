@@ -500,7 +500,11 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   in `domains/notifications/repository/` is the **only** place a notification
   `where` clause is built — the audience separation lives there and nowhere
   above, so add no second one. Its `userId: null` is load-bearing: without it
-  the desk's clause would also match an administrator's own visitor rows.
+  the desk's clause would also match an administrator's own visitor rows. The
+  desk's scope needs the admin **role** as well as the admin audience: every
+  visitor holds a password account, nothing refuses one signing in to
+  `/api/admin-auth` with it, and `notificationScope` answers 403 rather than
+  open the queue.
 - **Raising a notification must not put the write at risk.**
   `domains/notifications/helpers/notify.ts` holds one swallowing body and two
   façades over it — `notifyDesk` and `notifyUser`, each typed on its own narrow
