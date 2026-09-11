@@ -38,6 +38,7 @@ import { CreateLostItemUseCase } from '@/domains/lost-items/use-cases/create-los
 import { CreateOfficialLostItemUseCase } from '@/domains/lost-items/use-cases/create-official-lost-item.use-case'
 import { DeleteLostItemUseCase } from '@/domains/lost-items/use-cases/delete-lost-item.use-case'
 import { GetMyLostItemsSummaryUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items-summary.use-case'
+import { GetLostItemForDeskUseCase } from '@/domains/lost-items/use-cases/get-lost-item-for-desk.use-case'
 import { GetMyLostItemsUseCase } from '@/domains/lost-items/use-cases/get-my-lost-items.use-case'
 import { GetPaginatedLostItemsUseCase } from '@/domains/lost-items/use-cases/get-paginated-lost-items.use-case'
 import { GetPublicLostItemsUseCase } from '@/domains/lost-items/use-cases/get-public-lost-items.use-case'
@@ -59,6 +60,7 @@ export class LostItemsController {
 		private readonly createLostItemUseCase: CreateLostItemUseCase,
 		private readonly createOfficialLostItemUseCase: CreateOfficialLostItemUseCase,
 		private readonly viewLostItemUseCase: ViewLostItemUseCase,
+		private readonly getLostItemForDeskUseCase: GetLostItemForDeskUseCase,
 		private readonly contactLostItemPosterUseCase: ContactLostItemPosterUseCase,
 		private readonly getPaginatedLostItemsUseCase: GetPaginatedLostItemsUseCase,
 		private readonly getPublicLostItemsUseCase: GetPublicLostItemsUseCase,
@@ -171,6 +173,14 @@ export class LostItemsController {
 		filter: AdminListLostItemsFilterData,
 	) {
 		return this.getPaginatedLostItemsUseCase.execute(this.toListFilter(filter))
+	}
+
+	// The desk's own read: `:id` hides an unpublished listing from everyone but
+	// its author, administrators included — and that is the one it moderates.
+	@Get('admin/:id')
+	@Roles(['admin'])
+	getOneForDesk(@Param('id') id: string) {
+		return this.getLostItemForDeskUseCase.execute(id)
 	}
 
 	@Patch(':id/moderation')

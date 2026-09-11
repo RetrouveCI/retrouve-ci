@@ -36,6 +36,17 @@ export async function listPosts(
 	})
 }
 
+/**
+ * Through the desk's own route: `/lost-items/:id` hides an unpublished listing
+ * from everyone but its author, administrators included — and that is the one
+ * the backoffice opens to moderate it.
+ */
+export async function getPost(id: string, request: Request): Promise<Post> {
+	return apiFetch<Post>(`/lost-items/admin/${encodeURIComponent(id)}`, {
+		request,
+	})
+}
+
 export async function moderatePost(
 	decision: UpdateModerationStatusData & { id: string },
 	request: Request,

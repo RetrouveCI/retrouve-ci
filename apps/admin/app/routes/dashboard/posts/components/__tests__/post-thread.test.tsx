@@ -175,4 +175,24 @@ describe('PostThread', () => {
 
 		expect(action).not.toHaveBeenCalled()
 	})
+
+	// The system account owns a team listing, and nobody reads for it — so the
+	// thread must not even ask the API for one.
+	it('opens no thread on a team listing', async () => {
+		const loader = vi.fn(() => ({ postId: 'post-1', comments: [] }))
+		const post = buildPost({ official: true })
+		const Stub = createRoutesStub([
+			{ path: '/posts', Component: () => <PostThread post={post} /> },
+			{ path: '/posts/:id/comments', loader },
+		])
+
+		render(<Stub initialEntries={['/posts']} />)
+
+		await new Promise(resolve => setTimeout(resolve, 100))
+
+		expect(page.getByText('Échanges avec le posteur').elements()).toHaveLength(
+			0,
+		)
+		expect(loader).not.toHaveBeenCalled()
+	})
 })

@@ -13,11 +13,7 @@ const STICKER_STATES: Record<QrTokenStatus, string> = {
 	revoked: 'révoqué',
 }
 
-/**
- * Every hit opens its own page, except a listing: it leads to its list filtered
- * on what was typed, as orders and messages did before they had a route of
- * their own. F11b gives it one.
- */
+/** Every hit opens its own page. */
 export async function searchPalette(
 	query: string,
 	request: Request,
@@ -31,7 +27,7 @@ export async function searchPalette(
 				id: post.id,
 				label: post.title,
 				detail: `annonce · ${post.ville}`,
-				to: `/posts?q=${encodeURIComponent(post.title)}`,
+				to: `/posts/${encodeURIComponent(post.id)}`,
 			})),
 		),
 		listOrders(slice, request).then(({ items }) =>

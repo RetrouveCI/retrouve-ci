@@ -22,6 +22,7 @@ export default [
 		route('notifications', 'routes/dashboard/notifications/_index.tsx'),
 		route('posts', 'routes/dashboard/posts/_index.tsx'),
 		route('posts/new', 'routes/dashboard/posts/new/_index.tsx'),
+		route('posts/:id', 'routes/dashboard/posts/detail/_index.tsx'),
 		route('users', 'routes/dashboard/users/_index.tsx'),
 		route('users/:id', 'routes/dashboard/users/detail/_index.tsx'),
 		route('administrators', 'routes/dashboard/administrators/_index.tsx'),
