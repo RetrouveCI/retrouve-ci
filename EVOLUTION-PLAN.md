@@ -584,12 +584,29 @@ qui ont une réponse non lue. Cette étape croise F11 (la fiche devient une rout
 : si F11 est déjà passée, le fil s'y installe ; sinon il vit dans le dialogue et
 déménage avec lui.
 
-#### F5 — Lire et répondre côté client
+#### F5 — Lire et répondre côté client _(livré — #252)_
 
 Le fil sur `/account/posts/:id`, et un indicateur sur la carte dans « Mes
 annonces ». Le formulaire de réponse suit la convention du dépôt :
 `servers/*.action.ts`, `ActionResult`, `useActionFetcher`, react-hook-form avec
 `standardSchemaResolver`.
+
+**Écarts mesurés en livrant F5** (2026-09-11) :
+
+- **Le fil ne s'affiche qu'une fois que l'équipe a écrit.** Le posteur répond à
+  une suggestion ; un fil vide n'est pas une invitation à en ouvrir un. L'API le
+  permettrait (F3), l'interface ne le propose pas.
+- **Il est posé au-dessus du formulaire d'édition**, puisque la notification
+  `listing_commented` mène à cette page pour lui.
+- **Il écrit par une route ressource**, `account/posts/:id/comments` — la
+  neuvième qui pointe sur un `servers/*.ts`, avec le `loader` qui renvoie un GET
+  vers la page. L'action de la page d'édition répond une annonce entière, et
+  n'avait pas à trier une réponse.
+- **Sur la carte, « Nouveau message de l'équipe » remplace « Modifier l'annonce
+  »** d'une annonce masquée : les deux mènent au même écran, et le message est
+  la meilleure raison d'y aller.
+- **Ouvrir la page marque lus les messages de l'équipe**, et seulement eux.
+- **Aucune dépendance ajoutée** : 0 ko au premier rendu.
 
 ---
 
