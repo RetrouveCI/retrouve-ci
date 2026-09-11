@@ -1,5 +1,6 @@
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import type { LayoutCounts } from '@/shared/types/dashboard'
+import { readTableDensity } from '@/shared/helpers/table-density'
 import { getUnreadCount } from '../notifications/servers/notifications.service'
 
 const SIDEBAR_COLLAPSED = /(?:^|;\s*)sidebar_collapsed=1(?:;|$)/
@@ -11,6 +12,7 @@ export async function dashboardLoader({ request }: { request: Request }) {
 		sidebarCollapsed: SIDEBAR_COLLAPSED.test(
 			request.headers.get('cookie') ?? '',
 		),
+		tableDensity: readTableDensity(request.headers.get('cookie')),
 		counts: await readCounts(request),
 	}
 }

@@ -26,6 +26,10 @@ import {
 } from '@tanstack/react-table'
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import { cn } from '@app/ui/utils'
+import { useTableDensity } from '@/context/table-density'
+import { DENSITY_CELL_CLASSES } from '@/shared/helpers/table-density'
+import { ListPager } from './list-pager'
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
@@ -33,6 +37,11 @@ interface DataTableProps<TData, TValue> {
 	searchKey?: string
 	searchPlaceholder?: string
 	pageSize?: number
+	/**
+	 * Server pagination: the rows arrive as one page and the pager writes the
+	 * URL. Without it the table pages what it was given, in the browser.
+	 */
+	pagination?: { page: number; pageSize: number; total: number }
 }
 
 export function DataTable<TData, TValue>({
@@ -41,7 +50,9 @@ export function DataTable<TData, TValue>({
 	searchKey,
 	searchPlaceholder = 'Rechercher...',
 	pageSize = 10,
+	pagination,
 }: DataTableProps<TData, TValue>) {
+	const { density } = useTableDensity()
 	const [sorting, setSorting] = useState<SortingState>([])
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 	const [globalFilter, setGlobalFilter] = useState('')
@@ -50,7 +61,7 @@ export function DataTable<TData, TValue>({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
+		getPaginationRowModel: pagination ? undefined : getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		onSortingChange: setSorting,
@@ -109,7 +120,10 @@ export function DataTable<TData, TValue>({
 							table.getRowModel().rows.map(row => (
 								<TableRow key={row.id}>
 									{row.getVisibleCells().map(cell => (
-										<TableCell key={cell.id} className="px-4 py-3">
+										<TableCell
+											key={cell.id}
+											className={cn('px-4', DENSITY_CELL_CLASSES[density])}
+										>
 											{flexRender(
 												cell.column.columnDef.cell,
 												cell.getContext(),
@@ -132,51 +146,65 @@ export function DataTable<TData, TValue>({
 				</Table>
 			</div>
 
-			<div className="flex items-center justify-between">
-				<div className="text-muted-foreground flex items-center gap-2 text-sm">
-					<span>Lignes par page</span>
-					<Select
-						value={`${table.getState().pagination.pageSize}`}
-						onValueChange={value => table.setPageSize(Number(value))}
-					>
-						<SelectTrigger className="h-8 w-16">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							{[10, 25, 50, 100].map(size => (
-								<SelectItem key={size} value={`${size}`}>
-									{size}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
+			{pagination ? (
+				<ListPager {...pagination} />
+			) : (
+				<ClientPager table={table} />
+			)}
+		</div>
+	)
+}
 
-				<div className="flex items-center gap-2">
-					<span className="text-muted-foreground text-sm">
-						Page {table.getState().pagination.pageIndex + 1} sur{' '}
-						{table.getPageCount()}
-					</span>
-					<div className="flex gap-1">
-						<Button
-							variant="outline"
-							size="icon"
-							className="h-8 w-8"
-							onClick={() => table.previousPage()}
-							disabled={!table.getCanPreviousPage()}
-						>
-							<ChevronLeft className="h-4 w-4" />
-						</Button>
-						<Button
-							variant="outline"
-							size="icon"
-							className="h-8 w-8"
-							onClick={() => table.nextPage()}
-							disabled={!table.getCanNextPage()}
-						>
-							<ChevronRight className="h-4 w-4" />
-						</Button>
-					</div>
+function ClientPager<TData>({
+	table,
+}: {
+	table: ReturnType<typeof useReactTable<TData>>
+}) {
+	return (
+		<div className="flex items-center justify-between">
+			<div className="text-muted-foreground flex items-center gap-2 text-sm">
+				<span>Lignes par page</span>
+				<Select
+					value={`${table.getState().pagination.pageSize}`}
+					onValueChange={value => table.setPageSize(Number(value))}
+				>
+					<SelectTrigger className="h-8 w-16">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						{[10, 25, 50, 100].map(size => (
+							<SelectItem key={size} value={`${size}`}>
+								{size}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
+
+			<div className="flex items-center gap-2">
+				<span className="text-muted-foreground text-sm">
+					Page {table.getState().pagination.pageIndex + 1} sur{' '}
+					{table.getPageCount()}
+				</span>
+				<div className="flex gap-1">
+					<Button
+						variant="outline"
+						size="icon"
+						className="h-8 w-8"
+						onClick={() => table.previousPage()}
+						disabled={!table.getCanPreviousPage()}
+					>
+						<ChevronLeft className="h-4 w-4" />
+					</Button>
+					<Button
+						variant="outline"
+						size="icon"
+						className="h-8 w-8"
+						onClick={() => table.nextPage()}
+						disabled={!table.getCanNextPage()}
+					>
+						<ChevronRight className="h-4 w-4" />
+					</Button>
 				</div>
 			</div>
 		</div>

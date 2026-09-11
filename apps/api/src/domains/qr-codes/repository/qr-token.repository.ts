@@ -19,6 +19,15 @@ import type {
 	QrTokenPublicViewRead,
 } from '../types/qr-token.types'
 
+// A code is what a finder types, a label and a batch what the desk writes.
+export function qrSearchClause(search?: string) {
+	if (!search) return {}
+
+	const contains = { contains: search, mode: 'insensitive' as const }
+
+	return { OR: [{ code: contains }, { label: contains }, { batch: contains }] }
+}
+
 @Injectable()
 export class QrTokenRepository {
 	constructor(private readonly prisma: PrismaService) {}
@@ -175,6 +184,7 @@ export class QrTokenRepository {
 		const where = {
 			...(filter.status && { status: toPrismaStatus(filter.status) }),
 			...(filter.userId && { userId: filter.userId }),
+			...qrSearchClause(filter.search),
 		}
 
 		const [items, total] = await Promise.all([
