@@ -1,10 +1,16 @@
-const { requireServerSession, getMyLostItems } = vi.hoisted(() => ({
-	requireServerSession: vi.fn(),
-	getMyLostItems: vi.fn(),
-}))
+const { requireServerSession, getMyLostItems, getListingThread } = vi.hoisted(
+	() => ({
+		requireServerSession: vi.fn(),
+		getMyLostItems: vi.fn(),
+		getListingThread: vi.fn(),
+	}),
+)
 
 vi.mock('@/shared/helpers/session.server', () => ({ requireServerSession }))
-vi.mock('../../../servers/account-posts.service', () => ({ getMyLostItems }))
+vi.mock('../../../servers/account-posts.service', () => ({
+	getMyLostItems,
+	getListingThread,
+}))
 
 const { editPostLoader } = await import('../edit-post.loader')
 
@@ -22,6 +28,7 @@ const redirectTo = (value: unknown) =>
 beforeEach(() => {
 	requireServerSession.mockReset().mockResolvedValue({ user: { id: 'u1' } })
 	getMyLostItems.mockReset().mockResolvedValue([dto('post-1')])
+	getListingThread.mockReset().mockResolvedValue([])
 })
 
 afterEach(() => {
@@ -75,6 +82,29 @@ describe('editPostLoader', () => {
 			expect(item).toMatchObject({ id: 'post-1', moderationStatus })
 		},
 	)
+})
+
+describe('editPostLoader — the thread with the team', () => {
+	it('reads the thread of the listing being edited', async () => {
+		const thread = [{ id: 'comment-1', authorSide: 'admin' }]
+		getListingThread.mockResolvedValue(thread)
+		const req = request()
+
+		const result = await editPostLoader(req, 'post-1')
+
+		expect(getListingThread).toHaveBeenCalledWith('post-1', req)
+		expect(result.thread).toEqual(thread)
+	})
+
+	// An empty thread draws nothing; one that failed must say so instead.
+	it('hands the page null, not an empty thread, when the API refuses', async () => {
+		getListingThread.mockRejectedValue(new Error('unreachable'))
+
+		const { item, thread } = await editPostLoader(request(), 'post-1')
+
+		expect(item).toMatchObject({ id: 'post-1' })
+		expect(thread).toBeNull()
+	})
 })
 
 // The mocks must hoist above the import under test, so the module is loaded

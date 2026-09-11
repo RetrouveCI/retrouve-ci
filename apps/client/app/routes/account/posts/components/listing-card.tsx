@@ -17,6 +17,7 @@ import {
 	ExternalLink,
 	Eye,
 	MessageCircle,
+	MessageSquare,
 	MoreHorizontal,
 	Package,
 	Pencil,
@@ -36,6 +37,7 @@ import {
 	buildTimelineLabel,
 } from '../helpers/listing-labels'
 import { listingStatusFor } from '../helpers/listing-status'
+import { unreadRepliesLabel } from '../helpers/unread-replies'
 import {
 	ListingActionsSheet,
 	type ListingSheetAction,
@@ -67,9 +69,15 @@ interface ListingCardProps {
 	listing: UserLostItem
 	/** Absent until the matches request answers, and for every card with none. */
 	matches?: ListingMatches
+	/** Messages from the team this poster has not read yet. */
+	unreadReplies?: number
 }
 
-export function ListingCard({ listing, matches }: ListingCardProps) {
+export function ListingCard({
+	listing,
+	matches,
+	unreadReplies,
+}: ListingCardProps) {
 	const fetcher = useActionFetcher<typeof accountPostsAction>()
 	const [pending, setPending] = useState<Outcome | null>(null)
 	const [menuOpen, setMenuOpen] = useState(false)
@@ -269,14 +277,26 @@ export function ListingCard({ listing, matches }: ListingCardProps) {
 						</p>
 					)}
 
-					{isHidden && (
+					{/* Both lead to the edit page, where the thread sits: a message the
+					    team wrote is the better reason to go there. */}
+					{unreadReplies ? (
 						<Link
 							to={`/account/posts/${listing.id}`}
-							className="touch-target border-border hover:bg-muted mt-2.5 inline-flex h-10 items-center gap-2 rounded-[11px] border-[1.5px] px-4 text-sm font-semibold transition-colors"
+							className="touch-target border-primary-green/40 text-primary-green-text hover:bg-primary-green/5 mt-2.5 inline-flex h-10 items-center gap-2 rounded-[11px] border-[1.5px] px-4 text-sm font-semibold transition-colors"
 						>
-							<Pencil className="h-3.5 w-3.5 shrink-0" />
-							Modifier l&apos;annonce
+							<MessageSquare className="h-3.5 w-3.5 shrink-0" />
+							{unreadRepliesLabel(unreadReplies)}
 						</Link>
+					) : (
+						isHidden && (
+							<Link
+								to={`/account/posts/${listing.id}`}
+								className="touch-target border-border hover:bg-muted mt-2.5 inline-flex h-10 items-center gap-2 rounded-[11px] border-[1.5px] px-4 text-sm font-semibold transition-colors"
+							>
+								<Pencil className="h-3.5 w-3.5 shrink-0" />
+								Modifier l&apos;annonce
+							</Link>
+						)
 					)}
 
 					{/*
