@@ -29,9 +29,14 @@ function statsResponse(overrides: Record<string, unknown> = {}) {
 	}
 }
 
-function requestFor() {
-	return new Request('http://localhost:3001/', { headers: { cookie: COOKIE } })
+function requestFor(search = '') {
+	return new Request(`http://localhost:3001/${search}`, {
+		headers: { cookie: COOKIE },
+	})
 }
+
+/** The path asked of the API, period and all. */
+const path = () => String(apiFetch.mock.calls.at(-1)?.[0])
 
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
@@ -204,5 +209,48 @@ describe('dashboardLoader', () => {
 		await expect(dashboardLoader({ request: requestFor() })).rejects.toThrow(
 			'stats down',
 		)
+	})
+
+	// The selector used to write a `useState` nobody read: the window never left
+	// the browser, and the API's was hard-coded at thirty days.
+	describe('the period', () => {
+		it('forwards what the URL carries', async () => {
+			await dashboardLoader({
+				request: requestFor('?from=2026-06-17&to=2026-06-18'),
+			})
+
+			expect(path()).toBe('/stats?from=2026-06-17&to=2026-06-18')
+		})
+
+		it('forwards one bound alone', async () => {
+			await dashboardLoader({ request: requestFor('?from=2026-06-17') })
+
+			expect(path()).toBe('/stats?from=2026-06-17')
+		})
+
+		// A hand-edited bound must not turn the dashboard into an error page.
+		it.each(['?from=2026-02-31', '?from=hier', '?to=demain'])(
+			'drops what the contract refuses in %s',
+			async search => {
+				await dashboardLoader({ request: requestFor(search) })
+
+				expect(path()).toBe('/stats')
+			},
+		)
+
+		// What the cards name their percentage against.
+		it('reports the window it resolved, in days', async () => {
+			const result = await dashboardLoader({
+				request: requestFor('?from=2026-06-17&to=2026-06-18'),
+			})
+
+			expect(result.period.days).toBe(2)
+		})
+
+		it('reports thirty days when the URL names no bound', async () => {
+			const result = await dashboardLoader({ request: requestFor() })
+
+			expect(result.period.days).toBe(30)
+		})
 	})
 })

@@ -218,7 +218,7 @@ refonte. C'est l'étape F7, et c'est le pilote de son lot. Il a été livré et 
 L'artefact a aussi servi de mesure, et il a trouvé deux défauts qui n'étaient
 dans aucune demande : §3.5 et §3.6.
 
-### 3.5 Le sélecteur de période ne filtre rien
+### 3.5 Le sélecteur de période ne filtre rien _(réglé sur le tableau de bord)_
 
 `DateRangePicker` est monté sur quatre pages. Sur le **tableau de bord**, la
 plage choisie va dans un `useState` que personne ne relit : elle ne part ni au
@@ -244,6 +244,39 @@ référence**, et la file « à traiter » est **exclue** du filtre de période 
 annonce en attente l'est aujourd'hui, pas « sur les trois derniers mois ».
 Mélanger un état courant et une mesure de période est ce qui rend un tableau de
 bord illisible.
+
+**Écarts mesurés en réglant le tableau de bord** (2026-09-11) :
+
+- **Le chiffre et son pourcentage ne mesuraient pas la même chose.** Les sept
+  requêtes comptaient `COUNT(*)` sur **toute** la table pendant que l'écart
+  comparait trente jours aux trente précédents : un « +8 % » à côté d'un total
+  de toujours. Le chiffre compte désormais **dans la période**, et l'écart la
+  compare à la fenêtre de **même longueur** qui la précède immédiatement.
+- **Les dix requêtes brutes deviennent quatre**, dont une seule porte la
+  fenêtre. Les sept statistiques étaient sept copies du même SQL à
+  `INTERVAL '30 days'` près, donc aucune ne pouvait bouger sans les six autres.
+  `Prisma.raw` n'y reçoit que des littéraux écrits dans le fichier ; tout ce qui
+  vient de la requête passe en paramètre.
+- **Le graphe d'activité garde sept points et élargit son seau.** Il était figé
+  à sept jours : demander un trimestre montrait toujours la même semaine.
+- **Les gardes ont trouvé ce que la mesure live ne pouvait pas voir.**
+  L'inversion des bornes s'appliquait **après** le décalage de fin de journée,
+  ce qui écrasait à zéro une période de deux jours voisins. Le test contre l'API
+  réelle ne l'a pas vu — sa plage était trop large pour que le défaut
+  apparaisse. Les bornes sont ordonnées comme des **jours**, avant tout
+  décalage.
+- **Le SQL a été vérifié contre le Postgres local**, faute de CI : sans période,
+  les chiffres correspondent exactement au comptage direct (4 utilisateurs et 1
+  annonce sur trente jours, 7 et 7 au total) ; une période du 17 au 18 juin rend
+  `{ value: 1, change: -50 }`, la fenêtre de référence étant bien les deux jours
+  précédents ; une date du 31 février est refusée en français sur son champ.
+- **La file « à traiter » est déjà hors du filtre** par construction : la
+  pastille des notifications vient du loader de la coquille, pas de celui du
+  tableau de bord. Rien à exclure aujourd'hui, la règle reste à tenir.
+- **Les trois autres pages n'ont pas été touchées.** Commandes, Stickers et
+  Utilisateurs ont perdu leur sélecteur de période avec F9a, qui l'a jugé
+  trompeur ; leur rendre un filtre de date veut dire l'ajouter à l'API, et c'est
+  une étape à part.
 
 ### 3.6 Les listes n'atteignent pas leur deuxième page
 
