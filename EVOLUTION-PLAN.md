@@ -514,7 +514,7 @@ Le bureau ne reçoit pas de notification « annonce en attente ».
 
 ### Lot 3 — La conversation sur une annonce
 
-#### F3 — Modèle, domaine et notifications
+#### F3 — Modèle, domaine et notifications _(livré — #250)_
 
 **Objectif.** Un administrateur laisse un commentaire sur une annonce ; le
 posteur le lit et peut répondre. Le but est la suggestion — « ajoutez une photo
@@ -548,6 +548,34 @@ partiellement `moderationReasonNote`, qui dit déjà au posteur pourquoi son
 annonce est masquée. Décider si le motif « autre » de la modération devient un
 commentaire, ou si les deux canaux coexistent. Par défaut : **ils coexistent**,
 la modération est une décision et le commentaire une suggestion.
+
+**Écarts mesurés en livrant F3** (2026-09-11) :
+
+- **Question n° 2 tranchée : deux canaux.** Le motif de modération reste sur
+  l'annonce et dans `listing_moderated` ; un commentaire ne masque ni ne publie
+  rien.
+- **Le côté est l'audience, mais le côté bureau exige aussi le rôle.** Rien ne
+  refuse à un compte ordinaire de se connecter à `/api/admin-auth` avec son mot
+  de passe — tout visiteur en a un, sous `<numéro>@phone.retrouveci.local`.
+  L'audience seule ne prouve donc rien : `threadScope` refuse le côté bureau à
+  une session d'administration sans le rôle. ⚠️ `/notifications/mine` a le même
+  trou et le garde : il est corrigé à part, hors de ce lot.
+- **Deux chemins d'écriture, un seul use-case.** `limitFor` lit le chemin et pas
+  la méthode : la réponse du posteur (`POST /lost-items/:id/comments`,
+  plafonnée) et le commentaire du bureau (`…/comments/desk`, `@Roles`) ne
+  pouvaient pas partager un chemin. Le côté écrit reste celui de l'audience sur
+  les deux.
+- **Une cinquième route, `GET /lost-items/comments/unread`.** F4 et F5 sont
+  toutes deux front seul et toutes deux veulent l'indicateur « réponse non lue »
+  ; F3 est la dernière étape du lot qui touche l'API.
+- **`authorId` est nullable, en `SetNull`.** Le fil appartient à l'annonce :
+  supprimer le compte d'un administrateur ne doit pas l'effacer, et `authorSide`
+  dit encore qui a écrit.
+- **Le client est touché d'une ligne.** `TYPE_ICONS` est un
+  `Record<UserNotificationType, …>` : un type visiteur ajouté au contrat ne
+  compile pas sans son icône, ce qui est voulu.
+- **Les lectures sont bornées**, pas paginées : les 100 derniers messages d'un
+  fil, les 100 fils non lus les plus récents.
 
 #### F4 — Rédiger et suivre côté administration
 
@@ -682,8 +710,9 @@ première PR de leur lot.
    pour ça : la vraie ligne doit être énoncée au déploiement, jamais héritée
    d'un défaut du code qui deviendrait faux le jour où l'équipe change de
    numéro.
-2. **Commentaire et motif de modération : un canal ou deux ?** Par défaut deux,
-   à confirmer en F3.
+2. ~~**Commentaire et motif de modération : un canal ou deux ?**~~ **Tranché le
+   2026-09-11, en F3** : deux. La modération est une décision qui garde son
+   motif ; le commentaire est une suggestion qui ne masque ni ne publie rien.
 3. **L'assistant est-il ouvert aux visiteurs anonymes ?** Le plafond n'est pas
    le même, et l'ardoise non plus. À trancher en F15.
 4. **Quel budget mensuel pour l'assistant ?** Il fixe le plafond, pas l'inverse.

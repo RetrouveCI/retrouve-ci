@@ -408,10 +408,10 @@ These are the **four** folders `src/` holds — E8.1 pluralised the two middle
 ones and absorbed the stray `libs/storage/cloudinary.ts` into
 `infrastructures/storage/cloudinary.client.ts`.
 
-- Domains: `contact-messages`, `events`, `lost-items`, `matching`,
-  `notifications`, `qr-codes`, `reporting`, `sticker-orders`. Each keeps its
-  use-cases free of NestJS/HTTP concerns; controllers in `presentations/` are
-  thin and delegate to use-cases.
+- Domains: `contact-messages`, `events`, `listing-comments`, `lost-items`,
+  `matching`, `notifications`, `qr-codes`, `reporting`, `sticker-orders`. Each
+  keeps its use-cases free of NestJS/HTTP concerns; controllers in
+  `presentations/` are thin and delegate to use-cases.
 - `presentations/` holds **more folders than `domains/` does**: `auth`,
   `health`, `stats` and `uploads` have no bounded context of their own. `stats`
   fronts the `reporting` domain, `auth` carries the OTP queue consumer and the
@@ -526,6 +526,23 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   `notify-matches` the single named exemption. That distinction is load-bearing:
   `notify-matches` holds its dependency under a different field name, so a probe
   grepping `createNotification.execute` sees six producers and misses it.
+- **A comment on a listing is bounded by what the caller owns.**
+  `ListingComment` is a suggestion between the desk and a poster (« ajoutez une
+  photo du dos »), not a moderation decision — `moderationReasonNote` keeps that
+  role, and the two channels coexist. `authorSide` is **stored**, because an
+  administrator is also an ordinary user and posts as one on the public app: the
+  side is the **audience** `threadScope(audience, user)` reads, never the role.
+  ⚠️ The desk side needs the role **as well**: nothing refuses an ordinary
+  account signing in to `/api/admin-auth` with its password, so the admin
+  audience alone proves nothing. `whereFor(scope)` in
+  `domains/listing-comments/repository/` is the **only** place a thread's
+  `where` is built — a poster reaches only the listings they own, the desk every
+  one. Two write paths for one use-case, since `limitFor` reads paths and not
+  methods: `POST /lost-items/:id/comments` carries the poster's own
+  `LISTING_COMMENT_PER_USER` ceiling, `…/comments/desk` is `@Roles(['admin'])`.
+  Each side's write raises the other side's notification (`listing_commented` to
+  the poster, `listing_replied` to the desk). `toListingCommentView` names what
+  a thread answers, so the author's account id stays in the API.
 - **A push subscription is a consented capability, not an audience
   measurement.** `PushSubscription` holds one row per browser, keyed on the
   endpoint the vendor issued, so a browser re-subscribing after its keys rotated
