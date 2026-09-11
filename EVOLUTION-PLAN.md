@@ -495,6 +495,16 @@ masquant un bouton.
   aurait créé un compte introuvable. Les trois lecteurs passent par une seule
   règle, `resolveSystemAccountEmail`.
 
+**Correctif après la fusion de #247** (2026-09-10) : le formulaire de l'équipe
+demandait la ville, la commune et l'émetteur d'une pièce en saisie libre, là où
+le formulaire public propose des listes — or le rapprochement compare ces
+chaînes, et `Yop` ne rencontre jamais `Yopougon`. Les listes (villes, communes
+d'Abidjan, champs de chaque type de pièce avec leurs banques et assureurs)
+quittent `apps/client` pour `@app/contracts` ; le client garde une réexportation
+à chaque ancien chemin. La catégorie et la date restent telles quelles : côté
+public ce sont des pastilles, pas des listes — à trancher si l'administration
+doit suivre.
+
 **Recette de F2b.** Une annonce publiée depuis l'administration est visible sans
 modération, badgée, comptée dans les compteurs publics, et déclenche un
 rapprochement. Elle n'apparaît dans le « Mes annonces » d'aucun compte humain.

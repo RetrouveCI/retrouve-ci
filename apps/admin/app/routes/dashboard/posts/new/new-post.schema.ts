@@ -41,9 +41,9 @@ const newPostFields = z.object({
 			`Maximum ${MAX_DESCRIPTION_LENGTH} caractères`,
 		),
 	ville: z
-		.string({ error: 'Indiquez la ville' })
+		.string({ error: 'Sélectionnez une ville' })
 		.trim()
-		.min(2, 'Indiquez la ville')
+		.min(2, 'Sélectionnez une ville')
 		.max(120, 'Maximum 120 caractères'),
 	commune: z.string().trim().max(120, 'Maximum 120 caractères').optional(),
 	eventDate: calendarDateSchema({

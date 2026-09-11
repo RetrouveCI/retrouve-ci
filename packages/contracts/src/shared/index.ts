@@ -1,4 +1,5 @@
 export * from './calendar-date'
+export * from './locations'
 export * from './name'
 export * from './number'
 export * from './otp'
