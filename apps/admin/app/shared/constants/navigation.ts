@@ -1,5 +1,4 @@
 import {
-	Activity,
 	Bell,
 	FileText,
 	LayoutDashboard,
@@ -91,12 +90,6 @@ export const NAV_SECTIONS: NavSection[] = [
 				icon: Users,
 				label: 'Utilisateurs',
 				keywords: 'utilisateurs comptes visiteurs personnes',
-			},
-			{
-				to: '/events',
-				icon: Activity,
-				label: 'Événements',
-				keywords: 'evenements agenda',
 			},
 		],
 	},

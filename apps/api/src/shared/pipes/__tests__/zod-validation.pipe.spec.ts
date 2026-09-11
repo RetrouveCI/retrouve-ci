@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { createContactMessageSchema } from '@app/contracts/contact-messages'
 import { createLostItemSchema } from '@app/contracts/lost-items'
 import { createStickerOrderSchema } from '@app/contracts/sticker-orders'
-import { createEventSchema } from '@app/contracts/events'
 import { contactOwnerSchema } from '@app/contracts/qr-codes'
 import { ZodValidationPipe } from '../zod-validation.pipe'
 
@@ -75,13 +74,12 @@ describe('ZodValidationPipe', () => {
 	})
 
 	/**
-	 * The five domains measured as still carrying unnamed type errors. Asserted
+	 * The domains measured as still carrying unnamed type errors. Asserted
 	 * on the real contracts rather than a stand-in, since the point is that no
 	 * endpoint can answer English again.
 	 */
 	it.each([
 		['contact-messages', createContactMessageSchema],
-		['events', createEventSchema],
 		['lost-items', createLostItemSchema],
 		['qr-codes', contactOwnerSchema],
 		['sticker-orders', createStickerOrderSchema],

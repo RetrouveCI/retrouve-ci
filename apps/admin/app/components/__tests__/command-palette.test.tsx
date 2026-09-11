@@ -27,7 +27,7 @@ function renderPalette(hits: PaletteHit[] = [], palette = vi.fn()) {
 				return { query: new URL(request.url).searchParams.get('q'), hits }
 			},
 		},
-		{ path: '/events', Component: Location },
+		{ path: '/posts', Component: Location },
 		{ path: '/qr/:code', Component: Location },
 	])
 
@@ -61,14 +61,31 @@ describe('CommandPalette', () => {
 		await expect.element(page.getByRole('dialog')).toBeVisible()
 	})
 
-	it('goes to the page it matches, accents aside', async () => {
+	it('goes to the page it matches', async () => {
 		renderPalette()
 
 		await userEvent.click(opener())
-		await userEvent.fill(input(), 'evenements')
-		await userEvent.click(page.getByRole('option', { name: 'Événements' }))
+		await userEvent.fill(input(), 'annonces')
+		await userEvent.click(page.getByRole('option', { name: 'Annonces' }))
 
-		await expect.element(location()).toHaveTextContent('/events')
+		await expect.element(location()).toHaveTextContent('/posts')
+	})
+
+	/**
+	 * « thème » is the one entry with no unaccented twin among the keywords, and
+	 * that is what makes this a normalisation test at all. The events entry this
+	 * replaces carried `evenements` as a keyword, so the query matched it raw:
+	 * the case passed with `normalizeForSearch` removed entirely.
+	 */
+	it('finds an accented entry from an unaccented query', async () => {
+		renderPalette()
+
+		await userEvent.click(opener())
+		await userEvent.fill(input(), 'theme')
+
+		await expect
+			.element(page.getByRole('option', { name: /Basculer le thème/ }))
+			.toBeVisible()
 	})
 
 	it('lists what the API found under « Résultats », and opens it', async () => {

@@ -17,10 +17,6 @@ const INVENTORY: Record<string, string[]> = {
 	'presentations/contact-messages/contact-messages.controller.ts': [
 		'CreateContactMessageUseCase',
 	],
-	'presentations/events/events.controller.ts': [
-		'GetEventByIdUseCase',
-		'GetPaginatedEventsUseCase',
-	],
 	// Anonymous at class level, and it reaches no use-case at all.
 	'presentations/health/health.controller.ts': [],
 	'presentations/lost-items/lost-items.controller.ts': [
@@ -46,8 +42,6 @@ const ANSWERS: Record<string, string> = {
 	ContactQrTokenOwnerUseCase: 'void',
 	CreateContactMessageUseCase: 'ContactMessage',
 	FindMatchesUseCase: 'PublicMatchCandidate[]',
-	GetEventByIdUseCase: 'Event',
-	GetPaginatedEventsUseCase: 'EventListResponse',
 	GetPublicLostItemsUseCase: 'PublicLostItemListResponse',
 	GetPublicCountersUseCase: 'PublicCounters',
 	GetQrTokenPublicViewUseCase: 'QrTokenPublicView',
@@ -194,15 +188,5 @@ describe('reads open to the public', () => {
 
 	it.each(PROJECTED)('%s hands its listing through the projection', useCase => {
 		expect(sourceOf(useCase)).toContain('toPublicLostItem')
-	})
-
-	// The list use-case serves the backoffice too, so the anonymous route is
-	// what narrows it: without this line a draft event would be listed publicly.
-	it('narrows the anonymous event list to published', () => {
-		const [anonymousList] = splitHandlers(
-			read('presentations/events/events.controller.ts'),
-		).filter(block => PUBLIC_DECORATORS.some(d => block.includes(d)))
-
-		expect(anonymousList).toContain("status: 'published'")
 	})
 })

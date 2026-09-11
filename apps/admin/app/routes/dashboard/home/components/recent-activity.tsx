@@ -1,13 +1,5 @@
-import { Link } from 'react-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@app/ui/components'
-import {
-	Scan,
-	Users,
-	AlertTriangle,
-	Phone,
-	CheckCircle,
-	ArrowRight,
-} from 'lucide-react'
+import { Scan, Users, AlertTriangle, Phone, CheckCircle } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 
 type ActivityType = 'scan' | 'user' | 'post' | 'contact'
@@ -47,17 +39,10 @@ interface RecentActivityProps {
 export function RecentActivity({ activities, className }: RecentActivityProps) {
 	return (
 		<Card className={cn('overflow-hidden', className)}>
-			<CardHeader className="flex flex-row items-center justify-between pb-2">
+			<CardHeader className="pb-2">
 				<CardTitle className="text-base font-semibold">
 					Activité récente
 				</CardTitle>
-				<Link
-					to="/events"
-					className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs font-medium transition-colors"
-				>
-					Voir tout
-					<ArrowRight className="h-3.5 w-3.5" />
-				</Link>
 			</CardHeader>
 			<CardContent>
 				{activities.length === 0 ? (

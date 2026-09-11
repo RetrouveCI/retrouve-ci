@@ -1,5 +1,5 @@
-// Accents and case aside: « evenements » finds « Événements », since nobody
-// types the accents in a hurry.
+// Accents and case aside: « theme » finds « thème », since nobody types the
+// accents in a hurry.
 export function normalizeForSearch(text: string): string {
 	return text
 		.normalize('NFD')

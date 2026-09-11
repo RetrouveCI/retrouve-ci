@@ -261,10 +261,10 @@ s'additionnent pas au total.
 
 ### 3.7 Le module Événements
 
-Il est **retiré**, pas réparé. Le journal d'audit qu'il aurait dû être fait
-l'objet d'un chantier à part, plus tard, avec sa propre politique de rétention.
-Retirer le module maintenant évite de refondre une page qui n'a pas de raison
-d'exister, et allège la barre latérale que F10 va restructurer.
+Il est **retiré**, pas réparé — fait, voir F6. Le journal d'audit qu'il aurait
+dû être fait l'objet d'un chantier à part, plus tard, avec sa propre politique
+de rétention. Retirer le module maintenant évite de refondre une page qui n'a
+pas de raison d'exister, et allège la barre latérale que F10 va restructurer.
 
 ### 3.8 Bibliothèque d'animation
 
@@ -632,7 +632,7 @@ annonces ». Le formulaire de réponse suit la convention du dépôt :
 
 ### Lot 4 — Nettoyage
 
-#### F6 — Retrait du module Événements
+#### F6 — Retrait du module Événements _(livré)_
 
 **Objectif.** Retirer un module que personne n'utilise et qui ne fait pas ce
 pour quoi il avait été demandé.
@@ -653,6 +653,32 @@ l'historique git, et cette section dit où le chercher.
 
 **Suite.** Le journal d'audit n'est pas dans ce plan. Quand il viendra, il aura
 sa propre étape et sa propre politique de rétention.
+
+**Écarts mesurés en livrant F6** (2026-09-11) :
+
+- **La table a été recomptée : vide en local**, et **confirmée vide en
+  production** le 2026-09-11 — le comptage que j'ai fait moi-même ne portait que
+  sur le local, la production a été confirmée par l'utilisateur. La migration ne
+  s'y adosse pas pour autant : son `DROP TABLE` est inconditionnel, parce qu'une
+  migration dont la sûreté repose sur un comptage fait ailleurs, un autre jour,
+  n'est pas sûre. Ce qui la rend sûre, c'est que le module est retiré, lignes ou
+  pas.
+- **45 fichiers dans quatre dossiers, et sept fichiers qui les référençaient** —
+  le compte annoncé, retrouvé à l'inventaire.
+- **Le tableau de bord pointait « Voir tout » vers `/events`.** Son flux «
+  Activité récente » vient du domaine `reporting`, pas du module Événements : le
+  lien envoyait l'opérateur vers une page qui n'a jamais porté ce flux. Il part
+  avec la page, faute de page d'activité où le renvoyer.
+- **Le profil promettait « Gérer les événements »** dans sa carte de
+  permissions. Elle est écrite en dur, donc rien ne l'avait rendue fausse : elle
+  l'était déjà à moitié, et elle l'aurait été tout à fait.
+- ⚠️ **La garde d'accents de la palette était vide.** Elle tapait `evenements`
+  pour trouver « Événements » — mais l'entrée portait `evenements` en mot-clé,
+  donc la requête correspondait **sans** normalisation : le test passait avec
+  `normalizeForSearch` entièrement retiré. Remplacée par « thème », le seul
+  libellé sans jumeau sans accent, et le rouge a été vérifié dessus.
+- **La suppression groupée est passée cette fois** : `git rm -r` sur les quatre
+  dossiers, sans refus du classifieur, contrairement à la nuit du 11.
 
 ---
 
