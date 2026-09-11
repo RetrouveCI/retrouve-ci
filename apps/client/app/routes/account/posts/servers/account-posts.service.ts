@@ -9,6 +9,7 @@ import type {
 	MyLostItemsSummaryApiResponse,
 } from '@/shared/types/lost-items.types'
 import type { LostItemStatus } from '@/shared/types/lost-item'
+import type { ListingComment, UnreadThread } from '../types/thread'
 
 /** The PATCH body is the contract's own input, minus the resolution status. */
 export type PatchLostItemPayload = Omit<UpdateLostItemInput, 'resolutionStatus'>
@@ -91,4 +92,40 @@ export async function updateLostItemResolution(
 		body: JSON.stringify({ resolutionStatus }),
 		request,
 	})
+}
+
+export async function getListingThread(
+	id: string,
+	request: Request,
+): Promise<ListingComment[]> {
+	return apiFetch<ListingComment[]>(`/lost-items/${id}/comments`, { request })
+}
+
+/** The poster's own path, under their own ceiling; the desk writes on another. */
+export async function replyToListingThread(
+	id: string,
+	body: string,
+	request: Request,
+): Promise<ListingComment> {
+	return apiFetch<ListingComment>(`/lost-items/${id}/comments`, {
+		method: 'POST',
+		body: JSON.stringify({ body }),
+		request,
+	})
+}
+
+export async function markListingThreadRead(
+	id: string,
+	request: Request,
+): Promise<void> {
+	await apiFetch(`/lost-items/${id}/comments/read`, {
+		method: 'PATCH',
+		request,
+	})
+}
+
+export async function listUnreadThreads(
+	request: Request,
+): Promise<UnreadThread[]> {
+	return apiFetch<UnreadThread[]>('/lost-items/comments/unread', { request })
 }

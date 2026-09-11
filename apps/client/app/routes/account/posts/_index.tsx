@@ -28,7 +28,7 @@ export const loader = accountPostsLoader
 export const action = accountPostsAction
 
 export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
-	const { listings, total, pageSize, summary } = loaderData
+	const { listings, total, pageSize, summary, unreadReplies } = loaderData
 
 	const {
 		searchQuery,
@@ -166,6 +166,7 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 										key={listing.id}
 										listing={listing}
 										matches={matches[listing.id]}
+										unreadReplies={unreadReplies[listing.id]}
 									/>
 								))}
 							</div>

@@ -411,3 +411,52 @@ describe('ListingCard', () => {
 			.toBeVisible()
 	})
 })
+
+describe('ListingCard — the team’s messages', () => {
+	function renderWithReplies(
+		unreadReplies: number | undefined,
+		listing: Partial<UserLostItem> = {},
+	) {
+		const Stub = createRoutesStub([
+			{
+				path: '/account/posts',
+				Component: () => (
+					<ListingCard
+						listing={{ ...LISTING, ...listing }}
+						unreadReplies={unreadReplies}
+					/>
+				),
+			},
+		])
+		render(<Stub initialEntries={['/account/posts']} />)
+	}
+
+	it('leads to the thread when the team has written', async () => {
+		renderWithReplies(2)
+
+		await expect
+			.element(
+				page.getByRole('link', { name: '2 nouveaux messages de l’équipe' }),
+			)
+			.toHaveAttribute('href', '/account/posts/post-1')
+	})
+
+	it('says nothing when every message is read', async () => {
+		renderWithReplies(undefined)
+
+		await expect.element(page.getByText('Sac à dos noir')).toBeVisible()
+		expect(page.getByText(/messages? de l’équipe/).elements()).toHaveLength(0)
+	})
+
+	// Both lead to the same page, so a hidden listing shows the one that says why.
+	it('replaces the edit link on a hidden listing', async () => {
+		renderWithReplies(1, { moderationStatus: 'hidden' })
+
+		await expect
+			.element(page.getByRole('link', { name: 'Nouveau message de l’équipe' }))
+			.toBeVisible()
+		expect(
+			page.getByRole('link', { name: "Modifier l'annonce" }).elements(),
+		).toHaveLength(0)
+	})
+})

@@ -53,6 +53,10 @@ export function toPrismaType(type: NotificationType): PrismaNotificationType {
 			return PrismaNotificationType.ORDER_SHIPPED
 		case 'order_cancelled':
 			return PrismaNotificationType.ORDER_CANCELLED
+		case 'listing_commented':
+			return PrismaNotificationType.LISTING_COMMENTED
+		case 'listing_replied':
+			return PrismaNotificationType.LISTING_REPLIED
 	}
 }
 
@@ -80,6 +84,10 @@ export function toDomainType(type: PrismaNotificationType): NotificationType {
 			return 'order_shipped'
 		case PrismaNotificationType.ORDER_CANCELLED:
 			return 'order_cancelled'
+		case PrismaNotificationType.LISTING_COMMENTED:
+			return 'listing_commented'
+		case PrismaNotificationType.LISTING_REPLIED:
+			return 'listing_replied'
 	}
 }
 

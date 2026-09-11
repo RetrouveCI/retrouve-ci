@@ -29,6 +29,12 @@ export default [
 	]),
 	// A resource route: no component, read by the ⌘K palette.
 	route('palette', 'routes/dashboard/palette/servers/palette.loader.ts'),
+	// A resource route: no component. `usePostThread` reads it, the composer
+	// and `useMarkThreadRead` post to it.
+	route(
+		'posts/:id/comments',
+		'routes/dashboard/posts/servers/post-thread.loader.ts',
+	),
 	layout('routes/auth/layout.tsx', [
 		route('login', 'routes/auth/login/_index.tsx'),
 		route('forgot-password', 'routes/auth/forgot-password/_index.tsx'),
