@@ -67,6 +67,73 @@ export function enforcePasswordRule(path: string, body: unknown): void {
 	}
 }
 
+/** better-auth stores a user's roles as one comma-separated string. */
+export function hasRole(
+	role: string | null | undefined,
+	required: readonly string[],
+): boolean {
+	const held = (role ?? '').split(',').map(value => value.trim())
+
+	return required.some(name => held.includes(name))
+}
+
+/**
+ * Word for word what better-auth answers on a bad sign-in, code included. An
+ * instance that refuses an account for its role must be indistinguishable from
+ * one refusing a wrong password, or the refusal itself says the account exists.
+ * Hard-coded rather than imported: `BASE_ERROR_CODES` lives in
+ * `@better-auth/core`, a dependency this package does not otherwise carry.
+ */
+const INVALID_CREDENTIALS = {
+	code: 'INVALID_EMAIL_OR_PASSWORD',
+	message: 'Invalid email or password',
+} as const
+
+type SignInBody = { email?: unknown; password?: unknown }
+
+/**
+ * The role off a user row. `role` is the `admin()` plugin's own column, so the
+ * adapter returns it — measured against a real row — while better-auth's static
+ * `User` does not carry it. A row without one is refused like a missing row:
+ * both mean « holds no role this instance requires ».
+ */
+export function roleOf(user: object | null | undefined): string | null {
+	if (!user || !('role' in user)) return null
+
+	return typeof user.role === 'string' ? user.role : null
+}
+
+/**
+ * Closes an instance to accounts that do not hold one of its roles. Nothing
+ * else refuses them: every visitor holds a password account — a phone sign-up
+ * mints one under `<number>@phone.…` — and both instances expose
+ * `/sign-in/email` from the shared core, so the backoffice's cookie could be
+ * obtained by anyone who has an account at all.
+ *
+ * It hashes the password before refusing, exactly as better-auth does for an
+ * unknown email, so the answer costs the same whether the account is missing,
+ * not an administrator, or simply mistyped its password.
+ */
+export async function refuseSignInWithoutRole(
+	path: string,
+	body: unknown,
+	requiredRoles: readonly string[],
+	findRoleByEmail: (email: string) => Promise<string | null>,
+	hashPassword: (password: string) => Promise<unknown>,
+): Promise<void> {
+	if (!requiredRoles.length || path !== '/sign-in/email') return
+
+	const { email, password } = (body ?? {}) as SignInBody
+	// Not an email at all: better-auth answers its own bad request.
+	if (typeof email !== 'string' || !email) return
+
+	if (hasRole(await findRoleByEmail(email), requiredRoles)) return
+
+	if (typeof password === 'string') await hashPassword(password)
+
+	throw new APIError('UNAUTHORIZED', INVALID_CREDENTIALS)
+}
+
 /**
  * The `admin()` routes that act on another account, each naming it by `userId`.
  * Removing one cascades to everything it owns, changing its email loses the
@@ -143,6 +210,11 @@ export interface CreateAuthOptions {
 	 * framework guard, so this hook is the only place the refusal can live.
 	 */
 	protectedEmails?: string[]
+	/**
+	 * Roles an account must hold to sign in on this instance at all. Empty — the
+	 * default — lets any account in, which is what the public app wants.
+	 */
+	requiredRoles?: string[]
 }
 
 export function createAuth(
@@ -155,10 +227,21 @@ export function createAuth(
 		plugins = [],
 		trustedOrigins,
 		protectedEmails = [],
+		requiredRoles = [],
 	}: CreateAuthOptions = {},
 ) {
 	const guardWrites = createAuthMiddleware(async ctx => {
 		enforcePasswordRule(ctx.path, ctx.body)
+		await refuseSignInWithoutRole(
+			ctx.path,
+			ctx.body,
+			requiredRoles,
+			async email => {
+				const found = await ctx.context.internalAdapter.findUserByEmail(email)
+				return roleOf(found?.user)
+			},
+			password => ctx.context.password.hash(password),
+		)
 		await refuseProtectedAccountWrite(
 			ctx.path,
 			ctx.body,

@@ -77,9 +77,25 @@ describe('createAdminAuth', () => {
 		expect(phoneNumber).not.toHaveBeenCalled()
 		expect(lastAuthOptions().plugins ?? []).toEqual([])
 	})
+
+	// Every visitor holds a password account, and the shared core exposes
+	// `/sign-in/email` here too: without this, any of them could obtain the
+	// backoffice's cookie.
+	it('admits none but an administrator', () => {
+		createAdminAuth(prisma)
+
+		expect(lastAuthOptions().requiredRoles).toEqual(['admin'])
+	})
 })
 
 describe('createClientAuth', () => {
+	// The public app is open to everyone who signs up, by definition.
+	it('requires no role', () => {
+		createClientAuth(prisma, buildOtpDispatcher())
+
+		expect(lastAuthOptions().requiredRoles ?? []).toEqual([])
+	})
+
 	// Renaming the public instance would change its cookie prefix and sign every
 	// existing user out.
 	it('leaves the public instance on better-auth defaults', () => {
