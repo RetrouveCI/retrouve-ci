@@ -20,11 +20,17 @@ import type { User } from '../types/users.types'
 
 interface UsersTableProps {
 	data: User[]
+	pagination: { page: number; pageSize: number; total: number }
 	onToggleBan: (user: User) => void
 	isBusy: boolean
 }
 
-export function UsersTable({ data, onToggleBan, isBusy }: UsersTableProps) {
+export function UsersTable({
+	data,
+	pagination,
+	onToggleBan,
+	isBusy,
+}: UsersTableProps) {
 	const columns: ColumnDef<User>[] = [
 		{
 			accessorKey: 'name',
@@ -115,12 +121,5 @@ export function UsersTable({ data, onToggleBan, isBusy }: UsersTableProps) {
 		},
 	]
 
-	return (
-		<DataTable
-			columns={columns}
-			data={data}
-			searchKey="name"
-			searchPlaceholder="Rechercher par nom, email..."
-		/>
-	)
+	return <DataTable columns={columns} data={data} pagination={pagination} />
 }

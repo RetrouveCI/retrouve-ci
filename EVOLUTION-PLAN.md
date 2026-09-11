@@ -762,7 +762,9 @@ par groupe de listes, pour qu'aucune ne soit illisible :
 
 - **F9a** _(livré — #255)_ — le socle, sur Commandes, Stickers et Messages.
 - **F9b** _(livré — #256)_ — Notifications. Utilisateurs et Administrateurs
-  **restent en l'état** : voir la question n° 5 du §6.
+  **restent en l'état** : voir la question n° 5 du §6. _Repris par F9d._
+- **F9d** _(livré)_ — Utilisateurs et Administrateurs, une fois la question 5
+  tranchée.
 - **F9c** _(livré)_ — Annonces, après F4 : F4 réécrit cette page, la toucher
   avant l'aurait fait entrer en conflit.
 
@@ -817,6 +819,32 @@ cookie lu au rendu serveur, comme le repli de la barre latérale.
 - **La grille parle des annonces**, pas des « posts » : « Total annonces », «
   Publiées », « Masquées ». Le badge de ligne reste au masculin singulier
   (`MODERATION_CONFIG`), qui décrit une décision et vit aussi dans un toast.
+
+**Écarts mesurés en livrant F9d** (2026-09-11) :
+
+- **L'arbitrage du §6 était juste, sa conclusion trop large.** « Lâcher le rôle
+  ou lâcher l'état » : c'est exact, et c'est l'état qui part. Ce que la question
+  ne disait pas, mesuré dans le plugin (1.6.30) : `list-users` accepte aussi
+  `limit`, `offset` et `sortBy`, et **renvoie `total`**. La pagination et la
+  recherche ne demandaient donc **pas** la route dédiée — seul le second axe la
+  demande.
+- **L'axe qui part est le statut**, pas le rôle. Actif / banni est un **second**
+  filtre, impossible ici, et il filtrait jusqu'ici les 200 ou 500 lignes
+  chargées — la tromperie exacte pour laquelle F9a a retiré le sélecteur de
+  période. Le statut reste sur la ligne ; le retrouver comme filtre demande la
+  route dédiée.
+- **Les grilles de statistiques partent avec lui.** « Actifs » et « Inactifs »
+  étaient comptés sur le paquet et ne peuvent plus l'être ; le total vit dans le
+  pagineur, qui le tient de la base. C'est la règle de F9a : une grille qui ne
+  peut pas être comptée se masque.
+- **La recherche d'une personne est écrite une fois.** `searchParamsFor` sert la
+  liste et la palette : des chiffres cherchent l'e-mail — où vit le numéro d'un
+  visiteur — et le reste cherche le nom. Les deux surfaces trouvent désormais
+  une personne de la même façon.
+- ⚠️ **`sortBy` n'est pas décoratif** une fois qu'il y a un `offset` : sans
+  ordre, la page 2 peut répéter la page 1. C'est asserté des deux côtés.
+- **Le sélecteur de période quitte aussi la page Utilisateurs**, où F9a l'avait
+  laissé : il filtrait en mémoire et rien ne le porte côté API.
 
 #### F10 — Navigation, recherche et palette ⌘K _(livré — #257)_
 
@@ -1027,7 +1055,8 @@ première PR de leur lot.
 3. **L'assistant est-il ouvert aux visiteurs anonymes ?** Le plafond n'est pas
    le même, et l'ardoise non plus. À trancher en F15.
 4. **Quel budget mensuel pour l'assistant ?** Il fixe le plafond, pas l'inverse.
-5. **Lister les comptes : une route d'API, ou un axe en moins ?** Posée en F9b.
+5. **Lister les comptes : une route d'API, ou un axe en moins ?** Posée en F9b,
+   **tranchée le 2026-09-11 : un axe en moins** — voir les écarts de F9d.
    Utilisateurs et administrateurs passent par `list-users` de better-auth, qui
    n'accepte qu'**un** filtre et **une** recherche — mesuré dans sa source
    (1.6.30). Les deux listes dépensent déjà ce filtre sur le rôle : l'état

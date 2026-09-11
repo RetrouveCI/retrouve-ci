@@ -19,24 +19,63 @@ afterEach(() => {
 })
 
 describe('the users service', () => {
-	// Unsorted, the ceiling cut an arbitrary 500: the newest sign-ups could be
-	// the ones missing, so the sort has to happen before that cut.
+	// ⚠️ Not decoration: an offset over an arbitrary order lets page 2 repeat
+	// page 1, so the sort has to be asked for alongside the window.
 	it('asks the database for the newest accounts first', async () => {
 		const spy = mockFetch()
 
-		await listUsers(incoming())
+		await listUsers({}, incoming())
 
 		const query = urlOf(spy).searchParams
 
 		expect(query.get('sortBy')).toBe('createdAt')
 		expect(query.get('sortDirection')).toBe('desc')
-		expect(query.get('limit')).toBe('500')
+	})
+
+	// It used to ask for 500 and page them in the browser, so a 501st account
+	// did not exist for the operator.
+	it('asks for one page, at the offset the page number names', async () => {
+		const spy = mockFetch()
+
+		await listUsers({ page: 3, pageSize: 50 }, incoming())
+
+		const query = urlOf(spy).searchParams
+
+		expect(query.get('limit')).toBe('50')
+		expect(query.get('offset')).toBe('100')
+	})
+
+	it('counts through the database rather than over the page', async () => {
+		mockFetch('{"users":[],"total":1284}')
+
+		await expect(listUsers({}, incoming())).resolves.toMatchObject({
+			total: 1284,
+		})
+	})
+
+	it('sends the search the same way the palette does', async () => {
+		const spy = mockFetch()
+
+		await listUsers({ search: '07 12 66' }, incoming())
+
+		const query = urlOf(spy).searchParams
+
+		expect(query.get('searchField')).toBe('email')
+		expect(query.get('searchValue')).toBe('071266')
+	})
+
+	it('asks for no search when none was typed', async () => {
+		const spy = mockFetch()
+
+		await listUsers({}, incoming())
+
+		expect(urlOf(spy).searchParams.get('searchValue')).toBeNull()
 	})
 
 	it('keeps narrowing the list to ordinary accounts', async () => {
 		const spy = mockFetch()
 
-		await listUsers(incoming())
+		await listUsers({}, incoming())
 
 		const query = urlOf(spy).searchParams
 

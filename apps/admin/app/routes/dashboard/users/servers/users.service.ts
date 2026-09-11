@@ -1,6 +1,6 @@
 import { requestOrigin } from '@/shared/helpers/origin'
 import { apiFetch } from '@/shared/utils/api-fetch'
-import type { User, UserStatus } from '../types/users.types'
+import type { User } from '../types/users.types'
 
 interface BetterAuthUser {
 	id: string
@@ -25,48 +25,70 @@ function mapUser(u: BetterAuthUser): User {
 	}
 }
 
-// Sorted by the database, not by this list: the limit is a ceiling rather than
-// pagination, so an unsorted call answers an arbitrary 500 accounts.
-const LIST_QUERY = 'limit=500&sortBy=createdAt&sortDirection=desc'
+/**
+ * better-auth takes **one** search field. A visitor's e-mail is
+ * `<numéro>@phone.retrouveci.local`, so digits search the e-mail — the number —
+ * and anything else the name. Written once, for the list and the ⌘K palette
+ * alike, so a person is found the same way from both.
+ */
+export function searchParamsFor(query: string): Record<string, string> {
+	const byNumber = /[0-9]/.test(query)
 
-export async function listUsers(
-	request: Request,
-	statusFilter?: UserStatus,
-): Promise<{ users: User[]; total: number }> {
-	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
-		`/api/admin-auth/admin/list-users?${LIST_QUERY}&filterField=role&filterOperator=eq&filterValue=user`,
-		{ request },
-	)
+	return {
+		searchValue: byNumber ? query.replace(/\s/g, '') : query,
+		searchField: byNumber ? 'email' : 'name',
+		searchOperator: 'contains',
+	}
+}
 
-	let users = res.users.filter(u => u.role === 'user').map(mapUser)
-
-	if (statusFilter === 'active')
-		users = users.filter(u => u.status === 'active')
-	if (statusFilter === 'inactive')
-		users = users.filter(u => u.status === 'inactive')
-
-	return { users, total: res.users.filter(u => u.role === 'user').length }
+/** Visitors only: the single filter better-auth offers is spent on the role. */
+const ROLE_IS_USER = {
+	filterField: 'role',
+	filterOperator: 'eq',
+	filterValue: 'user',
 }
 
 /**
- * better-auth takes one search field. A visitor's e-mail is
- * `<numéro>@phone.retrouveci.local`, so digits search the e-mail — the number
- * — and anything else the name.
+ * One page, counted by the database. ⚠️ `sortBy` is not decoration: without it
+ * the offset walks an arbitrary order, so page 2 could repeat page 1.
  */
+export async function listUsers(
+	params: { page?: number; pageSize?: number; search?: string },
+	request: Request,
+): Promise<{ users: User[]; total: number }> {
+	const page = params.page ?? 1
+	const pageSize = params.pageSize ?? 25
+
+	const query = new URLSearchParams({
+		limit: String(pageSize),
+		offset: String((page - 1) * pageSize),
+		sortBy: 'createdAt',
+		sortDirection: 'desc',
+		...ROLE_IS_USER,
+		...(params.search ? searchParamsFor(params.search) : {}),
+	})
+
+	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
+		`/api/admin-auth/admin/list-users?${query.toString()}`,
+		{ request },
+	)
+
+	return {
+		users: res.users.filter(u => u.role === 'user').map(mapUser),
+		// The database's count over every matching row, not the page's length.
+		total: res.total,
+	}
+}
+
 export async function searchUsers(
 	request: Request,
 	query: string,
 	limit: number,
 ): Promise<User[]> {
-	const byNumber = /\d/.test(query)
 	const params = new URLSearchParams({
-		searchValue: byNumber ? query.replace(/\s/g, '') : query,
-		searchField: byNumber ? 'email' : 'name',
-		searchOperator: 'contains',
+		...searchParamsFor(query),
 		limit: String(limit),
-		filterField: 'role',
-		filterOperator: 'eq',
-		filterValue: 'user',
+		...ROLE_IS_USER,
 	})
 	const res = await apiFetch<{ users: BetterAuthUser[] }>(
 		`/api/admin-auth/admin/list-users?${params.toString()}`,

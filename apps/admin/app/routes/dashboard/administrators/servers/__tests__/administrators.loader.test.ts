@@ -21,7 +21,7 @@ const WITH_HEADERS = {
 
 beforeEach(() => {
 	requireAdminSession.mockReset().mockResolvedValue(undefined)
-	listAdminUsers.mockReset().mockResolvedValue([])
+	listAdminUsers.mockReset().mockResolvedValue({ admins: [], total: 0 })
 })
 
 afterEach(() => {
@@ -55,7 +55,7 @@ describe('administratorsLoader', () => {
 
 		await administratorsLoader({ request })
 
-		expect(listAdminUsers).toHaveBeenCalledWith(request)
+		expect(listAdminUsers).toHaveBeenCalledWith(expect.anything(), request)
 	})
 
 	it('hands it down even when it carries no cookie of its own', async () => {
@@ -63,16 +63,31 @@ describe('administratorsLoader', () => {
 
 		await administratorsLoader({ request })
 
-		expect(listAdminUsers).toHaveBeenCalledWith(request)
+		expect(listAdminUsers).toHaveBeenCalledWith(expect.anything(), request)
 	})
 
 	it('hands the list back under the key the page reads', async () => {
 		const admins = [{ id: 'adm-1', name: 'Awa Traoré' } as Admin]
-		listAdminUsers.mockResolvedValue(admins)
+		listAdminUsers.mockResolvedValue({ admins, total: 1 })
 
 		expect(
 			await administratorsLoader({ request: requestFor(WITH_HEADERS) }),
-		).toEqual({ admins })
+		).toMatchObject({ admins, total: 1, page: 1, pageSize: 25 })
+	})
+
+	// It used to ask for 200 administrators and page them in the browser.
+	it('forwards the page, the size and the search the URL carries', async () => {
+		listAdminUsers.mockResolvedValue({ admins: [], total: 500 })
+		const request = new Request(
+			'http://localhost:3001/administrators?page=2&pageSize=50&q=%20Awa%20',
+		)
+
+		await administratorsLoader({ request })
+
+		expect(listAdminUsers).toHaveBeenCalledWith(
+			{ page: 2, pageSize: 50, search: 'Awa' },
+			request,
+		)
 	})
 
 	// A dead API must not be swallowed into an empty table: the page shows an

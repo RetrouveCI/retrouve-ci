@@ -1,9 +1,7 @@
 import { banAdminUser, listAdminUsers } from '../administrators.service'
 
-function mockFetch() {
-	const spy = vi
-		.fn()
-		.mockResolvedValue(new Response('{"users":[]}', { status: 200 }))
+function mockFetch(body = '{"users":[],"total":0}') {
+	const spy = vi.fn().mockResolvedValue(new Response(body, { status: 200 }))
 	vi.stubGlobal('fetch', spy)
 	return spy
 }
@@ -24,16 +22,48 @@ afterEach(() => {
 })
 
 describe('the administrators service', () => {
-	// Same ceiling as the users list, and the same arbitrary cut without a sort.
+	// ⚠️ An offset over an arbitrary order lets page 2 repeat page 1.
 	it('asks the database for the newest administrators first', async () => {
 		const spy = mockFetch()
 
-		await listAdminUsers(incoming())
+		await listAdminUsers({}, incoming())
 
 		const query = new URL(String(spy.mock.calls[0]?.[0])).searchParams
 
 		expect(query.get('sortBy')).toBe('createdAt')
 		expect(query.get('sortDirection')).toBe('desc')
+	})
+
+	it('asks for one page, at the offset the page number names', async () => {
+		const spy = mockFetch()
+
+		await listAdminUsers({ page: 2, pageSize: 10 }, incoming())
+
+		const query = new URL(String(spy.mock.calls[0]?.[0])).searchParams
+
+		expect(query.get('limit')).toBe('10')
+		expect(query.get('offset')).toBe('10')
+	})
+
+	it('counts through the database rather than over the page', async () => {
+		mockFetch('{"users":[],"total":42}')
+
+		await expect(listAdminUsers({}, incoming())).resolves.toMatchObject({
+			total: 42,
+		})
+	})
+
+	// Everything that is not a visitor: the single filter is spent on the role.
+	it('keeps narrowing the list away from ordinary accounts', async () => {
+		const spy = mockFetch()
+
+		await listAdminUsers({}, incoming())
+
+		const query = new URL(String(spy.mock.calls[0]?.[0])).searchParams
+
+		expect(query.get('filterField')).toBe('role')
+		expect(query.get('filterOperator')).toBe('ne')
+		expect(query.get('filterValue')).toBe('user')
 	})
 
 	// The bug R50 closes: every backoffice mutation keyed on this container, so
@@ -58,7 +88,7 @@ describe('the administrators service', () => {
 		vi.unstubAllGlobals()
 
 		const read = mockFetch()
-		await listAdminUsers(incoming())
+		await listAdminUsers({}, incoming())
 		expect(headersOf(read).Origin).toBeUndefined()
 		expect(headersOf(read)['X-Auth-Audience']).toBe('admin')
 	})

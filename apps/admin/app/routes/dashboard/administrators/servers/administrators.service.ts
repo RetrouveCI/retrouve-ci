@@ -1,4 +1,5 @@
 import { requestOrigin } from '@/shared/helpers/origin'
+import { searchParamsFor } from '../../users/servers/users.service'
 import { apiFetch, type ApiFetchInit } from '@/shared/utils/api-fetch'
 import type { EditableRole } from '../administrators.schema'
 import type { Admin, AdminRole } from '../types/administrators.types'
@@ -32,12 +33,39 @@ function authInit(request: Request): ApiFetchInit {
 	return { request, headers: { Origin: requestOrigin(request) } }
 }
 
-export async function listAdminUsers(request: Request): Promise<Admin[]> {
+/**
+ * One page, counted by the database. The single filter better-auth offers is
+ * spent on the role — everything that is not a visitor — so there is no status
+ * axis here either; it stays on the row. ⚠️ `sortBy` is not decoration: without
+ * it the offset walks an arbitrary order and page 2 could repeat page 1.
+ */
+export async function listAdminUsers(
+	params: { page?: number; pageSize?: number; search?: string },
+	request: Request,
+): Promise<{ admins: Admin[]; total: number }> {
+	const page = params.page ?? 1
+	const pageSize = params.pageSize ?? 25
+
+	const query = new URLSearchParams({
+		limit: String(pageSize),
+		offset: String((page - 1) * pageSize),
+		sortBy: 'createdAt',
+		sortDirection: 'desc',
+		filterField: 'role',
+		filterOperator: 'ne',
+		filterValue: 'user',
+		...(params.search ? searchParamsFor(params.search) : {}),
+	})
+
 	const res = await apiFetch<{ users: BetterAuthUser[]; total: number }>(
-		'/api/admin-auth/admin/list-users?limit=200&sortBy=createdAt&sortDirection=desc&filterField=role&filterOperator=ne&filterValue=user',
+		`/api/admin-auth/admin/list-users?${query.toString()}`,
 		{ request },
 	)
-	return res.users.filter(u => u.role !== 'user').map(mapUser)
+
+	return {
+		admins: res.users.filter(u => u.role !== 'user').map(mapUser),
+		total: res.total,
+	}
 }
 
 export async function createAdminUser(
