@@ -637,8 +637,8 @@ Détaillée à l'ouverture, d'après l'artefact F7, et **coupée en trois PR**, 
 par groupe de listes, pour qu'aucune ne soit illisible :
 
 - **F9a** _(livré — #255)_ — le socle, sur Commandes, Stickers et Messages.
-- **F9b** — Notifications, Utilisateurs et Administrateurs, qui passent par
-  `list-users` de better-auth.
+- **F9b** _(livré — #256)_ — Notifications. Utilisateurs et Administrateurs
+  **restent en l'état** : voir la question n° 5 du §6.
 - **F9c** — Annonces, après F4 : F4 réécrit cette page, la toucher avant
   l'aurait fait entrer en conflit.
 
@@ -743,3 +743,14 @@ première PR de leur lot.
 3. **L'assistant est-il ouvert aux visiteurs anonymes ?** Le plafond n'est pas
    le même, et l'ardoise non plus. À trancher en F15.
 4. **Quel budget mensuel pour l'assistant ?** Il fixe le plafond, pas l'inverse.
+5. **Lister les comptes : une route d'API, ou un axe en moins ?** Posée en F9b.
+   Utilisateurs et administrateurs passent par `list-users` de better-auth, qui
+   n'accepte qu'**un** filtre et **une** recherche — mesuré dans sa source
+   (1.6.30). Les deux listes dépensent déjà ce filtre sur le rôle : l'état
+   (banni ou non) ne peut pas s'y ajouter côté serveur. Paginer sur le serveur
+   imposerait de lâcher le rôle — des administrateurs apparaîtraient parmi les
+   utilisateurs — ou de lâcher l'état. La voie propre est une route d'API qui
+   lise les comptes par Prisma, ce que le dépôt s'est jusqu'ici interdit (« no
+   API domain of its own »). En attendant, les deux listes gardent leur plafond
+   (500 et 200) et leur filtrage en mémoire, exact tant que les comptes tiennent
+   sous ce plafond.
