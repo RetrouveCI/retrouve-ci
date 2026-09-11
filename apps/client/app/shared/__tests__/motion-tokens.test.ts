@@ -82,12 +82,51 @@ describe('a visitor who asks for less motion', () => {
 
 	// Collapsed, not removed: a reveal starts at `opacity: 0`, and cancelling its
 	// animation outright would hide what it reveals.
+	// ⚠️ The delays belong here as much as the durations: a staggered entry fills
+	// `backwards`, so a child still waiting its turn is held at `opacity: 0`.
+	// Clamping the duration alone leaves invisible cards for the stagger's length.
 	it.each([
 		'animation-duration: 1ms !important',
+		'animation-delay: 0ms !important',
 		'animation-iteration-count: 1 !important',
 		'transition-duration: 1ms !important',
+		'transition-delay: 0ms !important',
 	])('gets %s on every element', declaration => {
 		expect(block).toMatch(/\*,\s*\*::before,\s*\*::after\s*\{/)
 		expect(block).toContain(declaration)
+	})
+})
+
+/** The entry F13 gives every list of the app. */
+describe('a list that appears one card after another', () => {
+	const stagger = css.slice(css.indexOf('.animate-stagger > * {'))
+
+	// ⚠️ Without `backwards`, a child waiting its turn is painted at full
+	// opacity and blinks out when its turn comes.
+	it('holds a child at its first frame until its turn', () => {
+		expect(stagger).toMatch(/\.animate-stagger > \* \{[^}]*backwards/)
+	})
+
+	// A twentieth card waiting more than a second reads as a bug.
+	it('stops lengthening the wait past the eighth child', () => {
+		expect(stagger).toContain('.animate-stagger > *:nth-child(n + 8)')
+	})
+
+	/**
+	 * The invariant §2.9: an entry animation never displaces what is already
+	 * painted. `reveal` is the one keyframe it runs, and it touches nothing that
+	 * takes part in layout.
+	 */
+	it('moves nothing that takes part in layout', () => {
+		const reveal = css.slice(
+			css.indexOf('@keyframes reveal'),
+			css.indexOf('@keyframes pulse-soft'),
+		)
+		const properties = [...reveal.matchAll(/^\s*([a-z-]+)\s*:/gm)].map(
+			([, name]) => name,
+		)
+
+		expect(properties.length).toBeGreaterThan(0)
+		expect([...new Set(properties)].sort()).toEqual(['opacity', 'transform'])
 	})
 })

@@ -1010,14 +1010,52 @@ la main.
   n'entre. La PR qui importera `motion` la première écrira son chiffre, sous un
   plafond de **5 ko gzip** au premier rendu ; le reste se charge à la demande.
 
-#### F13 — Accueil et listes
+**Arbitrage rendu** (2026-09-11) : **`motion` n'entre pas.** La question a été
+posée après deux mesures qui la vidaient de son enjeu. Le tunnel de commande ne
+**démonte pas** ses étapes — `className={step === 'select' ? '' : 'hidden'}` —
+donc une transition d'étape se fait en CSS. Et une seule chose quitte vraiment
+le DOM dans tout le client : la carte supprimée depuis « Mes annonces », où une
+sortie n'apprend rien à qui vient de confirmer la suppression. Le lot 6 tient
+donc l'invariant §2.10 jusqu'au bout, et le budget reste à **0 ko**.
+
+#### F13 — Accueil et listes _(livré)_
+
+Les trois listes du client apparaissent une carte après l'autre :
+`recent-listings-strip` sur l'accueil, la grille et la liste de `/posts`, et «
+Mes annonces ». Une seule utilitaire les sert, `.animate-stagger`.
+
+**Écarts mesurés en livrant F13** (2026-09-11) :
+
+- ⚠️ **Le bloc `prefers-reduced-motion` écrasait la durée et pas le délai.** Un
+  décalage échelonné se remplit `backwards`, donc un enfant qui attend son tour
+  est tenu à `opacity: 0` : un visiteur demandant moins de mouvement serait
+  resté devant des cartes invisibles pendant toute la durée du décalage. Le
+  défaut préexistait — rien n'utilisait de délai sur une animation finie — et il
+  aurait été introduit par cette étape. Les délais sont écrasés aussi,
+  animations **et** transitions, et la garde l'assure.
+- **`backwards` n'est pas un style, c'est la condition.** Sans lui, un enfant
+  qui attend est peint à pleine opacité puis clignote au moment de son tour.
+- **Le décalage est plafonné au huitième enfant** : une vingtième carte qui
+  attendrait plus d'une seconde se lit comme un défaut, pas comme une élégance.
+- **L'entrée ne déplace rien.** `reveal` ne touche que `opacity` et `transform`
+  — asserté, plutôt que promis — donc l'invariant §2.9 tient.
+- **La liste est clefée sur sa page**, si bien que tourner la page rejoue
+  l'entrée au lieu de laisser les nouvelles cartes déjà en place.
+- **`.animate-reveal`, `.animate-slide-up` et `.scroll-trigger` sont définies et
+  **jamais utilisées** dans le client. F14 s'en sert ou les retire ; les laisser
+  définies sans emploi est ce qui fait qu'une feuille de style grossit.
+- **Rien n'a été ajouté aux squelettes.** Deux des quatre routes ressources en
+  ont déjà un (`match-preview`, `listing-card-skeleton`) ; la troisième nourrit
+  une pastille de navigation, où un squelette serait pire ; la quatrième est
+  l'écran de scan, qui fige déjà son viseur pendant la vérification — et cela
+  relève du retour d'action, donc de F14.
 
 #### F14 — Parcours et retours d'action
 
-F13 et F14 attendent une décision de produit : le socle est prêt, mais aucun
-artefact ne dessine le mouvement — quels écrans, quels éléments, quelle allure.
-Ce n'est pas au code de l'inventer ; idéalement, un artefact le tranche, comme
-F7 l'a fait pour la refonte.
+Reste à ouvrir. Ce que F13 lui laisse : le fondu entre les étapes des deux
+tunnels (faisable en CSS, les étapes restant montées), les états d'attente des
+boutons et de l'écran de scan, et la décision sur les trois utilitaires définies
+et inemployées.
 
 ---
 

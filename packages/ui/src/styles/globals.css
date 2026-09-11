@@ -73,6 +73,8 @@
 	--motion-press: 0.3s;
 	--motion-pop: 0.4s;
 	--motion-stagger: 0.5s;
+	/* One child after another, not one screen after another. */
+	--motion-step: 0.06s;
 	--motion-entrance: 0.6s;
 	--motion-loop-fast: 1.2s;
 	--motion-loop: 2s;
@@ -238,14 +240,21 @@
  * `.animate-reveal` start at `opacity: 0` and are only made visible by their own
  * keyframes, so cancelling them outright would hide the content they reveal.
  * Running them to their end instantly keeps the final frame.
+ *
+ * ⚠️ The **delays** are collapsed too, and that is not symmetry: a staggered
+ * entry fills `backwards`, so a child still waiting its turn is held at
+ * `opacity: 0`. Clamping the duration alone would leave a visitor who asked for
+ * less motion staring at invisible cards for the length of the stagger.
  */
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,
 	*::after {
 		animation-duration: 1ms !important;
+		animation-delay: 0ms !important;
 		animation-iteration-count: 1 !important;
 		transition-duration: 1ms !important;
+		transition-delay: 0ms !important;
 		scroll-behavior: auto !important;
 	}
 }
@@ -375,6 +384,43 @@
 
 .animate-pulse-soft {
 	animation: pulse-soft var(--motion-loop) var(--ease-drift) infinite;
+}
+
+/**
+ * A list that appears one card after another. Written once, because every list
+ * of this app wants the same thing and a per-page copy would drift.
+ *
+ * ⚠️ Three details carry it. `backwards` is required, not stylistic: without it
+ * a child waiting its turn would be painted at full opacity and then blink out
+ * when its turn came. The delay is **capped at the eighth child**, because a
+ * twentieth card waiting more than a second reads as a bug rather than as a
+ * flourish. And the animation moves only `opacity` and `transform`, so nothing
+ * already painted is displaced — the invariant §2.9 holds.
+ */
+.animate-stagger > * {
+	animation: reveal var(--motion-entrance) var(--ease-entrance) backwards;
+}
+
+.animate-stagger > *:nth-child(2) {
+	animation-delay: var(--motion-step);
+}
+.animate-stagger > *:nth-child(3) {
+	animation-delay: calc(var(--motion-step) * 2);
+}
+.animate-stagger > *:nth-child(4) {
+	animation-delay: calc(var(--motion-step) * 3);
+}
+.animate-stagger > *:nth-child(5) {
+	animation-delay: calc(var(--motion-step) * 4);
+}
+.animate-stagger > *:nth-child(6) {
+	animation-delay: calc(var(--motion-step) * 5);
+}
+.animate-stagger > *:nth-child(7) {
+	animation-delay: calc(var(--motion-step) * 6);
+}
+.animate-stagger > *:nth-child(n + 8) {
+	animation-delay: calc(var(--motion-step) * 7);
 }
 
 .animate-slide-up {
