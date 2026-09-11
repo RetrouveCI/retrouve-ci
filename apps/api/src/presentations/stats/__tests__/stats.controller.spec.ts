@@ -57,7 +57,7 @@ describe('StatsController', () => {
 			const stats = buildDashboardStats()
 			vi.mocked(getDashboardStatsUseCase.execute).mockResolvedValue(stats)
 
-			expect(await controller.getDashboardStats()).toEqual(stats)
+			expect(await controller.getDashboardStats({})).toEqual(stats)
 			expect(getDashboardStatsUseCase.execute).toHaveBeenCalledOnce()
 		})
 	})

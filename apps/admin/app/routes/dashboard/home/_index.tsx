@@ -1,4 +1,6 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense } from 'react'
+import { useSearchParams } from 'react-router'
+import { format } from 'date-fns'
 import { PageHeader } from '@/components/page-header'
 import { DateRangePicker } from '@/components/date-range-picker'
 import { useAuth } from '@/context/auth'
@@ -36,9 +38,30 @@ export const loader = dashboardLoader
 export const handle: RouteHandle = { title: 'Tableau de bord' }
 
 export default function DashboardPage({ loaderData }: Route.ComponentProps) {
-	const { stats, activityChart, categoryChart, activities } = loaderData
+	const { period, stats, activityChart, categoryChart, activities } = loaderData
 	const { user } = useAuth()
-	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+	const [searchParams, setSearchParams] = useSearchParams()
+
+	// The period lives in the URL, like every other filter of this backoffice:
+	// a view is shared by its link, and the loader is what reads it.
+	const dateRange: DateRange = {
+		from: new Date(period.from),
+		// The stored bound is exclusive; the picker shows the last day measured.
+		to: new Date(new Date(period.to).getTime() - 1),
+	}
+
+	const changePeriod = (range: DateRange | undefined) => {
+		const next = new URLSearchParams(searchParams)
+
+		if (range?.from) next.set('from', format(range.from, 'yyyy-MM-dd'))
+		else next.delete('from')
+		if (range?.to) next.set('to', format(range.to, 'yyyy-MM-dd'))
+		else next.delete('to')
+
+		setSearchParams(next)
+	}
+
+	const reference = `${period.days} jour${period.days > 1 ? 's' : ''} précédents`
 
 	const firstName = user?.name?.split(' ')[0] ?? 'Admin'
 
@@ -50,7 +73,7 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 				actions={
 					<DateRangePicker
 						dateRange={dateRange}
-						onDateRangeChange={setDateRange}
+						onDateRangeChange={changePeriod}
 					/>
 				}
 			/>
@@ -59,12 +82,14 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 				<StatCard
 					title="QR Codes actifs"
 					value={stats.qrActivated.value}
+					changeReference={reference}
 					change={stats.qrActivated.change}
 					icon={QrCode}
 				/>
 				<StatCard
 					title="Scans totaux"
 					value={stats.scans.value}
+					changeReference={reference}
 					change={stats.scans.change}
 					icon={Scan}
 					tone="accent"
@@ -72,12 +97,14 @@ export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 				<StatCard
 					title="Contacts"
 					value={stats.contacts.value}
+					changeReference={reference}
 					change={stats.contacts.change}
 					icon={Phone}
 				/>
 				<StatCard
 					title="Nouveaux utilisateurs"
 					value={stats.newUsers.value}
+					changeReference={reference}
 					change={stats.newUsers.change}
 					icon={Users}
 					tone="accent"

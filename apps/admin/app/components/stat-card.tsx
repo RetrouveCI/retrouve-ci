@@ -28,6 +28,8 @@ interface StatCardProps {
 	title: string
 	value: number | string
 	change?: number
+	/** What the percentage is measured against, e.g. « 30 jours précédents ». */
+	changeReference?: string
 	icon: LucideIcon
 	/** Icon tint for the default card; ignored when `highlight` is set. */
 	tone?: StatTone
@@ -60,6 +62,7 @@ export function StatCard({
 	title,
 	value,
 	change,
+	changeReference,
 	icon: Icon,
 	tone = 'primary',
 	highlight = false,
@@ -86,7 +89,17 @@ export function StatCard({
 				>
 					<Icon className="h-5 w-5" />
 				</div>
-				{hasChange && <ChangeChip change={change} onDark={highlight} />}
+				{hasChange && (
+					<span className="flex flex-wrap items-center gap-1.5">
+						<ChangeChip change={change} onDark={highlight} />
+						{/* A percentage that names nothing informs about nothing. */}
+						{changeReference && (
+							<span className="text-muted-foreground text-[11px]">
+								vs {changeReference}
+							</span>
+						)}
+					</span>
+				)}
 			</div>
 			<p
 				className={cn(

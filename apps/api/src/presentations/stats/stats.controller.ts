@@ -1,9 +1,15 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, Query } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import {
+	dashboardPeriodSchema,
+	type DashboardPeriodData,
+} from '@app/contracts/reporting'
 import { AllowAnonymous, Roles } from '@thallesp/nestjs-better-auth'
 import { GetPublicCountersUseCase } from '@/domains/lost-items/use-cases/get-public-counters.use-case'
 import { GetDashboardStatsUseCase } from '@/domains/reporting/use-cases/get-dashboard-stats.use-case'
 import { CountPushSubscriptionsUseCase } from '@/domains/notifications/use-cases/count-push-subscriptions.use-case'
+import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('stats')
 @ApiBearerAuth()
@@ -26,10 +32,15 @@ export class StatsController {
 		return this.getPublicCountersUseCase.execute()
 	}
 
+	/** Naming neither bound reads the last thirty days, as it always did. */
 	@Get()
 	@Roles(['admin'])
-	getDashboardStats() {
-		return this.getDashboardStatsUseCase.execute()
+	@ApiZodQuery(dashboardPeriodSchema)
+	getDashboardStats(
+		@Query(new ZodValidationPipe(dashboardPeriodSchema))
+		period: DashboardPeriodData,
+	) {
+		return this.getDashboardStatsUseCase.execute(period)
 	}
 
 	// A bare number, as `/notifications/unread-count` answers one. The figure A3

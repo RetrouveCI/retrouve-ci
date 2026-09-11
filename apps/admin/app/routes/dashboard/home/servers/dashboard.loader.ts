@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { LostItemCategory } from '@app/contracts/lost-items'
+import { dashboardPeriodSchema, resolvePeriod } from '@app/contracts/reporting'
 import { requireAdminSession } from '@/shared/helpers/session.server'
 import { apiFetch } from '@/shared/utils/api-fetch'
 
@@ -38,14 +39,39 @@ function categoryLabel(category: string): string {
 	return CATEGORY_LABELS[category as Uppercase<LostItemCategory>] ?? category
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000
+
 export async function dashboardLoader({ request }: { request: Request }) {
 	await requireAdminSession(request)
 
-	const data = await apiFetch<StatsApiResponse>('/stats', {
-		request,
-	})
+	const url = new URL(request.url)
+	// A hand-edited bound is dropped rather than turned into an error page; the
+	// API answers the last thirty days when it is given neither.
+	const period =
+		dashboardPeriodSchema.safeParse({
+			from: url.searchParams.get('from') ?? undefined,
+			to: url.searchParams.get('to') ?? undefined,
+		}).data ?? {}
+
+	const query = new URLSearchParams()
+	if (period.from) query.set('from', period.from)
+	if (period.to) query.set('to', period.to)
+
+	const data = await apiFetch<StatsApiResponse>(
+		query.size ? `/stats?${query.toString()}` : '/stats',
+		{ request },
+	)
+
+	// The same resolution the API applies, so the page can say what the figures
+	// are compared against rather than showing a percentage of nothing named.
+	const { from, to } = resolvePeriod(period)
 
 	return {
+		period: {
+			from: from.toISOString(),
+			to: to.toISOString(),
+			days: Math.max(1, Math.round((to.getTime() - from.getTime()) / DAY_MS)),
+		},
 		stats: {
 			qrGenerated: data.qrGenerated,
 			qrActivated: data.qrActivated,

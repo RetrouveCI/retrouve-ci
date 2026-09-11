@@ -19,7 +19,7 @@ describe('GetDashboardStatsUseCase', () => {
 		const stats = buildDashboardStats()
 		vi.mocked(repository.getDashboardStats).mockResolvedValue(stats)
 
-		expect(await useCase.execute()).toEqual(stats)
+		expect(await useCase.execute({})).toEqual(stats)
 		expect(repository.getDashboardStats).toHaveBeenCalledOnce()
 	})
 })
