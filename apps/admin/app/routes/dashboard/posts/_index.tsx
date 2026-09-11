@@ -53,7 +53,7 @@ import type { Route } from './+types/_index'
 export const loader = postsLoader
 export const action = postsAction
 
-export const handle: RouteHandle = { title: 'Posts' }
+export const handle: RouteHandle = { title: 'Annonces' }
 
 export default function PostsPage({ loaderData }: Route.ComponentProps) {
 	const { posts, total, statusFilter, typeFilter } = loaderData
@@ -72,7 +72,7 @@ export default function PostsPage({ loaderData }: Route.ComponentProps) {
 	useSettledSubmission(moderateFetcher.response, result => {
 		if (!result.success) {
 			toast.error(
-				result.errors?.root?.message ?? 'Impossible de modérer ce post',
+				result.errors?.root?.message ?? 'Impossible de modérer cette annonce',
 			)
 			return
 		}

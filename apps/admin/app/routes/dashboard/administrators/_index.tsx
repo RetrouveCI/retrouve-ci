@@ -68,8 +68,12 @@ const ROLE_CONFIG: Record<
 		variant: 'default' | 'secondary' | 'outline'
 	}
 > = {
-	super_admin: { label: 'Super Admin', icon: ShieldCheck, variant: 'default' },
-	admin: { label: 'Admin', icon: Shield, variant: 'secondary' },
+	super_admin: {
+		label: 'Super administrateur',
+		icon: ShieldCheck,
+		variant: 'default',
+	},
+	admin: { label: 'Administrateur', icon: Shield, variant: 'secondary' },
 	moderator: { label: 'Modérateur', icon: ShieldAlert, variant: 'outline' },
 }
 

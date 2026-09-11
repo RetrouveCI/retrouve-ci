@@ -32,7 +32,7 @@ export const ACTIVITY_CHART: ChartMeta = {
 }
 
 export const CATEGORY_CHART: ChartMeta = {
-	title: 'Posts par catégorie',
+	title: 'Annonces par catégorie',
 	legend: [
 		{ color: LOST_COLOR, label: 'Perdus' },
 		{ color: FOUND_COLOR, label: 'Retrouvés' },

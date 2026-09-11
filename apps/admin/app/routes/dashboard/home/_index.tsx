@@ -33,7 +33,7 @@ import { QrCode, Scan, Phone, Users } from 'lucide-react'
 
 export const loader = dashboardLoader
 
-export const handle: RouteHandle = { title: 'Dashboard' }
+export const handle: RouteHandle = { title: 'Tableau de bord' }
 
 export default function DashboardPage({ loaderData }: Route.ComponentProps) {
 	const { stats, activityChart, categoryChart, activities } = loaderData

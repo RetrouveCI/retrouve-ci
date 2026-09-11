@@ -17,7 +17,7 @@ export function PermissionsCard({ role }: PermissionsCardProps) {
 	const permissions: Permission[] = [
 		{ label: 'Gérer les utilisateurs', allowed: true },
 		{ label: 'Gérer les QR codes', allowed: true },
-		{ label: 'Modérer les posts', allowed: true },
+		{ label: 'Modérer les annonces', allowed: true },
 		{ label: 'Gérer les événements', allowed: true },
 		{ label: 'Gérer les administrateurs', allowed: isSuperAdmin },
 		{ label: 'Accès aux paramètres système', allowed: isSuperAdmin },

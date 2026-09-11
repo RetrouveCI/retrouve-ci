@@ -14,7 +14,7 @@ import type { Route } from './+types/_index'
 
 export const loader = qrLoader
 
-export const handle: RouteHandle = { title: 'Stickers / QR Codes' }
+export const handle: RouteHandle = { title: 'Stickers & QR' }
 
 export default function QrCodesPage({ loaderData }: Route.ComponentProps) {
 	const { tokens, statusFilter } = loaderData
