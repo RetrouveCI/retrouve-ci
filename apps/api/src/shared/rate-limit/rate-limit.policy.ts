@@ -81,6 +81,16 @@ export const LOST_ITEM_PER_USER: AccountLimit = {
 		'Trop d’annonces publiées depuis ce compte. Merci de patienter avant d’en publier une autre.',
 }
 
+// A reply costs a row and a desk notification, so what a flood spends is the
+// desk's attention. Its own ceiling: a conversation is not a publication.
+export const LISTING_COMMENT_PER_USER: AccountLimit = {
+	keyPrefix: 'listing-comment-user',
+	max: 20,
+	windowSeconds: HOUR,
+	message:
+		'Trop de messages envoyés depuis ce compte. Merci de patienter avant de répondre à nouveau.',
+}
+
 // The same numbers as `OTP`, keyed on the number. Both hold at once: an address
 // is forwarded and rotatable, while a number is what an SMS costs money on.
 export const OTP_PER_NUMBER = {
@@ -124,6 +134,7 @@ const AUTHENTICATED_WRITE: RateLimitRule = {
 const AUTHENTICATED_WRITE_PATHS = [
 	/^\/sticker-orders$/,
 	/^\/lost-items$/,
+	/^\/lost-items\/[^/]+\/comments$/,
 	/^\/notifications\/push$/,
 ]
 

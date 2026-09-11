@@ -1,14 +1,20 @@
-const { requireServerSession, getMyLostItemsPage, getMyLostItemsSummary } =
-	vi.hoisted(() => ({
-		requireServerSession: vi.fn(),
-		getMyLostItemsPage: vi.fn(),
-		getMyLostItemsSummary: vi.fn(),
-	}))
+const {
+	requireServerSession,
+	getMyLostItemsPage,
+	getMyLostItemsSummary,
+	listUnreadThreads,
+} = vi.hoisted(() => ({
+	requireServerSession: vi.fn(),
+	getMyLostItemsPage: vi.fn(),
+	getMyLostItemsSummary: vi.fn(),
+	listUnreadThreads: vi.fn(),
+}))
 
 vi.mock('@/shared/helpers/session.server', () => ({ requireServerSession }))
 vi.mock('../account-posts.service', () => ({
 	getMyLostItemsPage,
 	getMyLostItemsSummary,
+	listUnreadThreads,
 }))
 
 const { accountPostsLoader } = await import('../account-posts.loader')
@@ -58,6 +64,7 @@ beforeEach(() => {
 	requireServerSession.mockReset().mockResolvedValue({ user: { id: 'u1' } })
 	getMyLostItemsPage.mockReset().mockResolvedValue(page([]))
 	getMyLostItemsSummary.mockReset().mockResolvedValue(summary())
+	listUnreadThreads.mockReset().mockResolvedValue([])
 })
 
 afterEach(() => {
@@ -93,6 +100,7 @@ describe('accountPostsLoader', () => {
 			page: 1,
 			pageSize: 12,
 			summary: EMPTY_SUMMARY,
+			unreadReplies: {},
 		})
 	})
 
@@ -222,3 +230,23 @@ describe('accountPostsLoader', () => {
 // with `await import`. That needs the file to be a module (TS1375), and it has
 // nothing else to import.
 export {}
+
+describe('accountPostsLoader — the team’s messages', () => {
+	it('marks the listings the team wrote on', async () => {
+		listUnreadThreads.mockResolvedValue([{ lostItemId: 'post-1', unread: 2 }])
+
+		const result = await accountPostsLoader({ request: request() })
+
+		expect(result.unreadReplies).toEqual({ 'post-1': 2 })
+	})
+
+	it('still answers the list when the messages cannot be counted', async () => {
+		getMyLostItemsPage.mockResolvedValue(page([dto()]))
+		listUnreadThreads.mockRejectedValue(new Error('unreachable'))
+
+		const result = await accountPostsLoader({ request: request() })
+
+		expect(result.listings).toHaveLength(1)
+		expect(result.unreadReplies).toEqual({})
+	})
+})

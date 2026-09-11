@@ -3,9 +3,11 @@ import { requireServerSession } from '@/shared/helpers/session.server'
 import { toUserLostItem } from '@/shared/mappers/lost-item.mapper'
 import type { MyLostItemsSummaryApiResponse } from '@/shared/types/lost-items.types'
 import { parseAccountPostsFilters } from '../helpers/parse-account-posts-filters'
+import { toUnreadReplies } from '../helpers/unread-replies'
 import {
 	getMyLostItemsPage,
 	getMyLostItemsSummary,
+	listUnreadThreads,
 } from './account-posts.service'
 
 /** A counter the API cannot serve reads zero: a badge must not take a page down. */
@@ -20,9 +22,11 @@ export async function accountPostsLoader({ request }: { request: Request }) {
 
 	const filters = parseAccountPostsFilters(new URL(request.url).searchParams)
 
-	const [response, summary] = await Promise.all([
+	const [response, summary, unreadThreads] = await Promise.all([
 		getMyLostItemsPage(request, filters),
 		getMyLostItemsSummary(request).catch(() => EMPTY_SUMMARY),
+		// The same rule as the summary: a marker must not take the list down.
+		listUnreadThreads(request).catch(() => []),
 	])
 
 	/**
@@ -38,6 +42,7 @@ export async function accountPostsLoader({ request }: { request: Request }) {
 		page: response.page,
 		pageSize: response.pageSize,
 		summary,
+		unreadReplies: toUnreadReplies(unreadThreads),
 	}
 }
 

@@ -244,6 +244,26 @@ short version: **two cookies are not isolation on their own** — the browser
 sends both to the API — so `SessionGuard` picks the instance from the request's
 `Origin`, or from `X-Auth-Audience` when there is none.
 
+## 5. A comment on a listing
+
+The desk suggests (« ajoutez une photo du dos », « précisez la commune »), the
+poster answers. It is not moderation: a hidden listing still carries its
+`moderationReason`, and the two channels coexist.
+
+| Call                                  | Who                | Bound                      |
+| ------------------------------------- | ------------------ | -------------------------- |
+| `GET /lost-items/:id/comments`        | desk, or the owner | the latest 100             |
+| `POST /lost-items/:id/comments`       | the owner          | `LISTING_COMMENT_PER_USER` |
+| `POST /lost-items/:id/comments/desk`  | an administrator   | `@Roles(['admin'])`        |
+| `PATCH /lost-items/:id/comments/read` | desk, or the owner | what the caller can read   |
+| `GET /lost-items/comments/unread`     | desk, or the owner | the latest 100 threads     |
+
+Which side a call is on follows the app it comes from, never the role: an
+administrator on the public app is a poster there. The desk writing raises
+`listing_commented` for the poster, linking to `/account/posts/:id`; the poster
+answering raises `listing_replied` for the desk. Marking a thread read marks
+what the **other** side wrote.
+
 ## Notifications
 
 Two types, both raised by the API, never by a front:

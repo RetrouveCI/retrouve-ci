@@ -10,6 +10,8 @@ export const NOTIFICATION_TYPES = [
 	'order_processing',
 	'order_shipped',
 	'order_cancelled',
+	'listing_commented',
+	'listing_replied',
 ] as const
 
 /**
@@ -18,13 +20,14 @@ export const NOTIFICATION_TYPES = [
  */
 export const NOTIFICATION_AUDIENCES = ['user', 'admin'] as const
 
-// The three that address the desk. Declared as a partition of the types — the
+// The four that address the desk. Declared as a partition of the types — the
 // spec asserts it — so a type added above falls on one side or the other rather
 // than reaching a visitor's bell by omission.
 export const ADMIN_NOTIFICATION_TYPES = [
 	'listing_pending',
 	'order_placed',
 	'contact_received',
+	'listing_replied',
 ] as const
 
 export const USER_NOTIFICATION_TYPES = [
@@ -36,4 +39,5 @@ export const USER_NOTIFICATION_TYPES = [
 	'order_processing',
 	'order_shipped',
 	'order_cancelled',
+	'listing_commented',
 ] as const

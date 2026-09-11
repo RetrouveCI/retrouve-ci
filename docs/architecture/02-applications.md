@@ -68,9 +68,11 @@ Three deliberate absences:
   [`shared/utils/pagination.util.ts`](../../apps/api/src/shared/utils/pagination.util.ts).
 - **no `*.dto.ts` and no `class-validator`.** See below.
 
-The eight domains: `contact-messages`, `events`, `lost-items`, `matching`,
-`notifications`, `qr-codes`, `reporting`, `sticker-orders`. `matching` has no
-repository of its own — it reads `lost-items` and writes through
+The nine domains: `contact-messages`, `events`, `listing-comments`,
+`lost-items`, `matching`, `notifications`, `qr-codes`, `reporting`,
+`sticker-orders`. `matching` has no repository of its own — it reads
+`lost-items` and writes through `notifications`. `listing-comments` hangs its
+threads on `lost-items`' listings and tells the other side through
 `notifications`.
 
 `presentations/` additionally holds `auth`, `health`, `stats` and `uploads`,

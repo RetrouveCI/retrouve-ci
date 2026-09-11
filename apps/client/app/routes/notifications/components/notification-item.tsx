@@ -3,6 +3,7 @@ import type { FetcherWithComponents } from 'react-router'
 import {
 	Gavel,
 	MessageCircle,
+	MessageSquare,
 	Package,
 	PackageX,
 	QrCode,
@@ -24,6 +25,7 @@ const TYPE_ICONS: Record<UserNotificationType, React.ElementType> = {
 	order_processing: Package,
 	order_shipped: Truck,
 	order_cancelled: PackageX,
+	listing_commented: MessageSquare,
 }
 
 interface NotificationItemProps {

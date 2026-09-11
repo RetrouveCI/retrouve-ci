@@ -6,6 +6,7 @@ import type {
 	ModerationStatus,
 	ResolutionStatus,
 } from '@app/contracts/lost-items'
+import type { ListingCommentSide } from '@app/contracts/listing-comments'
 import type { Paginated } from '@app/contracts/shared'
 
 export type {
@@ -52,3 +53,21 @@ export interface Post {
 }
 
 export type PostListResponse = Paginated<Post>
+
+/** One message of a listing's thread. The author's account id stays in the API. */
+export interface PostComment {
+	id: string
+	lostItemId: string
+	authorSide: ListingCommentSide
+	body: string
+	createdAt: string
+	readAt: string | null
+}
+
+export interface UnreadThread {
+	lostItemId: string
+	unread: number
+}
+
+/** Unread replies per listing id, as the list marks them. */
+export type UnreadReplies = Record<string, number>

@@ -408,10 +408,10 @@ These are the **four** folders `src/` holds — E8.1 pluralised the two middle
 ones and absorbed the stray `libs/storage/cloudinary.ts` into
 `infrastructures/storage/cloudinary.client.ts`.
 
-- Domains: `contact-messages`, `events`, `lost-items`, `matching`,
-  `notifications`, `qr-codes`, `reporting`, `sticker-orders`. Each keeps its
-  use-cases free of NestJS/HTTP concerns; controllers in `presentations/` are
-  thin and delegate to use-cases.
+- Domains: `contact-messages`, `events`, `listing-comments`, `lost-items`,
+  `matching`, `notifications`, `qr-codes`, `reporting`, `sticker-orders`. Each
+  keeps its use-cases free of NestJS/HTTP concerns; controllers in
+  `presentations/` are thin and delegate to use-cases.
 - `presentations/` holds **more folders than `domains/` does**: `auth`,
   `health`, `stats` and `uploads` have no bounded context of their own. `stats`
   fronts the `reporting` domain, `auth` carries the OTP queue consumer and the
@@ -526,6 +526,23 @@ ones and absorbed the stray `libs/storage/cloudinary.ts` into
   `notify-matches` the single named exemption. That distinction is load-bearing:
   `notify-matches` holds its dependency under a different field name, so a probe
   grepping `createNotification.execute` sees six producers and misses it.
+- **A comment on a listing is bounded by what the caller owns.**
+  `ListingComment` is a suggestion between the desk and a poster (« ajoutez une
+  photo du dos »), not a moderation decision — `moderationReasonNote` keeps that
+  role, and the two channels coexist. `authorSide` is **stored**, because an
+  administrator is also an ordinary user and posts as one on the public app: the
+  side is the **audience** `threadScope(audience, user)` reads, never the role.
+  ⚠️ The desk side needs the role **as well**: nothing refuses an ordinary
+  account signing in to `/api/admin-auth` with its password, so the admin
+  audience alone proves nothing. `whereFor(scope)` in
+  `domains/listing-comments/repository/` is the **only** place a thread's
+  `where` is built — a poster reaches only the listings they own, the desk every
+  one. Two write paths for one use-case, since `limitFor` reads paths and not
+  methods: `POST /lost-items/:id/comments` carries the poster's own
+  `LISTING_COMMENT_PER_USER` ceiling, `…/comments/desk` is `@Roles(['admin'])`.
+  Each side's write raises the other side's notification (`listing_commented` to
+  the poster, `listing_replied` to the desk). `toListingCommentView` names what
+  a thread answers, so the author's account id stays in the API.
 - **A push subscription is a consented capability, not an audience
   measurement.** `PushSubscription` holds one row per browser, keyed on the
   endpoint the vendor issued, so a browser re-subscribing after its keys rotated
@@ -773,11 +790,12 @@ mounted with no component, `fetcher.load`ed rather than fetched per navigation:
 `scan/status`, `publish/matches`, `account/posts/matches` and
 `account/stickers/pending`.
 
-⚠️ **Eight paths in `routes.ts` point straight at a `servers/*.ts`, and every
-one of them must export a `loader`** — the four above, `robots.txt`,
-`sitemap.xml`, and the two that carry only an `action`: `posts/:id/contact` and
-`q/:code/reach`. Having no component means having no error boundary, so a GET a
-resource route cannot answer is served **as the page**: React Router answers
+⚠️ **Nine paths in `routes.ts` point straight at a `servers/*.ts`, and every one
+of them must export a `loader`** — the four above, `robots.txt`, `sitemap.xml`,
+the two that carry only an `action` (`posts/:id/contact` and `q/:code/reach`),
+and `account/posts/:id/comments`, where a poster's reply to the team's thread
+posts. Having no component means having no error boundary, so a GET a resource
+route cannot answer is served **as the page**: React Router answers
 `400 {"message":"Unexpected Server Error"}`, which is what a visitor read in
 production on the contact route. And the GET is not exotic: a reload, a restore,
 or a jump no dialer follows all land on it, so their `loader` redirects back to
@@ -795,7 +813,7 @@ redirect back with `?contact=` / `?reach=`, and **both pages narrow that param
 in their loader and render it** — not a toast, since a jump that needs no
 JavaScript must not need it to explain itself either.
 `app/shared/__tests__/resource-route-get.test.ts` holds that property for all
-eight, so a ninth cannot be mounted without one.
+nine, so a tenth cannot be mounted without one.
 
 > **`apps/client` uses the target layout**:
 >
@@ -996,7 +1014,10 @@ Route structure (defined in `app/routes.ts`):
 - `/qr`, `/qr/generate`, `/qr/:code` — QR tokens (real API: `qr-codes` domain)
 - `/events` — community events (real API: `events` domain)
 - `/notifications` — admin notifications (real API: `notifications` domain)
-- `/posts` — lost/found listings moderation (real API: `lost-items` domain)
+- `/posts` — lost/found listings moderation (real API: `lost-items` domain). A
+  listing's thread with its poster is a resource route, `posts/:id/comments`,
+  whose loader and action the detail dialog reads and posts to — so the list's
+  own action keeps answering a listing only
 - `/users`, `/users/:id` — user management (real, via better-auth's `admin()`
   plugin — no API domain of its own)
 - `/administrators` — admin account management (real, via better-auth's

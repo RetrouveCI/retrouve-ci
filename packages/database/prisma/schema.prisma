@@ -104,6 +104,8 @@ enum NotificationType {
   ORDER_PROCESSING
   ORDER_SHIPPED
   ORDER_CANCELLED
+  LISTING_COMMENTED
+  LISTING_REPLIED
 }
 
 /// Who a notification speaks to. An ADMIN row carries no userId: it addresses
@@ -111,6 +113,13 @@ enum NotificationType {
 enum NotificationAudience {
   USER
   ADMIN
+}
+
+/// Which app a comment was written from. Stored, never deduced from the author:
+/// an administrator is also an ordinary user, and posts as one on the public app.
+enum ListingCommentSide {
+  ADMIN
+  OWNER
 }
 
 model User {
@@ -136,6 +145,7 @@ model User {
   stickerOrders       StickerOrder[]
   notifications       Notification[]
   pushSubscriptions   PushSubscription[]
+  listingComments     ListingComment[]
 
   @@unique([email])
   @@unique([phoneNumber])
@@ -227,6 +237,7 @@ model LostItem {
   userId               String
   user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   qrTokens             QrToken[]
+  comments             ListingComment[]
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
@@ -234,6 +245,26 @@ model LostItem {
   @@index([type, moderationStatus, resolutionStatus])
   @@index([type, moderationStatus, resolutionStatus, category])
   @@map("lost_item")
+}
+
+/// A suggestion between the desk and a poster — not a moderation decision,
+/// which keeps its own reason. readAt is set when the other side reads it.
+model ListingComment {
+  id         String             @id @default(uuid())
+  lostItemId String
+  lostItem   LostItem           @relation(fields: [lostItemId], references: [id], onDelete: Cascade)
+  /// Null once the author's account is gone: the thread belongs to the listing,
+  /// and authorSide still says who wrote.
+  authorId   String?
+  author     User?              @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorSide ListingCommentSide
+  body       String
+  createdAt  DateTime           @default(now())
+  readAt     DateTime?
+
+  @@index([lostItemId, createdAt])
+  @@index([authorId])
+  @@map("listing_comment")
 }
 
 

@@ -514,7 +514,7 @@ Le bureau ne reçoit pas de notification « annonce en attente ».
 
 ### Lot 3 — La conversation sur une annonce
 
-#### F3 — Modèle, domaine et notifications
+#### F3 — Modèle, domaine et notifications _(livré — #250)_
 
 **Objectif.** Un administrateur laisse un commentaire sur une annonce ; le
 posteur le lit et peut répondre. Le but est la suggestion — « ajoutez une photo
@@ -549,19 +549,84 @@ annonce est masquée. Décider si le motif « autre » de la modération devient
 commentaire, ou si les deux canaux coexistent. Par défaut : **ils coexistent**,
 la modération est une décision et le commentaire une suggestion.
 
-#### F4 — Rédiger et suivre côté administration
+**Écarts mesurés en livrant F3** (2026-09-11) :
+
+- **Question n° 2 tranchée : deux canaux.** Le motif de modération reste sur
+  l'annonce et dans `listing_moderated` ; un commentaire ne masque ni ne publie
+  rien.
+- **Le côté est l'audience, mais le côté bureau exige aussi le rôle.** Rien ne
+  refuse à un compte ordinaire de se connecter à `/api/admin-auth` avec son mot
+  de passe — tout visiteur en a un, sous `<numéro>@phone.retrouveci.local`.
+  L'audience seule ne prouve donc rien : `threadScope` refuse le côté bureau à
+  une session d'administration sans le rôle. ⚠️ `/notifications/mine` a le même
+  trou et le garde : il est corrigé à part, hors de ce lot.
+- **Deux chemins d'écriture, un seul use-case.** `limitFor` lit le chemin et pas
+  la méthode : la réponse du posteur (`POST /lost-items/:id/comments`,
+  plafonnée) et le commentaire du bureau (`…/comments/desk`, `@Roles`) ne
+  pouvaient pas partager un chemin. Le côté écrit reste celui de l'audience sur
+  les deux.
+- **Une cinquième route, `GET /lost-items/comments/unread`.** F4 et F5 sont
+  toutes deux front seul et toutes deux veulent l'indicateur « réponse non lue »
+  ; F3 est la dernière étape du lot qui touche l'API.
+- **`authorId` est nullable, en `SetNull`.** Le fil appartient à l'annonce :
+  supprimer le compte d'un administrateur ne doit pas l'effacer, et `authorSide`
+  dit encore qui a écrit.
+- **Le client est touché d'une ligne.** `TYPE_ICONS` est un
+  `Record<UserNotificationType, …>` : un type visiteur ajouté au contrat ne
+  compile pas sans son icône, ce qui est voulu.
+- **Les lectures sont bornées**, pas paginées : les 100 derniers messages d'un
+  fil, les 100 fils non lus les plus récents.
+
+#### F4 — Rédiger et suivre côté administration _(livré — #251)_
 
 Le fil sur la fiche d'une annonce. Un indicateur sur la liste pour les annonces
 qui ont une réponse non lue. Cette étape croise F11 (la fiche devient une route)
 : si F11 est déjà passée, le fil s'y installe ; sinon il vit dans le dialogue et
 déménage avec lui.
 
-#### F5 — Lire et répondre côté client
+**Écarts mesurés en livrant F4** (2026-09-11) :
+
+- **F11 n'est pas passée : le fil vit dans le dialogue**, en carte « Échanges
+  avec le posteur », avec le libellé, le texte d'aide et le bouton de l'artefact
+  F7.
+- **Le bureau signe « Équipe RetrouveCI »**, là où l'artefact nomme
+  l'administrateur : F3 garde l'identifiant de l'auteur dans l'API, et c'est
+  aussi la signature que le posteur doit lire.
+- **Le fil a sa propre route ressource**, `posts/:id/comments`, qui porte sa
+  lecture **et** son écriture. Posées sur l'action de la liste, les deux
+  intentions lui faisaient répondre une annonce **ou** un message, et la
+  modération devait trier.
+- **Ouvrir le fil marque lues les réponses du posteur**, et seulement les
+  siennes : un message du bureau non lu est au posteur de le lire.
+- **L'indicateur est une pastille orange** dans la cellule du titre — l'artefact
+  réserve l'orange à ce qui attend quelqu'un. Il est lu à côté de la liste et
+  s'efface en silence si l'API ne répond pas.
+- **Pas de fil sur une annonce de l'équipe** : le compte système n'a personne
+  pour lire.
+
+#### F5 — Lire et répondre côté client _(livré — #252)_
 
 Le fil sur `/account/posts/:id`, et un indicateur sur la carte dans « Mes
 annonces ». Le formulaire de réponse suit la convention du dépôt :
 `servers/*.action.ts`, `ActionResult`, `useActionFetcher`, react-hook-form avec
 `standardSchemaResolver`.
+
+**Écarts mesurés en livrant F5** (2026-09-11) :
+
+- **Le fil ne s'affiche qu'une fois que l'équipe a écrit.** Le posteur répond à
+  une suggestion ; un fil vide n'est pas une invitation à en ouvrir un. L'API le
+  permettrait (F3), l'interface ne le propose pas.
+- **Il est posé au-dessus du formulaire d'édition**, puisque la notification
+  `listing_commented` mène à cette page pour lui.
+- **Il écrit par une route ressource**, `account/posts/:id/comments` — la
+  neuvième qui pointe sur un `servers/*.ts`, avec le `loader` qui renvoie un GET
+  vers la page. L'action de la page d'édition répond une annonce entière, et
+  n'avait pas à trier une réponse.
+- **Sur la carte, « Nouveau message de l'équipe » remplace « Modifier l'annonce
+  »** d'une annonce masquée : les deux mènent au même écran, et le message est
+  la meilleure raison d'y aller.
+- **Ouvrir la page marque lus les messages de l'équipe**, et seulement eux.
+- **Aucune dépendance ajoutée** : 0 ko au premier rendu.
 
 ---
 
@@ -682,8 +747,9 @@ première PR de leur lot.
    pour ça : la vraie ligne doit être énoncée au déploiement, jamais héritée
    d'un défaut du code qui deviendrait faux le jour où l'équipe change de
    numéro.
-2. **Commentaire et motif de modération : un canal ou deux ?** Par défaut deux,
-   à confirmer en F3.
+2. ~~**Commentaire et motif de modération : un canal ou deux ?**~~ **Tranché le
+   2026-09-11, en F3** : deux. La modération est une décision qui garde son
+   motif ; le commentaire est une suggestion qui ne masque ni ne publie rien.
 3. **L'assistant est-il ouvert aux visiteurs anonymes ?** Le plafond n'est pas
    le même, et l'ardoise non plus. À trancher en F15.
 4. **Quel budget mensuel pour l'assistant ?** Il fixe le plafond, pas l'inverse.

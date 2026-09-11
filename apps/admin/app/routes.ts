@@ -22,6 +22,12 @@ export default [
 		route('administrators', 'routes/dashboard/administrators/_index.tsx'),
 		route('profile', 'routes/dashboard/profile/_index.tsx'),
 	]),
+	// A resource route: no component. `usePostThread` reads it, the composer
+	// and `useMarkThreadRead` post to it.
+	route(
+		'posts/:id/comments',
+		'routes/dashboard/posts/servers/post-thread.loader.ts',
+	),
 	layout('routes/auth/layout.tsx', [
 		route('login', 'routes/auth/login/_index.tsx'),
 		route('forgot-password', 'routes/auth/forgot-password/_index.tsx'),

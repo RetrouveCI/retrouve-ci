@@ -37,6 +37,11 @@ export default [
 			'routes/account/posts/servers/matches.loader.ts',
 		),
 		route('account/posts/:id', 'routes/account/posts/edit/_index.tsx'),
+		// The thread's reply and its read marker, apart from the edit form.
+		route(
+			'account/posts/:id/comments',
+			'routes/account/posts/edit/servers/thread.action.ts',
+		),
 		route('account/orders', 'routes/account/orders/_index.tsx'),
 		route('account/stickers', 'routes/account/stickers/_index.tsx'),
 		route(

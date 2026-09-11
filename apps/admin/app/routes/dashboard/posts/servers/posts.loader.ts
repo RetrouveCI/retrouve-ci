@@ -3,7 +3,8 @@ import {
 	moderationStatusSchema,
 } from '@app/contracts/lost-items'
 import { requireAdminSession } from '@/shared/helpers/session.server'
-import { listPosts } from './posts.service'
+import { toUnreadReplies } from '../helpers/unread-replies'
+import { listPosts, listUnreadThreads } from './posts.service'
 
 export async function postsLoader({ request }: { request: Request }) {
 	await requireAdminSession(request)
@@ -17,12 +18,17 @@ export async function postsLoader({ request }: { request: Request }) {
 	const moderationStatus = moderationStatusSchema.safeParse(rawStatus).data
 	const type = lostItemTypeSchema.safeParse(rawType).data
 
-	const { items, total } = await listPosts({ moderationStatus, type }, request)
+	// An indicator must never take the list down with it.
+	const [{ items, total }, unreadThreads] = await Promise.all([
+		listPosts({ moderationStatus, type }, request),
+		listUnreadThreads(request).catch(() => []),
+	])
 
 	return {
 		posts: items,
 		total,
 		statusFilter: rawStatus ?? 'all',
 		typeFilter: rawType ?? 'all',
+		unreadReplies: toUnreadReplies(unreadThreads),
 	}
 }
