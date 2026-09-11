@@ -692,6 +692,28 @@ listes posé par F9a, cinq lignes par sorte.
 sa route. Trois routes sont à créer, deux existent. Les dialogues d'**action**
 restent des dialogues.
 
+**F11a** _(livré — #258)_ — Commandes et Messages de contact. Chacune a sa fiche
+en route, sur la mise en page de l'artefact : l'en-tête, une colonne principale,
+une colonne d'actions. La palette y mène désormais. **F11b** — Annonces, après
+F4 : c'est F4 qui a posé le fil dans le dialogue, et la fiche doit l'accueillir.
+
+**Écarts mesurés en livrant F11a** (2026-09-11) :
+
+- **F11 touche l'API.** `GET /sticker-orders/:id` ne répond qu'à l'acheteur,
+  administrateurs compris — mesuré dans `GetStickerOrderUseCase` : la fiche ne
+  pouvait pas se charger. Une route du bureau, `GET /sticker-orders/admin/:id`,
+  réservée aux administrateurs, la lit. ⚠️ F11b rencontrera le même mur :
+  `GET /lost-items/:id` ne montre une annonce non publiée qu'à son auteur.
+- **Ouvrir un message le marque lu**, comme l'ouvrir dans le dialogue le faisait
+  : c'est `GetContactMessageUseCase` qui le décide, à la lecture.
+- **La réponse part par WhatsApp ou par e-mail**, pas d'ici — la règle de
+  l'artefact. La note interne qu'il dessine n'a pas de colonne : elle reste hors
+  de F11.
+- **Annuler une commande demande une confirmation** sur la fiche. La liste garde
+  son annulation directe, telle qu'elle était.
+- **Les transitions d'une commande vivent à un endroit** (`orders.const.ts`) :
+  la liste et la fiche les lisaient chacune de leur côté.
+
 #### F18 — Sélection multiple et action en lot
 
 Décidée après le découpage, elle appartient au lot 5 et s'ouvre après `F9`, qui

@@ -6,6 +6,7 @@ import type { GetMyStickerOrdersUseCase } from '@/domains/sticker-orders/use-cas
 import type { GetPaginatedStickerOrdersUseCase } from '@/domains/sticker-orders/use-cases/get-paginated-sticker-orders.use-case'
 import type { GetStickerOrderUseCase } from '@/domains/sticker-orders/use-cases/get-sticker-order.use-case'
 import type { UpdateStickerOrderStatusUseCase } from '@/domains/sticker-orders/use-cases/update-sticker-order-status.use-case'
+import type { GetStickerOrderForDeskUseCase } from '@/domains/sticker-orders/use-cases/get-sticker-order-for-desk.use-case'
 import type { Auth } from '@/infrastructures/auth/auth.config'
 import { StickerOrdersController } from '../sticker-orders.controller'
 
@@ -21,6 +22,7 @@ describe('StickerOrdersController', () => {
 	let getPaginatedStickerOrders: GetPaginatedStickerOrdersUseCase
 	let getMyStickerOrders: GetMyStickerOrdersUseCase
 	let updateStickerOrderStatus: UpdateStickerOrderStatusUseCase
+	let getStickerOrderForDesk: GetStickerOrderForDeskUseCase
 	let controller: StickerOrdersController
 
 	beforeEach(() => {
@@ -29,12 +31,14 @@ describe('StickerOrdersController', () => {
 		getPaginatedStickerOrders = buildUseCase<GetPaginatedStickerOrdersUseCase>()
 		getMyStickerOrders = buildUseCase<GetMyStickerOrdersUseCase>()
 		updateStickerOrderStatus = buildUseCase<UpdateStickerOrderStatusUseCase>()
+		getStickerOrderForDesk = buildUseCase<GetStickerOrderForDeskUseCase>()
 		controller = new StickerOrdersController(
 			createStickerOrder,
 			getStickerOrder,
 			getPaginatedStickerOrders,
 			getMyStickerOrders,
 			updateStickerOrderStatus,
+			getStickerOrderForDesk,
 		)
 	})
 
@@ -137,6 +141,23 @@ describe('StickerOrdersController', () => {
 				status: 'shipped',
 			})
 			expect(result).toEqual(updated)
+		})
+	})
+
+	describe('getOneForDesk', () => {
+		it('is restricted to admins', () => {
+			expect(Reflect.getMetadata('ROLES', controller.getOneForDesk)).toEqual([
+				'admin',
+			])
+		})
+
+		// No session in the call: the desk reads any order, whoever bought it.
+		it('reads the order by id alone', async () => {
+			const order = buildStickerOrder()
+			vi.mocked(getStickerOrderForDesk.execute).mockResolvedValue(order)
+
+			await expect(controller.getOneForDesk('order-1')).resolves.toEqual(order)
+			expect(getStickerOrderForDesk.execute).toHaveBeenCalledWith('order-1')
 		})
 	})
 })

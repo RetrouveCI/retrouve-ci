@@ -64,7 +64,7 @@ describe('searchPalette', () => {
 				id: 'ord-1',
 				label: 'Commande RCI-2026-0042',
 				detail: 'Pack Famille · Abidjan',
-				to: '/orders?q=RCI-2026-0042',
+				to: '/orders/ord-1',
 			},
 			{
 				kind: 'sticker',
@@ -78,7 +78,7 @@ describe('searchPalette', () => {
 				id: 'msg-1',
 				label: 'Konan Aya — Activation',
 				detail: 'message',
-				to: '/contact-messages?q=kon',
+				to: '/contact-messages/msg-1',
 			},
 			{
 				kind: 'user',
