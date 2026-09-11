@@ -1,23 +1,20 @@
 import { useState } from 'react'
-import { useSearchParams, Link } from 'react-router'
+import { Link } from 'react-router'
 import {
 	Button,
 	Badge,
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@app/ui/components'
+import { STICKER_ORDER_STATUSES } from '@app/contracts/sticker-orders'
 import { BentoCard } from '@/components/bento-card'
 import { DataTable } from '@/components/data-table'
+import { DensityToggle } from '@/components/density-toggle'
+import { ListToolbar } from '@/components/list-toolbar'
 import { STATUS_TONE_CLASSES } from '@/shared/constants/status-tone'
-import { DateRangePicker } from '@/components/date-range-picker'
 import { OrderDetailDialog } from './components/order-detail-dialog'
 import { OrderStatsGrid } from './components/order-stats-grid'
 import { ordersLoader } from './servers/orders.loader'
@@ -28,7 +25,6 @@ import type { FieldValues } from 'react-hook-form'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { toast } from 'sonner'
-import type { DateRange } from 'react-day-picker'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { StickerOrder, OrderStatus } from './types/orders.types'
 import type { RouteHandle } from '@/shared/helpers/page-meta'
@@ -81,10 +77,17 @@ const STATUS_CONFIG: Record<
 	},
 }
 
+/** What a chip reads, in the plural, for the list it filters to. */
+const STATUS_FILTER_LABELS: Record<OrderStatus, string> = {
+	pending: 'En attente',
+	processing: 'En traitement',
+	shipped: 'Expédiées',
+	delivered: 'Livrées',
+	cancelled: 'Annulées',
+}
+
 export default function OrdersPage({ loaderData }: Route.ComponentProps) {
-	const { orders, statusFilter } = loaderData
-	const [searchParams, setSearchParams] = useSearchParams()
-	const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+	const { orders, total, page, pageSize, counts } = loaderData
 	const [selectedOrder, setSelectedOrder] = useState<StickerOrder | null>(null)
 	const [detailOpen, setDetailOpen] = useState(false)
 
@@ -114,32 +117,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 		statusFetcher.submit({ id, status }, { method: 'post' })
 	}
 
-	const handleFilterChange = (value: string) => {
-		const next = new URLSearchParams(searchParams)
-		if (value === 'all') {
-			next.delete('status')
-		} else {
-			next.set('status', value)
-		}
-		setSearchParams(next)
-	}
-
-	let filteredOrders = orders
-	if (dateRange?.from) {
-		filteredOrders = filteredOrders.filter(o => {
-			const d = new Date(o.createdAt)
-			return d >= dateRange.from! && (!dateRange.to || d <= dateRange.to)
-		})
-	}
-
-	const counts = {
-		total: orders.length,
-		pending: orders.filter(o => o.status === 'pending').length,
-		processing: orders.filter(o => o.status === 'processing').length,
-		shipped: orders.filter(o => o.status === 'shipped').length,
-		delivered: orders.filter(o => o.status === 'delivered').length,
-	}
-
+	// The page on screen, and said so: the list is paged on the server now.
 	const handleExportCSV = () => {
 		const headers = [
 			'N° commande',
@@ -154,7 +132,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 			'Livré le',
 			'Suivi',
 		]
-		const rows = filteredOrders.map(o => [
+		const rows = orders.map(o => [
 			o.orderNumber,
 			o.packName,
 			o.quantity,
@@ -176,7 +154,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 		const url = URL.createObjectURL(blob)
 		const a = document.createElement('a')
 		a.href = url
-		a.download = 'commandes-stickers.csv'
+		a.download = `commandes-stickers-page-${page}.csv`
 		a.click()
 		URL.revokeObjectURL(url)
 		toast.success('Export CSV téléchargé')
@@ -315,45 +293,40 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 		<>
 			<div>
 				<div className="space-y-4 p-4 lg:p-6">
-					<OrderStatsGrid
-						total={counts.total}
-						pending={counts.pending}
-						processing={counts.processing}
-						shipped={counts.shipped}
-						delivered={counts.delivered}
-					/>
+					{/* Counted by the API over every order: a counter it cannot serve
+					    hides the grid rather than showing zeros. */}
+					{counts && (
+						<OrderStatsGrid
+							total={counts.all ?? 0}
+							pending={counts.pending ?? 0}
+							processing={counts.processing ?? 0}
+							shipped={counts.shipped ?? 0}
+							delivered={counts.delivered ?? 0}
+						/>
+					)}
 
 					<BentoCard variant="table">
-						<div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
-							<div className="flex flex-wrap items-center gap-3">
-								<Select value={statusFilter} onValueChange={handleFilterChange}>
-									<SelectTrigger className="h-9 w-44">
-										<SelectValue placeholder="Statut" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="all">Tous les statuts</SelectItem>
-										<SelectItem value="pending">En attente</SelectItem>
-										<SelectItem value="processing">En traitement</SelectItem>
-										<SelectItem value="shipped">Expédiées</SelectItem>
-										<SelectItem value="delivered">Livrées</SelectItem>
-										<SelectItem value="cancelled">Annulées</SelectItem>
-									</SelectContent>
-								</Select>
-								<DateRangePicker
-									dateRange={dateRange}
-									onDateRangeChange={setDateRange}
-								/>
-							</div>
+						<ListToolbar
+							chips={[
+								{ value: 'all', label: 'Toutes', count: counts?.all },
+								...STICKER_ORDER_STATUSES.map(status => ({
+									value: status,
+									label: STATUS_FILTER_LABELS[status],
+									count: counts?.[status],
+								})),
+							]}
+							searchPlaceholder="N° de commande, ville, adresse…"
+						>
+							<DensityToggle />
 							<Button variant="outline" size="sm" onClick={handleExportCSV}>
-								<Download className="mr-2 h-4 w-4" /> Exporter CSV
+								<Download className="mr-2 h-4 w-4" /> Exporter la page
 							</Button>
-						</div>
+						</ListToolbar>
 						<div className="p-4">
 							<DataTable
 								columns={columns}
-								data={filteredOrders}
-								searchKey="orderNumber"
-								searchPlaceholder="Rechercher par N° commande..."
+								data={orders}
+								pagination={{ page, pageSize, total }}
 							/>
 						</div>
 					</BentoCard>

@@ -6,7 +6,12 @@ import type {
 } from '../types/orders.types'
 
 export async function listOrders(
-	params: { status?: OrderStatus; page?: number; pageSize?: number },
+	params: {
+		status?: OrderStatus
+		search?: string
+		page?: number
+		pageSize?: number
+	},
 	request: Request,
 ): Promise<StickerOrderListResponse> {
 	const query = new URLSearchParams({
@@ -14,6 +19,7 @@ export async function listOrders(
 		pageSize: String(params.pageSize ?? 50),
 	})
 	if (params.status) query.set('status', params.status)
+	if (params.search) query.set('search', params.search)
 
 	return apiFetch<StickerOrderListResponse>(
 		`/sticker-orders?${query.toString()}`,

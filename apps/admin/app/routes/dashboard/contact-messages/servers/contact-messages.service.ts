@@ -6,7 +6,12 @@ import type {
 } from '../types/contact-messages.types'
 
 export async function listContactMessages(
-	params: { status?: ContactMessageStatus; page?: number; pageSize?: number },
+	params: {
+		status?: ContactMessageStatus
+		search?: string
+		page?: number
+		pageSize?: number
+	},
 	request: Request,
 ): Promise<ContactMessageListResponse> {
 	const query = new URLSearchParams({
@@ -14,6 +19,7 @@ export async function listContactMessages(
 		pageSize: String(params.pageSize ?? 20),
 	})
 	if (params.status) query.set('status', params.status)
+	if (params.search) query.set('search', params.search)
 
 	return apiFetch<ContactMessageListResponse>(
 		`/contact-messages?${query.toString()}`,

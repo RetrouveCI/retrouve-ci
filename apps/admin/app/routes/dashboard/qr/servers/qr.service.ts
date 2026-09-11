@@ -6,7 +6,12 @@ import type {
 } from '../types/qr.types'
 
 export async function listQrTokens(
-	params: { status?: QrTokenStatus; page?: number; pageSize?: number },
+	params: {
+		status?: QrTokenStatus
+		search?: string
+		page?: number
+		pageSize?: number
+	},
 	request: Request,
 ): Promise<QrTokenListResponse> {
 	const query = new URLSearchParams({
@@ -15,6 +20,7 @@ export async function listQrTokens(
 	})
 
 	if (params.status) query.set('status', params.status)
+	if (params.search) query.set('search', params.search)
 
 	return apiFetch<QrTokenListResponse>(`/qr-codes?${query.toString()}`, {
 		request,

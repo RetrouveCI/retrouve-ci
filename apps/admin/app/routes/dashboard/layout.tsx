@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/sidebar'
 import { TopBar } from '@/components/topbar'
 import { NavigationProgress } from '@/components/navigation-progress'
 import { DashboardProvider, useDashboard } from '@/context/dashboard'
+import { TableDensityProvider } from '@/context/table-density'
 import { dashboardLoader } from './servers/dashboard.loader'
 import type { Route } from './+types/layout'
 
@@ -35,7 +36,9 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
 			initialCollapsed={loaderData.sidebarCollapsed}
 			counts={loaderData.counts}
 		>
-			<DashboardShell />
+			<TableDensityProvider initial={loaderData.tableDensity}>
+				<DashboardShell />
+			</TableDensityProvider>
 		</DashboardProvider>
 	)
 }
