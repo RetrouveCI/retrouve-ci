@@ -58,6 +58,17 @@ pnpm db:deploy        # Apply pending migrations (production)
 pnpm db:studio        # Open Prisma Studio
 ```
 
+⚠️ **`pnpm db:push` exists and is not part of the workflow.** `prisma db push`
+applies a schema diff outside the migration history: it skips a migration's data
+steps and leaves `_prisma_migrations` behind, so the next `db:deploy` fails on
+objects that already exist. Measured on 2026-09-10 on a local database, where
+three September migrations had been applied that way. To catch such a database
+up, in `packages/database`:
+`npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script`
+lists what is really missing; `npx prisma migrate resolve --applied <name>`
+records each migration whose effect is already present — check it first, since
+it asserts a state; then `pnpm db:deploy`.
+
 Postgres and Redis for local development are provided by `docker-compose.yml`:
 
 ```bash
