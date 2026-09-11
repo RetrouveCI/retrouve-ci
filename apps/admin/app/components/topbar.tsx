@@ -5,6 +5,7 @@ import { cn } from '@app/ui/utils'
 import { usePageMeta } from '@/shared/helpers/page-meta'
 import { MobileSidebar } from './sidebar'
 import { useDashboard } from '@/context/dashboard'
+import { CommandPalette } from './command-palette'
 import { ThemeToggle } from './theme-toggle'
 import { Bell, ChevronRight } from 'lucide-react'
 
@@ -46,6 +47,7 @@ export function TopBar() {
 				</div>
 
 				<div className="flex items-center gap-1">
+					<CommandPalette />
 					<ThemeToggle />
 					<Button
 						variant="ghost"

@@ -48,6 +48,34 @@ export async function listUsers(
 	return { users, total: res.users.filter(u => u.role === 'user').length }
 }
 
+/**
+ * better-auth takes one search field. A visitor's e-mail is
+ * `<numéro>@phone.retrouveci.local`, so digits search the e-mail — the number
+ * — and anything else the name.
+ */
+export async function searchUsers(
+	request: Request,
+	query: string,
+	limit: number,
+): Promise<User[]> {
+	const byNumber = /\d/.test(query)
+	const params = new URLSearchParams({
+		searchValue: byNumber ? query.replace(/\s/g, '') : query,
+		searchField: byNumber ? 'email' : 'name',
+		searchOperator: 'contains',
+		limit: String(limit),
+		filterField: 'role',
+		filterOperator: 'eq',
+		filterValue: 'user',
+	})
+	const res = await apiFetch<{ users: BetterAuthUser[] }>(
+		`/api/admin-auth/admin/list-users?${params.toString()}`,
+		{ request },
+	)
+
+	return res.users.filter(u => u.role === 'user').map(mapUser)
+}
+
 export async function getUserById(
 	request: Request,
 	userId: string,

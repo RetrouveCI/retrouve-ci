@@ -33,7 +33,9 @@ export function ListToolbar({
 	children,
 }: ListToolbarProps) {
 	const [searchParams, setSearchParams] = useSearchParams()
-	const active = searchParams.get(param) ?? 'all'
+	const current = searchParams.get(param)
+	// A value no chip carries is read as « all », as the loader reads it.
+	const active = chips.some(chip => chip.value === current) ? current : 'all'
 
 	const select = (value: string) => {
 		const next = new URLSearchParams(searchParams)

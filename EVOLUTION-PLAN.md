@@ -637,8 +637,8 @@ Détaillée à l'ouverture, d'après l'artefact F7, et **coupée en trois PR**, 
 par groupe de listes, pour qu'aucune ne soit illisible :
 
 - **F9a** _(livré — #255)_ — le socle, sur Commandes, Stickers et Messages.
-- **F9b** — Notifications, Utilisateurs et Administrateurs, qui passent par
-  `list-users` de better-auth.
+- **F9b** _(livré — #256)_ — Notifications. Utilisateurs et Administrateurs
+  **restent en l'état** : voir la question n° 5 du §6.
 - **F9c** — Annonces, après F4 : F4 réécrit cette page, la toucher avant
   l'aurait fait entrer en conflit.
 
@@ -665,15 +665,54 @@ cookie lu au rendu serveur, comme le repli de la barre latérale.
 - **Une grille qui ne peut pas être comptée se masque** plutôt que d'afficher
   des zéros que personne n'a mesurés.
 
-#### F10 — Navigation, recherche et palette ⌘K
+#### F10 — Navigation, recherche et palette ⌘K _(livré — #257)_
 
-`cmdk` est déjà installé.
+La palette de l'artefact F7 : depuis la barre supérieure ou ⌘K / Ctrl+K, trois
+groupes — « Aller à », « Résultats », « Actions ». Les pages et les actions
+viennent de `shared/constants/navigation.ts`, la liste même de la barre latérale
+; les entités, d'une route ressource `/palette` qui interroge le `search` des
+listes posé par F9a, cinq lignes par sorte.
+
+**Écarts mesurés en livrant F10** (2026-09-11) :
+
+- **Pas d'annonces dans les résultats** tant que leur liste ne lit pas de
+  recherche (F9c) : un résultat qui mènerait à une page qui l'ignore serait un
+  cul-de-sac.
+- **Commandes et messages mènent à leur liste filtrée**, faute de fiche en route
+  avant F11 ; stickers et personnes ont déjà la leur.
+- **Une personne se cherche par son numéro ou son nom**, pas les deux :
+  better-auth ne prend qu'un champ de recherche, et le numéro d'un visiteur vit
+  dans son e-mail (`<numéro>@phone.retrouveci.local`).
+- **Le filtre de cmdk est coupé** : il masquerait un résultat de l'API dont le
+  libellé ne contient pas la requête — un message trouvé par son e-mail.
 
 #### F11 — Fiches de détail en routes dédiées
 
 `posts`, `orders`, `qr`, `contact-messages`, et alignement de `users` qui a déjà
 sa route. Trois routes sont à créer, deux existent. Les dialogues d'**action**
 restent des dialogues.
+
+**F11a** _(livré — #258)_ — Commandes et Messages de contact. Chacune a sa fiche
+en route, sur la mise en page de l'artefact : l'en-tête, une colonne principale,
+une colonne d'actions. La palette y mène désormais. **F11b** — Annonces, après
+F4 : c'est F4 qui a posé le fil dans le dialogue, et la fiche doit l'accueillir.
+
+**Écarts mesurés en livrant F11a** (2026-09-11) :
+
+- **F11 touche l'API.** `GET /sticker-orders/:id` ne répond qu'à l'acheteur,
+  administrateurs compris — mesuré dans `GetStickerOrderUseCase` : la fiche ne
+  pouvait pas se charger. Une route du bureau, `GET /sticker-orders/admin/:id`,
+  réservée aux administrateurs, la lit. ⚠️ F11b rencontrera le même mur :
+  `GET /lost-items/:id` ne montre une annonce non publiée qu'à son auteur.
+- **Ouvrir un message le marque lu**, comme l'ouvrir dans le dialogue le faisait
+  : c'est `GetContactMessageUseCase` qui le décide, à la lecture.
+- **La réponse part par WhatsApp ou par e-mail**, pas d'ici — la règle de
+  l'artefact. La note interne qu'il dessine n'a pas de colonne : elle reste hors
+  de F11.
+- **Annuler une commande demande une confirmation** sur la fiche. La liste garde
+  son annulation directe, telle qu'elle était.
+- **Les transitions d'une commande vivent à un endroit** (`orders.const.ts`) :
+  la liste et la fiche les lisaient chacune de leur côté.
 
 #### F18 — Sélection multiple et action en lot
 
@@ -743,3 +782,14 @@ première PR de leur lot.
 3. **L'assistant est-il ouvert aux visiteurs anonymes ?** Le plafond n'est pas
    le même, et l'ardoise non plus. À trancher en F15.
 4. **Quel budget mensuel pour l'assistant ?** Il fixe le plafond, pas l'inverse.
+5. **Lister les comptes : une route d'API, ou un axe en moins ?** Posée en F9b.
+   Utilisateurs et administrateurs passent par `list-users` de better-auth, qui
+   n'accepte qu'**un** filtre et **une** recherche — mesuré dans sa source
+   (1.6.30). Les deux listes dépensent déjà ce filtre sur le rôle : l'état
+   (banni ou non) ne peut pas s'y ajouter côté serveur. Paginer sur le serveur
+   imposerait de lâcher le rôle — des administrateurs apparaîtraient parmi les
+   utilisateurs — ou de lâcher l'état. La voie propre est une route d'API qui
+   lise les comptes par Prisma, ce que le dépôt s'est jusqu'ici interdit (« no
+   API domain of its own »). En attendant, les deux listes gardent leur plafond
+   (500 et 200) et leur filtrage en mémoire, exact tant que les comptes tiennent
+   sous ce plafond.
