@@ -101,11 +101,12 @@ describe('the write routes', () => {
 		expect(limitFor(route?.method ?? 'POST', concrete(path))).toBeNull()
 	})
 
-	// The two routes that spend real money, asserted here so a refactor that
+	// The three routes that spend real money, asserted here so a refactor that
 	// drops one from the policy is a failure and not a silence.
 	it.each([
 		['POST', '/uploads/lost-item-photo'],
 		['POST', '/sticker-orders'],
+		['POST', '/search-assistant/interpret'],
 	])('keeps a ceiling on %s %s', (method, path) => {
 		expect(limitFor(method, path)).not.toBeNull()
 	})

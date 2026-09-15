@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common'
 import { AccountBudget } from './account-budget.service'
+import { SpendBudget } from './spend-budget.service'
 import { ACCOUNT_BUDGET_COUNTER } from './rate-limit.tokens'
 import { createRedisCounter } from './rate-limit.store'
 
 @Module({
 	providers: [
 		AccountBudget,
+		SpendBudget,
 		{
 			provide: ACCOUNT_BUDGET_COUNTER,
 			useFactory: () => {
@@ -15,6 +17,6 @@ import { createRedisCounter } from './rate-limit.store'
 			},
 		},
 	],
-	exports: [AccountBudget],
+	exports: [AccountBudget, SpendBudget],
 })
 export class RateLimitModule {}

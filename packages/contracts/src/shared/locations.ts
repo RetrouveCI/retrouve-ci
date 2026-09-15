@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 /**
  * Where a listing can be placed. One list for both front-ends: the public form
  * and the backoffice's team publication offer the same cities and communes, so
@@ -49,3 +51,21 @@ export const ABIDJAN_COMMUNES: readonly string[] = [
 	'Treichville',
 	'Yopougon',
 ]
+
+/**
+ * The assistant may **name** a place, never invent one: what the model answers
+ * is narrowed through these before it reaches a filter. The ordinary list
+ * filter stays a free string — a visitor typing a hamlet gets no result, where
+ * a model naming Paris would send the search somewhere the app does not go.
+ */
+export const villeSchema = z
+	.string()
+	.trim()
+	.refine(value => CI_VILLES.includes(value), { error: 'Ville inconnue' })
+
+export const abidjanCommuneSchema = z
+	.string()
+	.trim()
+	.refine(value => ABIDJAN_COMMUNES.includes(value), {
+		error: 'Commune inconnue',
+	})

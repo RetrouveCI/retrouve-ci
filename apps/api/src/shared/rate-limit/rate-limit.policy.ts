@@ -5,6 +5,7 @@ export type RateLimitBucket =
 	| 'public-read'
 	| 'upload'
 	| 'authenticated-write'
+	| 'assistant'
 
 export interface RateLimitRule {
 	bucket: RateLimitBucket
@@ -51,6 +52,26 @@ const UPLOAD: RateLimitRule = {
 	bucket: 'upload',
 	max: 60,
 	windowSeconds: HOUR,
+}
+
+// The search assistant is the one route that spends money on a model, and it is
+// open to anonymous visitors, so the same numbers as `OTP` for the same reason:
+// a bucket that guards a budget. Five phrases a quarter of an hour is well
+// above one search intent, and `ASSISTANT_MONTHLY` is what bounds the bill.
+const ASSISTANT: RateLimitRule = {
+	bucket: 'assistant',
+	max: 5,
+	windowSeconds: 15 * MINUTE,
+}
+
+/**
+ * A ceiling counted for the installation as a whole rather than per caller.
+ * No message: reaching it is not a refusal a visitor reads, it is the repli —
+ * the assistant stops answering and the filters stay open.
+ */
+export interface SpendLimit {
+	keyPrefix: string
+	max: number
 }
 
 // Keyed on the account rather than the address: it carries its own message and
@@ -104,6 +125,19 @@ const AUTH_PREFIXES = ['/api/auth/', '/api/admin-auth/']
 // prefix rule missed — and setting a password hashes it, which costs CPU.
 const AUTH_PATHS = ['/account/set-initial-password']
 
+/**
+ * A ceiling on the **bill**, not on a caller: one counter for the whole
+ * installation, reset with the calendar month so it lines up with the invoice.
+ * 10 000 extractions is the 10 $/mois the plan settled on — measured at roughly
+ * 0,001 $ the phrase on `claude-haiku-4-5`, a ~700-token invite and a ~60-token
+ * answer, with no prompt cache to count on: Haiku 4.5 caches nothing below
+ * 4096 tokens and this invite is far below that.
+ */
+export const ASSISTANT_MONTHLY: SpendLimit = {
+	keyPrefix: 'assistant-month',
+	max: 10_000,
+}
+
 /** The two better-auth routes that send a message rather than read a session. */
 const OTP_PATHS = [
 	'/api/auth/phone-number/send-otp',
@@ -117,6 +151,9 @@ const PUBLIC_WRITE_PATHS = [
 	/^\/qr-codes\/[^/]+\/reach$/,
 	/^\/lost-items\/[^/]+\/contact$/,
 ]
+
+/** One route, and the only one in the app that spends money on a model. */
+const ASSISTANT_PATHS = ['/search-assistant/interpret']
 
 /** Authenticated, so every request here already has an owner to charge. */
 const UPLOAD_PATHS = [/^\/uploads\/[^/]+$/]
@@ -163,6 +200,7 @@ export function limitFor(method: string, url: string): RateLimitRule | null {
 	}
 
 	if (OTP_PATHS.includes(path)) return OTP
+	if (ASSISTANT_PATHS.includes(path)) return ASSISTANT
 	if (AUTH_PATHS.includes(path)) return AUTH
 	if (AUTH_PREFIXES.some(prefix => path.startsWith(prefix))) return AUTH
 	if (UPLOAD_PATHS.some(shape => shape.test(path))) return UPLOAD
