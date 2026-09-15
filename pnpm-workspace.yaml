@@ -19,6 +19,7 @@ overrides:
   # range. Drop this once express widens its own.
   qs: '6.16.0'
 catalog:
+  '@anthropic-ai/sdk': '^0.125.0'
   '@faker-js/faker': '^10.5.0'
   '@fastify/multipart': '^10.0.0'
   '@fontsource-variable/geist': '^5.2.8'

@@ -83,6 +83,37 @@ describe('limitFor', () => {
 		})
 	})
 
+	// The third route that spends money, and the dearest per hit: a model call.
+	// Open to anonymous visitors, so the address is the only caller there is.
+	describe('the assistant bucket', () => {
+		it('caps the interpretation route', () => {
+			expect(limitFor('POST', '/search-assistant/interpret')?.bucket).toBe(
+				'assistant',
+			)
+		})
+
+		// The same numbers as the OTP bucket, for the same reason: both guard a
+		// budget rather than bound a guess.
+		it('holds five a quarter of an hour', () => {
+			const rule = limitFor('POST', '/search-assistant/interpret')
+
+			expect(rule?.max).toBe(5)
+			expect(rule?.windowSeconds).toBe(900)
+		})
+
+		it('is not escaped by a query string or a trailing slash', () => {
+			const rule = limitFor('POST', '/search-assistant/interpret/?a=1')
+
+			expect(rule?.bucket).toBe('assistant')
+		})
+
+		// Named, not matched by shape: a route added under the same prefix later
+		// would be a second spend, and it must be decided rather than inherited.
+		it('leaves a sibling route uncapped rather than covering it blindly', () => {
+			expect(limitFor('POST', '/search-assistant/converse')).toBeNull()
+		})
+	})
+
 	// The other route that spends money. R42 asserted it uncapped; R57 caps it.
 	describe('the upload bucket', () => {
 		it('caps an upload by the address the front forwards', () => {

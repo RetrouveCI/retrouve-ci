@@ -1061,7 +1061,7 @@ et inemployées.
 
 ### Lot 7 — Assistant de recherche _(à détailler avant ouverture)_
 
-#### F15 — Passerelle d'extraction et plafonds
+#### F15 — Passerelle d'extraction et plafonds _(livré)_
 
 Une route qui prend une phrase et rend des filtres. Ce que l'étape doit trancher
 : le modèle (Haiku pour une extraction de cette nature), le plafond dédié dans
@@ -1069,6 +1069,58 @@ Une route qui prend une phrase et rend des filtres. Ce que l'étape doit tranche
 anonyme ou non, et le comportement quand la passerelle est injoignable ou non
 configurée. Elle **échoue en repli**, jamais en panne : une recherche par
 filtres reste possible.
+
+**Ce que l'étape a tranché** (2026-09-15) : `POST /search-assistant/interpret`,
+anonyme, `claude-haiku-4-5`, plafond `assistant` de **5 phrases par quart
+d'heure et par appelant** — les chiffres du seau `otp`, pour la même raison :
+tous deux gardent un budget — et `ASSISTANT_MONTHLY` de **10 000 extractions par
+mois civil** pour l'installation entière.
+
+**Écarts et mesures en livrant F15** :
+
+- **Le coût est mesuré, pas estimé au doigt mouillé.** L'invite fait **2 144
+  caractères** (~613 jetons) : elle nomme les 7 catégories, les 2 types, les 30
+  villes, les 11 communes et le jour. Avec ~60 jetons de réponse, aux tarifs
+  Haiku 4.5 (1 $/Mjetons en entrée, 5 $ en sortie), cela fait **~0,001
+  $ la
+  phrase** — d'où les 10 000 appels des 10 $/mois. Un test tient ce
+  plafond de taille, parce que c'est lui qui porte le chiffre.
+- ⚠️ **Il n'y aura pas de cache d'invite, et c'est mesuré dans la doc du
+  modèle** : Haiku 4.5 ne met en cache aucun préfixe **sous 4096 jetons**, et
+  celui-ci est quatre fois plus court. Conséquence utile : l'invite peut porter
+  la date du jour sans rien invalider, ce qui est exactement ce qu'il faut pour
+  « la semaine dernière ».
+- ⚠️ **Le budget mensuel est le seul plafond du dépôt qui échoue _fermé_.** Tous
+  les autres protègent le site d'un appelant, donc un magasin injoignable ne
+  doit refuser personne. Celui-ci protège la facture du site : échouer ouvert,
+  ce serait dépenser sans que rien ne compte. Échouer fermé ne coûte rien —
+  c'est le repli, que la route porte de toute façon.
+- **Le rétrécissement laisse tomber champ par champ, il ne refuse pas.** Un
+  modèle qui invente une ville ne doit pas coûter la catégorie qu'il a juste.
+  C'est là que tient l'invariant n° 8 : rien de ce que le modèle écrit n'atteint
+  une requête sans avoir correspondu à une valeur que le contrat connaît déjà —
+  donc une phrase qui essaierait de lui souffler une consigne n'achète qu'un
+  filtre que le visiteur pouvait cocher lui-même.
+- **Une commune orpheline est complétée, pas jetée** : la liste des communes
+  n'appartient qu'à une ville, et le contrat le dit (`COMMUNE_CITY`). Une
+  commune nommée à côté d'une _autre_ ville, elle, tombe.
+- **L'invariant n° 7 est tenu par une garde de propriété**, pas par une
+  relecture : aucun fichier des deux dossiers de l'assistant ne peut importer un
+  dépôt, la base ou un autre domaine. ⚠️ Premier jet rouge pour la mauvaise
+  raison — elle lisait le **texte** des fichiers, et le commentaire « no
+  repository » du module la faisait tomber. Elle lit maintenant les **imports**.
+  Le rouge a été essayé et obtenu.
+- **Rien à faire côté adresse de l'appelant** : `apiFetch` exige déjà son
+  `request` et transmet `X-Client-Ip`, donc le plafond par appelant verra bien
+  le visiteur et non le conteneur du front quand F16 appellera depuis un
+  _loader_. C'est le piège qui avait rendu tous les plafonds de R42 globaux.
+- **`ANTHROPIC_API_KEY` n'est jamais fatale, production comprise** — comme
+  `PushConfig` et à l'inverse de `LetextoConfig` : l'assistant s'ajoute à une
+  recherche qui marche sans lui, refuser de démarrer échangerait un repli contre
+  une panne. `ASSISTANT_MODEL` permet d'essayer un autre modèle sans redéployer.
+- **Le délai de la passerelle est ramené à 8 s et une seule reprise.** Le défaut
+  du SDK est de **dix minutes** : un visiteur attend cette route, et le repli
+  est juste là.
 
 #### F16 — Recherche par phrase, sans conversation
 
@@ -1090,9 +1142,17 @@ première PR de leur lot.
 2. ~~**Commentaire et motif de modération : un canal ou deux ?**~~ **Tranché le
    2026-09-11, en F3** : deux. La modération est une décision qui garde son
    motif ; le commentaire est une suggestion qui ne masque ni ne publie rien.
-3. **L'assistant est-il ouvert aux visiteurs anonymes ?** Le plafond n'est pas
-   le même, et l'ardoise non plus. À trancher en F15.
-4. **Quel budget mensuel pour l'assistant ?** Il fixe le plafond, pas l'inverse.
+3. ~~**L'assistant est-il ouvert aux visiteurs anonymes ?**~~ **Tranché le
+   2026-09-15, en F15 : ouvert, avec un plafond serré.** L'assistant existe pour
+   la personne qui vient de perdre un papier ; l'obliger à créer un compte
+   d'abord, c'est le retirer à celle qu'il devait aider. L'ardoise est donc
+   l'adresse — moins exacte qu'un compte, puisqu'un opérateur mobile en partage
+   une entre beaucoup de visiteurs, ce qui est déjà pourquoi `public-read` est
+   généreux — et c'est `ASSISTANT_MONTHLY` qui borne vraiment la dépense.
+4. ~~**Quel budget mensuel pour l'assistant ?**~~ **Tranché le 2026-09-15 : 10
+   $/mois**, soit ~10 000 extractions à ~0,001 $ la phrase — environ 330 par
+   jour, très au-dessus du trafic actuel. Atteint, l'assistant répond
+   `unavailable` et la recherche par filtres reste ouverte.
 5. **Lister les comptes : une route d'API, ou un axe en moins ?** Posée en F9b,
    **tranchée le 2026-09-11 : un axe en moins** — voir les écarts de F9d.
    Utilisateurs et administrateurs passent par `list-users` de better-auth, qui

@@ -16,6 +16,7 @@
 		"test": "vitest run"
 	},
 	"dependencies": {
+		"@anthropic-ai/sdk": "catalog:",
 		"@app/auth": "workspace:*",
 		"@app/contracts": "workspace:*",
 		"@app/database": "workspace:*",

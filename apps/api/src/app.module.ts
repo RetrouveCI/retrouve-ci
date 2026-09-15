@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { AssistantModule } from '@/infrastructures/assistant/assistant.module'
 import { AuthModule } from '@/infrastructures/auth/auth.module'
 import { PrismaModule } from '@/infrastructures/database/prisma.module'
 import { PushModule } from '@/infrastructures/push/push.module'
@@ -15,6 +16,7 @@ import { MatchingModule } from '@/presentations/matching/matching.module'
 import { NotificationsModule } from '@/presentations/notifications/notifications.module'
 import { QrCodesModule } from '@/presentations/qr-codes/qr-codes.module'
 import { StickerOrdersModule } from '@/presentations/sticker-orders/sticker-orders.module'
+import { SearchAssistantModule } from '@/presentations/search-assistant/search-assistant.module'
 import { StatsModule } from '@/presentations/stats/stats.module'
 import { UploadsModule } from '@/presentations/uploads/uploads.module'
 
@@ -23,6 +25,7 @@ import { UploadsModule } from '@/presentations/uploads/uploads.module'
 		ConfigModule.forRoot({
 			isGlobal: true,
 		}),
+		AssistantModule,
 		PrismaModule,
 		PushModule,
 		QueueModule,
@@ -37,6 +40,7 @@ import { UploadsModule } from '@/presentations/uploads/uploads.module'
 		MatchingModule,
 		NotificationsModule,
 		QrCodesModule,
+		SearchAssistantModule,
 		StickerOrdersModule,
 		StatsModule,
 		UploadsModule,
