@@ -23,6 +23,11 @@ export default [
 		route('stickers', 'routes/stickers/_index.tsx'),
 		route('stickers/order', 'routes/stickers/order/_index.tsx'),
 		route('posts', 'routes/posts/_index.tsx'),
+		// A sentence in, filters out: the assistant's answer becomes the URL of
+		// `/posts`, so the list the visitor lands on is the one they could have
+		// filtered by hand. No component — the action redirects, and the loader
+		// answers the GET a reload would otherwise turn into a `400` JSON page.
+		route('search', 'routes/search/servers/interpret.action.ts'),
 		// In the shell: the primer and the code entry are ordinary page content,
 		// and only the live viewfinder goes full-bleed, over the tab bar.
 		route('scan', 'routes/scan/_index.tsx'),

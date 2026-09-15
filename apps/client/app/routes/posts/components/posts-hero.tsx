@@ -36,6 +36,7 @@ export function PostsHero({
 					<div className="mx-auto max-w-xl">
 						<SearchBar
 							mode="filter"
+							assistant
 							size="lg"
 							value={searchQuery}
 							onChange={onSearchChange}

@@ -1,8 +1,12 @@
 import { useId } from 'react'
-import { Form } from 'react-router'
-import { Search, X } from 'lucide-react'
+import { Form, useNavigation } from 'react-router'
+import { Loader2, Search, X } from 'lucide-react'
 import { Button, Input } from '@app/ui/components'
 import { cn } from '@app/ui/utils'
+import { looksLikePhrase } from '@/routes/search/helpers/phrase'
+
+/** Where a sentence goes to become filters. */
+const ASSISTANT_ACTION = '/search'
 
 type Size = 'xs' | 'sm' | 'md' | 'lg'
 
@@ -54,6 +58,13 @@ interface BaseProps {
 	placeholder?: string
 	size?: Size
 	className?: string
+	/**
+	 * Lets a sentence go to the assistant instead of straight to the list. Only
+	 * the two heroes carry it: the header is narrow, sits on every page, and is
+	 * where « carte » gets typed in passing — spending five phrases a quarter of
+	 * an hour there would take them from whoever writes a real one.
+	 */
+	assistant?: boolean
 }
 
 type SearchBarProps = BaseProps &
@@ -85,6 +96,11 @@ type SearchBarProps = BaseProps &
 export function SearchBar(props: SearchBarProps) {
 	const id = useId()
 	const size = SIZE[props.size ?? 'md']
+	const navigation = useNavigation()
+	// The submission ends in a redirect, so it is a navigation and not a fetcher
+	// — `formAction` is what tells this bar's round-trip from any other.
+	const pending =
+		!!props.assistant && navigation.formAction === ASSISTANT_ACTION
 
 	const shell = cn(
 		'bg-background focus-within:border-primary-green/50 flex items-center gap-2 rounded-full border-2 transition-all',
@@ -98,14 +114,15 @@ export function SearchBar(props: SearchBarProps) {
 	)
 
 	if (props.mode === 'filter') {
-		return (
+		const field = (
 			<div className={shell}>
-				<Search className={cn('text-muted-foreground shrink-0', size.icon)} />
+				<LeadingIcon pending={pending} className={size.icon} />
 				<label htmlFor={id} className="sr-only">
 					Rechercher un objet
 				</label>
 				<Input
 					id={id}
+					name="phrase"
 					type="search"
 					value={props.value}
 					onChange={e => props.onChange(e.target.value)}
@@ -124,34 +141,57 @@ export function SearchBar(props: SearchBarProps) {
 				)}
 			</div>
 		)
+
+		if (!props.assistant) return field
+
+		// No submit button: with a single field, Enter submits on its own — and
+		// Enter is what did nothing at all here before.
+		return (
+			<Form method="post" action={ASSISTANT_ACTION} role="search">
+				{field}
+				<AssistantHint phrase={props.value} pending={pending} />
+			</Form>
+		)
 	}
 
 	const submit = props.submit ?? 'label'
 
+	// The assistant's route sorts a sentence from a keyword itself and redirects
+	// either way, so the form posts to it whatever was typed — no JavaScript
+	// decides, and nothing is spent on « carte ».
 	return (
 		<Form
-			method="get"
-			action={props.action ?? '/posts'}
+			method={props.assistant ? 'post' : 'get'}
+			action={props.assistant ? ASSISTANT_ACTION : (props.action ?? '/posts')}
 			role="search"
 			onSubmit={props.onSubmit}
 		>
 			<div className={shell}>
-				<Search className={cn('text-muted-foreground shrink-0', size.icon)} />
+				<LeadingIcon pending={pending} className={size.icon} />
 				<label htmlFor={id} className="sr-only">
 					Rechercher un objet
 				</label>
 				<Input
 					id={id}
-					name="q"
+					name={props.assistant ? 'phrase' : 'q'}
 					type="search"
 					defaultValue={props.defaultValue}
 					autoFocus={props.autoFocus}
 					placeholder={props.placeholder ?? 'Quel objet recherchez-vous ?'}
 					className={inputClass}
 				/>
+				{/* Under `prefers-reduced-motion` the spinner does not turn, so the
+				    wait cannot be told by movement alone: the button dims and the
+				    live region says it out loud. Neither moves the layout. */}
+				{pending && (
+					<p aria-live="polite" className="sr-only">
+						Analyse de votre phrase…
+					</p>
+				)}
 				{(submit === 'label' || submit === 'responsive') && (
 					<Button
 						type="submit"
+						disabled={pending}
 						className={cn(
 							'bg-primary-green hover:bg-primary-green-dark shrink-0 rounded-full text-white',
 							size.button,
@@ -165,6 +205,7 @@ export function SearchBar(props: SearchBarProps) {
 					<Button
 						type="submit"
 						size="icon"
+						disabled={pending}
 						aria-label="Rechercher"
 						className={cn(
 							'bg-primary-green hover:bg-primary-green-dark shrink-0 rounded-full text-white',
@@ -177,5 +218,54 @@ export function SearchBar(props: SearchBarProps) {
 				)}
 			</div>
 		</Form>
+	)
+}
+
+/** Says the bar is thinking where it already says what it is for. */
+function LeadingIcon({
+	pending,
+	className,
+}: {
+	pending: boolean
+	className: string
+}) {
+	const Icon = pending ? Loader2 : Search
+
+	return (
+		<Icon
+			aria-hidden
+			className={cn(
+				'text-muted-foreground shrink-0',
+				pending && 'animate-spin',
+				className,
+			)}
+		/>
+	)
+}
+
+/**
+ * Two of the four states §2.3 asks for, on the one bar where Enter used to do
+ * nothing: what the key now does, and that it is doing it.
+ */
+function AssistantHint({
+	phrase,
+	pending,
+}: {
+	phrase: string
+	pending: boolean
+}) {
+	const message = pending
+		? 'Analyse de votre phrase…'
+		: looksLikePhrase(phrase)
+			? 'Appuyez sur Entrée pour chercher à partir de votre phrase.'
+			: undefined
+
+	return (
+		<p
+			aria-live="polite"
+			className="text-muted-foreground mt-2 h-4 text-xs transition-opacity"
+		>
+			{message}
+		</p>
 	)
 }

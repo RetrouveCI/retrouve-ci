@@ -1147,7 +1147,132 @@ mois civil** pour l'installation entière.
   du SDK est de **dix minutes** : un visiteur attend cette route, et le repli
   est juste là.
 
-#### F16 — Recherche par phrase, sans conversation
+#### F16 — Recherche par phrase, sans conversation _(livré)_
+
+Le visiteur écrit une phrase dans une barre de recherche ordinaire ; elle part à
+`POST /search-assistant/interpret`, et les filtres qui en reviennent deviennent
+l'URL de `/posts`. Un coup, pas une conversation : c'est F17 qui ouvrira le
+dialogue, et son repli.
+
+**Ce que l'étape tranche**, détaillé à l'ouverture le 2026-09-15 à partir de ce
+que F15 a livré :
+
+- **Deux saisies sur trois portent l'assistant** : le héros d'accueil et le
+  héros de `/posts`. L'**en-tête n'y touche pas** — il est étroit, présent sur
+  toutes les pages, et c'est là qu'on tape « carte » en passant ; y dépenser un
+  plafond de 5 par quart d'heure le retirerait à la personne qui écrit vraiment
+  une phrase.
+- **Rien de neuf à apprendre.** Pas de bouton « comprendre ma phrase », pas
+  d'interrupteur : la barre reste la barre, et c'est la **forme de la saisie**
+  qui décide. `looksLikePhrase` — au moins quatre mots, et ce que
+  `interpretSearchPhraseSchema` accepte — est le seul juge. « carte » et « CNI
+  Cocody » partent en recherche texte sans rien coûter.
+- ⚠️ **L'heuristique vit à un seul endroit** et sert deux fois : l'action s'en
+  sert pour décider de dépenser, et le héros de `/posts` pour **suspendre son
+  filtrage à la volée** pendant qu'une phrase s'écrit — sans quoi la liste se
+  viderait à chaque mot tapé avant que la phrase soit finie.
+- **L'appel est un `servers/*.action.ts`, pas un `helpers/*.client.ts`.** Donc
+  `apiFetch({ request })`, donc `X-Client-Ip` transmis : sans lui l'API voit le
+  conteneur du front et le plafond par appelant devient global pour tout le
+  monde — le défaut de R42.
+- **Une route ressource, et elle répond à un GET.** `routes/search/servers/` n'a
+  pas de composant : un rechargement y arriverait en GET et React Router
+  répondrait `400 {"message":"Unexpected Server Error"}` **en guise de page**.
+  Son `loader` renvoie sur `/posts`, comme `posts/:id/contact` le fait depuis
+  qu'on l'a mesuré. La garde `resource-route-get.test.ts` compte désormais dix
+  chemins.
+- **L'action redirige, elle ne rend rien.** Les filtres deviennent des
+  paramètres d'URL sur `/posts`, que `parsePostsFilters` relit déjà — le seul
+  alias étant `q` → `search`. Aucun chemin de liste n'est réinventé : la page se
+  comporte exactement comme si le visiteur avait coché les filtres lui-même, et
+  l'URL obtenue se partage et se met en favori.
+- ⚠️ **Quatre issues, quatre phrases, et elles ne se confondent pas** :
+
+  | `?assistant=` | Cause                                          | Ce qui est dit                                     |
+  | ------------- | ---------------------------------------------- | -------------------------------------------------- |
+  | `interpreted` | des filtres sont revenus                       | ce qui a été retenu, et de quoi le défaire         |
+  | `empty`       | `interpreted` avec des filtres **vides**       | « je n'ai pas compris » — et les filtres restent   |
+  | `unavailable` | passerelle éteinte, hors budget ou injoignable | « indisponible pour le moment » — pas un échec     |
+  | `throttled`   | 429 du seau `assistant`                        | « trop de phrases » — la seule qui vaut d'attendre |
+
+  Les deux premières lignes sont l'avertissement de F15 : `unavailable` et un
+  `interpreted` vide **ne veulent pas dire la même chose**. La quatrième suit le
+  précédent de `contact.action.ts`, qui nomme déjà l'étranglement à part « being
+  the one worth waiting out » — sans elle, qui a dépensé ses cinq phrases lirait
+  « indisponible » et réessaierait sans fin.
+
+- **La phrase voyage dans l'URL du front, jamais en `q`.** Elle est citée par la
+  bannière — on ne dit pas « je n'ai pas compris » sans rappeler quoi — mais
+  elle n'est **pas** posée comme recherche texte : « j'ai perdu ma carte
+  d'identité à Cocody mardi » ne correspond à aucun titre, et une liste vide
+  serait un pire aveu que la phrase elle-même. Seul le `search` que le modèle a
+  **narrowé** devient `q`.
+- **La bannière est une bannière** (§2.1 : « une exception qui appelle une
+  action ou une explication »), pas un `toast` : elle survit au rechargement
+  parce qu'elle est dans l'URL, et un retour d'action qui explique pourquoi la
+  page a changé doit rester lisible le temps qu'on le lise.
+- **Ce qui a été compris se montre avec les puces qui existent déjà.** Type et
+  catégorie sont des pastilles permanentes, ville, commune et dates portent
+  leurs puces « Filtres actifs » : la bannière nomme la phrase et le geste pour
+  tout défaire, elle ne redessine pas un second jeu de filtres.
+- **Quatre états** (§2.3, règle 5) : la barre dit qu'elle réfléchit pendant que
+  l'action tourne, et les trois issues sans filtres ont chacune leur phrase. ⚠️
+  Le repère de l'attente est `useNavigation()` et non un `fetcher` : la
+  soumission est une **navigation**, puisqu'elle se termine par une redirection.
+- **Rien de nouveau n'est installé.** Invariant n° 10 : la bannière, la
+  suspension du filtrage et l'indicateur d'attente sont du CSS et de l'état de
+  routeur.
+
+**Écarts et mesures en livrant F16** (2026-09-15) :
+
+- ⚠️ **Le chemin passant n'a pas été essayé contre la vraie passerelle.** Il n'y
+  a pas d'`ANTHROPIC_API_KEY` dans l'environnement local, donc la route répond
+  `unavailable` à chaque appel et c'est le **repli** qui a été déroulé de bout
+  en bout. Les trois autres issues sont tenues par des tests qui simulent la
+  réponse. Reste à dérouler une vraie phrase avec une clé avant d'ouvrir F17.
+- **Une seule garde préexistante est passée au rouge, et c'était la bonne** :
+  `hero-section.test.tsx` tenait `action="/posts"` sur le héros d'accueil. Elle
+  dit maintenant `/search` + `method="post"`, avec la raison écrite à côté. ⚠️
+  Celle de l'en-tête, `header-desktop.test.tsx`, tient déjà `action="/posts"` et
+  `input[name="q"]` : c'est **elle** qui empêche d'étendre l'assistant à la
+  troisième barre par distraction. Rien à y ajouter.
+- ⚠️ **Appeler `cleanup()` au milieu d'un test casse le remontage**, et la casse
+  est contagieuse : le corps de page reste vide pour **tous** les tests suivants
+  du fichier, avec « overlapping act() calls » pour seul indice. Le premier jet
+  comparait deux messages en démontant entre les deux ; 6 tests sur 7 sont
+  tombés, dont ceux qui ne montaient qu'une fois. La comparaison est devenue une
+  **propriété** — chaque issue porte son marqueur et aucun des trois autres — ce
+  qui ne démonte plus rien et interdit en prime que `empty` et `unavailable`
+  convergent un jour.
+- **Une lecture DOM brute ne réessaie pas** : `locator.element()` juste après
+  `render()` trouve un corps vide. Le montage s'attend par un locator, comme le
+  note déjà `header-desktop.test.tsx`.
+- ⚠️ **`submit="responsive"` dessine les deux boutons**, le libellé et le rond,
+  et la feuille de style qui en cache un n'est **pas chargée** dans un test de
+  composant : `getByRole('button', { name: 'Rechercher' })` tombe sur deux
+  éléments et Playwright refuse en mode strict. C'est le piège des
+  correspondances multiples par l'autre bout — ici il échoue bruyamment au lieu
+  de passer en silence. La soumission se fait à la touche Entrée.
+- ⚠️ **Le mouvement seul ne peut pas porter l'attente.** Le bloc
+  `prefers-reduced-motion` de la feuille partagée met
+  `animation-iteration-count: 1` et 1 ms : le sablier ne tourne pas, il fait un
+  tour invisible et s'arrête. Donc le bouton se grise **et** une région
+  `aria-live` dit « Analyse de votre phrase… » — ni l'un ni l'autre ne déplace
+  quoi que ce soit, ce que l'invariant n° 9 demande aussi.
+- **Une recherche par mot-clé depuis l'accueil coûte un aller-retour de plus.**
+  Le tri phrase/mot-clé se fait dans l'action et non dans le navigateur, pour
+  que la barre marche sans JavaScript ; « carte » part donc à `/search` et en
+  revient par une redirection vers `/posts?q=carte`. C'est un 302 depuis le
+  serveur du front, pas un appel à l'API, et aucune extraction n'est dépensée.
+- **Rien n'a été ajouté au bundle** : 0 ko. Zod y était déjà (tous les
+  formulaires), et `looksLikePhrase` ne fait que lire le contrat.
+- **Le rouge a été essayé et obtenu sur les trois gardes** : celle des routes
+  ressources (elle nomme bien `interpret.action.ts` quand on lui retire son
+  `loader`), la suspension du filtrage à la volée, et la distinction des quatre
+  messages.
+- **La suite `ui` a de nouveau flanché sous charge** : 3 échecs en la lançant
+  pendant qu'une autre suite tournait, **1** en la lançant seule — et ce seul
+  échec était la vraie régression. Ne pas compter sous charge.
 
 #### F17 — La conversation, et son repli
 
