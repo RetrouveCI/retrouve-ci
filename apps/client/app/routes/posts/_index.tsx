@@ -1,6 +1,7 @@
 import { SlidersHorizontal, LayoutGrid, List, X } from 'lucide-react'
 import { cn } from '@app/ui/utils'
 import { PostsHero } from './components/posts-hero'
+import { AssistantBanner } from './components/assistant-banner'
 import { FilterPill } from '@/components/filter-pill'
 import { FilterSheet } from './components/filter-sheet'
 import { ListingsContent } from './components/listings-content'
@@ -26,6 +27,9 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 	const { listings, total, pageSize } = loaderData
 
 	const {
+		assistantOutcome,
+		assistantPhrase,
+		dismissAssistant,
 		searchQuery,
 		setSearchQuery,
 		activeTab,
@@ -177,6 +181,14 @@ export default function AnnoncesPage({ loaderData }: Route.ComponentProps) {
 							</div>
 						</div>
 					</div>
+
+					{assistantOutcome && (
+						<AssistantBanner
+							outcome={assistantOutcome}
+							phrase={assistantPhrase}
+							onDismiss={dismissAssistant}
+						/>
+					)}
 
 					{activeChips.length > 0 && (
 						<div className="mb-4 flex flex-wrap items-center gap-2">

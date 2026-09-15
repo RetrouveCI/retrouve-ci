@@ -4,6 +4,12 @@ import { type DateRange } from 'react-day-picker'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { LostItemType, LostItemCategory } from '@/shared/types/lost-item'
+import { looksLikePhrase } from '@/routes/search/helpers/phrase'
+import {
+	ASSISTANT_PARAM,
+	PHRASE_PARAM,
+	toAssistantOutcome,
+} from '@/routes/search/search.const'
 import { toValidDate } from '../helpers/parse-posts-filters'
 import {
 	DATE_PRESET_CHIP_LABELS,
@@ -38,6 +44,14 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 	const dateTo = searchParams.get('dateTo')
 	const currentPage = Number(searchParams.get('page')) || 1
 
+	/**
+	 * What the assistant answered, and the sentence it answered about. Both live
+	 * in the URL rather than in state, so the banner survives a reload and the
+	 * page the visitor lands on is the page they can share.
+	 */
+	const assistantOutcome = toAssistantOutcome(searchParams.get(ASSISTANT_PARAM))
+	const assistantPhrase = searchParams.get(PHRASE_PARAM) ?? ''
+
 	const from = toValidDate(dateFrom)
 	const dateRange: DateRange | undefined = from
 		? { from, to: toValidDate(dateTo) }
@@ -63,6 +77,10 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 					const next = new URLSearchParams(prev)
 					mutate(next)
 					if (resetPage) next.delete('page')
+					// The banner explains the state the assistant produced; touching a
+					// filter by hand ends that state, so the explanation goes with it.
+					next.delete(ASSISTANT_PARAM)
+					next.delete(PHRASE_PARAM)
 					return next
 				},
 				{ replace: true, preventScrollReset: true },
@@ -85,8 +103,15 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 		setSearchQuery(urlQuery)
 	}, [urlQuery])
 
+	/**
+	 * A sentence is not a text search: filtering « j'ai perdu ma carte d'identité
+	 * à Cocody mardi » word by word empties the list long before it is finished,
+	 * and Enter would then have fixed a list the visitor had already watched go
+	 * blank. So while a phrase is being written, the live filter stands still —
+	 * the same judge the action uses to decide whether to spend an extraction.
+	 */
 	useEffect(() => {
-		if (searchQuery === urlQuery) return
+		if (searchQuery === urlQuery || looksLikePhrase(searchQuery)) return
 		const timeout = setTimeout(() => setParam('q', searchQuery), 350)
 		return () => clearTimeout(timeout)
 	}, [searchQuery, urlQuery, setParam])
@@ -208,7 +233,13 @@ export function usePostsFilters({ total, pageSize }: UsePostsFiltersArgs) {
 			onRemove: () => setDateRange(undefined),
 		})
 
+	/** Any hand edit already clears the markers, so this is the empty one. */
+	const dismissAssistant = () => setParams(() => {}, false)
+
 	return {
+		assistantOutcome,
+		assistantPhrase,
+		dismissAssistant,
 		searchQuery,
 		setSearchQuery,
 		activeTab,

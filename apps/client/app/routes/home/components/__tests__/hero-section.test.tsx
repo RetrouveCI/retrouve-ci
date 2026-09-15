@@ -44,12 +44,19 @@ describe('HeroSection', () => {
 			.toHaveAttribute('href', '/publish/found')
 	})
 
-	it('sends the search to the listings', async () => {
+	/**
+	 * Still the listings, by way of the assistant: `/search` sorts a sentence
+	 * from a keyword and redirects to `/posts` either way. This is where someone
+	 * who has just lost something arrives, so the sentence they would say out
+	 * loud is the one that gets read — the header stays a plain `?q=`.
+	 */
+	it('sends the search to the assistant, which lands on the listings', async () => {
 		renderHero()
 
-		await expect
-			.element(page.getByRole('search'))
-			.toHaveAttribute('action', '/posts')
+		const form = page.getByRole('search')
+
+		await expect.element(form).toHaveAttribute('action', '/search')
+		await expect.element(form).toHaveAttribute('method', 'post')
 	})
 
 	it('announces the count the loader measured', async () => {

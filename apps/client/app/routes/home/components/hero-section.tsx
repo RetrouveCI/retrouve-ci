@@ -65,11 +65,15 @@ export function HeroSection({ publishedCount }: { publishedCount?: number }) {
 						{/* One block: the shortcuts narrow the very list the field
 						    searches. The form is a flex item, so the width sits above it. */}
 						<div className="flex w-full flex-col gap-2.5 lg:max-w-140 lg:gap-3">
+							{/* A phrase here, not only a keyword: this is where someone who
+							    has just lost something arrives, and the sentence they would
+							    say out loud is the one the assistant reads. */}
 							<SearchBar
 								mode="navigate"
-								action="/posts"
+								assistant
 								size="lg"
 								submit="responsive"
+								placeholder="Décrivez ce que vous avez perdu"
 								className="shadow-lg"
 							/>
 
