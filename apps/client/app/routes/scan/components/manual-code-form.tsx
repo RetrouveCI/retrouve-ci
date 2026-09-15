@@ -1,6 +1,6 @@
 import { Controller, useForm } from 'react-hook-form'
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
-import { ArrowRight, ArrowLeft } from 'lucide-react'
+import { ArrowRight, ArrowLeft, Loader2 } from 'lucide-react'
 import { FieldError } from '@app/ui/components'
 import { formatStickerCode, parseStickerCode } from '../helpers/sticker-code'
 import {
@@ -12,6 +12,8 @@ import {
 interface ManualCodeFormProps {
 	onCode: (code: string) => void
 	onBack?: () => void
+	/** The code is being checked. Nothing else on this screen says so. */
+	pending?: boolean
 }
 
 /**
@@ -19,7 +21,11 @@ interface ManualCodeFormProps {
  * camera, and on a sticker whose QR is scratched. R6 opened this route with it
  * alone, and it stays exactly where it was.
  */
-export function ManualCodeForm({ onCode, onBack }: ManualCodeFormProps) {
+export function ManualCodeForm({
+	onCode,
+	onBack,
+	pending = false,
+}: ManualCodeFormProps) {
 	const form = useForm<StickerCodeInput, unknown, StickerCodeData>({
 		resolver: standardSchemaResolver(stickerCodeSchema),
 		mode: 'onSubmit',
@@ -67,12 +73,25 @@ export function ManualCodeForm({ onCode, onBack }: ManualCodeFormProps) {
 				)}
 			/>
 
+			{/* The viewfinder says « Un instant… » while a scanned code is checked;
+			    typing one said nothing at all until now. */}
 			<button
 				type="submit"
-				className="bg-primary-green hover:bg-primary-green-dark h-control flex w-full items-center justify-center gap-2 rounded-[14px] text-base font-semibold text-white transition-colors"
+				disabled={pending}
+				aria-busy={pending}
+				className="bg-primary-green hover:bg-primary-green-dark h-control flex w-full items-center justify-center gap-2 rounded-[14px] text-base font-semibold text-white transition-colors disabled:opacity-70"
 			>
-				Continuer
-				<ArrowRight className="h-[18px] w-[18px]" />
+				{pending ? (
+					<>
+						<Loader2 className="h-[18px] w-[18px] animate-spin" />
+						Vérification…
+					</>
+				) : (
+					<>
+						Continuer
+						<ArrowRight className="h-[18px] w-[18px]" />
+					</>
+				)}
 			</button>
 
 			{onBack ? (

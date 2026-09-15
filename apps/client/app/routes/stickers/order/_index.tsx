@@ -149,7 +149,7 @@ export default function CommanderPage() {
 							message={form.formState.errors.root?.message}
 						/>
 
-						<div className={step === 'select' ? '' : 'hidden'}>
+						<div className={step === 'select' ? 'animate-reveal' : 'hidden'}>
 							<PackSelectionStep
 								packs={PACKS}
 								selectedPack={values.packId ?? null}
@@ -160,7 +160,7 @@ export default function CommanderPage() {
 							/>
 						</div>
 
-						<div className={step === 'delivery' ? '' : 'hidden'}>
+						<div className={step === 'delivery' ? 'animate-reveal' : 'hidden'}>
 							{selectedPackData && (
 								<DeliveryStep
 									control={form.control}
@@ -185,11 +185,13 @@ export default function CommanderPage() {
 					</form>
 
 					{step === 'confirmation' && order && (
-						<ConfirmationStep
-							order={order}
-							phone={values.phone ?? ''}
-							formatPrice={formatPrice}
-						/>
+						<div className="animate-reveal">
+							<ConfirmationStep
+								order={order}
+								phone={values.phone ?? ''}
+								formatPrice={formatPrice}
+							/>
+						</div>
 					)}
 				</div>
 			</div>

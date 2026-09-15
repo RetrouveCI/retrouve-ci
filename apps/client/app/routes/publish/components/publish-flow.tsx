@@ -78,7 +78,7 @@ export function PublishFlow({
 					    real `<input type="file">` elements and only the DOM can carry
 					    them, so unmounting step 1 would drop the photos before step 3
 					    submits the form. */}
-					<div hidden={step !== 1}>
+					<div hidden={step !== 1} className="animate-reveal">
 						<ObjectStep
 							control={form.control}
 							type={type}
@@ -87,11 +87,11 @@ export function PublishFlow({
 						/>
 					</div>
 
-					<div hidden={step !== 2}>
+					<div hidden={step !== 2} className="animate-reveal">
 						<PlaceStep control={form.control} type={type} />
 					</div>
 
-					<div hidden={step !== 3}>
+					<div hidden={step !== 3} className="animate-reveal">
 						<ContactStep control={form.control} photoCount={photoCount} />
 					</div>
 				</div>
