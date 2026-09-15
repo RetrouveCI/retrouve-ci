@@ -137,6 +137,7 @@ export default function ScanPage() {
 				{manualEntry ? (
 					<ManualCodeForm
 						onCode={handleCode}
+						pending={checking !== null}
 						onBack={
 							scanner.status === 'blocked'
 								? undefined
@@ -145,7 +146,7 @@ export default function ScanPage() {
 					/>
 				) : scanner.status === 'blocked' ? (
 					<ScanBlocked reason={scanner.blockedReason}>
-						<ManualCodeForm onCode={handleCode} />
+						<ManualCodeForm onCode={handleCode} pending={checking !== null} />
 						{/* A decoder that failed to load cannot read a photograph either. */}
 						{scanner.blockedReason === 'unsupported' ? null : (
 							<PhotoCapture onCode={handleCode} />

@@ -1048,14 +1048,39 @@ Mes annonces ». Une seule utilitaire les sert, `.animate-stagger`.
   ont déjà un (`match-preview`, `listing-card-skeleton`) ; la troisième nourrit
   une pastille de navigation, où un squelette serait pire ; la quatrième est
   l'écran de scan, qui fige déjà son viseur pendant la vérification — et cela
-  relève du retour d'action, donc de F14.
+  relève du retour d'action, donc de F14. ⚠️ _Corrigé par F14_ : le viseur ne se
+  contente pas de figer, il **dit** « Code lu » puis « Un instant… ». Ce qui ne
+  disait rien, c'était la saisie manuelle du code.
 
-#### F14 — Parcours et retours d'action
+#### F14 — Parcours et retours d'action _(livré)_
 
-Reste à ouvrir. Ce que F13 lui laisse : le fondu entre les étapes des deux
-tunnels (faisable en CSS, les étapes restant montées), les états d'attente des
-boutons et de l'écran de scan, et la décision sur les trois utilitaires définies
-et inemployées.
+Les étapes des deux tunnels apparaissent au lieu de sauter, le formulaire de
+code saisi à la main dit qu'il vérifie, et les utilitaires que F13 avait
+laissées sans emploi sont tranchées.
+
+**Écarts mesurés en livrant F14** (2026-09-15) :
+
+- ⚠️ **Une note de F13 était fausse, et je la corrige ici.** Elle disait que
+  l'écran de scan « fige son viseur sans le dire ». Mesuré : il affiche « Code
+  lu » puis « Un instant… » et verdit le cadre. Il n'y avait rien à y faire.
+- **Le trou était ailleurs, sur le même écran** : pendant la vérification d'un
+  code **saisi à la main**, le formulaire ne disait rien et l'écran paraissait
+  bloqué. Son bouton porte désormais l'attente, `aria-busy` compris, et refuse
+  une seconde soumission — le viseur avait ce retour depuis toujours, la saisie
+  manuelle jamais.
+- **Les étapes se fondent parce qu'elles ne se démontent pas.** Les deux tunnels
+  masquent par `hidden` ; une animation posée sur l'enveloppe rejoue donc à
+  chaque fois qu'elle redevient visible, sans une ligne de JavaScript et sans
+  dépendance. L'étape de confirmation, elle, se monte, et prend la même classe.
+- **Deux des trois utilitaires inemployées sont retirées.** `.scroll-trigger`
+  était `.animate-reveal` avec une opacité explicite, et l'observateur dont elle
+  porte le nom n'a jamais existé ici ; `.animate-slide-up` disait la même chose
+  que `reveal`, dix pixels plus fort. La troisième, `.animate-reveal`, est
+  maintenant **employée** — c'est elle qui fait les étapes. Le commentaire du
+  bloc `prefers-reduced-motion`, qui nommait `.scroll-trigger`, nomme
+  `.animate-stagger` à sa place.
+- **Le lot 6 ferme à 0 ko**, comme l'arbitrage le voulait : aucune dépendance
+  d'animation n'est entrée dans le client.
 
 ---
 
