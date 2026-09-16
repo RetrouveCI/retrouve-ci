@@ -6,6 +6,7 @@ import type {
 	StickerPack,
 	StickerPackId,
 } from '@app/contracts/sticker-orders'
+import type { WithDateRange } from '@/shared/utils/date-range.util'
 import type { Paginated } from '@/shared/utils/pagination.util'
 
 export type {
@@ -21,9 +22,10 @@ export type CreateStickerOrderData = CreateStickerOrderContract & {
 }
 
 /** The admin list is unscoped; `listMine` narrows it to the session's user. */
-export type ListStickerOrdersFilter = ListStickerOrdersFilterData & {
-	userId?: string
-}
+export type ListStickerOrdersFilter =
+	WithDateRange<ListStickerOrdersFilterData> & {
+		userId?: string
+	}
 
 /** What the repository writes: the use-case has already priced the order. */
 export interface CreateStickerOrderRecord {

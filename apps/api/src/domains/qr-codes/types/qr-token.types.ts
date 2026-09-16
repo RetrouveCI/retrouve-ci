@@ -5,6 +5,7 @@ import type {
 	QrTokenDetailsData,
 	QrTokenStatus,
 } from '@app/contracts/qr-codes'
+import type { WithDateRange } from '@/shared/utils/date-range.util'
 import type { Paginated } from '@/shared/utils/pagination.util'
 
 export type {
@@ -15,7 +16,7 @@ export type {
 }
 
 /** The admin list is unscoped; `listMine` narrows it to the session's user. */
-export type ListQrTokensFilter = ListQrTokensFilterData & {
+export type ListQrTokensFilter = WithDateRange<ListQrTokensFilterData> & {
 	userId?: string
 }
 

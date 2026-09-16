@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
+import { dateRangeWhere } from '@/shared/utils/date-range.util'
 import {
 	toDomainLostItem,
 	toDomainModerationStatus,
@@ -121,17 +122,15 @@ export class LostItemRepository {
 	}
 
 	async list(filter: ListLostItemsFilter): Promise<LostItemListResponse> {
+		const eventDate = dateRangeWhere(filter)
 		const where = {
 			...(filter.type && { type: toPrismaType(filter.type) }),
 			...(filter.category && { category: toPrismaCategory(filter.category) }),
 			...(filter.ville && { ville: filter.ville }),
 			...(filter.commune && { commune: filter.commune }),
-			...((filter.dateFrom || filter.dateTo) && {
-				eventDate: {
-					...(filter.dateFrom && { gte: filter.dateFrom }),
-					...(filter.dateTo && { lte: filter.dateTo }),
-				},
-			}),
+			// The listing filters on the day the object was lost or found, not on
+			// the day the ad was written.
+			...(eventDate && { eventDate }),
 			...(filter.moderationStatus && {
 				moderationStatus: toPrismaModerationStatus(filter.moderationStatus),
 			}),

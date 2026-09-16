@@ -3,6 +3,7 @@ import { Button } from '@app/ui/components'
 import { QR_TOKEN_STATUSES } from '@app/contracts/qr-codes'
 import { Download, Plus } from 'lucide-react'
 import { DensityToggle } from '@/components/density-toggle'
+import { ListDateFilter } from '@/components/list-date-filter'
 import { ListToolbar } from '@/components/list-toolbar'
 import type { StatusCounts } from '@/shared/helpers/list-counts'
 import type { QrTokenStatus } from '../types/qr.types'
@@ -31,6 +32,7 @@ export function QrTokensFilters({ counts, onExportCSV }: QrTokensFiltersProps) {
 			]}
 			searchPlaceholder="Code, libellé, lot…"
 		>
+			<ListDateFilter />
 			<DensityToggle />
 			<Button variant="outline" size="sm" onClick={onExportCSV}>
 				<Download className="mr-2 h-4 w-4" /> Exporter la page

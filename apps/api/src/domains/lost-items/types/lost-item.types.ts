@@ -10,6 +10,7 @@ import type {
 	ResolutionStatus,
 	UpdateLostItemData as UpdateLostItemContract,
 } from '@app/contracts/lost-items'
+import type { WithDateRange } from '@/shared/utils/date-range.util'
 import type { Paginated } from '@/shared/utils/pagination.util'
 
 export type {
@@ -79,15 +80,11 @@ export interface ModerationOutcome {
  * The repository also narrows by owner and by resolution status. Neither is a
  * query parameter: both come from the use-case.
  */
-export type ListLostItemsFilter = Omit<
-	AdminListLostItemsFilterData,
-	'dateFrom' | 'dateTo'
-> & {
-	dateFrom?: Date
-	dateTo?: Date
-	resolutionStatus?: ResolutionStatus
-	userId?: string
-}
+export type ListLostItemsFilter =
+	WithDateRange<AdminListLostItemsFilterData> & {
+		resolutionStatus?: ResolutionStatus
+		userId?: string
+	}
 
 /** Matching searches the opposite type; the filter is not a query shape. */
 export interface MatchCandidatesFilter {

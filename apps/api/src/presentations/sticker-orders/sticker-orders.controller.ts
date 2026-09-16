@@ -27,7 +27,9 @@ import { GetPaginatedStickerOrdersUseCase } from '@/domains/sticker-orders/use-c
 import { GetStickerOrderForDeskUseCase } from '@/domains/sticker-orders/use-cases/get-sticker-order-for-desk.use-case'
 import { GetStickerOrderUseCase } from '@/domains/sticker-orders/use-cases/get-sticker-order.use-case'
 import { UpdateStickerOrderStatusUseCase } from '@/domains/sticker-orders/use-cases/update-sticker-order-status.use-case'
+import type { ListStickerOrdersFilter } from '@/domains/sticker-orders/types/sticker-order.types'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { toDateRange } from '@/shared/utils/date-range.util'
 import { settleBatch } from '@/shared/utils/batch.util'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
@@ -57,6 +59,20 @@ export class StickerOrdersController {
 		})
 	}
 
+	/**
+	 * The two calendar bounds become instants here, and the upper one closes its
+	 * day: a raw `lte` on `2026-09-15` would drop the whole of the 15th, and the
+	 * list would be incomplete rather than empty — the kind of wrong nobody
+	 * reports. Both list routes go through it.
+	 */
+	private toListFilter(
+		filter: ListStickerOrdersFilterData,
+	): ListStickerOrdersFilter {
+		const { dateFrom, dateTo, ...rest } = filter
+
+		return { ...rest, ...toDateRange({ dateFrom, dateTo }) }
+	}
+
 	@Get()
 	@Roles(['admin'])
 	@ApiZodQuery(listStickerOrdersFilterSchema)
@@ -64,7 +80,9 @@ export class StickerOrdersController {
 		@Query(new ZodValidationPipe(listStickerOrdersFilterSchema))
 		filter: ListStickerOrdersFilterData,
 	) {
-		return this.getPaginatedStickerOrdersUseCase.execute(filter)
+		return this.getPaginatedStickerOrdersUseCase.execute(
+			this.toListFilter(filter),
+		)
 	}
 
 	@Get('mine')
@@ -76,7 +94,7 @@ export class StickerOrdersController {
 	) {
 		return this.getMyStickerOrdersUseCase.execute({
 			userId: session.user.id,
-			filter,
+			filter: this.toListFilter(filter),
 		})
 	}
 

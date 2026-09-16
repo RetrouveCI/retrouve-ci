@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { StickerOrderStatus as PrismaStickerOrderStatus } from '@app/database'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
+import { dateRangeWhere } from '@/shared/utils/date-range.util'
 import {
 	toDomainStickerOrder,
 	toPrismaSource,
@@ -93,9 +94,13 @@ export class StickerOrderRepository {
 	async list(
 		filter: ListStickerOrdersFilter,
 	): Promise<StickerOrderListResponse> {
+		// The range bounds when the order was placed, which is what an operator
+		// looking for « last week's orders » means — not when it last moved.
+		const createdAt = dateRangeWhere(filter)
 		const where = {
 			...(filter.status && { status: toPrismaStatus(filter.status) }),
 			...(filter.userId && { userId: filter.userId }),
+			...(createdAt && { createdAt }),
 			...orderSearchClause(filter.search),
 		}
 

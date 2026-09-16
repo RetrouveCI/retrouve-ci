@@ -106,6 +106,46 @@ describe('StickerOrdersController', () => {
 		})
 	})
 
+	// F19: the two calendar bounds are the one thing the controller does change.
+	describe('the period both list routes take', () => {
+		const filter = {
+			page: 1,
+			pageSize: 20,
+			dateFrom: '2026-09-01',
+			dateTo: '2026-09-15',
+		}
+
+		/**
+		 * The upper bound closes its day. A raw `lte` on `2026-09-15` would drop
+		 * every order placed that day, and the list would read as incomplete
+		 * rather than empty — which is the kind of wrong nobody reports.
+		 */
+		it('turns them into instants, the upper one closing its day', async () => {
+			await controller.list(filter)
+
+			expect(getPaginatedStickerOrders.execute).toHaveBeenCalledWith({
+				page: 1,
+				pageSize: 20,
+				dateFrom: new Date('2026-09-01T00:00:00.000Z'),
+				dateTo: new Date('2026-09-15T23:59:59.999Z'),
+			})
+		})
+
+		it('does it on the buyer\u2019s own list too', async () => {
+			await controller.listMine(session, filter)
+
+			expect(getMyStickerOrders.execute).toHaveBeenCalledWith({
+				userId: 'user-1',
+				filter: {
+					page: 1,
+					pageSize: 20,
+					dateFrom: new Date('2026-09-01T00:00:00.000Z'),
+					dateTo: new Date('2026-09-15T23:59:59.999Z'),
+				},
+			})
+		})
+	})
+
 	describe('getOne', () => {
 		it('passes the session user id alongside the id', async () => {
 			const order = buildStickerOrder()

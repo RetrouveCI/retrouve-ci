@@ -1,4 +1,5 @@
 import { apiFetch } from '@/shared/utils/api-fetch'
+import type { ListDateRange } from '@/shared/helpers/list-params'
 import type {
 	QrToken,
 	QrTokenListResponse,
@@ -6,7 +7,7 @@ import type {
 } from '../types/qr.types'
 
 export async function listQrTokens(
-	params: {
+	params: ListDateRange & {
 		status?: QrTokenStatus
 		search?: string
 		page?: number
@@ -21,6 +22,8 @@ export async function listQrTokens(
 
 	if (params.status) query.set('status', params.status)
 	if (params.search) query.set('search', params.search)
+	if (params.dateFrom) query.set('dateFrom', params.dateFrom)
+	if (params.dateTo) query.set('dateTo', params.dateTo)
 
 	return apiFetch<QrTokenListResponse>(`/qr-codes?${query.toString()}`, {
 		request,

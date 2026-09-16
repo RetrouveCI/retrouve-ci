@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { QrTokenStatus as PrismaQrTokenStatus } from '@app/database'
 import { PrismaService } from '@/infrastructures/database/prisma.service'
+import { dateRangeWhere } from '@/shared/utils/date-range.util'
 import {
 	toDomainQrToken,
 	toDomainStatus,
@@ -181,9 +182,13 @@ export class QrTokenRepository {
 	}
 
 	async list(filter: ListQrTokensFilter): Promise<QrTokenListResponse> {
+		// The range bounds when the sticker was minted, not when it was activated:
+		// a batch is looked for by the day it was produced.
+		const createdAt = dateRangeWhere(filter)
 		const where = {
 			...(filter.status && { status: toPrismaStatus(filter.status) }),
 			...(filter.userId && { userId: filter.userId }),
+			...(createdAt && { createdAt }),
 			...qrSearchClause(filter.search),
 		}
 

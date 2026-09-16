@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { calendarDateSchema } from '../shared/calendar-date'
+import { dateRangeFields } from '../shared/calendar-date'
 import { abidjanCommuneSchema, villeSchema } from '../shared/locations'
 import { listSearchSchema } from '../shared/pagination'
 import {
@@ -32,14 +32,7 @@ export const assistantSearchFiltersSchema = z.object({
 	ville: villeSchema.optional(),
 	commune: abidjanCommuneSchema.optional(),
 	search: listSearchSchema.min(1).optional(),
-	dateFrom: calendarDateSchema({
-		required: 'Date de début requise',
-		invalid: 'Date de début invalide',
-	}).optional(),
-	dateTo: calendarDateSchema({
-		required: 'Date de fin requise',
-		invalid: 'Date de fin invalide',
-	}).optional(),
+	...dateRangeFields(),
 })
 
 export const searchInterpretationSchema = z.object({

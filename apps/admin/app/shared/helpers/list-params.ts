@@ -1,4 +1,7 @@
-import { LIST_SEARCH_MAX_LENGTH } from '@app/contracts/shared'
+import {
+	isCalendarDateTime,
+	LIST_SEARCH_MAX_LENGTH,
+} from '@app/contracts/shared'
 
 export const PAGE_SIZES = [10, 25, 50, 100] as const
 export const DEFAULT_PAGE_SIZE = 25
@@ -57,4 +60,33 @@ export function pageWindow(current: number, last: number): (number | 'gap')[] {
 			? (['gap', page] as const)
 			: [page]
 	})
+}
+
+export interface ListDateRange {
+	dateFrom?: string
+	dateTo?: string
+}
+
+/**
+ * The URL is hand-editable like everything else here, so a bound the contract
+ * would refuse is **dropped** rather than sent on to become a 400 the operator
+ * reads as a broken page — the rule `parsePostsFilters` follows on the public
+ * app. Inverted bounds are put back in order, which only a typed URL can
+ * produce: the picker orders its own range.
+ */
+export function readDateRange(params: URLSearchParams): ListDateRange {
+	const read = (key: string) => {
+		const value = params.get(key)?.trim()
+
+		return value && isCalendarDateTime(value) ? value : undefined
+	}
+
+	let dateFrom = read('dateFrom')
+	let dateTo = read('dateTo')
+
+	if (dateFrom && dateTo && dateFrom.slice(0, 10) > dateTo.slice(0, 10)) {
+		;[dateFrom, dateTo] = [dateTo, dateFrom]
+	}
+
+	return { ...(dateFrom && { dateFrom }), ...(dateTo && { dateTo }) }
 }
