@@ -49,6 +49,7 @@ import { ContactLostItemPosterUseCase } from '@/domains/lost-items/use-cases/con
 import { UpdateLostItemUseCase } from '@/domains/lost-items/use-cases/update-lost-item.use-case'
 import { ViewLostItemUseCase } from '@/domains/lost-items/use-cases/view-lost-item.use-case'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { toDateRange } from '@/shared/utils/date-range.util'
 import { settleBatch } from '@/shared/utils/batch.util'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 import { MatchingDispatcher } from '@/infrastructures/queue/matching-dispatcher.service'
@@ -157,15 +158,7 @@ export class LostItemsController {
 	): ListLostItemsFilter {
 		const { dateFrom, dateTo, ...rest } = filter
 
-		return {
-			...rest,
-			...(dateFrom && {
-				dateFrom: new Date(`${dateFrom.slice(0, 10)}T00:00:00.000Z`),
-			}),
-			...(dateTo && {
-				dateTo: new Date(`${dateTo.slice(0, 10)}T23:59:59.999Z`),
-			}),
-		}
+		return { ...rest, ...toDateRange({ dateFrom, dateTo }) }
 	}
 
 	@Get('admin')

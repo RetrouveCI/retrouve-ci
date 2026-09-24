@@ -152,3 +152,54 @@ describe('ordersLoader', () => {
 		expect(result.total).toBe(1)
 	})
 })
+
+/** F19: the period the URL carries, on the page and on every count probe. */
+describe('ordersLoader and the period', () => {
+	const RANGE = '?dateFrom=2026-09-01&dateTo=2026-09-15'
+
+	it('forwards both bounds to the page it asks for', async () => {
+		await ordersLoader({ request: requestFor(RANGE) })
+
+		expect(pageCall()).toMatchObject({
+			dateFrom: '2026-09-01',
+			dateTo: '2026-09-15',
+		})
+	})
+
+	/**
+	 * F9c's rule, one axis further: a probe that ignored the period would answer
+	 * a true number for a different list from the one on screen, and the chips
+	 * would stop adding up to the total.
+	 */
+	it('counts each status inside the period', async () => {
+		await ordersLoader({ request: requestFor(RANGE) })
+
+		const probes = listOrders.mock.calls.filter(
+			([params]) => params.pageSize === 1,
+		)
+
+		// One per status, plus the unfiltered total the grid shows.
+		expect(probes.length).toBe(STICKER_ORDER_STATUSES.length + 1)
+		for (const [params] of probes) {
+			expect(params).toMatchObject({
+				dateFrom: '2026-09-01',
+				dateTo: '2026-09-15',
+			})
+		}
+	})
+
+	it('drops a bound the contract refuses rather than passing it on', async () => {
+		await ordersLoader({ request: requestFor('?dateFrom=hier') })
+
+		expect(pageCall()).not.toHaveProperty('dateFrom')
+	})
+
+	it('answers the bounds it kept, so the control can show them', async () => {
+		const result = await ordersLoader({ request: requestFor(RANGE) })
+
+		expect(result).toMatchObject({
+			dateFrom: '2026-09-01',
+			dateTo: '2026-09-15',
+		})
+	})
+})

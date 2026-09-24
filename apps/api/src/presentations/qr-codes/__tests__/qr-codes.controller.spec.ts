@@ -82,6 +82,46 @@ describe('QrCodesController', () => {
 		it('is restricted to admins', () => {
 			expect(Reflect.getMetadata('ROLES', controller.list)).toEqual(['admin'])
 		})
+
+		/**
+		 * F19: the upper bound closes its day. A raw `lte` on `2026-09-15` would
+		 * drop every sticker minted that day, and the list would read as
+		 * incomplete rather than empty — the kind of wrong nobody reports.
+		 */
+		it('turns the period into instants, the upper one closing its day', () => {
+			const filter = {
+				page: 1,
+				pageSize: 20,
+				dateFrom: '2026-09-01',
+				dateTo: '2026-09-15',
+			}
+
+			controller.list(filter)
+
+			expect(getPaginated.execute).toHaveBeenCalledWith({
+				page: 1,
+				pageSize: 20,
+				dateFrom: new Date('2026-09-01T00:00:00.000Z'),
+				dateTo: new Date('2026-09-15T23:59:59.999Z'),
+			})
+		})
+
+		it('does it on the owner\u2019s own list too', () => {
+			controller.listMine(session, {
+				page: 1,
+				pageSize: 20,
+				dateTo: '2026-09-15',
+			})
+
+			expect(getMine.execute).toHaveBeenCalledWith({
+				userId: 'user-1',
+				filter: {
+					page: 1,
+					pageSize: 20,
+					dateTo: new Date('2026-09-15T23:59:59.999Z'),
+				},
+			})
+		})
 	})
 
 	describe('getOne', () => {

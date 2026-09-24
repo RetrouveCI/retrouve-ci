@@ -1,6 +1,7 @@
 import type { BatchUpdateStickerOrderStatusData } from '@app/contracts/sticker-orders'
 import type { BatchOutcome } from '@app/contracts/shared'
 import { apiFetch } from '@/shared/utils/api-fetch'
+import type { ListDateRange } from '@/shared/helpers/list-params'
 import type {
 	OrderStatus,
 	StickerOrder,
@@ -8,7 +9,7 @@ import type {
 } from '../types/orders.types'
 
 export async function listOrders(
-	params: {
+	params: ListDateRange & {
 		status?: OrderStatus
 		search?: string
 		page?: number
@@ -22,6 +23,8 @@ export async function listOrders(
 	})
 	if (params.status) query.set('status', params.status)
 	if (params.search) query.set('search', params.search)
+	if (params.dateFrom) query.set('dateFrom', params.dateFrom)
+	if (params.dateTo) query.set('dateTo', params.dateTo)
 
 	return apiFetch<StickerOrderListResponse>(
 		`/sticker-orders?${query.toString()}`,

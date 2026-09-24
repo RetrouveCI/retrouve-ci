@@ -152,3 +152,28 @@ describe('qrLoader', () => {
 		expect(result.total).toBe(1)
 	})
 })
+
+/** F19: the period reaches the probes too, or the chips count another list. */
+describe('qrLoader and the period', () => {
+	const RANGE = '?dateFrom=2026-09-01&dateTo=2026-09-15'
+
+	it('forwards both bounds to the page and to every probe', async () => {
+		await qrLoader({ request: requestFor(RANGE) })
+
+		expect(listQrTokens.mock.calls.length).toBeGreaterThan(1)
+		for (const [params] of listQrTokens.mock.calls) {
+			expect(params).toMatchObject({
+				dateFrom: '2026-09-01',
+				dateTo: '2026-09-15',
+			})
+		}
+	})
+
+	it('drops a bound the contract refuses', async () => {
+		await qrLoader({ request: requestFor('?dateTo=2026-02-31') })
+
+		for (const [params] of listQrTokens.mock.calls) {
+			expect(params).not.toHaveProperty('dateTo')
+		}
+	})
+})

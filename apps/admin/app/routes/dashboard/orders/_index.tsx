@@ -14,6 +14,7 @@ import { BatchBar } from '@/components/batch-bar'
 import { DataTable } from '@/components/data-table'
 import { DensityToggle } from '@/components/density-toggle'
 import { ListToolbar } from '@/components/list-toolbar'
+import { ListDateFilter } from '@/components/list-date-filter'
 import { OrderStatsGrid } from './components/order-stats-grid'
 import { ordersLoader } from './servers/orders.loader'
 import { ordersAction } from './servers/orders.action'
@@ -309,6 +310,7 @@ export default function OrdersPage({ loaderData }: Route.ComponentProps) {
 					]}
 					searchPlaceholder="N° de commande, ville, adresse…"
 				>
+					<ListDateFilter />
 					<DensityToggle />
 					<Button variant="outline" size="sm" onClick={handleExportCSV}>
 						<Download className="mr-2 h-4 w-4" /> Exporter la page

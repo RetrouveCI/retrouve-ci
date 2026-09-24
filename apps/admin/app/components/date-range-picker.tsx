@@ -30,6 +30,14 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
 	const [preset, setPreset] = React.useState<string>('all')
 
+	/**
+	 * Derived, not stored. The range comes from the URL, so a reload left the
+	 * select saying « Toute période » beside a button showing two dates — the
+	 * control contradicting itself. A range nobody picked a preset for is
+	 * « Personnalisé », which is what it is.
+	 */
+	const shown = dateRange ? (preset === 'all' ? 'custom' : preset) : 'all'
+
 	const handlePresetChange = (value: string) => {
 		setPreset(value)
 		const today = new Date()
@@ -71,7 +79,7 @@ export function DateRangePicker({
 
 	return (
 		<div className={cn('flex items-center gap-2', className)}>
-			<Select value={preset} onValueChange={handlePresetChange}>
+			<Select value={shown} onValueChange={handlePresetChange}>
 				<SelectTrigger className="w-35">
 					<SelectValue placeholder="Période" />
 				</SelectTrigger>

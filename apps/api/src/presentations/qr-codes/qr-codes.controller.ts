@@ -34,7 +34,9 @@ import { GetQrTokenPublicViewUseCase } from '@/domains/qr-codes/use-cases/get-qr
 import { ReachQrTokenOwnerUseCase } from '@/domains/qr-codes/use-cases/reach-qr-token-owner.use-case'
 import { RevokeQrTokenUseCase } from '@/domains/qr-codes/use-cases/revoke-qr-token.use-case'
 import { UpdateQrTokenDetailsUseCase } from '@/domains/qr-codes/use-cases/update-qr-token-details.use-case'
+import type { ListQrTokensFilter } from '@/domains/qr-codes/types/qr-token.types'
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe'
+import { toDateRange } from '@/shared/utils/date-range.util'
 import { ApiZodBody, ApiZodQuery } from '@/shared/swagger/api-zod.decorator'
 
 @ApiTags('qr-codes')
@@ -65,6 +67,13 @@ export class QrCodesController {
 		return this.generateQrTokensUseCase.execute(data)
 	}
 
+	/** The upper bound closes its day, or the list silently drops the last one. */
+	private toListFilter(filter: ListQrTokensFilterData): ListQrTokensFilter {
+		const { dateFrom, dateTo, ...rest } = filter
+
+		return { ...rest, ...toDateRange({ dateFrom, dateTo }) }
+	}
+
 	@Get()
 	@Roles(['admin'])
 	@ApiZodQuery(listQrTokensFilterSchema)
@@ -72,7 +81,7 @@ export class QrCodesController {
 		@Query(new ZodValidationPipe(listQrTokensFilterSchema))
 		filter: ListQrTokensFilterData,
 	) {
-		return this.getPaginatedQrTokensUseCase.execute(filter)
+		return this.getPaginatedQrTokensUseCase.execute(this.toListFilter(filter))
 	}
 
 	@Get('mine')
@@ -84,7 +93,7 @@ export class QrCodesController {
 	) {
 		return this.getMyQrTokensUseCase.execute({
 			userId: session.user.id,
-			filter,
+			filter: this.toListFilter(filter),
 		})
 	}
 

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { calendarDateSchema } from '../shared/calendar-date'
+import { dateRangeFields } from '../shared/calendar-date'
 import { listSearchSchema, paginationQuerySchema } from '../shared/pagination'
 import {
 	lostItemCategorySchema,
@@ -14,14 +14,7 @@ export const listLostItemsFilterSchema = paginationQuerySchema.extend({
 	ville: z.string().trim().optional(),
 	commune: z.string().trim().optional(),
 	search: listSearchSchema.optional(),
-	dateFrom: calendarDateSchema({
-		required: 'Date de début requise',
-		invalid: 'Date de début invalide',
-	}).optional(),
-	dateTo: calendarDateSchema({
-		required: 'Date de fin requise',
-		invalid: 'Date de fin invalide',
-	}).optional(),
+	...dateRangeFields(),
 })
 
 export const adminListLostItemsFilterSchema = listLostItemsFilterSchema.extend({

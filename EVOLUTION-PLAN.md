@@ -346,6 +346,7 @@ contraire — et alors avec une mesure, pas un avis.
 | **F10** | Navigation, recherche et palette ⌘K  | admin      |
 | **F11** | Fiches de détail en routes dédiées   | admin      |
 | **F18** | Sélection multiple et action en lot  | api, admin |
+| **F19** | Filtre de date sur les listes        | api, admin |
 
 ### Lot 6 — Animations
 
@@ -975,6 +976,108 @@ elles sont livrées avec le garde-fou décrit plus bas.
   font une chose à lire, pas vingt.
 - **Un lot est plafonné à 50** et confirme toujours. C'est le seul geste où un
   clic de travers se multiplie.
+
+---
+
+#### F19 — Rendre un filtre de date aux listes _(livré)_
+
+Décidée après le découpage, comme `F18` : elle appartient au lot 5 et répare ce
+que `F9a` a retiré. Le sélecteur de période filtrait **en mémoire** la page
+chargée — « trompeur », et retiré pour ça — mais rien ne l'a remplacé, alors que
+les écarts de `F8` nommaient déjà l'étape : « leur rendre un filtre de date veut
+dire l'ajouter à l'API, et c'est une étape à part ».
+
+**Périmètre mesuré à l'ouverture** (2026-09-15) :
+
+- ⚠️ **Utilisateurs en est exclue, et ce n'est pas un choix.** Mesuré dans la
+  source de better-auth **1.6.30** : `listUsers` construit **au plus deux**
+  clauses `where` — l'une depuis `searchValue`/`searchField`, où `searchField`
+  est un `z.enum(['email','name'])` et ne peut donc pas viser une date, l'autre
+  depuis le filtre unique `filterField`/`filterOperator`/`filterValue`, **déjà
+  dépensé sur le rôle** par les deux listes de comptes. Un intervalle demande
+  deux clauses sur `createdAt`. C'est le **même mur** que le filtre actif/banni
+  de l'écart de `F9d` : il tombe avec la route de comptes dédiée, pas avant.
+- **Restent Commandes et Stickers**, qui lisent l'API et peuvent donc borner
+  côté base. La borne porte sur `createdAt` : quand la commande a été passée,
+  quand le sticker a été produit. `activatedAt` et `shippedAt` sont des étapes
+  du cycle, pas la date d'entrée dans la liste, et un opérateur qui cherche «
+  les commandes de la semaine dernière » cherche celles qui sont **arrivées**.
+
+**Ce que l'étape tranche** :
+
+- ⚠️ **La borne haute est la moitié qui casse en silence.** `2026-09-15` devient
+  `00:00:00.000`, donc un `lte` brut **exclut tout le dernier jour** : une
+  période « du 1er au 15 » s'arrête le 14 au soir et personne ne le voit, parce
+  que la liste n'est pas vide, seulement incomplète. `lost-items` le sait déjà —
+  sa conversion en `23:59:59.999` est une méthode **privée** de son contrôleur.
+  Trois contrôleurs ne recopient pas cette règle : elle monte dans
+  `shared/utils/date-range.util.ts`, avec son test, et `lost-items` la lit de
+  là.
+- **La paire de champs monte aussi.**
+  `calendarDateSchema({ required, invalid })` ×2 est écrite **deux** fois à
+  l'identique — `lost-items/list-filter.schema.ts` et
+  `search-assistant/interpret.schema.ts` — et cette étape en ferait **quatre**.
+  La règle du dépôt est de garder une forme locale « jusqu'à ce qu'un second
+  domaine la veuille » ; un troisième et un quatrième la veulent, donc elle a un
+  seul foyer dans `shared/`.
+- ⚠️ **Les sondes de comptage portent la période, sinon les pastilles mentent.**
+  C'est la leçon de `F9c` mot pour mot : une sonde qui ignorerait les autres
+  axes rendrait des nombres justes pour une autre liste que celle à l'écran. Les
+  pastilles et la grille doivent continuer de s'additionner au total affiché.
+- **Le contrôle est celui qui existe déjà.** `DateRangePicker`, posé par `F8`
+  pour le tableau de bord, prend la place que `ListToolbar` réserve aux outils
+  de la page — un même rôle, une même forme. Ce qu'il écrit dans l'URL, en
+  revanche, est `dateFrom` / `dateTo`, l'orthographe des contrats et de `/posts`
+  ; le tableau de bord garde `from` / `to`, qui décrit une **période de mesure**
+  et non un filtre de liste, et dont les liens existants ne doivent pas casser.
+- **Un filtre de date revient à la première page**, comme tout filtre depuis
+  `F9a`, et une période hors de portée fait redescendre sur la dernière page
+  existante plutôt que sur une page vide.
+
+**Écarts et mesures en livrant F19** (2026-09-16) :
+
+- ⚠️ **Une conversion oubliée ne compile plus.** `WithDateRange<T>` remplace la
+  paire `Omit` que `lost-items` écrivait à la main, et les trois types de filtre
+  la portent : un contrôleur qui rendrait ses deux chaînes au dépôt sans passer
+  par `toDateRange` fait échouer `typecheck` sur l'argument. Le rouge a été
+  essayé et obtenu — c'est la meilleure garde disponible pour ce défaut-là,
+  puisque les dépôts eux-mêmes ne sont pas testables ici.
+- **Ce qui couvre la règle, à défaut de Postgres en CI** : le spec de
+  `date-range.util.ts` tient les deux bornes et l'absence de clause quand aucune
+  n'est posée, et les deux specs de contrôleur tiennent la conversion de bout en
+  bout sur les quatre routes de liste. Les dépôts restent hors couverture, pour
+  la raison que le plan donne déjà à `reporting`.
+- ⚠️ **Le sélecteur se contredisait après un rechargement.** La période vient de
+  l'URL, mais le `Select` gardait son préréglage en **état local** initialisé à
+  `all` : au retour sur un lien partagé il annonçait « Toute période » à côté
+  d'un bouton affichant deux dates. Il est maintenant **dérivé** — une plage que
+  personne n'a réglée par préréglage est « Personnalisé », ce qu'elle est. Le
+  défaut préexistait sur le tableau de bord ; cette étape l'aurait triplé.
+- **Les sondes de comptage portent la période**, et la garde le tient : le rouge
+  a été essayé en la retirant d'une seule sonde, et il tombe sur « counts each
+  status inside the period ». Sans elle les pastilles compteraient une autre
+  liste que celle à l'écran.
+- ⚠️ **Attendre l'élément n'est pas attendre la navigation.** Le test du
+  contrôle lisait l'URL juste après le clic : l'élément qui l'affiche est là dès
+  le premier rendu, donc le locator ne retenait rien et l'assertion lisait l'URL
+  d'avant. Il passait **seul** et tombait en suite complète — la même course
+  sous un autre nom. Corrigé par un `vi.waitFor` sur la **condition**, pas par
+  un délai plus long.
+- ⚠️ **`palette.service.test.ts` est rouge, et ce n'est pas cette étape.**
+  Mesuré : il l'est à l'identique sur un `main` nu, remisage à l'appui. Des cinq
+  sources que `searchPalette` interroge, le test en mocke **quatre** —
+  `listPosts` est la seule qui reste réelle, et sa promesse ne se résout jamais,
+  si bien que le `Promise.allSettled` attend jusqu'à l'expiration des 5 s. Isolé
+  en mockant la cinquième : le test passe alors. Ni les serveurs de dev de la
+  machine ni l'adresse de l'API n'y changent rien (essayé sur un port mort).
+  Hors périmètre de F19 ; le correctif tient en une ligne de `vi.mock`.
+- **Aucune dépendance ajoutée.** Le contrôle est celui que `F8` avait déjà posé,
+  et il reprend sa place dans la barre d'outils que `F9` réserve aux outils de
+  page.
+- **Les bornes inversées sont remises en ordre**, et une borne que le contrat
+  refuse est **écartée** au lieu d'être transmise — l'URL est modifiable à la
+  main, et un 400 s'y lirait comme une page cassée. C'est la règle que
+  `parsePostsFilters` suit déjà côté public.
 
 ---
 

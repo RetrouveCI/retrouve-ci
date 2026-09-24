@@ -48,3 +48,26 @@ export function calendarDateSchema({
 			}
 		})
 }
+
+/**
+ * The two bounds a list filters on, written once. The pair was copied verbatim
+ * into `lost-items` and `search-assistant`, and F19 would have made four
+ * copies — a filter's wording is not the place for four sources of truth.
+ *
+ * Spread into a `paginationQuerySchema.extend({ ... })`, so a caller adds the
+ * range without repeating either message:
+ *
+ *   paginationQuerySchema.extend({ ...dateRangeFields(), status: … })
+ */
+export function dateRangeFields() {
+	return {
+		dateFrom: calendarDateSchema({
+			required: 'Date de début requise',
+			invalid: 'Date de début invalide',
+		}).optional(),
+		dateTo: calendarDateSchema({
+			required: 'Date de fin requise',
+			invalid: 'Date de fin invalide',
+		}).optional(),
+	}
+}

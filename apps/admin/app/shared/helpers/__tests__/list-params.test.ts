@@ -2,6 +2,7 @@ import {
 	DEFAULT_PAGE_SIZE,
 	pageWindow,
 	pastLastPage,
+	readDateRange,
 	readListPage,
 	readSearch,
 } from '../list-params'
@@ -88,5 +89,48 @@ describe('pageWindow', () => {
 
 	it('reads a single page as one button', () => {
 		expect(pageWindow(1, 1)).toEqual([1])
+	})
+})
+
+describe('readDateRange', () => {
+	it('reads both bounds', () => {
+		expect(
+			readDateRange(params('dateFrom=2026-09-01&dateTo=2026-09-15')),
+		).toEqual({ dateFrom: '2026-09-01', dateTo: '2026-09-15' })
+	})
+
+	it.each(['dateFrom=2026-09-01', 'dateTo=2026-09-15'])(
+		'reads %j on its own',
+		query => {
+			expect(Object.keys(readDateRange(params(query)))).toHaveLength(1)
+		},
+	)
+
+	// The URL is hand-editable: a bound the contract refuses is dropped, and the
+	// filters around it still apply — never a 400 read as a broken page.
+	it.each([
+		'dateFrom=hier',
+		'dateFrom=2026-02-31',
+		'dateFrom=',
+		'dateFrom=01/09/2026',
+	])('drops %j', query => {
+		expect(readDateRange(params(query))).toEqual({})
+	})
+
+	it('keeps the sound bound when the other one is refused', () => {
+		expect(readDateRange(params('dateFrom=hier&dateTo=2026-09-15'))).toEqual({
+			dateTo: '2026-09-15',
+		})
+	})
+
+	// Only a typed URL can produce this: the picker orders its own range.
+	it('puts inverted bounds back in order', () => {
+		expect(
+			readDateRange(params('dateFrom=2026-09-15&dateTo=2026-09-01')),
+		).toEqual({ dateFrom: '2026-09-01', dateTo: '2026-09-15' })
+	})
+
+	it('answers nothing when the URL carries neither', () => {
+		expect(readDateRange(params('q=abc&page=2'))).toEqual({})
 	})
 })
