@@ -30,7 +30,7 @@ catalog:
   '@nestjs/common': '11.1.26'
   '@nestjs/config': '4.0.4'
   '@nestjs/core': '11.1.26'
-  '@nestjs/platform-fastify': '11.1.26'
+  '@nestjs/platform-fastify': '11.2.4'
   '@nestjs/schematics': '11.1.0'
   '@nestjs/swagger': '^11.4.4'
   '@nestjs/testing': '11.1.26'
